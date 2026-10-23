@@ -7,7 +7,7 @@
 
 ## Story 7.1 — Implement Paired Diff Classification & Escalation Pipeline
 
-**Status:** Ready (2026-10-23)  
+**Status:** Completed (2026-10-23)  
 **As** an architectural governance maintainer on the Intent-to-Outcome chain,  
 **I want** candidate changes to accepted artifacts evaluated by a paired pipeline of full-authority semantic classification and low-authority escalation learning,  
 **So that** low-risk amendments and errata can be maintained autonomously while disguised decision reversals are caught and gated by human escalation.

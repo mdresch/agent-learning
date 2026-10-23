@@ -5,7 +5,7 @@ This log records completed user stories in accordance with the SIDPA `implement-
 ---
 
 ## Story 5.1 — Build `compare_decision_results()` and the `task-policy-compare` CLI
-- **Commit:** `d032f07`
+- **Commit:** `310dd3e`
 - **Date:** 2026-10-23
 - **Branch:** `feat/story-5.1`
 - **Source ADR / BRD / FDD:** ADR-005, BRD-005, FDD-005

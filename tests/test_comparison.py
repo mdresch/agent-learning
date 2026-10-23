@@ -28,7 +28,7 @@ from agent_learning.comparison import (
 from agent_learning.cli import main as cli_main
 
 
-FIXTURES_DIR = Path(__file__).resolve().parent.parent
+FIXTURES_DIR = Path(__file__).resolve().parent / "fixtures" / "comparison"
 
 ADR_001_FILE = FIXTURES_DIR / "adr-001-decision-result.json"
 BRD_001_FILE = FIXTURES_DIR / "brd-001-decision-result.json"

@@ -1,3 +1,8 @@
+---
+name: heal-contract-failure
+description: Bounded, intent-first diagnosis and repair loop when a contract test breaks in agent-learning.
+---
+
 # Skill: heal-contract-failure (agent-learning)
 
 Generalized from two independently-converged real implementations. Unlike `implement-story`, almost nothing in the loop itself needed adaptation between the two source projects — this is discipline, not infrastructure. The one real thing that *does* vary per project is named below; confirm it before relying on this skill's own severity framing.
@@ -12,7 +17,7 @@ SocialEngage has one (a pre-commit hook backstopping contract-first discipline).
 2. **Re-validate the Contract.** Does it genuinely encode the story's *current* Acceptance Criteria? If stale, that needs a dated note and an explicit ADR reference, not a silent edit.
 3. **Re-validate the component `SKILL.md`.** Confirm governing ADRs/Stories, contract files, and constraints are still accurate. Fix directly if drifted — this one's documentation, not a behavior guarantee.
 4. **Re-validate and, only now, fix the implementation.** Minimal change to satisfy the now-confirmed-correct contract.
-5. **Validate.** Run the specific contract, then the epic's suite.
+5. **Validate.** Run the specific contract, then the epic's suite (`uv run pytest tests/test_<x>.py`, then full suite with `--ignore=tests/test_spark.py`).
 
 **Hard stop, any step:** if getting to green requires weakening, skipping, or bypassing a contract's assertions or a lint rule, stop and escalate instead of forcing it through.
 
@@ -34,4 +39,4 @@ If this skill's own re-walk ever surfaces a *pattern* worth generalizing — not
 
 ## Project facts (agent-learning)
 
-No mechanical enforcement layer: `.git/hooks` has no active hooks and no CI gate ties code changes to a contract. This skill's discipline is the only backstop. Contracts are pytest files under `tests/`; run one with `.venv/Scripts/python -m pytest tests/test_<x>.py`, then the full `tests/` suite.
+No mechanical enforcement layer: `.git/hooks` has no active hooks and no CI gate ties code changes to a contract. This skill's discipline is the only backstop. Contracts are pytest files under `tests/`; run one with `uv run pytest tests/test_<x>.py`, then the full suite with `uv run pytest --ignore=tests/test_spark.py`.

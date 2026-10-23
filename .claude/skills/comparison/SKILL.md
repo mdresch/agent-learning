@@ -1,3 +1,8 @@
+---
+name: comparison
+description: Decision-progress comparison and regression healing component for agent_learning.
+---
+
 # Component: comparison (`agent_learning.comparison`)
 
 **Governing:** ADR-005, BRD-005, FDD-005, Story 5.1 (`docs/user-stories/epic-5-decision-progress-comparison.md`).

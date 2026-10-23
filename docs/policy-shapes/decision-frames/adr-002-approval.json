@@ -1,0 +1,45 @@
+{
+  "task": "ADR-002 (Storage Backend Strategy): approve, reject, or request revision -- re-run after section-ordering and invariant-precision fixes",
+  "criteria": [
+    {"id": "architectural_soundness", "weight": 1.0, "minimum_sources": 1, "description": "The narrow five-record-type LearningStore interface and three-backend split are grounded directly in real code, not asserted"},
+    {"id": "alternatives_considered", "weight": 1.0, "minimum_sources": 1, "description": "Real rejected alternatives named, including the SQL-deferred row added on review, matching actual design constraints"},
+    {"id": "consequences_honest", "weight": 1.0, "minimum_sources": 1, "description": "Consequences are accurate, including the active-policy-pointer concurrency gap (§4.5) and the explicit non-goal (§4.6)"},
+    {"id": "gap_disclosure_quality", "weight": 1.0, "minimum_sources": 1, "description": "The active-pointer race condition is disclosed precisely (stale-version-activation risk named, remediation direction given) and §4 is now sequentially ordered (4.1-4.6)"}
+  ],
+  "options": [
+    {
+      "action_id": "approve_adr",
+      "evidence": [
+        {"criterion_id": "architectural_soundness", "source": "direct_code_read:storage/base.py,local.py,memory.py,cosmos.py", "support": 0.94, "confidence": 0.92},
+        {"criterion_id": "alternatives_considered", "source": "adr_002_section_5_five_rows_incl_sql_deferred", "support": 0.9, "confidence": 0.85},
+        {"criterion_id": "consequences_honest", "source": "adr_002_section_6_plus_section_4_6_non_goal", "support": 0.94, "confidence": 0.9},
+        {"criterion_id": "gap_disclosure_quality", "source": "adr_002_section_4_5_reordered_strengthened_plus_invariant_3_fix", "support": 0.96, "confidence": 0.92}
+      ],
+      "constraint_results": {"no_unfixed_critical_flaw": true}
+    },
+    {
+      "action_id": "reject_adr",
+      "evidence": [
+        {"criterion_id": "architectural_soundness", "source": "direct_code_read:storage/base.py,local.py,memory.py,cosmos.py", "support": 0.05, "confidence": 0.88},
+        {"criterion_id": "alternatives_considered", "source": "adr_002_section_5_five_rows_incl_sql_deferred", "support": 0.08, "confidence": 0.82},
+        {"criterion_id": "consequences_honest", "source": "adr_002_section_6_plus_section_4_6_non_goal", "support": 0.06, "confidence": 0.85},
+        {"criterion_id": "gap_disclosure_quality", "source": "adr_002_section_4_5_reordered_strengthened_plus_invariant_3_fix", "support": 0.04, "confidence": 0.88}
+      ],
+      "constraint_results": {"no_unfixed_critical_flaw": true}
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {"criterion_id": "architectural_soundness", "source": "direct_code_read:storage/base.py,local.py,memory.py,cosmos.py", "support": 0.08, "confidence": 0.8},
+        {"criterion_id": "alternatives_considered", "source": "adr_002_section_5_five_rows_incl_sql_deferred", "support": 0.08, "confidence": 0.8},
+        {"criterion_id": "consequences_honest", "source": "adr_002_section_6_plus_section_4_6_non_goal", "support": 0.07, "confidence": 0.82},
+        {"criterion_id": "gap_disclosure_quality", "source": "adr_002_section_4_5_reordered_strengthened_plus_invariant_3_fix", "support": 0.05, "confidence": 0.85}
+      ],
+      "constraint_results": {"no_unfixed_critical_flaw": true}
+    }
+  ],
+  "constraints": ["no_unfixed_critical_flaw"],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.10,
+  "max_uncertainty": 1.0
+}

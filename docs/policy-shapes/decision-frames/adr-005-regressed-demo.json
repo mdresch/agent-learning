@@ -1,0 +1,45 @@
+{
+  "task": "ADR-005 (REGRESSED SCRATCH COPY ONLY, not the real document): approve, reject, or request revision -- demonstrates the heal-step regression path using a real declined review suggestion",
+  "criteria": [
+    {"id": "architectural_soundness", "weight": 1.0, "minimum_sources": 1, "description": "Unaffected by this specific edit"},
+    {"id": "alternatives_considered", "weight": 1.0, "minimum_sources": 1, "description": "Unaffected by this specific edit"},
+    {"id": "consequences_honest", "weight": 1.0, "minimum_sources": 1, "description": "Weakened: the removed citation specifically supported the 'not a query/analytics platform' non-goal angle of this ADR's own consequence framing"},
+    {"id": "gap_disclosure_quality", "weight": 1.0, "minimum_sources": 1, "description": "Weakened: replacing an accurate, existing ADR-002 section reference (§4.6) with a less-relevant one (§7 Invariant #2 only) based on a false premise (a reviewer incorrectly claimed §4.6 doesn't exist) is a real citation-accuracy regression"}
+  ],
+  "options": [
+    {
+      "action_id": "approve_adr",
+      "evidence": [
+        {"criterion_id": "architectural_soundness", "source": "direct_code_read:decision.py_233_253,storage/base.py", "support": 0.95, "confidence": 0.92},
+        {"criterion_id": "alternatives_considered", "source": "adr_005_section_5_five_rows", "support": 0.9, "confidence": 0.85},
+        {"criterion_id": "consequences_honest", "source": "adr_005_section_6_citation_regressed_non_goal_angle_lost", "support": 0.72, "confidence": 0.8},
+        {"criterion_id": "gap_disclosure_quality", "source": "adr_005_citations_regressed_false_premise_applied", "support": 0.55, "confidence": 0.78}
+      ],
+      "constraint_results": {"no_unfixed_critical_flaw": true}
+    },
+    {
+      "action_id": "reject_adr",
+      "evidence": [
+        {"criterion_id": "architectural_soundness", "source": "direct_code_read:decision.py_233_253,storage/base.py", "support": 0.04, "confidence": 0.85},
+        {"criterion_id": "alternatives_considered", "source": "adr_005_section_5_five_rows", "support": 0.07, "confidence": 0.8},
+        {"criterion_id": "consequences_honest", "source": "adr_005_section_6_citation_regressed_non_goal_angle_lost", "support": 0.1, "confidence": 0.78},
+        {"criterion_id": "gap_disclosure_quality", "source": "adr_005_citations_regressed_false_premise_applied", "support": 0.12, "confidence": 0.78}
+      ],
+      "constraint_results": {"no_unfixed_critical_flaw": true}
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {"criterion_id": "architectural_soundness", "source": "direct_code_read:decision.py_233_253,storage/base.py", "support": 0.06, "confidence": 0.8},
+        {"criterion_id": "alternatives_considered", "source": "adr_005_section_5_five_rows", "support": 0.08, "confidence": 0.8},
+        {"criterion_id": "consequences_honest", "source": "adr_005_section_6_citation_regressed_non_goal_angle_lost", "support": 0.18, "confidence": 0.78},
+        {"criterion_id": "gap_disclosure_quality", "source": "adr_005_citations_regressed_false_premise_applied", "support": 0.33, "confidence": 0.78}
+      ],
+      "constraint_results": {"no_unfixed_critical_flaw": true}
+    }
+  ],
+  "constraints": ["no_unfixed_critical_flaw"],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.10,
+  "max_uncertainty": 1.0
+}

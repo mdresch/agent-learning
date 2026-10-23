@@ -1,0 +1,133 @@
+{
+  "task": "BRD-003 (Tier-Specific Autonomy Overrides and Authority-Aware Autonomy Reporting): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "traceable_to_adr",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Business rules trace directly to ADR-003's \u00a73/\u00a74.5/\u00a76 disclosed gaps"
+    },
+    {
+      "id": "honest_metrics",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Success metrics are named as not-yet-measurable where true, not fabricated"
+    },
+    {
+      "id": "out_of_scope_accurate",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Out-of-scope list correctly excludes free-text complexity inference and dynamic tier promotion"
+    },
+    {
+      "id": "rules_actionable",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "BRU-003-01..04 are concrete enough to drive a real FDD, not vague aspirations"
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_brd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_adr",
+          "source": "brd_003_business_need_cites_adr_003_section_3_4_5_6",
+          "support": 0.94,
+          "confidence": 0.9
+        },
+        {
+          "criterion_id": "honest_metrics",
+          "source": "brd_003_stakeholder_success_metrics_table_named_not_yet_true",
+          "support": 0.94,
+          "confidence": 0.9
+        },
+        {
+          "criterion_id": "out_of_scope_accurate",
+          "source": "brd_003_out_of_scope_section",
+          "support": 0.94,
+          "confidence": 0.9
+        },
+        {
+          "criterion_id": "rules_actionable",
+          "source": "bru_003_01_through_04_direct_code_grounded",
+          "support": 0.94,
+          "confidence": 0.9
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_brd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_adr",
+          "source": "brd_003_business_need_cites_adr_003_section_3_4_5_6",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "honest_metrics",
+          "source": "brd_003_stakeholder_success_metrics_table_named_not_yet_true",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "out_of_scope_accurate",
+          "source": "brd_003_out_of_scope_section",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "rules_actionable",
+          "source": "bru_003_01_through_04_direct_code_grounded",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_adr",
+          "source": "brd_003_business_need_cites_adr_003_section_3_4_5_6",
+          "support": 0.08,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "honest_metrics",
+          "source": "brd_003_stakeholder_success_metrics_table_named_not_yet_true",
+          "support": 0.08,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "out_of_scope_accurate",
+          "source": "brd_003_out_of_scope_section",
+          "support": 0.08,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "rules_actionable",
+          "source": "bru_003_01_through_04_direct_code_grounded",
+          "support": 0.08,
+          "confidence": 0.75
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

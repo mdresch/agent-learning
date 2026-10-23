@@ -1,0 +1,46 @@
+{
+  "task": "ADR-007 (Automated Governance Change — Paired Diff Classification and Escalation Pipeline): approve, reject, or request revision",
+  "criteria": [
+    {"id": "architectural_soundness", "weight": 1.0, "minimum_sources": 1, "description": "Paired pipeline architecture (full-authority Bayesian diff classifier + low-authority escalation bandit), ADR-006 audit_evidence transport, ADR-005 verification, and ADR-002 five-record boundary compliance"},
+    {"id": "alternatives_considered", "weight": 1.0, "minimum_sources": 1, "description": "Four real alternatives named and rejected: monolithic full-authority policy, raw-diff low-authority bandit, regex/heuristic categorizer, and status-quo manual review"},
+    {"id": "consequences_honest", "weight": 1.0, "minimum_sources": 1, "description": "Consequences accurately name two-decision operational token cost and cold-start conservatism as deliberate tradeoffs"},
+    {"id": "gap_disclosure_quality", "weight": 1.0, "minimum_sources": 1, "description": "Formally closes Stage 16 on the 18-stage Intent-to-Outcome chain, grounded in HYP-AL-006 (validated) and HYP-AL-007 (formulated); addresses disguised decision changes and governance gridlock"}
+  ],
+  "options": [
+    {
+      "action_id": "approve_adr",
+      "evidence": [
+        {"criterion_id": "architectural_soundness", "source": "direct_code_read:decision.py,comparison.py,storage/base.py", "support": 0.94, "confidence": 0.92},
+        {"criterion_id": "alternatives_considered", "source": "adr_007_section_5_four_rows", "support": 0.91, "confidence": 0.86},
+        {"criterion_id": "consequences_honest", "source": "adr_007_section_6_two_negatives_named", "support": 0.90, "confidence": 0.86},
+        {"criterion_id": "gap_disclosure_quality", "source": "adr_007_section_1_and_3_ontology_stage_16", "support": 0.93, "confidence": 0.90}
+      ],
+      "constraint_results": {"no_unfixed_critical_flaw": true}
+    },
+    {
+      "action_id": "reject_adr",
+      "evidence": [
+        {"criterion_id": "architectural_soundness", "source": "direct_code_read:decision.py,comparison.py,storage/base.py", "support": 0.04, "confidence": 0.85},
+        {"criterion_id": "alternatives_considered", "source": "adr_007_section_5_four_rows", "support": 0.06, "confidence": 0.80},
+        {"criterion_id": "consequences_honest", "source": "adr_007_section_6_two_negatives_named", "support": 0.06, "confidence": 0.81},
+        {"criterion_id": "gap_disclosure_quality", "source": "adr_007_section_1_and_3_ontology_stage_16", "support": 0.05, "confidence": 0.84}
+      ],
+      "constraint_results": {"no_unfixed_critical_flaw": true}
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {"criterion_id": "architectural_soundness", "source": "direct_code_read:decision.py,comparison.py,storage/base.py", "support": 0.12, "confidence": 0.84},
+        {"criterion_id": "alternatives_considered", "source": "adr_007_section_5_four_rows", "support": 0.08, "confidence": 0.80},
+        {"criterion_id": "consequences_honest", "source": "adr_007_section_6_two_negatives_named", "support": 0.08, "confidence": 0.81},
+        {"criterion_id": "gap_disclosure_quality", "source": "adr_007_section_1_and_3_ontology_stage_16", "support": 0.10, "confidence": 0.83}
+      ],
+      "constraint_results": {"no_unfixed_critical_flaw": true}
+    }
+  ],
+  "constraints": ["no_unfixed_critical_flaw"],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.10,
+  "max_uncertainty": 1.0
+}
+

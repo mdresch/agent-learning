@@ -1,0 +1,45 @@
+{
+  "task": "ADR-004 (Authority-Migration Comparison, Not Replay): approve, reject, or request revision",
+  "criteria": [
+    {"id": "architectural_soundness", "weight": 1.0, "minimum_sources": 1, "description": "The impossibility finding (no DecisionFrame evidence for historical low episodes) and the MigrationRecord design are grounded directly in real code"},
+    {"id": "alternatives_considered", "weight": 1.0, "minimum_sources": 1, "description": "Real rejected alternatives named: approximating a frame from context_features, doing nothing, bundling mandatory capture immediately"},
+    {"id": "consequences_honest", "weight": 1.0, "minimum_sources": 1, "description": "Consequences accurately name the permanent unavailability of true historical replay and the cost tradeoff of future mandatory capture"},
+    {"id": "cross_adr_consistency", "weight": 1.0, "minimum_sources": 1, "description": "MigrationRecord placement inside PolicySnapshot.metadata preserves ADR-002's five-record-type invariant rather than reopening it; the stale internal ADR-005 reference was caught and fixed"}
+  ],
+  "options": [
+    {
+      "action_id": "approve_adr",
+      "evidence": [
+        {"criterion_id": "architectural_soundness", "source": "direct_code_read:decision.py,policy/softmax_bandit.py,types.py,capture.py,metrics/local.py", "support": 0.95, "confidence": 0.92},
+        {"criterion_id": "alternatives_considered", "source": "adr_004_section_5_three_rows", "support": 0.9, "confidence": 0.85},
+        {"criterion_id": "consequences_honest", "source": "adr_004_section_6_permanent_unavailability_named", "support": 0.92, "confidence": 0.88},
+        {"criterion_id": "cross_adr_consistency", "source": "adr_004_section_4_2_metadata_placement_plus_adr_005_reference_fix", "support": 0.95, "confidence": 0.9}
+      ],
+      "constraint_results": {"no_unfixed_critical_flaw": true}
+    },
+    {
+      "action_id": "reject_adr",
+      "evidence": [
+        {"criterion_id": "architectural_soundness", "source": "direct_code_read:decision.py,policy/softmax_bandit.py,types.py,capture.py,metrics/local.py", "support": 0.04, "confidence": 0.85},
+        {"criterion_id": "alternatives_considered", "source": "adr_004_section_5_three_rows", "support": 0.08, "confidence": 0.8},
+        {"criterion_id": "consequences_honest", "source": "adr_004_section_6_permanent_unavailability_named", "support": 0.06, "confidence": 0.82},
+        {"criterion_id": "cross_adr_consistency", "source": "adr_004_section_4_2_metadata_placement_plus_adr_005_reference_fix", "support": 0.04, "confidence": 0.85}
+      ],
+      "constraint_results": {"no_unfixed_critical_flaw": true}
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {"criterion_id": "architectural_soundness", "source": "direct_code_read:decision.py,policy/softmax_bandit.py,types.py,capture.py,metrics/local.py", "support": 0.06, "confidence": 0.8},
+        {"criterion_id": "alternatives_considered", "source": "adr_004_section_5_three_rows", "support": 0.08, "confidence": 0.8},
+        {"criterion_id": "consequences_honest", "source": "adr_004_section_6_permanent_unavailability_named", "support": 0.07, "confidence": 0.8},
+        {"criterion_id": "cross_adr_consistency", "source": "adr_004_section_4_2_metadata_placement_plus_adr_005_reference_fix", "support": 0.05, "confidence": 0.82}
+      ],
+      "constraint_results": {"no_unfixed_critical_flaw": true}
+    }
+  ],
+  "constraints": ["no_unfixed_critical_flaw"],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.10,
+  "max_uncertainty": 1.0
+}

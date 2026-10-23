@@ -1,0 +1,45 @@
+{
+  "task": "ADR-003 (Evidence-Gated Autonomy): approve, reject, or request revision",
+  "criteria": [
+    {"id": "architectural_soundness", "weight": 1.0, "minimum_sources": 1, "description": "Complexity-proportional conjunctive gates, risk floors, and separate authorization bases are grounded directly in real code, not asserted"},
+    {"id": "alternatives_considered", "weight": 1.0, "minimum_sources": 1, "description": "Real rejected alternatives named, including the automatic-reclassification row added on review"},
+    {"id": "consequences_honest", "weight": 1.0, "minimum_sources": 1, "description": "Consequences accurately name the confirmed env-var tier-flattening footgun and the full-authority scope clarification"},
+    {"id": "gap_disclosure_quality", "weight": 1.0, "minimum_sources": 1, "description": "Two previously-undocumented findings (absolute requires_human_approval precedence; full-authority statistical-gate inertness) are disclosed precisely, with direct code citations, and internal wording is now self-consistent"}
+  ],
+  "options": [
+    {
+      "action_id": "approve_adr",
+      "evidence": [
+        {"criterion_id": "architectural_soundness", "source": "direct_code_read:autonomy.py,config.py,cli.py", "support": 0.95, "confidence": 0.92},
+        {"criterion_id": "alternatives_considered", "source": "adr_003_section_5_six_rows_incl_reclassification", "support": 0.9, "confidence": 0.85},
+        {"criterion_id": "consequences_honest", "source": "adr_003_section_6_env_var_footgun_plus_full_authority_note", "support": 0.93, "confidence": 0.88},
+        {"criterion_id": "gap_disclosure_quality", "source": "adr_003_section_4_4_4_5_direct_citations_autonomy_py_472_476_cli_py_334_343_752", "support": 0.95, "confidence": 0.9}
+      ],
+      "constraint_results": {"no_unfixed_critical_flaw": true}
+    },
+    {
+      "action_id": "reject_adr",
+      "evidence": [
+        {"criterion_id": "architectural_soundness", "source": "direct_code_read:autonomy.py,config.py,cli.py", "support": 0.05, "confidence": 0.85},
+        {"criterion_id": "alternatives_considered", "source": "adr_003_section_5_six_rows_incl_reclassification", "support": 0.08, "confidence": 0.8},
+        {"criterion_id": "consequences_honest", "source": "adr_003_section_6_env_var_footgun_plus_full_authority_note", "support": 0.06, "confidence": 0.82},
+        {"criterion_id": "gap_disclosure_quality", "source": "adr_003_section_4_4_4_5_direct_citations_autonomy_py_472_476_cli_py_334_343_752", "support": 0.04, "confidence": 0.85}
+      ],
+      "constraint_results": {"no_unfixed_critical_flaw": true}
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {"criterion_id": "architectural_soundness", "source": "direct_code_read:autonomy.py,config.py,cli.py", "support": 0.07, "confidence": 0.8},
+        {"criterion_id": "alternatives_considered", "source": "adr_003_section_5_six_rows_incl_reclassification", "support": 0.08, "confidence": 0.8},
+        {"criterion_id": "consequences_honest", "source": "adr_003_section_6_env_var_footgun_plus_full_authority_note", "support": 0.07, "confidence": 0.8},
+        {"criterion_id": "gap_disclosure_quality", "source": "adr_003_section_4_4_4_5_direct_citations_autonomy_py_472_476_cli_py_334_343_752", "support": 0.05, "confidence": 0.82}
+      ],
+      "constraint_results": {"no_unfixed_critical_flaw": true}
+    }
+  ],
+  "constraints": ["no_unfixed_critical_flaw"],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.10,
+  "max_uncertainty": 1.0
+}

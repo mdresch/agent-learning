@@ -1,0 +1,45 @@
+{
+  "task": "ADR-001 (Decision Authority Model): approve, reject, or request revision",
+  "criteria": [
+    {"id": "architectural_soundness", "weight": 1.0, "minimum_sources": 1, "description": "Core decision (one TaskPolicy, two mutually exclusive routes) is grounded directly in real code, not asserted"},
+    {"id": "alternatives_considered", "weight": 1.0, "minimum_sources": 1, "description": "Real rejected alternatives named, with rejection reasons matching actual design constraints"},
+    {"id": "consequences_honest", "weight": 1.0, "minimum_sources": 1, "description": "Consequences (including any gap between the decision and current code) are stated accurately, not overstated"},
+    {"id": "wording_self_consistency", "weight": 1.0, "minimum_sources": 1, "description": "No unresolved internal contradiction about what was decided"}
+  ],
+  "options": [
+    {
+      "action_id": "approve_adr",
+      "evidence": [
+        {"criterion_id": "architectural_soundness", "source": "direct_code_read:decision.py:TaskPolicy.decide()", "support": 0.95, "confidence": 0.95},
+        {"criterion_id": "alternatives_considered", "source": "adr_section_5_alternatives_table", "support": 0.9, "confidence": 0.85},
+        {"criterion_id": "consequences_honest", "source": "adr_section_6_revised_after_section_4_5_gap_finding", "support": 0.9, "confidence": 0.9},
+        {"criterion_id": "wording_self_consistency", "source": "adr_section_4_3_reworded_after_three_external_reviews", "support": 0.9, "confidence": 0.9}
+      ],
+      "constraint_results": {"no_unfixed_critical_flaw": true, "no_unresolved_internal_contradiction": true}
+    },
+    {
+      "action_id": "reject_adr",
+      "evidence": [
+        {"criterion_id": "architectural_soundness", "source": "direct_code_read:decision.py:TaskPolicy.decide()", "support": 0.05, "confidence": 0.8},
+        {"criterion_id": "alternatives_considered", "source": "adr_section_5_alternatives_table", "support": 0.1, "confidence": 0.75},
+        {"criterion_id": "consequences_honest", "source": "adr_section_6_revised_after_section_4_5_gap_finding", "support": 0.1, "confidence": 0.8},
+        {"criterion_id": "wording_self_consistency", "source": "adr_section_4_3_reworded_after_three_external_reviews", "support": 0.1, "confidence": 0.8}
+      ],
+      "constraint_results": {"no_unfixed_critical_flaw": true, "no_unresolved_internal_contradiction": true}
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {"criterion_id": "architectural_soundness", "source": "direct_code_read:decision.py:TaskPolicy.decide()", "support": 0.1, "confidence": 0.75},
+        {"criterion_id": "alternatives_considered", "source": "adr_section_5_alternatives_table", "support": 0.1, "confidence": 0.75},
+        {"criterion_id": "consequences_honest", "source": "adr_section_6_revised_after_section_4_5_gap_finding", "support": 0.15, "confidence": 0.75},
+        {"criterion_id": "wording_self_consistency", "source": "three_independent_external_reviews_pre_correction_now_fixed", "support": 0.15, "confidence": 0.7}
+      ],
+      "constraint_results": {"no_unfixed_critical_flaw": true, "no_unresolved_internal_contradiction": true}
+    }
+  ],
+  "constraints": ["no_unfixed_critical_flaw", "no_unresolved_internal_contradiction"],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.10,
+  "max_uncertainty": 1.0
+}

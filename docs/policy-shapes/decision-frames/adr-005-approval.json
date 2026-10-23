@@ -1,0 +1,45 @@
+{
+  "task": "ADR-005 (Decision-Progress Comparison and Regression Healing): approve, reject, or request revision",
+  "criteria": [
+    {"id": "architectural_soundness", "weight": 1.0, "minimum_sources": 1, "description": "Stateless comparison design, exhaustive/mutually-exclusive taxonomy, and bounded heal step are grounded directly in real code and prior-ADR constraints"},
+    {"id": "alternatives_considered", "weight": 1.0, "minimum_sources": 1, "description": "Real rejected alternatives named: sixth record type, episode-metadata folding, ad hoc scripting, auto-revert, uncapped auto-rewrite"},
+    {"id": "consequences_honest", "weight": 1.0, "minimum_sources": 1, "description": "Consequences accurately name caller-discipline dependence, heuristic misfire risk, and fixed-cap escalation as deliberate tradeoffs"},
+    {"id": "gap_disclosure_quality", "weight": 1.0, "minimum_sources": 1, "description": "Real gaps found across two revision passes (taxonomy completeness, missing precondition, per-criterion attribution confirmation) disclosed precisely with direct code citations; one reviewer claim checked and correctly declined"}
+  ],
+  "options": [
+    {
+      "action_id": "approve_adr",
+      "evidence": [
+        {"criterion_id": "architectural_soundness", "source": "direct_code_read:decision.py_233_253,storage/base.py", "support": 0.95, "confidence": 0.92},
+        {"criterion_id": "alternatives_considered", "source": "adr_005_section_5_five_rows", "support": 0.9, "confidence": 0.85},
+        {"criterion_id": "consequences_honest", "source": "adr_005_section_6_three_negatives_named", "support": 0.92, "confidence": 0.87},
+        {"criterion_id": "gap_disclosure_quality", "source": "adr_005_section_4_4_exhaustive_taxonomy_plus_exclusivity_proof_plus_amendment_log", "support": 0.95, "confidence": 0.9}
+      ],
+      "constraint_results": {"no_unfixed_critical_flaw": true}
+    },
+    {
+      "action_id": "reject_adr",
+      "evidence": [
+        {"criterion_id": "architectural_soundness", "source": "direct_code_read:decision.py_233_253,storage/base.py", "support": 0.04, "confidence": 0.85},
+        {"criterion_id": "alternatives_considered", "source": "adr_005_section_5_five_rows", "support": 0.07, "confidence": 0.8},
+        {"criterion_id": "consequences_honest", "source": "adr_005_section_6_three_negatives_named", "support": 0.06, "confidence": 0.82},
+        {"criterion_id": "gap_disclosure_quality", "source": "adr_005_section_4_4_exhaustive_taxonomy_plus_exclusivity_proof_plus_amendment_log", "support": 0.04, "confidence": 0.85}
+      ],
+      "constraint_results": {"no_unfixed_critical_flaw": true}
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {"criterion_id": "architectural_soundness", "source": "direct_code_read:decision.py_233_253,storage/base.py", "support": 0.06, "confidence": 0.8},
+        {"criterion_id": "alternatives_considered", "source": "adr_005_section_5_five_rows", "support": 0.08, "confidence": 0.8},
+        {"criterion_id": "consequences_honest", "source": "adr_005_section_6_three_negatives_named", "support": 0.07, "confidence": 0.8},
+        {"criterion_id": "gap_disclosure_quality", "source": "adr_005_section_4_4_exhaustive_taxonomy_plus_exclusivity_proof_plus_amendment_log", "support": 0.05, "confidence": 0.82}
+      ],
+      "constraint_results": {"no_unfixed_critical_flaw": true}
+    }
+  ],
+  "constraints": ["no_unfixed_critical_flaw"],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.10,
+  "max_uncertainty": 1.0
+}

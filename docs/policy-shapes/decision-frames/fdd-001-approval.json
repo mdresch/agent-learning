@@ -1,0 +1,45 @@
+{
+  "task": "FDD-001 (Enforce the REINFORCE Authority Boundary): approve, reject, or request revision",
+  "criteria": [
+    {"id": "traceable_to_brd_adr", "weight": 1.0, "minimum_sources": 1, "description": "Design traces to BRD-001's rules and ADR-001's §4.5 gap"},
+    {"id": "fix_location_correct", "weight": 1.0, "minimum_sources": 1, "description": "The fix is placed where it actually closes the gap for every real caller (ReinforceLearner.update() itself, not just one caller like training/runner.py)"},
+    {"id": "no_invented_implementation", "weight": 1.0, "minimum_sources": 1, "description": "Every claim about current behavior is grounded in a direct code citation, not assumed"},
+    {"id": "compatibility_preserved", "weight": 1.0, "minimum_sources": 1, "description": "Existing low-authority importance-sampling behavior is explicitly preserved, not silently changed"}
+  ],
+  "options": [
+    {
+      "action_id": "approve_fdd",
+      "evidence": [
+        {"criterion_id": "traceable_to_brd_adr", "source": "fdd_001_header_cites_brd_001_and_adr_001_4_5", "support": 0.95, "confidence": 0.9},
+        {"criterion_id": "fix_location_correct", "source": "fdd_001_design_1_names_audit_py_444_503_as_other_callers", "support": 0.92, "confidence": 0.88},
+        {"criterion_id": "no_invented_implementation", "source": "direct_reads:reinforce.py_75_77_151_157,audit.py_562_563,runner.py_88_125", "support": 0.93, "confidence": 0.9},
+        {"criterion_id": "compatibility_preserved", "source": "fdd_001_error_handling_table_row_2", "support": 0.9, "confidence": 0.85}
+      ],
+      "constraint_results": {"no_unfixed_critical_flaw": true}
+    },
+    {
+      "action_id": "reject_fdd",
+      "evidence": [
+        {"criterion_id": "traceable_to_brd_adr", "source": "fdd_001_header_cites_brd_001_and_adr_001_4_5", "support": 0.05, "confidence": 0.8},
+        {"criterion_id": "fix_location_correct", "source": "fdd_001_design_1_names_audit_py_444_503_as_other_callers", "support": 0.06, "confidence": 0.8},
+        {"criterion_id": "no_invented_implementation", "source": "direct_reads:reinforce.py_75_77_151_157,audit.py_562_563,runner.py_88_125", "support": 0.05, "confidence": 0.82},
+        {"criterion_id": "compatibility_preserved", "source": "fdd_001_error_handling_table_row_2", "support": 0.1, "confidence": 0.75}
+      ],
+      "constraint_results": {"no_unfixed_critical_flaw": true}
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {"criterion_id": "traceable_to_brd_adr", "source": "fdd_001_header_cites_brd_001_and_adr_001_4_5", "support": 0.1, "confidence": 0.75},
+        {"criterion_id": "fix_location_correct", "source": "fdd_001_design_1_names_audit_py_444_503_as_other_callers", "support": 0.08, "confidence": 0.78},
+        {"criterion_id": "no_invented_implementation", "source": "direct_reads:reinforce.py_75_77_151_157,audit.py_562_563,runner.py_88_125", "support": 0.08, "confidence": 0.78},
+        {"criterion_id": "compatibility_preserved", "source": "fdd_001_error_handling_table_row_2", "support": 0.1, "confidence": 0.75}
+      ],
+      "constraint_results": {"no_unfixed_critical_flaw": true}
+    }
+  ],
+  "constraints": ["no_unfixed_critical_flaw"],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.10,
+  "max_uncertainty": 1.0
+}

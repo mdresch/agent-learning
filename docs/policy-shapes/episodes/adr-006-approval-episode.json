@@ -1,0 +1,38 @@
+{
+  "agent_id": "agent-learning-governance",
+  "agent_name": "agent-learning-governance",
+  "task_id": "approve-adr",
+  "task_name": "approve-adr",
+  "user_input": "Approve, reject, or request revision on ADR-006 (Opt-In, Lightweight Evidence Capture for low-Authority Decisions)",
+  "assistant_output": "approve_adr: opt-in per-policy flag, non-empty mapping structural guard, write-once lifecycle invariant, and strict decoupling from reinforcement learning; zero schema changes; robust utility 0.885 vs. 0.041 (reject) and 0.052 (revise)",
+  "intent_summary": "Decide whether ADR-006 is ready to approve, after rigorous code alignment and incorporation of reviewed invariants",
+  "action_type": "recommendation",
+  "action_name": "Approve the ADR",
+  "target": "ADR-006-opt-in-lightweight-evidence-capture-for-low-authority.md",
+  "input_summary": "Opt-in per policy metadata flag; lightweight audit_evidence parameter with structural presence check; zero new record types; strict decoupling from learning and optimization loops",
+  "expected_outcome": "Menno's explicit ACCEPT or REJECT of this recommendation",
+  "execution_status": "completed",
+  "result_summary": "Approved directly by Menno, 2026-10-23 (\"run approve-adr\"). Sixth ADR in this session's agent-learning self-governance chain.",
+  "system_message": null,
+  "conversation_history": [],
+  "tool_calls": [],
+  "policy_id": "1d73c501-8ac0-4814-b7b4-b4bc3cb36854",
+  "policy_version": 0,
+  "action_id": "approve_adr",
+  "action_logprob": null,
+  "context_features": {},
+  "model_deployment": null,
+  "correlation_id": null,
+  "session_id": null,
+  "request_latency_ms": null,
+  "token_usage": null,
+  "metadata": {
+    "feedback_status": "adjudicated",
+    "decision_disposition": "accepted",
+    "selection_basis": "bayesian_decision",
+    "correct_action_id": "approve_adr",
+    "task_completed": true
+  },
+  "created_at": "2026-10-23T10:37:26.275345+00:00"
+}
+

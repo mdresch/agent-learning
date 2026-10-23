@@ -1,0 +1,133 @@
+{
+  "task": "BRD-004 (Authority-Migration Diagnostic Snapshot and Docstring Alignment): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "traceable_to_adr",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Business rules trace directly to ADR-004's \u00a73/\u00a74.1/\u00a74.2 decisions"
+    },
+    {
+      "id": "honest_metrics",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Success metrics are named as not-yet-measurable where true, not fabricated"
+    },
+    {
+      "id": "out_of_scope_accurate",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Out-of-scope list correctly excludes retroactive replay and 6th storage record types"
+    },
+    {
+      "id": "rules_actionable",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "BRU-004-01..05 are concrete enough to drive a real FDD, not vague aspirations"
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_brd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_adr",
+          "source": "brd_004_business_need_cites_adr_004_section_3_4_1_4_2",
+          "support": 0.94,
+          "confidence": 0.9
+        },
+        {
+          "criterion_id": "honest_metrics",
+          "source": "brd_004_stakeholder_success_metrics_table_named_not_yet_true",
+          "support": 0.94,
+          "confidence": 0.9
+        },
+        {
+          "criterion_id": "out_of_scope_accurate",
+          "source": "brd_004_out_of_scope_section",
+          "support": 0.94,
+          "confidence": 0.9
+        },
+        {
+          "criterion_id": "rules_actionable",
+          "source": "bru_004_01_through_05_direct_code_grounded",
+          "support": 0.94,
+          "confidence": 0.9
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_brd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_adr",
+          "source": "brd_004_business_need_cites_adr_004_section_3_4_1_4_2",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "honest_metrics",
+          "source": "brd_004_stakeholder_success_metrics_table_named_not_yet_true",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "out_of_scope_accurate",
+          "source": "brd_004_out_of_scope_section",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "rules_actionable",
+          "source": "bru_004_01_through_05_direct_code_grounded",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_adr",
+          "source": "brd_004_business_need_cites_adr_004_section_3_4_1_4_2",
+          "support": 0.08,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "honest_metrics",
+          "source": "brd_004_stakeholder_success_metrics_table_named_not_yet_true",
+          "support": 0.08,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "out_of_scope_accurate",
+          "source": "brd_004_out_of_scope_section",
+          "support": 0.08,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "rules_actionable",
+          "source": "bru_004_01_through_05_direct_code_grounded",
+          "support": 0.08,
+          "confidence": 0.75
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

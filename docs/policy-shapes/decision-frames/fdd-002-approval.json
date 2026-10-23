@@ -1,0 +1,133 @@
+{
+  "task": "FDD-002 (Cosmos Active-Policy Pointer Concurrency Protection): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "traceable_to_brd_adr",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Design traces to BRD-002's rules and ADR-002's \u00a74.5 gap"
+    },
+    {
+      "id": "fix_location_correct",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "The fix is placed directly inside CosmosStore.store_policy() and _store_active_pointer()"
+    },
+    {
+      "id": "no_invented_implementation",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Grounded in direct cosmos.py:381-393 code citations and Azure Cosmos SDK MatchConditions"
+    },
+    {
+      "id": "compatibility_preserved",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "get_active_policy() backward compatibility and 5-record-type boundaries are preserved"
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_fdd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_brd_adr",
+          "source": "fdd_002_header_cites_brd_002_and_adr_002_4_5",
+          "support": 0.94,
+          "confidence": 0.9
+        },
+        {
+          "criterion_id": "fix_location_correct",
+          "source": "fdd_002_design_2_store_active_pointer_inside_cosmos_store",
+          "support": 0.94,
+          "confidence": 0.9
+        },
+        {
+          "criterion_id": "no_invented_implementation",
+          "source": "direct_reads:cosmos.py_381_393_434_440_match_conditions",
+          "support": 0.94,
+          "confidence": 0.9
+        },
+        {
+          "criterion_id": "compatibility_preserved",
+          "source": "fdd_002_error_handling_table_and_out_of_scope",
+          "support": 0.94,
+          "confidence": 0.9
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_fdd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_brd_adr",
+          "source": "fdd_002_header_cites_brd_002_and_adr_002_4_5",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "fix_location_correct",
+          "source": "fdd_002_design_2_store_active_pointer_inside_cosmos_store",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "no_invented_implementation",
+          "source": "direct_reads:cosmos.py_381_393_434_440_match_conditions",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "compatibility_preserved",
+          "source": "fdd_002_error_handling_table_and_out_of_scope",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_brd_adr",
+          "source": "fdd_002_header_cites_brd_002_and_adr_002_4_5",
+          "support": 0.08,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "fix_location_correct",
+          "source": "fdd_002_design_2_store_active_pointer_inside_cosmos_store",
+          "support": 0.08,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "no_invented_implementation",
+          "source": "direct_reads:cosmos.py_381_393_434_440_match_conditions",
+          "support": 0.08,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "compatibility_preserved",
+          "source": "fdd_002_error_handling_table_and_out_of_scope",
+          "support": 0.08,
+          "confidence": 0.75
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

@@ -1,0 +1,46 @@
+{
+  "task": "ADR-006 (Opt-In, Lightweight Evidence Capture for low-Authority Decisions): approve, reject, or request revision",
+  "criteria": [
+    {"id": "architectural_soundness", "weight": 1.0, "minimum_sources": 1, "description": "Opt-in per policy flag, lightweight non-empty mapping structural guard, write-once lifecycle invariant, and strict decoupling from reinforcement learning; zero schema changes"},
+    {"id": "alternatives_considered", "weight": 1.0, "minimum_sources": 1, "description": "Real alternatives named and rejected: mandatory capture for all (ADR-004 §4.4 literal), full DecisionFrame shape for opted-in policies, context_features alone, and status quo"},
+    {"id": "consequences_honest", "weight": 1.0, "minimum_sources": 1, "description": "Consequences honestly state that opted-out policies remain unassisted, structural mapping check cannot enforce semantic quality, and context_features remains non-enforced guidance"},
+    {"id": "gap_disclosure_quality", "weight": 1.0, "minimum_sources": 1, "description": "Resolves shared evidentiary blind spot from ADR-001 §4.5, ADR-003 §4.5, and ADR-004 §4.1/§4.4 while preserving ADR-001 cost asymmetry and ADR-002 five-record boundary"}
+  ],
+  "options": [
+    {
+      "action_id": "approve_adr",
+      "evidence": [
+        {"criterion_id": "architectural_soundness", "source": "direct_code_read:decision.py_887_895,types.py_146_153,learners/reinforce.py_76_155", "support": 0.96, "confidence": 0.94},
+        {"criterion_id": "alternatives_considered", "source": "adr_006_section_5_four_rows", "support": 0.92, "confidence": 0.88},
+        {"criterion_id": "consequences_honest", "source": "adr_006_section_6_three_negatives_named", "support": 0.93, "confidence": 0.89},
+        {"criterion_id": "gap_disclosure_quality", "source": "adr_006_section_1_and_4_cross_adr_synthesis", "support": 0.95, "confidence": 0.92}
+      ],
+      "constraint_results": {"no_unfixed_critical_flaw": true}
+    },
+    {
+      "action_id": "reject_adr",
+      "evidence": [
+        {"criterion_id": "architectural_soundness", "source": "direct_code_read:decision.py_887_895,types.py_146_153,learners/reinforce.py_76_155", "support": 0.04, "confidence": 0.85},
+        {"criterion_id": "alternatives_considered", "source": "adr_006_section_5_four_rows", "support": 0.06, "confidence": 0.8},
+        {"criterion_id": "consequences_honest", "source": "adr_006_section_6_three_negatives_named", "support": 0.05, "confidence": 0.82},
+        {"criterion_id": "gap_disclosure_quality", "source": "adr_006_section_1_and_4_cross_adr_synthesis", "support": 0.04, "confidence": 0.85}
+      ],
+      "constraint_results": {"no_unfixed_critical_flaw": true}
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {"criterion_id": "architectural_soundness", "source": "direct_code_read:decision.py_887_895,types.py_146_153,learners/reinforce.py_76_155", "support": 0.05, "confidence": 0.82},
+        {"criterion_id": "alternatives_considered", "source": "adr_006_section_5_four_rows", "support": 0.07, "confidence": 0.8},
+        {"criterion_id": "consequences_honest", "source": "adr_006_section_6_three_negatives_named", "support": 0.06, "confidence": 0.8},
+        {"criterion_id": "gap_disclosure_quality", "source": "adr_006_section_1_and_4_cross_adr_synthesis", "support": 0.05, "confidence": 0.82}
+      ],
+      "constraint_results": {"no_unfixed_critical_flaw": true}
+    }
+  ],
+  "constraints": ["no_unfixed_critical_flaw"],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.10,
+  "max_uncertainty": 1.0
+}
+

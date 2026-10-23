@@ -1,0 +1,45 @@
+{
+  "task": "BRD-001 (Enforce the REINFORCE Authority Boundary): approve, reject, or request revision",
+  "criteria": [
+    {"id": "traceable_to_adr", "weight": 1.0, "minimum_sources": 1, "description": "Business rules trace directly to ADR-001's §4.5 disclosed gap, not invented scope"},
+    {"id": "honest_metrics", "weight": 1.0, "minimum_sources": 1, "description": "Success metrics are named as not-yet-measurable where true, not fabricated"},
+    {"id": "out_of_scope_accurate", "weight": 1.0, "minimum_sources": 1, "description": "Out-of-scope list correctly excludes re-litigating ADR-001's own decision and excludes unrelated schema changes"},
+    {"id": "rules_actionable", "weight": 1.0, "minimum_sources": 1, "description": "BRU-001-01..04 are concrete enough to drive a real FDD, not vague aspirations"}
+  ],
+  "options": [
+    {
+      "action_id": "approve_brd",
+      "evidence": [
+        {"criterion_id": "traceable_to_adr", "source": "brd_001_business_need_cites_adr_001_section_4_5", "support": 0.95, "confidence": 0.9},
+        {"criterion_id": "honest_metrics", "source": "brd_001_stakeholder_success_metrics_table_named_not_yet_true", "support": 0.9, "confidence": 0.85},
+        {"criterion_id": "out_of_scope_accurate", "source": "brd_001_out_of_scope_section", "support": 0.9, "confidence": 0.85},
+        {"criterion_id": "rules_actionable", "source": "bru_001_01_through_04_direct_code_grounded", "support": 0.9, "confidence": 0.85}
+      ],
+      "constraint_results": {"no_unfixed_critical_flaw": true}
+    },
+    {
+      "action_id": "reject_brd",
+      "evidence": [
+        {"criterion_id": "traceable_to_adr", "source": "brd_001_business_need_cites_adr_001_section_4_5", "support": 0.05, "confidence": 0.8},
+        {"criterion_id": "honest_metrics", "source": "brd_001_stakeholder_success_metrics_table_named_not_yet_true", "support": 0.1, "confidence": 0.75},
+        {"criterion_id": "out_of_scope_accurate", "source": "brd_001_out_of_scope_section", "support": 0.1, "confidence": 0.75},
+        {"criterion_id": "rules_actionable", "source": "bru_001_01_through_04_direct_code_grounded", "support": 0.1, "confidence": 0.75}
+      ],
+      "constraint_results": {"no_unfixed_critical_flaw": true}
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {"criterion_id": "traceable_to_adr", "source": "brd_001_business_need_cites_adr_001_section_4_5", "support": 0.1, "confidence": 0.75},
+        {"criterion_id": "honest_metrics", "source": "brd_001_stakeholder_success_metrics_table_named_not_yet_true", "support": 0.1, "confidence": 0.75},
+        {"criterion_id": "out_of_scope_accurate", "source": "brd_001_out_of_scope_section", "support": 0.12, "confidence": 0.7},
+        {"criterion_id": "rules_actionable", "source": "bru_001_01_through_04_direct_code_grounded", "support": 0.1, "confidence": 0.75}
+      ],
+      "constraint_results": {"no_unfixed_critical_flaw": true}
+    }
+  ],
+  "constraints": ["no_unfixed_critical_flaw"],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.10,
+  "max_uncertainty": 1.0
+}

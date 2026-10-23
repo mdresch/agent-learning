@@ -1,0 +1,38 @@
+{
+  "agent_id": "agent-learning-governance",
+  "agent_name": "agent-learning-governance",
+  "task_id": "approve-adr",
+  "task_name": "approve-adr",
+  "user_input": "Approve, reject, or request revision on ADR-007 (Governance Change: Paired Semantic Diff Classification and Operational Escalation Learning)",
+  "assistant_output": "approve_adr: paired full-authority semantic classification (classify-diff-type) and low-authority operational escalation (escalate-diff-response); Stage 16 Intent-to-Outcome closure; robust utility 0.849 vs. 0.043 (reject) and 0.078 (revise)",
+  "intent_summary": "Decide whether ADR-007 is ready to approve, after rigorous evaluation through approve-adr learnings and incorporation of review amendments",
+  "action_type": "recommendation",
+  "action_name": "Approve the ADR",
+  "target": "ADR-007-governance-change-paired-diff-classification-and-escalation.md",
+  "input_summary": "Paired full/low authority architecture; Stage 16 Intent-to-Outcome; lightweight audit_evidence transport; native DecisionFrame minimum_margin=0.05 tie-breaking; permanent lineage freeze; adversarial diff regression harness",
+  "expected_outcome": "Menno's explicit ACCEPT or REJECT of this recommendation",
+  "execution_status": "completed",
+  "result_summary": "Approved directly by Menno, 2026-10-23 (\"i can approve ADR-007\"). Seventh ADR in this session's agent-learning self-governance chain.",
+  "system_message": null,
+  "conversation_history": [],
+  "tool_calls": [],
+  "policy_id": "1d73c501-8ac0-4814-b7b4-b4bc3cb36854",
+  "policy_version": 0,
+  "action_id": "approve_adr",
+  "action_logprob": null,
+  "context_features": {},
+  "model_deployment": null,
+  "correlation_id": null,
+  "session_id": null,
+  "request_latency_ms": null,
+  "token_usage": null,
+  "metadata": {
+    "feedback_status": "adjudicated",
+    "decision_disposition": "accepted",
+    "selection_basis": "bayesian_decision",
+    "correct_action_id": "approve_adr",
+    "task_completed": true
+  },
+  "created_at": "2026-10-23T12:57:30.000000+00:00"
+}
+

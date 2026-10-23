@@ -1,0 +1,21 @@
+# ADR Coverage — agent-learning
+
+**Finding, confirmed directly (2026-10-23):** this repository has zero formal Architecture Decision Records. That is not the same as having no real architecture decisions — `docs/decision-making.md`, `docs/autonomy-complexity.md`, `docs/cost-model.md`, `docs/audit-replay.md`, and `docs/architecture.md` already document substantial, deliberate design rationale, each with real formulas, real tables, and real operational rules. The gap is specifically that none of it is captured as a decision record (Context → Decision → Alternatives Considered → Consequences) — a reader can find *what* the design is, but not an explicit record of *why this and not an alternative*, suitable for future amendment.
+
+## Recommended ADRs (prioritized)
+
+1. **ADR-001: Decision Authority Model — Learned (`low`) vs. Reasoned (`full`) TaskPolicy Resolution.** The single most central architectural decision in the SDK — one `TaskPolicy` per `(agent_id, task_id)`, two mutually exclusive selection routes converging on the same `DecisionResult`/`Episode` lineage. Already fully designed in `docs/decision-making.md`; never captured as a decision record with real alternatives named.
+2. **ADR-002: Storage Backend Strategy — Local File, In-Memory, and Cosmos DB.** Three real, interchangeable backends behind one `LearningStore` abstract interface (`storage/base.py`), each with a real, different intended deployment context (`docs/decision-making.md`'s own "Storage and deployment patterns" table). No record of why three, or why this specific interface shape.
+3. **ADR-003: Evidence-Gated Autonomy — Complexity-Proportional Thresholds.** A real, mathematically-specified policy (Wilson lower-bound correctness, complexity-tier-scaled gates, drift-audit sampling) fully written up in `docs/autonomy-complexity.md` and `docs/decision-making.md` — but never recorded as a decision with its own rejected alternatives.
+
+**Not written in this pass, named for later:** infrastructure/deployment topology (`docs/architecture.md` — VNet, Cosmos private endpoint, managed identity) is also real and undocumented-as-a-decision, but lower priority — it's a conventional private-networking pattern, not a novel SDK design choice. Reward shaping / REINFORCE learner algorithm choice (`rewards/shaping.py`, `learners/reinforce.py`) is a fourth real candidate, deferred for time, not declined on the merits.
+
+## Status
+
+**ADRs 001 through 007 are Accepted (2026-10-23)**, each reviewed and approved by Menno through the real `approve-adr` policy. 
+
+- **ADR-005** (decision-progress comparison and regression healing) is **Implemented and Merged into `main`** (`7fbe607`), with all contract tests and review amendments verified.
+- **ADR-006** (opt-in, lightweight evidence capture for `low`-authority decisions) is **Accepted (2026-10-23)**, resolving ADR-004 §4.4's deferred "mandatory capture" question as opt-in-per-policy with strict SDK non-interpretation and storage boundaries.
+- **ADR-007** (automated governance change — paired diff classification and escalation pipeline) is **Accepted (2026-10-23)**, formalizing Stage 16 on the 18-stage Intent-to-Outcome chain to close the development lifecycle loop between Lessons Learned (Stage 15) and Adaptation (Stage 17), with permanent lineage freeze and mandatory audit logging for autonomous applications.
+
+**Update (2026-10-23):** this repo now has its own real `agent-learning-governance` TaskPolicy chain (`approve-adr`, `approve-brd`, `approve-fdd`, `approve-user-stories`, `validate-intent-foundation`), mirroring ADPA's and sidpa-template's shapes under `data/agent-learning/store/`. Both ADR-001's and ADR-002's approvals ran through it for real — `task-policy-decide` → (Menno's explicit disposition) → `task-policy-adjudicate` → `task-episode-register` — not just a markdown status flip. ADR-002's approval is itself the first real case for a new capability this chain surfaced: re-running `approve-adr` after a revision pass to measure whether the revision actually helped (robust utility 0.841→0.875, margin 0.744→0.817), recorded as ADR-005.

@@ -67,6 +67,15 @@ from .autonomy import (
     wilson_lower_bound,
 )
 from .capture import CaptureContext, EpisodeCapture, get_capture
+from .comparison import (
+    DEFAULT_EPSILON,
+    ActionDelta,
+    ClassificationType,
+    PairwiseComparison,
+    SequenceComparisonResult,
+    compare_decision_results,
+    compare_decision_sequence,
+)
 from .classifiers import (
     AdherenceScorer,
     Classifier,
@@ -138,6 +147,12 @@ from .types import (
 
 __all__ = [
     "Action",
+    "ActionDelta",
+    "ClassificationType",
+    "PairwiseComparison",
+    "SequenceComparisonResult",
+    "compare_decision_results",
+    "compare_decision_sequence",
     "AdherenceScorer",
     "AgentSummary",
     "AgentTaskSummary",

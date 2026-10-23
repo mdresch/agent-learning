@@ -14,6 +14,11 @@ from typing import Any
 
 from ._version import __version__
 from .autonomy import ComplexityProfile, assess_autonomy
+from .comparison import (
+    DEFAULT_EPSILON,
+    ClassificationType,
+    compare_decision_sequence,
+)
 from .decision import (
     DecisionAuthority,
     DecisionFrame,
@@ -233,6 +238,29 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         "--episode",
         required=True,
         help="Path to a JSON file containing an Episode object.",
+    )
+
+    compare = sub.add_parser(
+        "task-policy-compare",
+        help="Compare a sequence of full-authority DecisionResults to classify decision progress or regression.",
+    )
+    compare.add_argument(
+        "--sequence",
+        nargs="+",
+        required=True,
+        help="List of 2+ DecisionResult JSON file paths in chronological order.",
+    )
+    compare.add_argument(
+        "--epsilon",
+        type=float,
+        default=DEFAULT_EPSILON,
+        help="Classification epsilon tolerance threshold (default: 0.01).",
+    )
+    compare.add_argument(
+        "--retry-cap",
+        type=int,
+        default=3,
+        help="Maximum consecutive regression attempts before human escalation (default: 3).",
     )
 
     return parser
@@ -992,6 +1020,60 @@ def _cmd_register_task_episode(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_compare_task_policy(args: argparse.Namespace) -> int:
+    if not args.sequence or len(args.sequence) < 2:
+        print("At least two decision result files are required for comparison.", file=sys.stderr)
+        return 2
+
+    results: list[DecisionResult] = []
+    for path in args.sequence:
+        results.append(_load_decision_result(path))
+
+    sequence_result = compare_decision_sequence(
+        results,
+        epsilon=args.epsilon,
+        retry_cap=args.retry_cap,
+    )
+
+    for i, comp in enumerate(sequence_result.comparisons):
+        src_path = args.sequence[i]
+        dst_path = args.sequence[i + 1]
+        print(f"=== Comparison: {src_path} -> {dst_path} ===")
+        print(f"Policy: {comp.before_policy_id} (v{comp.before_version}) -> {comp.after_policy_id} (v{comp.after_version})")
+        print(f"Classification: {comp.classification.value.upper()} ({comp.classification_reason})")
+        print(f"Leader: {comp.leader_before} -> {comp.leader_after} (changed: {comp.leader_changed}, feasible: {comp.leader_feasible})")
+        print(f"Margin: {comp.margin_before:.5f} -> {comp.margin_after:.5f} (delta: {comp.margin_delta:+.5f})")
+        print(f"Leader Robust Utility Delta: {comp.leader_robust_utility_delta:+.5f}")
+        print("\nPer-Action Deltas:")
+        for action_id, delta in comp.action_deltas.items():
+            print(
+                f"  - {action_id}: "
+                f"robust_utility: {delta.robust_utility_delta:+.5f}, "
+                f"expected_utility: {delta.expected_utility_delta:+.5f}, "
+                f"uncertainty: {delta.uncertainty_delta:+.5f}"
+            )
+
+        if comp.classification == ClassificationType.REGRESSION:
+            print("\nRegression Attribution (Negative Criteria Movements):")
+            if comp.attribution:
+                for attr in comp.attribution:
+                    print(
+                        f"  - {attr['criterion_id']}: "
+                        f"{attr['before_support']:.4f} -> {attr['after_support']:.4f} "
+                        f"({attr['support_delta']:+.4f})"
+                    )
+            else:
+                print("  (No individual negative criteria movements found for the leader)")
+
+    if sequence_result.consecutive_regression_count > 0:
+        print(f"\nConsecutive Regressions: {sequence_result.consecutive_regression_count} / {args.retry_cap}")
+
+    if sequence_result.escalation_required:
+        print("ESCALATE: human review required (consecutive regressions reached retry cap)")
+
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s - %(message)s")
     parser = _build_arg_parser()
@@ -1013,6 +1095,7 @@ def main(argv: list[str] | None = None) -> int:
         "task-policy-authority-set": _cmd_set_task_policy_authority,
         "task-policy-complexity-set": _cmd_set_task_policy_complexity,
         "task-episode-register": _cmd_register_task_episode,
+        "task-policy-compare": _cmd_compare_task_policy,
     }
     handler = dispatch[args.command]
     return handler(args)

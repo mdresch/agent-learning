@@ -13,7 +13,9 @@ description: Decision-progress comparison and regression healing component for a
 - Pure and stateless: no filesystem writes, no `LearningStore` calls (AC5). The heal step never edits ADR/BRD/FDD/Story files.
 - Classification taxonomy is ADR-005 §4.4 verbatim; `DEFAULT_EPSILON = 0.01`.
 - `_validate_preconditions` raises `ValueError` naming the mismatched field (`agent_id`, `task_id`, `decision_authority`, or action taxonomy).
-- Regression path prints per-criterion attribution and a streak against `--retry-cap` (default 3); at the cap it prints `ESCALATE` and exits 0.
+- Regression path prints per-criterion attribution and a streak against `--retry-cap` (default 3, minimum 1 enforced); at the cap it prints `ESCALATE` and exits 0.
+- `criteria_deltas` tracks all criteria across `set(cb) | set(ca)`, ensuring disappeared criteria report negative deltas (`0.0 - before`) and added criteria report positive deltas (`after - 0.0`).
+- Input validation: CLI handles malformed or unreadable files cleanly via `try/except (TypeError, ValueError)` exiting code 2 without unhandled stack traces.
 - Persisting decision-result history and auto-generating corrective revisions are rejected in ADR-005 §5, not deferred.
 
 ## Call sites

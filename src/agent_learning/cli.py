@@ -45,6 +45,13 @@ def _episode_limit(value: str) -> int:
     return limit
 
 
+def _retry_cap(value: str) -> int:
+    cap = int(value)
+    if cap < 1:
+        raise argparse.ArgumentTypeError("retry-cap must be an integer >= 1")
+    return cap
+
+
 def _iso_date(value: str) -> str:
     try:
         parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
@@ -258,9 +265,9 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     )
     compare.add_argument(
         "--retry-cap",
-        type=int,
+        type=_retry_cap,
         default=3,
-        help="Maximum consecutive regression attempts before human escalation (default: 3).",
+        help="Maximum consecutive regression attempts before human escalation (default: 3, minimum: 1).",
     )
 
     return parser
@@ -1027,7 +1034,11 @@ def _cmd_compare_task_policy(args: argparse.Namespace) -> int:
 
     results: list[DecisionResult] = []
     for path in args.sequence:
-        results.append(_load_decision_result(path))
+        try:
+            results.append(_load_decision_result(path))
+        except (TypeError, ValueError) as exc:
+            print(str(exc), file=sys.stderr)
+            return 2
 
     sequence_result = compare_decision_sequence(
         results,

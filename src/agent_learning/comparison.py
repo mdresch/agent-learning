@@ -7,9 +7,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Mapping, Sequence
+from typing import Any, Sequence
 
-from .decision import DecisionResult, OptionAssessment
+from .decision import DecisionResult
 
 DEFAULT_EPSILON: float = 0.01
 
@@ -222,7 +222,10 @@ def compare_decision_results(
         # Criteria deltas
         cb = {c.criterion_id: c.support for c in a_before.criteria}
         ca = {c.criterion_id: c.support for c in a_after.criteria}
-        crit_deltas = {cid: (ca[cid] - cb.get(cid, 0.0)) for cid in ca if cid in cb}
+        crit_deltas = {
+            cid: ca.get(cid, 0.0) - cb.get(cid, 0.0)
+            for cid in set(cb) | set(ca)
+        }
 
         action_deltas[action_id] = ActionDelta(
             robust_utility_delta=(a_after.robust_utility or 0.0) - (a_before.robust_utility or 0.0),
@@ -281,6 +284,8 @@ def compare_decision_sequence(
     """Compare an ordered sequence of 2 or more DecisionResults."""
     if len(results) < 2:
         raise ValueError("At least two DecisionResults are required for a sequence comparison")
+    if retry_cap < 1:
+        raise ValueError("retry_cap must be >= 1")
 
     comparisons: list[PairwiseComparison] = []
     consecutive_regressions = 0

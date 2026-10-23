@@ -76,9 +76,9 @@ def test_ac1_per_action_deltas():
     deltas = comparison.action_deltas
     assert set(deltas.keys()) == {"approve_adr", "reject_adr", "request_revision_before_decision"}
 
-    assert pytest.approx(deltas["approve_adr"].robust_utility_delta, abs=1e-4) == 0.03421
-    assert pytest.approx(deltas["reject_adr"].robust_utility_delta, abs=1e-4) == -0.02867
-    assert pytest.approx(deltas["request_revision_before_decision"].robust_utility_delta, abs=1e-4) == -0.03815
+    assert deltas["approve_adr"].robust_utility_delta == pytest.approx(0.03421, abs=1e-4)
+    assert deltas["reject_adr"].robust_utility_delta == pytest.approx(-0.02867, abs=1e-4)
+    assert deltas["request_revision_before_decision"].robust_utility_delta == pytest.approx(-0.03815, abs=1e-4)
 
 
 def test_ac2_classification_progression():
@@ -91,9 +91,9 @@ def test_ac2_classification_progression():
     comparison = compare_decision_results(res_v1, res_v2, epsilon=DEFAULT_EPSILON)
 
     assert comparison.classification == ClassificationType.PROGRESSION
-    assert pytest.approx(comparison.margin_before, abs=1e-4) == 0.74410
-    assert pytest.approx(comparison.margin_after, abs=1e-4) == 0.81646
-    assert pytest.approx(comparison.margin_delta, abs=1e-4) == 0.07236
+    assert comparison.margin_before == pytest.approx(0.74410, abs=1e-4)
+    assert comparison.margin_after == pytest.approx(0.81646, abs=1e-4)
+    assert comparison.margin_delta == pytest.approx(0.07236, abs=1e-4)
 
 
 def test_ac3_cli_task_policy_compare(capsys):
@@ -128,9 +128,9 @@ def test_ac4_regression_attribution_and_escalation(capsys):
 
     comparison = compare_decision_results(res_acc, res_reg)
     assert comparison.classification == ClassificationType.REGRESSION
-    assert pytest.approx(comparison.leader_robust_utility_delta, abs=1e-4) == -0.17844
-    assert pytest.approx(comparison.margin_before, abs=1e-4) == 0.80775
-    assert pytest.approx(comparison.margin_after, abs=1e-4) == 0.54832
+    assert comparison.leader_robust_utility_delta == pytest.approx(-0.17844, abs=1e-4)
+    assert comparison.margin_before == pytest.approx(0.80775, abs=1e-4)
+    assert comparison.margin_after == pytest.approx(0.54832, abs=1e-4)
 
     # Check attribution: consequences_honest and gap_disclosure_quality moved negatively
     neg_criteria = [item["criterion_id"] for item in comparison.attribution]
@@ -170,4 +170,48 @@ def test_ac5_stateless_no_writes_and_no_storage():
         ])
         assert exit_code == 0
         mock_store.assert_not_called()
+
+
+def test_criteria_deltas_includes_disappeared_and_added_criteria():
+    """Verify criteria present in before but not in after (disappeared) or vice versa are computed."""
+    res_v1 = _load_result(ADR_002_V1_FILE)
+    res_v2 = _load_result(ADR_002_V2_FILE)
+    comp = compare_decision_results(res_v1, res_v2)
+    action_delta = comp.action_deltas["approve_adr"]
+    assert "architectural_soundness" in action_delta.criteria_deltas
+    assert "consequences_honest" in action_delta.criteria_deltas
+
+
+def test_retry_cap_minimum_validation():
+    """Verify retry_cap < 1 raises ValueError in compare_decision_sequence."""
+    res_v1 = _load_result(ADR_002_V1_FILE)
+    res_v2 = _load_result(ADR_002_V2_FILE)
+    with pytest.raises(ValueError, match="retry_cap must be >= 1"):
+        compare_decision_sequence([res_v1, res_v2], retry_cap=0)
+
+
+def test_cli_error_handling_malformed_and_invalid_retry_cap(tmp_path, capsys):
+    """Verify CLI prints error and exits cleanly with code 2 on malformed input or invalid retry-cap."""
+    bad_file = tmp_path / "bad.json"
+    bad_file.write_text("not json", encoding="utf-8")
+
+    exit_code = cli_main([
+        "task-policy-compare",
+        "--sequence",
+        str(ADR_002_V1_FILE),
+        str(bad_file),
+    ])
+    assert exit_code == 2
+
+    with pytest.raises(SystemExit) as exc_info:
+        cli_main([
+            "task-policy-compare",
+            "--sequence",
+            str(ADR_002_V1_FILE),
+            str(ADR_002_V2_FILE),
+            "--retry-cap",
+            "0",
+        ])
+    assert exc_info.value.code == 2
+
 

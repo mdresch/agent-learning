@@ -779,6 +779,8 @@ class DecisionResolver:
 
     @staticmethod
     def _requires_human_approval(snapshot: PolicySnapshot) -> bool:
+        if bool(snapshot.metadata.get("requires_human_approval")):
+            return True
         profile = snapshot.metadata.get("complexity_profile")
         return bool(isinstance(profile, dict) and profile.get("requires_human_approval"))
 

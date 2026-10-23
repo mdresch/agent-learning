@@ -9,7 +9,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Mapping, Sequence
-import uuid
 
 from .comparison import ClassificationType, PairwiseComparison, compare_decision_results
 from .decision import (
@@ -129,11 +128,11 @@ def evaluate_governance_diff(
     """Execute the Stage 16 Governance Change paired classification & escalation pipeline.
 
     1. Classifies the semantic form of diff under FULL authority (Bayesian).
-    2. Enforces native margin check; halts immediately on NEEDS_USER_TIE_BREAK.
+    2. Enforces native margin check; halts immediately on NEEDS_USER_TIE_BREAK or NEEDS_USER_FEEDBACK.
     3. Enforces permanent lineage freeze on lifecycle status mutations.
     4. Transports classification context as ADR-006 audit_evidence envelope to LOW authority.
-    5. Mandates immutable Episode audit emission for autonomous updates.
-    6. Verifies downstream progression via ADR-005 compare_decision_results().
+    5. Verifies downstream progression via ADR-005 compare_decision_results().
+    6. Mandates immutable Episode audit emission for autonomous updates (post-verification).
     """
     if classify_policy.authority is not DecisionAuthority.FULL:
         raise ValueError("classify_policy must operate under DecisionAuthority.FULL")
@@ -143,13 +142,23 @@ def evaluate_governance_diff(
     # Step 1: Execute semantic classification under FULL authority
     classification_result = classify_policy.decide(frame)
 
-    # Step 2: Native margin & ambiguity check (BRU-007-03, Invariant #3)
-    if classification_result.status is DecisionStatus.NEEDS_USER_TIE_BREAK:
+    # Step 2: Native margin & human approval gates (BRU-007-03, Invariant #3)
+    if classification_result.status in {
+        DecisionStatus.NEEDS_USER_TIE_BREAK,
+        DecisionStatus.NEEDS_USER_FEEDBACK,
+    }:
+        disposition = (
+            "needs_user_tie_break"
+            if classification_result.status is DecisionStatus.NEEDS_USER_TIE_BREAK
+            else "needs_user_feedback"
+        )
         return GovernancePipelineResult(
             classification_result=classification_result,
             escalation_result=None,
-            disposition="needs_user_tie_break",
-            halted_for_tie_break=True,
+            disposition=disposition,
+            halted_for_tie_break=(
+                classification_result.status is DecisionStatus.NEEDS_USER_TIE_BREAK
+            ),
             lineage_frozen=False,
             audit_evidence={},
             audit_episode=None,
@@ -200,14 +209,16 @@ def evaluate_governance_diff(
 
     # Step 4: Permanent Lineage Freeze check (BRU-007-04, Invariant #4)
     lineage_frozen = action_id in PERMANENTLY_FROZEN_DIFF_TYPES
+    escalate_snapshot = escalate_policy.snapshot()
+
     if lineage_frozen:
         disposition = ESCALATE_TO_HUMAN
         # Bypass bandit exploration; hard-override escalation result
         escalation_result = DecisionResult(
-            agent_id=escalate_policy.snapshot().agent_id,
-            task_id=escalate_policy.snapshot().task_id,
-            policy_id=escalate_policy.snapshot().id,
-            policy_version=escalate_policy.snapshot().version,
+            agent_id=escalate_snapshot.agent_id,
+            task_id=escalate_snapshot.task_id,
+            policy_id=escalate_snapshot.id,
+            policy_version=escalate_snapshot.version,
             status=DecisionStatus.RESOLVED,
             reason=(
                 f"Action '{action_id}' alters governance lineage and is permanently frozen "
@@ -231,23 +242,7 @@ def evaluate_governance_diff(
         chosen = escalation_result.selected_action or escalation_result.proposed_action
         disposition = chosen.id if chosen else ESCALATE_TO_HUMAN
 
-    # Step 6: Mandatory Episode Audit Emission (BRU-007-05, Invariant #5)
-    audit_episode: Episode | None = None
-    if disposition in {APPLY_AUTOMATICALLY, APPLY_WITH_NOTIFICATION}:
-        audit_episode = Episode(
-            agent_id=escalate_policy.snapshot().agent_id,
-            task_id=escalate_policy.snapshot().task_id,
-            policy_id=escalate_policy.snapshot().id,
-            policy_version=escalate_policy.snapshot().version,
-            action_id=disposition,
-            metadata={"audit_evidence": audit_evidence},
-            user_input=f"Governance change diff evaluation for {target_artifact}",
-            assistant_output=f"Disposition: {disposition} for {action_id}",
-        )
-        if store is not None:
-            store.store_episode(audit_episode)
-
-    # Step 7: ADR-005 Progression Verification (BRU-007-07, Invariant #6)
+    # Step 6: ADR-005 Progression Verification (BRU-007-07, Invariant #6)
     progression_comparison: PairwiseComparison | None = None
     reward: float | None = None
     if (
@@ -265,6 +260,23 @@ def evaluate_governance_diff(
             reward = -1.5
             # Invariant: detected regression immediately halts & reverts to human escalation
             disposition = ESCALATE_TO_HUMAN
+
+    # Step 7: Mandatory Episode Audit Emission (BRU-007-05, Invariant #5)
+    # Strictly emitted if final disposition remains autonomous after progression verification
+    audit_episode: Episode | None = None
+    if disposition in {APPLY_AUTOMATICALLY, APPLY_WITH_NOTIFICATION}:
+        audit_episode = Episode(
+            agent_id=escalate_snapshot.agent_id,
+            task_id=escalate_snapshot.task_id,
+            policy_id=escalate_snapshot.id,
+            policy_version=escalate_snapshot.version,
+            action_id=disposition,
+            metadata={"audit_evidence": audit_evidence},
+            user_input=f"Governance change diff evaluation for {target_artifact}",
+            assistant_output=f"Disposition: {disposition} for {action_id}",
+        )
+        if store is not None:
+            store.store_episode(audit_episode)
 
     return GovernancePipelineResult(
         classification_result=classification_result,

@@ -193,6 +193,7 @@ def test_ac3_permanent_lineage_freeze_guard():
             target_artifact="docs/adr/ADR-002.md",
         )
 
+        assert result.classification_result.selected_action is not None
         assert result.classification_result.selected_action.id == expected_action
         assert expected_action in PERMANENTLY_FROZEN_DIFF_TYPES
         assert result.lineage_frozen is True
@@ -326,3 +327,49 @@ def test_ac7_adversarial_diff_safety_harness():
     frame_param = _load_frame(PARAMETER_FRAME_FILE)
     res_param = evaluate_governance_diff(classify_policy, escalate_policy, frame_param, "docs/adr/ADR-005.md")
     assert res_param.classification_result.selected_action.id == "amendment_log_entry"
+
+
+def test_ac0_requires_human_approval_halts_for_user_feedback():
+    """AC_0 (PR Review Finding): When classify_policy requires human approval, halt for feedback."""
+    classify_policy = _make_classify_policy(requires_human_approval=True)
+    escalate_policy = _make_escalate_policy()
+    frame = _load_frame(ERRATUM_FRAME_FILE)
+
+    result = evaluate_governance_diff(
+        classify_policy=classify_policy,
+        escalate_policy=escalate_policy,
+        frame=frame,
+        target_artifact="docs/adr/ADR-001.md",
+    )
+
+    assert result.disposition == "needs_user_feedback"
+    assert result.classification_result.status is DecisionStatus.NEEDS_USER_FEEDBACK
+    assert result.escalation_result is None
+
+
+def test_ac5_regression_does_not_persist_autonomous_audit_episode():
+    """AC_5 (PR Review Finding): Regression must NOT persist autonomous update episode to store."""
+    classify_policy = _make_classify_policy()
+    escalate_policy = _make_escalate_policy(logits=(-10.0, -10.0, 10.0))
+    frame = _load_frame(PARAMETER_FRAME_FILE)
+    store = InMemoryStore()
+
+    fixtures_comp = Path(__file__).resolve().parent / "fixtures" / "comparison"
+    before_reg = DecisionResult.from_dict(__import__("json").loads((fixtures_comp / "adr-005-decision-result.json").read_text()))
+    after_reg = DecisionResult.from_dict(__import__("json").loads((fixtures_comp / "adr-005-regressed-decision-result.json").read_text()))
+
+    result = evaluate_governance_diff(
+        classify_policy=classify_policy,
+        escalate_policy=escalate_policy,
+        frame=frame,
+        target_artifact="docs/adr/ADR-005.md",
+        store=store,
+        verification_before_result=before_reg,
+        verification_after_result=after_reg,
+    )
+
+    assert result.disposition == ESCALATE_TO_HUMAN
+    assert result.audit_episode is None
+    # Storage MUST contain ZERO episodes
+    episodes = store.query_episodes(agent_id="socialengage-governance", task_id="escalate-diff-response")
+    assert len(episodes) == 0

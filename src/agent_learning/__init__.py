@@ -67,6 +67,19 @@ from .autonomy import (
     wilson_lower_bound,
 )
 from .capture import CaptureContext, EpisodeCapture, get_capture
+from .governance import (
+    APPLY_AUTOMATICALLY,
+    APPLY_WITH_NOTIFICATION,
+    DIFF_ACTIONS,
+    DIFF_TIERS,
+    DiffActionTier,
+    ESCALATE_TO_HUMAN,
+    ESCALATION_ACTIONS,
+    GOVERNANCE_CRITERIA_WEIGHTS,
+    GovernancePipelineResult,
+    PERMANENTLY_FROZEN_DIFF_TYPES,
+    evaluate_governance_diff,
+)
 from .comparison import (
     DEFAULT_EPSILON,
     ActionDelta,
@@ -147,6 +160,18 @@ from .types import (
 
 __all__ = [
     "Action",
+    "APPLY_AUTOMATICALLY",
+    "APPLY_WITH_NOTIFICATION",
+    "DIFF_ACTIONS",
+    "DIFF_TIERS",
+    "DiffActionTier",
+    "ESCALATE_TO_HUMAN",
+    "ESCALATION_ACTIONS",
+    "GOVERNANCE_CRITERIA_WEIGHTS",
+    "GovernancePipelineResult",
+    "PERMANENTLY_FROZEN_DIFF_TYPES",
+    "evaluate_governance_diff",
+
     "ActionDelta",
     "ClassificationType",
     "PairwiseComparison",

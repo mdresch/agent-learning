@@ -332,6 +332,7 @@ class DecisionResult:
     authorization_basis: str | None = None
     action_probabilities: Mapping[str, float] = field(default_factory=dict)
     action_logprob: float | None = None
+    audit_evidence: Mapping[str, Any] | None = None
 
     def to_dict(self) -> dict[str, object]:
         return {
@@ -351,6 +352,7 @@ class DecisionResult:
             "authorization_basis": self.authorization_basis,
             "action_probabilities": dict(self.action_probabilities),
             "action_logprob": self.action_logprob,
+            "audit_evidence": dict(self.audit_evidence) if self.audit_evidence is not None else None,
         }
 
     @classmethod
@@ -358,6 +360,7 @@ class DecisionResult:
         selected_action = data.get("selected_action")
         proposed_action = data.get("proposed_action")
         action_logprob = data.get("action_logprob")
+        audit_evidence = data.get("audit_evidence")
         try:
             status = DecisionStatus(data["status"])
         except KeyError as exc:
@@ -398,6 +401,7 @@ class DecisionResult:
             action_logprob=(
                 float(action_logprob) if action_logprob is not None else None
             ),
+            audit_evidence=audit_evidence,
         )
 
 
@@ -775,6 +779,8 @@ class DecisionResolver:
 
     @staticmethod
     def _requires_human_approval(snapshot: PolicySnapshot) -> bool:
+        if bool(snapshot.metadata.get("requires_human_approval")):
+            return True
         profile = snapshot.metadata.get("complexity_profile")
         return bool(isinstance(profile, dict) and profile.get("requires_human_approval"))
 
@@ -876,6 +882,7 @@ class TaskPolicy:
         frame: DecisionFrame | None = None,
         *,
         selected_action_id: str | None = None,
+        audit_evidence: Mapping[str, Any] | None = None,
     ) -> DecisionResult:
         """Select through Bayesian resolution or the policy's learned logits."""
         if self.authority is DecisionAuthority.FULL:
@@ -925,6 +932,7 @@ class TaskPolicy:
             candidate_actions=tuple(self._snapshot.actions),
             action_probabilities=probabilities,
             action_logprob=action_logprob,
+            audit_evidence=audit_evidence,
         )
 
     def adjudicate(

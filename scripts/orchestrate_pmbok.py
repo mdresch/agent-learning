@@ -71,13 +71,17 @@ def extract_project_identity(charter_path: Path) -> dict[str, str]:
         ]
     }
 
-def synthesize_pmp_markdown(project_context: dict, generated_plans: dict[str, str]) -> str:
+def synthesize_pmp_markdown(project_context: dict, generated_plans: dict[str, str], baseline_id: str = "PMP-BL-v1.0.0") -> str:
     """Synthesize integrated Project-Management-Plan.md from subsidiary plans."""
+    clean_title = project_context["title"].strip()
+    for _ch in [":", "-", "\u2014"]:
+        clean_title = clean_title.strip(_ch).strip()
     lines = [
         "---",
         'pmbok_edition: "PMBOK 8"',
         'pmbok_process_group: "Planning"',
         'pmbok_process: "4.2 Develop Project Management Plan"',
+        f'pmp_baseline: "{baseline_id}"',
         'lifecycle_stage: "Stage 6 (Project)"',
         'governance_policy: "approve-pmp"',
         "inputs:",
@@ -88,16 +92,18 @@ def synthesize_pmp_markdown(project_context: dict, generated_plans: dict[str, st
         '  - "Project-Management-Plan.md"',
         "---",
         "",
-        f"# Project Management Plan (PMP) — {project_context['title']}",
+        f"# Project Management Plan (PMP) — {clean_title}",
         "",
         "> **PMBOK 8 Process:** `4.2 Develop Project Management Plan` (Planning)  ",
         "> **Governance Policy:** `approve-pmp` | **Lifecycle Stage:** `Stage 6 (Project)`  ",
+        f"> **Baseline Identifier:** `{baseline_id}`  ",
         "> **Inputs:** Project-Charter.md, Subsidiary Management Plans  ",
         "> **Process:** Integrate subsidiary management plans, establish baselines, define governance gates  ",
         "> **Outputs:** Project-Management-Plan.md",
         "",
         "## 1. Executive Summary & Baselines",
-        f"- **Project Title:** {project_context['title']}",
+        f"- **Project Title:** {clean_title}",
+        f"- **Baseline ID:** `{baseline_id}`",
         "- **Scope Baseline:** Approved scope boundary traced to Project Charter objectives.",
         "- **Schedule Baseline / Progressive Elaboration:** Milestones established; duration detailed progressively from empirical evidence.",
         "- **Cost Baseline / Progressive Elaboration:** Investment limits from Business Case; detailed cost tracked as resources are committed.",
@@ -116,10 +122,10 @@ def synthesize_pmp_markdown(project_context: dict, generated_plans: dict[str, st
 
     lines.extend([
         "## 3. Feedback Loop from Adaptation",
-        "When an **Adaptation Plan** (Stage 17) is approved, this PMP and its subsidiary plans are updated with tailored operational changes, which in turn trigger refined ADRs, BRDs, FDDs, and Stories for the next cycle.",
+        "When an **Adaptation Plan** (Stage 17) is approved, this PMP and its subsidiary plans are updated with tailored operational changes evaluated through the Governance Change Impact Matrix, which in turn trigger refined ADRs, BRDs, FDDs, and Stories for the next cycle. Prior baselines are archived to `management-plans/history/{baseline_id}/`.",
         "",
         "## 4. Governance Authorization",
-        "This integrated PMP must be formally evaluated and approved via `approve-pmp` (`FULL` Bayesian authority, `requires_human_approval: true`) before technical specifications (ADR, BRD, FDD, Stories) are finalized."
+        f"This integrated PMP must be formally evaluated and approved via `approve-pmp` (`FULL` Bayesian authority, `requires_human_approval: true`) before technical specifications (ADR, BRD, FDD, Stories) are finalized. All downstream technical requirements must record `pmp_baseline: '{baseline_id}'` (Invariant 6). Prior baselines remain recoverable from history archives (Invariant 7)."
     ])
     return "\n".join(lines) + "\n"
 

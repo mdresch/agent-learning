@@ -19,7 +19,7 @@ python scripts/orchestrate_pmbok.py --mode full --charter docs/project-docs/Proj
 *(Add `--mock` for offline / stub execution without external LLM keys).*
 
 ### 2. Closed-Loop Adaptation Regeneration
-Executed when an `Adaptation-Plan.md` (Stage 17) identifies specific subsidiary management plans requiring revision after a governance change (Stage 16).
+Executed when an `Adaptation-Plan.md` (Stage 17) evaluates governance amendments via the **Governance Change Impact Matrix** and identifies specific subsidiary plans requiring revision after a Stage 16 Governance Change.
 
 ```powershell
 python scripts/orchestrate_pmbok.py --mode adapt --adaptation-plan docs/project-docs/Adaptation-Plan.md
@@ -36,7 +36,7 @@ This scans the checklist in `Adaptation-Plan.md`:
 - `[x] Procurement Management Plan` $\rightarrow$ regenerates `12.1`
 - `[x] Stakeholder Engagement Plan` $\rightarrow$ regenerates `13.2`
 
-It regenerates only the checked plans, updates `docs/project-docs/management-plans/`, and re-synthesizes `docs/project-docs/Project-Management-Plan.md`.
+It regenerates only the checked plans, updates `docs/project-docs/management-plans/`, archives prior baselines to `management-plans/history/{baseline_id}/`, and re-synthesizes `docs/project-docs/Project-Management-Plan.md`.
 
 ### 3. Decision Validation Gate Verification
 After synthesis, the integrated PMP must be validated via `approve-pmp`:
@@ -45,3 +45,16 @@ After synthesis, the integrated PMP must be validated via `approve-pmp`:
 agent-learn task-policy-decide --agent-id template-governance --task-id approve-pmp
 ```
 
+### 4. PMP Baseline Versioning & Traceability Invariant (Invariant 6)
+Every approved PMP receives an immutable SemVer identifier (`PMP-BL-v1.0.0`, `PMP-BL-v1.1.0`). All downstream technical requirements (ADRs, BRDs, FDDs, Stories) must reference the active baseline:
+```yaml
+---
+pmp_baseline: "PMP-BL-v1.0.0"
+---
+```
+
+### 5. Deterministic Rollback Protocol (Invariant 7)
+If downstream execution triggers regressions, atomic rollback restores the prior approved baseline from archive and penalizes the escalation bandit:
+```powershell
+python scripts/orchestrate_pmbok.py --mode rollback --to-baseline PMP-BL-v1.0.0
+```

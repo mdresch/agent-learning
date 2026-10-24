@@ -12,11 +12,12 @@
 
 ## Status
 
-**ADRs 001 through 008 are Accepted**, each reviewed and approved by Menno through the real `approve-adr` policy. 
+**ADRs 001 through 008 are Accepted**, each reviewed and approved by Menno through the real `approve-adr` policy. **ADR-009 is Drafted (2026-10-24)**.
 
 - **ADR-005** (decision-progress comparison and regression healing) is **Implemented and Merged into `main`** (`7fbe607`), with all contract tests and review amendments verified.
 - **ADR-006** (opt-in, lightweight evidence capture for `low`-authority decisions) is **Accepted (2026-10-23)**, resolving ADR-004 §4.4's deferred "mandatory capture" question as opt-in-per-policy with strict SDK non-interpretation and storage boundaries.
 - **ADR-007** (automated governance change — paired diff classification and escalation pipeline) is **Accepted (2026-10-23)**, formalizing Stage 16 on the 18-stage Intent-to-Outcome chain to close the development lifecycle loop between Lessons Learned (Stage 15) and Adaptation (Stage 17), with permanent lineage freeze and mandatory audit logging for autonomous applications.
 - **ADR-008** (PMBOK 8 lifecycle orchestration and closed-loop adaptation feedback into Project Management Plan and cascading requirements) is **Accepted (2026-10-24)**, formalizing Stage 6 (PMP), Stage 17 (Adaptation), and Stage 18 (Intent Refinement) into a living continuous cognitive loop with native PMBOK 8 orchestration and dedicated `approve-pmp` / `approve-adaptation-plan` Bayesian decision gates.
+- **ADR-009** (Intent Refinement — closing the cybernetic loop from outcomes and lessons learned back to strategic spark and hypotheses) is **Drafted (2026-10-24)**, formalizing Stage 18 under PMBOK 8 Process 4.7 (Close Project or Phase) as double-loop cognitive learning with the `approve-intent-refinement` full-authority gate, hypothesis terminality, and generational Spark inheritance.
 
 **Update (2026-10-23):** this repo now has its own real `agent-learning-governance` TaskPolicy chain (`approve-adr`, `approve-brd`, `approve-fdd`, `approve-user-stories`, `validate-intent-foundation`), mirroring ADPA's and sidpa-template's shapes under `data/agent-learning/store/`. Both ADR-001's and ADR-002's approvals ran through it for real — `task-policy-decide` → (Menno's explicit disposition) → `task-policy-adjudicate` → `task-episode-register` — not just a markdown status flip. ADR-002's approval is itself the first real case for a new capability this chain surfaced: re-running `approve-adr` after a revision pass to measure whether the revision actually helped (robust utility 0.841→0.875, margin 0.744→0.817), recorded as ADR-005.

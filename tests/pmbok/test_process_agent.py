@@ -112,7 +112,7 @@ class TestParseOutput:
                 "process_id": "5.2",
                 "artifact_type": "Requirements Documentation",
                 "version": 1,
-                "content": {},
+                "content": {"data": "sample"},
                 "produced_by": "5.2",
             },
             {
@@ -120,7 +120,7 @@ class TestParseOutput:
                 "process_id": "5.2",
                 "artifact_type": "Requirements Traceability Matrix",
                 "version": 1,
-                "content": {},
+                "content": {"data": "sample"},
                 "produced_by": "5.2",
             },
         ])
@@ -184,7 +184,7 @@ class TestExecute:
                         "process_id": "4.1",
                         "artifact_type": "Project Charter",
                         "version": 1,
-                        "content": {},
+                        "content": {"data": "sample"},
                         "produced_by": "4.1",
                     }
                 ])
@@ -193,7 +193,7 @@ class TestExecute:
         input_art = _make_artifact()
         await agent.execute(run_id="run-1", input_artifacts=[input_art])
         assert len(captured_prompts) == 1
-        assert "Input artifacts" in captured_prompts[0]
+        assert "Input Evidence" in captured_prompts[0] or "Input artifacts" in captured_prompts[0]
 
     @pytest.mark.anyio
     async def test_raises_process_execution_error_on_llm_failure(

@@ -730,6 +730,6 @@ class PMBOKOrchestrator:
         """
         for process in get_processes_by_group(group):
             status = status_map.get(process.process_id, ProcessStatus.NOT_STARTED)
-            if status not in (ProcessStatus.COMPLETE, ProcessStatus.COMPLETED_WITH_WARNINGS, ProcessStatus.BLOCKED):
+            if status not in (ProcessStatus.COMPLETE, ProcessStatus.COMPLETED_WITH_WARNINGS):
                 return False
         return True

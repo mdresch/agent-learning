@@ -143,10 +143,13 @@ drift_events_table = sa.Table(
     metadata,
     sa.Column("drift_id", sa.Text, primary_key=True),
     sa.Column("entity_id", sa.Text, nullable=False),
+    sa.Column("baseline_version_id", sa.Text, nullable=True),
+    sa.Column("observed_version_id", sa.Text, nullable=True),
+    sa.Column("drift_type", sa.Text, nullable=True),
     sa.Column("severity", sa.Text, nullable=False),
+    sa.Column("drift_score", sa.Float, nullable=True),
+    sa.Column("drift_description", sa.Text, nullable=True),
     sa.Column("detected_at", sa.Text, nullable=False),
-    sa.Column("details", sa.Text, nullable=False),
-    sa.ForeignKeyConstraint(["entity_id"], ["entity_masters.entity_id"]),
 )
 
 # [NEW] Draco Overrides - First Class Governance Artifact
@@ -285,6 +288,9 @@ class RegistryRepository:
         if not row:
             return None
         return self._row_to_master(row)
+
+    async def list_masters(self) -> List[EntityMaster]:
+        return await self.search_masters()
 
     async def search_masters(self, name_pattern: str = None, key_pattern: str = None, entity_type: str = None) -> List[EntityMaster]:
         return await asyncio.to_thread(self._search_masters_sync, name_pattern, key_pattern, entity_type)

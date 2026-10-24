@@ -1010,6 +1010,20 @@ class RegistryManager:
                 "payload": goal
             })
 
+        # 5. Design Options (if present in Business Case)
+        for opt in content.get("design_options", []):
+            name = opt.get("name")
+            if not name:
+                continue
+            opt_slug = slugify(name)
+            entities.append({
+                "canonical_key": f"design-option:{p_slug}:bn-discovery:{opt_slug}",
+                "canonical_name": name,
+                "entity_type": "design_option",
+                "registry": "babok.design_option",
+                "payload": opt,
+            })
+
         return entities
 
     def _decompose_success_criteria(self, artifact: Dict[str, Any]) -> List[Dict[str, Any]]:

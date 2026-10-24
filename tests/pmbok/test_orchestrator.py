@@ -121,8 +121,8 @@ def test_resolve_ready_processes_after_initiating_complete(tmp_path):
     ready = orch._resolve_ready_processes("run-1", status_map)
     ready_ids = {p.process_id for p in ready}
 
-    # 4.2 depends only on 4.1 → should be ready
-    assert "4.2" in ready_ids
+    # 4.2 depends on subsidiary plans (PMBOK 8 ADR-008) → NOT ready until subsidiary plans complete
+    assert "4.2" not in ready_ids
     # 5.1 depends only on 4.1 → should be ready
     assert "5.1" in ready_ids
     # 13.2 depends only on 13.1 → should be ready
@@ -508,7 +508,7 @@ async def test_invoke_agent_with_retry_retries_on_process_execution_error(tmp_pa
 
     call_count = 0
 
-    async def failing_execute(run_id, input_artifacts):
+    async def failing_execute(run_id, input_artifacts, **kwargs):
         nonlocal call_count
         call_count += 1
         raise ProcessExecutionError("simulated failure")

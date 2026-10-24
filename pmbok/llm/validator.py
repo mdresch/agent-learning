@@ -90,7 +90,7 @@ def validate_llm_response(
         instance = model_cls.model_validate(data)
     except Exception as exc:
         raise LLMParseError(
-            f"[{location}] {model_cls.__name__} schema validation failed: {exc}. "
+            f"[{location}] {model_cls.__name__} schema failed validation: {exc}. "
             f"Raw (first 500 chars): {snippet!r}"
         ) from exc
 

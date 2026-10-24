@@ -2,6 +2,7 @@
 pmbok_edition: "PMBOK 8"
 pmbok_process_group: "Planning"
 pmbok_process: "4.2 Develop Project Management Plan"
+pmp_baseline: "PMP-BL-v1.0.0"
 lifecycle_stage: "Stage 6 (Project)"
 governance_policy: "approve-pmp"
 inputs:
@@ -16,12 +17,14 @@ outputs:
 
 > **PMBOK 8 Process:** `4.2 Develop Project Management Plan` (Planning)  
 > **Governance Policy:** `approve-pmp` | **Lifecycle Stage:** `Stage 6 (Project)`  
+> **Baseline Identifier:** `PMP-BL-v1.0.0`  
 > **Inputs:** Project-Charter.md, Subsidiary Management Plans  
 > **Process:** Integrate subsidiary management plans, establish baselines, define governance gates  
 > **Outputs:** Project-Management-Plan.md
 
 ## 1. Executive Summary & Baselines
 - **Project Title:** agent-learning Phase 1: Warm-Start & Confidence-Interval Bandits
+- **Baseline ID:** `PMP-BL-v1.0.0`
 - **Scope Baseline:** Approved scope boundary traced to Project Charter objectives.
 - **Schedule Baseline / Progressive Elaboration:** Milestones established; duration detailed progressively from empirical evidence.
 - **Cost Baseline / Progressive Elaboration:** Investment limits from Business Case; detailed cost tracked as resources are committed.
@@ -65,7 +68,7 @@ outputs:
 - **Summary:** Formulated Stakeholder Engagement Plan addressing Formalize PMBOK 8 planning baselines, Generate verified subsidiary management plans, Integrate into Project Management Plan (PMP)....
 
 ## 3. Feedback Loop from Adaptation
-When an **Adaptation Plan** (Stage 17) is approved, this PMP and its subsidiary plans are updated with tailored operational changes, which in turn trigger refined ADRs, BRDs, FDDs, and Stories for the next cycle.
+When an **Adaptation Plan** (Stage 17) is approved, this PMP and its subsidiary plans are updated with tailored operational changes, which in turn trigger refined ADRs, BRDs, FDDs, and Stories for the next cycle. Prior baselines are archived to `management-plans/history/{baseline_id}/`.
 
 ## 4. Governance Authorization
-This integrated PMP must be formally evaluated and approved via `approve-pmp` (`FULL` Bayesian authority, `requires_human_approval: true`) before technical specifications (ADR, BRD, FDD, Stories) are finalized.
+This integrated PMP must be formally evaluated and approved via `approve-pmp` (`FULL` Bayesian authority, `requires_human_approval: true`) before technical specifications (ADR, BRD, FDD, Stories) are finalized. All downstream technical requirements must record `pmp_baseline: "PMP-BL-v1.0.0"`.

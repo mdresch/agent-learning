@@ -1,6 +1,7 @@
 # FDD-008: PMBOK 8 Lifecycle Orchestration and Closed-Loop Adaptation Feedback
 
 **Source ADR:** [ADR-008](../../adr/ADR-008-pmbok-lifecycle-orchestration-and-pmp-adaptation-loop.md) — Accepted (2026-10-24)  
+**Governing Baseline:** `PMP-BL-v1.0.0`  
 **Source BRD:** [BRD-008](../Business-Requirements/BRD-008-pmbok-lifecycle-orchestration-and-pmp-adaptation-loop.md)  
 **Status:** Draft — functional design derived from an Accepted ADR and BRD  
 
@@ -103,3 +104,46 @@ The PMBOK 8 Orchestration Engine integrates natively into `agent-learning` to or
 In full compliance with ADR-002:
 - PMP decision frames, evaluations, and human adjudications are persisted as `Episode` records in the `episodes/agent-learning-governance/` partition.
 - No schema changes or external tables are introduced.
+
+### 2.4 PMP Baseline Versioning & History Archival
+
+- **Baseline ID Schema:** `PMP-BL-v{major}.{minor}.{patch}`
+- **Directory Layout:**
+  ```
+  docs/project-docs/
+    Project-Management-Plan.md          <-- Active approved baseline (PMP-BL-v1.1.0)
+    management-plans/
+      Scope-Management-Plan.md
+      Risk-Management-Plan.md
+      ...
+      history/
+        PMP-BL-v1.0.0/                  <-- Prior archived baseline snapshot
+          Project-Management-Plan.md
+          Scope-Management-Plan.md
+          ...
+  ```
+- **Tagging Contract:** Downstream requirements specify:
+  ```yaml
+  ---
+  pmp_baseline: "PMP-BL-v1.1.0"
+  ---
+  ```
+
+### 2.5 Deterministic Rollback Protocol
+
+If `compare_decision_results()` flags a `regression` upon post-adaptation verification or downstream test execution:
+1. Orchestrator executes:
+   ```powershell
+   python scripts/orchestrate_pmbok.py --mode rollback --to-baseline PMP-BL-v1.0.0
+   ```
+2. Copies `management-plans/history/PMP-BL-v1.0.0/*` into `management-plans/` and restores `Project-Management-Plan.md`.
+3. Emits negative reward (-1.5) to `escalate-diff-response` for the episode.
+4. Registers an audit episode documenting the rollback rationale.
+
+### 2.6 Configurable Decision Weighting Profiles
+
+Decision frames for `approve-pmp` support profile selection:
+- **`profile: standard` (default):** `subsidiary_plan_completeness` (0.35), `baseline_coherence` (0.35), `adaptation_responsiveness` (0.15), `governance_traceability` (0.15).
+- **`profile: regulated`:** `subsidiary_plan_completeness` (0.25), `baseline_coherence` (0.45), `adaptation_responsiveness` (0.15), `governance_traceability` (0.15).
+- **`profile: spike`:** `subsidiary_plan_completeness` (0.20), `baseline_coherence` (0.20), `adaptation_responsiveness` (0.30), `governance_traceability` (0.30).
+

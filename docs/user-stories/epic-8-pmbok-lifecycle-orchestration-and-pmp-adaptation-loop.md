@@ -1,6 +1,7 @@
 # Epic 8: PMBOK 8 Lifecycle Orchestration and Closed-Loop Adaptation Feedback
 
 **Source ADR:** [ADR-008](../adr/ADR-008-pmbok-lifecycle-orchestration-and-pmp-adaptation-loop.md) — Accepted (2026-10-24)  
+**Governing Baseline:** `PMP-BL-v1.0.0`  
 **Source BRD/FDD:** [BRD-008](../project-docs/Business-Requirements/BRD-008-pmbok-lifecycle-orchestration-and-pmp-adaptation-loop.md) / [FDD-008](../project-docs/Functional-Design/FDD-008-pmbok-lifecycle-orchestration-and-pmp-adaptation-loop.md)  
 
 ---
@@ -21,6 +22,9 @@
 - **$AC_4$ (Cascading Technical Updates):** Updates to quality, scope, or risk baselines in the PMP trigger re-evaluation of affected technical specifications (ADRs, BRDs, FDDs, Stories) prior to execution gate approval.
 - **$AC_5$ (ADR-002 Storage Invariant):** All planning decision frames, evaluations, and human sign-offs are persisted as standard `Episode` records with zero new storage containers or record types.
 - **$AC_6$ (Test Suite Verification):** All 49 PMBOK test cases and existing agent-learning unit/contract tests execute cleanly and pass.
+- **$AC_7$ (Baseline Versioning & Traceability):** Every approved PMP compiles with a unique SemVer identifier (`PMP-BL-vX.Y.Z`). Downstream requirements (ADRs, BRDs, FDDs, Stories) reference the active baseline. Prior baselines are archived in `management-plans/history/{baseline_id}/`.
+- **$AC_8$ (Rollback & Negative Reinforcement):** If an adaptation results in detected regression, the orchestrator restores the prior approved baseline from archive and emits a negative reward to `escalate-diff-response`.
+- **$AC_9$ (Configurable Approval Weighting Profiles):** `approve-pmp` decision frames support configurable weighting profiles for standard engineering, regulated, and rapid spike projects.
 
 ---
 
@@ -29,3 +33,4 @@
 - Bypassing human sign-off on PMP baselines.
 - Introducing external database schemas.
 - Re-executing unaffected subsidiary plans during adaptive cycles.
+

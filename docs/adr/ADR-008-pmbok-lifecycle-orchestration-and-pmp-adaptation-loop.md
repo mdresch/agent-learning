@@ -14,7 +14,7 @@ This completes the Intent-to-Outcome chain as a living, self-governing cognitive
 
 ## 2. Status
 
-**Accepted (2026-10-24)** — formally evaluated against the `agent-learning-governance` / `approve-adr` TaskPolicy chain and adjudicated by Menno Drescher (`--disposition accept`).
+**Accepted (2026-10-24)** — formally evaluated against the `agent-learning-governance` / `approve-adr` TaskPolicy chain and adjudicated by Menno Drescher (`--disposition accept`), revised with formal Governance Change Impact Matrix, PMP Baseline Versioning, Rollback Strategy, and Baseline Traceability Invariant.
 
 ## 3. Context
 
@@ -103,13 +103,52 @@ flowchart TD
     IR -->|"Updates Spark / Ideation"| SPARK["Stage 1: Intent<br/>(approve-ideation)"]
 ```
 
+### 4.5 Governance Change Impact Matrix
+
+To eliminate implicit assumptions during Stage 17 Adaptation, every Adaptation Plan must include a formal **Governance Change Impact Matrix** mapping each accepted Stage 16 governance amendment to its concrete impact across the 9 subsidiary management plans:
+
+| Amendment / Change | Scope (5.1) | Schedule (6.1) | Cost (7.1) | Quality (8.1) | Resource (9.1) | Comms (10.1) | Risk (11.1) | Procurement (12.1) | Stakeholder (13.2) |
+|---|---|---|---|---|---|---|---|---|---|
+| *Example: Evidence retention increase* | None | None | Low | High | None | Low | Medium | None | None |
+| *Example: Strict human sign-off on lifecycle notes* | None | Low | None | Medium | Low | None | High | None | Low |
+
+The CLI orchestrator (`scripts/orchestrate_pmbok.py --mode adapt`) parses this matrix or its corresponding checklist to determine the exact subset of PMBOK process agents that must be executed.
+
+### 4.6 PMP Baseline Versioning, Archival, and Supersession Rules
+
+1. **Baseline Identifier:** Every approved PMP receives a globally unique, immutable baseline identifier adhering to SemVer:
+   - Initial project baseline: `PMP-BL-v1.0.0`
+   - Adaptive iteration baseline: `PMP-BL-v1.1.0` (minor for scope/quality/risk tailoring), `PMP-BL-v2.0.0` (major for project charter restructuring).
+2. **Supersession & Archival:** When a new baseline is approved by `approve-pmp`, the previous baseline file and its subsidiary plans are atomically archived to `docs/project-docs/management-plans/history/{baseline_id}/`. The new baseline supersedes the prior baseline in `Project-Management-Plan.md`.
+3. **Traceability Tagging:** Every downstream technical specification (ADR, BRD, FDD, User Story) must record the governing `pmp_baseline: "PMP-BL-vX.Y.Z"` in its YAML frontmatter.
+
+### 4.7 Rollback and Recovery Pathway
+
+Governance adaptation must provide both a forward evolution path and a deterministic rollback path:
+
+1. **Triggering Conditions:** If downstream implementation introduces detected regressions (via ADR-005 `compare_decision_results()`) or if post-adaptation execution reveals an unviable operational burden, a rollback is initiated.
+2. **Atomic Rollback:** The orchestrator restores the previous approved baseline (`PMP-BL-vX.Y.Z`) from `history/`, rolls back the subsidiary management plans to their archived states, and records an `Episode` with disposition `adaptation_rollback`.
+3. **Negative Reinforcement:** The escalation policy (`escalate-diff-response`) receives a negative reward penalty (-1.5) for the failed autonomous escalation, updating bandit weights to prefer human escalation for similar diff categories in subsequent rounds.
+
+### 4.8 Configurable Approval Weighting Profiles
+
+While standard software projects balance Scope (0.35) and Risk/Quality (0.35), specialized project domains require tailored decision profiles:
+
+- **Standard Engineering Profile (Default):** Scope (0.35), Risk & Quality (0.35), Schedule/Cost (0.15), Charter Alignment (0.15).
+- **Regulated / Safety-Critical Profile:** Risk & Quality (0.50), Scope (0.25), Compliance & Charter Alignment (0.15), Schedule/Cost (0.10).
+- **Rapid Prototyping / Spike Profile:** Charter Alignment (0.40), Scope (0.30), Risk & Quality (0.15), Schedule/Cost (0.15).
+
+Decision frames for `approve-pmp` select the appropriate weighting profile based on the project's complexity profile in `shared-complexity-profile.json`.
+
 ## 5. Invariants
 
 1. **PMP Precedes Technical Specifications:** No ADR, BRD, FDD, or User Story may be considered baseline-approved without an active, approved `Project-Management-Plan.md` in place.
-2. **No Silent Management Plan Drift:** Every Adaptation Plan must explicitly declare which subsidiary management plans (Scope, Schedule, Cost, Quality, Resource, Communications, Risk, Procurement, Stakeholder) are altered by a governance amendment.
-3. **Storage Boundary Compliance (ADR-002):** Zero new record types are introduced. PMP and adaptation audit records are stored strictly as `Episode` instances in `LearningStore`, utilizing free-form metadata dictionaries.
+2. **No Silent Management Plan Drift:** Every Adaptation Plan must explicitly declare which subsidiary management plans (Scope, Schedule, Cost, Quality, Resource, Communications, Risk, Procurement, Stakeholder) are altered by a governance amendment via the Governance Change Impact Matrix.
+3. **Storage Boundary Compliance (ADR-002):** Zero new record types are introduced. PMP, adaptation audit records, and baseline snapshots are stored strictly as `Episode` instances in `LearningStore`, utilizing free-form metadata dictionaries.
 4. **Mandatory Human Sign-Off:** Both `approve-pmp` and `approve-adaptation-plan` permanently mandate `requires_human_approval: true`. Autonomous agents recommend decisions, but project leadership retains final approval authority.
 5. **Progression Verification (ADR-005):** Re-synthesizing the PMP following an adaptation must be verified via `compare_decision_results()` to guarantee that operational adjustments produce decision `progression` and do not re-introduce previously resolved regressions.
+6. **Baseline Traceability Invariant:** Every approved PMP, ADR, BRD, FDD, User Story, and Adaptation Plan must reference the governing PMP baseline identifier (`PMP-BL-vX.Y.Z`) from which it originated. No downstream artifact may exist without a traceable planning baseline.
+7. **Baseline Recoverability & Rollback Invariant:** Every superseded PMP baseline and its subsidiary plan snapshots must remain recoverable from archive. If an adaptation triggers downstream regression or rejection, the orchestrator must support atomic rollback to the prior approved baseline without history corruption.
 
 ## 6. Alternatives Considered
 

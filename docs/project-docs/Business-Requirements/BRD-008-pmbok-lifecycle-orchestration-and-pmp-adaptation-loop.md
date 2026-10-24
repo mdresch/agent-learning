@@ -1,6 +1,7 @@
 # BRD-008: PMBOK 8 Lifecycle Orchestration and Closed-Loop Adaptation Feedback
 
 **Source ADR:** [ADR-008](../../adr/ADR-008-pmbok-lifecycle-orchestration-and-pmp-adaptation-loop.md) — Accepted (2026-10-24)  
+**Governing Baseline:** `PMP-BL-v1.0.0`  
 **Status:** Draft — business requirements derived from an Accepted ADR  
 **Stakeholders:** Menno (Sponsor/PM/maintainer)  
 
@@ -27,6 +28,10 @@ This BRD establishes native **PMBOK 8 Lifecycle Orchestration** and a **Closed-L
 - **BRU-008-04 (PMP Synthesis Invariant):** After any subsidiary plan update (initial or adaptive), the orchestrator must re-synthesize `Project-Management-Plan.md` to ensure global baseline consistency across Scope, Schedule, Cost, Quality, and Risk.
 - **BRU-008-05 (Cascading Technical Updates):** When a subsidiary plan affecting technical execution (such as Quality, Scope, or Risk) is amended via the adaptation loop, the orchestrator or maintainer must trigger re-evaluation of affected technical requirements (ADRs, BRDs, FDDs, Stories) before entering the execution gate (Stage 8).
 - **BRU-008-06 (Zero Storage Expansion):** The orchestration engine, PMP gate, and adaptation records must introduce zero new Cosmos DB containers, zero new SQL tables, and zero new `LearningStore` record types (preserving ADR-002 Invariant #2). All operational records must be captured as standard `Episode` instances.
+- **BRU-008-07 (Governance Change Impact Matrix):** Every Adaptation Plan must formally incorporate a Governance Change Impact Matrix mapping each accepted Stage 16 amendment to its evaluated impact across the 9 subsidiary plans (None, Low, Medium, High).
+- **BRU-008-08 (Baseline Versioning & Traceability):** Every approved PMP must receive an immutable SemVer baseline identifier (`PMP-BL-vX.Y.Z`). All downstream technical specifications (ADRs, BRDs, FDDs, User Stories) must record the governing `pmp_baseline` in their metadata. Prior baselines must be atomically archived to `management-plans/history/{baseline_id}/`.
+- **BRU-008-09 (Deterministic Rollback & Recovery):** If downstream implementation reveals regressions or failure, the system must support atomic rollback to the prior approved PMP baseline, restoring archived subsidiary plans, logging an `Episode` record, and penalizing the escalation policy via negative reinforcement.
+- **BRU-008-10 (Domain-Specific Approval Profiles):** `approve-pmp` decision frames must support configurable weighting profiles (Standard Engineering vs. Regulated/Safety-Critical vs. Rapid Spike) selected by project complexity classification.
 
 ## Stakeholder Success Metrics
 
@@ -34,6 +39,8 @@ This BRD establishes native **PMBOK 8 Lifecycle Orchestration** and a **Closed-L
 |---|---|
 | PMBOK Subsidiary Plan Coverage | 100% of 9 subsidiary plans (Scope, Schedule, Cost, Quality, Resource, Comms, Risk, Procurement, Stakeholder) generated and synthesized into PMP |
 | Adaptive Re-Execution Precision | 100% selective execution in `--mode adapt` (only modified subsidiary plans re-run) |
+| Baseline Traceability Coverage | 100% of downstream requirements (ADRs, BRDs, FDDs, Stories) tagged with active `PMP-BL-vX.Y.Z` identifier |
+| Atomic Rollback Recoverability | 100% recovery to prior approved PMP baseline upon detected regression |
 | Governance Sign-Off Enforcement | 0 autonomous bypasses of `approve-pmp` (`requires_human_approval: true` permanently enforced) |
 | Feedback Loop Closure | 100% of accepted Stage 16 changes linked to Stage 17 adaptation and PMP baseline revision |
 | Storage Boundary Compliance | 0 new record types or storage containers added to `LearningStore` |
@@ -43,3 +50,4 @@ This BRD establishes native **PMBOK 8 Lifecycle Orchestration** and a **Closed-L
 - Bypassing human sign-off for baseline plan approvals.
 - Creating custom database schemas or non-`Episode` persistence layers.
 - Direct code execution without prior technical requirement sign-off.
+

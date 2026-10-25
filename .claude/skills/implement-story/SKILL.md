@@ -18,6 +18,7 @@ Instantiated from the `sidpa-template` skill. The loop (steps 0-8) is mandatory 
 - **Enforcement layer:** None (no pre-commit hooks, no CI contract gate). Step 3 is discipline-only; see `heal-contract-failure`.
 - **Spec documents:** ADRs in `docs/adr/`, BRD/FDD in `docs/project-docs/{Business-Requirements,Functional-Design}/`, stories in `docs/user-stories/epic-<N>-*.md`.
 - **Log:** `implementation-log.md` at repo root, append-only.
+- **Lessons Learned / OPA Register:** `docs/project-docs/Lessons-Learned-Register.md` governed by ADR-010. Append-only Markdown OPA capturing post-delivery breakout recaps (never a `LearningStore` record type).
 
 ## The loop — mandatory, in order
 
@@ -28,9 +29,12 @@ Instantiated from the `sidpa-template` skill. The loop (steps 0-8) is mandatory 
 4. **Component skill:** Create or update `.claude/skills/<component>/SKILL.md` (governing ADRs/Stories, contract files, load-bearing constraints, call sites). Required Definition-of-Done item.
 5. **Implement (GREEN):** Minimal code — no speculative generalization.
 6. **Validate:** Run the story contract, then full suite (`uv run pytest --ignore=tests/test_spark.py`).
-7. **Commit & log:** Append to `implementation-log.md` with commit hash `pending`. If amending (`git commit --amend`), always backfill with the final commit hash.
-8. **PR, don't merge directly:** Push `feat/story-<X.Y>` to `origin`, open PR via `gh pr create --repo mdresch/agent-learning --base main`, and remove worktree only after merge.
+7. **Commit & log:**
+   - **Breakout & Recap (Stage 15 Crystallization):** Before committing, hold a brief breakout session. If an unexpected trap, subtle defect, or architectural invariant was encountered during implementation or testing, enclose it as an `LL-###` entry in `docs/project-docs/Lessons-Learned-Register.md` (ADR-010 schema). Propagate component-specific invariants to `.claude/skills/` (Tier 2) or cross-project rules to `sidpa-template` (Tier 3).
+   - **Commit:** Commit implementation, test contracts, component skills, and any crystallized lessons learned.
+   - **Audit log:** Append to `implementation-log.md` with commit hash `pending`. If amending (`git commit --amend`), always backfill with the final commit hash.
+8. **PR, review & merge:** Push `feat/story-<X.Y>` to `origin`, open PR via `gh pr create --repo mdresch/agent-learning --base main`. Request automated/peer review (e.g., `/q review`). If code review uncovers new traps or review findings, address them and record any subsequent lessons learned prior to merge. Remove worktree only after PR merge.
 
 ## Definition of done
 
-Contract exists, observed RED, and passes; full suite passes; fixtures are committed under `tests/fixtures/<module>/`; component `SKILL.md` is current; traceability is accurate; `implementation-log.md` entry is recorded with resolved commit hash.
+Contract exists, observed RED, and passes; full suite passes; fixtures are committed under `tests/fixtures/<module>/`; component `SKILL.md` is current; Stage 15 breakout recap completed and lessons learned crystallized in `docs/project-docs/Lessons-Learned-Register.md` (or explicit sign-off); traceability is accurate; `implementation-log.md` entry is recorded with resolved commit hash.

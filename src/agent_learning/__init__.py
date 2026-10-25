@@ -67,6 +67,12 @@ from .autonomy import (
     wilson_lower_bound,
 )
 from .capture import CaptureContext, EpisodeCapture, get_capture
+from .lessons_learned import (
+    LessonsLearnedEntry,
+    filter_crystallized_lessons,
+    load_lessons_learned_register,
+    parse_lessons_learned_markdown,
+)
 from .governance import (
     APPLY_AUTOMATICALLY,
     APPLY_WITH_NOTIFICATION,
@@ -171,6 +177,10 @@ __all__ = [
     "GovernancePipelineResult",
     "PERMANENTLY_FROZEN_DIFF_TYPES",
     "evaluate_governance_diff",
+    "LessonsLearnedEntry",
+    "filter_crystallized_lessons",
+    "load_lessons_learned_register",
+    "parse_lessons_learned_markdown",
 
     "ActionDelta",
     "ClassificationType",

@@ -15,7 +15,7 @@ Without a canonical, machine-verifiable Organizational Process Asset (OPA), thes
 2. Leave Stage 15 (Lessons Learned) of the 18-stage Intent-to-Outcome chain unfulfilled.
 3. Block PMBOK 4.7 Phase Close validation (`pmbok/models/intent_refinement.py:evaluate_phase_close_readiness()`), which requires verified crystallized lessons learned prior to entering Stage 18 Intent Refinement.
 
-This Business Requirements Document defines the requirements for a canonical markdown register, automated schema validation, and the Phase Close integration bridge.
+This Business Requirements Document establishes the operational requirements for the **Stage 15 Breakout & Recap Session**. Rather than inventing a heavy new lifecycle stage, it formalizes the post-story retrospective pause—giving the team a chance to step back, recap the traps and review findings, and record concrete, actionable invariants in a shared register.
 
 ---
 

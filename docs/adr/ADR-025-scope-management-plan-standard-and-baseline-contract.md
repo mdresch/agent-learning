@@ -117,7 +117,7 @@ Word count is measured on the Markdown body below `---`, tokenizing Unicode alph
 * **Alternative 1: Allow Scope to be Inferred from User Stories without a Plan.**  
   * *Rejected:* Inverting the hierarchy allows backlog items to dictate strategy without high-level boundary controls, causing rampant scope creep.
 * **Alternative 2: Combine Scope and Schedule into a Single Document.**  
-  * *Rejected:* Violates LL-008 (component credit assignment). Scope defines *what* is built; Schedule defines *when* and in what sequence. Conflating them obscures whether slippages are due to scope expansion or estimation inaccuracies.
+  * *Rejected:* Violates LL-015 (component credit assignment). Scope defines *what* is built; Schedule defines *when* and in what sequence. Conflating them obscures whether slippages are due to scope expansion or estimation inaccuracies.
 
 ---
 

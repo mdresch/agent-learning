@@ -8,7 +8,7 @@
 
 ## Story 11.1 — Route Records and the Human-Decision Invariants
 
-**Status:** Ready (2026-10-25)  
+**Status:** Completed (2026-10-25) — implemented in feat/story-11.1 with contract tests in tests/test_tailoring.py.  
 **As** a project manager recording planning depth,  
 **I want** a validated per-plan route record that captures both the recommendation and my decision,  
 **So that** no plan is silently omitted, no route is decided by anything but a human, and the record can be stored as ordinary episode metadata.
@@ -25,7 +25,7 @@
 
 ## Story 11.2 — Flags That Never Block, and Integration-Section Home
 
-**Status:** Ready (2026-10-25)  
+**Status:** Completed (2026-10-25) — implemented in feat/story-11.2 with contract tests in tests/test_tailoring.py.  
 **As** a project manager,  
 **I want** the system to flag a route that drops cost, scope or schedule and to tell me where each integration-section element lives,  
 **So that** I stay the decision-maker with the evidence in front of me, and the Charter-versus-PMP rule is applied the same way every time.

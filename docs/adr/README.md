@@ -99,6 +99,7 @@ All thirteen ADRs are formally **Accepted** by Menno Drescher. ADR-001 through A
 |---|---|---|---|---|
 | [**ADR-024**](ADR-024-learning-methodology-selection-chain.md) | Learning Methodology Selection Chain | **Proposed** | Cross-Cutting Learning Policy<br>PMBOK 8 2.1.6.2 Tailoring | Human-declared use-case profiles, deterministic precondition filtering across 32 learning methodologies, maturity ranking recommendation, and metadata-recorded selections. |
 | [**ADR-025**](ADR-025-scope-management-plan-standard-and-baseline-contract.md) | Scope Management Plan Standard and Baseline Contract | **Proposed** | Stage 6 (Planning)<br>PMBOK 8 Planning (Legacy 5.1) | Primary Baseline-Substantiating Plan contract: mandatory in-scope and out-of-scope boundaries, WBS decomposition rules, deliverable acceptance DoD, and transitive DAG invalidation down to Schedule and Cost. |
+| [**ADR-028**](ADR-028-pmbok-tooling-decommissioning-and-lightweight-learningstore-convergence.md) | PMBOK Tooling Decommissioning and Lightweight LearningStore Convergence | **Proposed** | Stage 6 & Stage 17 Tooling<br>PMBOK 8 Orchestration (ADR-002) | Rejects tool and dependency sprawl (SQLAlchemy, FastAPI, Typer, OCR); decommissions the legacy SQLite monolith; converges PMBOK state onto standard LearningStore (Cosmos DB / File) and lightweight pure modules. |
 
 ---
 

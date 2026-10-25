@@ -1250,6 +1250,7 @@ def test_agent_training_uses_one_limit_and_preserves_task_policy_history(
                 task_id=task_id,
                     intent_summary="complete the selected task",
                 action_id="respond",
+                action_logprob=-0.693147,
                     expected_outcome="return a completed result",
                     execution_status="completed",
                     result_summary="completed the selected task",

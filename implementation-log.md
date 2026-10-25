@@ -91,7 +91,7 @@ This log records completed user stories in accordance with the SIDPA `implement-
 ---
 
 ## Story 9.3 — Low-Pass Outcome Damping and Cumulative Lineage Kernel
-- **Commit:** `pending`
+- **Commit:** `105b6ef`
 - **Date:** 2026-10-25
 - **Branch:** `feat/story-9.3`
 - **Source ADR / BRD / FDD:** ADR-009, BRD-009, FDD-009
@@ -105,3 +105,26 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - $AC_{10}$: `validate_strategic_pivot_capacity()` enforces S3-S4 homeostatic balance ($\text{Pivots}_{\max} \le \lceil C_{\text{adapt}} / 2 \rceil$), raising `StrategicWhiplashError` on violation.
   - $AC_{11}$: `compute_lineage_kernel()` computes deterministic hereditary SHA-256 knowledge hash linking generations without epistemic decay.
   - Full test suite: 26/26 passed in `test_intent_refinement.py` (1.18s); 303/303 passed in `sidpa-template` (29.20s).
+
+---
+
+## Story 1.1 — Exclude `full`-authority episodes from `ReinforceLearner`'s training batch
+- **Commit:** `ce9346c`
+- **Date:** 2026-10-25
+- **Branch:** `feat/story-1.1`
+- **Source ADR / BRD / FDD:** ADR-001 §4.5, BRD-001, FDD-001
+- **Files Modified/Created:**
+  - `src/agent_learning/learners/reinforce.py` (excluded `action_logprob is None` episodes from gradient update, counted exclusions in `LearnerResult.extra["full_authority_excluded"]`)
+  - `src/agent_learning/audit.py` (updated stale warning message at line 562-563 to reflect exclusion rather than fallback)
+  - `.claude/skills/learner/SKILL.md` (new component skill documenting REINFORCE decision authority boundary)
+  - `tests/test_learner.py` (added contract tests for $AC_0, AC_1, AC_2, AC_3, AC_4$)
+  - `tests/test_audit.py` (verified audit replay exclusion and warning emission)
+  - `docs/user-stories/epic-1-decision-authority-enforcement.md` (status updated to Completed)
+- **Validation:**
+  - $AC_0$: `ReinforceLearner.update()` skips an episode when `episode.action_logprob is None`; verified with full-authority episode returning 0 `episodes_used` and identical logits.
+  - $AC_1$: `LearnerResult.extra["full_authority_excluded"]` reports exact exclusion count on all update paths, including `0`.
+  - $AC_2$: Low-authority importance sampling is unchanged and reweighted properly when `action_logprob` is set.
+  - $AC_3$: `audit.py` emits updated ADR-001 §4.5 warning when a full-authority episode is present in an audited batch.
+  - $AC_4$: `audit.py`'s direct `ReinforceLearner.update()` call sites (:444 and :503) exclude full-authority episodes without caller-level filtering.
+  - Full test suite: 18/18 passed in `test_learner.py`; 101/101 passed in `test_audit.py`; 442/442 passed across entire core test suite; 303/303 passed in `sidpa-template`. Zero regressions.
+

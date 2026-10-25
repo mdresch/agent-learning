@@ -560,7 +560,10 @@ def _attribute(
     report.summary["entropy_deltas"] = entropy
     report.summary["clipping_adjustments"] = clipping
     if any(episode.action_logprob is None for episode in episodes):
-        report.warnings.append("Missing behavior probability: importance weight uses the native fallback of 1.")
+        report.warnings.append(
+            "One or more full-authority episodes (action_logprob is None) were present in this "
+            "batch and excluded from the REINFORCE update, not reweighted — see ADR-001 §4.5."
+        )
     if any(item["reward_decomposition"] is None for item in report.contributions):
         report.warnings.append("Reward decomposition unavailable for one or more selected aggregates.")
 

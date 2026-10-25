@@ -159,3 +159,24 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - $AC_5$: `tailoring.py` imports nothing from storage and returns a plain dict.
   - Contract: 11/11 passed in `test_tailoring.py` (10 for AC_0 to AC_5 plus 1 added from review). Full suite with `--ignore=tests/test_spark.py --ignore=tests/pmbok`: 475 passed, 2 skipped. **`tests/pmbok` cannot be collected from a clean install** (15 files; undeclared `sqlalchemy`/`tenacity`), a known pre-existing gap not touched by this story, so the suite as the skill specifies it does not run. The earlier 464 figure plus the original 10 tests equals 474, which suggests the earlier "entire suite" figure also excluded `tests/pmbok`.
   - Review (Q Developer, PR #7): no blocking defects. Two minor observations adopted: the decided-route check now gives separate messages for a missing recommended route and a blank basis (test added first, observed RED), and `diverged` compares with `!=`. A third (`DEFAULT_EPSILON` missing from `__all__` in `__init__.py`) is pre-existing and out of this story's scope.
+
+## Story 11.2 — Flags That Never Block, and Integration-Section Home
+- **Commit:** `pending`
+- **Date:** 2026-10-25
+- **Branch:** `feat/story-11.2` (based on `feat/story-11.1`, which it extends; both sit on `docs/adr-011-tailoring-route-decision`)
+- **Source ADR / BRD / FDD:** ADR-011, BRD-011, FDD-011
+- **Files Modified/Created:**
+  - `src/agent_learning/tailoring.py` (`Flag`, `HomeResolution`, `BASELINE_SUBSTANTIATING`, `INTEGRATION_ELEMENTS`, `compute_flags`, `resolve_home`)
+  - `src/agent_learning/__init__.py` (re-exported symbols)
+  - `tests/test_tailoring.py` (12 contract tests encoding $AC_0$ through $AC_4$, prefixed `s112_`)
+  - `.claude/skills/tailoring/SKILL.md` (component skill updated)
+  - `docs/user-stories/epic-11-project-tailoring-and-route-decision.md` (Story 11.2 status updated to Completed)
+- **Validation:**
+  - $AC_0$: each of cost, scope and schedule routed `not_applicable` raises one `baseline_plan_omitted` flag with message and evidence; none when they are at least a section; plans outside the set raise none.
+  - $AC_1$: `compute_flags()` never raises for content (empty and partial sets included), and a flagged complete set still passes `validate_route_set()`.
+  - $AC_2$: an accepted flagged route needs a rationale. This is already enforced by Story 11.1's rule for every decided route, so this test passes against that rule; Story 11.2 adds the flag codes to episode metadata.
+  - $AC_3$: `resolve_home()` puts an element in the Charter if the Charter defines it, in the PMP if only the PMP does, and nowhere if neither; a differing PMP value is a conflict; a blank value is not "defined".
+  - $AC_4$: both `element` and `section` granularities are implemented and tested, and an unknown granularity raises, so the ADR-011 open question is not pre-decided.
+  - Implementation detail not stated in FDD-011 (FDD unchanged): `resolve_home` takes an optional `elements` argument defaulting to `INTEGRATION_ELEMENTS` (`type`, `routes`, `owners`) so that "neither defines it" can be reported as no home.
+  - Contract: 23/23 passed in `test_tailoring.py`. Full suite with `--ignore=tests/test_spark.py --ignore=tests/pmbok`: 487 passed, 2 skipped. `tests/pmbok` still cannot be collected from a clean install (known pre-existing gap, see Story 11.1).
+  - LL-007 check: grep found the module docstring still naming only Story 11.1; updated in the same change.

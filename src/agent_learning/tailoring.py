@@ -82,8 +82,10 @@ def validate_route_set(routes: Sequence[PlanRoute]) -> Sequence[PlanRoute]:
                 raise ValueError(f"Plan {route.plan_id}: a route must be decided by a human")
             if not route.decided_by_role.strip():
                 raise ValueError(f"Plan {route.plan_id}: a decided route needs the deciding role")
-            if route.recommended_route is None or not route.recommendation_basis.strip():
-                raise ValueError(f"Plan {route.plan_id}: a decided route must record the recommendation and its basis")
+            if route.recommended_route is None:
+                raise ValueError(f"Plan {route.plan_id}: a decided route must record the recommended route")
+            if not route.recommendation_basis.strip():
+                raise ValueError(f"Plan {route.plan_id}: a decided route must record the basis of the recommendation")
             if not route.rationale.strip():
                 raise ValueError(f"Plan {route.plan_id}: a decided route must record its rationale")
     return routes
@@ -98,6 +100,6 @@ def to_episode_metadata(route: PlanRoute, flags: Sequence[Any] = ()) -> Dict[str
         "decided_route": route.route.value if route.decided else None,
         "rationale": route.rationale,
         "decided_by_role": route.decided_by_role,
-        "diverged": bool(route.decided and recommended is not None and recommended is not route.route),
+        "diverged": bool(route.decided and recommended is not None and recommended != route.route),
         "flags": [getattr(flag, "code", flag) for flag in flags],
     }

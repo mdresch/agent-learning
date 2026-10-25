@@ -121,6 +121,23 @@ def test_ac4_a_decision_records_both_sides() -> None:
             validate_route_set(routes)
 
 
+def test_ac4_error_names_the_part_that_is_missing() -> None:
+    """AC_4 (review finding): a missing recommended route and a blank basis give distinct messages."""
+    pid = PLAN_IDS[0]
+    routes = _all_pending()
+    routes[0] = _decided(pid, recommended_route=None)
+    with pytest.raises(ValueError) as no_recommendation:
+        validate_route_set(routes)
+    assert "recommended route" in str(no_recommendation.value)
+    assert "basis" not in str(no_recommendation.value)
+
+    routes[0] = _decided(pid, recommendation_basis="")
+    with pytest.raises(ValueError) as no_basis:
+        validate_route_set(routes)
+    assert "basis" in str(no_basis.value)
+    assert "recommended route" not in str(no_basis.value)
+
+
 def test_ac4_episode_metadata_records_the_pair_and_the_divergence() -> None:
     """AC_4: to_episode_metadata returns both routes, rationale, role and a diverged flag."""
     agreed = to_episode_metadata(_decided(PLAN_IDS[0], route=Route.PMP_SECTION))

@@ -22,7 +22,7 @@ This ADR formalizes **Stage 18 (Intent Refinement)** as the closing double-loop 
 
 ## 2. Status
 
-**Draft (2026-10-24)** — revised with rigorous multi-perspective peer feedback from Enterprise PMBOK Governance, Systems Control Theory (Cybernetics), and Software Evidence Architecture; submitted for formal Bayesian adjudication via `agent-learning-governance` / `approve-adr` by Menno Drescher.
+**Accepted (2026-10-25)** — formally evaluated against the `agent-learning-governance` / `approve-adr` TaskPolicy chain (Proposed action: `approve_adr`, Expected Utility: 0.921, Robust Utility: 0.882, Margin: 0.824) and adjudicated by Menno Drescher (`--disposition accept`); incorporates 16 governance, cybernetic, and architectural invariants.
 
 ---
 
@@ -111,8 +111,8 @@ To ensure deterministic parsing and CLI automation, all proposal payloads must v
 
 ```python
 from enum import Enum
-from typing import List, Optional, Dict, Any
-from pydantic import BaseModel, Field
+from typing import Any, Dict, List, Literal, Optional
+from pydantic import AliasChoices, BaseModel, Field, model_validator
 
 class HypothesisTerminalStatus(str, Enum):
     VALIDATED = "validated"
@@ -144,6 +144,17 @@ class HypothesisResolutionItem(BaseModel):
     promotion_target: Optional[str] = None  # e.g., "Architecture Invariant #7" or "HYP-001.1"
     rationale: str
 
+    @model_validator(mode="after")
+    def validate_exhaustion_collapse(self) -> "HypothesisResolutionItem":
+        # Invariant 11: on the 3rd cycle (d=2), REFINED is prohibited
+        if self.recurrence_depth >= 2 and self.terminal_status == HypothesisTerminalStatus.REFINED:
+            raise ValueError(
+                f"Hypothesis '{self.hypothesis_id}' reached recurrence depth {self.recurrence_depth}. "
+                "At d_max=2, REFINED is prohibited: must collapse to VALIDATED (BF10 >= 10) "
+                "or default to REFUTED (BF10 < 10)."
+            )
+        return self
+
 class SparkDirectiveItem(BaseModel):
     directive_id: str
     title: str
@@ -158,19 +169,35 @@ class CumulativeLineageKernel(BaseModel):
     accumulated_knowledge_hash: str
 
 class IntentRefinementProposalPayload(BaseModel):
-    refinement_id: str = Field(..., regex=r"^IR-PROP-v\d+\.\d+\.\d+$")
-    pmp_baseline_id: str = Field(..., regex=r"^PMP-BL-v\d+\.\d+\.\d+$")
+    refinement_id: str = Field(..., pattern=r"^IR-PROP-v\d+\.\d+\.\d+$")
+    pmp_baseline: str = Field(
+        ...,
+        pattern=r"^PMP-BL-v\d+\.\d+\.\d+$",
+        validation_alias=AliasChoices("pmp_baseline", "pmp_baseline_id"),
+    )
     readiness_audit_ref: str
-    disposition_type: str = Field(default="phase_handoff", regex=r"^(phase_handoff|project_termination)$")
+    disposition_type: Literal["phase_handoff", "project_termination"] = "phase_handoff"
     lifecycle_stage: str = "Stage 18 (Intent Refinement)"
     governance_policy: str = "approve-intent-refinement"
     executive_summary: str
     outcome_deltas: List[OutcomeDeltaItem]
     hypothesis_resolutions: List[HypothesisResolutionItem]
     strategic_pivots: List[str]
-    phase_next_spark_directives: List[SparkDirectiveItem]
+    phase_next_spark_directives: List[SparkDirectiveItem] = Field(default_factory=list)
     lineage: CumulativeLineageKernel
     metadata: Dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def validate_disposition_directives(self) -> "IntentRefinementProposalPayload":
+        if self.disposition_type == "phase_handoff" and not self.phase_next_spark_directives:
+            raise ValueError(
+                "phase_next_spark_directives must be non-empty when disposition_type is 'phase_handoff'."
+            )
+        if self.disposition_type == "project_termination" and self.phase_next_spark_directives:
+            raise ValueError(
+                "phase_next_spark_directives must be empty when disposition_type is 'project_termination'."
+            )
+        return self
 ```
 
 ### 4.4 Full-Authority Decision Gate: `approve-intent-refinement`
@@ -234,7 +261,7 @@ To eliminate defensive hypothesis drift and the "REFINED moral hazard":
    $$BF_{10} = \frac{P(\text{Evidence} \mid H_1)}{P(\text{Evidence} \mid H_0)}$$
    - $BF_{10} \ge 10$: Mandatory resolution as `VALIDATED`.
    - $BF_{10} \le 0.1$: Mandatory resolution as `REFUTED`.
-3. **Maximum Recurrence Depth ($d_{\max} = 2$):** A hypothesis may only be marked `REFINED` for a maximum of 2 generational cycles ($H \to H.1 \to H.1.1$). On the 3rd cycle, it must collapse strictly to `VALIDATED` or `REFUTED`.
+3. **Maximum Recurrence Depth ($d_{\max} = 2$):** A hypothesis may only be marked `REFINED` for a maximum of 2 generational cycles ($H \to H.1 \to H.1.1$). On the 3rd cycle ($d = 2$), `REFINED` is prohibited: the hypothesis must collapse to `VALIDATED` if $BF_{10} \ge 10$, or default to `REFUTED` if $BF_{10} < 10$ (retired for failing to achieve conclusive empirical support within the 3-generation budget).
 
 ### 4.8 Phase Close Readiness Gate (Entry Preconditions)
 
@@ -255,7 +282,7 @@ Following approval of `Intent-Refinement-Proposal.md`:
 
 Strategic intent adjustments must not trigger on single-phase high-frequency noise. Outcome deltas are low-pass filtered using a rolling exponential moving average across the last $k \ge 3$ evaluation epochs:
 $$\mathbf{\Theta}_{N+1} = \beta \mathbf{\Theta}_{N} + (1 - \beta) \nabla_{\text{empirical}} \mathcal{L}(\text{Rolling Outcome Delta})$$
-where $\beta \in [0.6, 0.85]$. Single-phase variances that do not shift the rolling average beyond established variance thresholds are addressed via Stage 17 operational adaptation, **not** Stage 18 intent pivots.
+where $\beta \in [0.6, 0.85]$ (with $\mathbf{\Theta}_0$ anchored to the Stage 4 Business Case baseline and bias-corrected by $1 - \beta^N$ during initial warmup generations $N < 3$). Single-phase variances that do not shift the damped trajectory beyond established variance thresholds are addressed via Stage 17 operational adaptation, **not** Stage 18 intent pivots.
 
 ### 4.11 S3–S4 Homeostatic Rate-Limiting (Viable System Model)
 
@@ -313,8 +340,8 @@ python scripts/orchestrate_pmbok.py --mode seed-next \
 7. **Phase Completion Readiness Invariant:** No proposal may be submitted to `approve-intent-refinement` while any work package, verification suite, or audit finding within the governing PMP baseline remains in an active, unadjudicated, or failing state.
 8. **Premature Termination Protocol:** If hypothesis refutation or business case erosion renders the initiative unviable, `approve-intent-refinement` supports an explicit `project_termination` disposition. The phase is archived with negative learning, resources are decommissioned, and no Phase $N+1$ Spark is spawned.
 9. **Administrative Decommissioning Invariant:** Phase closure is not complete upon proposal approval alone; all ephemeral worktrees, temporary credentials, and staging environments allocated to the active baseline must be systematically decommissioned.
-10. **Strategic Damping Invariant:** Strategic intent adjustments must be low-pass filtered using a rolling multi-epoch baseline ($\beta \in [0.6, 0.85]$). Transient single-phase noise must not trigger strategic pivots.
-11. **Bounded Hypothesis Recurrence Invariant:** A hypothesis may only be marked `refined` for a maximum of $d_{\max} = 2$ consecutive generational cycles ($H \to H.1 \to H.1.1$). On the 3rd cycle, it must strictly collapse to `validated` ($BF_{10} \ge 10$) or `refuted` ($BF_{10} \le 0.1$).
+10. **Strategic Damping Invariant:** Strategic intent adjustments must be low-pass filtered using a rolling multi-epoch baseline ($\beta \in [0.6, 0.85]$, with bias-corrected warmup for $N < 3$). Transient single-phase noise must not trigger strategic pivots.
+11. **Bounded Hypothesis Recurrence Invariant:** A hypothesis may only be marked `refined` for a maximum of $d_{\max} = 2$ consecutive generational cycles ($H \to H.1 \to H.1.1$). On the 3rd cycle ($d = 2$), `refined` is prohibited: the hypothesis must resolve to `validated` if $BF_{10} \ge 10$, or default to `refuted` if $BF_{10} < 10$ (retired due to budget exhaustion).
 12. **Cumulative Epistemic Lineage Invariant:** Every Phase $N+1$ `Spark-Capture.md` must embed the `CumulativeLineageKernel` (`root_spark`, `parent_refinement`, `immutable_core_invariants`, and `accumulated_knowledge_hash`), preventing Markovian generational forgetting.
 13. **S3–S4 Rate-Limiting Invariant:** Major charter revisions (`PMP-BL-v(N+1).0.0`) impose a mandatory operational stabilization epoch during which no subsequent intent refinement proposals may be submitted.
 14. **Machine-Readable Contract Invariant:** Every `Intent-Refinement-Proposal.md` must pass automated structural validation against `IntentRefinementProposalPayload` prior to evaluation by `approve-intent-refinement`.
@@ -327,7 +354,7 @@ python scripts/orchestrate_pmbok.py --mode seed-next \
 
 | Alternative | Reason for Rejection |
 |---|---|
-| **Linear Phase Close (Standard PMBOK / Waterfall):** Close phase administratively without feeding back into strategic intent. | Severes the cognitive loop; treats software delivery as a terminal pipeline rather than a continuous learning organism; repeats historical mistakes across project phases. |
+| **Linear Phase Close (Standard PMBOK / Waterfall):** Close phase administratively without feeding back into strategic intent. | Severs the cognitive loop; treats software delivery as a terminal pipeline rather than a continuous learning organism; repeats historical mistakes across project phases. |
 | **Autonomous Self-Refining Intent:** Allow AI agents to autonomously rewrite project intent and business goals based on reward maximization. | High risk of existential mission drift, reward hacking, and unaligned scope mutation; violates ADR-001 authority invariants and corporate governance. |
 | **Conflate Adaptation (Stage 17) and Intent Refinement (Stage 18) into a single plan:** | Blurs the boundary between single-loop operational fixes and double-loop strategic pivots; leads to noisy decision frames where tactical bug fixes drown out strategic hypothesis validation. |
 | **Free-Form Retrospective Notes without Bayesian Gating:** | Produces unverified, non-replayable meeting notes that never translate into actionable machine-readable catalysts for the next project cycle. |

@@ -4,8 +4,8 @@ Grounded in ADR-009, PMBOK Process 4.7 (Close Project or Phase), and double-loop
 """
 
 from enum import Enum
-from typing import Any, Dict, List, Optional
-from pydantic import BaseModel, Field
+from typing import Any, Dict, List, Literal, Optional
+from pydantic import AliasChoices, BaseModel, Field, model_validator
 
 
 class HypothesisTerminalStatus(str, Enum):
@@ -41,6 +41,17 @@ class HypothesisResolutionItem(BaseModel):
     promotion_target: Optional[str] = None  # e.g., "Architecture Invariant #7" or "HYP-001.1"
     rationale: str
 
+    @model_validator(mode="after")
+    def validate_exhaustion_collapse(self) -> "HypothesisResolutionItem":
+        # Invariant 11: on the 3rd cycle (d=2), REFINED is prohibited
+        if self.recurrence_depth >= 2 and self.terminal_status == HypothesisTerminalStatus.REFINED:
+            raise ValueError(
+                f"Hypothesis '{self.hypothesis_id}' reached recurrence depth {self.recurrence_depth}. "
+                "At d_max=2, REFINED is prohibited: must collapse to VALIDATED (BF10 >= 10) "
+                "or default to REFUTED (BF10 < 10)."
+            )
+        return self
+
 
 class SparkDirectiveItem(BaseModel):
     directive_id: str
@@ -59,9 +70,13 @@ class CumulativeLineageKernel(BaseModel):
 
 class IntentRefinementProposalPayload(BaseModel):
     refinement_id: str = Field(..., pattern=r"^IR-PROP-v\d+\.\d+\.\d+$")
-    pmp_baseline_id: str = Field(..., pattern=r"^PMP-BL-v\d+\.\d+\.\d+$")
+    pmp_baseline: str = Field(
+        ...,
+        pattern=r"^PMP-BL-v\d+\.\d+\.\d+$",
+        validation_alias=AliasChoices("pmp_baseline", "pmp_baseline_id"),
+    )
     readiness_audit_ref: str
-    disposition_type: str = Field(default="phase_handoff", pattern=r"^(phase_handoff|project_termination)$")
+    disposition_type: Literal["phase_handoff", "project_termination"] = "phase_handoff"
     lifecycle_stage: str = "Stage 18 (Intent Refinement)"
     governance_policy: str = "approve-intent-refinement"
     executive_summary: str
@@ -72,3 +87,14 @@ class IntentRefinementProposalPayload(BaseModel):
     lineage: CumulativeLineageKernel
     metadata: Dict[str, Any] = Field(default_factory=dict)
 
+    @model_validator(mode="after")
+    def validate_disposition_directives(self) -> "IntentRefinementProposalPayload":
+        if self.disposition_type == "phase_handoff" and not self.phase_next_spark_directives:
+            raise ValueError(
+                "phase_next_spark_directives must be non-empty when disposition_type is 'phase_handoff'."
+            )
+        if self.disposition_type == "project_termination" and self.phase_next_spark_directives:
+            raise ValueError(
+                "phase_next_spark_directives must be empty when disposition_type is 'project_termination'."
+            )
+        return self

@@ -21,7 +21,7 @@ outputs:
 > **Baseline Identifier:** `PMP-BL-v1.0.0` (Candidate)  
 > **Inputs:** [Project-Charter.md](Project-Charter.md), [docs/project-docs/management-plans/](management-plans/)  
 > **Accountable Role:** Project Manager | **Approving Sponsor:** Menno Drescher  
-> **Governing Standards:** [ADR-008](../adr/ADR-008-pmbok-lifecycle-orchestration-and-pmp-adaptation-loop.md), [ADR-011](../adr/ADR-011-project-tailoring-and-route-decision.md), [ADR-012](../adr/ADR-012-subsidiary-management-plan-standards-and-content-contracts.md), [ADR-013](../adr/ADR-013-subsidiary-plan-approval-gates-before-pmp-formalization.md), [ADR-028](../adr/ADR-028-pmbok-tooling-decommissioning-and-lightweight-learningstore-convergence.md)
+> **Governing Standards:** [ADR-008](../adr/ADR-008-pmbok-lifecycle-orchestration-and-pmp-adaptation-loop.md), [ADR-011](../adr/ADR-011-project-tailoring-and-route-decision.md), [ADR-012](../adr/ADR-012-subsidiary-management-plan-standards-and-content-contracts.md), [ADR-013](../adr/ADR-013-subsidiary-plan-approval-gates-before-pmp-formalization.md), [ADR-034](../adr/ADR-034-pmbok-tooling-decommissioning-and-lightweight-learningstore-convergence.md)
 
 ---
 

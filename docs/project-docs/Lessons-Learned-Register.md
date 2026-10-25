@@ -14,6 +14,8 @@
 | [LL-002](#ll-002--vacuous-assertions-on-exception-raising-datetime-parsers) | Vacuous Assertions on Exception-Raising Datetime Parsers | Epic 2 / Story 2.1 | Universal Testing | 2026-10-25 |
 | [LL-003](#ll-003--module-level-exception-stubs-for-optional-cloud-sdks) | Module-Level Exception Stubs for Optional Cloud SDKs | Epic 2 / Story 2.1 | Repository Architecture | 2026-10-25 |
 | [LL-004](#ll-004--closed-loop-interactive-ai-pr-review-via-q-protocol) | Closed-Loop Interactive AI PR Review via `/q` Protocol | Epic 2 / Story 2.1 | Universal Process | 2026-10-25 |
+| [LL-005](#ll-005--compound-header--delimiter-bleed-in-markdown-parsers) | Compound Header & Delimiter Bleed in Markdown Parsers | Epic 10 / Story 10.1 | Universal Tooling | 2026-10-25 |
+| [LL-006](#ll-006--cwd-independent-path-anchoring-in-test-suites) | CWD-Independent Path Anchoring in Test Suites | Epic 10 / Story 10.1 | Universal Testing | 2026-10-25 |
 
 ---
 
@@ -94,3 +96,40 @@
   3. Merge only after the automated reviewer issues an explicit positive verdict (e.g., *"Overall verdict: all substantive previous review findings are resolved in this commit"*).
   4. Record the review-to-merge trajectory in the implementation and lessons-learned logs.
 
+
+
+---
+
+### LL-005 — Compound Header & Delimiter Bleed in Markdown Parsers
+- **Identifier:** `LL-005`
+- **Date:** 2026-10-25
+- **Epic / Story:** Epic 10 / Story 10.1 (PR [#5](https://github.com/mdresch/agent-learning/pull/5))
+- **Scope:** Universal Tooling (markdown parsing & ingestion)
+- **Tier 2/3 Propagation Target:** Tier 2: `src/agent_learning/lessons_learned.py`; Tier 3: `sidpa-template/parsers/markdown.py`
+- **The Trap:** When supporting human-friendly compound markdown fields (such as `- **Date & Phase:** 2026-10-25 · Epic 2`), naively assigning the raw field string to `phase` causes the date prefix to bleed into the phase value (`"2026-10-25 · Epic 2"`). Loose tests that only assert substring containment (`"Epic 2" in phase`) pass coincidentally, concealing the data corruption from exact-match downstream consumers.
+- **The Root Cause:** Assigning composite raw string tokens into discrete domain model fields without boundary isolation.
+- **Actionable Invariant:** Always tokenize compound header fields on the designated delimiter (`·`, `-`, `/`) and assign discrete fields independently:
+  ```python
+  if "date & phase" in field_map:
+      parts = [p.strip() for p in field_map["date & phase"].split("·", 1)]
+      if not date:
+          date = parts[0]
+      if not phase and len(parts) > 1:
+          phase = parts[1]
+  ```
+
+---
+
+### LL-006 — CWD-Independent Path Anchoring in Test Suites
+- **Identifier:** `LL-006`
+- **Date:** 2026-10-25
+- **Epic / Story:** Epic 10 / Story 10.1 (PR [#5](https://github.com/mdresch/agent-learning/pull/5))
+- **Scope:** Universal Testing & CI Rigor
+- **Tier 2/3 Propagation Target:** Tier 2: `tests/test_lessons_learned.py`; Tier 3: `sidpa-template/testing/conventions.md`
+- **The Trap:** Using relative working-directory paths like `Path("docs/project-docs/Lessons-Learned-Register.md")` inside unit or contract tests works only when pytest is run from the workspace root. When tests run from subdirectories, IDE test runners, or multi-workspace CI matrix runners, the test fails with a false `FileNotFoundError` or assertion failure.
+- **The Root Cause:** Implicit coupling of file fixture resolution to process execution CWD (`os.getcwd()`).
+- **Actionable Invariant:** Always anchor repository asset paths relative to `__file__`:
+  ```python
+  repo_root = Path(__file__).resolve().parent.parent
+  register_path = repo_root / "docs" / "project-docs" / "Lessons-Learned-Register.md"
+  ```

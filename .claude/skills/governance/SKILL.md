@@ -1,14 +1,14 @@
 ---
 name: governance
-description: Automated governance change pipeline (Stage 16) for agent_learning paired diff classification and escalation.
+description: Automated governance change pipeline (Stage 16) and Stage 15 Breakout & Recap Session (Lessons Learned Register) for agent_learning.
 ---
 
-# Component: governance (`agent_learning.governance`)
+# Component: governance (`agent_learning.governance` & `agent_learning.lessons_learned`)
 
-**Governing:** ADR-007, BRD-007, FDD-007, Story 7.1 (`docs/user-stories/epic-7-governance-change-paired-diff-classification-and-escalation.md`).
-**Contract:** `tests/test_governance.py`; fixtures in `tests/fixtures/governance/` (DecisionFrame and diff JSONs, committed).
+**Governing:** ADR-007, ADR-010, BRD-007, BRD-010, FDD-007, FDD-010, Stories 7.1 and 10.1.
+**Contracts:** `tests/test_governance.py`, `tests/test_lessons_learned.py`.
 
-## Load-bearing constraints
+## 1. Load-bearing constraints (Stage 16 Governance Change Pipeline)
 
 - Two-stage decoupled pipeline: `classify-diff-type` runs under `DecisionAuthority.FULL` (Bayesian reasoning over DecisionFrame); `escalate-diff-response` runs under `DecisionAuthority.LOW` (Softmax bandit with REINFORCE).
 - 7-Action taxonomy across 3 tiers:
@@ -25,7 +25,26 @@ description: Automated governance change pipeline (Stage 16) for agent_learning 
 - Stage 16 scope boundary: pipeline terminates with a validated governance baseline; Stage 17 Execution Adaptation is strictly out of scope.
 - Zero storage expansion: no new Cosmos containers or LearningStore record types (ADR-002 Invariant #2).
 
-## Call sites
+## 2. Stage 15 Breakout & Recap Session (`agent_learning.lessons_learned`)
 
-- `agent_learning/__init__.py`: re-exports `evaluate_governance_diff`, `GovernancePipelineResult`, `DIFF_ACTIONS`, `DIFF_TIERS`, `ESCALATION_ACTIONS`, etc.
-- `agent_learning/governance.py`: core pipeline orchestration and taxonomy constants.
+- **Role & Philosophy:** Not a heavy bureaucratic stage, but a lightweight retrospective pause (breakout session) to recap traps, root causes, and actionable invariants before moving to the next epic.
+- **Canonical Register:** `docs/project-docs/Lessons-Learned-Register.md` (append-only, human-readable).
+- **Schema (§4.2):**
+  - `Identifier`: `LL-###`
+  - `Date & Phase`: Date and associated Epic / Story
+  - `Title`: Short descriptive summary
+  - `The Trap / Problem`: Real-world defect or hazard observed
+  - `The Root Cause`: Underlying technical/procedural mechanism
+  - `Actionable Invariant / Rule`: Code-level rule or snippet preventing recurrence
+  - `Scope & Traceability`: Classification and **Tier 2/3 Propagation Target**
+- **3-Tier Propagation:**
+  - Tier 1: Project register (historical audit & Phase Close prerequisite).
+  - Tier 2: In-repo component skill (`.claude/skills/<component>/SKILL.md`) for active agent enforcement.
+  - Tier 3: Universal cross-project rules (`sidpa-template`, `RULE[user_global]`).
+- **Phase Close Bridge:** `filter_crystallized_lessons()` outputs dicts with `crystallized: True` which directly satisfy `pmbok.models.intent_refinement.evaluate_phase_close_readiness()`.
+
+## 3. Call sites
+
+- `agent_learning/__init__.py`: re-exports `parse_lessons_learned_markdown`, `load_lessons_learned_register`, `filter_crystallized_lessons`, `LessonsLearnedEntry`, and governance pipeline symbols.
+- `agent_learning/lessons_learned.py`: markdown parser and schema validator.
+- `agent_learning/governance.py`: core diff classification pipeline and taxonomy constants.

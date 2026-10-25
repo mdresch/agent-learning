@@ -173,3 +173,25 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - $AC_3$: Initial pointer creation uses `create_item()`; racing creations raising `CosmosResourceExistsError` retry via the update path.
   - $AC_4$: `CosmosStore.get_active_policy()` correctly resolves active policies across both legacy (version-less) and enhanced pointer documents without regression.
   - Full test suite: 7/7 passed in `test_storage_cosmos.py`; 459 passed, 2 skipped across entire agent-learning test suite. Zero regressions.
+
+
+---
+
+## Story 10.1 — Implement Lessons Learned Register Parser, Validation Contract, and Phase Close Readiness Bridge
+- **Commit:** `1fc13d2`
+- **Date:** 2026-10-25
+- **Branch:** `feat/story-10.1`
+- **Source ADR / BRD / FDD:** ADR-010, BRD-010, FDD-010
+- **Files Modified/Created:**
+  - `src/agent_learning/lessons_learned.py` (markdown parser, schema validator, and Phase Close readiness filter)
+  - `src/agent_learning/__init__.py` (re-exported symbols)
+  - `tests/test_lessons_learned.py` (contract tests encoding $AC_0$ through $AC_4$)
+  - `.claude/skills/governance/SKILL.md` (updated component skill with Stage 15 breakout framing and propagation protocol)
+  - `docs/user-stories/epic-10-lessons-learned-crystallization-and-register.md` (status updated to Completed)
+- **Validation:**
+  - $AC_0$: `parse_lessons_learned_markdown()` extracts typed `LessonsLearnedEntry` instances with complete 8-field schema and serialized dictionary representation.
+  - $AC_1$: Parser strictly validates schema completeness and identifier format (`LL-###`), raising `ValueError` on malformed IDs or missing required fields (`title`, `trap`, `root_cause`, `invariant`, `tier_targets`).
+  - $AC_2$: `filter_crystallized_lessons()` filters entries by target Epic/Phase and supports explicit `no-new-lessons` phase sign-offs.
+  - $AC_3$: Filtered payloads pass PMBOK 4.7 `evaluate_phase_close_readiness()` validation, contributing to `crystallized_lessons_count` and satisfying the Stage 15 hard gate.
+  - $AC_4$: Active file verification confirms that the canonical repository register `docs/project-docs/Lessons-Learned-Register.md` parses cleanly with 100% compliance across `LL-001` through `LL-004`.
+  - Full test suite: 5/5 passed in `test_lessons_learned.py`; 464 passed, 2 skipped across entire agent-learning test suite. Zero regressions.

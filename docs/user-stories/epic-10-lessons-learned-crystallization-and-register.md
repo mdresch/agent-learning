@@ -7,7 +7,7 @@
 
 ## Story 10.1 — Implement Lessons Learned Register Parser, Validation Contract, and Phase Close Readiness Bridge
 
-**Status:** Ready (2026-10-25, Menno) — derived from Accepted ADR-010; adjudicated via `approve-user-stories`.  
+**Status:** Completed (2026-10-25) — Implemented in feat/story-10.1 with contract tests in tests/test_lessons_learned.py.  
 **As** an engineering team and governance auditor, **I want** an automated parser and schema validator for `docs/project-docs/Lessons-Learned-Register.md`, **so that** crystallized lessons are strictly verified, institutional memory is protected against decay, and PMBOK Phase Close readiness gates are deterministically satisfied.
 
 ### Acceptance Criteria:

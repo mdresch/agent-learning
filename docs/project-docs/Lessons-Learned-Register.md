@@ -1,8 +1,8 @@
 # Lessons Learned Register (Organizational Process Assets)
 
 **Governing ADR:** [ADR-010](../adr/ADR-010-lessons-learned-crystallization-and-register.md) — Accepted (2026-10-25)  
-**Lifecycle Stage:** Stage 15 (Lessons Learned / Knowledge Base Synthesis) per ADR-008 and ADR-009.  
-**Maintenance Rule:** Append-only register. Crystallized entries represent verified institutional knowledge.
+**Lifecycle Role:** Stage 15 Breakout & Recap Session (Post-Delivery Retrospective Notebook per ADR-008, ADR-009, ADR-010).  
+**Maintenance Rule:** Append-only register. Crystallized entries represent verified institutional knowledge captured during post-delivery breakout pauses.
 
 ---
 

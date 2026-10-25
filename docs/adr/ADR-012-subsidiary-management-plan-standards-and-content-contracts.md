@@ -88,17 +88,19 @@ governance_policy: "approve-subsidiary-plan" # "approve-subsidiary-plan" (if ful
 
 #### 4.2.1 Standard-Library Frontmatter Grammar Subset
 To guarantee zero external runtime dependencies (`pyyaml`) per ADR-034 Invariant 1 and ensure deterministic cross-platform behavior, frontmatter syntax is strictly restricted to a well-defined standard-library-parseable grammar:
-1. **Delimiters:** Frontmatter must be bounded by opening `---` and closing `---` on lines by themselves.
-2. **Key-Value Pairs:** Flat string or enum keys matching `^[a-z_]+$` followed by a colon and whitespace.
-3. **Values:** Supported values are:
-   - Double-quoted or single-quoted strings: `"..."` or `'...'`.
-   - Bare scalar tokens: `[A-Za-z0-9_.-]+` (e.g. `PMBOK 8`, `full_plan`, `1.0.0`).
+1. **Delimiters:** Frontmatter must be bounded by opening `---` and closing `---` on lines by themselves with no leading or trailing whitespace.
+2. **Key-Value Pairs:** Flat string or enum keys matching `^[a-z_]+$` followed by a colon and a space (`<key>: <value>`). Duplicate keys are prohibited; encountering a duplicate key emits `FLAG: INVALID_METADATA`.
+3. **Values:** Supported scalar values are:
+   - Double-quoted strings: `"..."` supporting standard string escapes (`\"`, `\\`, `\n`).
+   - Single-quoted strings: `'...'` interpreted as literal text without escapes.
+   - Bare scalar tokens: `[A-Za-z0-9_.-]+` (e.g. `PMBOK 8`, `full_plan`, `1.0.0`, `Scope`).
    - Empty flow lists: `[]`.
-4. **Lists:** Itemized string sequences where a key is followed on subsequent lines by `  - "item"` or `  - item`.
-5. **Inline & Line Comments:** `# comment text` preceded by whitespace after a scalar or list entry, or on an independent line. Comments are stripped before token parsing.
-6. **Disallowed Constructs:** Nested dictionaries, multi-line block scalars (`|`, `>`), YAML anchors/aliases (`&`, `*`), and arbitrary object tags (`!!`) are prohibited.
-7. **Parser Rejection Behavior:** If an unsupported construct or malformed line is encountered, the parser does **not crash**. Instead, it emits a non-fatal `FLAG: INVALID_METADATA` diagnostic with line-number context, allowing bounded LLM auto-remediation during staging or recorded human adjudication during gate review.
-8. **Volatile Stripping Parity:** The canonical hashing utility `strip_volatile_frontmatter` (ADR-013 §4.3) uses this exact subset parser to strip volatile metadata keys without disturbing static semantic fields.
+4. **Lists:** Itemized string sequences where a key is followed on subsequent lines by `  - "item"` or `  - item`. List items must be indented with exactly two spaces (`  - `).
+5. **Inline & Line Comments:** `# comment text` preceded by whitespace after a scalar or list entry, or on an independent line. Comments and blank lines are stripped before token parsing.
+6. **Disallowed Constructs:** Nested dictionaries, multi-line block scalars (`|`, `>`), YAML anchors/aliases (`&`, `*`), flow mappings (`{...}`), and arbitrary object tags (`!!`) are prohibited.
+7. **Parser Rejection & Diagnostic Behavior:** If an unsupported construct or malformed line is encountered, the parser does **not crash** with an unhandled exception. Instead, it emits a structured `FLAG: INVALID_METADATA` diagnostic with line-number and line-content context.
+8. **Fail-Closed Governance Law:** At drafting/staging time, `FLAG: INVALID_METADATA` triggers Tier B auto-remediation (up to 2 retries for LLMs; immediate human escalation for human authors). If uncorrected at gate review time, unparseable frontmatter acts as a **Tier A Technical Integrity Hard Block**: because `generator: stub|mock` cannot be audited and `strip_volatile_frontmatter` cannot compute a canonical content hash, `approve_plan` is ruled out outright.
+9. **Volatile Stripping Parity:** The canonical hashing utility `strip_volatile_frontmatter` (ADR-013 §4.3) uses this exact subset parser to strip volatile metadata keys without disturbing static semantic fields.
 
 > [!NOTE]
 > **No In-File Hash Circularity:** `canonical_content_hash` is **not** stored inside the in-file YAML frontmatter. In accordance with ADR-013 §4.2 and §4.3, the canonical hash is computed dynamically over the LF-normalized disk content and persisted strictly within `Episode.metadata` and the `DecisionFrame`. Storing the hash inside the file being hashed creates a self-referential cryptographic cycle.

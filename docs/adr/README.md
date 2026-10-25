@@ -1,23 +1,162 @@
-# ADR Coverage — agent-learning
+# Architecture Decision Records (ADRs) — The Self-Governing Agent Engine
 
-**Finding, confirmed directly (2026-10-23):** this repository has zero formal Architecture Decision Records. That is not the same as having no real architecture decisions — `docs/decision-making.md`, `docs/autonomy-complexity.md`, `docs/cost-model.md`, `docs/audit-replay.md`, and `docs/architecture.md` already document substantial, deliberate design rationale, each with real formulas, real tables, and real operational rules. The gap is specifically that none of it is captured as a decision record (Context → Decision → Alternatives Considered → Consequences) — a reader can find *what* the design is, but not an explicit record of *why this and not an alternative*, suitable for future amendment.
+This repository (`agent-learning`) is a **self-governing, self-stabilizing cybernetic learning engine**. Its architectural principles, development baselines, and cognitive evolution are decided, recorded, and verified by its own native `TaskPolicy` governance chain (`agent-learning-governance`).
 
-## Recommended ADRs (prioritized)
+Every architectural transition across the 18-stage **Intent-to-Outcome Chain** (`PROJECT-MANAGEMENT-ONTOLOGY.json`) is codified as an Architecture Decision Record (ADR), evaluated via Bayesian multi-criteria decision reasoning, and permanently registered in the institutional learning store.
 
-1. **ADR-001: Decision Authority Model — Learned (`low`) vs. Reasoned (`full`) TaskPolicy Resolution.** The single most central architectural decision in the SDK — one `TaskPolicy` per `(agent_id, task_id)`, two mutually exclusive selection routes converging on the same `DecisionResult`/`Episode` lineage. Already fully designed in `docs/decision-making.md`; never captured as a decision record with real alternatives named.
-2. **ADR-002: Storage Backend Strategy — Local File, In-Memory, and Cosmos DB.** Three real, interchangeable backends behind one `LearningStore` abstract interface (`storage/base.py`), each with a real, different intended deployment context (`docs/decision-making.md`'s own "Storage and deployment patterns" table). No record of why three, or why this specific interface shape.
-3. **ADR-003: Evidence-Gated Autonomy — Complexity-Proportional Thresholds.** A real, mathematically-specified policy (Wilson lower-bound correctness, complexity-tier-scaled gates, drift-audit sampling) fully written up in `docs/autonomy-complexity.md` and `docs/decision-making.md` — but never recorded as a decision with its own rejected alternatives.
+---
 
-**Not written in this pass, named for later:** infrastructure/deployment topology (`docs/architecture.md` — VNet, Cosmos private endpoint, managed identity) is also real and undocumented-as-a-decision, but lower priority — it's a conventional private-networking pattern, not a novel SDK design choice. Reward shaping / REINFORCE learner algorithm choice (`rewards/shaping.py`, `learners/reinforce.py`) is a fourth real candidate, deferred for time, not declined on the merits.
+## 1. The Four-Pillar Architectural Manifesto
 
-## Status
+The architectural corpus (ADR-001 through ADR-009) rests upon **four mutually counterweighting pillars**. No single pillar operates in isolation; each acts as a structural counterweight to the failure modes of the others.
 
-**All nine ADRs (001 through 009) are Accepted**, each reviewed and approved by Menno through the real `approve-adr` policy.
+```
+                     ┌────────────────────────────────────────┐
+                     │          GOVERNANCE PILLAR             │
+                     │  Sovereignty, Decision Authority &     │
+                     │  Locked Human-in-the-Loop Sign-Off     │
+                     └───────▲────────────────────────▲───────┘
+                             │                        │
+       Governance bounds     │                        │   Governance bounds
+       Mathematical drift    │                        │   Cybernetic action
+                             │                        │
+  ┌──────────────────────────┴─────┐            ┌─────┴──────────────────────────┐
+  │      MATHEMATICAL PILLAR       │            │       CYBERNETICS PILLAR       │
+  │  Bayes Factors, Low-Pass       │◄──────────►│  Double-Loop Feedback, Beer    │
+  │  Damping, d_max=2 Exhaustion   │    Math    │  VSM Homeostasis, Single-Loop  │
+  └──────────────────────────▲─────┘ disciplines│  Tailoring (PMBOK 8 Processes) │
+                             │       Cybernetics└─────▲──────────────────────────┘
+                             │                        │
+                             │                        │
+                             │   Engineering bounds   │
+                             │   both Math & State    │
+                             │                        │
+                     ┌───────┴────────────────────────┴───────┐
+                     │          ENGINEERING PILLAR            │
+                     │  Strict Pydantic Contracts, Zero       │
+                     │  Storage Sprawl, Episode Envelope Law  │
+                     └────────────────────────────────────────┘
+```
 
-- **ADR-005** (decision-progress comparison and regression healing) is **Implemented and Merged into `main`** (`7fbe607`), with all contract tests and review amendments verified.
-- **ADR-006** (opt-in, lightweight evidence capture for `low`-authority decisions) is **Accepted (2026-10-23)**, resolving ADR-004 §4.4's deferred "mandatory capture" question as opt-in-per-policy with strict SDK non-interpretation and storage boundaries.
-- **ADR-007** (automated governance change — paired diff classification and escalation pipeline) is **Accepted (2026-10-23)**, formalizing Stage 16 on the 18-stage Intent-to-Outcome chain to close the development lifecycle loop between Lessons Learned (Stage 15) and Adaptation (Stage 17), with permanent lineage freeze and mandatory audit logging for autonomous applications.
-- **ADR-008** (PMBOK 8 lifecycle orchestration and closed-loop adaptation feedback into Project Management Plan and cascading requirements) is **Accepted (2026-10-24)**, formalizing Stage 6 (PMP), Stage 17 (Adaptation), and Stage 18 (Intent Refinement) into a living continuous cognitive loop with native PMBOK 8 orchestration and dedicated `approve-pmp` / `approve-adaptation-plan` Bayesian decision gates.
-- **ADR-009** (Intent Refinement — closing the cybernetic loop from outcomes and lessons learned back to strategic spark and hypotheses) is **Accepted (2026-10-25)**, formalizing Stage 18 under PMBOK 8 Process 4.7 (Close Project or Phase) as double-loop cognitive learning with the `approve-intent-refinement` full-authority gate, Bayes factor hypothesis retirement ($d_{\max} = 2$), whiplash damping filter, and cumulative epistemic lineage inheritance.
+### Pillar I: Sovereign Governance (Authority without Human Bottlenecks)
+- **Two-Route Authority Model (ADR-001):** High-frequency tactical choices run on fast contextual reinforcement learning (`low`), while strategic, baseline-altering choices require reasoned multi-criteria Bayesian evaluation (`full`).
+- **Permanent Inviolability:** Critical governance decision gates (`approve-adr`, `approve-brd`, `approve-fdd`, `approve-user-stories`, `approve-pmp`, `approve-adaptation-plan`, `approve-intent-refinement`) permanently enforce `requires_human_approval: true`. Autonomous process agents recommend and quantify, but human leadership retains sovereign authority.
+- **Complexity-Proportional Autonomy (ADR-003):** Progression from reasoned oversight to learned autonomy is strictly gated by Wilson score lower-bound correctness intervals and drift-audit sampling across explicit complexity tiers.
 
-**Update (2026-10-23):** this repo now has its own real `agent-learning-governance` TaskPolicy chain (`approve-adr`, `approve-brd`, `approve-fdd`, `approve-user-stories`, `validate-intent-foundation`), mirroring ADPA's and sidpa-template's shapes under `data/agent-learning/store/`. Both ADR-001's and ADR-002's approvals ran through it for real — `task-policy-decide` → (Menno's explicit disposition) → `task-policy-adjudicate` → `task-episode-register` — not just a markdown status flip. ADR-002's approval is itself the first real case for a new capability this chain surfaced: re-running `approve-adr` after a revision pass to measure whether the revision actually helped (robust utility 0.841→0.875, margin 0.744→0.817), recorded as ADR-005.
+### Pillar II: Cybernetic Homeostasis (Double-Loop Feedback & Stafford Beer VSM)
+- **Closed-Loop Lifecyle Closure (ADR-007, ADR-008, ADR-009):** The lifecycle does not terminate at delivery. It closes the cognitive loop from Stage 12 Actual Outcomes and Stage 15 Lessons Learned back to Stage 1 Spark and Stage 3 Hypotheses.
+- **Single-Loop vs. Double-Loop Separation:** Stage 17 (`Adaptation-Plan.md`) provides single-loop operational adaptation by tailoring the 9 PMBOK subsidiary plans within existing baselines. Stage 18 (`Intent-Refinement-Proposal.md`) provides double-loop strategic learning by questioning whether foundational goals, business benefits, and hypotheses must evolve.
+- **Viable System Model (VSM) Balance:** System 1 (Execution) is coordinated by System 2 (PMP), stabilized by System 3 (Adaptation), informed by System 4 (Intent Refinement), and governed by System 5 (Human Leadership Policy).
+
+### Pillar III: Mathematical Rigor (Disciplining Epistemic Drift)
+- **Bayesian Hypothesis Adjudication (ADR-009):** Hypotheses are resolved by empirical Bayes factors ($BF_{10} \ge 10 \implies \text{VALIDATED}$, $BF_{10} \le 0.1 \implies \text{REFUTED}$).
+- **Bounded Recurrence Exhaustion ($d_{\max}=2$):** Eliminates defensive hypothesis mutation (the "REFINED moral hazard"). At depth $d=2$, refinement is prohibited: hypotheses must collapse to `VALIDATED` if $BF_{10} \ge 10$ or default to `REFUTED` if $BF_{10} < 10$.
+- **Low-Pass Whiplash Filter:** Exponential momentum smoothing ($\mathbf{\Theta}_{N+1} = \beta \mathbf{\Theta}_{N} + (1 - \beta) \nabla \mathcal{L}$) with $\beta \in [0.6, 0.85]$ and bias-corrected warmup ($1 - \beta^N$) anchors the cognitive feedback loop against sprint-level noise.
+- **Stateless Decision-Progress Comparison (ADR-005):** Pure mathematical classification of decision quality deltas ($\Delta \mathcal{U} > \epsilon$) across paired decision frames without state corruption.
+
+### Pillar IV: Software Engineering Integrity (Contracts & Zero Sprawl)
+- **Strict Storage Boundary (ADR-002 Invariant #2):** Zero new database tables, Cosmos DB containers, or custom entities. The entire 18-stage cognitive lifecycle is persisted within standard `LearningStore` interfaces as metadata-enriched `Episode` instances.
+- **Runtime Pydantic Validation:** Every governance artifact (`IntentRefinementProposalPayload`, `PMP`, `AdaptationPlan`) is validated at runtime before any decision gate can evaluate it.
+- **Cumulative Hereditary Lineage Kernel:** Preserves root spark IDs, parent refinements, and immutable invariants across project handoffs, eliminating generational amnesia.
+- **Lightweight Evidence Transport (ADR-006):** Captures lightweight audit evidence for `low`-authority decisions with strict SDK non-interpretation to prevent telemetry leakage into reinforcement learners.
+
+---
+
+## 2. Cross-Pillar Structural Counterweight Matrix
+
+| Pillar | Counterweights Failure Mode In | Structural Counterweight Mechanism |
+|---|---|---|
+| **Engineering** $\to$ | **Governance & Cybernetics** | Enforces ADR-002's five-record-type storage boundary and ADR-005's stateless comparison design. Prevents an 18-stage loop from collapsing under schema sprawl, bespoke database tables, and unmaintainable state machines. |
+| **Mathematical** $\to$ | **Cybernetics** | Disciplines double-loop learning and S3–S4 feedback. Hard Bayes factor thresholds ($BF_{10} \ge 10$ / $\le 0.1$), the $d_{\max}=2$ recurrence ceiling, and low-pass momentum filtering ($\beta \in [0.6, 0.85]$) convert soft organizational theory into a stable, bounded control system. |
+| **Governance** $\to$ | **Mathematical & Cybernetics** | Enforces sovereign human agency. Even when an action wins decisively on utility ($\Delta \mathcal{U} > \epsilon$) or crosses a 95% Wilson lower bound, locked human sign-off (`requires_human_approval: true`) prevents statistical confidence from usurping human authority over architecture, baselines, or strategic intent. |
+| **Cybernetics** $\to$ | **Engineering** | Prevents software delivery from becoming a dead-end, terminal waterfall pipeline. Connects lessons learned and realized outcomes directly into living operational baselines and catalytic directives. |
+
+---
+
+## 3. The Complete ADR Corpus (ADR-001 through ADR-009)
+
+All nine ADRs have been reviewed, evaluated via Bayesian decision policy, and formally **Accepted** by Menno Drescher through the live `agent-learning-governance` chain:
+
+| ADR | Title | Status | Intent-to-Outcome Stage & PMBOK 8 Process | Core Architectural Decision |
+|---|---|---|---|---|
+| [**ADR-001**](ADR-001-decision-authority-model.md) | Decision Authority Model — Learned vs. Reasoned Resolution | **Accepted** | Stage 7 (Requirement)<br>5.3 Define Scope | Dual-route selection (`low` reinforcement learning vs. `full` Bayesian decision theory) converging on common `DecisionResult`/`Episode` lineage. |
+| [**ADR-002**](ADR-002-storage-backend-strategy.md) | Storage Backend Strategy — Local File, In-Memory, and Cosmos DB | **Accepted** | Cross-Cutting Storage<br>ADR-002 Invariants | Single abstract `LearningStore` interface with 3 interchangeable backends; strictly limits storage to five core record types with zero bespoke entity sprawl. |
+| [**ADR-003**](ADR-003-evidence-gated-autonomy.md) | Evidence-Gated Autonomy — Complexity-Proportional Thresholds | **Accepted** | Stage 16 (Governance)<br>4.6 Integrated Change | Wilson score lower-bound correctness intervals, complexity tiers (T1–T4), and drift-audit sampling governing autonomy transitions. |
+| [**ADR-004**](ADR-004-audit-and-deterministic-test-replayability.md) | Audit Logging and Deterministic Test-Replayability | **Accepted** | Stage 11 (Audit Record)<br>8.2 Manage Quality | Cryptographic episode hashing, write-once audit registers, and replayable test harness isolating stochastic LLM variance. |
+| [**ADR-005**](ADR-005-decision-progress-comparison.md) | Decision-Progress Comparison and Regression Healing | **Accepted** | Stage 10 (Verification)<br>8.3 Control Quality | Pure, stateless mathematical comparison of decision quality deltas ($\Delta \mathcal{U} > \epsilon$), pairwise classification, and regression healing. |
+| [**ADR-006**](ADR-006-opt-in-lightweight-evidence-capture-for-low-authority.md) | Opt-In Lightweight Evidence Capture for Low-Authority Decisions | **Accepted** | Stage 10 (Verification)<br>8.3 Control Quality | Opt-in metadata flag and non-interpreting evidence envelope transport for low-authority bandit decisions without reward leakage. |
+| [**ADR-007**](ADR-007-governance-change-paired-diff-classification-and-escalation.md) | Automated Governance Change: Paired Semantic Diff Classification and Escalation Learning | **Accepted** | Stage 16 (Governance)<br>4.6 Integrated Change | Paired architecture: full-authority semantic classification (`classify-diff-type`) and low-authority operational escalation learning (`escalate-diff-response`). |
+| [**ADR-008**](ADR-008-pmbok-lifecycle-orchestration-and-pmp-adaptation-loop.md) | PMBOK 8 Lifecycle Orchestration and Closed-Loop Adaptation Feedback | **Accepted** | Stage 6 (PMP) & Stage 17 (Adaptation)<br>4.2 Develop PMP & 4.6 Tailoring | In-repo PMBOK orchestration of 9 subsidiary plans, dedicated `approve-pmp` / `approve-adaptation-plan` gates, and targeted `--mode adapt` re-planning. |
+| [**ADR-009**](ADR-009-intent-refinement-and-cognitive-feedback-loop.md) | Intent Refinement and Cognitive Feedback Loop | **Accepted** | Stage 18 (Intent Refinement)<br>4.7 Close Project or Phase | Double-loop cognitive feedback closing outcomes to spark; Bayes factor hypothesis retirement ($d_{\max}=2$); low-pass whiplash filter; cumulative lineage kernel. |
+
+---
+
+## 4. The Closed-Loop Intent-to-Outcome Architecture
+
+```mermaid
+flowchart TD
+    subgraph INITIATING ["Initiating Phase (Stages 1-4)"]
+        SPARK["Stage 1: Intent Spark<br/>(approve-ideation)"] --> CHARTER["Stage 2: Project Charter<br/>(approve-charter)"]
+        SPARK -.-> HYP["Stage 3: Hypothesis Formulation<br/>(classify-hypothesis-status)"]
+        CHARTER --> BENEFIT["Stage 4: Business Benefits<br/>(approve-business-case)"]
+    end
+
+    subgraph PLANNING ["Planning Phase (Stages 6-8)"]
+        BENEFIT --> PMP["Stage 6: Project Management Plan (PMP)<br/>(approve-pmp)"]
+        PMP --> REQ["Stage 7: Requirements<br/>(approve-adr, approve-brd, approve-fdd, approve-user-stories)"]
+        REQ --> WP["Stage 8: Work Package Entry Gate<br/>(validate-intent-foundation)"]
+    end
+
+    subgraph EXECUTING ["Executing & Monitoring (Stages 9-16)"]
+        WP --> DEL["Stage 9: Deliverables<br/>(implement-story)"]
+        DEL --> VERIF["Stage 10: Verification Evidence<br/>(pytest test suite)"]
+        VERIF --> AUD["Stage 11: Quality Audit<br/>(approve-audit-record)"]
+        AUD --> OUTCOME["Stage 12: Actual Outcomes<br/>(empirical observation)"]
+        AUD --> KB["Stages 14-15: Lessons Learned<br/>(resolve-kb-conflict)"]
+        KB --> GOV["Stage 16: Governance Change<br/>(classify-diff-type & escalate-diff-response)"]
+    end
+
+    subgraph CLOSING ["Closing & Cybernetic Feedback (Stages 17-18)"]
+        GOV --> ADAPT["Stage 17: Adaptation Plan<br/>(approve-adaptation-plan)"]
+        OUTCOME --> IR["Stage 18: Intent Refinement<br/>(approve-intent-refinement)"]
+        KB --> IR
+        ADAPT --> IR
+    end
+
+    %% Single-Loop Operational Adaptation (ADR-008)
+    ADAPT -->|"Single-Loop Tailored Updates (Scope, Risk, Quality)"| PMP
+
+    %% Double-Loop Cognitive Refinement (ADR-009)
+    IR -->|"Double-Loop Catalysts (Phase N+1 Spark Directives & Lineage)"| SPARK
+    IR -.->|"Hypothesis Promotion / Retirement (d_max=2)"| HYP
+```
+
+---
+
+## 5. Self-Governance Verification Trail
+
+This repository verifies its own governance decisions using the `agent-learning-governance` chain under `data/agent-learning/store/`:
+
+```powershell
+# 1. Decide: evaluate candidate decision frame using Bayesian multi-criteria reasoning
+python -m agent_learning.cli task-policy-decide \
+  --agent-id agent-learning-governance \
+  --task-id approve-adr \
+  --decision-frame docs/policy-shapes/decision-frames/adr-009-approval.json
+
+# 2. Adjudicate: apply human sign-off (--disposition accept)
+python -m agent_learning.cli task-policy-adjudicate \
+  --agent-id agent-learning-governance \
+  --task-id approve-adr \
+  --decision-result adr-009-decision-result.json \
+  --disposition accept
+
+# 3. Register: persist immutable episode into LearningStore
+python -m agent_learning.cli task-episode-register \
+  --agent-id agent-learning-governance \
+  --task-id approve-adr \
+  --require-decision-policy \
+  --episode adr-009-reg.json
+```
+
+Every accepted ADR, BRD, FDD, and User Story in this repository possesses a complete cryptographic and Bayesian adjudication record in `docs/policy-shapes/episodes/`.

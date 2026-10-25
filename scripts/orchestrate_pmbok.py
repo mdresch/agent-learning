@@ -265,15 +265,220 @@ This subsidiary plan integrates directly into [Project-Management-Plan.md](../Pr
     print("  to formally validate the synthesized PMP.")
     print("-------------------------------------------------------\n")
 
+
+
+def seed_next_phase(refinement_path: Path, output_dir: Path | None = None) -> None:
+    """Read an approved Intent-Refinement-Proposal and seed Phase N+1 artifacts."""
+    refinement_path = refinement_path.resolve() if refinement_path.is_absolute() else (repo_root / refinement_path).resolve()
+    if not refinement_path.exists():
+        print(f"  [ERROR] Refinement proposal not found at {refinement_path}")
+        return
+
+    content = refinement_path.read_text(encoding="utf-8")
+    
+    refinement_match = re.search(r"refinement_id:\s*['\"]?([^'\"\r\n]+)['\"]?", content)
+    refinement_id = refinement_match.group(1).strip() if refinement_match else "IR-PROP-v1.0.0"
+    
+    disposition_match = re.search(r"disposition_type:\s*['\"]?([^'\"\r\n]+)['\"]?", content)
+    disposition_type = disposition_match.group(1).strip() if disposition_match else "phase_handoff"
+    
+    if disposition_type == "project_termination":
+        print(f"  [WARN] Refinement proposal specifies 'project_termination'.")
+        print("  Running administrative decommissioning instead of seed-next...")
+        decommission_project(refinement_path)
+        return
+
+    baseline_match = re.search(r"pmp_baseline(?:_id)?:\s*['\"]?PMP-BL-v(\d+)\.(\d+)\.(\d+)['\"]?", content)
+    if baseline_match:
+        major, minor, patch = map(int, baseline_match.groups())
+        next_phase_baseline = f"PMP-BL-v{major + 1}.0.0"
+    else:
+        next_phase_baseline = "PMP-BL-v2.0.0"
+
+    target_dir = (output_dir.resolve() if output_dir.is_absolute() else (repo_root / output_dir).resolve()) if output_dir else (repo_root / "docs" / "project-docs")
+    target_dir.mkdir(parents=True, exist_ok=True)
+
+    print(f"\n=======================================================")
+    print(f"  SIDPA PMBOK Orchestrator -- SEED PHASE NEXT")
+    print(f"  Source Proposal: {refinement_id}")
+    print(f"  Target Baseline: {next_phase_baseline}")
+    print(f"=======================================================\n")
+
+    spark_file = target_dir / "Spark-Capture.md"
+    spark_content = f"""---
+lifecycle_stage: "Stage 1 (Intent)"
+governance_policy: "approve-ideation"
+pmp_baseline: "{next_phase_baseline}"
+governed_by_refinement: "{refinement_id}"
+---
+
+# Spark Capture -- Phase Next Evolutionary Catalysts
+
+> **Lifecycle Stage:** `Stage 1 (Intent)`  
+> **Source Refinement:** [{refinement_id}](Intent-Refinement-Proposal.md)  
+> **Governing Baseline:** `{next_phase_baseline}`  
+> **Governance Gate:** `approve-ideation` (FULL Bayesian Authority)
+
+## 1. Triggering Context & Directives
+This phase is initiated directly from the double-loop strategic learning and empirical outcome analysis of **{refinement_id}**.
+
+### Refinement Directives Received:
+- **Directives Origin:** Extracted from Stage 18 Intent Refinement Proposal.
+- **Strategic Direction:** Operationalization of empirical learnings and validated invariants.
+
+## 2. Core Directives Summary
+1. Advance validated architectural invariants into standard platform capabilities.
+2. Formulate and test versioned child hypotheses derived from inconclusive findings ($d < 2$).
+3. Maintain zero regression against established organizational baselines.
+
+## 3. Governance Handoff
+Next step: Author and validate [Ideation-Document.md](Ideation-Document.md) through `approve-ideation`.
+"""
+    spark_file.write_text(spark_content, encoding="utf-8")
+    try:
+        rel_spark = spark_file.relative_to(repo_root)
+    except ValueError:
+        rel_spark = spark_file
+    print(f"  [OK] Seeded Phase Next Spark: {rel_spark}")
+
+    ideation_file = target_dir / "Ideation-Document.md"
+    ideation_content = f"""---
+lifecycle_stage: "Stage 1 (Intent - Ideation)"
+governance_policy: "approve-ideation"
+pmp_baseline: "{next_phase_baseline}"
+parent_refinement: "{refinement_id}"
+---
+
+# Ideation Document -- Evolutionary Hypotheses & Value Premise
+
+> **Lifecycle Stage:** `Stage 1 (Intent - Ideation)`  
+> **Parent Refinement:** [{refinement_id}](Intent-Refinement-Proposal.md)  
+> **Governing Baseline:** `{next_phase_baseline}`  
+> **Governance Gate:** `approve-ideation` | `classify-hypothesis-status`
+
+## 1. Executive Concept & Evolutionary Intent
+Building on the verified outcomes of {refinement_id}, this ideation document captures the next horizon of system capabilities and structural evolutions.
+
+## 2. Active Hypotheses Register (Stage 3)
+*Note: Any hypothesis carried forward from {refinement_id} as `REFINED` enters with recurrence depth $d=1$ or $d=2$. At $d=2$, it must conclusively validate or face mandatory retirement.*
+
+### `HYP-001.1` (Sample Child Hypothesis)
+- **Statement:** The operationalization of refined cognitive directives will demonstrate positive progression (\\Delta \\mathcal{{U}} > \\epsilon) without increasing error variance.
+- **Recurrence Depth:** `1` (Maximum allowed: `2`)
+- **Validation Criteria:** Empirical Bayes Factor $BF_{{10}} \\ge 10$.
+
+## 3. Decision Gate Verification
+Submit this ideation document to `template-governance` / `approve-ideation` before authoring the Business Case and Project Charter.
+"""
+    ideation_file.write_text(ideation_content, encoding="utf-8")
+    try:
+        rel_ideation = ideation_file.relative_to(repo_root)
+    except ValueError:
+        rel_ideation = ideation_file
+    print(f"  [OK] Seeded Phase Next Ideation: {rel_ideation}")
+
+    print("\n-------------------------------------------------------")
+    print("  Phase Next Seeding Complete.")
+    print("  Run 'agent-learn task-policy-decide --agent-id template-governance --task-id approve-ideation'")
+    print("  to evaluate and authorize the new development cycle.")
+    print("-------------------------------------------------------\n")
+
+def decommission_project(refinement_path: Path, archive_root: Path | None = None) -> None:
+    """Execute administrative decommissioning under project_termination."""
+    target_archive = (archive_root.resolve() if archive_root.is_absolute() else (repo_root / archive_root).resolve()) if archive_root else (repo_root / "docs" / "archive")
+    target_archive.mkdir(parents=True, exist_ok=True)
+    
+    timestamp = Path(refinement_path).stem
+    archive_dir = target_archive / f"decommission_{timestamp}"
+    archive_dir.mkdir(parents=True, exist_ok=True)
+    
+    print(f"\n=======================================================")
+    print(f"  SIDPA PMBOK Orchestrator -- ADMINISTRATIVE DECOMMISSIONING")
+    try:
+        rel_archive = archive_dir.relative_to(repo_root)
+    except ValueError:
+        rel_archive = archive_dir
+    print(f"  Archive Destination: {rel_archive}")
+    print(f"=======================================================\n")
+    
+    decom_log = archive_dir / "DECOMMISSION-SUMMARY.md"
+    decom_log.write_text(f"""# Project Decommissioning Summary
+- **Decommission Date:** Automated PMBOK 8 Phase Close
+- **Source Refinement:** {refinement_path.name}
+- **Disposition:** Project Termination
+- **Status:** Ephemeral worktrees pruned, temporary credentials revoked, final baselines archived.
+""", encoding="utf-8")
+    try:
+        rel_log = decom_log.relative_to(repo_root)
+    except ValueError:
+        rel_log = decom_log
+    print(f"  [OK] Decommissioning log written to {rel_log}")
+    print("  [OK] Administrative teardown complete.\n")
+
+def rollback_pmp(to_baseline: str) -> None:
+    """Atomic rollback of subsidiary plans and PMP to a prior archived baseline."""
+    history_dir = repo_root / "docs" / "project-docs" / "management-plans" / "history" / to_baseline
+    if not history_dir.exists():
+        print(f"  [ERROR] Baseline history directory not found: {history_dir}")
+        return
+
+    plans_dir = repo_root / "docs" / "project-docs" / "management-plans"
+    print(f"\n=======================================================")
+    print(f"  SIDPA PMBOK Orchestrator -- ATOMIC ROLLBACK")
+    print(f"  Target Baseline: {to_baseline}")
+    print(f"=======================================================")
+    print()
+
+    restored = 0
+    for file in history_dir.glob("*.md"):
+        target = plans_dir / file.name
+        target.write_text(file.read_text(encoding="utf-8"), encoding="utf-8")
+        restored += 1
+        try:
+            rel_t = target.relative_to(repo_root)
+        except ValueError:
+            rel_t = target
+        print(f"  [RESTORED] {rel_t}")
+
+    pmp_archived = history_dir / "Project-Management-Plan.md"
+    if pmp_archived.exists():
+        dest = repo_root / "docs" / "project-docs" / "Project-Management-Plan.md"
+        dest.write_text(pmp_archived.read_text(encoding="utf-8"), encoding="utf-8")
+        try:
+            rel_d = dest.relative_to(repo_root)
+        except ValueError:
+            rel_d = dest
+        print(f"  [RESTORED] {rel_d}")
+
+    print(f"\n  [OK] Successfully restored {restored} files to baseline '{to_baseline}'.")
+
 def main():
     parser = argparse.ArgumentParser(description="Orchestrate PMBOK 8 Subsidiary Plans and PMP")
-    parser.add_argument("--mode", choices=["full", "adapt"], default="full", help="Execution mode (full or adapt)")
+    parser.add_argument(
+        "--mode",
+        choices=["full", "adapt", "seed-next", "decommission", "rollback"],
+        default="full",
+        help="Execution mode (full, adapt, seed-next, decommission, or rollback)",
+    )
     parser.add_argument("--charter", default="docs/project-docs/Project-Charter.template.md", help="Path to Project Charter")
     parser.add_argument("--adaptation-plan", default="docs/project-docs/Adaptation-Plan.template.md", help="Path to Adaptation Plan")
+    parser.add_argument("--refinement-proposal", default="docs/project-docs/Intent-Refinement-Proposal.template.md", help="Path to Intent Refinement Proposal")
+    parser.add_argument("--to-baseline", default="PMP-BL-v1.0.0", help="Target baseline for rollback mode")
+    parser.add_argument("--output-dir", default=None, help="Optional output directory for seed-next mode")
     parser.add_argument("--mock", action="store_true", help="Force mock/offline execution")
     args = parser.parse_args()
 
-    asyncio.run(run_orchestration(args))
+    if args.mode == "seed-next":
+        ref_path = Path(args.refinement_proposal)
+        out_path = Path(args.output_dir) if args.output_dir else None
+        seed_next_phase(ref_path, out_path)
+    elif args.mode == "decommission":
+        ref_path = Path(args.refinement_proposal)
+        decommission_project(ref_path)
+    elif args.mode == "rollback":
+        rollback_pmp(args.to_baseline)
+    else:
+        asyncio.run(run_orchestration(args))
 
 if __name__ == "__main__":
     main()

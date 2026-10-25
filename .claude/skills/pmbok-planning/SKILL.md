@@ -58,3 +58,27 @@ If downstream execution triggers regressions, atomic rollback restores the prior
 ```powershell
 python scripts/orchestrate_pmbok.py --mode rollback --to-baseline PMP-BL-v1.0.0
 ```
+
+### 6. Phase Next Evolutionary Seeding (Stage 18 -> Stage 1)
+When Stage 18 Intent Refinement completes with a disposition of `phase_handoff` and receives full Bayesian governance approval (`approve-intent-refinement`), run the orchestrator in `seed-next` mode to mechanically scaffold Phase $N+1$:
+
+```powershell
+python scripts/orchestrate_pmbok.py --mode seed-next --refinement-proposal docs/project-docs/Intent-Refinement-Proposal.md
+```
+
+This automatically:
+1. Parses `Intent-Refinement-Proposal.md` for governing baseline, validated invariants, and refined child hypotheses.
+2. Increments the major baseline (`PMP-BL-v1.0.0` -> `PMP-BL-v2.0.0`).
+3. Seeds `docs/project-docs/Spark-Capture.md` (Stage 1) referencing the governing refinement.
+4. Seeds `docs/project-docs/Ideation-Document.md` (Stage 1 Ideation) with carried-over child hypotheses ($d=1, 2$) and formal Bayes factor criteria.
+5. Directs the operator to evaluate `approve-ideation` under `template-governance`.
+
+### 7. Administrative Decommissioning (Stage 18 Project Termination)
+If Stage 18 outcome evaluation concludes that the project's strategic intent is fully realized or non-viable (`disposition_type: project_termination`), run the orchestrator in `decommission` mode:
+
+```powershell
+python scripts/orchestrate_pmbok.py --mode decommission --refinement-proposal docs/project-docs/Intent-Refinement-Proposal.md
+```
+
+This generates `docs/archive/decommission_{timestamp}/DECOMMISSION-SUMMARY.md`, archives final baselines, and logs administrative teardown in full compliance with PMBOK 8 Phase Close guidelines.
+

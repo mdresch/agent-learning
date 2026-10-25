@@ -73,7 +73,20 @@ from .lessons_learned import (
     load_lessons_learned_register,
     parse_lessons_learned_markdown,
 )
-from .tailoring import PLAN_IDS, PLAN_NAMES, PlanRoute, Route, to_episode_metadata, validate_route_set
+from .tailoring import (
+    BASELINE_SUBSTANTIATING,
+    INTEGRATION_ELEMENTS,
+    PLAN_IDS,
+    PLAN_NAMES,
+    Flag,
+    HomeResolution,
+    PlanRoute,
+    Route,
+    compute_flags,
+    resolve_home,
+    to_episode_metadata,
+    validate_route_set,
+)
 from .governance import (
     APPLY_AUTOMATICALLY,
     APPLY_WITH_NOTIFICATION,
@@ -182,10 +195,16 @@ __all__ = [
     "filter_crystallized_lessons",
     "load_lessons_learned_register",
     "parse_lessons_learned_markdown",
+    "BASELINE_SUBSTANTIATING",
+    "INTEGRATION_ELEMENTS",
     "PLAN_IDS",
     "PLAN_NAMES",
+    "Flag",
+    "HomeResolution",
     "PlanRoute",
     "Route",
+    "compute_flags",
+    "resolve_home",
     "to_episode_metadata",
     "validate_route_set",
 

@@ -159,3 +159,48 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - $AC_5$: `tailoring.py` imports nothing from storage and returns a plain dict.
   - Contract: 11/11 passed in `test_tailoring.py` (10 for AC_0 to AC_5 plus 1 added from review). Full suite with `--ignore=tests/test_spark.py --ignore=tests/pmbok`: 475 passed, 2 skipped. **`tests/pmbok` cannot be collected from a clean install** (15 files; undeclared `sqlalchemy`/`tenacity`), a known pre-existing gap not touched by this story, so the suite as the skill specifies it does not run. The earlier 464 figure plus the original 10 tests equals 474, which suggests the earlier "entire suite" figure also excluded `tests/pmbok`.
   - Review (Q Developer, PR #7): no blocking defects. Two minor observations adopted: the decided-route check now gives separate messages for a missing recommended route and a blank basis (test added first, observed RED), and `diverged` compares with `!=`. A third (`DEFAULT_EPSILON` missing from `__all__` in `__init__.py`) is pre-existing and out of this story's scope.
+
+## Story 11.2 — Flags That Never Block, and Integration-Section Home
+- **Commit:** `74c49fb`
+- **Date:** 2026-10-25
+- **Branch:** `feat/story-11.2` (based on `feat/story-11.1`, which it extends; both sit on `docs/adr-011-tailoring-route-decision`)
+- **Source ADR / BRD / FDD:** ADR-011, BRD-011, FDD-011
+- **Files Modified/Created:**
+  - `src/agent_learning/tailoring.py` (`Flag`, `HomeResolution`, `BASELINE_SUBSTANTIATING`, `INTEGRATION_ELEMENTS`, `compute_flags`, `resolve_home`)
+  - `src/agent_learning/__init__.py` (re-exported symbols)
+  - `tests/test_tailoring.py` (12 contract tests encoding $AC_0$ through $AC_4$, prefixed `s112_`)
+  - `.claude/skills/tailoring/SKILL.md` (component skill updated)
+  - `docs/user-stories/epic-11-project-tailoring-and-route-decision.md` (Story 11.2 status updated to Completed)
+- **Validation:**
+  - $AC_0$: each of cost, scope and schedule routed `not_applicable` raises one `baseline_plan_omitted` flag with message and evidence; none when they are at least a section; plans outside the set raise none.
+  - $AC_1$: `compute_flags()` never raises for content (empty and partial sets included), and a flagged complete set still passes `validate_route_set()`.
+  - $AC_2$: an accepted flagged route needs a rationale. This is already enforced by Story 11.1's rule for every decided route, so this test passes against that rule; Story 11.2 adds the flag codes to episode metadata.
+  - $AC_3$: `resolve_home()` puts an element in the Charter if the Charter defines it, in the PMP if only the PMP does, and nowhere if neither; a differing PMP value is a conflict; a blank value is not "defined".
+  - $AC_4$: both `element` and `section` granularities are implemented and tested, and an unknown granularity raises, so the ADR-011 open question is not pre-decided.
+  - Implementation detail not stated in FDD-011 (FDD unchanged): `resolve_home` takes an optional `elements` argument defaulting to `INTEGRATION_ELEMENTS` (`type`, `routes`, `owners`) so that "neither defines it" can be reported as no home.
+  - Contract: 25/25 passed in `test_tailoring.py` (23 original plus 2 added from review). Full suite with `--ignore=tests/test_spark.py --ignore=tests/pmbok`: 489 passed, 2 skipped. `tests/pmbok` still cannot be collected from a clean install (known pre-existing gap, see Story 11.1).
+  - LL-007 check: grep found the module docstring still naming only Story 11.1; updated in the same change.
+  - Review (Q Developer, PR #8): flagged three "logic errors". Adopted: `_defined` now treats blank strings and every empty container (tuple, set, frozenset as well as list and dict) as undefined; the test was added first and observed RED. Not adopted, with reasons: Q's claim that a section-mode conflict for a PMP-only element is a bug. ADR-011 Invariant 5 requires one home at a time, so a PMP value inside a Charter-held section is a second home and is flagged, not dropped; FDD-011 is silent on section-mode conflicts, so the meaning is now documented in the docstring and the component skill, and a test pins both the agreement and the stray cases. This is an interpretation of an open ADR question (whole section versus per element), recorded for the human to confirm.
+
+## Epic 11 — Closure Record: Project Tailoring and Route Decision
+- **Date:** 2026-10-25
+- **Stories:** 11.1 (PR #7, commit `516bdb3`) and 11.2 (PR #8, commit `74c49fb`), both with Q Developer's review resolved. Nothing merged at the time of this record.
+- **Governing chain:** ADR-011 (Accepted, episode `6c76db96-36b1-4796-a1dd-6325c6ef5208`) -> BRD-011, FDD-011, Epic 11 stories (all Approved through `approve-brd`, `approve-fdd`, `approve-user-stories`).
+- **Traceability, from decision to green contract** (contracts in `tests/test_tailoring.py`, code in `src/agent_learning/tailoring.py`, component skill `.claude/skills/tailoring/SKILL.md`):
+
+| ADR-011 decision / invariant | BRD-011 | FDD-011 element | Story AC | Contract tests (name fragment) | Code |
+|---|---|---|---|---|---|
+| D1 route per plan, human decides; Inv 1 human decides, Inv 2 no silent omission | BRU-011-01, 02 | `Route`, `PlanRoute`, `validate_route_set` | 11.1 AC_0 to AC_3 | `ac0_route_shape`, `ac1_*` (3), `ac2_not_applicable_needs_a_reason`, `ac3_*` (2) | `Route`, `PlanRoute`, `validate_route_set` |
+| D2 flags not blocks, both sides recorded; Inv 3 recorded as `Episode` | BRU-011-03, 04 | `compute_flags`, `to_episode_metadata`, `Flag` | 11.1 AC_4; 11.2 AC_0 to AC_2 | `ac4_*` (3), `s112_ac0_*` (3), `s112_ac1_*`, `s112_ac2_*` (2) | `compute_flags`, `to_episode_metadata`, `Flag`, `BASELINE_SUBSTANTIATING` |
+| D3 Charter sets limits, integration section home; Inv 5 one home, Charter prevails | BRU-011-05 | `resolve_home`, `HomeResolution` | 11.2 AC_3, AC_4 | `s112_ac3_*` (4), `s112_ac4_*` (4) | `resolve_home`, `HomeResolution`, `INTEGRATION_ELEMENTS` |
+| Storage boundary (ADR-002 Invariant #2); Inv 3 | BRU-011-06 | module purity, section 1 | 11.1 AC_5 | `ac5_storage_boundary_*` | module imports no storage; metadata is a plain dict |
+| D4 changes follow the cycles (Stage 17 / 18); D5 remedial breakouts; Inv 4 profile, standard and limits declared by humans | none in this epic | none | none | none | **Deferred by design**: Charter template and checks, plan standards, gates, learners, route-aware orchestration (see Out of Scope in BRD, FDD and epic) |
+
+- **Skills touched:** `.claude/skills/tailoring/SKILL.md` (new, updated for 11.2); `.claude/skills/implement-story/SKILL.md` (Tier 2 propagation of LL-010, LL-011 and LL-013 into Steps 0, 1, 3 and 6); `.claude/skills/tailoring/SKILL.md` also carries LL-014. Governance and learner skills unchanged.
+- **Code amendments:** `src/agent_learning/tailoring.py` (new) and `src/agent_learning/__init__.py` (re-exports only). No existing behavior changed.
+- **Confirmation that the contracts are green** (run on `feat/story-11.2`, 2026-10-25):
+  - `tests/test_tailoring.py`: 25 passed (11 for Story 11.1, 14 for Story 11.2). `tests/test_lessons_learned.py`: 5 passed with the register now at `LL-001` to `LL-014`. Together 30 passed.
+  - Suite with `--ignore=tests/test_spark.py --ignore=tests/pmbok`: **489 passed, 2 skipped**.
+  - **Not covered:** `tests/pmbok` (15 files) cannot be collected from a clean install (undeclared `sqlalchemy` and `tenacity`), and `tests/test_spark.py` needs a JVM. "All contracts green" therefore means every contract that can currently run, not the PMBOK contracts (LL-010).
+- **Breakout recap (ADR-010 section 4.1):** held, with the lessons drawn from how the ADR, BRD, FDD, stories, skills and code related. Recorded as `LL-008` to `LL-014` in `docs/project-docs/Lessons-Learned-Register.md`: keep only hardened decisions in an ADR (008), verify the edition of a cited standard (009), implement only against approved and committed specs (010), state every mode and parameter in the FDD (011), state each rule in one story's acceptance criteria (012), keep a skill's validation command one that runs (013), and define blank once and test every container type (014). These replace a first, narrower draft of three lessons (numbered `LL-008` to `LL-010` in that draft), revised after review of the recap.
+- **Open for a human:** the section-mode conflict interpretation of `resolve_home` (whole section versus per element, ADR-011 open question); the merge order of the stacked PRs (docs branch, #7, #8).

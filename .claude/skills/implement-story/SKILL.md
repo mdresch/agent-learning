@@ -22,13 +22,13 @@ Instantiated from the `sidpa-template` skill. The loop (steps 0-9; step 9 runs o
 
 ## The loop — mandatory, in order
 
-0. **Worktree:** `git worktree add ../agent-learning-story-<X.Y> -b feat/story-<X.Y> main`; run `uv sync` in the worktree before Step 5.
-1. **Ingest:** Story (`Status: Ready`), ADR, BRD, FDD. Hierarchy: ADR > BRD/FDD > Story. If a story has no code deliverable (operational/governance exercise), record findings in the appropriate register rather than forcing code.
+0. **Worktree:** `git worktree add ../agent-learning-story-<X.Y> -b feat/story-<X.Y> main`; run `uv sync` in the worktree before Step 5. Before creating it, confirm the story's BRD, FDD and stories are approved, and run `git status --short` in the base checkout to commit or stash anything the story depends on, because a worktree forks from committed state only (LL-010).
+1. **Ingest:** Story (`Status: Ready`), ADR, BRD, FDD. The BRD, FDD and stories must be approved, not only marked Ready by their author (LL-010). Hierarchy: ADR > BRD/FDD > Story. If a story has no code deliverable (operational/governance exercise), record findings in the appropriate register rather than forcing code.
 2. **State intent:** Intent / Scope / Contract to encode / Explicitly out of scope.
-3. **Contract (RED):** One pytest per Acceptance Criterion; header docstring naming Story, ADR, BRD, FDD; fixtures loaded from `tests/fixtures/<module>/`. Run and verify failing (RED) before implementing.
+3. **Contract (RED):** One pytest per Acceptance Criterion; header docstring naming Story, ADR, BRD, FDD; fixtures loaded from `tests/fixtures/<module>/`. Run and verify failing (RED) before implementing. If a test asserts behavior the acceptance criteria or the design do not state, record it as an interpretation in the test docstring and the log, and amend the FDD or the open questions (LL-011).
 4. **Component skill:** Create or update `.claude/skills/<component>/SKILL.md` (governing ADRs/Stories, contract files, load-bearing constraints, call sites). Required Definition-of-Done item.
 5. **Implement (GREEN):** Minimal code — no speculative generalization.
-6. **Validate:** Run the story contract, then full suite (`uv run pytest --ignore=tests/test_spark.py`). If the change adds a step or entry, changes a count, or completes something another document describes as pending, grep the repo for the old number or phrase and update every occurrence in the same change (LL-007).
+6. **Validate:** Run the story contract, then full suite (`uv run pytest --ignore=tests/test_spark.py`). If the change adds a step or entry, changes a count, or completes something another document describes as pending, grep the repo for the old number or phrase and update every occurrence in the same change (LL-007). If the full suite cannot run, record in the log which paths were excluded, why, and the resulting count, and never call that count the entire suite (LL-013).
 7. **Commit & log:**
    - **Optional trap note:** If something surprising happened in this story, jot a one-line note for the epic-end breakout recap (ADR-010 §4.1). Optional, never a gate; do not write an `LL-###` entry per story.
    - **Commit:** Commit implementation, test contracts, and component skills.

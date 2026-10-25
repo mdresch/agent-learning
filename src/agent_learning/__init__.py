@@ -73,6 +73,7 @@ from .lessons_learned import (
     load_lessons_learned_register,
     parse_lessons_learned_markdown,
 )
+from .tailoring import PLAN_IDS, PLAN_NAMES, PlanRoute, Route, to_episode_metadata, validate_route_set
 from .governance import (
     APPLY_AUTOMATICALLY,
     APPLY_WITH_NOTIFICATION,
@@ -181,6 +182,12 @@ __all__ = [
     "filter_crystallized_lessons",
     "load_lessons_learned_register",
     "parse_lessons_learned_markdown",
+    "PLAN_IDS",
+    "PLAN_NAMES",
+    "PlanRoute",
+    "Route",
+    "to_episode_metadata",
+    "validate_route_set",
 
     "ActionDelta",
     "ClassificationType",

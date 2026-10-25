@@ -18,6 +18,7 @@
 | [LL-005](#ll-005--compound-header--delimiter-bleed-in-markdown-parsers) | Compound Header & Delimiter Bleed in Markdown Parsers | Epic 10 / Story 10.1 | Universal Tooling | 2026-10-25 |
 | [LL-006](#ll-006--cwd-independent-path-anchoring-in-test-suites) | CWD-Independent Path Anchoring in Test Suites | Epic 10 / Story 10.1 | Universal Testing | 2026-10-25 |
 | [LL-007](#ll-007--counts-and-pending-notes-go-stale-in-the-change-that-resolves-them) | Counts and Pending Notes Go Stale in the Change That Resolves Them | Epic 10 / PR #6 | Universal Documentation | 2026-10-25 |
+| [LL-008](#ll-008--monolithic-integrated-gates-obscure-component-level-credit-assignment) | Monolithic Integrated Gates Obscure Component-Level Credit Assignment | ADR-013 / PMBOK Orchestration | Universal Governance & Architecture | 2026-10-25 |
 
 ---
 
@@ -150,3 +151,16 @@
   ```bash
   rg "Steps 0|steps 0-8|must be reworded|LL-001. through" docs .claude
   ```
+
+---
+
+### LL-008 — Monolithic Integrated Gates Obscure Component-Level Credit Assignment
+- **Identifier:** LL-008
+- **Date:** 2026-10-25
+- **Epic / Story:** ADR-013 / PMBOK Orchestration
+- **Scope:** Universal Governance & Architecture
+- **Tier 2/3 Propagation Target:** Tier 2: .claude/skills/learning-methodology-selection/SKILL.md; Tier 3: sidpa-template PMBOK orchestration and governance rules
+- **The Trap:** When multiple generative components (e.g., nine subsidiary management plans) are synthesized into a single monolithic composite document (e.g., the integrated PMP) before evaluation, a rejection or revision request at the composite gate cannot be localized to a specific component. Maintainers must conduct an exhaustive manual diagnostic search across all components. Worse, stub or failed components slip into formal baseline labels undetected because individual components were never governed.
+- **The Root Cause:** Multi-input single-output (MIMO) evaluation conflates individual component deficiencies with cross-cutting integration conflicts.
+- **Actionable Invariant:** Every component destined for a baseline must pass an individual, hash-verified, route-aware approval gate before composite formalization. Decouple **Component-Level Defects** (governed at the component gate) from **Integration-Level Defects** (governed at the composite synthesis gate).
+- **Verification Gate:** Formalization steps must assert that every constituent component satisfies its route contract (e.g. hash match, non-stub) and carries zero active staleness flags before composite synthesis is permitted.

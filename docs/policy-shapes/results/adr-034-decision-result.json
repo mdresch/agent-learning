@@ -30,36 +30,36 @@
       "criteria": [
         {
           "criterion_id": "architectural_soundness",
-          "support": 0.9890479640028655,
-          "entropy_bits": 0.08704046182685841,
+          "support": 0.9947296372017673,
+          "entropy_bits": 0.04746893810464186,
           "disagreement_bits": 0.0,
           "source_count": 1
         },
         {
           "criterion_id": "alternatives_considered",
+          "support": 0.9775786624960782,
+          "entropy_bits": 0.1548279242054164,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "consequences_honest",
           "support": 0.9656783594419082,
           "entropy_bits": 0.21562181746010353,
           "disagreement_bits": 0.0,
           "source_count": 1
         },
         {
-          "criterion_id": "consequences_honest",
-          "support": 0.9409092690826525,
-          "entropy_bits": 0.3238248359860972,
-          "disagreement_bits": 0.0,
-          "source_count": 1
-        },
-        {
           "criterion_id": "gap_disclosure_quality",
-          "support": 0.9534318509289861,
-          "entropy_bits": 0.2716358294773029,
+          "support": 0.9775786624960782,
+          "entropy_bits": 0.1548279242054164,
           "disagreement_bits": 0.0,
           "source_count": 1
         }
       ],
-      "expected_utility": 0.9622668608641031,
-      "uncertainty": 0.2245307361875905,
-      "robust_utility": 0.939813787245344,
+      "expected_utility": 0.978891330408958,
+      "uncertainty": 0.14318665099389455,
+      "robust_utility": 0.9645726653095685,
       "ruled_out_by": []
     },
     {
@@ -72,8 +72,52 @@
       "criteria": [
         {
           "criterion_id": "architectural_soundness",
-          "support": 0.006505118486735254,
-          "entropy_bits": 0.0566088507553148,
+          "support": 0.0025627665817890286,
+          "entropy_bits": 0.025753054339047454,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "support": 0.006856306085426234,
+          "entropy_bits": 0.0591431180707273,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "support": 0.006856306085426234,
+          "entropy_bits": 0.0591431180707273,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "support": 0.006856306085426234,
+          "entropy_bits": 0.0591431180707273,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        }
+      ],
+      "expected_utility": 0.005782921209516933,
+      "uncertainty": 0.050795602137807344,
+      "robust_utility": 0.0007033609957361985,
+      "ruled_out_by": [
+        "pareto_dominated_by:approve_adr"
+      ]
+    },
+    {
+      "action": {
+        "id": "request_revision_before_decision",
+        "description": "The ADR's own decision or reasoning needs a real change before it can be judged -- distinct from a named, deliberately out-of-scope follow-on item the ADR itself already scoped correctly",
+        "parameters": {}
+      },
+      "feasible": true,
+      "criteria": [
+        {
+          "criterion_id": "architectural_soundness",
+          "support": 0.006856306085426234,
+          "entropy_bits": 0.0591431180707273,
           "disagreement_bits": 0.0,
           "source_count": 1
         },
@@ -93,59 +137,15 @@
         },
         {
           "criterion_id": "gap_disclosure_quality",
-          "support": 0.014378898362700829,
-          "entropy_bits": 0.10859196861650261,
+          "support": 0.007616139014891122,
+          "entropy_bits": 0.06453848897308567,
           "disagreement_bits": 0.0,
           "source_count": 1
         }
       ],
-      "expected_utility": 0.010719763556757009,
-      "uncertainty": 0.08458281924035142,
-      "robust_utility": 0.0022614816327218654,
-      "ruled_out_by": [
-        "pareto_dominated_by:approve_adr"
-      ]
-    },
-    {
-      "action": {
-        "id": "request_revision_before_decision",
-        "description": "The ADR's own decision or reasoning needs a real change before it can be judged -- distinct from a named, deliberately out-of-scope follow-on item the ADR itself already scoped correctly",
-        "parameters": {}
-      },
-      "feasible": true,
-      "criteria": [
-        {
-          "criterion_id": "architectural_soundness",
-          "support": 0.014378898362700829,
-          "entropy_bits": 0.10859196861650261,
-          "disagreement_bits": 0.0,
-          "source_count": 1
-        },
-        {
-          "criterion_id": "alternatives_considered",
-          "support": 0.015741192664111215,
-          "entropy_bits": 0.11680895975057551,
-          "disagreement_bits": 0.0,
-          "source_count": 1
-        },
-        {
-          "criterion_id": "consequences_honest",
-          "support": 0.02923725718613503,
-          "entropy_bits": 0.19055219911324675,
-          "disagreement_bits": 0.0,
-          "source_count": 1
-        },
-        {
-          "criterion_id": "gap_disclosure_quality",
-          "support": 0.015741192664111215,
-          "entropy_bits": 0.11680895975057551,
-          "disagreement_bits": 0.0,
-          "source_count": 1
-        }
-      ],
-      "expected_utility": 0.018774635219264573,
-      "uncertainty": 0.1331905218077251,
-      "robust_utility": 0.005455583038492064,
+      "expected_utility": 0.009116870619477326,
+      "uncertainty": 0.07420301615835032,
+      "robust_utility": 0.0016965690036422941,
       "ruled_out_by": [
         "pareto_dominated_by:approve_adr"
       ]

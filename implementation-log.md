@@ -152,3 +152,24 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - $AC_3$: `audit.py` emits updated ADR-001 §4.5 warning when a full-authority episode is present in an audited batch.
   - $AC_4$: `audit.py`'s direct `ReinforceLearner.update()` call sites (:444 and :503) exclude full-authority episodes without caller-level filtering.
   - Full test suite: 18/18 passed in `test_learner.py`; 101/101 passed in `test_audit.py`; 442/442 passed across entire core test suite; 303/303 passed in `sidpa-template`. Zero regressions.
+
+
+---
+
+## Story 2.1 — Implement Optimistic Concurrency and Monotonicity Guard for Cosmos Active Pointer
+- **Commit:** `61bf203`
+- **Date:** 2026-10-25
+- **Branch:** `feat/story-2.1`
+- **Source ADR / BRD / FDD:** ADR-002 §4.5, BRD-002, FDD-002
+- **Files Modified/Created:**
+  - `src/agent_learning/storage/cosmos.py` (added enriched pointer schema, `_store_active_pointer()` with ETag conditional replace, 3-retry backoff loop, and monotonicity guard)
+  - `.claude/skills/storage/SKILL.md` (created component skill documenting storage backend constraints, schema invariants, and concurrency rules)
+  - `tests/test_storage_cosmos.py` (contract tests encoding $AC_0$ through $AC_4$ and edge cases)
+  - `docs/user-stories/epic-2-cosmos-active-policy-optimistic-concurrency.md` (status updated to Completed)
+- **Validation:**
+  - $AC_0$: `CosmosStore.store_policy()` writes active pointer with `policy_version: policy.version` and `updated_at` in ISO 8601 UTC format.
+  - $AC_1$: When an active pointer document exists with `policy_version > candidate.version`, pointer is not overwritten, warning is logged, and candidate snapshot ID is returned safely.
+  - $AC_2$: Pointer update uses `replace_item` with `etag` and `MatchConditions.IfNotModified`; `CosmosAccessConditionFailedError` triggers re-read and retries up to 3 times (4 attempts total), raising on exhaustion.
+  - $AC_3$: Initial pointer creation uses `create_item()`; racing creations raising `CosmosResourceExistsError` retry via the update path.
+  - $AC_4$: `CosmosStore.get_active_policy()` correctly resolves active policies across both legacy (version-less) and enhanced pointer documents without regression.
+  - Full test suite: 7/7 passed in `test_storage_cosmos.py`; 459 passed, 2 skipped across entire agent-learning test suite. Zero regressions.

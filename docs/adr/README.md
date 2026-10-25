@@ -8,7 +8,7 @@ Every architectural transition across the 18-stage **Intent-to-Outcome Chain** (
 
 ## 1. The Four-Pillar Architectural Manifesto
 
-The architectural corpus (ADR-001 through ADR-010) rests upon **four mutually counterweighting pillars**. No single pillar operates in isolation; each acts as a structural counterweight to the failure modes of the others.
+The architectural corpus (ADR-001 through ADR-011) rests upon **four mutually counterweighting pillars**. No single pillar operates in isolation; each acts as a structural counterweight to the failure modes of the others.
 
 ```
                      ┌────────────────────────────────────────┐
@@ -73,9 +73,9 @@ The architectural corpus (ADR-001 through ADR-010) rests upon **four mutually co
 
 ---
 
-## 3. The Complete ADR Corpus (ADR-001 through ADR-010)
+## 3. The Complete ADR Corpus (ADR-001 through ADR-011)
 
-All ten ADRs are formally **Accepted** by Menno Drescher. ADR-001 through ADR-009 were evaluated via Bayesian decision policy through the live `agent-learning-governance` chain; ADR-010 was approved by Menno directly (see its §2):
+All eleven ADRs are formally **Accepted** by Menno Drescher. ADR-001 through ADR-009 and ADR-011 were evaluated via Bayesian decision policy through the live `agent-learning-governance` chain; ADR-010 was approved by Menno directly (see its §2):
 
 | ADR | Title | Status | Intent-to-Outcome Stage & PMBOK 8 Process | Core Architectural Decision |
 |---|---|---|---|---|
@@ -89,6 +89,7 @@ All ten ADRs are formally **Accepted** by Menno Drescher. ADR-001 through ADR-00
 | [**ADR-008**](ADR-008-pmbok-lifecycle-orchestration-and-pmp-adaptation-loop.md) | PMBOK 8 Lifecycle Orchestration and Closed-Loop Adaptation Feedback | **Accepted** | Stage 6 (PMP) & Stage 17 (Adaptation)<br>4.2 Develop PMP & 4.6 Tailoring | In-repo PMBOK orchestration of 9 subsidiary plans, dedicated `approve-pmp` / `approve-adaptation-plan` gates, and targeted `--mode adapt` re-planning. |
 | [**ADR-009**](ADR-009-intent-refinement-and-cognitive-feedback-loop.md) | Intent Refinement and Cognitive Feedback Loop | **Accepted** | Stage 18 (Intent Refinement)<br>4.7 Close Project or Phase | Double-loop cognitive feedback closing outcomes to spark; Bayes factor hypothesis retirement ($d_{\max}=2$); low-pass whiplash filter; cumulative lineage kernel. |
 | [**ADR-010**](ADR-010-lessons-learned-crystallization-and-register.md) | Lessons Learned Crystallization and the Organizational Process Assets Register | **Accepted** | Post-coding recap (separate from Stage 15)<br>Feeds Phase Close readiness (4.7) | Light breakout recap held once per epic after its last user story, on how the code was created from the stories, recorded in `docs/project-docs/Lessons-Learned-Register.md` as `LL-###` entries or a short no-new-lessons sign-off entry. Tier 2/3 propagation (component skills, universal memory) is optional. An Autonomous Breakout Facilitator (draft-and-propose only, human approval for entries and cross-repo actions) is permitted but not built. |
+| [**ADR-011**](ADR-011-project-tailoring-and-route-decision.md) | Project Tailoring and Route Decision | **Accepted** | Stage 17 (Adaptation, tailoring) & Stage 18 (Intent Refinement)<br>PMBOK 8 2.1.6.2, 2.1.7 | A route per management plan (full plan, PMP section, or not applicable), decided by a human with the system recommending; floors and caps as flags; the Charter sets limits and holds the integration section when it defines it; depth changes follow Stage 17, standard changes Stage 18. Wider design kept in `docs/design-notes/`. |
 
 ---
 

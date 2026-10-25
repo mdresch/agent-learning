@@ -87,19 +87,19 @@ governance_policy: "approve-subsidiary-plan" # "approve-subsidiary-plan" (if ful
 ```
 
 #### 4.2.1 Standard-Library Frontmatter Grammar Subset
-To guarantee zero external runtime dependencies (`pyyaml`) per ADR-034 Invariant 1 and ensure deterministic cross-platform behavior, frontmatter syntax is strictly restricted to a well-defined standard-library-parseable grammar:
-1. **Delimiters:** Frontmatter must be bounded by opening `---` and closing `---` on lines by themselves with no leading or trailing whitespace.
-2. **Key-Value Pairs:** Flat string or enum keys matching `^[a-z_]+$` followed by a colon and a space (`<key>: <value>`). Duplicate keys are prohibited; encountering a duplicate key emits `FLAG: INVALID_METADATA`.
+To guarantee zero external runtime dependencies (`pyyaml`) per ADR-034 Invariant 1 and ensure deterministic cross-platform behavior, frontmatter syntax is strictly restricted to a well-defined standard-library-parseable grammar. **The normative and authoritative grammar specification is codified in ADR-034 §4.3.1:**
+1. **Delimiters, Line Endings & BOM:** CRLF (`\r\n`) is normalized to LF (`\n`) and leading UTF-8 BOM (`\ufeff`) is automatically stripped before delimiter verification. Frontmatter must be bounded by opening `---` and closing `---` on lines by themselves with no leading or trailing whitespace.
+2. **Key-Value Pairs:** Flat string or enum keys matching `^[a-z_]+$` followed by a colon and a space (`<key>: <value>`) or a colon followed by trailing comments/whitespace (`<key>:  # comment`). Duplicate keys are prohibited; encountering a duplicate key emits `FLAG: INVALID_METADATA`.
 3. **Values:** Supported scalar values are:
    - Double-quoted strings: `"..."` supporting standard string escapes (`\"`, `\\`, `\n`).
    - Single-quoted strings: `'...'` interpreted as literal text without escapes.
-   - Bare scalar tokens: `[A-Za-z0-9_.-]+` (e.g. `PMBOK 8`, `full_plan`, `1.0.0`, `Scope`).
+   - Bare scalar tokens: `^[A-Za-z0-9_.-]+$` (e.g. `1.0.0`, `full_plan`, `Scope`). Strings containing whitespace or special characters (e.g. `"PMBOK 8"`) **must be quoted**.
    - Empty flow lists: `[]`.
 4. **Lists:** Itemized string sequences where a key is followed on subsequent lines by `  - "item"` or `  - item`. List items must be indented with exactly two spaces (`  - `).
-5. **Inline & Line Comments:** `# comment text` preceded by whitespace after a scalar or list entry, or on an independent line. Comments and blank lines are stripped before token parsing.
+5. **Inline & Line Comments:** `# comment text` preceded by whitespace is permitted on an independent line, after a scalar value (e.g. `key: val  # comment`), after an empty flow list (e.g. `depends_on: []  # comment`), or after a bare key with no scalar value (e.g. `secondary_pmbok_domains:  # comment`). A `#` inside quotes is parsed as literal string content, not a comment delimiter.
 6. **Disallowed Constructs:** Nested dictionaries, multi-line block scalars (`|`, `>`), YAML anchors/aliases (`&`, `*`), flow mappings (`{...}`), and arbitrary object tags (`!!`) are prohibited.
 7. **Parser Rejection & Diagnostic Behavior:** If an unsupported construct or malformed line is encountered, the parser does **not crash** with an unhandled exception. Instead, it emits a structured `FLAG: INVALID_METADATA` diagnostic with line-number and line-content context.
-8. **Fail-Closed Governance Law:** At drafting/staging time, `FLAG: INVALID_METADATA` triggers Tier B auto-remediation (up to 2 retries for LLMs; immediate human escalation for human authors). If uncorrected at gate review time, unparseable frontmatter acts as a **Tier A Technical Integrity Hard Block**: because `generator: stub|mock` cannot be audited and `strip_volatile_frontmatter` cannot compute a canonical content hash, `approve_plan` is ruled out outright.
+8. **Fail-Closed Governance Law:** At drafting/staging time, `FLAG: INVALID_METADATA` triggers Tier B auto-remediation (up to 2 retries for LLMs; immediate human escalation for human authors). If uncorrected at gate review time, unparseable frontmatter acts as the **fourth Technical Integrity Hard Block** (ADR-013 §4.2, Invariant 5): because `generator: stub|mock` cannot be audited and `strip_volatile_frontmatter` cannot compute a canonical content hash, `approve_plan` is ruled out outright without auto-regeneration.
 9. **Volatile Stripping Parity:** The canonical hashing utility `strip_volatile_frontmatter` (ADR-013 §4.3) uses this exact subset parser to strip volatile metadata keys without disturbing static semantic fields.
 
 > [!NOTE]

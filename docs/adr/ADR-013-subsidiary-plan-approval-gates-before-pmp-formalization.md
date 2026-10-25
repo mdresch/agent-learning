@@ -48,6 +48,7 @@ Planning is split into three separately invoked, route-aware steps:
   1. *Metadata Marker:* Frontmatter contains `generator: stub` or `generator: mock`.
   2. *Placeholder Tokens:* Content contains unexpanded generator or template tokens (`Stub content for Artifact`, `[Insert here]`, `[TBD]`, `[TODO]`).
   3. *Process Failure:* Caught generation exception or missing artifact file.
+  4. *Frontmatter Technical Integrity:* Unparseable frontmatter or grammar violation (`FLAG: INVALID_METADATA` per ADR-034 §4.3.1) that prevents static audit of generator origin or canonical hash computation.
 - **Governance Flags (ADR-011 §3.2: Floors/Caps and Informational Tokens are Flags, Not Blocks):**
   - If a plan's total word count falls below its declared floor or exceeds its cap under ADR-011, or if it contains provisional project tokens (e.g. unbracketed `TBD` or `TODO` for tentative schedule dates or open risks), it is **flagged with evidence** in the `DecisionFrame`.
   - Floor, cap, or provisional token deviations do *not* rule out `approve_plan` mechanically; the human adjudicator decides whether the content is acceptable. If approved despite a flag, a non-empty human rationale must be recorded in the resulting `Episode.metadata`.
@@ -102,20 +103,22 @@ In alignment with ADR-011 §3.5:
 ### 4.5 Transitive Dependency Invalidation & Scope Bounding
 Because plans form a causal dependency DAG (Scope $\to$ Schedule $\to$ Cost $\to$ Support plans):
 - Each approval `Episode` records the canonical content hash of its immediate upstream nodes, whether a standalone `full_plan` or a staged `pmp_section`.
-- If an immediate upstream node is tailored as `not_applicable`, it contributes the hash of its approved omission rationale episode, or the DAG edge bypasses it to the nearest active ancestor.
+- If an immediate upstream node is tailored as `not_applicable`, the causal DAG edge recursively bypasses it to its nearest active ancestors (ADR-034 §4.2.2); editing an omission rationale does not invalidate downstream plans.
 - **Transitive Status Propagation:** `STALE_DEPENDENCY` propagates transitively down the DAG as a status: if Scope changes, Schedule becomes stale; because Schedule is stale, Cost becomes transitively stale upon verification check, even before Schedule is regenerated.
 - **Bounded Invalidation Scope:** Dependency invalidation follows the approved PMBOK causal DAG and **does not propagate beyond impacted downstream branches**. Changes to an operational or support plan (e.g. Communications 10.1 or Quality 8.1) do not invalidate core baselines (Scope, Schedule, Cost), nor do orthogonal plans invalidate each other.
 - **Asynchronous Staging & Ordering:** A downstream `full_plan` (e.g. Cost) may be approved while an upstream `pmp_section` (e.g. Scope, Schedule) is still an unapproved staged draft. If `approve-pmp` later rejects that upstream section and causes it to be regenerated, downstream approvals automatically become stale and require re-verification.
 
 ### 4.6 Plan Governance State Lifecycle
-To eliminate ambiguity across drafting, review, dependency cascades, and adaptation, each subsidiary plan progresses through an explicit finite state machine:
-- `DRAFTED`: Plan file generated on disk or staged in `.staging/pmp-sections/`, awaiting evaluation.
-- `UNDER_REVIEW`: Candidate `DecisionFrame` constructed and presented to `approve-subsidiary-plan`.
+To eliminate ambiguity across drafting, review, dependency cascades, and adaptation, each subsidiary plan projects deterministically into explicit governance lifecycle states calculated at evaluation time over store episodes and workspace content hashes (ADR-034 §4.2.2):
+- `NOT_STARTED`: Plan file does not yet exist in workspace.
+- `DRAFTED`: Plan file generated on disk or staged in `.staging/pmp-sections/`, awaiting evaluation. (Rejections and revision requests return to `DRAFTED` upon local file edit).
+- `UNDER_REVIEW`: In-flight candidate `DecisionResult` exists matching `plan_id` and the current canonical content hash.
 - `APPROVED`: Hash-verified `approve_plan` episode recorded with zero active staleness flags.
-- `REVISION_REQUESTED`: Review outcome requiring localized edits before re-submitting to `UNDER_REVIEW`.
-- `REJECTED`: Terminal review outcome requiring fundamental structural redesign or tailoring re-routing.
+- `REVISION_REQUESTED`: Review outcome requiring localized edits before re-submitting to `UNDER_REVIEW`. Non-terminal once edited.
+- `REJECTED`: Review outcome requiring structural redesign or tailoring re-routing. Non-terminal once edited.
 - `STALE_DEPENDENCY`: Upstream causal ancestor in the DAG was regenerated or edited; approval validity is suspended until re-verification.
-- `REAPPROVAL_REQUIRED`: Plan content was edited or regenerated; new canonical content hash requires evaluation.
+- `PENDING_UPSTREAM`: Upstream causal ancestor is unapproved or in-draft.
+- `REAPPROVAL_REQUIRED`: Approved plan content was edited or regenerated; new canonical content hash requires evaluation.
 
 ### 4.7 Adaptation re-approves only what it regenerates
 In `--mode adapt`, only the plans checked in `Adaptation-Plan.md` are regenerated. Each regenerated plan loses its hash approval and must be re-approved; unchanged plans with valid upstream dependencies keep theirs.
@@ -163,25 +166,26 @@ To preserve architectural purity and prevent domain-to-storage coupling, the PMB
 2. **Permanent Human Authority:** `approve-subsidiary-plan` is `full` authority and permanently `requires_human_approval: true`; no autonomous path approves a plan (ADR-001, ADR-008 Invariant #4).
 3. **Storage Law (ADR-002 Invariant #2):** Approval evidence is stored strictly as `Episode` records; zero new record types, tables, or database containers.
 4. **Canonical Hash Invariance:** Approval validity is bound to the canonical content hash (LF-normalized, NFC Unicode, UTF-8 BOM stripped, whitespace-stripped preserving Markdown double-space breaks, volatile frontmatter excluded); raw byte hashing is prohibited.
-5. **Hard Constraint on Technical Deficiencies vs. Floor Flags:** A stub-generated, bracketed-placeholder-containing (`Stub content for Artifact`, `[Insert here]`, `[TBD]`, `[TODO]`), or generation-failed plan cannot be approved and blocks formalization. In alignment with ADR-011 §3.2, word count deviations below floors or above caps, as well as provisional unbracketed tokens, are flags with evidence, not hard blocks: they do not mechanically rule out approval, but require a recorded human rationale if approved.
+5. **Hard Constraint on Technical Deficiencies vs. Floor Flags:** A stub-generated, bracketed-placeholder-containing (`Stub content for Artifact`, `[Insert here]`, `[TBD]`, `[TODO]`), unparseable frontmatter or grammar-violating (`FLAG: INVALID_METADATA` per ADR-034 §4.3.1), or generation-failed plan cannot be approved and blocks formalization. In alignment with ADR-011 §3.2, word count deviations below floors or above caps, as well as provisional unbracketed tokens, are flags with evidence, not hard blocks: they do not mechanically rule out approval, but require a recorded human rationale if approved.
 6. **Remedial Foundation Breakouts vs. Graduation:** An embedded `pmp_section` rejected during `approve-pmp` triggers a remedial foundation breakout to regenerate that section within the PMP. Only sections that outgrow their cap (or are explicitly designated by human decision) graduate to a standalone `full_plan` route (ADR-011 §3.5).
 7. **Transitive Dependency Integrity & Scope Bounding:** Regeneration of an upstream dependency (whether `full_plan` or staged `pmp_section`) invalidates downstream approvals via transitive `STALE_DEPENDENCY` propagation strictly along impacted causal DAG branches, requiring re-verification before formalization.
-8. **Decoupled Module Purity:** The PMBOK domain package (`pmbok/`) must not import `LearningStore`; approval episode checks are mediated via an inversion-of-control protocol in the CLI layer.
-9. **Plan Lifecycle State Determinism:** Subsidiary plans must transition strictly through the explicit governance lifecycle states (`DRAFTED`, `UNDER_REVIEW`, `APPROVED`, `REVISION_REQUESTED`, `REJECTED`, `STALE_DEPENDENCY`, `REAPPROVAL_REQUIRED`); formalization is blocked if any required plan is in an unapproved or stale state.
+8. **Decoupled Module Purity:** The PMBOK domain package (`src/agent_learning/pmbok/`) must not import `LearningStore` and must contain zero network I/O or sleep calls. Store interactions, network LLM calls, and approval episode checks are mediated exclusively by the runtime harness (`src/agent_learning/pmbok_runtime/`) and CLI dispatcher (ADR-034 §4.3).
+9. **Plan Lifecycle State Determinism:** Subsidiary plans project deterministically into explicit governance lifecycle states (`DRAFTED`, `UNDER_REVIEW`, `APPROVED`, `REVISION_REQUESTED`, `REJECTED`, `STALE_DEPENDENCY`, `PENDING_UPSTREAM`, `REAPPROVAL_REQUIRED`) derived from store episodes and file system content hashes (ADR-034 §4.2.2); formalization is blocked if any required plan is in an unapproved or stale state.
 
 ## 8. References
-- `scripts/orchestrate_pmbok.py` — Orchestrator implementation
+- `scripts/orchestrate_pmbok.py` — Orchestrator implementation (superseded by `agent-learn pmbok`)
 - `docs/project-docs/management-plans/` — Current baseline subsidiary plans
 - Related: `ADR-001` §4.1 — One policy, per-instance frame; `full` authority
 - Related: `ADR-002` §7 Invariant #2 — Five record types only
 - Related: `ADR-005` — Decision progress comparison
 - Related: `ADR-008` §4.1–§4.3, §4.6, Invariant #4 — PMBOK lifecycle orchestration
 - Related: `ADR-011` — Project Tailoring and Route Decision
+- Related: `ADR-034` — PMBOK Tooling Decommissioning and Lightweight LearningStore Convergence
 
 ## 9. Open Implementation Questions
-- CLI flag names for multi-step execution (`--mode draft`, `--mode formalize`, or unified subcommands).
-- Verification query interface signature on `LearningStore` for episode lookup by content hash.
-- Threshold values for plan floors and caps (to be decided in ADR-012 Plan Standards).
+- CLI flag names for multi-step execution: **Resolved by ADR-034 §4.4** (`agent-learn pmbok draft|approve|formalize|adapt`).
+- Verification query interface signature on `LearningStore`: **Resolved by ADR-034 §4.2.2** (`check_plan_freshness` and `effective_upstreams`).
+- Threshold values for plan floors and caps: **Codified in ADR-012 §4.3**.
 
 ## 10. Amendment Log
 
@@ -194,3 +198,4 @@ To preserve architectural purity and prevent domain-to-storage coupling, the PMB
 | 2026-10-25 | Amended Peer Review Refinements (Clean v-Next) | (1) Decided staged section persistence uniquely under version-controlled `docs/project-docs/.staging/pmp-sections/<Name>.md`. (2) Codified transitive `STALE_DEPENDENCY` status propagation down the causal DAG and handling of `not_applicable` ancestors. (3) Added `STALE_DEPENDENCY` check to §4.3 and Invariant 1 formalization preconditions. (4) Specified exact canonical hash scope (excluding volatile frontmatter) and normalization (NFC, UTF-8 BOM strip, LF, preserving Markdown double-space breaks). (5) Narrowed hard blocks to bracketed template tokens (`[Insert here]`, `[TBD]`), demoting bare `TODO`/`TBD` to governance flags. (6) Mandated per-plan recorded rationale in batch reviews. (7) Explicitly named `approve-pmp` attribution requirement under Negative Consequences. |
 | 2026-10-25 | Governance Assessment Minor Amendments Incorporated | (1) Added §4.6 and Invariant 9 defining the explicit finite state machine for plan governance (`DRAFTED`, `UNDER_REVIEW`, `APPROVED`, `REVISION_REQUESTED`, `REJECTED`, `STALE_DEPENDENCY`, `REAPPROVAL_REQUIRED`). (2) Refined §4.9 distinguishing plan-level defects from integration-level defects. (3) Clarified decoupled per-plan accountability in batch sign-offs (§4.2). (4) Bounded DAG dependency invalidation to impacted downstream branches (§4.5, Invariant 7). (5) Clarified §4.8 bootstrap baseline wording as legacy artifact without approved governance status. |
 | 2026-10-25 | **Accepted by Menno** | Formally evaluated through `approve-adr` TaskPolicy; robust utility 0.821, expected utility 0.875; Episode `c63d7fb1-00a6-43fd-820d-f07e959a2868`. |
+| 2026-10-25 | Amended by ADR-034 (PMBOK Convergence) | (1) Added unparseable frontmatter as fourth Technical Integrity Hard Block (§4.2, Invariant 5); (2) resolved mixed-route transitive staleness and effective-upstream recursive bypass for `not_applicable` nodes (§4.5); (3) refactored lifecycle state machine (§4.6, Invariant 9) into pure derived projections with non-terminal rejections upon local edit; (4) updated pure package boundary (§4.10, Invariant 8) to `src/agent_learning/pmbok/` and runtime harness `src/agent_learning/pmbok_runtime/`; (5) resolved open CLI and query questions (§9) via `agent-learn pmbok`. |

@@ -30,7 +30,7 @@
     {
       "action_id": "approve_adr",
       "evidence": [
-        {"criterion_id": "architectural_soundness", "source": "direct_doc_read:docs/adr/ADR-034-pmbok-tooling-decommissioning-and-lightweight-learningstore-convergence.md; Round 6 peer review and Architecture Board consensus; verified compliance with ADR-001, ADR-002, ADR-005, ADR-008, ADR-009, ADR-011, ADR-012, ADR-013", "support": 0.995, "confidence": 0.99},
+        {"criterion_id": "architectural_soundness", "source": "direct_doc_read:docs/adr/ADR-034-pmbok-tooling-decommissioning-and-lightweight-learningstore-convergence.md; final pre-approval sealed text commit 98bd8e1; verified compliance with ADR-001, ADR-002, ADR-005, ADR-008, ADR-009, ADR-011, ADR-012, ADR-013; code marked illustrative reference sketch; grammar marked provisional; header amendments scoped cleanly; test reason strings verified", "support": 0.995, "confidence": 0.99},
         {"criterion_id": "alternatives_considered", "source": "adr_034_section_7_five_alternatives", "support": 0.98, "confidence": 0.97},
         {"criterion_id": "consequences_honest", "source": "adr_034_section_8_consequences_and_errata_tracker", "support": 0.97, "confidence": 0.96},
         {"criterion_id": "gap_disclosure_quality", "source": "adr_034_section_6_phasing_test_specs_and_completion_criteria", "support": 0.98, "confidence": 0.97}

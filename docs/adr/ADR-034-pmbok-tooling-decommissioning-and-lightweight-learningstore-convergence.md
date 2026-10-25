@@ -14,8 +14,8 @@ This ADR formalizes the **prevention of tool sprawl and the convergence of PMBOK
 ### Supersedes & Amends
 * **Supersedes:** ADR-009 §4.13 by permanently decommissioning `pmbok/storage/state_store.py` rather than permitting a parallel local SQLite `StateStore`.
 * **Amends:** ADR-008 §4.2, BRU-008-04, and Story 8.1 by eliminating references to `pmbok/api` and `pmbok/cli`.
-* **Amends:** ADR-012 §4.2 by defining the formal standard-library-parseable frontmatter grammar subset (§4.2.1) and non-blocking `FLAG: INVALID_METADATA` parser rejection semantics.
-* **Amends:** ADR-013 §4.1, §4.2, §4.10, and §9 by absorbing `scripts/orchestrate_pmbok.py` into `agent-learn pmbok <draft|approve|formalize|adapt>`, providing both single-plan (`--plan <plan-id>`) and batch interactive (`--all --interactive`) approval modes, and settling the open CLI flag-naming and verification query questions.
+* **Amends:** ADR-012 §4.2 by defining the formal standard-library-parseable frontmatter grammar subset (§4.2.1) with non-crashing parser diagnostics and fail-closed gate evaluation.
+* **Amends:** ADR-013 §4.1, §4.2, §4.5, §4.10, and §9 by: (1) absorbing `scripts/orchestrate_pmbok.py` into `agent-learn pmbok <draft|approve|formalize|adapt>`; (2) providing both single-plan (`--plan`) and batch interactive (`--all --interactive`) approval modes; (3) codifying unparseable frontmatter as the fourth Tier A Technical Integrity Hard Block in §4.2; (4) defining canonical approval metadata keys (`plan_id`, `canonical_content_hash`, `upstream_hashes`, `run_id`, `sequence_number`); and (5) specifying the transitive DAG staleness verification query.
 
 ---
 
@@ -109,57 +109,91 @@ PMBOK lifecycle concepts map directly to standard `Episode` attributes and `meta
 |---|---|---|
 | **Project Run** | `Episode` instance | `agent_id: "pmbok-orchestration"`, `task_id: "pmbok-lifecycle-run"`, `action_type: "governance"`, `action_logprob: None` |
 | **Phase / State** | `metadata["phase"]` | String identifier (`"Initiating"`, `"Planning"`, `"Executing"`, etc.) |
-| **Process State** | `metadata["processes"]` | Dict mapping `process_id` (e.g. `"5.1"`) to status (`"not_started"`, `"in_progress"`, `"completed"`, `"failed"`) |
-| **Approval Gate** | `metadata["gate_episode_ids"]` | Dict mapping plan or gate ID to `{"episode_id": str, "canonical_hash": str, "verdict": str}`. **Cross-reference only**: the authoritative records remain the individual gate Episodes under `agent_id: "agent-learning-governance"` (`approve-charter`, `approve-pmp`, `approve-subsidiary-plan`). |
+| **Process State** | `metadata["processes"]` | Dict mapping `process_id` (e.g. `"5.1"`) to status snapshot (`"not_started"`, `"in_progress"`, `"completed"`, `"failed"`) |
+| **Run Sequence** | `metadata["sequence_number"]` | Monotonic integer sequence counter for ordering events within a run |
+| **Approval Gate** | `metadata["gate_episode_ids"]` | Dict mapping plan ID to `{"episode_id": str, "canonical_hash": str, "verdict": str}`. **Cross-reference only**: the authoritative records remain the individual gate Episodes under `agent_id: "agent-learning-governance"` (`approve-charter`, `approve-pmp`, `approve-subsidiary-plan`). |
 | **Active Baseline** | `metadata["baseline_hash"]` | LF-normalized canonical SHA-256 hash of active `Project-Management-Plan.md` |
 | **Tailoring Route** | `metadata["route_episode_ids"]` | Dict mapping plan ID to tailoring route `episode_id`. **Cross-reference only**: the authoritative records remain the route-decision Episodes under `agent_id: "agent-learning-governance"` (ADR-011). |
 | **Audit Result** | `Episode.result_summary` | Summary of verification findings and gate recommendations |
 
-#### 4.2.2 Append-Only State Transitions & Lookup Interface
+##### Approval Gate Episode Metadata Schema (`approve-subsidiary-plan`)
+To eliminate contract drift between gate producers (`agent-learn pmbok approve`) and verification queries before formalization, every `approve-subsidiary-plan` episode adheres to the normative metadata contract:
+* `metadata["plan_id"]`: str — Unique kebab-case plan identifier (e.g. `"scope-management"`).
+* `metadata["canonical_content_hash"]`: str — LF/NFC canonical SHA-256 hash computed over the markdown file on disk.
+* `metadata["upstream_hashes"]`: Dict[str, str] — Map of immediate upstream plan IDs to their canonical hashes (or approved omission rationale hashes for `not_applicable` routes) at the time of approval.
+* `metadata["decision_disposition"]`: str — Human adjudication disposition (`"accepted"` or `"rejected"`).
+* `metadata["user_feedback_status"]`: str — Supervised feedback status (`"adjudicated"`).
+* `metadata["run_id"]`: str — Orchestration run UUID.
+* `metadata["sequence_number"]`: int — Monotonic sequence counter for deterministic tie-breaking.
+
+#### 4.2.2 Append-Only State Transitions & Transitive Staleness Verification
 * **Append-Only Immutability:** State changes (e.g. starting a process, completing a plan, recording a gate) append a new immutable `Episode` record. The current project state is derived deterministically from the latest episode matching the target `run_id`.
 * **Learner Isolation:** All `pmbok-lifecycle-run` episodes carry `action_type: "governance"` and `action_logprob: None`. They are explicitly excluded from `ReinforceLearner` training batches and `historical_feedback` calculations, adhering to ADR-001 §4.3 and Story 1.1.
 * **Lookup Interface for Run State:** Retrieving run state uses standard store queries:
   ```python
-  runs = store.list_episodes(agent_id="pmbok-orchestration", task_id="pmbok-lifecycle-run")
-  # Filter in memory by metadata["run_id"] and sort by timestamp
-  latest_run = max((ep for ep in runs if ep.metadata.get("run_id") == run_id), key=lambda ep: ep.timestamp)
+  runs = [
+      ep for ep in store.list_episodes(agent_id="pmbok-orchestration", task_id="pmbok-lifecycle-run")
+      if ep.metadata.get("run_id") == run_id
+  ]
+  latest_run = max(runs, key=lambda ep: (ep.metadata.get("sequence_number", 0), ep.created_at)) if runs else None
   ```
-* **Lookup Interface for Plan Approval Verification (Resolving ADR-013 §9):** To verify whether a subsidiary plan holds an authoritative, non-stale human approval before PMP formalization, the composition root executes:
+* **Transitive Staleness Law (ADR-013 §4.5):** Staleness is computed transitively at check time across the causal DAG branch from current disk hashes and recorded approval hashes. If any upstream ancestor in the DAG was modified, all downstream dependents are transitively stale, even if immediate parents have not yet been re-synthesized.
+* **Lookup & Verification Protocol (Resolving ADR-013 §9):** Before permitting PMP formalization, the composition root verifies that every active plan satisfies its route-conditioned contract. The pure verification logic operates over preloaded store data:
   ```python
-  # 1. Query all approval episodes for this task
-  approvals = store.list_episodes(
-      agent_id="agent-learning-governance", 
-      task_id="approve-subsidiary-plan"
-  )
-  # 2. Filter for target plan and sort descending by created_at (latest wins)
-  plan_episodes = sorted(
-      [ep for ep in approvals if ep.metadata.get("plan_id") == plan_id],
-      key=lambda ep: ep.created_at,
-      reverse=True
-  )
-  if not plan_episodes:
-      raise GovernanceError(f"Plan {plan_id} has no recorded approval episodes.")
+  # Illustrative verification logic executed by the composition root
+  def is_plan_approved_and_fresh(
+      plan_id: str,
+      dag: Dict[str, List[str]],
+      routes: Dict[str, str],
+      current_hashes: Dict[str, str],
+      latest_approvals: Dict[str, Episode],
+      visited: Set[str] = None
+  ) -> bool:
+      if visited is None:
+          visited = set()
+      if plan_id in visited:
+          return True
+      visited.add(plan_id)
 
-  latest_ep = plan_episodes[0]
+      route = routes.get(plan_id, "full_plan")
+      if route == "not_applicable":
+          return True  # Route omission rationale verified at route approval
+      if route == "pmp_section":
+          # Staged draft must be present and non-stub
+          return plan_id in current_hashes and current_hashes[plan_id] is not None
 
-  # 3. Verify human adjudication disposition, action, and canonical content hash
-  is_approved = (
-      latest_ep.action_id == "approve_plan"
-      and latest_ep.metadata.get("decision_disposition") == "accepted"
-      and latest_ep.execution_status == "completed"
-      and latest_ep.metadata.get("canonical_content_hash") == current_disk_hash
-  )
-  if not is_approved:
-      raise GovernanceError(f"Plan {plan_id} is not approved or hash mismatch.")
+      # route == "full_plan": must have valid human-accepted approval
+      latest_ep = latest_approvals.get(plan_id)
+      if not latest_ep:
+          return False
+      if (
+          latest_ep.action_id != "approve_plan"
+          or latest_ep.metadata.get("decision_disposition") != "accepted"
+          or latest_ep.execution_status != "completed"
+          or latest_ep.metadata.get("canonical_content_hash") != current_hashes.get(plan_id)
+      ):
+          return False
 
-  # 4. Pure staleness verification over recorded upstream hashes
-  recorded_upstream = latest_ep.metadata.get("upstream_hashes", {})
-  for upstream_id, recorded_hash in recorded_upstream.items():
-      current_upstream_hash = compute_canonical_plan_hash(read_plan_file(upstream_id))
-      if current_upstream_hash != recorded_hash:
-          raise StalenessError(f"Plan {plan_id} has stale upstream dependency {upstream_id}.")
+      # Transitive DAG upstream ancestor check
+      recorded_upstream = latest_ep.metadata.get("upstream_hashes", {})
+      for upstream_id in dag.get(plan_id, []):
+          # 1. Immediate recorded hash match
+          if recorded_upstream.get(upstream_id) != current_hashes.get(upstream_id):
+              return False
+          # 2. Transitive recursive freshness check
+          if not is_plan_approved_and_fresh(upstream_id, dag, routes, current_hashes, latest_approvals, visited):
+              return False
+
+      return True
   ```
-* **Derived Lifecycle States (ADR-013 §4.6 Projection):** Plan governance states (`DRAFTED`, `UNDER_REVIEW`, `APPROVED`, `REVISION_REQUESTED`, `REJECTED`, `STALE_DEPENDENCY`, `REAPPROVAL_REQUIRED`) are pure derived projections calculated at query time from the latest `Episode` and current disk hashes, rather than mutable database records.
+* **Derived Lifecycle States (ADR-013 §4.6 Projection):** Plan governance states are pure derived projections calculated at evaluation time:
+  - `DRAFTED`: File exists on disk or staging, but holds no approval episode or pending review frame for its current canonical hash.
+  - `UNDER_REVIEW`: A pending `DecisionFrame` or unadjudicated `DecisionResult` exists (`status: "needs_user_feedback"`).
+  - `APPROVED`: Latest adjudicated episode has `action_id: "approve_plan"`, `decision_disposition: "accepted"`, matching hash, and zero stale ancestors.
+  - `REVISION_REQUESTED`: Latest adjudicated episode has `action_id: "request_revision_before_decision"`.
+  - `REJECTED`: Latest adjudicated episode has `action_id: "reject_plan"`.
+  - `STALE_DEPENDENCY`: Plan holds an approved episode for its current hash, but at least one transitive upstream ancestor's current hash differs from its recorded hash.
+  - `REAPPROVAL_REQUIRED`: Disk content was modified or regenerated, altering its canonical content hash relative to its latest approved episode.
 
 #### 4.2.3 Legacy State Migration Policy
 No data migration from legacy SQLite files is required. As documented in ADR-013 §4.8 (Legacy Bootstrap Baseline Retained for Historical Traceability), baseline `PMP-BL-v1.0.0` was an unapproved stub draft, and no production baselines were ever committed under the legacy SQLite store. Any existing SQLite databases (`data/pmbok_runtime/*.db`) are discarded. No repository-supported runtime operation may create or depend upon SQLite database files (`*.db`).
@@ -167,10 +201,14 @@ No data migration from legacy SQLite files is required. As documented in ADR-013
 ### 4.3 Pure Functional PMBOK Core (`src/agent_learning/pmbok/`)
 The valuable domain logic inside `pmbok/` (the 49-process registry, process input/output mappings, and adaptation graph traversal) is refactored into a pure internal package: `src/agent_learning/pmbok/`:
 * **Inversion of Control (ADR-013 Invariant #8):** `agent_learning.pmbok` is a pure functional domain package. It **must not** import `agent_learning.store.LearningStore`. The CLI layer (`agent-learn pmbok`) serves as the composition root that reads state, calls pure functions, and writes resulting `Episode` records.
-* **Domain Purity vs. Infrastructure I/O:** `agent_learning.pmbok` is strictly pure: zero database imports, zero network requests, and zero sleep calls. Exponential backoff and retries are implemented in the CLI composition root (`src/agent_learning/cli.py`) using Python standard library `time.sleep` with exponential backoff and jitter.
+* **Domain Purity vs. Infrastructure Dispatch:** `agent_learning.pmbok` is strictly pure: zero database imports, zero network requests, and zero sleep calls. Exponential backoff and retries are implemented in the CLI composition root (`src/agent_learning/pmbok/client.py`) using Python standard library `time.sleep` with exponential backoff and jitter. `src/agent_learning/cli.py` acts strictly as an `argparse` command dispatcher.
+* **Secure Credential Handling:** External LLM endpoints read credentials exclusively from ambient environment variables (`AZURE_OPENAI_KEY`, `OPENAI_API_KEY`). Under Invariant 6, credentials and tokens are strictly excluded from `Episode` records, metadata dictionaries, and CLI logs.
 * **Legacy 6th-Edition Process Bridge:** The 49-process registry extracted into `src/agent_learning/pmbok/legacy_registry.py` provides backward compatibility with the 6th-edition process codes referenced in ADR-012's `legacy_process` metadata field. Full transition to the authentic PMBOK 8 40-process model (grouped under 5 focus areas and 7 performance domains) is scoped as a follow-on enhancement in future learning ADRs.
-* **Deterministic Frontmatter Parsing & Fail-Closed Law:** Python stdlib has no native YAML parser. While policy configurations use standard JSON (`stdlib json`), ADR-012 mandates YAML frontmatter on markdown plans. `agent_learning.pmbok` implements a zero-dependency, deterministic frontmatter parser supporting the exact subset defined in ADR-012 §4.2.1 (flat string/enum keys, string lists, empty flow lists `[]`, inline comments, strict quoting). If a human-authored or generated plan contains unsupported YAML constructs, the parser does not crash with an unhandled exception; it emits `FLAG: INVALID_METADATA` with diagnostic line details. In accordance with ADR-012 §4.2.1 and ADR-013 §4.2, **unparseable frontmatter fails closed at gate review as a Tier A Technical Integrity Hard Block**, because `generator: stub|mock` cannot be audited and `strip_volatile_frontmatter` cannot compute a canonical content hash.
-* **Decommissioning `pmbok/`:** Following migration of domain logic to `src/agent_learning/pmbok/`, the top-level `pmbok/` directory is permanently deleted.
+* **Deterministic Frontmatter Parsing & Fail-Closed Law:** Python stdlib has no native YAML parser. While policy configurations use standard JSON (`stdlib json`), ADR-012 mandates YAML frontmatter on markdown plans. `agent_learning.pmbok` implements a zero-dependency, deterministic frontmatter parser supporting the exact subset defined in ADR-012 §4.2.1 (flat string/enum keys, string lists, empty flow lists `[]`, inline comments, strict quoting). If frontmatter cannot be parsed:
+  1. The parser does not crash with an unhandled exception; it emits a structured `FLAG: INVALID_METADATA` diagnostic with line numbers.
+  2. Because an unparseable frontmatter prevents auditing `generator: human|llm|stub`, auto-regeneration is strictly forbidden: the system assumes unknown/human origin and immediately escalates to a human maintainer without auto-spinning.
+  3. At gate review, unparseable frontmatter acts as a **Tier A Technical Integrity Hard Block** (amending ADR-013 §4.2) that mechanically rules out `approve_plan` outright, because `generator: stub|mock` cannot be audited and `strip_volatile_frontmatter` cannot compute a canonical content hash.
+* **Decommissioning `pmbok/`:** Following migration of domain logic to `src/agent_learning/pmbok/`, the legacy top-level `pmbok/` directory and standalone script `scripts/orchestrate_pmbok.py` are permanently deleted. The obsolete `--mode full` atomic generation is intentionally replaced by the three-step sequence (`draft` $\to$ `approve` $\to$ `formalize`) rather than ported.
 
 ### 4.4 CLI Singularity: Absorbing the Orchestrator
 In accordance with Invariant 5, the legacy stand-alone script `scripts/orchestrate_pmbok.py` and the unused Typer CLI (`pmbok/cli/main.py`) are decommissioned. All orchestration capabilities are consolidated into the canonical `argparse` CLI:
@@ -189,8 +227,8 @@ agent-learn pmbok adapt --adaptation-plan <path>
   ```
 This directly resolves the open flag-naming and command-dispatch question in ADR-013 §9.
 
-### 4.5 Orchestrator Realignment with Accepted Standards
-The new CLI commands serve as the unified host harness that executes the accepted governance framework:
+### 4.5 Orchestrator Integration with Governance Standards
+The new CLI commands serve as the unified host harness delivering Epic 12, executing the governance framework authored across the core ADRs:
 * **Tailoring Integration (ADR-011):** Ingests tailored routes (`full_plan`, `pmp_section`, `not_applicable`) from `agent_learning.tailoring`. Route decisions are approved under `approve-charter` or `approve-pmp`.
 * **Universal 3-Section Contracts (ADR-012):** Validates the mandatory YAML frontmatter (with PMBOK 8 7-domain taxonomy), §1 Intent & Boundaries, §2 Domain Mechanics, and §3 Governance & Decision Rights. Enforces word-count floors and caps (with regex-checked structural headings).
 * **Per-Plan Approval Gates (ADR-013):** Executes hash-verified `approve-subsidiary-plan` gates before permitting integrated PMP formalization, with transitive DAG staleness propagation.
@@ -239,7 +277,7 @@ Epic 12 is complete when:
 * **Alternative 4: Completely remove PMBOK orchestration from the project.**  
   * *Rejected:* PMBOK orchestration is the foundational backbone of the 18-stage lifecycle (Stage 6 PMP formalization, Stage 17 adaptation, closed-loop cybernetics). The orchestration logic is load-bearing; only the bloated implementation stack must be replaced.
 * **Alternative 5: Add `pyyaml` as a declared runtime dependency.**  
-  * *Rejected:* Dragging in `pyyaml` adds a heavy C-extension compilation footprint for what is strictly a flat frontmatter key-value schema. Standard library parsing requires under 50 lines of deterministic pure Python code, implements the exact restricted grammar of ADR-012 §4.2.1, eliminates vulnerability exposure, and honors Invariant 1.
+  * *Rejected:* While `pyyaml` provides prebuilt wheels and pure-Python paths, adopting an external general YAML parser introduces unnecessary package bloat and complex AST parsing for what is strictly a flat frontmatter key-value schema. A focused standard library parser strictly enforces the restricted grammar of ADR-012 §4.2.1 and upholds Invariant 1.
 
 ---
 
@@ -254,6 +292,7 @@ Epic 12 is complete when:
 ### Negative / Trade-Offs
 * **Decommissioned Surface:** The embedded FastAPI server and OCR ingestion are permanently removed. (Acceptable: zero consumers exist).
 * **Refactoring Burden:** Requires executing the 4-phase Epic 12 migration.
+* **Parser Maintenance Overhead:** The project assumes ownership of a bespoke frontmatter parser in `agent_learning.pmbok`, requiring strict conformance testing against the ADR-012 example and hard-blocking YAML syntax outside the defined subset.
 
 ---
 
@@ -265,4 +304,5 @@ Epic 12 is complete when:
 | 2026-10-25 | Menno Drescher / Antigravity | Addressed comprehensive multi-LLM review: renumbered from ADR-028 to ADR-034 to prevent daughter plan collision; added explicit supersedes clause for ADR-009 §4.13 and ADR-008; corrected CLI composition root diagram per ADR-013 Invariant #8; aligned tailoring route episodes per ADR-011; defined stdlib frontmatter parser strategy; added canonical PMBOK-to-Episode mapping table; defined auditable completion criteria. |
 | 2026-10-25 | Menno Drescher / Antigravity | Addressed final peer review polishes: (1) amended ADR-012 §4.2 by defining the formal standard-library frontmatter grammar subset (§4.2.1) and non-blocking `FLAG: INVALID_METADATA` parser rejection behavior; (2) made gate and route episodes authoritative under `agent-learning-governance` with run episodes holding ID/hash cross-references; (3) codified explicit `LearningStore` query interfaces for run states and hash-matching gate verifications (resolving ADR-013 §9); (4) added batch approval CLI command parity `approve [--plan <plan-id> | --all --interactive]` unrolling per-plan accountability (ADR-013 §4.2); (5) decoupled LLM retries into stdlib exponential backoff helper; (6) softened Invariant 1 blacklist phrasing. |
 | 2026-10-25 | Menno Drescher / Antigravity | Addressed Architecture Board final review: (1) codified fail-closed law for unparseable frontmatter as Tier A hard block at gate evaluation (ADR-012 §4.2.1); (2) updated approval verification query to enforce human-adjudicated disposition (`decision_disposition: accepted`), latest-wins ordering (`created_at`), and upstream staleness check; (3) designated 49 processes as Legacy 6th-Edition Process Bridge mapped to ADR-012 `legacy_process`; (4) specified stdlib `urllib.request` / `--mock` LLM client and moved backoff to CLI infrastructure; (5) added Invariant 6 (Audit-Data Minimalism); (6) added Alternative 5 (`pyyaml` rejection rationale); (7) verified zero consumers of `pmbok.api` via repo search. |
+| 2026-10-25 | Menno Drescher / Antigravity | Addressed Round 4 peer review: (1) codified recursive transitive DAG staleness verification law (ADR-013 §4.5); (2) defined normative approval metadata schema table (`plan_id`, `canonical_content_hash`, `upstream_hashes`, `run_id`, `sequence_number`); (3) reconciled header and body on fail-closed frontmatter law and human escalation without auto-spinning; (4) articulated full derivation logic for all 7 plan lifecycle states; (5) clarified CLI dispatcher (`cli.py`) vs. composition submodules (`orchestrator.py`, `client.py`); (6) documented parser maintenance trade-off. |
 

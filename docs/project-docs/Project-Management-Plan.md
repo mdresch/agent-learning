@@ -21,7 +21,6 @@ outputs:
 > **Baseline Identifier:** `PMP-BL-v1.0.0` (Candidate)  
 > **Inputs:** [Project-Charter.md](Project-Charter.md), [docs/project-docs/management-plans/](management-plans/)  
 > **Accountable Role:** Project Manager | **Approving Sponsor:** Menno Drescher  
-> **Governing Standards:** [ADR-008](../adr/ADR-008-pmbok-lifecycle-orchestration-and-pmp-adaptation-loop.md), [ADR-011](../adr/ADR-011-project-tailoring-and-route-decision.md), [ADR-012](../adr/ADR-012-subsidiary-management-plan-standards-and-content-contracts.md), [ADR-013](../adr/ADR-013-subsidiary-plan-approval-gates-before-pmp-formalization.md), [ADR-034](../adr/ADR-034-pmbok-tooling-decommissioning-and-lightweight-learningstore-convergence.md)
 
 ---
 
@@ -73,38 +72,47 @@ flowchart TD
 
 ### 2.1 Scope Management Plan (PMBOK 5.1 / Domain: Scope)
 * **Document Reference:** [management-plans/Scope-Management-Plan.md](management-plans/Scope-Management-Plan.md)
+* **Governing Standard:** [ADR-025](../adr/ADR-025-scope-management-plan-standard-and-baseline-contract.md)
 * **Summary:** Establishes the authoritative system boundaries for Phase 1. Features an explicit WBS decomposition hierarchy (Phase $\to$ Epic $\to$ Story $\to$ Work Package), strict Definition of Done verification gates (test-first observed RED, pure stdlib implementation, full suite green), and formal out-of-scope boundaries to prevent silent creep. Revisions trigger transitive downstream DAG invalidation to Schedule and Cost.
 
 ### 2.2 Schedule Management Plan (PMBOK 6.1 / Domain: Schedule)
 * **Document Reference:** [management-plans/Schedule-Management-Plan.md](management-plans/Schedule-Management-Plan.md)
+* **Governing Standard:** ADR-026 (Pending daughter standard)
 * **Summary:** Operates under progressive elaboration. Establishes the milestone dependency DAG and critical path analysis across M0.5 to M5. Features strict timeboxing (40-hour M0.5 research ceiling, 1-week story sprint iterations), buffer management, and SPI/SV earned schedule variance thresholds. Critical path slips $> 5$ days require Sponsor sign-off via Stage 17.
 
 ### 2.3 Cost Management Plan (PMBOK 7.1 / Domain: Finance)
 * **Document Reference:** [management-plans/Cost-Management-Plan.md](management-plans/Cost-Management-Plan.md)
+* **Governing Standard:** ADR-027 (Pending daughter standard)
 * **Summary:** Implements a staged research investment model. Allocates the 40-hour Sponsor research commitment and 165 engineering hours with a 15% contingency reserve (190 hours total Phase 1 ceiling). Enforces an absolute Zero-Cost Open-Source boundary and free cloud tier limits. Tracks effort burn via EVM metrics ($CPI$, $CV$).
 
 ### 2.4 Quality Management Plan (PMBOK 8.1 / Domain: Governance & Scope)
 * **Document Reference:** [management-plans/Quality-Management-Plan.md](management-plans/Quality-Management-Plan.md)
+* **Governing Standard:** ADR-028 (Pending daughter standard)
 * **Summary:** Defines the automated verification architecture across four deterministic rings (static analysis, story contract tests, system regression, and mathematical evidence gates). Enforces 100% test pass rates, strict type checking (`mypy --strict`), test-first contract verification (observed RED first), and Bayes factor thresholds ($BF_{10} \ge 10$ validation, $BF_{10} \le 0.1$ refutation).
 
 ### 2.5 Resource Management Plan (PMBOK 9.1 / Domain: Resources)
 * **Document Reference:** [management-plans/Resource-Management-Plan.md](management-plans/Resource-Management-Plan.md)
+* **Governing Standard:** ADR-029 (Pending daughter standard)
 * **Summary:** Defines the agile human-agent pair engineering model. Formulates the project RACI matrix across the 18-stage lifecycle. Establishes developer workstation standards (`uv`, Python 3.10-3.12, Cosmos DB emulator) and governs institutional memory through version-controlled component skills and post-epic breakout recaps.
 
 ### 2.6 Communications Management Plan (PMBOK 10.1 / Domain: Stakeholders)
 * **Document Reference:** [management-plans/Communications-Management-Plan.md](management-plans/Communications-Management-Plan.md)
+* **Governing Standard:** ADR-030 (Pending daughter standard)
 * **Summary:** Establishes the communication matrix and decision-recording channels. Enforces zero unrecorded verbal commitments, Conventional Commit conventions, and the AI interactive review `/q` protocol (LL-004). Schedules post-epic breakout recaps to capture operational process improvements (ADR-010).
 
 ### 2.7 Risk Management Plan (PMBOK 11.1 / Domain: Risk)
 * **Document Reference:** [management-plans/Risk-Management-Plan.md](management-plans/Risk-Management-Plan.md)
+* **Governing Standard:** ADR-031 (Pending daughter standard)
 * **Summary:** Manages epistemic, technical, and operational risks across a $5 \times 5$ severity matrix. Deploys architectural counterweights against epistemic failure: low-pass momentum filtering ($\beta \in [0.6, 0.85]$), bounded recurrence exhaustion ($d_{\max}=2$ ceiling), and empirical Bayes factor gates. Realized critical risks ($Score \ge 15$) escalate to Sponsor.
 
 ### 2.8 Procurement Management Plan (PMBOK 12.1 / Domain: Finance)
 * **Document Reference:** [management-plans/Procurement-Management-Plan.md](management-plans/Procurement-Management-Plan.md)
+* **Governing Standard:** ADR-032 (Pending daughter standard)
 * **Summary:** Formalizes the Zero External Procurement Strategy. Enforces complete internal self-sufficiency, zero external staffing contracts, and open-source licensing governance (permissive licenses only; copyleft strictly barred from production dependencies). Governs supply chain security via automated Dependabot audits.
 
 ### 2.9 Stakeholder Engagement Plan (PMBOK 13.2 / Domain: Stakeholders)
 * **Document Reference:** [management-plans/Stakeholder-Engagement-Plan.md](management-plans/Stakeholder-Engagement-Plan.md)
+* **Governing Standard:** ADR-033 (Pending daughter standard)
 * **Summary:** Enforces the supreme principle of Sovereign Human Agency: statistical confidence is never permitted to usurp human authority over baselines, architecture, or intent. Defines the stakeholder power/interest grid, tracks engagement levels via SEAM, and guarantees locked human approval on all high-impact decision gates.
 
 ---

@@ -14,11 +14,7 @@ from __future__ import annotations
 import logging
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
-from unittest.mock import MagicMock
-
 import pytest
-
-import agent_learning.storage.cosmos as cosmos_mod
 from agent_learning.config import CosmosConfig
 from agent_learning.storage.cosmos import (
     CosmosAccessConditionFailedError,

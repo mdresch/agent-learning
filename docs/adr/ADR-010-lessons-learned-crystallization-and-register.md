@@ -20,7 +20,7 @@ This ADR establishes a formal, lightweight **Stage 15 Lessons Learned Register**
 A single canonical markdown register is created at:
 `docs/project-docs/Lessons-Learned-Register.md`
 
-This file is append-only, human-readable, and version-controlled alongside repository code.
+This file is append-only, human-readable, and version-controlled alongside repository code. Phase Close readiness in `intent_refinement.py` is satisfied when at least one `LL-###` entry (or an explicit no-new-lessons phase sign-off) referencing the closing Epic/Phase is committed to this register.
 
 ### 4.2 Standard Crystallization Schema
 Each lesson learned entry must adhere to the following schema:
@@ -30,7 +30,7 @@ Each lesson learned entry must adhere to the following schema:
 - **The Trap / Problem:** Real-world manifestation or bug observed during development / review.
 - **The Root Cause:** Underlying technical, architectural, or procedural mechanism.
 - **Actionable Invariant / Rule:** Concrete engineering rule, invariant, or coding convention to prevent recurrence.
-- **Scope & Traceability:** Classification (Component-Specific, Repository-Wide, or Universal Cross-Project) and cross-reference to relevant PR, commit, or issue.
+- **Scope & Traceability:** Classification (Component-Specific, Repository-Wide, or Universal Cross-Project), cross-reference to relevant PR/commit/issue, and **Tier 2/3 Propagation Target** (e.g., path to updated `SKILL.md` or `sidpa-template` issue).
 
 ### 4.3 3-Tier Propagation Protocol
 To ensure lessons learned actively govern future execution rather than sitting inert in an archive, every crystallized lesson is evaluated across three propagation tiers:
@@ -58,3 +58,4 @@ In strict adherence to **ADR-002 Invariant #2**, lessons learned are maintained 
 
 ### Negative
 - Requires a small, disciplined documentation step (5–10 minutes) at the conclusion of each epic or major review cycle.
+

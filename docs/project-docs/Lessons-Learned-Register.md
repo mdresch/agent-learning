@@ -18,9 +18,13 @@
 | [LL-005](#ll-005--compound-header--delimiter-bleed-in-markdown-parsers) | Compound Header & Delimiter Bleed in Markdown Parsers | Epic 10 / Story 10.1 | Universal Tooling | 2026-10-25 |
 | [LL-006](#ll-006--cwd-independent-path-anchoring-in-test-suites) | CWD-Independent Path Anchoring in Test Suites | Epic 10 / Story 10.1 | Universal Testing | 2026-10-25 |
 | [LL-007](#ll-007--counts-and-pending-notes-go-stale-in-the-change-that-resolves-them) | Counts and Pending Notes Go Stale in the Change That Resolves Them | Epic 10 / PR #6 | Universal Documentation | 2026-10-25 |
-| [LL-008](#ll-008--fork-story-branches-only-from-committed-specs) | Fork Story Branches Only From Committed Specs | Epic 11 / Stories 11.1, 11.2 | Repository Process | 2026-10-25 |
-| [LL-009](#ll-009--record-behavior-the-spec-does-not-state-as-an-interpretation) | Record Behavior the Spec Does Not State as an Interpretation | Epic 11 / Story 11.2 | Universal Testing | 2026-10-25 |
-| [LL-010](#ll-010--say-exactly-which-tests-a-pass-count-excludes) | Say Exactly Which Tests a Pass Count Excludes | Epic 11 / Stories 11.1, 11.2 | Universal Testing & Process | 2026-10-25 |
+| [LL-008](#ll-008--keep-only-hardened-decisions-in-an-adr) | Keep Only Hardened Decisions in an ADR | Epic 11 / ADR-011 | Repository Process | 2026-10-25 |
+| [LL-009](#ll-009--verify-the-edition-of-a-standard-before-citing-it) | Verify the Edition of a Standard Before Citing It | Epic 11 / ADR-011, ADR-008 | Universal Documentation | 2026-10-25 |
+| [LL-010](#ll-010--implement-only-against-approved-committed-specs) | Implement Only Against Approved, Committed Specs | Epic 11 / Stories 11.1, 11.2 | Repository Process | 2026-10-25 |
+| [LL-011](#ll-011--state-every-mode-and-parameter-in-the-fdd) | State Every Mode and Parameter in the FDD | Epic 11 / FDD-011, Story 11.2 | Universal Design & Testing | 2026-10-25 |
+| [LL-012](#ll-012--state-each-rule-in-one-storys-acceptance-criteria) | State Each Rule in One Story's Acceptance Criteria | Epic 11 / Stories 11.1, 11.2 | Universal Testing | 2026-10-25 |
+| [LL-013](#ll-013--keep-a-skills-validation-command-one-that-runs) | Keep a Skill's Validation Command One That Runs | Epic 11 / implement-story skill | Universal Process | 2026-10-25 |
+| [LL-014](#ll-014--define-blank-once-and-test-every-container-type) | Define Blank Once and Test Every Container Type | Epic 11 / Stories 11.1, 11.2 | Universal Code Quality | 2026-10-25 |
 
 ---
 
@@ -156,40 +160,84 @@
 
 ---
 
-### LL-008 — Fork Story Branches Only From Committed Specs
+### LL-008 — Keep Only Hardened Decisions in an ADR
 - **Identifier:** `LL-008`
 - **Date:** 2026-10-25
-- **Epic / Story:** Epic 11 / Stories 11.1 and 11.2 (PRs [#7](https://github.com/mdresch/agent-learning/pull/7), [#8](https://github.com/mdresch/agent-learning/pull/8))
-- **Scope:** Repository Process
-- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/implement-story/SKILL.md` (Step 0); Tier 3: `sidpa-template` implement-story skill (proposed, needs human approval before any cross-repo change)
-- **The Trap:** The BRD, FDD and Epic 11 stories were approved through the governance chain in the main checkout while the story worktrees had already forked from an earlier commit. The approvals existed only as uncommitted files, so the story branches carried the older "Draft" specs and the docs branch had to be committed and merged into both story branches before the PRs were consistent.
-- **The Root Cause:** A git worktree forks from committed state only. Uncommitted work in the base checkout is invisible to it, and the approval artifacts are written by a tool run outside the story loop.
-- **Actionable Invariant:** Before `git worktree add`, run `git status --short` in the base checkout and commit or stash everything the story depends on, especially spec approvals. If specs change after the fork, merge the base branch into the story branch before opening the PR:
-  ```bash
-  git status --short          # in the base checkout, before creating the worktree
-  git worktree add ../agent-learning-story-<X.Y> -b feat/story-<X.Y> <base>
-  ```
+- **Epic / Story:** Epic 11 / ADR-011 (docs branch; PRs [#7](https://github.com/mdresch/agent-learning/pull/7), [#8](https://github.com/mdresch/agent-learning/pull/8))
+- **Scope:** Repository Process (ADR authoring)
+- **Tier 2/3 Propagation Target:** Tier 1 only; candidate Tier 2: an ADR-authoring convention in `docs/adr/README.md` (proposed, needs human confirmation)
+- **The Trap:** The first ADR-011 draft folded every confirmed clarification into one document (Charter contents, approval limits, ownership, learners, burden figures, the PMBOK mapping) and grew to about 190 lines, with each revision and each external review adding more. Slimming it to a small ADR then dropped the Alternatives section, which `approve-adr` scores as `alternatives_considered`, and a reviewer had to point out the loss.
+- **The Root Cause:** Confirmed clarifications were consolidated into the ADR as they arrived, which treated working design as decided design. The later trim removed content without checking what the approval policy scores.
+- **Actionable Invariant:** An ADR records only decisions that have been confirmed repeatedly; provisional design lives in working notes until it hardens. Before shortening an ADR, read the approval criteria (architectural soundness, alternatives considered, consequences honest, gap disclosure) and keep what they score. The BRD, FDD and stories then derive only from the ADR's Decisions and Invariants and list everything deferred as out of scope.
 
 ---
 
-### LL-009 — Record Behavior the Spec Does Not State as an Interpretation
+### LL-009 — Verify the Edition of a Standard Before Citing It
 - **Identifier:** `LL-009`
 - **Date:** 2026-10-25
-- **Epic / Story:** Epic 11 / Story 11.2 (PR [#8](https://github.com/mdresch/agent-learning/pull/8))
-- **Scope:** Universal Testing
-- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/implement-story/SKILL.md` (Step 3); Tier 3: `sidpa-template` implement-story skill (proposed, needs human approval before any cross-repo change)
-- **The Trap:** A contract test asserted that, in section mode, a PMP-only element under a Charter-held section reports `conflict=True`. Neither the acceptance criteria nor FDD-011 said so. The automated reviewer read it as a bug in the production code, and the disagreement could only be settled by explaining an interpretation that had not been written down.
-- **The Root Cause:** The test encoded the implementer's reading of an open ADR question as if it were specified behavior, with no marker that it was a choice.
-- **Actionable Invariant:** When a test asserts behavior that the acceptance criteria or the design do not state, record it at the time as an interpretation: in the test docstring, the implementation log and, if it touches an open ADR question, the open-questions list. Or amend the design so the behavior is specified.
+- **Epic / Story:** Epic 11 / ADR-011 and ADR-008 (labels)
+- **Scope:** Universal Documentation
+- **Tier 2/3 Propagation Target:** Tier 1 only; follow-up decision needed on relabelling "PMBOK 8" in ADR-008 and the chain documents
+- **The Trap:** ADR-008, the process registry and the chain documents say "PMBOK 8" but use 6th-edition numbering and plan names (a 49-process graph, 4.x numbers, cost and procurement plans), while the 8th edition has seven performance domains and different names. This surfaced only when the licensed 8th-edition text was pasted in. Web search results were secondary sources and could not settle it.
+- **The Root Cause:** The edition was named from the label already on the project documents and was never checked against the standard itself.
+- **Actionable Invariant:** When an ADR, BRD or FDD cites a standard, record the edition and the section numbers, verified against the primary source, and mark anything taken from a secondary source as unverified. Do not copy licensed text into the repository: paraphrase and cite section numbers.
 
 ---
 
-### LL-010 — Say Exactly Which Tests a Pass Count Excludes
+### LL-010 — Implement Only Against Approved, Committed Specs
 - **Identifier:** `LL-010`
 - **Date:** 2026-10-25
 - **Epic / Story:** Epic 11 / Stories 11.1 and 11.2
-- **Scope:** Universal Testing & Process
+- **Scope:** Repository Process
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/implement-story/SKILL.md` (Steps 0 and 1); Tier 3: `sidpa-template` implement-story skill (proposed, needs human approval before any cross-repo change)
+- **The Trap:** Story implementation started on a BRD, FDD and stories that were the author's own drafts: uncommitted, and without the `approve-brd`, `approve-fdd` and `approve-user-stories` gates run. "Status: Ready" had been set by the author, not by an approval. The approvals were recorded later in another checkout, after the worktrees had forked, so the story branches carried the draft specs and had to be reconciled by committing and merging.
+- **The Root Cause:** The run began on a general go-ahead without checking the chain's order (approved requirements at Stage 7 before delivery at Stage 9), and a git worktree forks from committed state only.
+- **Actionable Invariant:** Approve, then commit, then fork. Before `git worktree add`, confirm that the story's BRD, FDD and stories are approved and run `git status --short` in the base checkout. If the specs change after the fork, merge the base into the story branch before the PR. A "Ready" status set by the author is not an approval.
+
+---
+
+### LL-011 — State Every Mode and Parameter in the FDD
+- **Identifier:** `LL-011`
+- **Date:** 2026-10-25
+- **Epic / Story:** Epic 11 / FDD-011 and Story 11.2 (PR [#8](https://github.com/mdresch/agent-learning/pull/8))
+- **Scope:** Universal Design & Testing
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/implement-story/SKILL.md` (Step 3); Tier 3: `sidpa-template` implement-story skill (proposed, needs human approval before any cross-repo change)
+- **The Trap:** FDD-011 gave `resolve_home` a signature and a one-line granularity rule but was silent on what `conflict` means in section mode, and it did not list the `elements` argument the code needed. A contract test encoded one reading of an open ADR question, and the automated reviewer called it a bug in the code.
+- **The Root Cause:** The design left an edge mode and a parameter unspecified, so the implementation and its test filled the gap without marking it as a choice.
+- **Actionable Invariant:** The FDD states the semantics and signature of every mode and parameter, and marks behavior that depends on an open ADR question as provisional. Anything added at implementation time is recorded as an interpretation in the test docstring and the log, and amended into the FDD or the open questions.
+
+---
+
+### LL-012 — State Each Rule in One Story's Acceptance Criteria
+- **Identifier:** `LL-012`
+- **Date:** 2026-10-25
+- **Epic / Story:** Epic 11 / Stories 11.1 and 11.2
+- **Scope:** Universal Testing
+- **Tier 2/3 Propagation Target:** Tier 1 only; candidate guidance for `approve-user-stories` (proposed, needs human confirmation)
+- **The Trap:** Story 11.2's AC_2 ("an accepted flagged route needs a rationale") restated Story 11.1's rule that every decided route needs a rationale. Its test passed on arrival, so the RED step could not be observed and the log had to explain the exception.
+- **The Root Cause:** A rule shared by two stories was written into both sets of criteria instead of one, so the second contract asserted behavior that already existed.
+- **Actionable Invariant:** Each rule lives in exactly one story's acceptance criteria. Later stories reference it and assert only what is new (for example, that the flag codes appear in the episode metadata), so that every contract can be observed failing first.
+
+---
+
+### LL-013 — Keep a Skill's Validation Command One That Runs
+- **Identifier:** `LL-013`
+- **Date:** 2026-10-25
+- **Epic / Story:** Epic 11 / `implement-story` skill (Stories 11.1 and 11.2)
+- **Scope:** Universal Process
 - **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/implement-story/SKILL.md` (Step 6); Tier 3: `sidpa-template` implement-story skill (proposed, needs human approval before any cross-repo change)
-- **The Trap:** The skill's "full suite" command does not run: 15 files under `tests/pmbok` fail at collection from a clean install. An earlier log entry reported 464 passed "across entire agent-learning test suite" without saying those files were left out. Only after adding this epic's tests did the arithmetic (464 + 10 = 474) show the earlier figure had excluded them.
-- **The Root Cause:** A pass count was reported as covering the whole suite while a collection error was being avoided silently, so the number's meaning depended on knowledge that was not recorded.
-- **Actionable Invariant:** When the full suite cannot run, record in the implementation log which paths were excluded, why, and the resulting count. Never describe an exclusion-adjusted count as the entire suite.
+- **The Trap:** The `implement-story` skill requires "the full suite passes", but 15 files under `tests/pmbok` cannot be collected from a clean install, so the command cannot pass. An earlier log entry reported 464 passed "across entire agent-learning test suite" without saying those files were excluded. The arithmetic (464 + 10 = 474) only matched after this epic's tests were added.
+- **The Root Cause:** The skill's command described the intended state rather than the one that runs, and the log did not record what the count excluded.
+- **Actionable Invariant:** Keep the skill's validation command accurate: fix the cause (declare the dependencies) or amend the command. Until then, record in the log which paths were excluded, why, and the resulting count, and never call an exclusion-adjusted count the entire suite.
+
+---
+
+### LL-014 — Define Blank Once and Test Every Container Type
+- **Identifier:** `LL-014`
+- **Date:** 2026-10-25
+- **Epic / Story:** Epic 11 / Stories 11.1 and 11.2 (PRs [#7](https://github.com/mdresch/agent-learning/pull/7), [#8](https://github.com/mdresch/agent-learning/pull/8))
+- **Scope:** Universal Code Quality
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/tailoring/SKILL.md`; Tier 3: `sidpa-template` testing conventions (proposed, needs human approval before any cross-repo change)
+- **The Trap:** Automated review found that `_defined` treated empty tuples, sets and frozensets as defined (only `[]` and `{}` were excluded) and that one validation check combined two conditions in a single error message. Both were reachable through the public `Any` contract.
+- **The Root Cause:** Blank detection was written from the examples at hand, and two conditions shared one branch.
+- **Actionable Invariant:** For `Any`-typed inputs, define "blank" in one helper that covers `None`, blank strings and every empty container type, and test each one. Use one condition per error message so the message names what is actually missing.

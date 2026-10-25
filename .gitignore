@@ -28,7 +28,22 @@ docs/.$erd.drawio.bkp
 .token
 
 #Ignore vscode AI rules
-.github\instructions\codacy.instructions.md
+.github/instructions/codacy.instructions.md
+.hypothesis/
 data/pmbok_runtime/
-adr-008-decision-result.json
+data/agent-learning/
+adr-*-result.json
+adr-*-reg.json
+brd-*-result.json
+brd-*-reg.json
+epic*-result.json
+epic*-reg.json
+fdd-*-result.json
+fdd-*-reg.json
+actions.json
+complexity.json
+fdd-reg.json
+story-reg.json
+animiations/.venv/
+animiations/__pycache__/
 

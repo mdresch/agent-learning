@@ -449,8 +449,9 @@ class CosmosStore(LearningStore):
                 if existing.get("policy_id") == policy.id and existing.get("policy_version") == policy.version:
                     return
 
+                clean_existing = {k: v for k, v in existing.items() if not k.startswith("_")}
                 pointer_doc = {
-                    **existing,
+                    **clean_existing,
                     "policy_id": policy.id,
                     "policy_version": policy.version,
                     "updated_at": _utcnow_iso(),

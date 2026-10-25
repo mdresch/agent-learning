@@ -12,7 +12,7 @@ Acceptance Criteria:
 from __future__ import annotations
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 from unittest.mock import MagicMock
 
@@ -70,6 +70,9 @@ class FakePoliciesContainer:
         match_condition: Optional[Any] = None,
         **kwargs: Any,
     ) -> Dict[str, Any]:
+        system_fields = [k for k in body if k.startswith("_")]
+        assert not system_fields, f"replace_item body must not contain system properties: {system_fields}"
+
         call_record = {
             "item": item,
             "body": body,
@@ -149,9 +152,10 @@ def test_ac0_active_pointer_has_version_and_timestamp(store_fixture):
     assert pointer["record_type"] == "active_policy"
     assert pointer["policy_version"] == 1
     assert "updated_at" in pointer
-    # Must be valid ISO 8601 UTC timestamp
+    # Must be valid ISO 8601 UTC timestamp with UTC offset
     dt = datetime.fromisoformat(pointer["updated_at"])
-    assert dt is not None
+    assert dt.tzinfo is not None, "Timestamp must be timezone-aware"
+    assert dt.utcoffset() == timezone.utc.utcoffset(None), "Timestamp must be in UTC" 
 
 
 def test_ac1_monotonicity_guard_blocks_older_version_regression(store_fixture, caplog):
@@ -276,27 +280,9 @@ def test_ac3_create_pointer_retries_on_resource_exists_conflict(store_fixture):
     """AC_3: Racing initial creations raising CosmosResourceExistsError retry via update path."""
     store, container = store_fixture
 
-    # Initially empty container (pointer does not exist)
-    # But when store attempts create_item, race condition triggers CosmosResourceExistsError
-    def race_create(body):
-        # Another process just wrote it
-        container.items[body["id"]] = {
-            "id": body["id"],
-            "agent_id": body["agent_id"],
-            "task_id": body["task_id"],
-            "policy_id": "policy-v1",
-            "policy_version": 1,
-            "record_type": "active_policy",
-            "updated_at": "2026-10-25T11:00:00+00:00",
-            "_etag": "etag-race",
-        }
-        raise CosmosResourceExistsError("Resource exists race")
-
-    container.create_item_side_effect = CosmosResourceExistsError("Item already exists")
-
-    # Manually populate on first failure to mimic concurrent process
-    old_create = container.create_item
-    def patched_create(body):
+    # Initially empty container (pointer does not exist).
+    # When create_item is called, simulate another process having created it concurrently.
+    def race_create(body: Dict[str, Any]) -> Dict[str, Any]:
         container.items[body["id"]] = {
             "id": body["id"],
             "agent_id": body["agent_id"],
@@ -309,7 +295,7 @@ def test_ac3_create_pointer_retries_on_resource_exists_conflict(store_fixture):
         }
         raise CosmosResourceExistsError("Item already exists")
 
-    container.create_item = patched_create
+    container.create_item = race_create
 
     policy_v2 = PolicySnapshot(
         id="policy-v2",

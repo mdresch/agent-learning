@@ -24,14 +24,18 @@ from pmbok.models.intent_refinement import (
     HypothesisTerminalStatus,
     HypothesisTerminalityError,
     IntentRefinementProposalPayload,
+    LowPassOutcomeDampingFilter,
     MeasurementHorizon,
     OutcomeDeltaItem,
     ReadinessAuditResult,
     ReadinessPreconditionError,
     SparkDirectiveItem,
+    StrategicWhiplashError,
     adjudicate_hypothesis_batch,
+    compute_lineage_kernel,
     evaluate_phase_close_readiness,
     resolve_hypothesis,
+    validate_strategic_pivot_capacity,
 )
 from scripts.orchestrate_pmbok import seed_next_phase, decommission_project, rollback_pmp
 
@@ -557,3 +561,62 @@ def test_ac_8_adjudicate_hypothesis_batch_rejects_missing_bayes_factor():
     ]
     with pytest.raises(HypothesisTerminalityError, match="lacks empirical Bayes factor"):
         adjudicate_hypothesis_batch(batch)
+
+
+# ── Story 9.3: AC_9, AC_10, AC_11 Cybernetic Engine Tests ────────────────────
+
+def test_ac_9_low_pass_damping_filter_class():
+    """AC_9: LowPassOutcomeDampingFilter smooths variance and validates momentum bounds."""
+    # Valid beta within [0.6, 0.85]
+    dampener = LowPassOutcomeDampingFilter(beta=0.75)
+    raw_deltas = [10.0, -15.0, 12.0, -8.0, 14.0]
+    smoothed = dampener.filter_series(raw_deltas)
+
+    assert len(smoothed) == len(raw_deltas)
+    assert dampener.get_smoothed_variance(smoothed) < dampener.get_raw_variance(raw_deltas)
+    # Bias-corrected warmup at generation 1 matches input
+    assert math.isclose(smoothed[0], raw_deltas[0], rel_tol=1e-5)
+
+    # Invalid beta out of bounds must raise ValueError
+    with pytest.raises(ValueError, match="Momentum beta must be in"):
+        LowPassOutcomeDampingFilter(beta=0.5)
+    with pytest.raises(ValueError, match="Momentum beta must be in"):
+        LowPassOutcomeDampingFilter(beta=0.95)
+
+
+def test_ac_10_strategic_whiplash_capacity_guard():
+    """AC_10: Strategic pivots must not exceed ceil(c_adapt / 2)."""
+    # 2 pivots with c_adapt=4 -> Allowed (ceil(4/2) = 2)
+    valid_pivots = ["Pivot A", "Pivot B"]
+    assert validate_strategic_pivot_capacity(valid_pivots, c_adapt=4) is True
+
+    # 3 pivots with c_adapt=4 -> Exceeds capacity -> Raises StrategicWhiplashError
+    excessive_pivots = ["Pivot A", "Pivot B", "Pivot C"]
+    with pytest.raises(StrategicWhiplashError, match="Strategic pivots exceed homeostatic adaptation capacity"):
+        validate_strategic_pivot_capacity(excessive_pivots, c_adapt=4)
+
+
+def test_ac_11_compute_lineage_kernel_deterministic_hash():
+    """AC_11: compute_lineage_kernel creates immutable hereditary cryptographic link."""
+    invariants = ["INV-01-STATELESS", "INV-02-FIVE-RECORDS", "INV-11-BAYES-COLLAPSE"]
+    kernel_gen1 = compute_lineage_kernel(
+        root_spark="SPARK-GEN-001",
+        parent_refinement=None,
+        generational_index=1,
+        core_invariants=invariants,
+    )
+    assert kernel_gen1.generational_index == 1
+    assert kernel_gen1.parent_refinement is None
+    assert len(kernel_gen1.accumulated_knowledge_hash) == 64  # SHA-256
+
+    # Generation 2 inherits prior hash
+    kernel_gen2 = compute_lineage_kernel(
+        root_spark="SPARK-GEN-001",
+        parent_refinement="IR-PROP-v1.0.0",
+        generational_index=2,
+        core_invariants=invariants,
+        prior_knowledge_hash=kernel_gen1.accumulated_knowledge_hash,
+    )
+    assert kernel_gen2.generational_index == 2
+    assert kernel_gen2.parent_refinement == "IR-PROP-v1.0.0"
+    assert kernel_gen2.accumulated_knowledge_hash != kernel_gen1.accumulated_knowledge_hash

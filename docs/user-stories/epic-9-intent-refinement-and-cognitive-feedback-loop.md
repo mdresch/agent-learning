@@ -39,7 +39,7 @@
 
 ## Story 9.3 — Low-Pass Outcome Damping and Cumulative Lineage Kernel
 
-**Status:** Ready (2026-10-25)  
+**Status:** Completed (2026-10-25)  
 **As** a cybernetics systems control engineer,  
 **I want** outcome deltas filtered by an exponential moving average and preserved in a cumulative lineage kernel,  
 **So that** the system prevents strategic whiplash and generational epistemic memory decay across project cycles.

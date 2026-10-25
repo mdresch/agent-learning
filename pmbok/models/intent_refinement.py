@@ -4,7 +4,7 @@ Grounded in ADR-009, PMBOK Process 4.7 (Close Project or Phase), and double-loop
 """
 
 from enum import Enum
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Dict, List, Literal, Optional, Sequence
 from pydantic import AliasChoices, BaseModel, Field, model_validator
 
 
@@ -273,3 +273,98 @@ def adjudicate_hypothesis_batch(
         results.append(resolved)
 
     return results
+
+
+class StrategicWhiplashError(Exception):
+    """Raised when proposed strategic pivots exceed homeostatic adaptation capacity (S3-S4 balance)."""
+    pass
+
+
+class LowPassOutcomeDampingFilter:
+    """
+    Exponential Moving Average (EMA) low-pass filter for outcome deltas.
+    Stabilizes strategic replanning against single-phase high-frequency noise.
+    Grounded in ADR-009 Section 3.1: Theta_{N+1} = beta * Theta_N + (1 - beta) * grad(L).
+    """
+
+    def __init__(self, beta: float = 0.75) -> None:
+        if not (0.6 <= beta <= 0.85):
+            raise ValueError(f"Momentum beta must be in [0.6, 0.85], got {beta}")
+        self.beta = beta
+
+    def filter_series(
+        self,
+        deltas: Sequence[float],
+        apply_bias_correction: bool = True,
+    ) -> List[float]:
+        """Filters a sequence of outcome deltas, applying bias correction for N < 3."""
+        smoothed: List[float] = []
+        theta = 0.0
+        for n, delta in enumerate(deltas, start=1):
+            theta = self.beta * theta + (1.0 - self.beta) * delta
+            if apply_bias_correction and n < 3:
+                corrected = theta / (1.0 - (self.beta ** n))
+                smoothed.append(corrected)
+            else:
+                smoothed.append(theta)
+        return smoothed
+
+    @staticmethod
+    def get_raw_variance(deltas: Sequence[float]) -> float:
+        """Computes sample variance of raw series."""
+        if not deltas:
+            return 0.0
+        mean = sum(deltas) / len(deltas)
+        return sum((x - mean) ** 2 for x in deltas) / len(deltas)
+
+    @staticmethod
+    def get_smoothed_variance(smoothed: Sequence[float]) -> float:
+        """Computes sample variance of smoothed series."""
+        if not smoothed:
+            return 0.0
+        mean = sum(smoothed) / len(smoothed)
+        return sum((x - mean) ** 2 for x in smoothed) / len(smoothed)
+
+
+def validate_strategic_pivot_capacity(pivots: List[str], c_adapt: int) -> bool:
+    """
+    Enforces System 3 - System 4 homeostatic balance (Stafford Beer VSM).
+    Rate-limits proposed strategic pivots: Pivots_max <= ceil(C_adapt / 2).
+    """
+    import math
+
+    max_pivots = math.ceil(c_adapt / 2)
+    if len(pivots) > max_pivots:
+        raise StrategicWhiplashError(
+            f"Strategic pivots exceed homeostatic adaptation capacity: {len(pivots)} > {max_pivots} (C_adapt={c_adapt})."
+        )
+    return True
+
+
+def compute_lineage_kernel(
+    root_spark: str,
+    parent_refinement: Optional[str],
+    generational_index: int,
+    core_invariants: List[str],
+    prior_knowledge_hash: Optional[str] = None,
+) -> CumulativeLineageKernel:
+    """
+    Generates an immutable cumulative lineage kernel linking multi-phase generations.
+    Preserves root spark, parent refinement, invariants, and hereditary knowledge hash.
+    """
+    import hashlib
+
+    sorted_inv = sorted(core_invariants)
+    hash_payload = (
+        f"{root_spark}|{parent_refinement or 'ROOT'}|{generational_index}|"
+        f"{','.join(sorted_inv)}|{prior_knowledge_hash or 'GENESIS'}"
+    )
+    knowledge_hash = hashlib.sha256(hash_payload.encode()).hexdigest()
+
+    return CumulativeLineageKernel(
+        root_spark=root_spark,
+        parent_refinement=parent_refinement,
+        generational_index=generational_index,
+        immutable_core_invariants=core_invariants,
+        accumulated_knowledge_hash=knowledge_hash,
+    )

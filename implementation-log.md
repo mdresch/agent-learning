@@ -66,3 +66,42 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - $AC_7$: Inconclusive hypotheses ($0.1 < BF_{10} < 10$) refine for $d < 2$; at $d = 2$, hypotheses collapse automatically to `REFUTED` due to budget exhaustion.
   - $AC_8$: 100% of Stage 3 hypotheses in a batch resolve to valid terminal states; unadjudicated hypotheses (missing $BF_{10}$) raise `HypothesisTerminalityError`.
   - Full test suite: 23/23 passed in `test_intent_refinement.py` (1.13s); 300/300 passed in `sidpa-template`.
+
+
+---
+
+## Story 9.2 — Bayesian Hypothesis Terminality and Recurrence Exhaustion ($d_{\max}=2$)
+- **Commit:** `pending`
+- **Date:** 2026-10-25
+- **Branch:** `feat/story-9.2`
+- **Source ADR / BRD / FDD:** ADR-009, BRD-009, FDD-009
+- **Files Modified/Created:**
+  - `pmbok/models/intent_refinement.py` (added `HypothesisTerminalityError`, `resolve_hypothesis()`, and `adjudicate_hypothesis_batch()`)
+  - `.claude/skills/intent-refinement/SKILL.md` (updated with Story 9.2 constraints and APIs)
+  - `tests/pmbok/test_intent_refinement.py` (added 6 contract tests for $AC_6, AC_7, AC_8$)
+  - `docs/user-stories/epic-9-intent-refinement-and-cognitive-feedback-loop.md` (status updated to Completed)
+- **Validation:**
+  - $AC_6$: Empirical Bayes factors $BF_{10} \ge 10$ resolve to `VALIDATED` graduating to architecture invariants; $BF_{10} \le 0.1$ resolve to `REFUTED` with negative learning penalty.
+  - $AC_7$: Inconclusive hypotheses ($0.1 < BF_{10} < 10$) refine for $d < 2$; at $d = 2$, hypotheses collapse automatically to `REFUTED` due to budget exhaustion.
+  - $AC_8$: 100% of Stage 3 hypotheses in a batch resolve to valid terminal states; unadjudicated hypotheses (missing $BF_{10}$) raise `HypothesisTerminalityError`.
+  - Full test suite: 23/23 passed in `test_intent_refinement.py` (1.13s); 300/300 passed in `sidpa-template`.
+
+
+
+---
+
+## Story 9.3 — Low-Pass Outcome Damping and Cumulative Lineage Kernel
+- **Commit:** `pending`
+- **Date:** 2026-10-25
+- **Branch:** `feat/story-9.3`
+- **Source ADR / BRD / FDD:** ADR-009, BRD-009, FDD-009
+- **Files Modified/Created:**
+  - `pmbok/models/intent_refinement.py` (added `StrategicWhiplashError`, `LowPassOutcomeDampingFilter`, `validate_strategic_pivot_capacity()`, `compute_lineage_kernel()`)
+  - `.claude/skills/intent-refinement/SKILL.md` (updated with Story 9.3 constraints and API call sites)
+  - `tests/pmbok/test_intent_refinement.py` (added 3 contract tests for $AC_9, AC_{10}, AC_{11}$)
+  - `docs/user-stories/epic-9-intent-refinement-and-cognitive-feedback-loop.md` (status updated to Completed)
+- **Validation:**
+  - $AC_9$: `LowPassOutcomeDampingFilter` dampens high-frequency outcome noise with momentum $\beta \in [0.6, 0.85]$ and bias-corrected warmup for $N < 3$.
+  - $AC_{10}$: `validate_strategic_pivot_capacity()` enforces S3-S4 homeostatic balance ($\text{Pivots}_{\max} \le \lceil C_{\text{adapt}} / 2 \rceil$), raising `StrategicWhiplashError` on violation.
+  - $AC_{11}$: `compute_lineage_kernel()` computes deterministic hereditary SHA-256 knowledge hash linking generations without epistemic decay.
+  - Full test suite: 26/26 passed in `test_intent_refinement.py` (1.18s); 303/303 passed in `sidpa-template` (29.20s).

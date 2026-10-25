@@ -99,11 +99,13 @@ def test_ac0_parse_lessons_learned_markdown():
     ll2 = entries[1]
     assert ll2.id == "LL-002"
     assert "Timezone Assertions" in ll2.title
+    assert ll2.date == "2026-10-25"
+    assert ll2.phase == "Epic 2"  # Cleanly separated from 'date & phase'
     assert ll2.crystallized is True
 
 
 def test_ac1_strict_schema_validation_failures():
-    """AC_1: Missing required fields or malformed IDs raise ValueError."""
+    """AC_1: Missing required fields, duplicate fields, or malformed IDs raise ValueError."""
     # Malformed ID
     bad_id_md = """### LL-1 — Bad ID Format
 - **Date:** 2026-10-25
@@ -134,6 +136,38 @@ def test_ac1_strict_schema_validation_failures():
 """
     with pytest.raises(ValueError, match="missing required field: 'tier_targets'"):
         parse_lessons_learned_markdown(missing_tier_targets_md)
+
+    # Missing Trap
+    missing_trap_md = """### LL-007 — Missing Trap
+- **Date:** 2026-10-25
+- **The Root Cause:** Some root cause
+- **Actionable Invariant / Rule:** Some invariant
+- **Tier 2/3 Propagation Target:** Target
+"""
+    with pytest.raises(ValueError, match="missing required field: 'trap'"):
+        parse_lessons_learned_markdown(missing_trap_md)
+
+    # Missing Root Cause
+    missing_cause_md = """### LL-008 — Missing Cause
+- **Date:** 2026-10-25
+- **The Trap / Problem:** Some trap
+- **Actionable Invariant / Rule:** Some invariant
+- **Tier 2/3 Propagation Target:** Target
+"""
+    with pytest.raises(ValueError, match="missing required field: 'root_cause'"):
+        parse_lessons_learned_markdown(missing_cause_md)
+
+    # Duplicate Field
+    dup_field_md = """### LL-009 — Duplicate Field
+- **Date:** 2026-10-25
+- **Date:** 2026-10-26
+- **The Trap / Problem:** Some trap
+- **The Root Cause:** Some root cause
+- **Actionable Invariant / Rule:** Some invariant
+- **Tier 2/3 Propagation Target:** Target
+"""
+    with pytest.raises(ValueError, match=r"Duplicate field '\*\*Date:\*\*'"):
+        parse_lessons_learned_markdown(dup_field_md)
 
 
 def test_ac2_filtering_by_epic_and_sign_off_support():
@@ -180,8 +214,9 @@ def test_ac3_phase_close_readiness_compatibility():
 
 def test_ac4_active_repository_register_valid():
     """AC_4: The committed docs/project-docs/Lessons-Learned-Register.md parses cleanly."""
-    register_path = Path("docs/project-docs/Lessons-Learned-Register.md")
-    assert register_path.exists(), "Lessons-Learned-Register.md does not exist"
+    repo_root = Path(__file__).resolve().parent.parent
+    register_path = repo_root / "docs" / "project-docs" / "Lessons-Learned-Register.md"
+    assert register_path.exists(), f"Lessons-Learned-Register.md does not exist at {register_path}"
 
     entries = load_lessons_learned_register(register_path)
     assert len(entries) >= 4, f"Expected at least 4 crystallized lessons, found {len(entries)}"

@@ -42,7 +42,7 @@ class LessonsLearnedEntry:
         }
 
 
-_ENTRY_HEADER_RE = re.compile(r"^###\s+(LL-[A-Za-z0-9_-]+)\s+[—-]\s+(.+)$")
+_ENTRY_HEADER_RE = re.compile(r"^###\s+(LL-[A-Za-z0-9_-]+)\s+[—-—-]\s+(.+)$")
 _FIELD_LINE_RE = re.compile(r"^-\s+\*\*(.+?):\*\*\s*(.*)$")
 _VALID_ID_RE = re.compile(r"^LL-\d{3,}$")
 
@@ -51,7 +51,7 @@ def parse_lessons_learned_markdown(content: str) -> List[LessonsLearnedEntry]:
     """Parse a Markdown Lessons Learned Register and extract crystallized entries.
 
     Raises:
-        ValueError: If an entry has a malformed ID or is missing required fields.
+        ValueError: If an entry has a malformed ID, duplicate fields, or is missing required fields.
     """
     entries: List[LessonsLearnedEntry] = []
     lines = content.splitlines()
@@ -66,15 +66,17 @@ def parse_lessons_learned_markdown(content: str) -> List[LessonsLearnedEntry]:
         if not current_id or not current_title:
             return
 
-        if not _VALID_ID_RE.match(current_id):
-            raise ValueError(f"Malformed Lesson Learned ID '{current_id}'; must match 'LL-###' format")
-
         field_map = {k.lower(): "\n".join(v).strip() for k, v in current_fields.items()}
 
         date = field_map.get("date", "")
-        phase = field_map.get("phase", field_map.get("epic / story", field_map.get("date & phase", "")))
-        if not date and "date & phase" in field_map:
-            date = field_map["date & phase"].split("·")[0].strip()
+        phase = field_map.get("phase", field_map.get("epic / story", ""))
+
+        if "date & phase" in field_map:
+            parts = [p.strip() for p in field_map["date & phase"].split("·", 1)]
+            if not date:
+                date = parts[0]
+            if not phase and len(parts) > 1:
+                phase = parts[1]
 
         trap = field_map.get("the trap / problem", field_map.get("the trap", field_map.get("trap", "")))
         root_cause = field_map.get("the root cause", field_map.get("root cause", ""))
@@ -121,7 +123,10 @@ def parse_lessons_learned_markdown(content: str) -> List[LessonsLearnedEntry]:
         header_match = _ENTRY_HEADER_RE.match(line.strip())
         if header_match:
             _flush_current_entry()
-            current_id = header_match.group(1).strip()
+            candidate_id = header_match.group(1).strip()
+            if not _VALID_ID_RE.match(candidate_id):
+                raise ValueError(f"Malformed Lesson Learned ID '{candidate_id}'; must match 'LL-###' format")
+            current_id = candidate_id
             current_title = header_match.group(2).strip()
             current_fields = {}
             current_field_key = None
@@ -130,11 +135,13 @@ def parse_lessons_learned_markdown(content: str) -> List[LessonsLearnedEntry]:
         if current_id is not None:
             field_match = _FIELD_LINE_RE.match(line.strip())
             if field_match:
-                current_field_key = field_match.group(1).strip().lower()
+                key_raw = field_match.group(1).strip()
+                current_field_key = key_raw.lower()
+                if current_field_key in current_fields:
+                    raise ValueError(f"Duplicate field '**{key_raw}:**' in entry '{current_id}'")
                 val = field_match.group(2).strip()
                 current_fields[current_field_key] = [val] if val else []
             elif current_field_key is not None:
-                # Continuation of multiline field (e.g. code blocks, multi-line prose)
                 current_fields[current_field_key].append(line)
 
     _flush_current_entry()
@@ -164,7 +171,6 @@ def filter_crystallized_lessons(
     matched = [
         e.to_dict()
         for e in entries
-        if target in e.phase.lower() or target in e.title.lower()
+        if target in e.phase.lower()
     ]
     return matched
-

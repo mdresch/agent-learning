@@ -1,0 +1,131 @@
+{
+  "task": "BRD-011 (Project Tailoring and Route Decision): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "traceable_to_adr",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Business rules trace directly to ADR-011 decisions and invariants (route per plan, human decides, both recorded, flags not blocks, integration section home, storage boundary)"
+    },
+    {
+      "id": "honest_metrics",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Success metrics are concrete, measurable, and tied to verifiable route validation and flag integrity"
+    },
+    {
+      "id": "out_of_scope_accurate",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Out-of-scope list accurately excludes plan floors/caps, Charter template/approval limits, decision gates, learners, and route-aware generation"
+    },
+    {
+      "id": "rules_actionable",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "BRU-011-01 through BRU-011-06 are concrete, unambiguous, and machine-enforceable, driving an actionable FDD"
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_brd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_adr",
+          "source": "brd_011_section_business_rules_cites_adr_011_invariants",
+          "support": 0.94,
+          "confidence": 0.90
+        },
+        {
+          "criterion_id": "honest_metrics",
+          "source": "brd_011_stakeholder_success_metrics_table",
+          "support": 0.92,
+          "confidence": 0.88
+        },
+        {
+          "criterion_id": "out_of_scope_accurate",
+          "source": "brd_011_out_of_scope_exclusions",
+          "support": 0.95,
+          "confidence": 0.90
+        },
+        {
+          "criterion_id": "rules_actionable",
+          "source": "bru_011_01_through_06_concrete_rules",
+          "support": 0.94,
+          "confidence": 0.90
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_brd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_adr",
+          "source": "brd_011_section_business_rules_cites_adr_011_invariants",
+          "support": 0.05,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "honest_metrics",
+          "source": "brd_011_stakeholder_success_metrics_table",
+          "support": 0.06,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "out_of_scope_accurate",
+          "source": "brd_011_out_of_scope_exclusions",
+          "support": 0.05,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "rules_actionable",
+          "source": "bru_011_01_through_06_concrete_rules",
+          "support": 0.05,
+          "confidence": 0.85
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_adr",
+          "source": "brd_011_section_business_rules_cites_adr_011_invariants",
+          "support": 0.08,
+          "confidence": 0.80
+        },
+        {
+          "criterion_id": "honest_metrics",
+          "source": "brd_011_stakeholder_success_metrics_table",
+          "support": 0.10,
+          "confidence": 0.78
+        },
+        {
+          "criterion_id": "out_of_scope_accurate",
+          "source": "brd_011_out_of_scope_exclusions",
+          "support": 0.08,
+          "confidence": 0.80
+        },
+        {
+          "criterion_id": "rules_actionable",
+          "source": "bru_011_01_through_06_concrete_rules",
+          "support": 0.09,
+          "confidence": 0.78
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": ["no_unfixed_critical_flaw"],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.10,
+  "max_uncertainty": 1.0
+}

@@ -1,0 +1,107 @@
+{
+  "task": "Epic 11 (Project Tailoring and Route Decision - Stories 11.1 and 11.2): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "code_shaped_testable",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Acceptance criteria AC0 through AC5 (Story 11.1) and AC0 through AC4 (Story 11.2) are real, contract-testable assertions with explicit failure checks and invariants"
+    },
+    {
+      "id": "traceable_to_fdd_brd_adr",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Stories trace directly to FDD-011 contracts, BRD-011 business rules, and ADR-011 tailoring architecture"
+    },
+    {
+      "id": "scope_correctly_bounded",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Plan floors/caps, Charter templates, approval limits, and uninstalled PMBOK orchestrator generation are correctly excluded"
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_user_stories",
+      "evidence": [
+        {
+          "criterion_id": "code_shaped_testable",
+          "source": "epic_11_stories_11_1_and_11_2_ac_specifications",
+          "support": 0.95,
+          "confidence": 0.92
+        },
+        {
+          "criterion_id": "traceable_to_fdd_brd_adr",
+          "source": "epic_11_header_and_body_trace_to_adr_011_brd_011_fdd_011",
+          "support": 0.96,
+          "confidence": 0.92
+        },
+        {
+          "criterion_id": "scope_correctly_bounded",
+          "source": "epic_11_out_of_scope_boundary_preserves_adr_001_and_adr_002",
+          "support": 0.95,
+          "confidence": 0.90
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_user_stories",
+      "evidence": [
+        {
+          "criterion_id": "code_shaped_testable",
+          "source": "epic_11_stories_11_1_and_11_2_ac_specifications",
+          "support": 0.05,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "traceable_to_fdd_brd_adr",
+          "source": "epic_11_header_and_body_trace_to_adr_011_brd_011_fdd_011",
+          "support": 0.05,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "scope_correctly_bounded",
+          "source": "epic_11_out_of_scope_boundary_preserves_adr_001_and_adr_002",
+          "support": 0.05,
+          "confidence": 0.85
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "code_shaped_testable",
+          "source": "epic_11_stories_11_1_and_11_2_ac_specifications",
+          "support": 0.08,
+          "confidence": 0.80
+        },
+        {
+          "criterion_id": "traceable_to_fdd_brd_adr",
+          "source": "epic_11_header_and_body_trace_to_adr_011_brd_011_fdd_011",
+          "support": 0.08,
+          "confidence": 0.80
+        },
+        {
+          "criterion_id": "scope_correctly_bounded",
+          "source": "epic_11_out_of_scope_boundary_preserves_adr_001_and_adr_002",
+          "support": 0.09,
+          "confidence": 0.78
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": ["no_unfixed_critical_flaw"],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.10,
+  "max_uncertainty": 1.0
+}

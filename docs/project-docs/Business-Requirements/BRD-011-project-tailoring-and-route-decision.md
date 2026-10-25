@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-011](../../adr/ADR-011-project-tailoring-and-route-decision.md) — Accepted (2026-10-25)  
 **Governing Baseline:** none approved yet (`approve-pmp` is not built; see ADR-011 §2)  
-**Status:** Draft — business requirements derived from an Accepted ADR  
+**Status:** Approved (2026-10-25, Menno) — derived from Accepted ADR-011; adjudicated via `approve-brd` (robust utility 0.878, episode `c460e297-f949-4261-8306-cc9e618f93e8`).  
 **Stakeholders:** Menno (Sponsor/PM/maintainer)  
 
 ## Business Need

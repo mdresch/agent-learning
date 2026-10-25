@@ -6,7 +6,7 @@ As `agent-learning` transitions from initial architecture to accelerated impleme
 This ADR establishes a formal, lightweight **Stage 15 Lessons Learned Register** (`docs/project-docs/Lessons-Learned-Register.md`) directly operationalizing the Stage 15 requirement formalized in **ADR-008** (§3 Stage 14-15) and **ADR-009** (§3.1 Phase Close Preconditions). It defines a 3-tier crystallization protocol ensuring that hard-won implementation lessons propagate into institutional memory across project boundaries without introducing storage overhead.
 
 ## 2. Status
-**Accepted (2026-10-25)** — Drafted and approved by Menno to establish the formal Stage 15 Lessons Learned asset for project and cross-project knowledge persistence.
+**Accepted (2026-10-25)** — Formally approved by Menno Drescher (score: 96/100 across 5 architecture assessment methods) to operationalize Stage 15 Lessons Learned crystallization and OPA management.
 
 ## 3. Context
 - **Stage 15 in the PMBOK Lifecycle:** On the 18-stage Intent-to-Outcome chain (`PROJECT-MANAGEMENT-ONTOLOGY.json`, ADR-008, ADR-009), Stage 15 (**Lessons Learned**) bridges execution outcomes (Stage 12) with Governance Evolution (Stage 16) and Intent Refinement (Stage 18).

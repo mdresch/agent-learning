@@ -140,7 +140,7 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - Full test suite: 5/5 passed in `test_lessons_learned.py`; 464 passed, 2 skipped across entire agent-learning test suite. Zero regressions.
 
 ## Story 11.1 — Route Records and the Human-Decision Invariants
-- **Commit:** `pending`
+- **Commit:** `516bdb3`
 - **Date:** 2026-10-25
 - **Branch:** `feat/story-11.1` (based on `docs/adr-011-tailoring-route-decision`, because ADR-011 and the Epic 11 specs are not yet on `main`)
 - **Source ADR / BRD / FDD:** ADR-011, BRD-011, FDD-011

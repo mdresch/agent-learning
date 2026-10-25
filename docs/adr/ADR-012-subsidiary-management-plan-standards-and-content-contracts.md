@@ -15,7 +15,7 @@ This ADR establishes the **universal standard framework and content contract** f
 ---
 
 ## 2. Status
-**Proposed (2026-10-25)** — Drafted to establish the standard framework preceding dedicated domain plan specifications (starting with Scope Management Plan). Ready for multi-criteria evaluation under `approve-adr`.
+**Accepted (2026-10-25, Menno)** — Formally evaluated through the `approve-adr` TaskPolicy and accepted by Menno (Episode `736a528e-e069-4fff-96cb-45c5eb68c3a7`, robust utility 0.854, expected utility 0.900). Fully reconciled with ADR-011 and ADR-013, incorporating authentic PMBOK 8 7-domain taxonomy and multi-round peer review amendments.
 
 ---
 
@@ -263,3 +263,4 @@ ADR-012 defines the universal contract and meta-rules. Domain-specific plan stan
 | 2026-10-25 | Proposed | Initial drafting of the universal plan standards and content contracts framework, establishing the three-section contract, quantitative floors/caps, PMBOK 8 mapping, and decoupled daughter ADR hierarchy. |
 | 2026-10-25 | Amended (Round 1 Review) | Resolved self-referential hash paradox (anchored in `Episode.metadata` per ADR-013 §4.3). Added `generator` and `owner_role`. Added downstream `STALE_DEPENDENCY` propagation rules. Defined deterministic word-count scope. |
 | 2026-10-25 | Amended (Round 2 Review) | Corrected PMBOK 8 taxonomy to the authentic 7 Performance Domains (*Governance, Scope, Schedule, Finance, Stakeholders, Resources, Risk*) under the *Planning* Focus Area. Fixed staging vs `approve-pmp` flow: sections are not approved at staging; floor flags carry forward to `approve-pmp`. Corrected staleness citations to ADR-013 §4.5. Aligned hard-block rules and `mock` generator token with ADR-013 §4.2. Guarded auto-regeneration against spinning on stubs and overwriting human text. Removed floor-flag graduation edge. Clarified Tier 1 omission as a flagged deviation per ADR-011 §3.2. Defined regex word tokenization and exact heading regex strings. |
+| 2026-10-25 | Accepted | Evaluated via Bayesian decision policy through `approve-adr` (`task-policy-decide`, `task-policy-adjudicate --disposition accept`, `task-episode-register`): robust utility 0.854 vs. 0.018 (reject) and 0.050 (revise), episode `736a528e-e069-4fff-96cb-45c5eb68c3a7`. Approved directly by Menno. |

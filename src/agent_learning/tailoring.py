@@ -149,7 +149,14 @@ def compute_flags(routes: Sequence[PlanRoute]) -> List[Flag]:
 
 
 def _defined(value: Any) -> bool:
-    return value is not None and value != "" and value != [] and value != {}
+    """A value is defined unless it is None, a blank string, or an empty container of any kind."""
+    if value is None:
+        return False
+    if isinstance(value, str):
+        return bool(value.strip())
+    if isinstance(value, (list, tuple, dict, set, frozenset)):
+        return len(value) > 0
+    return True
 
 
 def resolve_home(
@@ -162,7 +169,10 @@ def resolve_home(
 
     With ``granularity="element"`` each element resolves on its own. With ``"section"`` the whole
     section sits in the Charter if the Charter defines any element, else in the PMP. In both modes the
-    Charter prevails and a PMP value that disagrees with it is reported as a conflict.
+    Charter prevails. ``conflict`` means a second home: in element mode, both sides define the element
+    with different values; in section mode, the Charter holds the section and the PMP also holds a value
+    for an element that the Charter does not hold or holds differently (ADR-011 Invariant 5, "one home at
+    a time"). The PMP value is never silently dropped: it is flagged for a human.
     """
     if granularity not in ("element", "section"):
         raise ValueError(f"Unknown granularity '{granularity}'; expected 'element' or 'section'")

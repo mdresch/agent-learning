@@ -311,3 +311,18 @@ def test_s112_ac4_unknown_granularity_raises() -> None:
     with pytest.raises(ValueError):
         resolve_home({}, {}, granularity="paragraph")
 
+
+def test_s112_ac3_blank_strings_and_every_empty_container_are_not_defined() -> None:
+    """AC_3 (review finding): blank strings and empty list, tuple, dict, set and frozenset are not defined."""
+    for blank in ("", "   ", [], (), {}, set(), frozenset(), None):
+        res = _by_element(resolve_home({"type": blank}, {"type": "sdk"}))
+        assert res["type"].home == "pmp", repr(blank)
+
+
+def test_s112_ac4_section_mode_flags_a_second_home_but_not_agreement() -> None:
+    """AC_4: in section mode, equal values are no conflict; a PMP value for an element the Charter section lacks is flagged."""
+    agree = _by_element(resolve_home({"type": "sdk"}, {"type": "sdk"}, granularity="section"))
+    assert agree["type"].conflict is False
+    stray = _by_element(resolve_home({"type": "sdk"}, {"owners": "PM"}, granularity="section"))
+    assert stray["owners"].conflict is True  # the PMP holds part of a section the Charter holds
+

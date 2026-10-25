@@ -7,7 +7,7 @@ One story, matching FDD-001's single design.
 
 ## Story 1.1 — Exclude `full`-authority episodes from `ReinforceLearner`'s training batch
 
-**Status:** Approved (2026-10-23, Menno) — BRD-001/FDD-001 approved, drafted from ADR-001's disclosed gap. Not yet run through `validate-intent-foundation` or `implement-story` — this repo has neither skill installed yet; ready to build once that's addressed.
+**Status:** Completed (2026-10-25) — Implemented via `implement-story` on branch `feat/story-1.1`. Verified with 18/18 tests in `test_learner.py` and 101/101 in `test_audit.py` (442 passed across core suite).
 **As** `ReinforceLearner`, **I want** to exclude any episode whose action was not sampled from the policy being updated, **so that** a `full`-authority (reasoned) decision's outcome can never silently train the learned softmax logits it was never drawn from.
 
 **Acceptance Criteria:**

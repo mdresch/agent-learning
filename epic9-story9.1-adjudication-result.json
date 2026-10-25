@@ -1,0 +1,143 @@
+{
+  "agent_id": "agent-learning-governance",
+  "task_id": "approve-user-stories",
+  "policy_id": "0d32ca03-f924-4c8c-80d4-d7bc6335434e",
+  "policy_version": 0,
+  "status": "resolved",
+  "reason": "The user accepted the proposed option to resolve the tie.",
+  "selection_basis": "bayesian_decision",
+  "selected_action": {
+    "id": "approve_user_stories",
+    "description": "The user stories are code-shaped with real, testable acceptance criteria, correctly distinguish code-shaped stories from documentation-only items rather than forcing everything into a Story template, and are traceable to their BRD/FDD/ADR -- approve them",
+    "parameters": {}
+  },
+  "proposed_action": null,
+  "candidate_actions": [
+    {
+      "id": "approve_user_stories",
+      "description": "The user stories are code-shaped with real, testable acceptance criteria, correctly distinguish code-shaped stories from documentation-only items rather than forcing everything into a Story template, and are traceable to their BRD/FDD/ADR -- approve them",
+      "parameters": {}
+    }
+  ],
+  "assessments": [
+    {
+      "action": {
+        "id": "approve_user_stories",
+        "description": "The user stories are code-shaped with real, testable acceptance criteria, correctly distinguish code-shaped stories from documentation-only items rather than forcing everything into a Story template, and are traceable to their BRD/FDD/ADR -- approve them",
+        "parameters": {}
+      },
+      "feasible": true,
+      "criteria": [
+        {
+          "criterion_id": "code_shaped_testable",
+          "support": 0.9375488294376583,
+          "entropy_bits": 0.3370992659858165,
+          "disagreement_bits": 5.551115123125783e-17,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "traceable_to_fdd_brd_adr",
+          "support": 0.9490109543891186,
+          "entropy_bits": 0.2905835876909708,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "scope_correctly_bounded",
+          "support": 0.9340106873436208,
+          "entropy_bits": 0.3507750720774026,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        }
+      ],
+      "expected_utility": 0.9401901570567993,
+      "uncertainty": 0.3261526419180633,
+      "robust_utility": 0.9075748928649929,
+      "ruled_out_by": []
+    },
+    {
+      "action": {
+        "id": "reject_user_stories",
+        "description": "The user stories have a fundamental, unfixed flaw -- e.g. acceptance criteria that cannot actually be contract-tested, or a story forced into a shape the underlying work does not have -- reject them outright",
+        "parameters": {}
+      },
+      "feasible": true,
+      "criteria": [
+        {
+          "criterion_id": "code_shaped_testable",
+          "support": 0.07566400165843792,
+          "entropy_bits": 0.3867136400764793,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "traceable_to_fdd_brd_adr",
+          "support": 0.07566400165843792,
+          "entropy_bits": 0.3867136400764793,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "scope_correctly_bounded",
+          "support": 0.08207818399244107,
+          "entropy_bits": 0.40945980191691567,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        }
+      ],
+      "expected_utility": 0.07780206243643897,
+      "uncertainty": 0.3942956940232914,
+      "robust_utility": 0.038372493034109834,
+      "ruled_out_by": [
+        "pareto_dominated_by:approve_user_stories"
+      ]
+    },
+    {
+      "action": {
+        "id": "request_revision_before_decision",
+        "description": "The user stories need a real change before they can be judged -- distinct from a named, deliberately out-of-scope follow-on item already scoped correctly",
+        "parameters": {}
+      },
+      "feasible": true,
+      "criteria": [
+        {
+          "criterion_id": "code_shaped_testable",
+          "support": 0.12413115748610368,
+          "entropy_bits": 0.5411203053535295,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "traceable_to_fdd_brd_adr",
+          "support": 0.12413115748610368,
+          "entropy_bits": 0.5411203053535295,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "scope_correctly_bounded",
+          "support": 0.1412877557762257,
+          "entropy_bits": 0.5876014178971848,
+          "disagreement_bits": 5.551115123125783e-17,
+          "source_count": 1
+        }
+      ],
+      "expected_utility": 0.12985002358281103,
+      "uncertainty": 0.5566140095347479,
+      "robust_utility": 0.07418862262933623,
+      "ruled_out_by": [
+        "pareto_dominated_by:approve_user_stories"
+      ]
+    }
+  ],
+  "information_needs": [],
+  "rejected_action_ids": [],
+  "authorization_basis": "user_acceptance",
+  "action_probabilities": {
+    "approve_user_stories": 0.3333333333333333,
+    "reject_user_stories": 0.3333333333333333,
+    "request_revision_before_decision": 0.3333333333333333
+  },
+  "action_logprob": null,
+  "decision_authority": "full"
+}

@@ -375,6 +375,7 @@ def test_pubsub_workload_recommendation_earns_autonomy_after_three_acceptances()
             task_id="choose-azure-pubsub-message-processor",
             intent_summary="Choose an Azure workload to process PubSub messages",
             action_id="functions",
+            action_logprob=-1.386294,
             expected_outcome="Recommend the accepted workload",
             execution_status="completed",
             result_summary="The user accepted the Functions recommendation",

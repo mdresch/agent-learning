@@ -71,9 +71,16 @@ class ReinforceLearner(Learner):
         used = 0
         reward_sum = 0.0
         entropy = -sum(p * math.log(max(p, 1e-12)) for p in probs_now)
+        full_authority_excluded = 0
 
         for episode in episode_list:
-            if episode.action_id is None or episode.action_id not in action_index:
+            if (
+                episode.action_id is None
+                or episode.action_id not in action_index
+                or episode.action_logprob is None
+            ):
+                if episode.action_logprob is None and episode.action_id is not None:
+                    full_authority_excluded += 1
                 continue
             reward = aggregate_rewards.get(episode.id)
             if reward is None:
@@ -108,7 +115,10 @@ class ReinforceLearner(Learner):
                 baseline_before=baseline_before,
                 baseline_after=baseline_before,
                 logit_deltas={aid: 0.0 for aid in action_ids},
-                extra={"reason": "no actionable episodes"},
+                extra={
+                    "reason": "no actionable episodes",
+                    "full_authority_excluded": full_authority_excluded,
+                },
                 consumed_inputs=consumed_inputs,
             )
 
@@ -133,7 +143,10 @@ class ReinforceLearner(Learner):
             baseline_before=baseline_before,
             baseline_after=baseline_after,
             logit_deltas=deltas,
-            extra={"entropy": entropy},
+            extra={
+                "entropy": entropy,
+                "full_authority_excluded": full_authority_excluded,
+            },
             consumed_inputs=consumed_inputs,
         )
 

@@ -303,10 +303,11 @@ def test_inconsistent_records_produce_mismatch(
     json.dumps(report.to_dict(), allow_nan=False)
 
 
-def test_missing_propensity_is_reported_as_unknown(tmp_path: Path) -> None:
+def test_full_authority_episode_in_receipt_causes_replay_receipt_mismatch(tmp_path: Path) -> None:
     store = LocalFileStore(tmp_path)
-    # The uniform behavior probability equals the current probability, so
-    # replacing its logprob with None also leaves the historical update unchanged.
+    # If an episode is modified to be full-authority (action_logprob is None),
+    # ReinforceLearner.update excludes it during replay (audit.py:444),
+    # producing a receipt mismatch against the recorded run that consumed it.
     run = _trained(store, nonuniform=False)
     episode = store.get_episode("ep-0", "agent")
     assert episode is not None
@@ -316,12 +317,54 @@ def test_missing_propensity_is_reported_as_unknown(tmp_path: Path) -> None:
 
     report = audit_run(store, "agent", run.id)
 
-    assert report.status == AuditStatus.VERIFIED
-    item = next(c for c in report.contributions if c["episode_id"] == "ep-0")
-    assert item["behavior_probability"] is None
-    assert item["importance_fallback"]
-    assert item["importance_weight"] == 1
-    assert any("Missing behavior probability" in warning for warning in report.warnings)
+    assert report.status == AuditStatus.MISMATCH
+    assert report.reason_code == "receipt_mismatch"
+
+
+def test_ac_3_and_4_audit_attribute_full_authority_warning_and_exclusion(
+    trained: tuple[LocalFileStore, TrainingRun],
+) -> None:
+    """Story 1.1 AC3 & AC4: Attribution replay excludes full-authority episode at audit.py:503 and emits updated warning."""
+    store, run = trained
+    policy_before = store.get_policy(run.policy_id, "agent")
+    assert policy_before is not None
+    from agent_learning.audit import AuditReport, _attribute, _configuration, _projection
+    config, limit = _configuration(run)
+    report = AuditReport(agent_id="agent", run_id=run.id)
+    report.input_policy = _projection(policy_before)
+    report.summary = {
+        "proposed_deltas": {a.id: 0.0 for a in policy_before.actions},
+        "recorded_applied_deltas": {a.id: 0.0 for a in policy_before.actions},
+    }
+
+    full_auth_ep = Episode(
+        id="full-auth",
+        agent_id="agent",
+        action_id="cached",
+        action_logprob=None,
+    )
+    reward = Reward(
+        id="full-auth-rew",
+        episode_id="full-auth",
+        agent_id="agent",
+        source=RewardSource.AGGREGATE,
+        value=0.8,
+    )
+
+    _attribute(report, policy_before, config, limit, [full_auth_ep], [reward])
+
+    # AC_3: new warning text appears when full-authority episode is present
+    expected_warning = (
+        "One or more full-authority episodes (action_logprob is None) were present in this "
+        "batch and excluded from the REINFORCE update, not reweighted — see ADR-001 §4.5."
+    )
+    assert any(expected_warning in w for w in report.warnings)
+
+    # AC_4: audit.py:503 call site excludes the episode from update, yielding 0 deltas
+    contrib = next(c for c in report.contributions if c["episode_id"] == "full-auth")
+    assert contrib["behavior_probability"] is None
+    assert contrib["importance_fallback"] is True
+    assert all(delta == 0.0 for delta in contrib["reward_deltas"].values())
 
 
 def test_cloud_backend_rejected_before_any_io(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -547,7 +590,7 @@ def test_selected_reward_value_is_not_defaulted_or_coerced(tmp_path: Path, mutat
     policy = SoftmaxPolicy.from_actions([Action(id="a"), Action(id="b")])
     store.store_policy(policy.snapshot())
     episode = Episode(
-        id="ep", action_id="a", intent_summary="route", expected_outcome="handler",
+        id="ep", action_id="a", action_logprob=math.log(0.5), intent_summary="route", expected_outcome="handler",
         execution_status="completed", result_summary="fixture",
     )
     store.store_episode(episode)

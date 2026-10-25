@@ -27,12 +27,13 @@ from agent_learning.types import (
 )
 
 
-def _episode(episode_id: str, action_id: str, second: int = 0) -> Episode:
+def _episode(episode_id: str, action_id: str, second: int = 0, logprob: float = -0.693147) -> Episode:
     return Episode(
         id=episode_id,
         agent_id="agent",
         task_id="routing",
         action_id=action_id,
+        action_logprob=logprob,
         intent_summary="Choose a routing strategy",
         expected_outcome="Route to the appropriate handler",
         execution_status="completed",

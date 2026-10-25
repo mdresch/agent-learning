@@ -26,3 +26,9 @@ dist-installer/
 docs/.$erd.drawio.bkp
 
 .token
+
+#Ignore vscode AI rules
+.github\instructions\codacy.instructions.md
+data/pmbok_runtime/
+adr-008-decision-result.json
+

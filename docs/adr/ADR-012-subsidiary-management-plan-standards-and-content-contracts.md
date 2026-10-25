@@ -86,6 +86,20 @@ governance_policy: "approve-subsidiary-plan" # "approve-subsidiary-plan" (if ful
 ---
 ```
 
+#### 4.2.1 Standard-Library Frontmatter Grammar Subset
+To guarantee zero external runtime dependencies (`pyyaml`) per ADR-034 Invariant 1 and ensure deterministic cross-platform behavior, frontmatter syntax is strictly restricted to a well-defined standard-library-parseable grammar:
+1. **Delimiters:** Frontmatter must be bounded by opening `---` and closing `---` on lines by themselves.
+2. **Key-Value Pairs:** Flat string or enum keys matching `^[a-z_]+$` followed by a colon and whitespace.
+3. **Values:** Supported values are:
+   - Double-quoted or single-quoted strings: `"..."` or `'...'`.
+   - Bare scalar tokens: `[A-Za-z0-9_.-]+` (e.g. `PMBOK 8`, `full_plan`, `1.0.0`).
+   - Empty flow lists: `[]`.
+4. **Lists:** Itemized string sequences where a key is followed on subsequent lines by `  - "item"` or `  - item`.
+5. **Inline & Line Comments:** `# comment text` preceded by whitespace after a scalar or list entry, or on an independent line. Comments are stripped before token parsing.
+6. **Disallowed Constructs:** Nested dictionaries, multi-line block scalars (`|`, `>`), YAML anchors/aliases (`&`, `*`), and arbitrary object tags (`!!`) are prohibited.
+7. **Parser Rejection Behavior:** If an unsupported construct or malformed line is encountered, the parser does **not crash**. Instead, it emits a non-fatal `FLAG: INVALID_METADATA` diagnostic with line-number context, allowing bounded LLM auto-remediation during staging or recorded human adjudication during gate review.
+8. **Volatile Stripping Parity:** The canonical hashing utility `strip_volatile_frontmatter` (ADR-013 §4.3) uses this exact subset parser to strip volatile metadata keys without disturbing static semantic fields.
+
 > [!NOTE]
 > **No In-File Hash Circularity:** `canonical_content_hash` is **not** stored inside the in-file YAML frontmatter. In accordance with ADR-013 §4.2 and §4.3, the canonical hash is computed dynamically over the LF-normalized disk content and persisted strictly within `Episode.metadata` and the `DecisionFrame`. Storing the hash inside the file being hashed creates a self-referential cryptographic cycle.
 >
@@ -300,3 +314,4 @@ ADR-012 defines the universal contract and meta-rules. Domain-specific plan stan
 | 2026-10-25 | Amended (Round 2 Review) | Corrected PMBOK 8 taxonomy to the authentic 7 Performance Domains (*Governance, Scope, Schedule, Finance, Stakeholders, Resources, Risk*) under the *Planning* Focus Area. Fixed staging vs `approve-pmp` flow: sections are not approved at staging; floor flags carry forward to `approve-pmp`. Corrected staleness citations to ADR-013 §4.5. Aligned hard-block rules and `mock` generator token with ADR-013 §4.2. Guarded auto-regeneration against spinning on stubs and overwriting human text. Removed floor-flag graduation edge. Clarified Tier 1 omission as a flagged deviation per ADR-011 §3.2. Defined regex word tokenization and exact heading regex strings. |
 | 2026-10-25 | Polish & Errata (Round 3 Review) | Established 3-Tier Precedence Hierarchy (Tier A Hard Blocks > Tier B Structural Flags > Tier C Content Flags) ensuring structural issues do not act as mechanical blocks. Removed non-existent "Quality" secondary domain and bound domain fields to closed 7-domain enum. Resolved cap-branch unrecorded rationale by carrying over-cap flag to `approve-pmp` or recording route episode on graduation. Aligned Tier 1 omission citation with ADR-011 §3.2 and Invariant #2 with sponsor confirmation. Upgraded tokenizer to Unicode-aware regex `\b[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)?\b`. Added graduation path on `approve-pmp` rejection. Codified Tailoring Matrix as route authority. |
 | 2026-10-25 | Accepted | Evaluated via Bayesian decision policy through `approve-adr` (`task-policy-decide`, `task-policy-adjudicate --disposition accept`, `task-episode-register`): robust utility 0.873 vs. 0.015 (reject) and 0.037 (revise), episode `736a528e-e069-4fff-96cb-45c5eb68c3a7`. Approved directly by Menno. |
+| 2026-10-25 | Amended (ADR-034 Alignment) | Added §4.2.1 defining the standard-library frontmatter grammar subset (flat keys, string lists, empty flow lists `[]`, inline comments) and non-blocking `FLAG: INVALID_METADATA` parser rejection behavior to eliminate `pyyaml` runtime dependency per ADR-034 Invariant 1. |

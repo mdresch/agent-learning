@@ -14,7 +14,8 @@ This ADR formalizes the **prevention of tool sprawl and the convergence of PMBOK
 ### Supersedes & Amends
 * **Supersedes:** ADR-009 §4.13 by permanently decommissioning `pmbok/storage/state_store.py` rather than permitting a parallel local SQLite `StateStore`.
 * **Amends:** ADR-008 §4.2, BRU-008-04, and Story 8.1 by eliminating references to `pmbok/api` and `pmbok/cli`.
-* **Amends:** ADR-013 §4.10 and §9 by absorbing `scripts/orchestrate_pmbok.py` directly into `agent-learn pmbok <draft|approve|formalize|adapt>`, resolving the open CLI flag naming question.
+* **Amends:** ADR-012 §4.2 by defining the formal standard-library-parseable frontmatter grammar subset (§4.2.1) and non-blocking `FLAG: INVALID_METADATA` parser rejection semantics.
+* **Amends:** ADR-013 §4.1, §4.2, §4.10, and §9 by absorbing `scripts/orchestrate_pmbok.py` into `agent-learn pmbok <draft|approve|formalize|adapt>`, providing both single-plan (`--plan <plan-id>`) and batch interactive (`--all --interactive`) approval modes, and settling the open CLI flag-naming and verification query questions.
 
 ---
 
@@ -88,7 +89,7 @@ flowchart TD
 ```
 
 ### 4.1 Rejection of Heavyweight Tools (Zero Tool Sprawl)
-No new runtime dependency may be added to `pyproject.toml` without an explicit ADR. We permanently bar `sqlalchemy`, `fastapi`, `typer`, `tenacity`, `pytesseract`, `pdf2image`, and `pillow` from core and optional dependencies.
+No new runtime dependency may be added to `pyproject.toml` without an explicit ADR. Relational ORMs (`sqlalchemy`), web frameworks (`fastapi`), CLI frameworks (`typer`), retry libraries (`tenacity`), and OCR tools (`pytesseract`, `pdf2image`, `pillow`) are prohibited unless authorized through a superseding ADR with explicit architectural justification.
 
 The core dependencies of `agent-learning` remain strictly limited to the lightweight baseline:
 * `numpy>=1.24` (mathematical operations, Bayesian posteriors, bandit distributions)
@@ -107,38 +108,54 @@ PMBOK lifecycle concepts map directly to standard `Episode` attributes and `meta
 | **Project Run** | `Episode` instance | `agent_id: "pmbok-orchestration"`, `task_id: "pmbok-lifecycle-run"`, `action_type: "governance"`, `action_logprob: None` |
 | **Phase / State** | `metadata["phase"]` | String identifier (`"Initiating"`, `"Planning"`, `"Executing"`, etc.) |
 | **Process State** | `metadata["processes"]` | Dict mapping `process_id` (e.g. `"5.1"`) to status (`"not_started"`, `"in_progress"`, `"completed"`, `"failed"`) |
-| **Approval Gate** | `metadata["gates"]` | Dict mapping gate task ID to decision verdict, timestamp, and episode reference |
+| **Approval Gate** | `metadata["gate_episode_ids"]` | Dict mapping plan or gate ID to `{"episode_id": str, "canonical_hash": str, "verdict": str}`. **Cross-reference only**: the authoritative records remain the individual gate Episodes under `agent_id: "agent-learning-governance"` (`approve-charter`, `approve-pmp`, `approve-subsidiary-plan`). |
 | **Active Baseline** | `metadata["baseline_hash"]` | LF-normalized canonical SHA-256 hash of active `Project-Management-Plan.md` |
-| **Tailoring Route** | `metadata["routes"]` | Full route dictionary itemized by plan ID (from ADR-011 / `agent_learning.tailoring`) |
+| **Tailoring Route** | `metadata["route_episode_ids"]` | Dict mapping plan ID to tailoring route `episode_id`. **Cross-reference only**: the authoritative records remain the route-decision Episodes under `agent_id: "agent-learning-governance"` (ADR-011). |
 | **Audit Result** | `Episode.result_summary` | Summary of verification findings and gate recommendations |
 
 #### 4.2.2 Append-Only State Transitions & Lookup Interface
 * **Append-Only Immutability:** State changes (e.g. starting a process, completing a plan, recording a gate) append a new immutable `Episode` record. The current project state is derived deterministically from the latest episode matching the target `run_id`.
 * **Learner Isolation:** All `pmbok-lifecycle-run` episodes carry `action_type: "governance"` and `action_logprob: None`. They are explicitly excluded from `ReinforceLearner` training batches and `historical_feedback` calculations, adhering to ADR-001 §4.3 and Story 1.1.
-* **Lookup Interface:** Retrieving run state uses standard store queries:
+* **Lookup Interface for Run State:** Retrieving run state uses standard store queries:
   ```python
-  store.list_episodes(agent_id="pmbok-orchestration", task_id="pmbok-lifecycle-run")
+  runs = store.list_episodes(agent_id="pmbok-orchestration", task_id="pmbok-lifecycle-run")
+  # Filter in memory by metadata["run_id"]
+  latest_run = max((ep for ep in runs if ep.metadata.get("run_id") == run_id), key=lambda ep: ep.timestamp)
   ```
-  filtered in memory by `metadata["run_id"]`, preserving ADR-002 interface simplicity.
+* **Lookup Interface for Plan Approval Verification (Resolving ADR-013 §9):** To verify whether a subsidiary plan holds an authoritative, non-stale approval before PMP formalization, the CLI queries:
+  ```python
+  approvals = store.list_episodes(agent_id="agent-learning-governance", task_id="approve-subsidiary-plan")
+  # Match target plan_id, canonical content hash, and successful action
+  matching = [
+      ep for ep in approvals
+      if ep.metadata.get("plan_id") == plan_id
+      and ep.metadata.get("canonical_content_hash") == current_canonical_hash
+      and ep.action == "approve_plan"
+  ]
+  ```
+  If no matching approval episode is found, or if an upstream dependency has changed (raising `STALE_DEPENDENCY`), formalization is blocked.
 
 #### 4.2.3 Legacy State Migration Policy
-No data migration from legacy SQLite files is required. As documented in ADR-013 §4.8, baseline `PMP-BL-v1.0.0` was an unapproved stub draft, and no production baselines were ever committed under the legacy SQLite store. Any existing SQLite databases (`data/pmbok_runtime/*.db`) are discarded. No repository-supported runtime operation may create or depend upon SQLite database files (`*.db`).
+No data migration from legacy SQLite files is required. As documented in ADR-013 §4.8 (Legacy Bootstrap Baseline Retained for Historical Traceability), baseline `PMP-BL-v1.0.0` was an unapproved stub draft, and no production baselines were ever committed under the legacy SQLite store. Any existing SQLite databases (`data/pmbok_runtime/*.db`) are discarded. No repository-supported runtime operation may create or depend upon SQLite database files (`*.db`).
 
 ### 4.3 Pure Functional PMBOK Core (`src/agent_learning/pmbok/`)
 The valuable domain logic inside `pmbok/` (the 49-process registry, process input/output mappings, and adaptation graph traversal) is refactored into a pure internal package: `src/agent_learning/pmbok/`:
 * **Inversion of Control (ADR-013 Invariant #8):** `agent_learning.pmbok` is a pure functional domain package. It **must not** import `agent_learning.store.LearningStore`. The CLI layer (`agent-learn pmbok`) serves as the composition root that reads state, calls pure functions, and writes resulting `Episode` records.
-* **Standard Library Backoff:** Replaces `tenacity` retry loops with a clean 15-line standard-library exponential backoff helper.
-* **Deterministic Frontmatter Parsing:** Python stdlib has no native YAML parser. While policy configurations use standard JSON (`stdlib json`), ADR-012 mandates YAML frontmatter on markdown plans. `agent_learning.pmbok` implements a zero-dependency, deterministic frontmatter parser supporting the exact subset defined in ADR-012 §4.2 (flat string/enum keys and simple `- "item"` string lists). No general `pyyaml` runtime dependency is introduced.
+* **Decoupled LLM Client & Standard Library Backoff:** Replaces `tenacity` retry loops with a clean standard-library exponential backoff helper (`time.sleep` with exponential backoff and jitter). LLM generation is mediated through caller-injected interfaces or pure prompt builders; the domain package itself holds zero hardcoded SDK or retry dependencies.
+* **Deterministic Frontmatter Parsing:** Python stdlib has no native YAML parser. While policy configurations use standard JSON (`stdlib json`), ADR-012 mandates YAML frontmatter on markdown plans. `agent_learning.pmbok` implements a zero-dependency, deterministic frontmatter parser supporting the exact subset defined in ADR-012 §4.2.1 (flat string/enum keys, string lists, empty flow lists `[]`, and inline comments). If a human-authored or generated plan contains unsupported YAML constructs, the parser does not crash; it emits `FLAG: INVALID_METADATA` with diagnostic line details, allowing bounded LLM auto-remediation during staging or recorded human adjudication during gate review. The canonical hashing utility `strip_volatile_frontmatter` (ADR-013 §4.3) uses this exact parser.
 * **Decommissioning `pmbok/`:** Following migration of domain logic to `src/agent_learning/pmbok/`, the top-level `pmbok/` directory is permanently deleted.
 
 ### 4.4 CLI Singularity: Absorbing the Orchestrator
 In accordance with Invariant 5, the legacy stand-alone script `scripts/orchestrate_pmbok.py` and the unused Typer CLI (`pmbok/cli/main.py`) are decommissioned. All orchestration capabilities are consolidated into the canonical `argparse` CLI:
 ```bash
 agent-learn pmbok draft --charter <path> [--plan <plan-id>]
-agent-learn pmbok approve --plan <plan-id>
+agent-learn pmbok approve [--plan <plan-id> | --all --interactive]
 agent-learn pmbok formalize --baseline-id <id>
 agent-learn pmbok adapt --adaptation-plan <path>
 ```
+* **Batch Adjudication Protocol (ADR-013 §4.2 Parity):** When `agent-learn pmbok approve --all --interactive` is invoked, the CLI displays an integrated dashboard of candidate plans, diffs, flags, and agent scores. While ergonomic review is consolidated to respect human channel capacity, **governance accountability remains strictly decoupled and per-plan**:
+  - The atomic sign-off unrolls into discrete, isolated, cryptographically hashed `Episode` records in `LearningStore` per plan under `task_id: approve-subsidiary-plan`.
+  - Batch sign-off requires a separate recorded non-empty rationale for every flagged plan in the batch, guaranteeing that batch reviews cannot bypass individual plan accountability or rationale requirements.
 This directly resolves the open flag-naming and command-dispatch question in ADR-013 §9.
 
 ### 4.5 Orchestrator Realignment with Accepted Standards
@@ -152,7 +169,7 @@ The new CLI commands execute the accepted governance framework:
 
 ## 5. Invariants
 
-* **Invariant 1 (Dependency Purity):** No new runtime dependency may be added to `pyproject.toml` without an explicit ADR. Relational ORMs (`sqlalchemy`), web frameworks (`fastapi`), CLI frameworks (`typer`), retry libraries (`tenacity`), and OCR tools (`pytesseract`, `pdf2image`, `pillow`) are permanently barred.
+* **Invariant 1 (Dependency Purity):** No new runtime dependency may be added to `pyproject.toml` without an explicit ADR. Relational ORMs (`sqlalchemy`), web frameworks (`fastapi`), CLI frameworks (`typer`), retry libraries (`tenacity`), and OCR tools (`pytesseract`, `pdf2image`, `pillow`) are prohibited unless authorized through a superseding ADR with explicit architectural justification.
 * **Invariant 2 (Strict Storage Boundary):** No repository-supported runtime operation may create or depend upon SQLite database files (`*.db`). All PMBOK lifecycle states, gate decisions, and adaptation records must be stored as `Episode` instances through `LearningStore` (ADR-002 Invariant #2).
 * **Invariant 3 (Clean Test Suite Execution):** A default test invocation (`pytest`) on a clean environment must run 100% of the active test suite without collection errors or mandatory exclusion flags. Tests requiring optional extras (e.g. `azure-cosmos`, `pyspark`) must skip gracefully via `pytest.importorskip` or environment markers, never fail during collection.
 * **Invariant 4 (Pure Functional PMBOK Core):** Modules in `agent_learning.pmbok` must rely solely on the Python standard library and `pydantic`. The domain package must never import `LearningStore` (ADR-013 Invariant #8).
@@ -212,3 +229,5 @@ Epic 12 is complete when:
 |---|---|---|
 | 2026-10-25 | Menno Drescher / Antigravity | Initial draft proposing the decommissioning of the legacy SQLite/FastAPI PMBOK monolith and converging all PMBOK state onto `LearningStore` (Cosmos DB and File Store). |
 | 2026-10-25 | Menno Drescher / Antigravity | Addressed comprehensive multi-LLM review: renumbered from ADR-028 to ADR-034 to prevent daughter plan collision; added explicit supersedes clause for ADR-009 §4.13 and ADR-008; corrected CLI composition root diagram per ADR-013 Invariant #8; aligned tailoring route episodes per ADR-011; defined stdlib frontmatter parser strategy; added canonical PMBOK-to-Episode mapping table; defined auditable completion criteria. |
+| 2026-10-25 | Menno Drescher / Antigravity | Addressed final peer review polishes: (1) amended ADR-012 §4.2 by defining the formal standard-library frontmatter grammar subset (§4.2.1) and non-blocking `FLAG: INVALID_METADATA` parser rejection behavior; (2) made gate and route episodes authoritative under `agent-learning-governance` with run episodes holding ID/hash cross-references; (3) codified explicit `LearningStore` query interfaces for run states and hash-matching gate verifications (resolving ADR-013 §9); (4) added batch approval CLI command parity `approve [--plan <plan-id> | --all --interactive]` unrolling per-plan accountability (ADR-013 §4.2); (5) decoupled LLM retries into stdlib exponential backoff helper; (6) softened Invariant 1 blacklist phrasing. |
+

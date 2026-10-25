@@ -161,7 +161,7 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - Review (Q Developer, PR #7): no blocking defects. Two minor observations adopted: the decided-route check now gives separate messages for a missing recommended route and a blank basis (test added first, observed RED), and `diverged` compares with `!=`. A third (`DEFAULT_EPSILON` missing from `__all__` in `__init__.py`) is pre-existing and out of this story's scope.
 
 ## Story 11.2 — Flags That Never Block, and Integration-Section Home
-- **Commit:** `pending`
+- **Commit:** `74c49fb`
 - **Date:** 2026-10-25
 - **Branch:** `feat/story-11.2` (based on `feat/story-11.1`, which it extends; both sit on `docs/adr-011-tailoring-route-decision`)
 - **Source ADR / BRD / FDD:** ADR-011, BRD-011, FDD-011

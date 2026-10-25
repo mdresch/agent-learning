@@ -7,7 +7,7 @@ One story, matching FDD-002's designs.
 
 ## Story 2.1 — Implement Optimistic Concurrency and Monotonicity Guard for Cosmos Active Pointer
 
-**Status:** Approved (2026-10-23, Menno) — derived from an Accepted ADR's disclosed gap; adjudicated via `approve-user-stories` (robust utility 0.883, episode `9438e5f3...`).
+**Status:** Completed (2026-10-25) — implemented in feat/story-2.1 with contract tests in tests/test_storage_cosmos.py.
 **As** an engineer running multi-replica agent workloads with `CosmosStore`, **I want** active-policy pointer updates to be protected by ETag concurrency checks and version monotonicity checks, **so that** a racing policy update cannot overwrite or regress the active pointer to an older version.
 
 **Acceptance Criteria:**

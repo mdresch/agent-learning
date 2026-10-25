@@ -12,6 +12,8 @@ import os
 from typing import Any, Dict, Iterable, List, Optional
 from urllib.parse import quote
 
+from datetime import datetime, timezone
+
 try:  # azure-cosmos is required only when the Cosmos backend is used.
     from azure.cosmos import CosmosClient, PartitionKey  # type: ignore
     from azure.cosmos import exceptions as cosmos_exceptions  # type: ignore
@@ -22,6 +24,35 @@ except ImportError:  # pragma: no cover - guarded path
     PartitionKey = None  # type: ignore
     cosmos_exceptions = None  # type: ignore
     COSMOS_SDK_AVAILABLE = False
+
+try:
+    from azure.core import MatchConditions  # type: ignore
+except ImportError:  # pragma: no cover
+    MatchConditions = None  # type: ignore
+
+if cosmos_exceptions is not None:
+    CosmosHttpResponseError = cosmos_exceptions.CosmosHttpResponseError
+    CosmosResourceNotFoundError = cosmos_exceptions.CosmosResourceNotFoundError
+    CosmosResourceExistsError = cosmos_exceptions.CosmosResourceExistsError
+    CosmosAccessConditionFailedError = cosmos_exceptions.CosmosAccessConditionFailedError
+else:
+    class CosmosHttpResponseError(Exception):  # type: ignore[no-redef]
+        def __init__(self, message: str = "", *args: Any, **kwargs: Any) -> None:
+            super().__init__(message, *args)
+            self.message = message
+
+    class CosmosResourceNotFoundError(CosmosHttpResponseError):  # type: ignore[no-redef]
+        pass
+
+    class CosmosResourceExistsError(CosmosHttpResponseError):  # type: ignore[no-redef]
+        pass
+
+    class CosmosAccessConditionFailedError(CosmosHttpResponseError):  # type: ignore[no-redef]
+        pass
+
+
+def _utcnow_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
 
 try:
     from azure.identity import DefaultAzureCredential  # type: ignore
@@ -108,7 +139,7 @@ class CosmosStore(LearningStore):
                 self._containers[key] = self._database.create_container_if_not_exists(
                     id=name, partition_key=pk
                 )
-            except cosmos_exceptions.CosmosHttpResponseError:
+            except CosmosHttpResponseError:
                 self._containers[key] = self._database.get_container_client(name)
             logger.info("CosmosStore: container %s ready", name)
 
@@ -131,7 +162,7 @@ class CosmosStore(LearningStore):
         self._ensure_ready()
         try:
             self._containers[key].upsert_item(doc)
-        except cosmos_exceptions.CosmosHttpResponseError as exc:
+        except CosmosHttpResponseError as exc:
             logger.error("Cosmos upsert failed (%s/%s): %s", key, doc.get("id"), exc.message)
             raise
 
@@ -139,9 +170,9 @@ class CosmosStore(LearningStore):
         self._ensure_ready()
         try:
             return self._containers[key].read_item(item=item_id, partition_key=agent_id)
-        except cosmos_exceptions.CosmosResourceNotFoundError:
+        except CosmosResourceNotFoundError:
             return None
-        except cosmos_exceptions.CosmosHttpResponseError as exc:
+        except CosmosHttpResponseError as exc:
             logger.error("Cosmos read failed (%s/%s): %s", key, item_id, exc.message)
             return None
 
@@ -162,7 +193,7 @@ class CosmosStore(LearningStore):
             kwargs["enable_cross_partition_query"] = cross_partition
         try:
             return list(self._containers[key].query_items(**kwargs))
-        except cosmos_exceptions.CosmosHttpResponseError as exc:
+        except CosmosHttpResponseError as exc:
             logger.error("Cosmos query failed (%s): %s", key, exc.message)
             return []
 
@@ -378,18 +409,74 @@ class CosmosStore(LearningStore):
     # Policies
     # ------------------------------------------------------------------
 
+    def _store_active_pointer(self, policy: PolicySnapshot, max_retries: int = 3) -> None:
+        self._ensure_ready()
+        container = self._containers["policies"]
+        pointer_id = f"active:{quote(policy.task_id, safe='')}"
+
+        for attempt in range(max_retries + 1):
+            try:
+                existing = self._read("policies", pointer_id, policy.agent_id)
+                if existing is None:
+                    pointer_doc = {
+                        "id": pointer_id,
+                        "agent_id": policy.agent_id,
+                        "task_id": policy.task_id,
+                        "policy_id": policy.id,
+                        "policy_version": policy.version,
+                        "record_type": "active_policy",
+                        "updated_at": _utcnow_iso(),
+                    }
+                    container.create_item(pointer_doc)
+                    return
+
+                existing_version = existing.get("policy_version")
+                if existing_version is None and existing.get("policy_id"):
+                    existing_policy = self.get_policy(str(existing["policy_id"]), policy.agent_id)
+                    if existing_policy is not None:
+                        existing_version = existing_policy.version
+
+                if existing_version is not None and existing_version > policy.version:
+                    logger.warning(
+                        "Active pointer for %s/%s already at higher version (%s > %s); skipping update",
+                        policy.agent_id,
+                        policy.task_id,
+                        existing_version,
+                        policy.version,
+                    )
+                    return
+
+                if existing.get("policy_id") == policy.id and existing.get("policy_version") == policy.version:
+                    return
+
+                pointer_doc = {
+                    **existing,
+                    "policy_id": policy.id,
+                    "policy_version": policy.version,
+                    "updated_at": _utcnow_iso(),
+                }
+                etag = existing.get("_etag")
+                replace_kwargs: Dict[str, Any] = {}
+                if etag is not None:
+                    replace_kwargs["etag"] = etag
+                    if MatchConditions is not None:
+                        replace_kwargs["match_condition"] = MatchConditions.IfNotModified
+                container.replace_item(
+                    item=pointer_id,
+                    body=pointer_doc,
+                    **replace_kwargs,
+                )
+                return
+            except CosmosResourceExistsError:
+                if attempt == max_retries:
+                    raise
+            except CosmosAccessConditionFailedError:
+                if attempt == max_retries:
+                    raise
+
     def store_policy(self, policy: PolicySnapshot) -> str:
         self._upsert("policies", policy.to_dict())
-        self._upsert(
-            "policies",
-            {
-                "id": f"active:{quote(policy.task_id, safe='')}",
-                "agent_id": policy.agent_id,
-                "task_id": policy.task_id,
-                "policy_id": policy.id,
-                "record_type": "active_policy",
-            },
-        )
+        self._store_active_pointer(policy)
         return policy.id
 
     def get_policy(self, policy_id: str, agent_id: str) -> Optional[PolicySnapshot]:

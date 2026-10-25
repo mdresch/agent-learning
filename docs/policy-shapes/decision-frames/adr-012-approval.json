@@ -5,7 +5,7 @@
       "id": "architectural_soundness",
       "weight": 1.0,
       "minimum_sources": 1,
-      "description": "Universal three-section content contract (Intent, Mechanics, Governance & Decision Rights); strict frontmatter schema with generator, owner_role, depends_on, and route-sensitive governance_policy; eliminates circular in-file hash dependency by persisting canonical hash in Episode.metadata; deterministic word-count scope below frontmatter using alphanumeric tokenization; authentic PMBOK 8 7-domain taxonomy (Governance, Scope, Schedule, Finance, Stakeholders, Resources, Risk) under Planning Focus Area with primary/secondary mappings; floors as flags carried forward to approve-pmp rather than unrecorded approval at staging; bounded auto-remediation (max 2 retries, immediate stub escalation, protection of human work); transitive staleness propagation per ADR-013 §4.5; decoupled daughter ADR hierarchy starting at ADR-025."
+      "description": "Universal three-section content contract (Intent, Mechanics, Governance & Decision Rights); strict frontmatter schema with generator, owner_role, depends_on, and route-sensitive governance_policy; eliminates circular in-file hash dependency by persisting canonical hash in Episode.metadata; deterministic word-count scope below frontmatter using Unicode alphanumeric tokenization with contractions; authentic PMBOK 8 7-domain taxonomy (Governance, Scope, Schedule, Finance, Stakeholders, Resources, Risk) under Planning Focus Area with primary/secondary mappings from closed enum; strict 3-tier precedence hierarchy (Tier A Hard Blocks > Tier B Structural Flags > Tier C Content Flags); floors and caps as flags carried forward to approve-pmp or recorded as route episodes rather than unrecorded approval at staging; bounded auto-remediation (max 2 retries, immediate stub escalation, protection of human work); transitive staleness propagation per ADR-013 §4.5; decoupled daughter ADR hierarchy starting at ADR-025."
     },
     {
       "id": "alternatives_considered",
@@ -30,10 +30,10 @@
     {
       "action_id": "approve_adr",
       "evidence": [
-        {"criterion_id": "architectural_soundness", "source": "direct_doc_read:docs/adr/ADR-012-subsidiary-management-plan-standards-and-content-contracts.md; multi-round LLM peer review reconciliation; cross-checked against ADR-001, ADR-002, ADR-005, ADR-008, ADR-011, ADR-013", "support": 0.95, "confidence": 0.94},
-        {"criterion_id": "alternatives_considered", "source": "adr_012_section_6_four_alternatives", "support": 0.92, "confidence": 0.90},
-        {"criterion_id": "consequences_honest", "source": "adr_012_section_7_consequences", "support": 0.90, "confidence": 0.88},
-        {"criterion_id": "gap_disclosure_quality", "source": "adr_012_section_8_open_questions", "support": 0.91, "confidence": 0.89}
+        {"criterion_id": "architectural_soundness", "source": "direct_doc_read:docs/adr/ADR-012-subsidiary-management-plan-standards-and-content-contracts.md; multi-round LLM peer review reconciliation including precedence hierarchy and authentic PMBOK 8 7-domain enum; cross-checked against ADR-001, ADR-002, ADR-005, ADR-008, ADR-011, ADR-013", "support": 0.96, "confidence": 0.95},
+        {"criterion_id": "alternatives_considered", "source": "adr_012_section_6_four_alternatives", "support": 0.93, "confidence": 0.92},
+        {"criterion_id": "consequences_honest", "source": "adr_012_section_7_consequences", "support": 0.91, "confidence": 0.90},
+        {"criterion_id": "gap_disclosure_quality", "source": "adr_012_section_8_open_questions", "support": 0.92, "confidence": 0.90}
       ],
       "constraint_results": {"no_unfixed_critical_flaw": true}
     },
@@ -41,19 +41,19 @@
       "action_id": "reject_adr",
       "evidence": [
         {"criterion_id": "architectural_soundness", "source": "direct_doc_read:docs/adr/ADR-012-subsidiary-management-plan-standards-and-content-contracts.md", "support": 0.02, "confidence": 0.90},
-        {"criterion_id": "alternatives_considered", "source": "adr_012_section_6_four_alternatives", "support": 0.03, "confidence": 0.86},
-        {"criterion_id": "consequences_honest", "source": "adr_012_section_7_consequences", "support": 0.03, "confidence": 0.86},
-        {"criterion_id": "gap_disclosure_quality", "source": "adr_012_section_8_open_questions", "support": 0.03, "confidence": 0.86}
+        {"criterion_id": "alternatives_considered", "source": "adr_012_section_6_four_alternatives", "support": 0.02, "confidence": 0.88},
+        {"criterion_id": "consequences_honest", "source": "adr_012_section_7_consequences", "support": 0.03, "confidence": 0.88},
+        {"criterion_id": "gap_disclosure_quality", "source": "adr_012_section_8_open_questions", "support": 0.03, "confidence": 0.88}
       ],
       "constraint_results": {"no_unfixed_critical_flaw": true}
     },
     {
       "action_id": "request_revision_before_decision",
       "evidence": [
-        {"criterion_id": "architectural_soundness", "source": "direct_doc_read:docs/adr/ADR-012-subsidiary-management-plan-standards-and-content-contracts.md", "support": 0.06, "confidence": 0.85},
-        {"criterion_id": "alternatives_considered", "source": "adr_012_section_6_four_alternatives", "support": 0.06, "confidence": 0.84},
-        {"criterion_id": "consequences_honest", "source": "adr_012_section_7_consequences", "support": 0.07, "confidence": 0.82},
-        {"criterion_id": "gap_disclosure_quality", "source": "adr_012_section_8_open_questions", "support": 0.06, "confidence": 0.82}
+        {"criterion_id": "architectural_soundness", "source": "direct_doc_read:docs/adr/ADR-012-subsidiary-management-plan-standards-and-content-contracts.md", "support": 0.04, "confidence": 0.86},
+        {"criterion_id": "alternatives_considered", "source": "adr_012_section_6_four_alternatives", "support": 0.05, "confidence": 0.85},
+        {"criterion_id": "consequences_honest", "source": "adr_012_section_7_consequences", "support": 0.06, "confidence": 0.84},
+        {"criterion_id": "gap_disclosure_quality", "source": "adr_012_section_8_open_questions", "support": 0.05, "confidence": 0.84}
       ],
       "constraint_results": {"no_unfixed_critical_flaw": true}
     }

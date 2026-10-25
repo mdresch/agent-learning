@@ -20,7 +20,7 @@ This ADR formalizes the **Scope Management Plan Standard and Baseline Contract**
 ## 3. Context & Problem Statement
 * **Root Node of the Planning DAG:** Per ADR-013 §4.1 and §4.5, planning dependencies form a directed acyclic graph where Schedule and Cost are causally downstream from Scope. If the Scope baseline is vague or unanchored, all downstream baselines (durations, milestones, budgets) become invalid.
 * **The Silent Creep Failure Mode:** Without explicit **Out-of-Scope** declarations, generative agents and development teams progressively expand feature sets without formal governance or resource allocation.
-* **ADR-011 Mandate for Baseline Plans:** ADR-011 §3.2 and §4.3 mandate that cost, scope, and schedule plans cannot be casually omitted; setting `not_applicable` on Scope is a strongly flagged deviation (`FLAG: OMISSION_OF_BASE_PLAN`) requiring an explicit recorded justification.
+* **ADR-011 Mandate for Baseline Plans:** ADR-011 §3.2 and Invariant #2 mandate that cost, scope, and schedule plans cannot be casually omitted; setting `not_applicable` on Scope is a strongly flagged deviation (`FLAG: OMISSION_OF_BASE_PLAN`) requiring an explicit recorded justification and sponsor confirmation.
 
 ---
 
@@ -39,7 +39,7 @@ primary_pmbok_domain: "Scope"
 secondary_pmbok_domains:
   - "Governance"
 legacy_process: "5.1 Plan Scope Management"
-route: "full_plan" # full_plan | pmp_section | not_applicable
+route: "full_plan" # full_plan | pmp_section | not_applicable (validated against tailoring matrix)
 generator: "llm"   # llm | human | stub | mock (ADR-013 §4.2 audit field)
 version: "1.0.0"
 baseline_id: "<target-baseline-id>"
@@ -90,7 +90,7 @@ governance_policy: "approve-subsidiary-plan" # "approve-subsidiary-plan" (if ful
 
 ### 4.3 Floor and Cap Thresholds for Scope
 
-Word count is measured on the Markdown body below `---`, tokenizing alphanumeric words (`\b[a-zA-Z0-9_-]+\b`) and excluding frontmatter and code blocks.
+Word count is measured on the Markdown body below `---`, tokenizing Unicode alphanumeric words with contractions (`\b[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)?\b`) and excluding frontmatter and code blocks.
 
 | Metric | Embedded `pmp_section` | Standalone `full_plan` | Flag Type | Trigger Condition |
 |---|---|---|---|---|
@@ -105,10 +105,11 @@ Word count is measured on the Markdown body below `---`, tokenizing alphanumeric
 ## 5. Architectural Invariants
 1. **Scope Precedes Schedule and Cost:** Scope drafting and approval must precede Schedule and Cost baseline finalization in the causal DAG.
 2. **Mandatory Out-of-Scope Declaration:** No Scope Management Plan may be approved without an explicit out-of-scope section (or recorded "None: rationale").
-3. **No Silent Omission:** Setting route to `not_applicable` triggers `FLAG: OMISSION_OF_BASE_PLAN` requiring explicit sponsor approval and rationale (ADR-011 §3.2).
+3. **No Silent Omission:** Setting route to `not_applicable` triggers `FLAG: OMISSION_OF_BASE_PLAN` requiring explicit sponsor approval and rationale (ADR-011 §3.2 and Invariant #2).
 4. **Remedial Breakouts:** If a staged `pmp_section` suffers structural failure or is rejected during PMP formalization (`approve-pmp`), the orchestrator triggers a remedial foundation breakout within `.staging/pmp-sections/Scope-Management-Plan.md`. Downstream plans become `STALE_DEPENDENCY` per ADR-013 §4.5.
 5. **Graduation:** If a `pmp_section` exceeds 750 words, the linter emits `FLAG: EXCEEDS_SECTION_CAP`, prompting the team to graduate the plan to `docs/project-docs/management-plans/Scope-Management-Plan.md`.
 6. **Integrity Blocks:** Frontmatter containing `generator: stub` or bodies containing unresolved `[TODO]` tokens are technical integrity violations that mechanically block `approve_plan` (ADR-013 §4.2).
+7. **Precedence Hierarchy:** Follows ADR-012 §4.3.4: Tier A (Hard Blocks, ADR-013 §4.2) > Tier B (Structural Flags, ADR-012) > Tier C (Content Flags, ADR-011).
 
 ---
 
@@ -143,3 +144,4 @@ Word count is measured on the Markdown body below `---`, tokenizing alphanumeric
 |---|---|---|
 | 2026-10-25 | Proposed | Initial drafting of ADR-025 Scope Management Plan Standard and Baseline Contract under the ADR-012 framework. |
 | 2026-10-25 | Amended for ADR-012 Alignment | Aligned frontmatter schema with ADR-012 (removed in-file hash, added `owner_role`, `generator`, `depends_on: []`, authentic PMBOK 8 `Scope` domain under `Planning` focus area), updated Section 3 to Decision Rights, and corrected staleness references to ADR-013 §4.5. |
+| 2026-10-25 | Polish & Errata (Round 3 Review) | Aligned Tier 1 omission citation with ADR-011 §3.2 and Invariant #2, upgraded word tokenizer to Unicode alphanumeric regex with contractions, added Invariant 7 for 3-tier precedence hierarchy. |

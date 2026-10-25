@@ -34,29 +34,37 @@ Every Scope Management Plan artifact (`docs/project-docs/management-plans/Scope-
 plan_id: "scope-management"
 plan_name: "Scope Management Plan"
 pmbok_edition: "PMBOK 8"
-pmbok_domain: "Planning"
+primary_pmbok_domain: "Planning"
+secondary_pmbok_domains:
+  - "Governance"
+  - "Delivery"
 legacy_process: "5.1 Plan Scope Management"
 route: "full_plan" # full_plan | pmp_section | not_applicable
+generator: "llm"   # llm | human | stub (ADR-013 §4.2 audit field)
 version: "1.0.0"
 baseline_id: "PMP-BL-v1.0.0"
-author_role: "Project Manager"
-canonical_content_hash: "<sha256>"
+owner_role: "Project Manager"
+depends_on:
+  - "charter"
 inputs:
   - "Project-Charter.md"
   - "docs/project-docs/Ideation-Document.md"
   - "docs/project-docs/Business-Case.md"
 outputs:
   - "docs/project-docs/management-plans/Scope-Management-Plan.md"
-governance_policy: "approve-subsidiary-plan"
+governance_policy: "approve-subsidiary-plan" # "approve-subsidiary-plan" (if full_plan) | "approve-pmp" (if pmp_section)
 ---
 ```
+
+> [!NOTE]
+> Canonical content hashing follows ADR-012 §4.2 and ADR-013 §4.3: the hash is computed dynamically over disk content and stored in `Episode.metadata`, avoiding self-referential in-file hash corruption.
 
 ### 4.2 Required Structural Sections & Domain Mechanics
 
 #### Section 1: Intent, Alignment & Scope Boundaries
-* **Charter Traceability:** Explicit mapping of project scope to the strategic objectives, high-level requirements, and success metrics declared in [Project-Charter.md](file:///c:/Users/MennoDrescher/source/repos/agent-learning/docs/project-docs/Project-Charter.md).
+* **Charter Traceability:** Explicit mapping of project scope to the strategic objectives, high-level requirements, and success metrics declared in [Project-Charter.md](../project-docs/Project-Charter.md).
 * **In-Scope Boundary Definition:** Exhaustive itemization of major features, architectural deliverables, code modules, and test suites authorized for development.
-* **Mandatory Out-of-Scope Boundary List:** Explicit list of features, platforms, integrations, or capabilities that are **strictly excluded** from the current lifecycle stage or project phase. A plan omitting an out-of-scope list violates ADR-011 Invariant #2 and triggers a linter flag.
+* **Mandatory Out-of-Scope Boundary List:** Explicit list of features, platforms, integrations, or capabilities that are **strictly excluded** from the current lifecycle stage or project phase. If no exclusions exist, the plan must state *"None: [rationale]"*.
 
 #### Section 2: Scope Domain Mechanics & Decomposition
 * **Work Breakdown Structure (WBS) Architecture:**
@@ -69,8 +77,11 @@ governance_policy: "approve-subsidiary-plan"
 * **Requirements Traceability Matrix (RTM) Integration:** Traces high-level business goals (BRD) to functional specifications (FDD) and code verification units (Pytest suites).
 * **Deliverable Acceptance & Verification Protocol:** Formal Definition of Done (DoD) required before a deliverable moves to Stage 10 (Verification Evidence).
 
-#### Section 3: Scope Governance, Control & Escalation
-* **Accountability:** Project Manager is accountable for scope baseline compliance; Sponsor / Charter Approver is the escalation target for baseline expansions.
+#### Section 3: Governance, Control & Decision Rights
+* **Accountability & Decision Rights:**
+  * Project Manager is accountable for scope baseline compliance.
+  * Baseline revisions and expansions require Sponsor / Charter Approver authorization via Stage 17 Integrated Change Control (`approve-adaptation-plan`).
+  * Deliverable acceptance authority resides with the Product Owner / PM named in the Stakeholder Register.
 * **Variance Tolerances & Escalation:**
   * Unplanned additions $\le 1$ story point / minor refactoring: PM discretion.
   * Structural boundary changes or new feature epics: Triggers Stage 17 Integrated Change Control (`approve-adaptation-plan`) and updates the Project Charter.
@@ -80,23 +91,25 @@ governance_policy: "approve-subsidiary-plan"
 
 ### 4.3 Floor and Cap Thresholds for Scope
 
+Word count is measured on the Markdown body below `---`, excluding frontmatter and code blocks.
+
 | Metric | Embedded `pmp_section` | Standalone `full_plan` | Flag Type | Trigger Condition |
 |---|---|---|---|---|
-| **Word Count Floor** | 180 words | 700 words | `BELOW_STANDARD_FLOOR` | Content < floor |
-| **Word Count Cap** | 750 words | 4,500 words | `EXCEEDS_SECTION_CAP` | Content > cap |
-| **Out-of-Scope Items** | $\ge 2$ distinct items | $\ge 4$ distinct items | `MISSING_OUT_OF_SCOPE` | Items < minimum |
-| **WBS Decomposition** | Hierarchy defined | Full dictionary rules | `INCOMPLETE_WBS_RULES` | Missing WBS rules |
-| **Acceptance Criteria** | DoD summary | Comprehensive DoD gates | `MISSING_ACCEPTANCE_DOD` | Missing DoD |
+| **Word Count Floor** | 180 words | 700 words | `FLAG: BELOW_STANDARD_FLOOR` | Content < floor |
+| **Word Count Cap** | 750 words | 4,500 words | `FLAG: EXCEEDS_SECTION_CAP` | Content > cap |
+| **Out-of-Scope Items** | $\ge 2$ distinct items | $\ge 4$ distinct items | `FLAG: MISSING_BOUNDARY_DEF` | Items < minimum |
+| **WBS Decomposition** | Hierarchy defined | Full dictionary rules | `FLAG: MISSING_REQUIRED_SECTION` | Missing WBS rules |
+| **Acceptance Criteria** | DoD summary | Comprehensive DoD gates | `FLAG: MISSING_REQUIRED_SECTION` | Missing DoD |
 
 ---
 
 ## 5. Architectural Invariants
 1. **Scope Precedes Schedule and Cost:** Scope drafting and approval must precede Schedule and Cost baseline finalization in the causal DAG.
-2. **Mandatory Out-of-Scope Declaration:** No Scope Management Plan may be approved without an explicit, non-empty out-of-scope section.
+2. **Mandatory Out-of-Scope Declaration:** No Scope Management Plan may be approved without an explicit out-of-scope section (or recorded "None: rationale").
 3. **No Silent Omission:** Setting route to `not_applicable` triggers `FLAG: OMISSION_OF_BASE_PLAN` requiring explicit sponsor approval and rationale.
-4. **Remedial Breakouts:** If a staged `pmp_section` lacks boundary definitions or falls below 180 words, the orchestrator triggers a remedial foundation breakout within `.staging/pmp-sections/Scope-Management-Plan.md`.
+4. **Remedial Breakouts:** If a staged `pmp_section` suffers structural failure or is rejected by human review, the orchestrator triggers a remedial foundation breakout within `.staging/pmp-sections/Scope-Management-Plan.md`. Downstream plans become `STALE_DEPENDENCY` per ADR-013 §4.8.
 5. **Graduation:** If a `pmp_section` exceeds 750 words, the linter emits `FLAG: EXCEEDS_SECTION_CAP`, prompting the team to graduate the plan to `docs/project-docs/management-plans/Scope-Management-Plan.md`.
-6. **Integrity Blocks:** Frontmatter containing `generator: stub` or bodies containing unresolved `[TODO]` tokens are technical integrity violations that mechanically block `approve_plan` (ADR-013 Invariant #1).
+6. **Integrity Blocks:** Frontmatter containing `generator: stub` or bodies containing unresolved `[TODO]` tokens are technical integrity violations that mechanically block `approve_plan` (ADR-013 §4.2).
 
 ---
 
@@ -130,3 +143,4 @@ governance_policy: "approve-subsidiary-plan"
 | Date | Change | Why |
 |---|---|---|
 | 2026-10-25 | Proposed | Initial drafting of ADR-025 Scope Management Plan Standard and Baseline Contract under the ADR-012 framework. |
+| 2026-10-25 | Amended for ADR-012 Alignment | Aligned frontmatter schema with ADR-012 (removed in-file hash, added `owner_role`, `generator`, `depends_on`, primary/secondary PMBOK 8 domains), updated Section 3 to Decision Rights, and added staleness propagation. |

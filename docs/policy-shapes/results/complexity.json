@@ -1,0 +1,9 @@
+{
+   "intent_ambiguity": "medium",
+   "context_variability": "variable",
+   "outcome_observability": "direct",
+   "decision_impact": "medium",
+   "reversibility": "costly",
+   "requires_human_approval": false,
+   "rationale": "Repository search is bounded and directly observable."
+}

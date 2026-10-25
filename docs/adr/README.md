@@ -148,7 +148,7 @@ python -m agent_learning.cli task-policy-decide \
 python -m agent_learning.cli task-policy-adjudicate \
   --agent-id agent-learning-governance \
   --task-id approve-adr \
-  --decision-result adr-009-decision-result.json \
+  --decision-result docs/policy-shapes/results/adr-009-decision-result.json \
   --disposition accept
 
 # 3. Register: persist immutable episode into LearningStore
@@ -156,7 +156,7 @@ python -m agent_learning.cli task-episode-register \
   --agent-id agent-learning-governance \
   --task-id approve-adr \
   --require-decision-policy \
-  --episode adr-009-reg.json
+  --episode docs/policy-shapes/results/adr-009-reg.json
 ```
 
 Every accepted ADR, BRD, FDD, and User Story in this repository possesses a complete cryptographic and Bayesian adjudication record in `docs/policy-shapes/episodes/`.
@@ -261,7 +261,7 @@ python -m agent_learning.cli task-policy-decide \
 python -m agent_learning.cli task-policy-adjudicate \
   --agent-id agent-learning-governance \
   --task-id approve-adr \
-  --decision-result adr-009-decision-result.json \
+  --decision-result docs/policy-shapes/results/adr-009-decision-result.json \
   --disposition accept
 
 # 3. Register: persist immutable episode into LearningStore
@@ -269,7 +269,7 @@ python -m agent_learning.cli task-episode-register \
   --agent-id agent-learning-governance \
   --task-id approve-adr \
   --require-decision-policy \
-  --episode adr-009-reg.json
+  --episode docs/policy-shapes/results/adr-009-reg.json
 ```
 
 Every accepted ADR, BRD, FDD, and User Story in this repository possesses a complete cryptographic and Bayesian adjudication record in `docs/policy-shapes/episodes/`.

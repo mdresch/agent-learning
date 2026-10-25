@@ -1,0 +1,12 @@
+[
+   {
+      "id": "use_text_search",
+      "description": "Search for exact symbols and terms",
+      "parameters": {"strategy": "text"}
+   },
+   {
+      "id": "use_semantic_search",
+      "description": "Search the repository by meaning",
+      "parameters": {"strategy": "semantic"}
+   }
+]

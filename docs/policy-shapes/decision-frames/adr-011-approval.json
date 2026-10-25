@@ -1,0 +1,65 @@
+{
+  "task": "ADR-011 (Project Tailoring and Route Decision, short form): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "architectural_soundness",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "A route per management plan decided by a human with the system recommending; floors and caps as flags with recommendation and decision both recorded; Charter-set limits with the integration section in the Charter or PMP; Stage 17 and Stage 18 change paths; remedial breakouts. Consistent with ADR-001, ADR-002, ADR-003, ADR-008 and ADR-009. Known weaknesses: five decisions in one ADR, Decision 3 bundles several concepts, approve-pmp is not built, PMBOK 8 mapping rests on excerpts."
+    },
+    {
+      "id": "alternatives_considered",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Four alternatives named and rejected with reasons (full suite always, agent-inferred route, system-enforced blocks, ad hoc tailoring with no record); terse, and the hard-rule question for cost, scope and schedule is left open rather than argued."
+    },
+    {
+      "id": "consequences_honest",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Consequences name reliance on the team acting on flags, the bundling in Decision 3 and the need for later ADRs; honest but light, with little on cost of the added Charter and integration-section ceremony."
+    },
+    {
+      "id": "gap_disclosure_quality",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Unbuilt approve-pmp, the unresolved depths, hard-rule question, per-element question and Stage 17 approval route are stated; most detail is deferred to working notes rather than in the ADR, and the PMBOK 6th-versus-8th numbering mismatch is only in the notes."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_adr",
+      "evidence": [
+        {"criterion_id": "architectural_soundness", "source": "direct_doc_read:docs/adr/ADR-011-project-tailoring-and-route-decision.md; cross-checked against ADR-001, ADR-002, ADR-003, ADR-008, ADR-009", "support": 0.84, "confidence": 0.82},
+        {"criterion_id": "alternatives_considered", "source": "adr_011_section_5_four_alternatives", "support": 0.80, "confidence": 0.85},
+        {"criterion_id": "consequences_honest", "source": "adr_011_section_6_three_bullets", "support": 0.76, "confidence": 0.80},
+        {"criterion_id": "gap_disclosure_quality", "source": "adr_011_section_7_and_working_notes", "support": 0.74, "confidence": 0.78}
+      ],
+      "constraint_results": {"no_unfixed_critical_flaw": true}
+    },
+    {
+      "action_id": "reject_adr",
+      "evidence": [
+        {"criterion_id": "architectural_soundness", "source": "direct_doc_read:docs/adr/ADR-011-project-tailoring-and-route-decision.md", "support": 0.05, "confidence": 0.80},
+        {"criterion_id": "alternatives_considered", "source": "adr_011_section_5_four_alternatives", "support": 0.06, "confidence": 0.78},
+        {"criterion_id": "consequences_honest", "source": "adr_011_section_6_three_bullets", "support": 0.07, "confidence": 0.78},
+        {"criterion_id": "gap_disclosure_quality", "source": "adr_011_section_7_and_working_notes", "support": 0.08, "confidence": 0.78}
+      ],
+      "constraint_results": {"no_unfixed_critical_flaw": true}
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {"criterion_id": "architectural_soundness", "source": "direct_doc_read:docs/adr/ADR-011-project-tailoring-and-route-decision.md", "support": 0.18, "confidence": 0.75},
+        {"criterion_id": "alternatives_considered", "source": "adr_011_section_5_four_alternatives", "support": 0.15, "confidence": 0.75},
+        {"criterion_id": "consequences_honest", "source": "adr_011_section_6_three_bullets", "support": 0.22, "confidence": 0.72},
+        {"criterion_id": "gap_disclosure_quality", "source": "adr_011_section_7_and_working_notes", "support": 0.26, "confidence": 0.72}
+      ],
+      "constraint_results": {"no_unfixed_critical_flaw": true}
+    }
+  ],
+  "constraints": ["no_unfixed_critical_flaw"],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.10,
+  "max_uncertainty": 1.0
+}

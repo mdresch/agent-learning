@@ -1,8 +1,9 @@
 # Lessons Learned Register (Organizational Process Assets)
 
 **Governing ADR:** [ADR-010](../adr/ADR-010-lessons-learned-crystallization-and-register.md) — Accepted (2026-10-25)  
-**Lifecycle Role:** Stage 15 Breakout & Recap Session (Post-Delivery Retrospective Notebook per ADR-008, ADR-009, ADR-010).  
-**Maintenance Rule:** Append-only register. Crystallized entries represent verified institutional knowledge captured during post-delivery breakout pauses.
+**Lifecycle Role:** Light post-coding breakout recap per ADR-010: held once per epic, after its last user story, on how the code was created from the stories. Not the formal Stage 15 review, which is separate.  
+**Maintenance Rule:** Append-only register. Crystallized entries represent verified institutional knowledge captured at the epic-end recap. A recap with nothing new is recorded as a short sign-off entry (Epic/Phase containing `no-new-lessons`).  
+**Cadence note:** `LL-001` through `LL-006` were recorded per story, before ADR-010 was clarified to a per-epic cadence (2026-10-25). New entries follow the epic-end cadence.
 
 ---
 

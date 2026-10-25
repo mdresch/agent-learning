@@ -1,6 +1,6 @@
 ---
 name: governance
-description: Automated governance change pipeline (Stage 16) and Stage 15 Breakout & Recap Session (Lessons Learned Register) for agent_learning.
+description: Automated governance change pipeline (Stage 16) and the ADR-010 Breakout & Recap Session (Lessons Learned Register) for agent_learning.
 ---
 
 # Component: governance (`agent_learning.governance` & `agent_learning.lessons_learned`)
@@ -25,19 +25,20 @@ description: Automated governance change pipeline (Stage 16) and Stage 15 Breako
 - Stage 16 scope boundary: pipeline terminates with a validated governance baseline; Stage 17 Execution Adaptation is strictly out of scope.
 - Zero storage expansion: no new Cosmos containers or LearningStore record types (ADR-002 Invariant #2).
 
-## 2. Stage 15 Breakout & Recap Session (`agent_learning.lessons_learned`)
+## 2. Breakout & Recap Session (`agent_learning.lessons_learned`)
 
-- **Role & Philosophy:** Not a heavy bureaucratic stage, but a lightweight retrospective pause (breakout session) to recap traps, root causes, and actionable invariants before moving to the next epic.
+- **Role & Philosophy:** Not a new stage and not a heavy ceremony: a light recap held once per epic, after its last user story is implemented and reviewed (ADR-010 §4.1), on how the code was created from the stories (traps, defects, review findings). Adds no approval gate or `TaskPolicy`. It is distinct from the formal Stage 15 review, which is separate work and not defined here.
 - **Canonical Register:** `docs/project-docs/Lessons-Learned-Register.md` (append-only, human-readable).
-- **Schema (§4.2):**
-  - `Identifier`: `LL-###`
-  - `Date & Phase`: Date and associated Epic / Story
-  - `Title`: Short descriptive summary
+- **Schema (§4.3), enforced by the parser:**
+  - `Identifier`: `LL-###`, and `Title` in the entry heading
   - `The Trap / Problem`: Real-world defect or hazard observed
   - `The Root Cause`: Underlying technical/procedural mechanism
-  - `Actionable Invariant / Rule`: Code-level rule or snippet preventing recurrence
-  - `Scope & Traceability`: Classification and **Tier 2/3 Propagation Target**
-- **3-Tier Propagation:**
+  - `Actionable Invariant / Rule`: Rule or snippet preventing recurrence
+  - `Tier 2/3 Propagation Target`: required to be present; may read `Tier 1 only`
+  - Recommended `Epic / Story` (the Phase Close filter matches on it); optional `Date`, `Scope`.
+- **No-new-lessons sign-off:** a short `LL-###` entry whose Epic/Phase contains `no-new-lessons` (ADR-010 §4.2).
+- **Autonomous Breakout Facilitator (permitted, not built):** an agent may draft findings, register entries and propagation proposals, but a human accepts entries and every cross-repo action needs explicit human approval (ADR-010 §4.7).
+- **3-Tier Propagation (Tier 1 always; Tier 2/3 considered, not mandatory):**
   - Tier 1: Project register (historical audit & Phase Close prerequisite).
   - Tier 2: In-repo component skill (`.claude/skills/<component>/SKILL.md`) for active agent enforcement.
   - Tier 3: Universal cross-project rules (`sidpa-template`, `RULE[user_global]`).

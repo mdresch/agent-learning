@@ -67,6 +67,8 @@ The parser processes sections headed by `### LL-### — <Title>`:
    - `id` must match `^LL-\d{3,}$`.
    - `title`, `trap`, `root_cause`, `invariant`, and `tier_targets` must be non-empty strings.
    - Any entry failing required fields raises `ValueError` with clear field-level diagnostic messages.
+   - The propagation target must be non-empty but may read `Tier 1 only` or `Tier 1 register sign-off` (ADR-010 §4.3). `date`, `phase` and `scope` are not validated; `phase` is recommended because the Phase Close epic filter matches on it, and `scope` defaults to `Universal Cross-Project`.
+   - A no-new-lessons sign-off is a short `LL-###` entry whose `phase` contains `no-new-lessons`, with brief text in the required fields (ADR-010 §4.2). It is parsed like any other entry.
 
 ### 3.2 Filtering & Phase Close Integration
 `filter_crystallized_lessons(entries: Sequence[LessonsLearnedEntry], epic_filter: Optional[str] = None) -> List[Dict[str, Any]]`:

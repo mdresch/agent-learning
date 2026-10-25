@@ -15,24 +15,25 @@ Without a canonical, machine-verifiable Organizational Process Asset (OPA), thes
 2. Leave Stage 15 (Lessons Learned) of the 18-stage Intent-to-Outcome chain unfulfilled.
 3. Block PMBOK 4.7 Phase Close validation (`pmbok/models/intent_refinement.py:evaluate_phase_close_readiness()`), which requires verified crystallized lessons learned prior to entering Stage 18 Intent Refinement.
 
-This Business Requirements Document establishes the operational requirements for the **Stage 15 Breakout & Recap Session**. Rather than inventing a heavy new lifecycle stage, it formalizes the post-story retrospective pause—giving the team a chance to step back, recap the traps and review findings, and record concrete, actionable invariants in a shared register.
+This Business Requirements Document establishes the operational requirements for the **Stage 15 Breakout & Recap Session**. It adds no new stage. It formalizes a light recap held once per epic, after the epic's last user story is implemented and reviewed, on how the code was created from the stories: unexpected traps, subtle defects and review findings (ADR-010 §4.1). Concrete, actionable invariants are recorded in a shared register. This recap is distinct from the formal Stage 15 review, which is separate work and not covered by this BRD.
 
 ---
 
 ## 2. Business Rules (BRU)
 
-- **BRU-010-01 (Canonical Markdown Register):** The system must maintain a single, append-only, human-readable markdown register at `docs/project-docs/Lessons-Learned-Register.md` (ADR-010 §4.1).
-- **BRU-010-02 (Standardized Schema Enforcement):** Every crystallized lesson entry must strictly conform to the 8-field schema defined in ADR-010 §4.2:
+- **BRU-010-01 (Canonical Markdown Register):** The system must maintain a single, append-only, human-readable markdown register at `docs/project-docs/Lessons-Learned-Register.md` (ADR-010 §4.2).
+- **BRU-010-02 (Standardized Schema Enforcement):** Every crystallized lesson entry must conform to the schema defined in ADR-010 §4.3. Required (enforced by the parser):
   1. `Identifier` (`LL-###`)
-  2. `Date`
-  3. `Epic / Phase`
-  4. `Title`
-  5. `The Trap / Problem`
-  6. `The Root Cause`
-  7. `Actionable Invariant / Rule`
-  8. `Scope & Traceability` (including explicit `Tier 2/3 Propagation Target`).
+  2. `Title`
+  3. `The Trap / Problem`
+  4. `The Root Cause`
+  5. `Actionable Invariant / Rule`
+  6. `Tier 2/3 Propagation Target` (must be present; may read `Tier 1 only` or `Tier 1 register sign-off`).
+
+  Recommended: `Epic / Phase` (required in practice for the Phase Close epic filter). Optional: `Date`, `Scope`, and a PR or commit reference.
+- **BRU-010-06 (Recap Cadence):** The breakout recap is held once per epic, after the epic's last user story is implemented and reviewed. It is not a per-story gate and adds no approval gate or `TaskPolicy` (ADR-010 §4.1, §7 Invariant #1).
 - **BRU-010-03 (Automated Parsing & Verification):** The SDK must provide a deterministic parser that extracts all `LL-###` entries from markdown into structured, validated representations, raising actionable errors on incomplete or malformed entries.
-- **BRU-010-04 (Phase Close Readiness Gate Integration):** The parsed lessons learned must feed into `evaluate_phase_close_readiness()`. Phase close requires that all entries are `crystallized: True` and at least one entry (or an explicit no-new-lessons sign-off) references the closing Epic/Phase.
+- **BRU-010-04 (Phase Close Readiness Gate Integration):** The parsed lessons learned must feed into `evaluate_phase_close_readiness()`. Phase close requires that all entries are `crystallized: True` and at least one entry references the closing Epic/Phase. When the review finds nothing new, a short no-new-lessons sign-off entry (Epic/Phase containing `no-new-lessons`) satisfies this (ADR-010 §4.2).
 - **BRU-010-05 (Storage Invariant Preservation):** Lessons learned are project governance assets. Under no circumstances may lessons learned be persisted as a 6th record type in `LearningStore` (ADR-002 Invariant #2).
 
 ---
@@ -53,3 +54,4 @@ This Business Requirements Document establishes the operational requirements for
 - Storing lessons learned inside Cosmos DB, LocalFileStore, or `LearningStore` ABCs (rejected per ADR-002 Invariant #2).
 - Automatic natural-language generation of lessons learned without human review or approved PR review triggers.
 - External cloud synchronization services beyond standard git source control.
+- Building the Autonomous Breakout Facilitator permitted by ADR-010 §4.7. If built, it only drafts and proposes: a human accepts register entries, and every cross-repo action needs explicit human approval. It requires its own story.

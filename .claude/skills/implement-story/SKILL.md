@@ -1,11 +1,11 @@
 ---
 name: implement-story
-description: Executes the SIDPA story implementation loop (Steps 0–8) for agent-learning with contract-driven development, component skill maintenance, and audit logging.
+description: Executes the SIDPA story implementation loop (Steps 0–9; Step 9 runs only for the epic's last story) for agent-learning with contract-driven development, component skill maintenance, and audit logging.
 ---
 
 # Skill: implement-story (agent-learning)
 
-Instantiated from the `sidpa-template` skill. The loop (steps 0-8) is mandatory and executed in order; the project facts below reflect confirmed repository conventions.
+Instantiated from the `sidpa-template` skill. The loop (steps 0-9; step 9 runs only for the epic's last story) is mandatory and executed in order; the project facts below reflect confirmed repository conventions.
 
 ## Confirmed project facts
 
@@ -28,7 +28,7 @@ Instantiated from the `sidpa-template` skill. The loop (steps 0-8) is mandatory 
 3. **Contract (RED):** One pytest per Acceptance Criterion; header docstring naming Story, ADR, BRD, FDD; fixtures loaded from `tests/fixtures/<module>/`. Run and verify failing (RED) before implementing.
 4. **Component skill:** Create or update `.claude/skills/<component>/SKILL.md` (governing ADRs/Stories, contract files, load-bearing constraints, call sites). Required Definition-of-Done item.
 5. **Implement (GREEN):** Minimal code — no speculative generalization.
-6. **Validate:** Run the story contract, then full suite (`uv run pytest --ignore=tests/test_spark.py`).
+6. **Validate:** Run the story contract, then full suite (`uv run pytest --ignore=tests/test_spark.py`). If the change adds a step or entry, changes a count, or completes something another document describes as pending, grep the repo for the old number or phrase and update every occurrence in the same change (LL-007).
 7. **Commit & log:**
    - **Optional trap note:** If something surprising happened in this story, jot a one-line note for the epic-end breakout recap (ADR-010 §4.1). Optional, never a gate; do not write an `LL-###` entry per story.
    - **Commit:** Commit implementation, test contracts, and component skills.

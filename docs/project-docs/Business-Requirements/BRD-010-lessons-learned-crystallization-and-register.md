@@ -45,7 +45,7 @@ This Business Requirements Document establishes the operational requirements for
 | Institutional Memory Persistence | Transient PR comments and chat transcripts | Canonical, version-controlled markdown register at `docs/project-docs/Lessons-Learned-Register.md` |
 | Automated Parsing & Schema Validation | 0% automated parsing of lessons learned | 100% automated parsing and validation via `parse_lessons_learned_markdown()` |
 | Phase Close Stage 15 Gate Integration | Manual dictionary mock in unit tests | Automated extraction from markdown register directly validating Phase Close preconditions |
-| Seed Lesson Coverage | 0 codified lessons in repository | 4 fully crystallized lessons (`LL-001` through `LL-004`) verified in active register |
+| Seed Lesson Coverage | 0 codified lessons in repository | At least 4 crystallized lessons (the seed set `LL-001` through `LL-004`) verified in the active register; later entries are appended as they are earned |
 
 ---
 

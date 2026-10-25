@@ -17,6 +17,7 @@
 | [LL-004](#ll-004--closed-loop-interactive-ai-pr-review-via-q-protocol) | Closed-Loop Interactive AI PR Review via `/q` Protocol | Epic 2 / Story 2.1 | Universal Process | 2026-10-25 |
 | [LL-005](#ll-005--compound-header--delimiter-bleed-in-markdown-parsers) | Compound Header & Delimiter Bleed in Markdown Parsers | Epic 10 / Story 10.1 | Universal Tooling | 2026-10-25 |
 | [LL-006](#ll-006--cwd-independent-path-anchoring-in-test-suites) | CWD-Independent Path Anchoring in Test Suites | Epic 10 / Story 10.1 | Universal Testing | 2026-10-25 |
+| [LL-007](#ll-007--counts-and-pending-notes-go-stale-in-the-change-that-resolves-them) | Counts and Pending Notes Go Stale in the Change That Resolves Them | Epic 10 / PR #6 | Universal Documentation | 2026-10-25 |
 
 ---
 
@@ -133,4 +134,19 @@
   ```python
   repo_root = Path(__file__).resolve().parent.parent
   register_path = repo_root / "docs" / "project-docs" / "Lessons-Learned-Register.md"
+  ```
+
+---
+
+### LL-007 — Counts and Pending Notes Go Stale in the Change That Resolves Them
+- **Identifier:** `LL-007`
+- **Date:** 2026-10-25
+- **Epic / Story:** Epic 10 / PR [#6](https://github.com/mdresch/agent-learning/pull/6)
+- **Scope:** Universal Documentation & Process
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/implement-story/SKILL.md` (Step 6); Tier 3: `sidpa-template` implement-story skill (proposed, needs human approval before any cross-repo change)
+- **The Trap:** A documentation PR added a Step 9 to the `implement-story` loop but left "Steps 0-8" in the skill's front-matter description and its intro sentence. The same PR completed a re-wording that ADR-010 §4.6 still described as pending ("must be reworded"). A BRD metric kept targeting `LL-001` through `LL-004` after the register grew to `LL-006`. Automated review (Q Developer) caught all three after the PR was opened; none was caught by the test suite.
+- **The Root Cause:** The same fact (a loop length, a lesson count, the status of a pending action) was written by hand in several places. The change that made it false only touched the place the author was looking at. Prose has no test, and a front-matter description is read by tools that never reach the body.
+- **Actionable Invariant:** When a change adds a step or entry, changes a count, or completes an action another document calls pending, search the repository for the old number or phrase and update every occurrence in the same change. Prefer wording that cannot go stale ("at least", or a reference to the source) over a hard-coded total:
+  ```bash
+  rg "Steps 0|steps 0-8|must be reworded|LL-001. through" docs .claude
   ```

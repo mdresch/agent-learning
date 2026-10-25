@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-011](../../adr/ADR-011-project-tailoring-and-route-decision.md) — Accepted (2026-10-25)  
 **Source BRD:** [BRD-011](../Business-Requirements/BRD-011-project-tailoring-and-route-decision.md)  
-**Status:** Draft — functional design derived from an Accepted ADR and BRD  
+**Status:** Approved (2026-10-25, Menno) — derived from Accepted ADR-011 and BRD-011; adjudicated via `approve-fdd` (robust utility 0.897, episode `21d26da7-e392-4e9b-8072-073c9a0f83d5`).  
 
 ---
 

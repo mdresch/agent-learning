@@ -138,3 +138,24 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - $AC_3$: Filtered payloads pass PMBOK 4.7 `evaluate_phase_close_readiness()` validation, contributing to `crystallized_lessons_count` and satisfying the Stage 15 hard gate.
   - $AC_4$: Active file verification confirms that the canonical repository register `docs/project-docs/Lessons-Learned-Register.md` parses cleanly with 100% compliance across `LL-001` through `LL-006`.
   - Full test suite: 5/5 passed in `test_lessons_learned.py`; 464 passed, 2 skipped across entire agent-learning test suite. Zero regressions.
+
+## Story 11.1 — Route Records and the Human-Decision Invariants
+- **Commit:** `516bdb3`
+- **Date:** 2026-10-25
+- **Branch:** `feat/story-11.1` (based on `docs/adr-011-tailoring-route-decision`, because ADR-011 and the Epic 11 specs are not yet on `main`)
+- **Source ADR / BRD / FDD:** ADR-011, BRD-011, FDD-011
+- **Files Modified/Created:**
+  - `src/agent_learning/tailoring.py` (pure module: `Route`, `PlanRoute`, `PLAN_IDS`, `validate_route_set`, `to_episode_metadata`)
+  - `src/agent_learning/__init__.py` (re-exported symbols)
+  - `tests/test_tailoring.py` (contract tests encoding $AC_0$ through $AC_5$)
+  - `.claude/skills/tailoring/SKILL.md` (new component skill)
+  - `docs/user-stories/epic-11-project-tailoring-and-route-decision.md` (Story 11.1 status updated to Completed)
+- **Validation:**
+  - $AC_0$: only `full_plan`, `pmp_section` and `not_applicable` are accepted; any other value raises `ValueError`.
+  - $AC_1$: `validate_route_set()` raises naming missing plan ids, and raises on duplicate or unknown ids.
+  - $AC_2$: `not_applicable` with a blank reason raises `ValueError`.
+  - $AC_3$: a decided route needs a human decider and a deciding role; a pending recommendation is valid.
+  - $AC_4$: a decided route must record recommendation, basis and rationale; `to_episode_metadata()` returns both routes and a `diverged` flag.
+  - $AC_5$: `tailoring.py` imports nothing from storage and returns a plain dict.
+  - Contract: 11/11 passed in `test_tailoring.py` (10 for AC_0 to AC_5 plus 1 added from review). Full suite with `--ignore=tests/test_spark.py --ignore=tests/pmbok`: 475 passed, 2 skipped. **`tests/pmbok` cannot be collected from a clean install** (15 files; undeclared `sqlalchemy`/`tenacity`), a known pre-existing gap not touched by this story, so the suite as the skill specifies it does not run. The earlier 464 figure plus the original 10 tests equals 474, which suggests the earlier "entire suite" figure also excluded `tests/pmbok`.
+  - Review (Q Developer, PR #7): no blocking defects. Two minor observations adopted: the decided-route check now gives separate messages for a missing recommended route and a blank basis (test added first, observed RED), and `diverged` compares with `!=`. A third (`DEFAULT_EPSILON` missing from `__all__` in `__init__.py`) is pre-existing and out of this story's scope.

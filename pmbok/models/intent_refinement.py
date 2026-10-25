@@ -98,3 +98,71 @@ class IntentRefinementProposalPayload(BaseModel):
                 "phase_next_spark_directives must be empty when disposition_type is 'project_termination'."
             )
         return self
+
+
+class ReadinessPreconditionError(Exception):
+    """Raised when Stage 18 Intent Refinement entry preconditions fail."""
+    pass
+
+
+class ReadinessAuditResult(BaseModel):
+    audit_ref: str
+    is_ready: bool
+    verified_at: str
+    deliverables_accepted: int
+    open_findings_count: int
+    crystallized_lessons_count: int
+
+
+def evaluate_phase_close_readiness(
+    deliverables: List[Dict[str, Any]],
+    audit_records: List[Dict[str, Any]],
+    lessons_learned: List[Dict[str, Any]],
+) -> ReadinessAuditResult:
+    """
+    Validates preconditions for entering Stage 18 Intent Refinement under PMBOK 8 Process 4.7.
+    - All Stage 9 deliverables must be accepted.
+    - Stage 11 audit records must have zero unresolved non-conformances.
+    - Stage 15 lessons learned must be crystallized.
+    """
+    import hashlib
+    from datetime import datetime, timezone
+
+    unaccepted = [
+        d.get("deliverable_id", d.get("name", "unknown"))
+        for d in deliverables
+        if d.get("status") != "accepted"
+    ]
+    if unaccepted:
+        raise ReadinessPreconditionError(
+            f"Stage 9 deliverables incomplete: {', '.join(unaccepted)} are not accepted."
+        )
+
+    open_findings = sum(
+        rec.get("non_conformance_count", 0)
+        for rec in audit_records
+        if rec.get("status") != "cleared" or rec.get("non_conformance_count", 0) > 0
+    )
+    if open_findings > 0:
+        raise ReadinessPreconditionError(
+            f"Stage 11 audit has unresolved non-conformances: {open_findings} finding(s) pending."
+        )
+
+    if not lessons_learned or any(not l.get("crystallized", False) for l in lessons_learned):
+        raise ReadinessPreconditionError(
+            "Stage 15 lessons learned uncrystallized: all lessons must be marked crystallized before phase close."
+        )
+
+    now_iso = datetime.now(timezone.utc).isoformat()
+    audit_hash = hashlib.sha256(f"{now_iso}-{len(deliverables)}".encode()).hexdigest()[:8]
+    audit_ref = f"AUD-CLOSE-{audit_hash.upper()}"
+
+    return ReadinessAuditResult(
+        audit_ref=audit_ref,
+        is_ready=True,
+        verified_at=now_iso,
+        deliverables_accepted=len(deliverables),
+        open_findings_count=0,
+        crystallized_lessons_count=len(lessons_learned),
+    )
+

@@ -7,9 +7,16 @@ from __future__ import annotations
 
 import json
 import math
+import sys
 from pathlib import Path
 import pytest
 from pydantic import ValidationError
+
+# Ensure src is on sys.path for agent_learning import
+repo_root = Path(__file__).resolve().parent.parent.parent
+src_dir = repo_root / "src"
+if src_dir.exists() and str(src_dir) not in sys.path:
+    sys.path.insert(0, str(src_dir))
 
 from pmbok.models.intent_refinement import (
     CumulativeLineageKernel,
@@ -18,7 +25,10 @@ from pmbok.models.intent_refinement import (
     IntentRefinementProposalPayload,
     MeasurementHorizon,
     OutcomeDeltaItem,
+    ReadinessAuditResult,
+    ReadinessPreconditionError,
     SparkDirectiveItem,
+    evaluate_phase_close_readiness,
 )
 from scripts.orchestrate_pmbok import seed_next_phase, decommission_project, rollback_pmp
 
@@ -370,3 +380,94 @@ disposition_type: "project_termination"
     summary_text = summary.read_text(encoding="utf-8")
     assert "**Disposition:** Project Termination" in summary_text
     assert "Ephemeral worktrees pruned" in summary_text
+
+
+# ── AC_0, AC_5: Readiness Audit Gate & Zero Storage Boundary ─────────────────
+
+def test_ac_0_readiness_audit_gate_incomplete_deliverables():
+    """AC_0: Incomplete Stage 9 deliverables must raise ReadinessPreconditionError."""
+    deliverables = [
+        {"deliverable_id": "DEL-01", "name": "ADR-009", "status": "accepted"},
+        {"deliverable_id": "DEL-02", "name": "BRD-009", "status": "in_review"},
+    ]
+    audit_records = [
+        {"audit_id": "AUD-01", "non_conformance_count": 0, "status": "cleared"}
+    ]
+    lessons_learned = [
+        {"lesson_id": "LL-01", "crystallized": True, "title": "EMA Low-Pass Damping"}
+    ]
+
+    with pytest.raises(ReadinessPreconditionError, match="Stage 9 deliverables incomplete"):
+        evaluate_phase_close_readiness(deliverables, audit_records, lessons_learned)
+
+
+def test_ac_0_readiness_audit_gate_open_non_conformance():
+    """AC_0: Unresolved Stage 11 audit non-conformances must raise ReadinessPreconditionError."""
+    deliverables = [
+        {"deliverable_id": "DEL-01", "name": "ADR-009", "status": "accepted"},
+        {"deliverable_id": "DEL-02", "name": "BRD-009", "status": "accepted"},
+    ]
+    audit_records = [
+        {"audit_id": "AUD-01", "non_conformance_count": 2, "status": "open_findings"}
+    ]
+    lessons_learned = [
+        {"lesson_id": "LL-01", "crystallized": True, "title": "EMA Low-Pass Damping"}
+    ]
+
+    with pytest.raises(ReadinessPreconditionError, match="Stage 11 audit has unresolved non-conformances"):
+        evaluate_phase_close_readiness(deliverables, audit_records, lessons_learned)
+
+
+def test_ac_0_readiness_audit_gate_uncrystallized_lessons():
+    """AC_0: Empty or uncrystallized Stage 15 lessons learned must raise ReadinessPreconditionError."""
+    deliverables = [
+        {"deliverable_id": "DEL-01", "name": "ADR-009", "status": "accepted"},
+        {"deliverable_id": "DEL-02", "name": "BRD-009", "status": "accepted"},
+    ]
+    audit_records = [
+        {"audit_id": "AUD-01", "non_conformance_count": 0, "status": "cleared"}
+    ]
+    lessons_learned = [
+        {"lesson_id": "LL-01", "crystallized": False, "title": "Draft Lessons"}
+    ]
+
+    with pytest.raises(ReadinessPreconditionError, match="Stage 15 lessons learned uncrystallized"):
+        evaluate_phase_close_readiness(deliverables, audit_records, lessons_learned)
+
+
+def test_ac_0_readiness_audit_gate_clean_pass():
+    """AC_0: When deliverables are accepted, audits clear, and lessons crystallized, readiness passes."""
+    deliverables = [
+        {"deliverable_id": "DEL-01", "name": "ADR-009", "status": "accepted"},
+        {"deliverable_id": "DEL-02", "name": "BRD-009", "status": "accepted"},
+    ]
+    audit_records = [
+        {"audit_id": "AUD-01", "non_conformance_count": 0, "status": "cleared"}
+    ]
+    lessons_learned = [
+        {"lesson_id": "LL-01", "crystallized": True, "title": "EMA Low-Pass Damping"}
+    ]
+
+    result = evaluate_phase_close_readiness(deliverables, audit_records, lessons_learned)
+    assert isinstance(result, ReadinessAuditResult)
+    assert result.is_ready is True
+    assert result.audit_ref.startswith("AUD-CLOSE-")
+
+
+def test_ac_5_zero_storage_expansion_episode_envelope():
+    """AC_5: Refinement proposals and decision episodes travel inside standard Episode envelopes."""
+    episode_file = Path("docs/policy-shapes/episodes/epic9-story9.1-approval-episode.json")
+    assert episode_file.exists(), "Committed episode fixture must exist"
+    data = json.loads(episode_file.read_text(encoding="utf-8"))
+
+    # Verify standard Episode fields (ADR-002)
+    standard_keys = {
+        "id", "agent_id", "task_id", "user_input", "assistant_output",
+        "action_id", "policy_id", "context_features", "metadata", "created_at"
+    }
+    assert standard_keys.issubset(set(data.keys())), "Episode must adhere to standard Episode envelope"
+    assert data["agent_id"] == "agent-learning-governance"
+    assert data["metadata"]["task_completed"] is True
+    assert data["metadata"]["decision_disposition"] == "accepted"
+
+

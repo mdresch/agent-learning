@@ -8,7 +8,7 @@
 
 ## Story 9.1 — Phase Close Readiness Gate and Intent Refinement Decision Policy
 
-**Status:** Ready (2026-10-25)  
+**Status:** Completed (2026-10-25)  
 **As** an autonomous governance orchestrator and PM maintainer,  
 **I want** a dedicated `approve-intent-refinement` full-authority decision gate and phase close readiness validator,  
 **So that** project phases close with verified empirical evidence, administrative decommissioning occurs cleanly, and Phase $N+1$ Spark directives are authorized by project leadership.

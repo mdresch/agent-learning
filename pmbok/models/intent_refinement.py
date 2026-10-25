@@ -166,3 +166,110 @@ def evaluate_phase_close_readiness(
         crystallized_lessons_count=len(lessons_learned),
     )
 
+
+
+class HypothesisTerminalityError(Exception):
+    """Raised when active Stage 3 hypotheses fail to resolve to valid terminal states."""
+    pass
+
+
+def resolve_hypothesis(
+    hypothesis_id: str,
+    statement: str,
+    bayes_factor: float,
+    recurrence_depth: int = 0,
+    evidence_references: Optional[List[str]] = None,
+    rationale: str = "",
+) -> HypothesisResolutionItem:
+    """
+    Adjudicates a single hypothesis into a terminal state based on empirical Bayes factor (BF10)
+    and recurrence depth (d_max=2). Grounded in ADR-009 Invariant 11.
+    """
+    evidence = evidence_references or []
+    
+    if bayes_factor >= 10.0:
+        return HypothesisResolutionItem(
+            hypothesis_id=hypothesis_id,
+            statement=statement,
+            terminal_status=HypothesisTerminalStatus.VALIDATED,
+            recurrence_depth=recurrence_depth,
+            bayes_factor=bayes_factor,
+            evidence_references=evidence,
+            promotion_target=f"Architecture Invariant #{hypothesis_id}",
+            rationale=rationale or f"Empirical Bayes factor BF10={bayes_factor:.2f} >= 10.0: Graduated to permanent architecture invariant.",
+        )
+    elif bayes_factor <= 0.1:
+        return HypothesisResolutionItem(
+            hypothesis_id=hypothesis_id,
+            statement=statement,
+            terminal_status=HypothesisTerminalStatus.REFUTED,
+            recurrence_depth=recurrence_depth,
+            bayes_factor=bayes_factor,
+            evidence_references=evidence,
+            promotion_target=None,
+            rationale=rationale or f"Empirical Bayes factor BF10={bayes_factor:.2f} <= 0.10: Refuted with negative reinforcement penalty.",
+        )
+    else:
+        # Inconclusive (0.1 < BF10 < 10)
+        if recurrence_depth < 2:
+            child_target = f"{hypothesis_id}.1"
+            return HypothesisResolutionItem(
+                hypothesis_id=hypothesis_id,
+                statement=statement,
+                terminal_status=HypothesisTerminalStatus.REFINED,
+                recurrence_depth=recurrence_depth,
+                bayes_factor=bayes_factor,
+                evidence_references=evidence,
+                promotion_target=child_target,
+                rationale=rationale or f"Inconclusive Bayes factor BF10={bayes_factor:.2f} (0.1 < BF10 < 10): Refined to child hypothesis {child_target} (depth {recurrence_depth}).",
+            )
+        else:
+            # Recurrence exhaustion at d_max=2: collapse to REFUTED
+            return HypothesisResolutionItem(
+                hypothesis_id=hypothesis_id,
+                statement=statement,
+                terminal_status=HypothesisTerminalStatus.REFUTED,
+                recurrence_depth=recurrence_depth,
+                bayes_factor=bayes_factor,
+                evidence_references=evidence,
+                promotion_target=None,
+                rationale=rationale or f"Inconclusive Bayes factor BF10={bayes_factor:.2f} at d_max=2: Collapsed to REFUTED due to budget exhaustion under Invariant 11.",
+            )
+
+
+def adjudicate_hypothesis_batch(
+    hypotheses: List[Dict[str, Any] | HypothesisResolutionItem],
+) -> List[HypothesisResolutionItem]:
+    """
+    Adjudicates a batch of Stage 3 hypotheses, asserting 100% terminal resolution.
+    Raises HypothesisTerminalityError if any hypothesis lacks a valid Bayes factor or terminal state.
+    """
+    results: List[HypothesisResolutionItem] = []
+    for item in hypotheses:
+        if isinstance(item, HypothesisResolutionItem):
+            results.append(item)
+            continue
+        
+        hyp_id = item.get("hypothesis_id", "unknown")
+        statement = item.get("statement", "")
+        bf = item.get("bayes_factor")
+        depth = item.get("recurrence_depth", 0)
+        evidence = item.get("evidence_references", [])
+        rat = item.get("rationale", "")
+
+        if bf is None:
+            raise HypothesisTerminalityError(
+                f"Hypothesis '{hyp_id}' lacks empirical Bayes factor (BF10); cannot close phase with unadjudicated hypotheses."
+            )
+
+        resolved = resolve_hypothesis(
+            hypothesis_id=hyp_id,
+            statement=statement,
+            bayes_factor=float(bf),
+            recurrence_depth=depth,
+            evidence_references=evidence,
+            rationale=rat,
+        )
+        results.append(resolved)
+
+    return results

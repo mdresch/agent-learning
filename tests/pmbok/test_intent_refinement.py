@@ -22,13 +22,16 @@ from pmbok.models.intent_refinement import (
     CumulativeLineageKernel,
     HypothesisResolutionItem,
     HypothesisTerminalStatus,
+    HypothesisTerminalityError,
     IntentRefinementProposalPayload,
     MeasurementHorizon,
     OutcomeDeltaItem,
     ReadinessAuditResult,
     ReadinessPreconditionError,
     SparkDirectiveItem,
+    adjudicate_hypothesis_batch,
     evaluate_phase_close_readiness,
+    resolve_hypothesis,
 )
 from scripts.orchestrate_pmbok import seed_next_phase, decommission_project, rollback_pmp
 
@@ -471,3 +474,86 @@ def test_ac_5_zero_storage_expansion_episode_envelope():
     assert data["metadata"]["decision_disposition"] == "accepted"
 
 
+
+
+# ── Story 9.2: AC_6, AC_7, AC_8 Engine Tests ─────────────────────────────────
+
+def test_ac_6_resolve_hypothesis_validated_graduation():
+    """AC_6: resolve_hypothesis graduations for BF10 >= 10."""
+    item = resolve_hypothesis(
+        hypothesis_id="HYP-CORE-01",
+        statement="Bayesian bounds prevent autonomous drift.",
+        bayes_factor=15.2,
+        recurrence_depth=0,
+        evidence_references=["EV-STAGE-12-001"],
+    )
+    assert item.terminal_status == HypothesisTerminalStatus.VALIDATED
+    assert item.promotion_target == "Architecture Invariant #HYP-CORE-01"
+    assert "graduated to permanent architecture invariant" in item.rationale.lower()
+
+
+def test_ac_6_resolve_hypothesis_refuted_penalty():
+    """AC_6: resolve_hypothesis retirement for BF10 <= 0.1."""
+    item = resolve_hypothesis(
+        hypothesis_id="HYP-CORE-02",
+        statement="Ad-hoc heuristics outperform bandit policy.",
+        bayes_factor=0.04,
+        recurrence_depth=0,
+        evidence_references=["EV-STAGE-12-002"],
+    )
+    assert item.terminal_status == HypothesisTerminalStatus.REFUTED
+    assert item.promotion_target is None
+    assert "negative reinforcement penalty" in item.rationale.lower()
+
+
+def test_ac_7_resolve_hypothesis_inconclusive_refinement():
+    """AC_7: Inconclusive findings (0.1 < BF10 < 10) refine if recurrence_depth < 2."""
+    item = resolve_hypothesis(
+        hypothesis_id="HYP-INC-01",
+        statement="Transformer-based cost estimation reduces error.",
+        bayes_factor=3.4,
+        recurrence_depth=0,
+    )
+    assert item.terminal_status == HypothesisTerminalStatus.REFINED
+    assert item.recurrence_depth == 0
+    assert item.promotion_target == "HYP-INC-01.1"
+
+
+def test_ac_7_resolve_hypothesis_collapse_at_depth_2():
+    """AC_7: At recurrence_depth = 2, inconclusive hypothesis must collapse to REFUTED."""
+    item = resolve_hypothesis(
+        hypothesis_id="HYP-INC-01.1",
+        statement="Transformer-based cost estimation reduces error.",
+        bayes_factor=3.4,
+        recurrence_depth=2,
+    )
+    assert item.terminal_status == HypothesisTerminalStatus.REFUTED
+    assert "budget exhaustion" in item.rationale.lower()
+    assert "d_max=2" in item.rationale.lower()
+
+
+def test_ac_8_adjudicate_hypothesis_batch_clean():
+    """AC_8: All active hypotheses in a batch resolve to valid terminal states."""
+    batch = [
+        {"hypothesis_id": "H1", "statement": "S1", "bayes_factor": 25.0, "recurrence_depth": 0},
+        {"hypothesis_id": "H2", "statement": "S2", "bayes_factor": 0.02, "recurrence_depth": 0},
+        {"hypothesis_id": "H3", "statement": "S3", "bayes_factor": 4.5, "recurrence_depth": 1},
+        {"hypothesis_id": "H4", "statement": "S4", "bayes_factor": 2.1, "recurrence_depth": 2},
+    ]
+    results = adjudicate_hypothesis_batch(batch)
+    assert len(results) == 4
+    statuses = {r.hypothesis_id: r.terminal_status for r in results}
+    assert statuses["H1"] == HypothesisTerminalStatus.VALIDATED
+    assert statuses["H2"] == HypothesisTerminalStatus.REFUTED
+    assert statuses["H3"] == HypothesisTerminalStatus.REFINED
+    assert statuses["H4"] == HypothesisTerminalStatus.REFUTED  # Collapsed at d=2
+
+
+def test_ac_8_adjudicate_hypothesis_batch_rejects_missing_bayes_factor():
+    """AC_8: Batches with unadjudicated hypotheses (missing BF10) raise HypothesisTerminalityError."""
+    batch = [
+        {"hypothesis_id": "H1", "statement": "S1", "bayes_factor": 25.0, "recurrence_depth": 0},
+        {"hypothesis_id": "H2", "statement": "S2", "bayes_factor": None, "recurrence_depth": 0},
+    ]
+    with pytest.raises(HypothesisTerminalityError, match="lacks empirical Bayes factor"):
+        adjudicate_hypothesis_batch(batch)

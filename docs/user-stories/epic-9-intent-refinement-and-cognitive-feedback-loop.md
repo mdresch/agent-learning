@@ -25,7 +25,7 @@
 
 ## Story 9.2 — Bayesian Hypothesis Terminality and Recurrence Exhaustion ($d_{\max}=2$)
 
-**Status:** Ready (2026-10-25)  
+**Status:** Completed (2026-10-25)  
 **As** a principal systems and research architect,  
 **I want** hypothesis terminal states strictly bounded by empirical Bayes factors and maximum recurrence depth,  
 **So that** defensive hypothesis drift and the "REFINED moral hazard" are eliminated.

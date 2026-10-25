@@ -108,7 +108,7 @@ Guardrails:
 ## 8. References
 - [`pmbok/models/intent_refinement.py`](../../pmbok/models/intent_refinement.py) — `evaluate_phase_close_readiness()`, the Phase Close gate cited in §3/§4.2
 - [`docs/project-docs/Lessons-Learned-Register.md`](../project-docs/Lessons-Learned-Register.md) — the canonical register
-- [`.claude/skills/implement-story/SKILL.md`](../../.claude/skills/implement-story/SKILL.md) — story loop whose Step 7/8 and Definition of Done must be aligned (§4.6)
+- [`.claude/skills/implement-story/SKILL.md`](../../.claude/skills/implement-story/SKILL.md) — story loop whose Step 7, Step 9 and Definition of Done are aligned to this ADR (§4.6)
 - Related: [ADR-002](./ADR-002-storage-backend-strategy.md) §7 Invariant #2 — the five-record-type boundary preserved by §4.5
 - Related: [ADR-007](./ADR-007-governance-change-paired-diff-classification-and-escalation.md) — the `classify-diff-type` pipeline, which this amendment was not run through
 - Related: [ADR-009](./ADR-009-intent-refinement-and-cognitive-feedback-loop.md) — Phase Close readiness, which consumes the register

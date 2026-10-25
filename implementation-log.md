@@ -109,7 +109,7 @@ This log records completed user stories in accordance with the SIDPA `implement-
 ---
 
 ## Story 1.1 — Exclude `full`-authority episodes from `ReinforceLearner`'s training batch
-- **Commit:** `pending`
+- **Commit:** `ce9346c`
 - **Date:** 2026-10-25
 - **Branch:** `feat/story-1.1`
 - **Source ADR / BRD / FDD:** ADR-001 §4.5, BRD-001, FDD-001

@@ -19,7 +19,7 @@ This ADR formalizes the **prevention of tool sprawl and the convergence of PMBOK
 ---
 
 ## 2. Status
-**Proposed (2026-10-25)** — Architectural convergence and technical debt remediation. Governs Epic 12 (PMBOK Tooling Modernization and Storage Convergence).
+**Accepted (2026-10-26, Menno)** — Architectural convergence and technical debt remediation. Governs Epic 12 (PMBOK Tooling Modernization and Storage Convergence). Episode: `3512706e-d5ea-4f5c-9c54-642653fd5fcf`.
 
 ---
 
@@ -465,5 +465,6 @@ The following implementation items are formally tracked for execution alongside 
 | 2026-10-25 | Menno Drescher / Antigravity | Addressed Round 5 peer review: (1) fixed mixed-route transitive staleness recursion in verification algorithm (recursing into ancestor nodes for `pmp_section` routes); (2) isolated runtime composition into `src/agent_learning/pmbok_runtime/` (`client.py`, `orchestrator.py`) to preserve pure functional zero-I/O boundary of `agent_learning.pmbok` (Invariant 4); (3) articulated explicit frontmatter grammar subset directly in §4.3.1; (4) codified non-terminal local edit precedence for `REJECTED` and `REVISION_REQUESTED` lifecycle states. |
 | 2026-10-25 | Menno Drescher / Antigravity | Addressed Round 6 peer review: (1) fixed `not_applicable` omission bypass dropping ancestors via recursive `effective_upstreams()` helper; (2) made ADR-034 §4.3.1 the authoritative frontmatter grammar standard, allowing comments after bare keys and `[]`, normalizing CRLF/BOM, and enforcing quoting for strings with spaces; (3) refactored verification function to accept pure domain `PlanApprovalRecord` without store coupling; (4) fixed lifecycle state derivation order ensuring in-flight review for current hash takes precedence as `UNDER_REVIEW`; (5) barred `raw:` hashes from approvals and downstream dependencies; (6) updated architecture diagram and invariants for `pmbok_runtime`; (7) added normative 6-test suite specification and carried-over errata tracker table. |
 | 2026-10-25 | Menno Drescher / Antigravity | Final pre-approval polish: (1) marked code sketches and state derivation in §4.2.2 as illustrative reference models to prevent premature contract freezing prior to follow-on ADRs; (2) designated §4.3.1 grammar subset as provisional for Epic 12 Phase 1, to be re-homed and formally standardized in ADR-012 follow-on; (3) scoped header supersedes/amends strictly to ADR-009 §4.13 and ADR-008, deferring in-place edits of ADR-012/ADR-013 to their follow-on revisions; (4) reconciled ERR-034-03, ERR-034-04, Test 1 reason string, and feedback status naming in metadata schema. |
+| 2026-10-26 | **Accepted by Menno** | Formally adjudicated and accepted through `approve-adr` TaskPolicy; robust utility 0.965, expected utility 0.979, margin 0.963; Episode `3512706e-d5ea-4f5c-9c54-642653fd5fcf`. Fifteenth accepted ADR in the agent-learning self-governance chain. |
 
 

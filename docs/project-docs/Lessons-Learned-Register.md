@@ -18,6 +18,9 @@
 | [LL-005](#ll-005--compound-header--delimiter-bleed-in-markdown-parsers) | Compound Header & Delimiter Bleed in Markdown Parsers | Epic 10 / Story 10.1 | Universal Tooling | 2026-10-25 |
 | [LL-006](#ll-006--cwd-independent-path-anchoring-in-test-suites) | CWD-Independent Path Anchoring in Test Suites | Epic 10 / Story 10.1 | Universal Testing | 2026-10-25 |
 | [LL-007](#ll-007--counts-and-pending-notes-go-stale-in-the-change-that-resolves-them) | Counts and Pending Notes Go Stale in the Change That Resolves Them | Epic 10 / PR #6 | Universal Documentation | 2026-10-25 |
+| [LL-008](#ll-008--fork-story-branches-only-from-committed-specs) | Fork Story Branches Only From Committed Specs | Epic 11 / Stories 11.1, 11.2 | Repository Process | 2026-10-25 |
+| [LL-009](#ll-009--record-behavior-the-spec-does-not-state-as-an-interpretation) | Record Behavior the Spec Does Not State as an Interpretation | Epic 11 / Story 11.2 | Universal Testing | 2026-10-25 |
+| [LL-010](#ll-010--say-exactly-which-tests-a-pass-count-excludes) | Say Exactly Which Tests a Pass Count Excludes | Epic 11 / Stories 11.1, 11.2 | Universal Testing & Process | 2026-10-25 |
 
 ---
 
@@ -150,3 +153,43 @@
   ```bash
   rg "Steps 0|steps 0-8|must be reworded|LL-001. through" docs .claude
   ```
+
+---
+
+### LL-008 — Fork Story Branches Only From Committed Specs
+- **Identifier:** `LL-008`
+- **Date:** 2026-10-25
+- **Epic / Story:** Epic 11 / Stories 11.1 and 11.2 (PRs [#7](https://github.com/mdresch/agent-learning/pull/7), [#8](https://github.com/mdresch/agent-learning/pull/8))
+- **Scope:** Repository Process
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/implement-story/SKILL.md` (Step 0); Tier 3: `sidpa-template` implement-story skill (proposed, needs human approval before any cross-repo change)
+- **The Trap:** The BRD, FDD and Epic 11 stories were approved through the governance chain in the main checkout while the story worktrees had already forked from an earlier commit. The approvals existed only as uncommitted files, so the story branches carried the older "Draft" specs and the docs branch had to be committed and merged into both story branches before the PRs were consistent.
+- **The Root Cause:** A git worktree forks from committed state only. Uncommitted work in the base checkout is invisible to it, and the approval artifacts are written by a tool run outside the story loop.
+- **Actionable Invariant:** Before `git worktree add`, run `git status --short` in the base checkout and commit or stash everything the story depends on, especially spec approvals. If specs change after the fork, merge the base branch into the story branch before opening the PR:
+  ```bash
+  git status --short          # in the base checkout, before creating the worktree
+  git worktree add ../agent-learning-story-<X.Y> -b feat/story-<X.Y> <base>
+  ```
+
+---
+
+### LL-009 — Record Behavior the Spec Does Not State as an Interpretation
+- **Identifier:** `LL-009`
+- **Date:** 2026-10-25
+- **Epic / Story:** Epic 11 / Story 11.2 (PR [#8](https://github.com/mdresch/agent-learning/pull/8))
+- **Scope:** Universal Testing
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/implement-story/SKILL.md` (Step 3); Tier 3: `sidpa-template` implement-story skill (proposed, needs human approval before any cross-repo change)
+- **The Trap:** A contract test asserted that, in section mode, a PMP-only element under a Charter-held section reports `conflict=True`. Neither the acceptance criteria nor FDD-011 said so. The automated reviewer read it as a bug in the production code, and the disagreement could only be settled by explaining an interpretation that had not been written down.
+- **The Root Cause:** The test encoded the implementer's reading of an open ADR question as if it were specified behavior, with no marker that it was a choice.
+- **Actionable Invariant:** When a test asserts behavior that the acceptance criteria or the design do not state, record it at the time as an interpretation: in the test docstring, the implementation log and, if it touches an open ADR question, the open-questions list. Or amend the design so the behavior is specified.
+
+---
+
+### LL-010 — Say Exactly Which Tests a Pass Count Excludes
+- **Identifier:** `LL-010`
+- **Date:** 2026-10-25
+- **Epic / Story:** Epic 11 / Stories 11.1 and 11.2
+- **Scope:** Universal Testing & Process
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/implement-story/SKILL.md` (Step 6); Tier 3: `sidpa-template` implement-story skill (proposed, needs human approval before any cross-repo change)
+- **The Trap:** The skill's "full suite" command does not run: 15 files under `tests/pmbok` fail at collection from a clean install. An earlier log entry reported 464 passed "across entire agent-learning test suite" without saying those files were left out. Only after adding this epic's tests did the arithmetic (464 + 10 = 474) show the earlier figure had excluded them.
+- **The Root Cause:** A pass count was reported as covering the whole suite while a collection error was being avoided silently, so the number's meaning depended on knowledge that was not recorded.
+- **Actionable Invariant:** When the full suite cannot run, record in the implementation log which paths were excluded, why, and the resulting count. Never describe an exclusion-adjusted count as the entire suite.

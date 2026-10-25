@@ -12,8 +12,8 @@
 
 ### Acceptance Criteria:
 - **$AC_0$ (Markdown Register Parsing):** `parse_lessons_learned_markdown()` extracts all `LL-###` sections from valid markdown text into typed `LessonsLearnedEntry` instances, capturing `id`, `date`, `phase`, `title`, `trap`, `root_cause`, `invariant`, `scope`, and `tier_targets`.
-- **$AC_1$ (Strict Schema Validation):** The parser enforces that every entry conforms to the ADR-010 §4.2 schema. Malformed identifiers or missing required fields (`title`, `trap`, `root_cause`, `invariant`, `tier_targets`) raise `ValueError` with clear field diagnostic messages.
-- **$AC_2$ (Filtering & Sign-Off Support):** `filter_crystallized_lessons()` filters entries by target Epic/Phase (case-insensitive substring) and supports explicit no-new-lessons phase sign-offs per ADR-010 §4.1.
+- **$AC_1$ (Strict Schema Validation):** The parser enforces that every entry conforms to the ADR-010 §4.3 schema. Malformed identifiers or missing required fields (`title`, `trap`, `root_cause`, `invariant`, `tier_targets`) raise `ValueError` with clear field diagnostic messages.
+- **$AC_2$ (Filtering & Sign-Off Support):** `filter_crystallized_lessons()` filters entries by target Epic/Phase (case-insensitive substring) and supports explicit no-new-lessons phase sign-offs per ADR-010 §4.2.
 - **$AC_3$ (Phase Close Readiness Integration):** Formatted dictionary payloads from `filter_crystallized_lessons()` cleanly pass PMBOK 4.7 `evaluate_phase_close_readiness()` validation without raising `ReadinessPreconditionError`, contributing accurately to `crystallized_lessons_count`.
 - **$AC_4$ (Active Register Verification):** Contract test verifies that the active repository register `docs/project-docs/Lessons-Learned-Register.md` parses cleanly with 100% compliance, returning valid entries for `LL-001`, `LL-002`, `LL-003`, and `LL-004`.
 
@@ -24,3 +24,4 @@
 - Introducing a 6th record type in `LearningStore` (prohibited by ADR-002 Invariant #2).
 - Hardcoding file I/O operations inside `pmbok/models/intent_refinement.py` (violates model purity boundary).
 - Unvetted direct commits to `sidpa-template`.
+- Building the Autonomous Breakout Facilitator permitted by ADR-010 §4.7 (requires its own story).

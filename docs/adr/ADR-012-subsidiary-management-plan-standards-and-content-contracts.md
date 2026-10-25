@@ -6,8 +6,8 @@ ADR-011 established route tailoring (`full_plan`, `pmp_section`, `not_applicable
 However, neither ADR formalized:
 1. **The content contract:** What structural sections, metadata schemas, and interfaces must a subsidiary plan contain to be valid?
 2. **Quantitative floor and cap thresholds:** How are floors (minimum required substantive content) and caps (maximum boundary before graduation is flagged) calculated, tokenized, and verified?
-3. **PMBOK 8 Performance Domain mapping:** How the 9 operational subsidiary management plans bridge to PMBOK 8 Performance Domains while maintaining backward compatibility with legacy tooling process numbers (`5.1` through `13.2`).
-4. **Remedial breakout vs. graduation triggers:** The exact conditions under which an embedded section triggers a remedial regeneration versus when it is flagged to graduate to a standalone document, and how downstream staleness propagates.
+3. **PMBOK 8 Performance Domain mapping:** How the 9 operational subsidiary management plans bridge to the authentic **7 Performance Domains** of PMBOK 8 (*Governance, Scope, Schedule, Finance, Stakeholders, Resources, Risk*) under the *Planning* Focus Area, while maintaining backward compatibility with legacy tooling process numbers (`5.1` through `13.2`).
+4. **Remedial breakout vs. graduation triggers:** The exact conditions under which an embedded section triggers a remedial regeneration versus when it is flagged to graduate to a standalone document, how flags are carried to `approve-pmp`, and how downstream staleness propagates.
 5. **Decoupled plan standards hierarchy:** How universal plan invariants relate to domain-specific plan standards (Scope, Schedule, Cost, Quality, Resource, Communications, Risk, Procurement, Stakeholder).
 
 This ADR establishes the **universal standard framework and content contract** for all PMBOK subsidiary management plans across the agent-learning repository. Individual plans inherit this framework and specify their domain-specific mechanics through dedicated daughter ADRs, beginning with the three Baseline-Substantiating Plans (Scope, Schedule, Cost).
@@ -22,7 +22,7 @@ This ADR establishes the **universal standard framework and content contract** f
 ## 3. Context & Problem Statement
 * **Current Baseline Deficiencies:** In the initial PMBOK baseline (`PMP-BL-v1.0.0`), 8 of the 9 generated plans in `docs/project-docs/management-plans/` contain generic stub text (`"description": "Stub content for Artifact"`), and the Quality plan has formatting errors. No schema exists to validate whether an LLM generator produced actionable governance mechanics or empty fluff.
 * **Ambiguous Section Boundaries:** While ADR-011 introduced the concept of `pmp_section` floors and caps, the absence of quantitative thresholds prevents orchestrator linters from emitting deterministic governance flags.
-* **PMBOK 8 Domain vs. Process Mismatch:** `scripts/orchestrate_pmbok.py` hardcodes 6th-edition process numbers (`5.1` to `13.2`). In PMBOK 8th Edition, the 10 Knowledge Areas are replaced by Performance Domains (detailed in `docs/design-notes/planning-redesign-notes.md`). Furthermore, operational plans cross-cut multiple domains (e.g. Risk affects Planning, Uncertainty, and Governance). A flexible bridge mapping primary and secondary domains is required.
+* **PMBOK 8 Domain vs. Process Mismatch:** `scripts/orchestrate_pmbok.py` hardcodes 6th-edition process numbers (`5.1` to `13.2`). In PMBOK 8th Edition, the standard organizes project management into **7 Performance Domains** (*Governance, Scope, Schedule, Finance, Stakeholders, Resources, Risk*) across 5 Focus Areas (*Initiating, Planning, Executing, Monitoring & Controlling, Closing*). The subsidiary management plans are planning outputs that cross-cut these 7 domains. A flexible mapping bridge recognizing primary and secondary domains is required.
 * **Credit Assignment Needs Structural Anchoring:** Per LL-008, credit assignment requires that plans are evaluated individually. To evaluate them objectively through `approve-subsidiary-plan`, the evaluator requires a standard rubric and uniform section taxonomy.
 
 ---
@@ -66,22 +66,22 @@ Every plan file (`full_plan` or staged `pmp_section`) must begin with strict YAM
 plan_id: "scope-management"              # Unique plan identifier kebab-case
 plan_name: "Scope Management Plan"       # Formal human-readable title
 pmbok_edition: "PMBOK 8"                 # Governed framework edition
-primary_pmbok_domain: "Planning"         # Primary PMBOK 8 Performance Domain
-secondary_pmbok_domains:                 # Optional cross-cutting domain associations
+pmbok_focus_area: "Planning"             # PMBOK 8 Focus Area
+primary_pmbok_domain: "Scope"            # Primary PMBOK 8 Domain (Governance|Scope|Schedule|Finance|Stakeholders|Resources|Risk)
+secondary_pmbok_domains:                 # Optional secondary cross-cutting domains
   - "Governance"
 legacy_process: "5.1 Plan Scope Management" # Backward-compatible PMBOK 6 process code
 route: "full_plan"                       # full_plan | pmp_section | not_applicable
-generator: "llm"                         # llm | human | stub (ADR-013 §4.2 audit field)
+generator: "llm"                         # llm | human | stub | mock (ADR-013 §4.2 audit field)
 version: "1.0.0"                         # Semantic plan version
-baseline_id: "PMP-BL-v1.0.0"             # Target baseline identifier
+baseline_id: "<target-baseline-id>"      # Target baseline identifier (e.g. PMP-BL-v1.0.0)
 owner_role: "Project Manager"            # Functional owner role from Stakeholder Register
-depends_on:                              # Machine-readable plan_id dependencies for DAG invalidation
-  - "charter"
+depends_on: []                           # Machine-readable plan_id dependencies from canonical DAG (ADR-013 §4.1)
 inputs:
   - "Project-Charter.md"
   - "docs/project-docs/Ideation-Document.md"
 outputs:
-  - "docs/project-docs/management-plans/Scope-Management-Plan.md"
+  - "docs/project-docs/management-plans/Scope-Management-Plan.md" # if full_plan; .staging/pmp-sections/ if pmp_section
 governance_policy: "approve-subsidiary-plan" # "approve-subsidiary-plan" (if full_plan) | "approve-pmp" (if pmp_section)
 ---
 ```
@@ -95,7 +95,11 @@ governance_policy: "approve-subsidiary-plan" # "approve-subsidiary-plan" (if ful
 To ensure deterministic, reproducible linting:
 * **Scope of Measurement:** Word count is calculated exclusively on the **Markdown body below the closing frontmatter delimiter (`---`)**.
 * **Exclusions:** YAML frontmatter, raw HTML comments, and fenced code blocks (` ``` `) are excluded from the word count.
-* **Tokenization Rule:** Words are delimited by standard Unicode whitespace (`\s+`).
+* **Tokenization Rule:** Words are tokens containing at least one alphanumeric character (matching regex `\b[a-zA-Z0-9_-]+\b`). Standalone markdown structural punctuation (`##`, `---`, `|`, `-`) is excluded from the count.
+* **Mandatory Heading Regexes:**
+  1. `^##\s+1\.\s+Intent,\s+Alignment\s+&\s+Boundaries`
+  2. `^##\s+2\.\s+Domain\s+Mechanics\s+&\s+Standards`
+  3. `^##\s+3\.\s+Governance,\s+Control\s+&\s+Decision\s+Rights`
 
 #### Baseline Defaults vs. Project-Level Standard
 * **Baseline Defaults:** The numbers in the table below define the repository baseline defaults (`standard: baseline`).
@@ -107,84 +111,86 @@ To ensure deterministic, reproducible linting:
 
 | Metric | Embedded `pmp_section` | Standalone `full_plan` | Flag Type | Enforcement Mechanism |
 |---|---|---|---|---|
-| **Minimum Floor (Word Count)** | 150 words | 600 words | `FLAG: BELOW_STANDARD_FLOOR` | Governance Flag (Human decides with rationale) |
+| **Minimum Floor (Word Count)** | 150 words | 600 words | `FLAG: BELOW_STANDARD_FLOOR` | Governance Flag (Human decides with recorded rationale) |
 | **Maximum Cap (Word Count)** | 800 words | 5,000 words | `FLAG: EXCEEDS_SECTION_CAP` / `FLAG: EXCEEDS_PLAN_CAP` | Governance Flag (Graduation or Appendix recommendation) |
-| **Mandatory Headings** | Sections 1, 2, 3 present | Sections 1, 2, 3 + subsections | `FLAG: MISSING_REQUIRED_SECTION` | Structural Failure (Triggers remediation) |
+| **Mandatory Headings** | Sections 1, 2, 3 present | Sections 1, 2, 3 + subsections | `FLAG: MISSING_REQUIRED_SECTION` | Structural Failure (Triggers remediation / revision request) |
 | **Out-of-Scope Declaration** | Required in §1 | Required in §1 | `FLAG: MISSING_BOUNDARY_DEF` | Governance Flag (Requires explicit boundary or "None") |
 | **Owner Role & Generator** | Required in frontmatter | Required in frontmatter | `FLAG: INVALID_METADATA` | Structural Failure (Missing required metadata) |
 
 #### Hard Blocks vs. Governance Flags (ADR-013 §4.2 Alignment)
-* **Technical Integrity Hard Blocks (Ruled Out Outright):** In accordance with ADR-013 §4.2, a candidate plan is mechanically ruled out from `approve_plan` if frontmatter carries `generator: stub` or `generator: mock`, if the body contains placeholder tokens (`Stub content for Artifact`, `[Insert here]`, `[TBD]`, `[TODO]`), or if generation encountered an uncaught exception.
+* **Technical Integrity Hard Blocks (Ruled Out Outright):** In accordance with ADR-013 §4.2, a candidate plan is mechanically ruled out from `approve_plan` if frontmatter carries `generator: stub` or `generator: mock`, if the body contains placeholder tokens (`Stub content for Artifact`, `[Insert here]`, `[TBD]`, `[TODO]`), or if generation encountered a caught exception or missing artifact file.
 * **Governance Flags (Flags, Not Blocks):** Word count deviations below floor or above cap are surfaced as evidence in the `DecisionFrame`. The human adjudicator may approve the plan, provided a non-empty rationale is recorded in `Episode.metadata` (ADR-011 §3.2, ADR-013 Invariant #5).
 
 ### 4.4 PMBOK 8 Performance Domain Mapping & Process Bridge
-To bridge modern PMBOK 8 Performance Domains with the repository's 6th-edition process numbers in `scripts/orchestrate_pmbok.py`, the orchestrator recognizes the following bidirectional mapping:
+PMBOK 8 organizes projects into **7 Performance Domains** (*Governance, Scope, Schedule, Finance, Stakeholders, Resources, Risk*) under the *Planning* Focus Area. To bridge modern PMBOK 8 domains with the repository's 6th-edition process numbers in `scripts/orchestrate_pmbok.py`, the orchestrator recognizes the following mapping:
 
 ```
 Primary Performance Domain     Secondary Domains           Legacy Process  Subsidiary Management Plan       Plan Tier
 ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-Planning                       Governance, Delivery        5.1            Scope Management Plan            Tier 1 (Substantiating)
-Planning                       Delivery, Measurement       6.1            Schedule Management Plan         Tier 1 (Substantiating)
-Planning                       Governance, Measurement     7.1            Cost Management Plan             Tier 1 (Substantiating)
-Uncertainty                    Planning, Governance        11.1           Risk Management Plan             Tier 2 (Governance)
-Delivery & Measurement         Planning, Project Work      8.1            Quality Management Plan          Tier 2 (Governance)
-Team & Stakeholders            Project Work                9.1            Resource Management Plan         Tier 3 (Execution)
-Stakeholders                   Governance, Delivery        13.2           Stakeholder Engagement Plan      Tier 3 (Execution)
-Stakeholders & Delivery        Governance                  10.1           Communications Management Plan   Tier 3 (Execution)
-Project Work                   Planning, Governance        12.1           Procurement Management Plan      Tier 3 (Execution)
+Scope                          Governance                  5.1            Scope Management Plan            Tier 1 (Substantiating)
+Schedule                       Governance                  6.1            Schedule Management Plan         Tier 1 (Substantiating)
+Finance                        Governance                  7.1            Cost Management Plan             Tier 1 (Substantiating)
+Governance                     Scope, Quality              8.1            Quality Management Plan          Tier 2 (Governance)
+Resources                      Governance                  9.1            Resource Management Plan         Tier 3 (Execution)
+Stakeholders                   Governance                  10.1           Communications Management Plan   Tier 3 (Execution)
+Risk                           Governance, Finance         11.1           Risk Management Plan             Tier 2 (Governance)
+Finance                        Resources, Governance       12.1           Procurement Management Plan      Tier 3 (Execution)
+Stakeholders                   Governance                  13.2           Stakeholder Engagement Plan      Tier 3 (Execution)
 ```
 
 #### Plan Tier Definitions
 Tiers are functional governance classifications and do not dictate linear DAG execution sequence:
-* **Tier 1 (Baseline-Substantiating):** Creates and substantiates core project baselines (Scope, Schedule, Cost). Must be at least a `pmp_section`; cannot be marked `not_applicable` without heavily flagged sponsor sign-off.
+* **Tier 1 (Baseline-Substantiating):** Creates and substantiates core project baselines (Scope, Schedule, Cost). Setting `not_applicable` on a Tier 1 plan emits `FLAG: OMISSION_OF_BASE_PLAN`, requiring human rationale and sponsor confirmation during route approval (ADR-011 §3.2).
 * **Tier 2 (Governance & Control):** Establishes systemic control frameworks, risk tolerances, and verification gates (Risk, Quality).
 * **Tier 3 (Execution Support):** Provides operational execution, procurement, team resources, and stakeholder mechanisms (Resource, Stakeholder, Communications, Procurement).
 
 ### 4.5 Remedial Breakout vs. Graduation Mechanics
-ADR-011 §3.5 and ADR-013 §4.4 establish that foundation breakouts are remedial for sections. We formalize the precise state transitions:
+ADR-011 §3.5 and ADR-013 §4.4 establish that foundation breakouts are remedial for sections. Sections drafted in `.staging/pmp-sections/` do not pass an independent approval gate; their governance flags are surfaced during PMP formalization (`approve-pmp`). We formalize the precise state transitions:
 
 ```mermaid
 flowchart TD
     SectionDraft["Drafted pmp_section (.staging/)"] --> LintCheck{Linter Check}
     
     %% Structural Failures
-    LintCheck -->|Structural Failure<br>(Missing Sec / Broken Schema / Stub)| AutoRemedial["Automatic Remedial Breakout<br>(Bounded: Max 2 Retries)"]
+    LintCheck -->|"Structural Failure (Missing Sec / Broken Schema)"| AutoRemedialCheck{Generator Check}
+    AutoRemedialCheck -->|"generator == stub | mock"| EscalateHumanStub["Escalate Immediately to Human (No Spin)"]
+    AutoRemedialCheck -->|"generator == human"| EscalateHumanManual["Escalate to Human (Do Not Overwrite)"]
+    AutoRemedialCheck -->|"generator == llm"| AutoRemedial["Automatic Remedial Breakout (Max 2 Retries)"]
     AutoRemedial -->|Regenerate| SectionDraft
     AutoRemedial -->|Max Retries Exceeded| EscalateHuman["Escalate to Human for Manual Intervention"]
     
     %% Floor Flag
-    LintCheck -->|Below Floor < 150w| FloorFlag["Emit FLAG: BELOW_STANDARD_FLOOR"]
-    FloorFlag --> HumanReviewFloor{Human Review & Decision}
-    HumanReviewFloor -->|Accept with Rationale| StagedReady["Section Approved for PMP Formalization"]
-    HumanReviewFloor -->|Trigger Remedial Breakout| ManualBreakout["Trigger Foundation Breakout"]
-    ManualBreakout --> SectionDraft
-    HumanReviewFloor -->|Graduate to Full Plan| GraduateToFull
+    LintCheck -->|"Below Floor (Word Count)"| FloorFlag["Emit FLAG: BELOW_STANDARD_FLOOR (Carried to approve-pmp)"]
+    FloorFlag --> ReadyForFormalize["Ready for PMP Formalization"]
     
     %% Cap Flag
-    LintCheck -->|Exceeds Cap > 800w| CapFlag["Emit FLAG: EXCEEDS_SECTION_CAP"]
-    CapFlag --> HumanReviewCap{Human Review & Decision}
-    HumanReviewCap -->|Accept as Section with Rationale| StagedReady
-    HumanReviewCap -->|Accept Graduation| GraduateToFull["Promote Route to full_plan<br>(Update Tailoring Matrix)"]
+    LintCheck -->|"Exceeds Cap (Word Count)"| CapFlag["Emit FLAG: EXCEEDS_SECTION_CAP"]
+    CapFlag --> HumanReviewCap{"Human Route Review (Tailoring Decision)"}
+    HumanReviewCap -->|Keep Section with Rationale| ReadyForFormalize
+    HumanReviewCap -->|"Graduate to Full Plan"| GraduateToFull["Promote Route to full_plan (Update Tailoring Matrix)"]
     
     GraduateToFull --> FullPlanDraft["Draft full_plan (docs/project-docs/management-plans/)"]
     FullPlanDraft --> EvaluateFull["Evaluate via approve-subsidiary-plan Gate"]
     
     %% Clean Pass
-    LintCheck -->|Passed All Standards| StagedReady
+    LintCheck -->|"Passed All Standards"| ReadyForFormalize
     
     %% Rejection from Formalization
-    FormalizeGate["approve-pmp Rejection of Section"] -->|Rejection Feedback| ManualBreakout
+    FormalizeGate["approve-pmp Gate Evaluation"] -->|"Rejection / Request Revision"| ManualBreakout["Trigger Remedial Breakout / Re-draft"]
+    ManualBreakout --> SectionDraft
+    ReadyForFormalize --> FormalizeGate
 ```
 
 1. **Remedial Foundation Breakout (Intra-Section Correction):**
-   * *Structural Failure Trigger:* Missing mandatory sections, broken frontmatter, or stub tokens automatically trigger regeneration (bounded to a maximum of 2 retries before human escalation).
-   * *Human Decision Trigger:* If a section is flagged `BELOW_STANDARD_FLOOR`, the human may choose to trigger a foundation breakout.
+   * *Structural Failure Trigger:* Missing mandatory sections, broken frontmatter, or stub tokens trigger automated remediation only if `generator == "llm"`. It is bounded to a maximum of 2 retries before escalating to a human. If `generator` is `stub` or `mock`, it escalates immediately. If `generator` is `human`, automated regeneration is prohibited to prevent overwriting manual work.
+   * *Floor Flag Handling:* If a section is flagged `BELOW_STANDARD_FLOOR`, the flag is carried into the `approve-pmp` `DecisionFrame`. The human adjudicator may approve the integrated PMP with a recorded rationale in `Episode.metadata`, or request revision.
    * *PMP Gate Rejection Trigger:* If `approve-pmp` rejects an embedded section during formalization, it triggers a remedial breakout.
-   * *Staleness Propagation:* Regenerating an embedded section marks all downstream plans in the causal DAG as `STALE_DEPENDENCY` per ADR-013 §4.8.
+   * *Staleness Propagation:* Regenerating an embedded section marks all transitively dependent downstream plans in the causal DAG as `STALE_DEPENDENCY` per ADR-013 §4.5.
 2. **Graduation (Route Promotion):**
    * *Trigger:* When an embedded section exceeds its 800-word cap (`FLAG: EXCEEDS_SECTION_CAP`) or when project complexity warrants standalone governance, the human adjudicator may promote the route from `pmp_section` to `full_plan`.
    * *Execution:* The tailoring matrix is updated. A standalone plan is drafted under `docs/project-docs/management-plans/<Name>.md`, subjected to `approve-subsidiary-plan`, and the PMP section is reduced to an executive summary and verified link.
-   * *Downstream Invalidation:* Graduation triggers downstream re-verification of approvals per ADR-013 §4.4.
+   * *Downstream Invalidation:* Graduation triggers downstream re-verification of approvals per ADR-013 §4.5.
+3. **Full Plan Structural Failures:** For a `full_plan`, structural failures and technical integrity blocks prevent `approve_plan` outright under ADR-013 §4.2, returning `request_revision_before_decision`.
 
 ### 4.6 The Decoupled Plan Standards ADR Hierarchy
 ADR-012 defines the universal contract and meta-rules. Domain-specific plan standards are specified in dedicated daughter ADRs that inherit ADR-012.
@@ -197,7 +203,7 @@ ADR-012 defines the universal contract and meta-rules. Domain-specific plan stan
   * `ADR-026`: Schedule Management Plan Standard (Progressive elaboration, milestones, timeboxes).
   * `ADR-027`: Cost Management Plan Standard (Staged funding, management envelope, contingency).
 * **Tier 2 — Governance & Control Plan Standards:**
-  * `ADR-028`: Risk Management Plan Standard (Uncertainty domain, risk taxonomy, thresholds).
+  * `ADR-028`: Risk Management Plan Standard (Risk domain, risk taxonomy, thresholds).
   * `ADR-029`: Quality Management Plan Standard (Quality gates, verification criteria, test coverage).
 * **Tier 3 — Execution Support Plan Standards:**
   * `ADR-030`: Resource Management Plan Standard (Roles, team allocation, tooling assets).
@@ -209,9 +215,9 @@ ADR-012 defines the universal contract and meta-rules. Domain-specific plan stan
 
 ## 5. Architectural Invariants
 1. **Universal Contract Compliance:** Every subsidiary management plan—whether standalone or staged section—must provide the standard frontmatter and the three canonical sections (Intent, Mechanics, Governance & Decision Rights).
-2. **Deterministic Word Count Scope:** Word counts are evaluated on the Markdown body below the closing frontmatter delimiter (`---`), excluding frontmatter, raw HTML, and fenced code blocks.
-3. **Floors as Flags, Not Blocks:** Content falling below declared floors generates a `FLAG: BELOW_STANDARD_FLOOR`. Approval requires a recorded human rationale in `Episode.metadata` (ADR-011 Invariant #1, ADR-013 Invariant #5).
-4. **Remedial Breakouts Propagate Staleness:** Remedial breakouts regenerate staged sections in `docs/project-docs/.staging/pmp-sections/`. Affected downstream plans become `STALE_DEPENDENCY` per ADR-013 §4.8.
+2. **Deterministic Word Count Scope:** Word counts are evaluated on the Markdown body below the closing frontmatter delimiter (`---`), excluding frontmatter, raw HTML, and fenced code blocks, tokenizing alphanumeric words (`\b[a-zA-Z0-9_-]+\b`).
+3. **Floors as Flags, Not Blocks:** Content falling below declared floors generates a `FLAG: BELOW_STANDARD_FLOOR`. Approval requires a recorded human rationale in `Episode.metadata` during plan approval (`full_plan`) or PMP formalization (`pmp_section`) (ADR-011 Invariant #1, ADR-013 Invariant #5).
+4. **Remedial Breakouts Propagate Staleness:** Remedial breakouts regenerate staged sections in `docs/project-docs/.staging/pmp-sections/`. Affected transitively downstream plans become `STALE_DEPENDENCY` per ADR-013 §4.5.
 5. **Graduation Preserves Traceability:** Graduating a section to a full plan updates the tailoring matrix, initiates a standalone `approve-subsidiary-plan` gate, and contracts the PMP entry to a summary.
 6. **Zero Entity Sprawl:** Linting snapshots, flag resolutions, and approval evidence are persisted as standard `Episode.metadata` when decision frames are evaluated (ADR-002 Invariant #2).
 7. **Canonical Hashing Integrity:** All plans are hashed according to the LF-normalized specification defined in ADR-013 §4.3. Hashes are recorded in `Episode.metadata`, never inside the governed markdown file itself.
@@ -235,7 +241,7 @@ ADR-012 defines the universal contract and meta-rules. Domain-specific plan stan
 ### Positive
 * **Deterministic Linting:** Automated tools can immediately verify whether an LLM plan generation succeeded, meets minimum floors, and adheres to structural contracts before presenting it to human approvers.
 * **Predictable Remedial and Graduation Cycles:** Clear triggers define when an embedded section can be automatically regenerated versus when it must graduate.
-* **Clean Traceability to PMBOK 8:** Bridges 6th-edition process numbering in current tooling with 8th-edition Performance Domains without breaking backward compatibility.
+* **Clean Traceability to PMBOK 8:** Bridges 6th-edition process numbering in current tooling with 8th-edition 7 Performance Domains under the Planning Focus Area without breaking backward compatibility.
 * **Modular Domain Evolution:** Allows individual plans (e.g., Scope, Cost) to evolve their specific standards in targeted daughter ADRs without invalidating the general framework.
 
 ### Negative
@@ -255,4 +261,5 @@ ADR-012 defines the universal contract and meta-rules. Domain-specific plan stan
 | Date | Change | Why |
 |---|---|---|
 | 2026-10-25 | Proposed | Initial drafting of the universal plan standards and content contracts framework, establishing the three-section contract, quantitative floors/caps, PMBOK 8 mapping, and decoupled daughter ADR hierarchy. |
-| 2026-10-25 | Amended after Multi-LLM Review | Resolved self-referential hash paradox (removed hash from frontmatter, anchored in `Episode.metadata` per ADR-013 §4.3). Fixed PMBOK 8 performance domain bridge to primary/secondary mapping. Aligned hard block tokens and added `generator` field. Reworked remedial breakout diagram to ensure floors remain non-blocking flags with human choice, bounding automated retries to 2. Added downstream `STALE_DEPENDENCY` propagation rules for breakout and graduation. Defined deterministic word-count scope (excluding frontmatter/code). Clarified daughter ADR numbering sequence starting at ADR-025. |
+| 2026-10-25 | Amended (Round 1 Review) | Resolved self-referential hash paradox (anchored in `Episode.metadata` per ADR-013 §4.3). Added `generator` and `owner_role`. Added downstream `STALE_DEPENDENCY` propagation rules. Defined deterministic word-count scope. |
+| 2026-10-25 | Amended (Round 2 Review) | Corrected PMBOK 8 taxonomy to the authentic 7 Performance Domains (*Governance, Scope, Schedule, Finance, Stakeholders, Resources, Risk*) under the *Planning* Focus Area. Fixed staging vs `approve-pmp` flow: sections are not approved at staging; floor flags carry forward to `approve-pmp`. Corrected staleness citations to ADR-013 §4.5. Aligned hard-block rules and `mock` generator token with ADR-013 §4.2. Guarded auto-regeneration against spinning on stubs and overwriting human text. Removed floor-flag graduation edge. Clarified Tier 1 omission as a flagged deviation per ADR-011 §3.2. Defined regex word tokenization and exact heading regex strings. |

@@ -73,7 +73,7 @@ The architectural corpus (ADR-001 through ADR-009) rests upon **four mutually co
 
 ---
 
-## 3. The Complete ADR Corpus (ADR-001 through ADR-009)
+## 3. The Complete ADR Corpus (ADR-001 through ADR-010)
 
 All nine ADRs have been reviewed, evaluated via Bayesian decision policy, and formally **Accepted** by Menno Drescher through the live `agent-learning-governance` chain:
 
@@ -88,6 +88,7 @@ All nine ADRs have been reviewed, evaluated via Bayesian decision policy, and fo
 | [**ADR-007**](ADR-007-governance-change-paired-diff-classification-and-escalation.md) | Automated Governance Change: Paired Semantic Diff Classification and Escalation Learning | **Accepted** | Stage 16 (Governance)<br>4.6 Integrated Change | Paired architecture: full-authority semantic classification (`classify-diff-type`) and low-authority operational escalation learning (`escalate-diff-response`). |
 | [**ADR-008**](ADR-008-pmbok-lifecycle-orchestration-and-pmp-adaptation-loop.md) | PMBOK 8 Lifecycle Orchestration and Closed-Loop Adaptation Feedback | **Accepted** | Stage 6 (PMP) & Stage 17 (Adaptation)<br>4.2 Develop PMP & 4.6 Tailoring | In-repo PMBOK orchestration of 9 subsidiary plans, dedicated `approve-pmp` / `approve-adaptation-plan` gates, and targeted `--mode adapt` re-planning. |
 | [**ADR-009**](ADR-009-intent-refinement-and-cognitive-feedback-loop.md) | Intent Refinement and Cognitive Feedback Loop | **Accepted** | Stage 18 (Intent Refinement)<br>4.7 Close Project or Phase | Double-loop cognitive feedback closing outcomes to spark; Bayes factor hypothesis retirement ($d_{\max}=2$); low-pass whiplash filter; cumulative lineage kernel. |
+| [**ADR-010**](ADR-010-lessons-learned-crystallization-and-register.md) | Lessons Learned Crystallization and the Organizational Process Assets Register | **Accepted** | Stage 15 (Lessons Learned)<br>4.4 Manage Project Knowledge | Canonical Stage 15 Lessons Learned Register (`docs/project-docs/Lessons-Learned-Register.md`) with 3-tier propagation protocol (project register, component skills, universal system memory). |
 
 ---
 

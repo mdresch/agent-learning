@@ -851,6 +851,17 @@ class DecisionResolver:
         )
 
 
+CAPTURE_DECISION_EVIDENCE_KEY = "capture_decision_evidence"
+AUDIT_EVIDENCE_REQUIRED_MESSAGE = (
+    "TaskPolicy requires non-empty audit_evidence when capture_decision_evidence is enabled"
+)
+
+
+def capture_decision_evidence_enabled(snapshot: PolicySnapshot) -> bool:
+    """Return the opt-in flag of a policy snapshot; absent or None means False (ADR-006)."""
+    return bool(snapshot.metadata.get(CAPTURE_DECISION_EVIDENCE_KEY) or False)
+
+
 class TaskPolicy:
     """One agent-task decision policy with reasoned and learned selection routes."""
 
@@ -860,6 +871,7 @@ class TaskPolicy:
         *,
         resolver: DecisionResolver | None = None,
         rng: random.Random | None = None,
+        capture_decision_evidence: bool | None = None,
     ) -> None:
         if len(snapshot.actions) < 2:
             raise ValueError("task policy requires at least two actions")
@@ -870,6 +882,9 @@ class TaskPolicy:
         except ValueError as exc:
             raise ValueError("decision_authority must be 'low' or 'full'") from exc
         self._snapshot = PolicySnapshot.from_dict(snapshot.to_dict())
+        if capture_decision_evidence is not None:
+            # An explicit value sets the opt-in flag; None leaves the stored value alone.
+            self._snapshot.metadata[CAPTURE_DECISION_EVIDENCE_KEY] = bool(capture_decision_evidence)
         self._resolver = resolver or DecisionResolver()
         self._rng = rng
 
@@ -893,6 +908,10 @@ class TaskPolicy:
             return self._resolver.resolve(self._snapshot, frame)
         if frame is not None:
             raise ValueError("low decision authority uses learned policy evidence, not a decision frame")
+        if capture_decision_evidence_enabled(self._snapshot) and (
+            not isinstance(audit_evidence, Mapping) or len(audit_evidence) == 0
+        ):
+            raise ValueError(AUDIT_EVIDENCE_REQUIRED_MESSAGE)
 
         policy = SoftmaxPolicy.from_snapshot(self.snapshot(), rng=self._rng)
         probabilities_list = policy.probabilities()
@@ -969,6 +988,7 @@ class TaskPolicy:
 
 
 __all__ = [
+    "CAPTURE_DECISION_EVIDENCE_KEY",
     "CriterionAssessment",
     "DecisionAuthority",
     "DecisionCriterion",
@@ -982,4 +1002,5 @@ __all__ = [
     "OptionAssessment",
     "TaskPolicy",
     "TieBreakDisposition",
+    "capture_decision_evidence_enabled",
 ]

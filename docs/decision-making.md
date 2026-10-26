@@ -719,6 +719,25 @@ supervised exploitation is required. Once all autonomy gates pass, the command
 selects the stable recommended action greedily regardless of this flag. Execute
 the returned `selected_action`, not a separate preference.
 
+#### Optional evidence capture
+
+A low-authority policy can opt in to keeping the rationale behind each decision:
+
+```powershell
+agent-learn task-policy-init `
+  --agent-id code-reviewer `
+  --task-id choose-repository-search `
+  --decision-context "Choose a repository search strategy" `
+  --actions .ctions.json `
+  --capture-decision-evidence
+```
+
+With the flag on, `TaskPolicy.decide(audit_evidence={...})` must receive a non-empty mapping and returns it on the
+`DecisionResult` unchanged; the SDK does not read or score it, and it never reaches the learner. Without the flag nothing
+changes. Pass `--decision-result PATH` to `task-episode-register` (or `decision_result=` to `EpisodeCapture.start()`) to copy the
+evidence into `Episode.metadata["audit_evidence"]`; it is write-once. `task-policy-decide` cannot supply the evidence yet,
+so on an opted-in policy it exits with a message pointing to the SDK.
+
 ### Full authority: resolve and adjudicate
 
 Build `decision-frame.json` with every policy action exactly once. Evidence

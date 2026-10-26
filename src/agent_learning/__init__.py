@@ -147,6 +147,7 @@ from .config import (
     ShapingConfig,
 )
 from .decision import (
+    CAPTURE_DECISION_EVIDENCE_KEY,
     CriterionAssessment,
     DecisionAuthority,
     DecisionCriterion,
@@ -160,6 +161,7 @@ from .decision import (
     OptionAssessment,
     TaskPolicy,
     TieBreakDisposition,
+    capture_decision_evidence_enabled,
 )
 from .learners import Learner, LearnerResult, ReinforceLearner
 from .metrics import (
@@ -312,6 +314,8 @@ __all__ = [
     "get_default_store",
     "score_episode_dataframe",
     "validate_catalog",
+    "CAPTURE_DECISION_EVIDENCE_KEY",
+    "capture_decision_evidence_enabled",
     "Reliability",
     "TriageRecord",
     "find_triage_lines",

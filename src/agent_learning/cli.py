@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import copy
 import json
 import logging
 import random
@@ -26,6 +27,7 @@ from .decision import (
     DecisionStatus,
     TaskPolicy,
     TieBreakDisposition,
+    capture_decision_evidence_enabled,
 )
 from .policy.softmax_bandit import SoftmaxPolicy
 from .storage.cosmos import get_default_store
@@ -209,6 +211,11 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         help="Path to a JSON complexity profile. Defaults conservatively to standard.",
     )
     init.add_argument(
+        "--capture-decision-evidence",
+        action="store_true",
+        help="Opt in: a low-authority decision must then carry non-empty audit_evidence (ADR-006).",
+    )
+    init.add_argument(
         "--decision-authority",
         choices=[authority.value for authority in DecisionAuthority],
         help="Action-selection authority: low uses learned policy evidence; full resolves a decision frame.",
@@ -245,6 +252,10 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         "--episode",
         required=True,
         help="Path to a JSON file containing an Episode object.",
+    )
+    register.add_argument(
+        "--decision-result",
+        help="Optional DecisionResult JSON whose audit_evidence is copied into the episode metadata (write-once).",
     )
 
     compare = sub.add_parser(
@@ -684,6 +695,16 @@ def _cmd_decide_task_policy(args: argparse.Namespace) -> int:
             file=sys.stderr,
         )
         return 2
+    if capture_decision_evidence_enabled(snapshot):
+        # ADR-006: an opted-in policy needs audit_evidence on every decision, and this command has
+        # no option to supply it yet. Say so instead of failing inside decide().
+        print(
+            "This policy has capture_decision_evidence enabled and requires audit_evidence; "
+            "pass it through the SDK (TaskPolicy.decide(audit_evidence=...)). "
+            "task-policy-decide cannot supply it.",
+            file=sys.stderr,
+        )
+        return 2
 
     autonomy_assessment = assess_autonomy(store, snapshot)
     recommended_index = next(
@@ -865,6 +886,9 @@ def _cmd_init_task_policy(args: argparse.Namespace) -> int:
             ),
         }
     )
+    if args.capture_decision_evidence:
+        # Written only when opted in; an absent key means off, so default metadata is unchanged.
+        snapshot.metadata["capture_decision_evidence"] = True
     store.store_policy(snapshot)
     print(json.dumps(_policy_payload(snapshot), indent=2))
     return 0
@@ -984,6 +1008,27 @@ def _cmd_register_task_episode(args: argparse.Namespace) -> int:
     except (KeyError, TypeError, ValueError) as exc:
         print(f"Invalid episode definition: {exc}", file=sys.stderr)
         return 2
+
+    if args.decision_result:
+        try:
+            decision_result = _load_decision_result(args.decision_result)
+        except (TypeError, ValueError) as exc:
+            print(str(exc), file=sys.stderr)
+            return 2
+        if decision_result.audit_evidence is not None:
+            evidence = copy.deepcopy(dict(decision_result.audit_evidence))
+            current = episode.metadata.get("audit_evidence")
+            if current is not None and current != evidence:
+                print("Episode metadata.audit_evidence differs from the decision result; it is write-once.", file=sys.stderr)
+                return 2
+            episode.metadata["audit_evidence"] = evidence
+    stored_episode = store.get_episode(episode.id, args.agent_id)
+    if stored_episode is not None and "audit_evidence" in stored_episode.metadata:
+        stored_evidence = stored_episode.metadata["audit_evidence"]
+        if "audit_evidence" in episode.metadata and episode.metadata["audit_evidence"] != stored_evidence:
+            print("Episode metadata.audit_evidence differs from the stored episode; it is write-once.", file=sys.stderr)
+            return 2
+        episode.metadata["audit_evidence"] = stored_evidence
 
     if args.require_decision_policy:
         policy = store.get_policy(episode.policy_id or "", args.agent_id)

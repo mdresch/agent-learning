@@ -27,7 +27,7 @@ description: The catalog of the 32 learning methodologies (agent_learning.method
 - Story 36.3 adds proof-of-concept directories and calls `validate_catalog(..., existing_paths=...)`; Story 36.6 reads the catalog for the tailoring matrix.
 
 ## 4. Out of Scope
-The proof-of-concept sketches (36.3), the best-practice ledger (36.4), the review-triage loop (36.5), and generating the catalog state from the Ideation Document (ADR-036 §8).
+The review-triage loop (36.5) and generating the catalog state from the Ideation Document (ADR-036 §8).
 
 ## 5. Runnable Examples (Story 36.2)
 The nine `runnable` entries (#2, #3, #4, #5, #6, #12, #19, #20, #21) each have `examples/methodologies/<NN>-<slug>/` with `README.md` and `example.py`.
@@ -45,3 +45,12 @@ The ten `proof_of_concept` entries (#8, #9, #10, #11, #13, #14, #15, #17, #22, #
 - **Deterministic and offline.** A fixed seed (`SEED`), standard library only, no files written, exit 0. Sketches assert only their own arithmetic (for example, that a clamp holds), which checks the sketch, not the methodology.
 - **Where a hypothesis is registered** (#8, #9, #10, #15, #22, #23) the README quotes its falsification criterion; for #11, #13, #14, #17 the README says the criterion is proposed there.
 - **Adding a sketch:** add the directory and files, set the catalog entry's class and `path`, add the id to `RUNNABLE` in `tests/test_methodology_sketches.py` (the map name is reused for the sketch set).
+
+## 7. Best-Practice Ledger (Story 36.4)
+`agent_learning.methodology_ledger` (`parse_ledger`, `current_entries`, `LedgerEntry`) parses `docs/project-docs/Methodology-Best-Practice-Ledger.md`. Pure: it takes text and returns entries, and imports nothing from storage.
+
+- **Entry:** `## BP-###` with `- field: value` lines (methodology, practice, preconditions, applies_to, evidence_class, evidence_ref, evidence_count, status, optional tier, supersedes, links). Unknown or missing fields, unknown enumeration values, unknown methodology ids and duplicate ids raise `ValueError` naming the entry.
+- **Adoption:** `adopted` needs `evidence_class: real-episodes`, a declared `tier`, and `evidence_count` at or above `AutonomyConfig.for_tier(tier).min_outcomes`. `source-doc` and `synthetic-demo` can never be adopted. Today every entry is a `candidate`, because no real episodes of a methodology exist yet.
+- **Append-only:** never edit an entry. A status change is a new entry with `supersedes: BP-###` naming an earlier entry of the same methodology; each entry can be superseded once; `current_entries` returns the tails.
+- **Links:** `LL-###` and `HYP-AL-###` must match the format, and must exist when the caller passes `known_links` (the register test passes the real ones).
+- **Adding an entry:** append a section; run `tests/test_methodology_ledger.py`. Do not raise the evidence class or status without the real episodes.

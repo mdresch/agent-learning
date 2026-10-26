@@ -391,3 +391,40 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-17-4 | style | verified: yes | decision: declined | DEFAULT_EPSILON missing from __all__ in __init__.py; exists on main, outside this story | fix: none`
   - `Q-17-5 | test gap | verified: yes | decision: declined | purity test does not cover indirect I/O through config; config.py imports only logging, os, dataclasses and typing, and AC_4 is about storage | fix: none`
   - Verdict on `45455cd`: Q replied "No" to further additions, with no new findings. The first reply to an earlier verdict request is the command that began with /q; the lesson from PR #16 held (/q at the start of the comment).
+
+
+---
+
+## Story 36.5 — The Review-Triage Learning Loop
+- **Commit:** `a7eea8f`
+- **Date:** 2026-10-26
+- **Branch:** `feat/story-36.5`
+- **Source ADR / BRD / FDD:** ADR-036 (section 4.5, Invariants 6 and 7), BRD-036 (BRU-036-05 to BRU-036-07), FDD-036 (sections 2.3, 2.4, 3 items 3 to 5)
+- **Files Modified/Created:**
+  - `src/agent_learning/review_triage.py` (new; `TriageRecord`, `Reliability`, `parse_triage_line`, `reconstruct_record`, `find_triage_lines`, `to_episode_metadata`, `reliability`); all but `to_episode_metadata` re-exported from `__init__.py`
+  - `docs/policy-shapes/{triage-review-finding,route-review-finding}.{actions,profile}.json` (four new files)
+  - `tests/test_review_triage.py` (29 tests)
+  - `.claude/skills/methodology-catalog/SKILL.md` (section 8 added)
+  - `docs/user-stories/epic-36-...md` (Story 36.5 status updated to Completed)
+- **Validation:**
+  - $AC_0$: a valid line parses; a claim type, verified or decision value outside its vocabulary raises naming the field and value; `unknown` is accepted; a malformed line and an unknown reviewer initial raise. All 15 backticked triage lines already in this log parse.
+  - $AC_1$: `to_episode_metadata` returns a plain, JSON-serializable dict; an AST test shows the module imports nothing from a storage module directly.
+  - $AC_2$: `reliability` equals `wilson_lower_bound(verified, cases, z)`, excludes `unknown`, counts `partial` as not verified, filters by reviewer and claim type, and gives `lower_bound = None` below `min_cases` (and with no cases).
+  - $AC_3$: `reconstruct_record` sets `reconstructed = True`, leaves every field not given as `unknown`, still rejects a value outside the vocabulary, and adds no case to the reliability.
+  - $AC_4$: the triage shape lists exactly the three actions and its profile loads with `ComplexityProfile.from_dict` with `requires_human_approval` true.
+  - $AC_5$: the routing shape lists only the three verification-order actions (no accept or decline), its profile loads, and the two shapes share no action.
+  - $AC_6$: every record's decision is unchanged after `reliability` and `to_episode_metadata`; records are frozen.
+  - The tests were written first; the module did not exist at that point, so the first run was after the module was written (29 passed). A RED run was not recorded this time.
+  - Full suite with `--ignore=tests/test_spark.py --ignore=tests/pmbok`: **695 passed, 2 skipped**. Not covered: `tests/pmbok` and `tests/test_spark.py` (LL-013).
+  - `ruff check` on the new module and test: clean.
+- **Interpretations not stated verbatim in the acceptance criteria (LL-011), recorded in the test header:**
+  - I1: reviewer and PR come from the finding id; the initial maps to a reviewer name through a table (Q is amazon-q); an unknown initial raises.
+  - I2: two spellings the log already uses are read into the FDD vocabulary: `logic` as `logic error`, `accepted with modification` as `accepted` with `(with modification)` put in front of the reason.
+  - I3: a backfilled record is one built by `reconstruct_record`.
+  - I4: the module imports `wilson_lower_bound` from `agent_learning.autonomy` (as the FDD says), and that module imports storage; AC_1 is tested on the module's own imports.
+  - I5: "nothing sets the decision" is tested by value and by frozen dataclasses.
+  - I6: profiles: triage is medium impact and reversible with human approval true; routing is low impact and reversible with no approval flag.
+  - I7: `to_episode_metadata` is not re-exported from the package root, because `agent_learning.to_episode_metadata` already is the tailoring function.
+- **Not done (by design):** the two shapes are declared, not initialized. The maintainer runs `task-policy-init` for each (triage with `full` authority, routing with `low`). No backfill of earlier stories was run: the log already holds 15 complete records in the fixed shape, and no field was reconstructed.
+- **Open for a human:** whether to initialize the two policies now or after Story 36.6; the profile values in I6 are my choice.
+- **Review (Step 8):** Amazon Q round 1 reviewed head `706a308` (two reviews, no inline finding, no merge-blocking defect; findings: 0 accepted, 0 declined, 0 deferred). A standalone `/q` command then asked for an explicit verdict, and Q replied "No" to further additions on `706a308`.

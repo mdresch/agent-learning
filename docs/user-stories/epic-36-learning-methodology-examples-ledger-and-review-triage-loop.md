@@ -63,7 +63,7 @@
 
 ## Story 36.5 — The Review-Triage Learning Loop
 
-**Status:** Approved (2026-10-26, Menno) — derived from Accepted ADR-036, BRD-036 and FDD-036; adjudicated via `approve-user-stories` (episode `80fe8a45-29a0-4a52-baa9-476f70d88209`).  
+**Status:** Approved (2026-10-26, Menno) — derived from Accepted ADR-036, BRD-036 and FDD-036; adjudicated via `approve-user-stories` (episode `80fe8a45-29a0-4a52-baa9-476f70d88209`). Completed (2026-10-26) — implemented in feat/story-36.5 with contract tests in tests/test_review_triage.py.  
 **As** the maintainer triaging automated-review findings, **I want** each decision recorded in a fixed shape and turned into evidence for the next one, **so that** the project learns from its own build loop without any learned accept or decline.
 
 ### Acceptance Criteria:

@@ -54,3 +54,12 @@ The ten `proof_of_concept` entries (#8, #9, #10, #11, #13, #14, #15, #17, #22, #
 - **Append-only:** never edit an entry. A status change is a new entry with `supersedes: BP-###` naming an earlier entry of the same methodology; each entry can be superseded once; `current_entries` returns the tails.
 - **Links:** `LL-###` and `HYP-AL-###` must match the format, and must exist when the caller passes `known_links` (the register test passes the real ones).
 - **Adding an entry:** append a section; run `tests/test_methodology_ledger.py`. Do not raise the evidence class or status without the real episodes.
+
+## 8. Review-Triage Loop (Story 36.5)
+`agent_learning.review_triage` turns the Step 8 triage lines of the implement-story skill into evidence. Pure: it takes text and plain data and imports nothing from a storage module directly.
+
+- **Record:** `parse_triage_line("Q-12-3 | claim type | verified: <v> | decision: <d> | <reason> | fix: <commit or none>")` returns a `TriageRecord`; a claim type, `verified` or `decision` outside its vocabulary raises naming the field and value; `unknown` is accepted. The log's `logic` is read as `logic error`, and `accepted with modification` as `accepted` with `(with modification)` in front of the reason. `find_triage_lines(text)` returns the backticked lines of a log.
+- **Episode metadata:** `to_episode_metadata(record)` returns a plain dict. Import it from `agent_learning.review_triage`; it is not re-exported from the package root, where `to_episode_metadata` is the tailoring one.
+- **Reliability:** `reliability(records, reviewer, claim_type, z=1.96, min_cases=5)` counts `yes` as verified, `no` and `partial` as not, excludes `unknown`, and gives `lower_bound=None` below `min_cases`. It is evidence for a person, not a rule.
+- **Backfill:** `reconstruct_record(finding_id, **known)` marks `reconstructed=True` and leaves every field the history does not show as `unknown`. Never fill a field from memory.
+- **Shapes (declared, not initialized):** `docs/policy-shapes/triage-review-finding.*` (accept_and_amend, decline_with_reason, defer_to_human; `requires_human_approval: true`) and `route-review-finding.*` (three verification-order actions, no accept or decline). The maintainer initializes them with `task-policy-init` (triage with `full` authority, routing with `low`). Triage is never learned; only the order of verification may be.

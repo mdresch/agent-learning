@@ -93,7 +93,7 @@ def _fields(entry_id: str, body: str) -> dict[str, str]:
         fields[key] = value
     missing = [key for key in _REQUIRED if not fields.get(key)]
     if missing:
-        raise ValueError(f"{entry_id}: missing fields: {', '.join(missing)}")
+        raise ValueError(f"{entry_id}: missing or empty fields: {', '.join(missing)}")
     return fields
 
 

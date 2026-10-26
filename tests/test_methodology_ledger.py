@@ -28,6 +28,7 @@ from pathlib import Path
 
 import pytest
 
+from agent_learning.config import AutonomyConfig
 from agent_learning.methodology_ledger import LedgerEntry, current_entries, parse_ledger
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -121,6 +122,19 @@ def test_ac0_an_unknown_field_and_a_missing_field_raise_naming_the_entry() -> No
         parse_ledger(_text(broken))
 
 
+def test_ac0_a_later_section_that_is_not_an_entry_ends_the_entry_body() -> None:
+    """Bullets under a following non-entry heading are prose, not fields of the entry above it."""
+    text = _text(_entry("BP-001")) + "\n## Notes\n- mood: hopeful\n"
+    [entry] = parse_ledger(text)
+    assert entry.id == "BP-001"
+
+
+def test_ac0_an_empty_required_field_raises_as_missing_or_empty() -> None:
+    blank = _entry("BP-006").replace("- evidence_ref: Ideation HYP-AL-002", "- evidence_ref:")
+    with pytest.raises(ValueError, match=r"BP-006.*evidence_ref"):
+        parse_ledger(_text(blank))
+
+
 def test_ac0_a_duplicate_id_and_a_bad_evidence_count_raise() -> None:
     with pytest.raises(ValueError, match=r"duplicate.*BP-001"):
         parse_ledger(_text(_entry("BP-001"), _entry("BP-001")))
@@ -140,18 +154,25 @@ def test_ac1_adopted_on_source_doc_or_synthetic_demo_raises(evidence_class: str)
 
 
 def test_ac1_adopted_below_the_tier_gate_raises_and_at_the_gate_parses() -> None:
-    with pytest.raises(ValueError, match=r"BP-002.*19.*20"):
-        parse_ledger(_text(_entry("BP-002", evidence_class="real-episodes", evidence_count="19", status="adopted", tier="standard")))
-    [entry] = parse_ledger(_text(_entry("BP-002", evidence_class="real-episodes", evidence_count="20", status="adopted", tier="standard")))
+    gate = AutonomyConfig.for_tier("standard").min_outcomes  # read at run time: env overrides apply (I2)
+    below = _entry("BP-002", evidence_class="real-episodes", evidence_count=str(gate - 1), status="adopted", tier="standard")
+    with pytest.raises(ValueError, match=rf"BP-002.*{gate - 1}.*{gate}"):
+        parse_ledger(_text(below))
+    at = _entry("BP-002", evidence_class="real-episodes", evidence_count=str(gate), status="adopted", tier="standard")
+    [entry] = parse_ledger(_text(at))
     assert entry.status == "adopted"
 
 
 def test_ac1_the_gate_follows_the_declared_tier() -> None:
-    """low needs 3 outcomes, so 3 real episodes adopt at low but not at standard (interpretation I2)."""
-    [entry] = parse_ledger(_text(_entry(evidence_class="real-episodes", evidence_count="3", status="adopted", tier="low")))
+    """Real episodes at the low gate adopt at low; the same count adopts at standard only if the gates are equal (I2)."""
+    low_gate = AutonomyConfig.for_tier("low").min_outcomes
+    standard_gate = AutonomyConfig.for_tier("standard").min_outcomes
+    assert low_gate < standard_gate, "the tiers must have distinct gates for this test to mean anything"
+    count = str(low_gate)
+    [entry] = parse_ledger(_text(_entry(evidence_class="real-episodes", evidence_count=count, status="adopted", tier="low")))
     assert entry.tier == "low"
     with pytest.raises(ValueError, match=r"BP-001.*standard"):
-        parse_ledger(_text(_entry(evidence_class="real-episodes", evidence_count="3", status="adopted", tier="standard")))
+        parse_ledger(_text(_entry(evidence_class="real-episodes", evidence_count=count, status="adopted", tier="standard")))
 
 
 def test_ac1_adopted_without_a_tier_raises() -> None:

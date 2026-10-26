@@ -1,0 +1,133 @@
+{
+  "task": "ADR-035 (Cycle Identification and Cross-Cycle Artifact Traceability): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "architectural_soundness",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Establishes the Scope Management Plan as the primary Baseline-Substantiating Plan forming the foundational root node (depends_on: []) in the planning causal DAG (5.1 Scope -> 6.1 Schedule -> 7.1 Cost); inherits ADR-012 frontmatter specification and authentic PMBOK 8 Scope domain under Planning focus area; mandates explicit in-scope and out-of-scope boundaries (requiring a non-empty, lint-checkable >= 10-word rationale when 'None: [rationale]' is declared); sets route-differentiated word count floors (180 for pmp_section, 700 for full_plan) and caps (750 for pmp_section, 4,500 for full_plan) with Unicode tokenization; preserves lean pmp_section agility by making full WBS dictionary tables and RTM matrices optional for embedded sections while requiring a concise hierarchy line and DoD summary; defines disjunctive variance thresholds (<= 1 SP or minor localized refactoring with zero architectural impact) with formal Stage 17 Integrated Change Control (approve-adaptation-plan) for structural expansions; establishes symmetric rejection governance across approve-pmp and approve-subsidiary-plan with transitive downstream invalidation per ADR-013 \u00c2\u00a74.5; strictly adheres to ADR-001, ADR-002, ADR-005, ADR-008, ADR-011, ADR-012, ADR-013, and ADR-034."
+    },
+    {
+      "id": "alternatives_considered",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Two genuine alternatives evaluated and rejected with sound architectural rationales: allowing scope to be inferred from user stories without a plan (rejected for inverting governance and causing unanchored scope creep) and combining scope and schedule into a single document (rejected for violating LL-015 component credit assignment)."
+    },
+    {
+      "id": "consequences_honest",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Honest disclosure of positive benefits (defends the baseline, deterministic causal anchor for schedule and cost, automated linter rules) against negative trade-offs (authoring burden of upfront boundary definition and exclusion itemization before implementation)."
+    },
+    {
+      "id": "gap_disclosure_quality",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Clearly bounds scope and discloses open questions in Section 8 (automated WBS extraction from User Story markdown artifacts deferred to future tooling enhancements); complete amendment log tracking four review rounds."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_adr",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "direct_doc_read:docs/adr/ADR-035-cycle-identification-and-cross-cycle-artifact-traceability.md; repo-verified: PMP-BL-v1.0.0 unapproved bootstrap (ADR-013 s4.8, ADR-034 s4.2.3), volatile-key list excludes baseline_id (ADR-013 s4.3), tailoring matrix home (ADR-011 Inv 5); no new LearningStore record type; amends accepted ADR-008/012/013 only on acceptance",
+          "support": 0.88,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "adr_035_section_6_five_alternatives_incl_baseline_as_cycle_and_in_file_pins",
+          "support": 0.88,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "adr_035_section_7_authoring_burden_backfill_and_template_lag",
+          "support": 0.86,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "adr_035_section_8_amendment_list_register_growth_trace_id; no tooling or validator exists yet and author is also reviewer",
+          "support": 0.85,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_adr",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "no fundamental flaw found in direct_doc_read of ADR-035",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "adr_035_section_6",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "adr_035_section_7",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "adr_035_section_8",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "residual risk: three accepted ADRs need amendment on acceptance",
+          "support": 0.15,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "adr_035_section_6",
+          "support": 0.15,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "adr_035_section_7",
+          "support": 0.15,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "adr_035_section_8: no validator or tooling to test the register rules",
+          "support": 0.15,
+          "confidence": 0.75
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

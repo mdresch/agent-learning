@@ -10,7 +10,7 @@
 | Need | Applies to | Methodology (catalog ids) | Hypothesis | Falsifiable by | Ledger | Status |
 |---|---|---|---|---|---|---|
 | Cold start of a new `TaskPolicy` in the store | store | #15 warm-start | HYP-AL-008 | Episodes to reach the gate, against a cold start | BP-005 | hypothesis |
-| Positive-only history stalls a policy | store | #9, #10 | HYP-AL-002, HYP-AL-009 | Crossing the gate on the same dataset | BP-002 | hypothesis |
+| Positive-only history stalls a policy | store | #9, #10 | HYP-AL-002, HYP-AL-009 | Crossing the gate on the same dataset | BP-013 | hypothesis |
 | Drift in stored outcomes | store | #30 | HYP-AL-021 | Recovery after a shifted reward sequence | BP-006 | hypothesis |
 | Retrieving the lessons relevant to a decision | lessons-learned | #26 | HYP-AL-024 | Accuracy against a recency baseline | BP-007 | hypothesis |
 | Turning review critique into evidence | lessons-learned | #8 | HYP-AL-005 | Convergence against REINFORCE on the same episodes | BP-008 | hypothesis |

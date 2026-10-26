@@ -146,3 +146,27 @@ Append a section `## BP-###` (next number) with one `- field: value` line per fi
 - evidence_count: 0
 - status: candidate
 - links: LL-004
+
+## BP-012
+- methodology: 9
+- practice: Retired. BP-002 named Thompson sampling (#9) as the filing, but the practice prefers UCB with a Wilson bound as the first try; the maintainer placed it under UCB (#10). See BP-013.
+- preconditions: Not applicable; this entry only retires BP-002.
+- applies_to: store
+- evidence_class: source-doc
+- evidence_ref: Maintainer decision on the Epic 36 walkthrough, 2026-10-26; Ideation HYP-AL-009
+- evidence_count: 0
+- status: retired
+- supersedes: BP-002
+- links: HYP-AL-009
+
+## BP-013
+- methodology: 10
+- practice: When positive-only evidence is all that exists, try UCB with a Wilson bound first and Thompson sampling second, before moving the decision to full authority.
+- preconditions: A decision with positive-only history that is stuck below the autonomy gate under REINFORCE.
+- applies_to: store
+- evidence_class: source-doc
+- evidence_ref: Ideation HYP-AL-009 (UCB preferred over Thompson as the first implementation)
+- evidence_count: 0
+- status: candidate
+- links: HYP-AL-009
+

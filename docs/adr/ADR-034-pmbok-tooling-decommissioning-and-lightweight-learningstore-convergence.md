@@ -323,27 +323,6 @@ To guarantee zero external runtime dependencies (`pyyaml`) per Invariant 1 and e
    - At gate review, unparseable frontmatter functions as the **fourth Technical Integrity Hard Block** (amending ADR-013 §4.2 and Invariant 5) that mechanically rules out `approve_plan` outright.
 8. **Volatile Stripping Parity:** The canonical hashing utility `strip_volatile_frontmatter` (ADR-013 §4.3) uses this exact subset parser to strip volatile metadata keys without disturbing static semantic fields.
 9. **Conformance Testing:** Phase 1 mandates a dedicated conformance test suite asserting that the ADR-012 §4.2 canonical frontmatter example parses with 100% fidelity.
-1. **Delimiters, Line Endings & BOM:** CRLF (`\r\n`) is normalized to LF (`\n`) and any leading UTF-8 BOM (`\ufeff`) is automatically stripped before tokenization. Frontmatter must be bounded by opening `---` and closing `---` on lines by themselves with no leading or trailing whitespace.
-2. **Key-Value Pairs:** Flat string or enum keys matching `^[a-z_]+$` followed by a colon and space (`<key>: <value>`) or a colon followed by trailing comments/whitespace (`<key>:  # comment`). Duplicate keys are strictly prohibited; encountering a duplicate key emits `FLAG: INVALID_METADATA`.
-3. **Scalar Values:**
-   - Double-quoted strings (`"..."`) supporting standard escapes (`\"`, `\\`, `\n`).
-   - Single-quoted strings (`'...'`) interpreted as literal text without escape processing.
-   - Bare scalar tokens matching `^[A-Za-z0-9_.-]+$` (e.g. `1.0.0`, `full_plan`, `Scope`). Strings containing spaces or symbols (e.g. `"PMBOK 8"`) **must be quoted**.
-   - Empty flow lists (`[]`).
-4. **Lists:** Multi-line string sequences where a key is followed on subsequent lines by `  - "item"` or `  - item`, indented with exactly two spaces (`  - `).
-5. **Comments:** `# comment text` preceded by whitespace is permitted:
-   - On an independent line (blank lines and comment lines are discarded).
-   - After a scalar value (e.g. `key: val  # comment`).
-   - After an empty flow list (e.g. `depends_on: []  # comment`).
-   - After a bare key with no scalar value (e.g. `secondary_pmbok_domains:  # comment`).
-   - *Quoting Invariance:* A `#` character appearing inside single- or double-quoted strings is parsed as literal string content, never as a comment delimiter.
-6. **Prohibited Constructs:** Nested mappings, multi-line block scalars (`|`, `>`), YAML anchors/aliases (`&`, `*`), flow mappings (`{...}`), and custom type tags (`!!`) are strictly prohibited.
-7. **Fail-Closed Governance Law:**
-   - If frontmatter is unparseable or violates grammar rules, the parser emits a structured `FLAG: INVALID_METADATA` diagnostic with line-number context (never raising an uncaught exception).
-   - Because unparseable frontmatter prevents reading `generator`, the system assumes unknown/human origin: **auto-regeneration is strictly forbidden**, escalating immediately to a human maintainer.
-   - At gate review, unparseable frontmatter functions as the **fourth Technical Integrity Hard Block** (amending ADR-013 §4.2 and Invariant 5) that mechanically rules out `approve_plan` outright.
-8. **Volatile Stripping Parity:** The canonical hashing utility `strip_volatile_frontmatter` (ADR-013 §4.3) uses this exact subset parser to strip volatile metadata keys without disturbing static semantic fields.
-9. **Conformance Testing:** Phase 1 mandates a dedicated conformance test suite asserting that the ADR-012 §4.2 canonical frontmatter example parses with 100% fidelity.
 
 ### 4.4 CLI Singularity: Absorbing the Orchestrator
 In accordance with Invariant 5, the legacy stand-alone script `scripts/orchestrate_pmbok.py` and the unused Typer CLI (`pmbok/cli/main.py`) are decommissioned. All orchestration capabilities are consolidated into the canonical `argparse` CLI:
@@ -466,5 +445,5 @@ The following implementation items are formally tracked for execution alongside 
 | 2026-10-25 | Menno Drescher / Antigravity | Addressed Round 6 peer review: (1) fixed `not_applicable` omission bypass dropping ancestors via recursive `effective_upstreams()` helper; (2) made ADR-034 §4.3.1 the authoritative frontmatter grammar standard, allowing comments after bare keys and `[]`, normalizing CRLF/BOM, and enforcing quoting for strings with spaces; (3) refactored verification function to accept pure domain `PlanApprovalRecord` without store coupling; (4) fixed lifecycle state derivation order ensuring in-flight review for current hash takes precedence as `UNDER_REVIEW`; (5) barred `raw:` hashes from approvals and downstream dependencies; (6) updated architecture diagram and invariants for `pmbok_runtime`; (7) added normative 6-test suite specification and carried-over errata tracker table. |
 | 2026-10-25 | Menno Drescher / Antigravity | Final pre-approval polish: (1) marked code sketches and state derivation in §4.2.2 as illustrative reference models to prevent premature contract freezing prior to follow-on ADRs; (2) designated §4.3.1 grammar subset as provisional for Epic 12 Phase 1, to be re-homed and formally standardized in ADR-012 follow-on; (3) scoped header supersedes/amends strictly to ADR-009 §4.13 and ADR-008, deferring in-place edits of ADR-012/ADR-013 to their follow-on revisions; (4) reconciled ERR-034-03, ERR-034-04, Test 1 reason string, and feedback status naming in metadata schema. |
 | 2026-10-26 | **Accepted by Menno** | Formally adjudicated and accepted through `approve-adr` TaskPolicy; robust utility 0.965, expected utility 0.979, margin 0.963; Episode `3512706e-d5ea-4f5c-9c54-642653fd5fcf`. Fifteenth accepted ADR in the agent-learning self-governance chain. |
-
-
+| 2026-10-26 | Correction (ADR-008 relationship) | The 2026-10-25 row above says an explicit supersedes clause was added for ADR-008. The body of this ADR amends ADR-008 section 4.2, BRU-008-04 and Story 8.1 and does not supersede ADR-008 as a whole. ADR-008 now records section 4.2 as superseded by this ADR and ADR-013, and its other sections as in force. |
+| 2026-10-26 | Correction (duplicate text) | Section 4.3.1 printed its nine grammar rules twice, back to back. The second copy was verified identical to the first and removed; no rule changed. |

@@ -14,7 +14,7 @@ This completes the Intent-to-Outcome chain as a living, self-governing cognitive
 
 ## 2. Status
 
-**Accepted (2026-10-24)** — formally evaluated against the `agent-learning-governance` / `approve-adr` TaskPolicy chain and adjudicated by Menno Drescher (`--disposition accept`), revised with formal Governance Change Impact Matrix, PMP Baseline Versioning, Rollback Strategy, and Baseline Traceability Invariant.
+**Accepted (2026-10-24); section 4.2 superseded by ADR-034 and ADR-013 (2026-10-26)** — the rest of this ADR (sections 4.1 and 4.3 to 4.8 and the invariants) remains in force. See the Amendment Log. Original acceptance: formally evaluated against the `agent-learning-governance` / `approve-adr` TaskPolicy chain and adjudicated by Menno Drescher (`--disposition accept`), revised with formal Governance Change Impact Matrix, PMP Baseline Versioning, Rollback Strategy, and Baseline Traceability Invariant.
 
 ## 3. Context
 
@@ -181,3 +181,11 @@ Decision frames for `approve-pmp` select the appropriate weighting profile based
 - ADR-006: Lightweight Evidence Transport
 - ADR-007: Automated Governance Change Paired Pipeline
 - `docs/intent-to-outcome-chain-coverage.md`: Full 18-stage coverage matrix
+
+---
+
+## 9. Amendment Log
+
+| Date | Change | Why |
+|---|---|---|
+| 2026-10-26 | Partially superseded (section 4.2) | Section 4.2 (native engine: the `pmbok/` package, `scripts/orchestrate_pmbok.py` and one-run generation with `--mode full`) is superseded. ADR-034 decommissions the `pmbok/` stack and its storage, API and CLI and moves the logic into a pure `agent_learning.pmbok` module (and amends BRU-008-04 and Story 8.1). ADR-013 replaces the single atomic run with the sequence draft, approve (per plan), formalize. Sections 4.1 and 4.3 to 4.8 and the invariants are unchanged: ADR-011, ADR-013, ADR-009 and ADR-035 still rely on them. Decided by the maintainer; the change is a lifecycle status mutation and stays human-held (ADR-007). |

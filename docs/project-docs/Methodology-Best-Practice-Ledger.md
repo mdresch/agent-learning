@@ -123,3 +123,26 @@ Append a section `## BP-###` (next number) with one `- field: value` line per fi
 - evidence_count: 0
 - status: candidate
 - links: HYP-AL-023, HYP-AL-019
+
+## BP-010
+- methodology: 6
+- practice: Retired. BP-004 was filed under human override (#6); the maintainer placed it under reasoned resolution (#3), because the triage uses a decision frame. See BP-011.
+- preconditions: Not applicable; this entry only retires BP-004.
+- applies_to: lessons-learned
+- evidence_class: source-doc
+- evidence_ref: Maintainer decision on the Epic 36 walkthrough, 2026-10-26
+- evidence_count: 0
+- status: retired
+- supersedes: BP-004
+- links: LL-004
+
+## BP-011
+- methodology: 3
+- practice: Keep triage of external review findings with the human, and record each human disposition as an episode so a later policy can learn from it without taking over the decision.
+- preconditions: A review loop where the reviewer's claims are verified by a person or by evidence before they are accepted or declined, and the decision is made over a decision frame.
+- applies_to: lessons-learned
+- evidence_class: source-doc
+- evidence_ref: Lessons Learned Register LL-004 and the Q review records in implementation-log.md; ADR-036 section 4.5 (S1 uses reasoned resolution over a DecisionFrame)
+- evidence_count: 0
+- status: candidate
+- links: LL-004

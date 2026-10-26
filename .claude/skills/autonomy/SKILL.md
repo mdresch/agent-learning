@@ -27,6 +27,8 @@ description: Guidance and constraints for evidence-gated autonomy thresholds (ag
 - No new `LearningStore` record type or container (ADR-002 Invariant 2); the CLI builds `SoftmaxPolicy` snapshots only.
 - Tests: `tests/test_authority_migration.py`.
 
+- **Read a mutable global once (LL-020):** an override variable is read once into a local, and the local is tested and used. `_note_global_override` once read the global twice and raised `KeyError` when it was removed in between.
+
 ## 3. Call Sites
 - `src/agent_learning/cli.py` calls `assess_autonomy()` unconditionally for both authorities; the branch on authority lives inside `assess_autonomy()`.
 - `docs/decision-making.md` documents the environment variables, including the tier suffix.

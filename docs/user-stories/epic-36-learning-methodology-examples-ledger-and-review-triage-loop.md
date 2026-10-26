@@ -8,7 +8,7 @@
 
 ## Story 36.1 — The Catalog and Its Integrity Check
 
-**Status:** Approved (2026-10-26, Menno) — derived from Accepted ADR-036, BRD-036 and FDD-036; adjudicated via `approve-user-stories` (episode `80fe8a45-29a0-4a52-baa9-476f70d88209`).  
+**Status:** Approved (2026-10-26, Menno) — derived from Accepted ADR-036, BRD-036 and FDD-036; adjudicated via `approve-user-stories` (episode `80fe8a45-29a0-4a52-baa9-476f70d88209`). Completed (2026-10-26) — implemented in feat/story-36.1 with contract tests in tests/test_methodology_catalog.py.  
 **As** a maintainer, **I want** a catalog entry for each of the 32 methodologies with a class derived from its state, **so that** no methodology is silently missing or mislabeled.
 
 ### Acceptance Criteria:

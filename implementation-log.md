@@ -250,3 +250,34 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Open for a human:** whether FDD-003 should be amended to record I1 to I4 (FDD-003 is approved, so the amendment needs its own approval).
 - **Review (Step 8):** Amazon Q round 1 raised one finding, `Q-11-1 | crash risk | verified: yes | decision: accepted | _note_global_override read the global variable twice, so a variable removed between the two reads could raise KeyError | fix: 6a92064`. An explicit verdict was then requested on the head commit; the reply is on PR #11.
 - **Breakout recap (ADR-010 section 4.1):** pending; this is the epic's last story, to be held after the PR review (Step 9).
+
+---
+
+## Story 36.1 — The Catalog and Its Integrity Check
+- **Commit:** `bc467cc`
+- **Date:** 2026-10-26
+- **Branch:** `feat/story-36.1`
+- **Source ADR / BRD / FDD:** ADR-036 (section 4.1, Invariants 1 to 3), BRD-036 (BRU-036-01, BRU-036-08), FDD-036 (sections 1, 2.1)
+- **Files Modified/Created:**
+  - `src/agent_learning/methodology_catalog.py` (new: `CatalogEntry`, `ExampleClass`, `derive_class`, `parse_catalog`, `validate_catalog`; pure, no file I/O or storage)
+  - `src/agent_learning/__init__.py` (re-exports only)
+  - `examples/methodologies/catalog.json` (the 32 entries: 9 runnable, 10 proof_of_concept, 13 documented)
+  - `tests/test_methodology_catalog.py` (31 tests) and `tests/fixtures/methodology_catalog/ideation_states.json`
+  - `.claude/skills/methodology-catalog/SKILL.md` (new component skill)
+  - `docs/user-stories/epic-36-...md` (Story 36.1 status updated to Completed)
+- **Validation:**
+  - $AC_0$: `validate_catalog()` raises `ValueError` naming a missing, duplicate or out-of-range id; the shipped catalog covers 1 to 32 once each.
+  - $AC_1$: `derive_class()` maps every state per FDD-036 section 2.1, an unknown state raises, and an entry whose class or state differs from the derived class or the fixture raises, naming the id.
+  - $AC_2$: a documented entry with an empty `reason` or `reopening_condition` raises.
+  - $AC_3$: a path outside `examples/methodologies/` (including a `..` path) raises; a missing path for a runnable or proof_of_concept entry raises; with `existing_paths` a listed path that is absent raises.
+  - $AC_4$: an AST test confirms the module imports nothing from `agent_learning.storage` and none of `os`, `pathlib`, `io`, `shutil`.
+  - Observed RED first: collection failed without the module; with a throwaway stub (since removed) 27 of the 31 tests failed on behavior and 4 already passed as guards.
+  - Story contract: `tests/test_methodology_catalog.py` 31 passed. One test regex (`outside` before the id) over-specified the message order and was corrected; the module was not bent to it.
+  - Full suite with `--ignore=tests/test_spark.py --ignore=tests/pmbok`: **521 passed, 2 skipped**. Not covered: `tests/pmbok` (undeclared `sqlalchemy` and `tenacity`) and `tests/test_spark.py` (needs a JVM), so this is not the entire suite (LL-013).
+  - `ruff check` on the two new Python files: all checks passed.
+- **Interpretations not stated verbatim in the acceptance criteria (LL-011), recorded in the test header:**
+  - I1: the module does no file I/O (FDD-036 section 1), so AC_3's existence check takes an `existing_paths` set from the caller; `None` skips it, because the example directories are built by Stories 36.2 and 36.3.
+  - I2: the catalog `state` uses canonical tokens, and the expected states are a hand-transcribed fixture of Ideation section 2.1 (v1.13). Drift between the fixture and the Ideation table is not detected automatically.
+  - I3: a candidate with a Proposed ADR is a proof_of_concept even when the Ideation notes a data prerequisite (#23); #29 is a candidate with no ADR, so it is documented.
+- **Open for a human:** FDD-036 is approved, so recording I1 (the optional `existing_paths` argument) and I2 (canonical state tokens) there needs its own approval.
+- **Review (Step 8):** Amazon Q round 1 reviewed head `1168f03` and reported no merge-blocking defect and no inline finding (findings: 0 accepted, 0 declined, 0 deferred). The explicit verdict round on head `774d298` confirmed all five acceptance criteria and raised one item: `Q-14-1 | documentation | verified: no | decision: declined | validate_catalog is already in __all__ (src/agent_learning/__init__.py line 301; agent_learning.__all__ contains it) | fix: none`. Q then confirmed `validate_catalog` is in `__all__` and that no blocking defect remained at head `9f59748` ("No code change is required to unblock merging this PR"). Its remaining items were recorded as: `Q-14-2 | documentation | verified: yes | decision: declined | DEFAULT_EPSILON is imported but not in __all__; already so on main and not in this diff, so out of scope | fix: none`; `Q-14-3 | documentation | verified: yes | decision: declined | get_capture exists in capture.py, informational only | fix: none`; and two known items already stated in the PR (the suite paths that cannot run, and I1 and I2 awaiting an FDD-036 approval cycle).

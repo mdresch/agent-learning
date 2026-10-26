@@ -73,6 +73,13 @@ from .lessons_learned import (
     load_lessons_learned_register,
     parse_lessons_learned_markdown,
 )
+from .methodology_catalog import (
+    CatalogEntry,
+    ExampleClass,
+    derive_class,
+    parse_catalog,
+    validate_catalog,
+)
 from .tailoring import (
     BASELINE_SUBSTANTIATING,
     INTEGRATION_ELEMENTS,
@@ -194,7 +201,9 @@ __all__ = [
     "LessonsLearnedEntry",
     "filter_crystallized_lessons",
     "load_lessons_learned_register",
+    "derive_class",
     "parse_lessons_learned_markdown",
+    "parse_catalog",
     "BASELINE_SUBSTANTIATING",
     "INTEGRATION_ELEMENTS",
     "PLAN_IDS",
@@ -223,12 +232,14 @@ __all__ = [
     "AutonomyConfig",
     "AutonomyTier",
     "CaptureConfig",
+    "CatalogEntry",
     "CaptureContext",
     "Classifier",
     "ClassifierResult",
     "CompletionScorer",
     "ComplexityAssessment",
     "ComplexityProfile",
+    "ExampleClass",
     "ConsumedInput",
     "ContextualSoftmaxPolicy",
     "CosmosConfig",
@@ -287,6 +298,7 @@ __all__ = [
     "get_capture",
     "get_default_store",
     "score_episode_dataframe",
+    "validate_catalog",
     "shape_episode_reward",
     "wilson_lower_bound",
 ]

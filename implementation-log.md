@@ -280,4 +280,4 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - I2: the catalog `state` uses canonical tokens, and the expected states are a hand-transcribed fixture of Ideation section 2.1 (v1.13). Drift between the fixture and the Ideation table is not detected automatically.
   - I3: a candidate with a Proposed ADR is a proof_of_concept even when the Ideation notes a data prerequisite (#23); #29 is a candidate with no ADR, so it is documented.
 - **Open for a human:** FDD-036 is approved, so recording I1 (the optional `existing_paths` argument) and I2 (canonical state tokens) there needs its own approval.
-- **Review:** pending; the Q review rounds and the findings accepted or declined are added before the merge (Step 8).
+- **Review (Step 8):** Amazon Q round 1 reviewed head `1168f03` and reported no merge-blocking defect and no inline finding (findings: 0 accepted, 0 declined, 0 deferred). An explicit verdict on the final head was requested; the reply is on PR #14.

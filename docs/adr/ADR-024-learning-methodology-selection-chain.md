@@ -1,7 +1,7 @@
 # ADR 024: Learning Methodology Selection Chain
 
 ## 1. Status
-**Proposed (2026-10-25)** — a deliberately small ADR, in the same shape as ADR-011. Not yet evaluated through `approve-adr`.
+**Accepted (2026-10-26, Menno)** — a deliberately small ADR, in the same shape as ADR-011. Episode: `f99f1078-db8f-4575-9bb4-77a95ef73b97`.
 
 ## 2. Context
 - The Ideation Document (§2.1) surveys 32 learning methodologies. Nine are real or partly real, and most of the rest are candidates with their own drafted, unapproved ADRs (ADR-014 to ADR-023, none built).
@@ -46,3 +46,4 @@
 
 ## 8. Amendment Log
 - 2026-10-25: initial draft.
+- 2026-10-26: **Accepted by Menno** via `approve-adr`; robust utility 0.739, expected utility 0.809; Episode `f99f1078-db8f-4575-9bb4-77a95ef73b97`.

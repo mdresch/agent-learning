@@ -1,0 +1,133 @@
+{
+  "task": "ADR-036 (Learning Methodology Examples, Best-Practice Ledger and the Review-Triage Learning Loop): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "architectural_soundness",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Decides an example catalog (32 entries, class derived from Ideation state), a best-practice ledger adopted only on real episodes, and a staged review-triage loop, with no new LearningStore record type (ADR-002), no change to a methodology state (ADR-024), no learned authority over accept or decline (ADR-001, ADR-003 Invariant 6, ADR-008 Invariant 4), and consistent with the selection skill and HYP-AL-002."
+    },
+    {
+      "id": "alternatives_considered",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Five alternatives evaluated and rejected with real reasons: runnable examples for all 32, prose only, training a triage policy now, a new record type, and auto-accepting high-reliability findings."
+    },
+    {
+      "id": "consequences_honest",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Discloses the benefits (visible limits per methodology, an honest practice ledger, learning from the build loop at no cost in autonomy) and the costs (19 example directories, a fixed-shape record per finding, residual risk that synthetic examples are misread, weak reliability evidence at small counts)."
+    },
+    {
+      "id": "gap_disclosure_quality",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Bounds the open items in Section 8 (the routing policy tier, generating the catalog state, other reviewers, trace_id, ledger vs lessons learned) and records that the real review data is small and nearly all accepted, and that the author of the code also triages it."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_adr",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "direct_doc_read:docs/adr/ADR-036-learning-methodology-examples-ledger-and-review-triage-loop.md; repo-verified: 23 inline Q comments on 8 PRs, catalog class counts (9, 10, 13) against Ideation 2.1 states, HYP ids, ADR-003 Invariant 6; author also scored this frame",
+          "support": 0.85,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "adr_036_section_6_five_alternatives",
+          "support": 0.88,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "adr_036_section_7_costs_and_misreading_risk",
+          "support": 0.86,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "adr_036_section_8_open_questions; small and nearly all-accepted review data disclosed; no code or tests yet",
+          "support": 0.84,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_adr",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "no fundamental flaw found in direct_doc_read of ADR-036",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "adr_036_section_6",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "adr_036_section_7",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "adr_036_section_8",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "residual risk: depends on ADR-024 and ADR-035, both still Proposed; broad scope of 19 example directories",
+          "support": 0.16,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "adr_036_section_6",
+          "support": 0.12,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "adr_036_section_7",
+          "support": 0.12,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "adr_036_section_8: min_cases default and routing tier unresolved",
+          "support": 0.16,
+          "confidence": 0.75
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

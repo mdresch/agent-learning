@@ -428,3 +428,45 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Not done (by design):** the two shapes are declared, not initialized. The maintainer runs `task-policy-init` for each (triage with `full` authority, routing with `low`). No backfill of earlier stories was run: the log already holds 15 complete records in the fixed shape, and no field was reconstructed.
 - **Open for a human:** whether to initialize the two policies now or after Story 36.6; the profile values in I6 are my choice.
 - **Review (Step 8):** Amazon Q round 1 reviewed head `706a308` (two reviews, no inline finding, no merge-blocking defect; findings: 0 accepted, 0 declined, 0 deferred). A standalone `/q` command then asked for an explicit verdict, and Q replied "No" to further additions on `706a308`.
+
+
+---
+
+## Story 36.6 — Tailoring for the Store and Lessons Learned, and Template Propagation
+- **Commit:** `44888b7` (agent-learning); `2581b0c` (sidpa-template, branch `feat/upgrade-from-agent-learning-2026-10`, local, not pushed)
+- **Date:** 2026-10-26
+- **Branch:** `feat/story-36.6`
+- **Source ADR / BRD / FDD:** ADR-036 (section 4.4, Invariant 4), BRD-036 (BRU-036-09), FDD-036 (section 1); ADR-010 (epic-end recap)
+- **Files Modified/Created (agent-learning):**
+  - `docs/project-docs/Methodology-Tailoring-Matrix.md` (new; six pairings, all `hypothesis`)
+  - `docs/project-docs/Methodology-Best-Practice-Ledger.md` (BP-005 to BP-009 appended, all `candidate`)
+  - `docs/project-docs/Lessons-Learned-Register.md` (LL-016 to LL-019: the Epic 36 recap)
+  - `tests/test_methodology_tailoring_matrix.py` (8 tests)
+  - `.claude/skills/methodology-catalog/SKILL.md` (section 9; stale pending note replaced), `.claude/skills/implement-story/SKILL.md` (Step 8.1 and 8.2: `--repo`, `/q` first)
+  - `src/agent_learning/methodology_catalog.py` (one stale comment reworded), `docs/user-stories/epic-36-...md` (Story 36.6 Completed)
+- **Files Created/Modified (sidpa-template):** `docs/methodologies/{catalog.json,Tailoring-Matrix.md,README.md}`, `docs/registers/Methodology-Best-Practice-Ledger.template.md` (empty), `scripts/init_project.py` (scaffolds the ledger in the `start` stage), `README.md`, `docs/learning-methodology.md`, `tests/test_template_integrity.py` (3 tests, plus a scaffold assertion)
+- **Validation:**
+  - $AC_0$: each of the six rows names catalog ids that exist, `Applies to` of `store` or `lessons-learned`, a falsification criterion, hypotheses that exist in the Ideation Document, and is marked `hypothesis`.
+  - $AC_1$: each row's `Ledger` is a current `candidate` entry about one of the row's methodologies; no ledger entry is adopted.
+  - $AC_2$: the catalog, the matrix, the ledger template and the labeling contract are in `sidpa-template`; its integrity tests pass (**21 passed**, run with `uv run --no-project --with pytest`; 18 before, 3 added).
+  - $AC_3$: the Epic 36 recap is recorded as LL-016 to LL-019 in the Lessons Learned Register and indexed; a test checks that an entry names Epic 36 and appears in the index.
+  - Full suite with `--ignore=tests/test_spark.py --ignore=tests/pmbok`: **703 passed, 2 skipped**. Not covered: `tests/pmbok` and `tests/test_spark.py` (LL-013).
+  - `ruff check` on the new test and the touched module: clean. A RED run was not recorded for the matrix test (the recap test failed only until the LL entries were added; not captured).
+- **Interpretations not stated verbatim in the acceptance criteria (LL-011), recorded in the test header:**
+  - I1: the matrix is a Markdown table parsed by the test; no module is added.
+  - I2: "links to a candidate ledger entry" means the entry exists, is current, is `candidate`, and concerns one of the row's methodology ids.
+  - I3: "a need for the store or lessons learned" is the `Applies to` column.
+  - I4: AC_2 spans two repositories and is verified by running the template's tests, recorded here, not by a test in this repository.
+  - I5: AC_3 is checked by an entry naming Epic 36 and its index row.
+  - I6: five new `candidate` ledger entries (BP-005 to BP-009) were needed so that each pairing has a ledger link; BP-002 backs the #9/#10 pairing. Their wording of the practice is mine, from the hypotheses in the Ideation Document; one (BP-008) is `synthetic-demo` evidence, pointing at the sketch.
+  - I7: the template's matrix leaves the `Ledger` column as "add a candidate entry first", and its ledger ships empty, because the template stores only template values and the hypothesis ids do not exist there.
+- **Recap (ADR-010):** four lessons crystallized: LL-016 (a review command must start its own comment), LL-017 (a package-root re-export can shadow an existing name), LL-018 (name the target repository on every PR command), LL-019 (evidence must be unambiguous in its own representation). Tier 2 targets are updated in this PR (implement-story Step 8, methodology-catalog skill). Tier 3 targets are proposed, not applied.
+- **Not done:**
+  - The template branch is not pushed, and the template's `implement-story` skill does not yet carry the later Q-loop changes (commit-then-log, Git Bash trap, `/q` first, `--repo`).
+  - The template working tree on `master` has an uncommitted edit to `.github/instructions/codacy.instructions.md` that is not mine; I excluded it from my commit.
+  - The two review-triage policies are declared, not initialized.
+  - `examples/quickstart.py` and `examples/next_best_action.py` still train on zero episodes.
+- **Open for a human:** approve or change the five new ledger candidates (BP-005 to BP-009) and the template matrix wording; approve the Tier 3 propagation of LL-016 to LL-018; whether to push the template branch.
+- **Review (Step 8):** Amazon Q round 1 reviewed head `c727c14` (two reviews, no inline finding, no merge-blocking defect). One non-blocking observation:
+  - `Q-19-1 | style | verified: yes | decision: declined | bare asserts in the matrix test helper; inside a pytest test the assertion names the failing row, and a drifted matrix header should fail loudly | fix: none`
+  A standalone `/q` command asked for an explicit verdict; Q replied "No further additions" on `c727c14` and accepted the declination.

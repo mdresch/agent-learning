@@ -79,7 +79,7 @@
 
 ## Story 36.6 — Tailoring for the Store and Lessons Learned, and Template Propagation
 
-**Status:** Approved (2026-10-26, Menno) — derived from Accepted ADR-036, BRD-036 and FDD-036; adjudicated via `approve-user-stories` (episode `80fe8a45-29a0-4a52-baa9-476f70d88209`).  
+**Status:** Approved (2026-10-26, Menno) — derived from Accepted ADR-036, BRD-036 and FDD-036; adjudicated via `approve-user-stories` (episode `80fe8a45-29a0-4a52-baa9-476f70d88209`). Completed (2026-10-26) — implemented in feat/story-36.6 with contract tests in tests/test_methodology_tailoring_matrix.py; template commit 2581b0c on feat/upgrade-from-agent-learning-2026-10 (sidpa-template, not pushed).  
 **As** a maintainer, **I want** a tailoring matrix of candidate pairings and its propagation to the template, **so that** new projects start from methodologies matched to their store and lessons learned.
 
 ### Acceptance Criteria:

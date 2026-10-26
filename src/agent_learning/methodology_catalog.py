@@ -124,7 +124,7 @@ def validate_catalog(
 
     ``ideation_states`` maps a methodology id to its expected canonical state. When
     ``existing_paths`` is given, each entry's path must be in it; ``None`` skips that check
-    (the example directories are built by later stories).
+    (a caller without a view of the filesystem passes None).
     """
     problems: list[str] = []
     seen: dict[int, int] = {}

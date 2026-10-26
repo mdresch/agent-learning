@@ -24,7 +24,7 @@ description: The catalog of the 32 learning methodologies (agent_learning.method
 
 ## 3. Call Sites
 - Re-exported from `agent_learning/__init__.py`.
-- Story 36.3 adds proof-of-concept directories and calls `validate_catalog(..., existing_paths=...)`; Story 36.6 reads the catalog for the tailoring matrix.
+- The example and sketch tests check that every catalog path exists on disk (`tests/test_methodology_examples.py`, `tests/test_methodology_sketches.py`); `validate_catalog(..., existing_paths=...)` is available to callers that pass the set of existing paths. The tailoring matrix (section 9) reads the catalog ids.
 
 ## 4. Out of Scope
 The review-triage loop (36.5) and generating the catalog state from the Ideation Document (ADR-036 §8).
@@ -63,3 +63,10 @@ The ten `proof_of_concept` entries (#8, #9, #10, #11, #13, #14, #15, #17, #22, #
 - **Reliability:** `reliability(records, reviewer, claim_type, z=1.96, min_cases=5)` counts `yes` as verified, `no` and `partial` as not, excludes `unknown`, and gives `lower_bound=None` below `min_cases`. It is evidence for a person, not a rule.
 - **Backfill:** `reconstruct_record(finding_id, **known)` marks `reconstructed=True` and leaves every field the history does not show as `unknown`. Never fill a field from memory.
 - **Shapes (declared, not initialized):** `docs/policy-shapes/triage-review-finding.*` (accept_and_amend, decline_with_reason, defer_to_human; `requires_human_approval: true`) and `route-review-finding.*` (three verification-order actions, no accept or decline). The maintainer initializes them with `task-policy-init` (triage with `full` authority, routing with `low`). Triage is never learned; only the order of verification may be.
+
+## 9. Tailoring Matrix and Template Propagation (Story 36.6)
+`docs/project-docs/Methodology-Tailoring-Matrix.md` pairs a need in the store or in lessons learned with catalog ids. `tests/test_methodology_tailoring_matrix.py` parses the table.
+
+- **Every row is a `hypothesis`**, never a finding. A row needs existing catalog ids, `Applies to` of `store` or `lessons-learned`, a falsification criterion, hypotheses that exist in the Ideation Document, and a `Ledger` entry that is current, `candidate`, and about one of the row's methodologies.
+- **Adding a row:** append the candidate to the ledger first (a new `BP-###`), then add the row with that id. Do not mark a row as anything but `hypothesis` without real episodes meeting the tier gate.
+- **Template:** `sidpa-template` carries `docs/methodologies/` (catalog, matrix, README), the ledger template (empty) and `init_project.py` scaffolds it. The template matrix leaves the `Ledger` column as "add a candidate entry first", because the template ships no ledger entries. Re-copy the catalog and matrix when they change here; the template's integrity tests check structure only.

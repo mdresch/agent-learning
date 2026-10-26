@@ -32,7 +32,7 @@
       "evidence": [
         {
           "criterion_id": "architectural_soundness",
-          "source": "direct_doc_read:docs/adr/ADR-025-scope-management-plan-standard-and-baseline-contract.md; compliance verified with ADR-011, ADR-012, ADR-013 §4.5 root node in planning DAG, ADR-034 lightweight convergence; lean 180-word floor and optional WBS dictionary for pmp_section; disjunctive variance threshold; symmetric rejection governance; >= 10-word rationale floor for None: rationale",
+          "source": "direct_doc_read:docs/adr/ADR-025-scope-management-plan-standard-and-baseline-contract.md; compliance verified with ADR-011, ADR-012, ADR-013 §4.5 root node in planning DAG, ADR-034 lightweight convergence; lean 180-word floor and optional WBS dictionary/RTM for pmp_section; disjunctive variance threshold; symmetric rejection governance; >= 10-word rationale floor for None: rationale with flag trigger exemption; verified lifecycle states DRAFTED, REJECTED, REVISION_REQUESTED",
           "support": 0.99,
           "confidence": 0.98
         },

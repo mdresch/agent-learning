@@ -96,9 +96,12 @@ Word count is measured on the Markdown body below `---`, tokenizing Unicode alph
 |---|---|---|---|---|
 | **Word Count Floor** | 180 words | 700 words | `FLAG: BELOW_STANDARD_FLOOR` | Content < floor |
 | **Word Count Cap** | 750 words | 4,500 words | `FLAG: EXCEEDS_SECTION_CAP` | Content > cap |
-| **Out-of-Scope Items** | $\ge 2$ distinct items | $\ge 4$ distinct items | `FLAG: MISSING_BOUNDARY_DEF` | Items < minimum |
+| **Out-of-Scope Items** | $\ge 2$ distinct items | $\ge 4$ distinct items | `FLAG: MISSING_BOUNDARY_DEF` | Items < minimum, unless a valid "None: [rationale]" is present |
 | **WBS Decomposition** | Hierarchy defined | Full dictionary rules | `FLAG: MISSING_REQUIRED_SECTION` | Missing WBS rules |
 | **Acceptance Criteria** | DoD summary | Comprehensive DoD gates | `FLAG: MISSING_REQUIRED_SECTION` | Missing DoD |
+
+> [!NOTE]
+> Requirements Traceability Matrix (RTM) integration in `full_plan` is verified during peer review and semantic linting rather than structural flag count.
 
 ---
 
@@ -145,4 +148,4 @@ Word count is measured on the Markdown body below `---`, tokenizing Unicode alph
 | 2026-10-25 | Proposed | Initial drafting of ADR-025 Scope Management Plan Standard and Baseline Contract under the ADR-012 framework. |
 | 2026-10-25 | Amended for ADR-012 Alignment | Aligned frontmatter schema with ADR-012 (removed in-file hash, added `owner_role`, `generator`, `depends_on: []`, authentic PMBOK 8 `Scope` domain under `Planning` focus area), updated Section 3 to Decision Rights, and corrected staleness references to ADR-013 §4.5. |
 | 2026-10-25 | Polish & Errata (Round 3 Review) | Aligned Tier 1 omission citation with ADR-011 §3.2 and Invariant #2, upgraded word tokenizer to Unicode alphanumeric regex with contractions, added Invariant 7 for 3-tier precedence hierarchy. |
-| 2026-10-26 | Proposed (Round 4 Review) | Clarified lean 180-word floor for `pmp_section`, disjunctive variance threshold ($\le 1$ SP or localized refactoring), symmetric `full_plan` rejection governance in Invariant 4, and $\ge 10$ word rationale requirement for 'None: [rationale]'. |
+| 2026-10-26 | Proposed (Round 4 Review) | Clarified lean 180-word floor for `pmp_section`, made WBS dictionary and RTM optional for `pmp_section`, added disjunctive variance threshold ($\le 1$ SP or localized refactoring), added symmetric `full_plan` rejection governance in Invariant 4, and established $\ge 10$ word rationale requirement for 'None: [rationale]' with exemption in Out-of-Scope count trigger. |

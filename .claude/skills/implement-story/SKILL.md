@@ -32,7 +32,7 @@ Instantiated from the `sidpa-template` skill. The loop (steps 0-9; step 9 runs o
 7. **Commit & log:**
    - **Optional trap note:** If something surprising happened in this story, jot a one-line note for the epic-end breakout recap (ADR-010 §4.1). Optional, never a gate; do not write an `LL-###` entry per story.
    - **Commit:** Commit implementation, test contracts, and component skills.
-   - **Audit log:** Append to `implementation-log.md` with commit hash `pending`. If amending (`git commit --amend`), always backfill with the final commit hash.
+   - **Audit log:** Commit the implementation first. Then append the entry to `implementation-log.md` with the hash of that commit, in a follow-up commit. Do not amend the implementation commit after logging it: an amend changes the hash and leaves the log citing a commit that never reaches `main` (Epic 2's `61bf203`). Fix a wrong entry in an unmerged branch by editing it; once merged, append a dated correction entry instead.
 8. **PR, Q review, amendments and merge:** the story ends on `main` only after Amazon Q has nothing further to add.
    1. **Open the PR.** Push `feat/story-<X.Y>` to `origin` and run `gh pr create --repo mdresch/agent-learning --base main --head feat/story-<X.Y>`. The description lists the summary, every interpretation (I1, I2, ...) that needs confirming, and the test plan, naming any paths excluded from the suite and why.
    2. **Request the review.** Comment `/q review` on the PR (`gh pr comment <n> --repo mdresch/agent-learning --body "/q review"`). To get an answer for a later commit, comment it again after each push.

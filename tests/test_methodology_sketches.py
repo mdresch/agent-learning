@@ -141,6 +141,7 @@ def test_ac3_sketch_uses_no_real_store_and_no_network(methodology_id: int) -> No
         elif isinstance(node, ast.ImportFrom):
             imports.add((node.module or "").split(".")[0])
             names.update(alias.name for alias in node.names)
+            imports.update(alias.name.split(".")[0] for alias in node.names)  # relative imports have no module
     assert not (names & FORBIDDEN_NAMES), names & FORBIDDEN_NAMES
     assert not (imports & FORBIDDEN_IMPORTS), imports & FORBIDDEN_IMPORTS
 

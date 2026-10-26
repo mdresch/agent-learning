@@ -35,7 +35,7 @@
 
 ## Story 36.3 — Proof-of-Concept Sketches for the ADR-Backed Candidates
 
-**Status:** Approved (2026-10-26, Menno) — derived from Accepted ADR-036, BRD-036 and FDD-036; adjudicated via `approve-user-stories` (episode `80fe8a45-29a0-4a52-baa9-476f70d88209`).  
+**Status:** Approved (2026-10-26, Menno) — derived from Accepted ADR-036, BRD-036 and FDD-036; adjudicated via `approve-user-stories` (episode `80fe8a45-29a0-4a52-baa9-476f70d88209`). Completed (2026-10-26) — implemented in feat/story-36.3 with contract tests in tests/test_methodology_sketches.py.  
 **As** a maintainer, **I want** a clearly labeled sketch for each candidate that has a Proposed ADR, **so that** the design can be examined without claiming it works.
 
 ### Acceptance Criteria:

@@ -123,3 +123,50 @@ Append a section `## BP-###` (next number) with one `- field: value` line per fi
 - evidence_count: 0
 - status: candidate
 - links: HYP-AL-023, HYP-AL-019
+
+## BP-010
+- methodology: 6
+- practice: Retired. BP-004 was filed under human override (#6); the maintainer placed it under reasoned resolution (#3), because the triage uses a decision frame. See BP-011.
+- preconditions: Not applicable; this entry only retires BP-004.
+- applies_to: lessons-learned
+- evidence_class: source-doc
+- evidence_ref: Maintainer decision on the Epic 36 walkthrough, 2026-10-26
+- evidence_count: 0
+- status: retired
+- supersedes: BP-004
+- links: LL-004
+
+## BP-011
+- methodology: 3
+- practice: Keep triage of external review findings with the human, and record each human disposition as an episode so a later policy can learn from it without taking over the decision.
+- preconditions: A review loop where the reviewer's claims are verified by a person or by evidence before they are accepted or declined, and the decision is made over a decision frame.
+- applies_to: lessons-learned
+- evidence_class: source-doc
+- evidence_ref: Lessons Learned Register LL-004 and the Q review records in implementation-log.md; ADR-036 section 4.5 (S1 uses reasoned resolution over a DecisionFrame)
+- evidence_count: 0
+- status: candidate
+- links: LL-004
+
+## BP-012
+- methodology: 9
+- practice: Retired. BP-002 named Thompson sampling (#9) as the filing, but the practice prefers UCB with a Wilson bound as the first try; the maintainer placed it under UCB (#10). See BP-013.
+- preconditions: Not applicable; this entry only retires BP-002.
+- applies_to: store
+- evidence_class: source-doc
+- evidence_ref: Maintainer decision on the Epic 36 walkthrough, 2026-10-26; Ideation HYP-AL-009
+- evidence_count: 0
+- status: retired
+- supersedes: BP-002
+- links: HYP-AL-009
+
+## BP-013
+- methodology: 10
+- practice: When positive-only evidence is all that exists, try UCB with a Wilson bound first and Thompson sampling second, before moving the decision to full authority.
+- preconditions: A decision with positive-only history that is stuck below the autonomy gate under REINFORCE.
+- applies_to: store
+- evidence_class: source-doc
+- evidence_ref: Ideation HYP-AL-009 (UCB preferred over Thompson as the first implementation)
+- evidence_count: 0
+- status: candidate
+- links: HYP-AL-009
+

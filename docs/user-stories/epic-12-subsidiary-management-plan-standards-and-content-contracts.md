@@ -19,7 +19,7 @@ Four stories build the pure plan lint in `src/agent_learning/pmbok/`. Each rule 
 - **$AC_0$ (Canonical Example):** The ADR-012 §4.2 example frontmatter parses with `parsed=True` and every field equal to the documented value (scalars as `str`, lists as tuples, `[]` as `()`), and the body and its start line are correct.
 - **$AC_1$ (Grammar Rules):** Each rule of FDD-012 §3.1 is covered by passing and failing cases: CRLF and a leading BOM are normalized; delimiters must stand alone on their lines; keys match `^[a-z_]+$`; double-quoted escapes work and single-quoted text is literal; bare tokens must match `^[A-Za-z0-9_.-]+$`; lists use exactly two spaces; comments are allowed after a scalar, `[]`, a bare key and a list item, and a `#` inside quotes is text.
 - **$AC_2$ (Findings, Never Exceptions):** Duplicate keys, an unquoted value with spaces, a nested mapping, a block scalar, an anchor or alias, a flow mapping, a type tag, a missing opening delimiter and a missing closing delimiter each produce a Tier B `INVALID_METADATA` finding with the 1-based line and the line's content. Empty text and a text of only a BOM do the same. No input makes `parse_frontmatter` raise (a `str` is required; anything else raises `TypeError`).
-- **$AC_3$ (Fail Closed):** When any finding is produced, `parsed` is `False`, `metadata` is `{}` and `body` is `""`.
+- **$AC_3$ (Fail Closed):** When any finding is produced, `parsed` is `False`, `metadata` is `{}`, `body` is `""` and `body_start_line` is `None`.
 - **$AC_4$ (Volatile Parity Ready):** Parsing the same text twice, and parsing the LF and CRLF forms of the same text, give equal results. The parsed mapping keeps the keys in file order.
 - **$AC_5$ (Purity):** `parser.py` imports only the standard library, nothing from storage, from the legacy `pmbok/` directory or from `agent_learning.tailoring`.
 
@@ -75,8 +75,9 @@ Four stories build the pure plan lint in `src/agent_learning/pmbok/`. Each rule 
 - **$AC_2$ (Human Text Is Kept):** A Tier B flag with `generator == "human"` gives `ESCALATE_KEEP_HUMAN_TEXT` and never `AUTO_REMEDIATE`.
 - **$AC_3$ (Bounded Retries):** A Tier B flag with `generator == "llm"` gives `AUTO_REMEDIATE` for `retries` 0 and 1 and `ESCALATE_RETRIES_EXHAUSTED` from 2; `retries` is not changed by the call.
 - **$AC_4$ (Content Flags Are Evidence):** `EXCEEDS_SECTION_CAP` gives `HUMAN_ROUTE_REVIEW`; any other Tier C flag, including `EXCEEDS_PLAN_CAP` and `OMISSION_OF_BASE_PLAN`, gives `CARRY_TO_APPROVAL`; no flags gives `READY_FOR_FORMALIZATION`. No Tier B or C flag ever produces a step that blocks approval.
-- **$AC_5$ (Total and Explained):** Every combination of {no flag, Tier C only, section cap, Tier B, Tier A} × {llm, human, stub, mock, `None`} × {retries 0, 1, 2} returns exactly one step with a non-empty `reason` that names the deciding condition and the flag codes.
-- **$AC_6$ (No Storage, No New Dependency):** `lint.py` and `standards.py` import nothing from storage or the legacy `pmbok/`; `pyproject.toml` gains no dependency; the result types are plain frozen dataclasses with no record type added to `LearningStore` (ADR-002 Invariant #2).
+- **$AC_5$ (Total and Explained):** Every combination of {no flag, Tier C only, section cap, section cap with another Tier C flag, Tier B, Tier A} × {llm, human, stub, mock, `None`} × {retries 0, 1, 2, 3, 10} returns exactly one step with a non-empty `reason` that names the deciding condition and the flag codes. `NextStepDecision.flags` holds every flag passed in, including those that did not decide the step, and the retry count above the limit still gives `ESCALATE_RETRIES_EXHAUSTED`.
+- **$AC_6$ (Closed Tiers):** A `LintFlag` built with a tier other than "A", "B" or "C" raises `ValueError`; `label` returns "FLAG: " followed by the code.
+- **$AC_7$ (No Storage, No New Dependency):** `lint.py` and `standards.py` import nothing from storage or the legacy `pmbok/`; `pyproject.toml` gains no dependency; the result types are plain frozen dataclasses with no record type added to `LearningStore` (ADR-002 Invariant #2).
 
 ---
 

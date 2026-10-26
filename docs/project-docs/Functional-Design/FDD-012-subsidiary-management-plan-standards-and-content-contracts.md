@@ -9,7 +9,7 @@
 ## 1. Architecture & Component Placement
 
 1. **Package placement:** `src/agent_learning/pmbok/`, the pure domain package named in ADR-034 §4.3 (which lists `parser.py` for the grammar). It is a new subpackage of the installed package; the legacy top-level `pmbok/` directory is a different import path and is neither read nor imported.
-2. **Modules:** `parser.py` (frontmatter grammar), `standards.py` (constants and the nine-plan table), `lint.py` (metadata, content and next-step functions). `__init__.py` re-exports the public names, and `agent_learning/__init__.py` re-exports them from there.
+2. **Modules:** `parser.py` (frontmatter grammar), `standards.py` (constants, the nine-plan table and the shared `LintFlag` type, which the parser and the lint both use), `lint.py` (metadata, content and next-step functions). `__init__.py` re-exports the public names, and `agent_learning/__init__.py` re-exports them from there.
 3. **Purity boundary:** standard library only (`re`, `dataclasses`, `enum`, `typing`). No file I/O, no storage access, no network, no sleep, no import of `LearningStore`. Callers pass text and plain data and receive dataclasses. This follows ADR-013 Invariant 8 and ADR-034 §4.3.
 4. **Reuse:** routes and the Tier 1 omission rule come from `agent_learning.tailoring` (`PlanRoute`, `Route`, `BASELINE_SUBSTANTIATING`, `compute_flags`). Nothing in it is duplicated or changed.
 5. **Not here:** Tier A detection, the content hash, the dependency graph and the approval gate (ADR-013); orchestration and the legacy removal (ADR-034).
@@ -21,18 +21,28 @@
 ```python
 @dataclass(frozen=True)
 class LintFlag:
-    code: str            # e.g. "INVALID_METADATA"; printed as "FLAG: INVALID_METADATA" by .label
-    tier: str            # "A" | "B" | "C"  (Flag Tier, never Plan Tier)
+    code: str                      # e.g. "INVALID_METADATA"
+    tier: Literal["A", "B", "C"]   # Flag Tier, never Plan Tier
     message: str
     line: int | None = None        # 1-based line in the original text, when known
     evidence: str = ""             # the offending text, trimmed
+
+    def __post_init__(self) -> None:
+        # A tier outside A, B, C is a programming error and raises ValueError at construction,
+        # so next_step() never meets one.
+        ...
+
+    @property
+    def label(self) -> str:
+        """The printed form, "FLAG: " followed by the code, e.g. "FLAG: INVALID_METADATA"."""
+        return f"FLAG: {self.code}"
 
 @dataclass(frozen=True)
 class ParsedPlan:
     parsed: bool                                   # False when the frontmatter broke the grammar
     metadata: Mapping[str, str | tuple[str, ...]]  # {} when parsed is False
     body: str                                      # text after the closing delimiter ("" when parsed is False)
-    body_start_line: int                           # 1-based line of the first body line
+    body_start_line: int | None                    # 1-based line of the first body line; None when parsed is False
     flags: tuple[LintFlag, ...]                    # grammar findings, all Tier B
 
 @dataclass(frozen=True)
@@ -138,7 +148,7 @@ Wraps `tailoring.compute_flags`: each `baseline_plan_omitted` flag becomes a Tie
 | 6 | any other Tier C flag, including `EXCEEDS_PLAN_CAP` | `CARRY_TO_APPROVAL` |
 | 7 | no flags | `READY_FOR_FORMALIZATION` |
 
-`reason` names the deciding condition and the flag codes. Tier B and C flags never produce a block; the strongest step a flag can produce is a human decision.
+`NextStepDecision.flags` always holds every flag passed in, including those that did not decide the step (for example a floor flag next to a section cap). `reason` names the deciding condition and the flag codes. Tier B and C flags never produce a block; the strongest step a flag can produce is a human decision.
 
 ---
 
@@ -149,6 +159,7 @@ Wraps `tailoring.compute_flags`: each `baseline_plan_omitted` flag becomes a Tie
 | Empty text, no frontmatter, no closing delimiter, a BOM-only file | `parsed=False` with an `INVALID_METADATA` finding; no exception |
 | Duplicate key, unquoted value with spaces, nested mapping, block scalar, anchor, tag | one `INVALID_METADATA` finding per line, with line and content |
 | `non-str` input to any function | `TypeError` (a programming error, not content) |
+| `LintFlag` built with a tier other than "A", "B" or "C" | `ValueError` at construction, so `next_step` never sees an unrecognized tier |
 | Unknown `generator` value | `ESCALATE_IMMEDIATELY` (treated as unreadable) |
 | Option that would lower a floor or the out-of-scope minimum | Ignored; the baseline applies |
 | Frontmatter route disagrees with the tailoring matrix | one `INVALID_METADATA` finding; the plan is still linted |
@@ -165,7 +176,7 @@ Wraps `tailoring.compute_flags`: each `baseline_plan_omitted` flag becomes a Tie
 
 ## 6. Interpretations to Confirm
 
-These readings are not stated verbatim in ADR-012 and are decided here, to be tested and recorded (LL-011):
+These readings are not stated verbatim in ADR-012 and are decided here, to be tested and recorded in the test header and the implementation log, as LL-011 requires (LL-012 is the separate rule that each rule sits in one story's criteria):
 1. **Flag codes** are stored without the "FLAG: " prefix and printed with it.
 2. **Fail closed:** unparseable frontmatter returns an empty metadata mapping and body.
 3. **Extra keys are allowed;** `cycle_id` (ADR-035, Proposed) is not required.

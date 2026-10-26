@@ -504,5 +504,8 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - I6: AC_4 is tested on the docstring text.
   - I7: the CLI builds only `SoftmaxPolicy` snapshots, so a contextual snapshot is not handled.
 - **Open for a human:** whether FDD-004 should be amended for I2 and I3 (it is approved, so an amendment needs its own approval). Behavior change to note: a no-op `task-policy-authority-set` no longer refreshes `decision_authority_updated_at`.
-- **Review:** pending; the Q review rounds and the findings accepted or declined are added before the merge (Step 8).
+- **Review (Step 8):** Amazon Q round 1 reviewed head `afcf87e` (two reviews, two findings, both in the test file; none in `cli.py` or `types.py`); round 2 reviewed `b247eea`; then an explicit verdict.
+  - `Q-21-1 | crash risk | verified: yes | decision: accepted | the _stored() test helper could return None and fail with an AttributeError; it now asserts a policy exists | fix: b247eea`
+  - `Q-21-2 | test gap | verified: yes | decision: declined | asked for strictly increasing timestamps; that would flake on a coarse clock that repeats a value, the order is proven by the (from, to) pairs, and a comment in the test says so | fix: b247eea (comment only)`
+  - Verdict on `b247eea`: Q replied "No" to further additions, with no new findings.
 - **Breakout recap (ADR-010 section 4.1):** pending; this is the epic's last story, to be held after the PR review (Step 9).

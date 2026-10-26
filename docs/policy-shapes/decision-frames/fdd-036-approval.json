@@ -1,0 +1,133 @@
+{
+  "task": "FDD-036 (Learning Methodology Examples, Best-Practice Ledger and the Review-Triage Learning Loop): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "traceable_to_brd_adr",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Functional design traces to BRU-036-01 to BRU-036-08 and ADR-036: catalog entry and class derivation, ledger entry and adoption rule, triage record and reliability bound, error table."
+    },
+    {
+      "id": "fix_location_correct",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Three pure standard-library modules (methodology_catalog.py, methodology_ledger.py, review_triage.py), content under examples/methodologies/, the ledger under docs/project-docs, and a package re-export, in the style of lessons_learned.py and tailoring.py."
+    },
+    {
+      "id": "no_invented_implementation",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Reuses autonomy.wilson_lower_bound instead of a new estimator and adds no dependency. Two choices are provisional and recorded as such: min_cases = 5 and counting partial as not verified. The class derivation depends on a state vocabulary that ADR-024 leaves partly open."
+    },
+    {
+      "id": "compatibility_preserved",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Zero storage expansion (ADR-002 Invariant 2), no import of examples into src, no change to a methodology state, and triage stays human with permanent approval (ADR-003 Invariant 6)."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_fdd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_brd_adr",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-036-learning-methodology-examples-ledger-and-review-triage-loop.md; repo-verified against ADR-036 (Accepted), ADR-024 and the existing modules; author also scored this frame",
+          "support": 0.88,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "fix_location_correct",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-036-learning-methodology-examples-ledger-and-review-triage-loop.md; repo-verified against ADR-036 (Accepted), ADR-024 and the existing modules; author also scored this frame",
+          "support": 0.86,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "no_invented_implementation",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-036-learning-methodology-examples-ledger-and-review-triage-loop.md; repo-verified against ADR-036 (Accepted), ADR-024 and the existing modules; author also scored this frame",
+          "support": 0.8,
+          "confidence": 0.78
+        },
+        {
+          "criterion_id": "compatibility_preserved",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-036-learning-methodology-examples-ledger-and-review-triage-loop.md; repo-verified against ADR-036 (Accepted), ADR-024 and the existing modules; author also scored this frame",
+          "support": 0.88,
+          "confidence": 0.85
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_fdd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_brd_adr",
+          "source": "no fundamental flaw found in direct_doc_read of FDD-036-learning-methodology-examples-ledger-and-review-triage-loop.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "fix_location_correct",
+          "source": "no fundamental flaw found in direct_doc_read of FDD-036-learning-methodology-examples-ledger-and-review-triage-loop.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "no_invented_implementation",
+          "source": "no fundamental flaw found in direct_doc_read of FDD-036-learning-methodology-examples-ledger-and-review-triage-loop.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "compatibility_preserved",
+          "source": "no fundamental flaw found in direct_doc_read of FDD-036-learning-methodology-examples-ledger-and-review-triage-loop.md",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_brd_adr",
+          "source": "residual issues: Functional design traces to BRU-036-01 to BRU-036-08 and ADR-036: catalog entry and class derivation",
+          "support": 0.2,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "fix_location_correct",
+          "source": "residual issues: Three pure standard-library modules (methodology_catalog.py, methodology_ledger.py, review_triage.py",
+          "support": 0.2,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "no_invented_implementation",
+          "source": "residual issues: Reuses autonomy.wilson_lower_bound instead of a new estimator and adds no dependency. Two choices ar",
+          "support": 0.2,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "compatibility_preserved",
+          "source": "residual issues: Zero storage expansion (ADR-002 Invariant 2), no import of examples into src, no change to a methodo",
+          "support": 0.2,
+          "confidence": 0.75
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

@@ -1,0 +1,134 @@
+{
+  "task": "ADR-025 (Scope Management Plan Standard and Baseline Contract): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "architectural_soundness",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Establishes the Scope Management Plan as the primary Baseline-Substantiating Plan forming the foundational root node (depends_on: []) in the planning causal DAG (5.1 Scope -> 6.1 Schedule -> 7.1 Cost); inherits ADR-012 frontmatter specification and authentic PMBOK 8 Scope domain under Planning focus area; mandates explicit in-scope and out-of-scope boundaries (requiring a non-empty, lint-checkable >= 10-word rationale when 'None: [rationale]' is declared); sets route-differentiated word count floors (180 for pmp_section, 700 for full_plan) and caps (750 for pmp_section, 4,500 for full_plan) with Unicode tokenization; preserves lean pmp_section agility by making full WBS dictionary tables and RTM matrices optional for embedded sections while requiring a concise hierarchy line and DoD summary; defines disjunctive variance thresholds (<= 1 SP or minor localized refactoring with zero architectural impact) with formal Stage 17 Integrated Change Control (approve-adaptation-plan) for structural expansions; establishes symmetric rejection governance across approve-pmp and approve-subsidiary-plan with transitive downstream invalidation per ADR-013 §4.5; strictly adheres to ADR-001, ADR-002, ADR-005, ADR-008, ADR-011, ADR-012, ADR-013, and ADR-034."
+    },
+    {
+      "id": "alternatives_considered",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Two genuine alternatives evaluated and rejected with sound architectural rationales: allowing scope to be inferred from user stories without a plan (rejected for inverting governance and causing unanchored scope creep) and combining scope and schedule into a single document (rejected for violating LL-015 component credit assignment)."
+    },
+    {
+      "id": "consequences_honest",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Honest disclosure of positive benefits (defends the baseline, deterministic causal anchor for schedule and cost, automated linter rules) against negative trade-offs (authoring burden of upfront boundary definition and exclusion itemization before implementation)."
+    },
+    {
+      "id": "gap_disclosure_quality",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Clearly bounds scope and discloses open questions in Section 8 (automated WBS extraction from User Story markdown artifacts deferred to future tooling enhancements); complete amendment log tracking four review rounds."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_adr",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "direct_doc_read:docs/adr/ADR-025-scope-management-plan-standard-and-baseline-contract.md; compliance verified with ADR-011, ADR-012, ADR-013 §4.5 root node in planning DAG, ADR-034 lightweight convergence; lean 180-word floor and optional WBS dictionary for pmp_section; disjunctive variance threshold; symmetric rejection governance; >= 10-word rationale floor for None: rationale",
+          "support": 0.99,
+          "confidence": 0.98
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "adr_025_section_6_alternatives_considered",
+          "support": 0.96,
+          "confidence": 0.95
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "adr_025_section_7_consequences",
+          "support": 0.96,
+          "confidence": 0.95
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "adr_025_section_8_open_questions_and_section_9_amendment_log",
+          "support": 0.97,
+          "confidence": 0.96
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_adr",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "direct_doc_read:docs/adr/ADR-025-scope-management-plan-standard-and-baseline-contract.md",
+          "support": 0.005,
+          "confidence": 0.94
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "adr_025_section_6_alternatives_considered",
+          "support": 0.005,
+          "confidence": 0.92
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "adr_025_section_7_consequences",
+          "support": 0.005,
+          "confidence": 0.92
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "adr_025_section_8_open_questions",
+          "support": 0.005,
+          "confidence": 0.92
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "direct_doc_read:docs/adr/ADR-025-scope-management-plan-standard-and-baseline-contract.md",
+          "support": 0.008,
+          "confidence": 0.93
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "adr_025_section_6_alternatives_considered",
+          "support": 0.008,
+          "confidence": 0.91
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "adr_025_section_7_consequences",
+          "support": 0.01,
+          "confidence": 0.90
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "adr_025_section_8_open_questions",
+          "support": 0.008,
+          "confidence": 0.91
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.10,
+  "max_uncertainty": 1.0
+}
+

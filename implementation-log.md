@@ -247,6 +247,5 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - I2: the monotonicity check covers all six statistical gates (ADR-003 Invariant 5), not only the three in FDD-003 Design 2. `audit_rate` is excluded (ADR-003 4.3).
   - I3: `assess_autonomy()` runs the check when it resolves its own config; a config passed in explicitly is not re-validated.
   - I4: for a full-authority policy, eligibility comes only from explicit acceptance and `requires_human_approval`; the frozen-logit statistical path no longer grants autonomy. This is a behavior change for full-authority policies and is the reading of FDD-003 Design 3, item 4.
-  - The story names "Invariant #5" for monotonicity, which matches ADR-003 Invariant 5; the FDD text cites it as a different section, and the ADR was followed.
 - **Open for a human:** whether FDD-003 should be amended to record I1 to I4 (FDD-003 is approved, so the amendment needs its own approval).
 - **Breakout recap (ADR-010 section 4.1):** pending; this is the epic's last story, to be held after the PR review (Step 9).

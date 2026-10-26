@@ -7,17 +7,21 @@ turn, and persists a complete :class:`Episode` at the end.
 
 from __future__ import annotations
 
+import copy
 import logging
 import re
 import time
 import uuid
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from .config import CaptureConfig
 from .storage.base import LearningStore
 from .storage.cosmos import get_default_store
 from .types import Episode, ToolCall
+
+if TYPE_CHECKING:  # pragma: no cover
+    from .decision import DecisionResult
 
 logger = logging.getLogger(__name__)
 
@@ -131,7 +135,15 @@ class EpisodeCapture:
         action_logprob: Optional[float] = None,
         context_features: Optional[Dict[str, Any]] = None,
         metadata: Optional[Dict[str, Any]] = None,
+        decision_result: DecisionResult | None = None,
     ) -> CaptureContext:
+        episode_metadata = dict(metadata or {})
+        if decision_result is not None and decision_result.audit_evidence is not None:
+            # ADR-006: copy the decision's evidence into the episode, write-once.
+            evidence = copy.deepcopy(dict(decision_result.audit_evidence))
+            if "audit_evidence" in episode_metadata and episode_metadata["audit_evidence"] != evidence:
+                raise ValueError("audit_evidence is write-once: metadata already holds a different value")
+            episode_metadata["audit_evidence"] = evidence
         return CaptureContext(
             episode_id=str(uuid.uuid4()),
             agent_id=self._config.agent_id,
@@ -156,7 +168,7 @@ class EpisodeCapture:
             model_deployment=model_deployment,
             correlation_id=correlation_id,
             session_id=session_id,
-            metadata=metadata or {},
+            metadata=episode_metadata,
         )
 
     def record_tool_call(
@@ -214,6 +226,12 @@ class EpisodeCapture:
 
         metadata = dict(ctx.metadata)
         if extra_metadata:
+            if (
+                "audit_evidence" in extra_metadata
+                and "audit_evidence" in metadata
+                and extra_metadata["audit_evidence"] != metadata["audit_evidence"]
+            ):
+                raise ValueError("audit_evidence is write-once: extra_metadata holds a different value")
             metadata.update(extra_metadata)
 
         episode = Episode(

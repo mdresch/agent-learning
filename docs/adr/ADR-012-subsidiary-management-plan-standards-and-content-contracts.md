@@ -54,7 +54,7 @@ Every subsidiary management plan—whether staged as a `pmp_section` or authored
 └─────────────────────────────────────────────────────────────┘
 ```
 
-1. **Section 1: Intent, Alignment & Boundaries:** Discloses the plan's mandate, links explicitly to the [Project Charter](../project-docs/Project-Charter.md) and upstream dependencies, and explicitly documents **out-of-scope boundaries**. If a plan genuinely has no out-of-scope items, it must explicitly record an entry: *"None: [rationale]"* rather than omitting the section.
+1. **Section 1: Intent, Alignment & Boundaries:** Discloses the plan's mandate, links explicitly to the [Project Charter](../project-docs/Project-Charter.md) and upstream dependencies, and explicitly documents **out-of-scope boundaries**. If a plan genuinely has no out-of-scope items, it must explicitly record an entry: *"None: [rationale]"* rather than omitting the section. The entry is lint-checked as a line matching `^\s*[-*]?\s*None:\s+(.+)$` whose rationale contains at least 10 tokens under the §4.3.1 tokenizer; a shorter rationale raises `FLAG: MISSING_BOUNDARY_DEF`. Daughter ADRs may raise, but not lower, the minimum.
 2. **Section 2: Domain Mechanics & Standards:** Details the concrete operational practices for that domain (e.g., WBS dictionary for Scope; CPM/milestones for Schedule; EVM/burn rates for Cost; probability-impact matrices for Risk).
 3. **Section 3: Governance, Control & Decision Rights:** Identifies the functional owner role, explicit decision authority (who approves baseline changes, who authorizes variance exceptions, who accepts deliverables), variance tolerances (e.g. $\pm 10\%$ cost variance, 2-day schedule slippage), escalation bodies, and adaptation loop triggers.
 
@@ -96,7 +96,7 @@ To guarantee zero external runtime dependencies (`pyyaml`) per ADR-034 Invariant
    - Bare scalar tokens: `^[A-Za-z0-9_.-]+$` (e.g. `1.0.0`, `full_plan`, `Scope`). Strings containing whitespace or special characters (e.g. `"PMBOK 8"`) **must be quoted**.
    - Empty flow lists: `[]`.
 4. **Lists:** Itemized string sequences where a key is followed on subsequent lines by `  - "item"` or `  - item`. List items must be indented with exactly two spaces (`  - `).
-5. **Inline & Line Comments:** `# comment text` preceded by whitespace is permitted on an independent line, after a scalar value (e.g. `key: val  # comment`), after an empty flow list (e.g. `depends_on: []  # comment`), or after a bare key with no scalar value (e.g. `secondary_pmbok_domains:  # comment`). A `#` inside quotes is parsed as literal string content, not a comment delimiter.
+5. **Inline & Line Comments:** `# comment text` preceded by whitespace is permitted on an independent line, after a scalar value (e.g. `key: val  # comment`), after a list item (e.g. `  - "item"  # comment`), after an empty flow list (e.g. `depends_on: []  # comment`), or after a bare key with no scalar value (e.g. `secondary_pmbok_domains:  # comment`). A `#` inside quotes is parsed as literal string content, not a comment delimiter.
 6. **Disallowed Constructs:** Nested dictionaries, multi-line block scalars (`|`, `>`), YAML anchors/aliases (`&`, `*`), flow mappings (`{...}`), and arbitrary object tags (`!!`) are prohibited.
 7. **Parser Rejection & Diagnostic Behavior:** If an unsupported construct or malformed line is encountered, the parser does **not crash** with an unhandled exception. Instead, it emits a structured `FLAG: INVALID_METADATA` diagnostic with line-number and line-content context.
 8. **Fail-Closed Governance Law:** At drafting/staging time, `FLAG: INVALID_METADATA` triggers Tier B auto-remediation (up to 2 retries for LLMs; immediate human escalation for human authors). If uncorrected at gate review time, unparseable frontmatter acts as the **fourth Technical Integrity Hard Block** (ADR-013 §4.2, Invariant 5): because `generator: stub|mock` cannot be audited and `strip_volatile_frontmatter` cannot compute a canonical content hash, `approve_plan` is ruled out outright without auto-regeneration.
@@ -113,7 +113,7 @@ To guarantee zero external runtime dependencies (`pyyaml`) per ADR-034 Invariant
 To ensure deterministic, reproducible linting:
 * **Scope of Measurement:** Word count is calculated exclusively on the **Markdown body below the closing frontmatter delimiter (`---`)**.
 * **Exclusions:** YAML frontmatter, raw HTML comments, and fenced code blocks (` ``` `) are excluded from the word count.
-* **Unicode-Aware Tokenization:** Words are tokens containing alphanumeric characters matching `\b[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)?\b` (in Python: Unicode-enabled word tokens, counting contractions like "don't" or hyphenated terms as single words). Standalone markdown punctuation (`##`, `---`, `|`, `-`) is excluded.
+* **Unicode-Aware Tokenization:** Words are tokens matching the standard-library regex `\b[^\W_]+(?:['’][^\W_]+)?\b` (Python `re`, Unicode mode: letters and digits, excluding underscore). Contractions such as "don't" count as one word; hyphenated terms such as "well-known" count as two. Standalone markdown punctuation (`##`, `---`, `|`, `-`) is excluded. The `\p{L}\p{N}` property-class form is not used: it is unsupported by `re` and would require a third-party dependency (ADR-034 Invariant 1).
 * **Mandatory Heading Regexes:**
   1. `^##\s+1\.\s+Intent,\s+Alignment\s+&\s+Boundaries`
   2. `^##\s+2\.\s+Domain\s+Mechanics\s+&\s+Standards`
@@ -182,7 +182,10 @@ Stakeholders                   Governance                  13.2           Stakeh
 > Both `primary_pmbok_domain` and `secondary_pmbok_domains` must strictly contain members of the closed 7-domain enum (`Governance`, `Scope`, `Schedule`, `Finance`, `Stakeholders`, `Resources`, `Risk`). Any other token triggers `FLAG: INVALID_METADATA`.
 
 #### Plan Tier Definitions
-Tiers are functional governance classifications and do not dictate linear DAG execution sequence:
+> [!NOTE]
+> **Two unrelated "Tier" scales:** *Plan Tiers* 1–3 (this section) classify plans by function. *Flag Tiers* A–C (§4.3.4) classify lint findings by enforcement strength. Documents must write "Plan Tier 1" or "Flag Tier A" when both could apply.
+
+Plan Tiers are functional governance classifications and do not dictate linear DAG execution sequence:
 * **Tier 1 (Baseline-Substantiating):** Creates and substantiates core project baselines (Scope, Schedule, Cost). In accordance with ADR-011 §3.2 and Invariant #2, setting `not_applicable` on a Tier 1 plan emits `FLAG: OMISSION_OF_BASE_PLAN`, requiring an explicit human rationale and sponsor confirmation during route approval.
 * **Tier 2 (Governance & Control):** Establishes systemic control frameworks, risk tolerances, and verification gates (Risk, Quality).
 * **Tier 3 (Execution Support):** Provides operational execution, procurement, team resources, and stakeholder mechanisms (Resource, Stakeholder, Communications, Procurement).
@@ -264,7 +267,7 @@ ADR-012 defines the universal contract and meta-rules. Domain-specific plan stan
 
 ## 5. Architectural Invariants
 1. **Universal Contract Compliance:** Every subsidiary management plan—whether standalone or staged section—must provide the standard frontmatter and the three canonical sections (Intent, Mechanics, Governance & Decision Rights).
-2. **Deterministic Word Count Scope:** Word counts are evaluated on the Markdown body below the closing frontmatter delimiter (`---`), excluding frontmatter, raw HTML, and fenced code blocks, tokenizing Unicode alphanumeric words with contractions (`\b[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)?\b`).
+2. **Deterministic Word Count Scope:** Word counts are evaluated on the Markdown body below the closing frontmatter delimiter (`---`), excluding frontmatter, raw HTML, and fenced code blocks, tokenizing with the §4.3.1 stdlib regex (`\b[^\W_]+(?:['’][^\W_]+)?\b`).
 3. **Floors as Flags, Not Blocks:** Content falling below declared floors generates a `FLAG: BELOW_STANDARD_FLOOR`. Approval requires a recorded human rationale in `Episode.metadata` during plan approval (`full_plan`) or PMP formalization (`pmp_section`) (ADR-011 Invariant #1, ADR-013 Invariant #5).
 4. **Remedial Breakouts Propagate Staleness:** Remedial breakouts regenerate staged sections in `docs/project-docs/.staging/pmp-sections/`. Affected transitively downstream plans become `STALE_DEPENDENCY` per ADR-013 §4.5.
 5. **Graduation Preserves Traceability:** Graduating a section to a full plan updates the tailoring matrix, initiates a standalone `approve-subsidiary-plan` gate, and contracts the PMP entry to a summary.
@@ -317,3 +320,4 @@ ADR-012 defines the universal contract and meta-rules. Domain-specific plan stan
 | 2026-10-25 | Polish & Errata (Round 3 Review) | Established 3-Tier Precedence Hierarchy (Tier A Hard Blocks > Tier B Structural Flags > Tier C Content Flags) ensuring structural issues do not act as mechanical blocks. Removed non-existent "Quality" secondary domain and bound domain fields to closed 7-domain enum. Resolved cap-branch unrecorded rationale by carrying over-cap flag to `approve-pmp` or recording route episode on graduation. Aligned Tier 1 omission citation with ADR-011 §3.2 and Invariant #2 with sponsor confirmation. Upgraded tokenizer to Unicode-aware regex `\b[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)?\b`. Added graduation path on `approve-pmp` rejection. Codified Tailoring Matrix as route authority. |
 | 2026-10-25 | Accepted | Evaluated via Bayesian decision policy through `approve-adr` (`task-policy-decide`, `task-policy-adjudicate --disposition accept`, `task-episode-register`): robust utility 0.873 vs. 0.015 (reject) and 0.037 (revise), episode `736a528e-e069-4fff-96cb-45c5eb68c3a7`. Approved directly by Menno. |
 | 2026-10-25 | Amended (ADR-034 Alignment) | Added §4.2.1 defining the standard-library frontmatter grammar subset (flat keys, string lists, empty flow lists `[]`, inline comments) and non-blocking `FLAG: INVALID_METADATA` parser rejection behavior to eliminate `pyyaml` runtime dependency per ADR-034 Invariant 1. |
+| 2026-10-26 | Amended (ADR-025 Alignment Review) | (1) Replaced the `\p{L}\p{N}` tokenizer, unsupported by Python `re`, with the stdlib regex `\b[^\W_]+(?:['’][^\W_]+)?\b`, and corrected the hyphen rule (hyphenated terms count as two words). (2) Defined the lint-checked `None: [rationale]` form (>= 10 tokens). (3) Permitted comments after list items in the frontmatter grammar. (4) Disambiguated Plan Tiers 1–3 from Flag Tiers A–C. |

@@ -1,0 +1,133 @@
+{
+  "task": "FDD-006 (Opt-In, Lightweight Evidence Capture for low-Authority Decisions): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "traceable_to_brd_adr",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Designs 1 to 4 trace to BRU-006-01 to BRU-006-07 and ADR-006: the policy flag, the enforcement in decide(), the episode attachment with a write-once rule, and learner isolation. A Current State section separates what exists (audit_evidence on DecisionResult and decide()) from what is missing."
+    },
+    {
+      "id": "fix_location_correct",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Names the real locations: PolicySnapshot.metadata for the flag, TaskPolicy.decide() for enforcement, task-policy-init for the CLI flag, and EpisodeCapture.start() and task-episode-register for the episode attachment, checked against the code at commit 0b49a9e."
+    },
+    {
+      "id": "no_invented_implementation",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Adds two entry points the ADR and BRD do not name, EpisodeCapture.start(decision_result=) and task-episode-register --decision-result, and a write-once carry-over on re-registration. They are the smallest path that satisfies BRU-006-04 and are disclosed as decisions pending approval, not inherited requirements."
+    },
+    {
+      "id": "compatibility_preserved",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Zero storage expansion (the flag and evidence live in existing metadata), the default path unchanged when the flag is off, no learner or reward reference, and an unchanged CLI surface apart from one optional flag on each of two commands."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_fdd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_brd_adr",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-006-opt-in-lightweight-evidence-capture-for-low-authority.md; repo-verified against ADR-006 (Accepted) and the code at 0b49a9e; author also scored this frame",
+          "support": 0.86,
+          "confidence": 0.84
+        },
+        {
+          "criterion_id": "fix_location_correct",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-006-opt-in-lightweight-evidence-capture-for-low-authority.md; repo-verified against ADR-006 (Accepted) and the code at 0b49a9e; author also scored this frame",
+          "support": 0.84,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "no_invented_implementation",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-006-opt-in-lightweight-evidence-capture-for-low-authority.md; repo-verified against ADR-006 (Accepted) and the code at 0b49a9e; author also scored this frame",
+          "support": 0.74,
+          "confidence": 0.78
+        },
+        {
+          "criterion_id": "compatibility_preserved",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-006-opt-in-lightweight-evidence-capture-for-low-authority.md; repo-verified against ADR-006 (Accepted) and the code at 0b49a9e; author also scored this frame",
+          "support": 0.86,
+          "confidence": 0.84
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_fdd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_brd_adr",
+          "source": "no fundamental flaw found in direct_doc_read of FDD-006-opt-in-lightweight-evidence-capture-for-low-authority.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "fix_location_correct",
+          "source": "no fundamental flaw found in direct_doc_read of FDD-006-opt-in-lightweight-evidence-capture-for-low-authority.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "no_invented_implementation",
+          "source": "no fundamental flaw found in direct_doc_read of FDD-006-opt-in-lightweight-evidence-capture-for-low-authority.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "compatibility_preserved",
+          "source": "no fundamental flaw found in direct_doc_read of FDD-006-opt-in-lightweight-evidence-capture-for-low-authority.md",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_brd_adr",
+          "source": "residual issues: Designs 1 to 4 trace to BRU-006-01 to BRU-006-07 and ADR-006: the policy flag, the enforcement in de",
+          "support": 0.2,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "fix_location_correct",
+          "source": "residual issues: Names the real locations: PolicySnapshot.metadata for the flag, TaskPolicy.decide() for enforcement,",
+          "support": 0.2,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "no_invented_implementation",
+          "source": "residual issues: Adds two entry points the ADR and BRD do not name, EpisodeCapture.start(decision_result=) and task-e",
+          "support": 0.2,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "compatibility_preserved",
+          "source": "residual issues: Zero storage expansion (the flag and evidence live in existing metadata), the default path unchanged",
+          "support": 0.2,
+          "confidence": 0.75
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

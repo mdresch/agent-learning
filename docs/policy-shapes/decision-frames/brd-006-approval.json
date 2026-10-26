@@ -1,0 +1,133 @@
+{
+  "task": "BRD-006 (Opt-In, Lightweight Evidence Capture for low-Authority Decisions): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "traceable_to_adr",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Business rules BRU-006-01 to BRU-006-07 trace to ADR-006 sections 4.1 to 4.4 and 5 (opt-in by default, enforced presence, envelope non-interpretation, write-once storage, zero schema expansion, learner decoupling, non-retroactivity) and stay inside ADR-002 and ADR-004."
+    },
+    {
+      "id": "honest_metrics",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Metrics are concrete (zero overhead when unopted, zero new record types, zero references in reward calculators), except 100 percent capture in Episode.metadata, which depends on the caller using the episode entry points that FDD-006 now defines."
+    },
+    {
+      "id": "out_of_scope_accurate",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Out of scope excludes mandatory capture, DecisionFrames for low authority, retroactive backfill and schema validation of the payload, matching ADR-006 and ADR-004."
+    },
+    {
+      "id": "rules_actionable",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "BRU-006-01 to BRU-006-07 are concrete enough to drive an FDD and contract tests. BRU-006-04 (write-once across the episode lifecycle) was loose about the mechanism and is made precise in FDD-006."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_brd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_adr",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-006-opt-in-lightweight-evidence-capture-for-low-authority.md; repo-verified against ADR-006 (Accepted) and the code at 0b49a9e; author also scored this frame",
+          "support": 0.88,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "honest_metrics",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-006-opt-in-lightweight-evidence-capture-for-low-authority.md; repo-verified against ADR-006 (Accepted) and the code at 0b49a9e; author also scored this frame",
+          "support": 0.8,
+          "confidence": 0.78
+        },
+        {
+          "criterion_id": "out_of_scope_accurate",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-006-opt-in-lightweight-evidence-capture-for-low-authority.md; repo-verified against ADR-006 (Accepted) and the code at 0b49a9e; author also scored this frame",
+          "support": 0.86,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "rules_actionable",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-006-opt-in-lightweight-evidence-capture-for-low-authority.md; repo-verified against ADR-006 (Accepted) and the code at 0b49a9e; author also scored this frame",
+          "support": 0.8,
+          "confidence": 0.78
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_brd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_adr",
+          "source": "no fundamental flaw found in direct_doc_read of BRD-006-opt-in-lightweight-evidence-capture-for-low-authority.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "honest_metrics",
+          "source": "no fundamental flaw found in direct_doc_read of BRD-006-opt-in-lightweight-evidence-capture-for-low-authority.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "out_of_scope_accurate",
+          "source": "no fundamental flaw found in direct_doc_read of BRD-006-opt-in-lightweight-evidence-capture-for-low-authority.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "rules_actionable",
+          "source": "no fundamental flaw found in direct_doc_read of BRD-006-opt-in-lightweight-evidence-capture-for-low-authority.md",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_adr",
+          "source": "residual issues: Business rules BRU-006-01 to BRU-006-07 trace to ADR-006 sections 4.1 to 4.4 and 5 (opt-in by defaul",
+          "support": 0.2,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "honest_metrics",
+          "source": "residual issues: Metrics are concrete (zero overhead when unopted, zero new record types, zero references in reward c",
+          "support": 0.2,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "out_of_scope_accurate",
+          "source": "residual issues: Out of scope excludes mandatory capture, DecisionFrames for low authority, retroactive backfill and ",
+          "support": 0.2,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "rules_actionable",
+          "source": "residual issues: BRU-006-01 to BRU-006-07 are concrete enough to drive an FDD and contract tests. BRU-006-04 (write-o",
+          "support": 0.2,
+          "confidence": 0.75
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

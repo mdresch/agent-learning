@@ -281,3 +281,39 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - I3: a candidate with a Proposed ADR is a proof_of_concept even when the Ideation notes a data prerequisite (#23); #29 is a candidate with no ADR, so it is documented.
 - **Open for a human:** FDD-036 is approved, so recording I1 (the optional `existing_paths` argument) and I2 (canonical state tokens) there needs its own approval.
 - **Review (Step 8):** Amazon Q round 1 reviewed head `1168f03` and reported no merge-blocking defect and no inline finding (findings: 0 accepted, 0 declined, 0 deferred). The explicit verdict round on head `774d298` confirmed all five acceptance criteria and raised one item: `Q-14-1 | documentation | verified: no | decision: declined | validate_catalog is already in __all__ (src/agent_learning/__init__.py line 301; agent_learning.__all__ contains it) | fix: none`. Q then confirmed `validate_catalog` is in `__all__` and that no blocking defect remained at head `9f59748` ("No code change is required to unblock merging this PR"). Its remaining items were recorded as: `Q-14-2 | documentation | verified: yes | decision: declined | DEFAULT_EPSILON is imported but not in __all__; already so on main and not in this diff, so out of scope | fix: none`; `Q-14-3 | documentation | verified: yes | decision: declined | get_capture exists in capture.py, informational only | fix: none`; and two known items already stated in the PR (the suite paths that cannot run, and I1 and I2 awaiting an FDD-036 approval cycle).
+
+
+---
+
+## Story 36.2 — Runnable Examples for What Exists
+- **Commit:** `66e3bcc`
+- **Date:** 2026-10-26
+- **Branch:** `feat/story-36.2`
+- **Source ADR / BRD / FDD:** ADR-036 (section 4.2, Invariants 1 and 3), BRD-036 (BRU-036-02, BRU-036-03), FDD-036 (sections 1, 3 item 6)
+- **Files Modified/Created:**
+  - `examples/methodologies/{02-reinforce-bandit,03-reasoned-resolution,04-contextual-bandit,05-reward-shaping,06-human-override,12-active-evidence-seeking,19-red-team-validation,20-diff-classification,21-category-escalation}/` (each: `README.md`, `example.py`)
+  - `tests/test_methodology_examples.py` (48 tests)
+  - `.claude/skills/methodology-catalog/SKILL.md` (examples section added)
+  - `docs/user-stories/epic-36-...md` (Story 36.2 status updated to Completed)
+- **Validation:**
+  - $AC_0$: each of the nine runnable entries has `README.md` and `example.py`, and the runnable ids in the catalog are exactly these nine.
+  - $AC_1$: every script header carries STATUS, CODE, `DATA: SYNTHETIC`, the Ideation row, ADR, hypothesis and `NOT EVIDENCE`; every README has Falsification and Real data needed sections.
+  - $AC_2$: each script exits 0 offline in an empty temporary directory (all nine in about 15 seconds) and writes no file.
+  - $AC_3$: no script names `LocalFileStore`, `CosmosStore` or `get_default_store` or imports a network or cloud client; nothing under `src/` imports from `examples/`; the catalog file is byte-identical after running all nine.
+  - Observed RED first: 46 of 48 tests failed before the examples existed; the 2 that passed (the nine-ids check and the no-import-from-`src` check) are guards.
+  - Story contract: `tests/test_methodology_examples.py` 48 passed.
+  - Full suite with `--ignore=tests/test_spark.py --ignore=tests/pmbok`: **586 passed, 2 skipped**. Not covered: `tests/pmbok` (undeclared `sqlalchemy` and `tenacity`) and `tests/test_spark.py` (needs a JVM), so this is not the entire suite (LL-013).
+  - `ruff check` on `examples/methodologies` and the new test file: all checks passed.
+- **Interpretations not stated verbatim in the acceptance criteria (LL-011), recorded in the test header:**
+  - I1: "runs offline" is tested by running each script in an empty temporary directory with a time limit, plus a scan for network and cloud imports; absence of network access cannot be proven by the test.
+  - I2: "leaves the real store unchanged" is tested statically (no durable store named) plus an empty working directory after the run.
+  - I3: the falsification criterion and the real data needed are tested in the README, where ADR-036 section 4.2 places them. For methodologies with no registered hypothesis (#5, #6, #12, #19) the README states a proposed criterion and says so.
+- **Found, not fixed (outside this story):** `examples/quickstart.py` and `examples/next_best_action.py` build episodes without `intent_summary`, `expected_outcome`, `execution_status` and `result_summary`, so `Episode.is_full` is false and the learner uses zero episodes (quickstart prints "Episodes used: 0" and unchanged probabilities); `next_best_action.py` also needs PyYAML, which is not a declared dependency. The new examples build complete episodes and do not use either file.
+- **Open for a human:** whether to fix or retire the two older examples (a separate change); and the proposed falsification criteria for #5, #6, #12 and #19 are authored here, not in the Ideation Document.
+- **Review (Step 8):** Amazon Q round 1 reviewed head `16577a7` (two reviews, two inline findings, no defect in the example scripts):
+  - `Q-15-1 | test gap | verified: yes | decision: accepted | check=True in the catalog-unchanged test raised before the hash assertion, hiding which script failed | fix: 5048fe2`
+  - `Q-15-2 | crash risk | verified: yes | decision: accepted with modification | ast.parse of src files could crash the test with a bare SyntaxError; Q suggested skipping the file, which would hide a broken file, so the test fails with the path and error instead | fix: 5048fe2`
+  - `Q-15-3 | test gap | verified: yes | decision: accepted | the same unguarded ast.parse on the example scripts and in the header helper; one _parse helper now covers all three | fix: 5048fe2`
+  - `Q-15-4 | style | verified: yes | decision: accepted | the 120 s per-script timeout is generous for scripts that take about 2 s; now 60 s | fix: 5048fe2`
+  - `Q-15-5 | test gap | verified: yes | decision: declined | the static scan cannot catch dynamic network calls (os.system and similar); this is interpretation I1, stated in the test header and the PR | fix: none`
+  An explicit verdict on the final head was then requested; the reply is on PR #15.

@@ -73,9 +73,9 @@ The architectural corpus (ADR-001 through ADR-013) rests upon **four mutually co
 
 ---
 
-## 3. The Complete ADR Corpus (ADR-001 through ADR-013)
+## 3. The Accepted ADR Corpus
 
-All thirteen ADRs are formally **Accepted** by Menno Drescher. ADR-001 through ADR-009 and ADR-011 were evaluated via Bayesian decision policy through the live `agent-learning-governance` chain; ADR-010 was approved by Menno directly (see its §2):
+Every ADR in this table is formally **Accepted** by Menno Drescher. ADR-001 through ADR-013 are the foundational corpus; later ADRs were added to the table as they were accepted. ADR-001 through ADR-009 and ADR-011 were evaluated via Bayesian decision policy through the live `agent-learning-governance` chain; ADR-010 was approved by Menno directly (see its §2):
 
 | ADR | Title | Status | Intent-to-Outcome Stage & PMBOK 8 Process | Core Architectural Decision |
 |---|---|---|---|---|

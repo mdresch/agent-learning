@@ -101,4 +101,4 @@ The S0 line is `finding_id | claim type | verified: <v> | decision: <d> | <reaso
 
 ## 5. Out of Scope
 
-Building the unbuilt methodologies, any autonomy for accepting or declining findings, a `trace_id` on `Episode`, and creating the `triage-review-finding` or `route-review-finding` policies (they are declared when ADR-036 is accepted and Story 13.5 runs).
+Building the unbuilt methodologies, any autonomy for accepting or declining findings, a `trace_id` on `Episode`, and creating the `triage-review-finding` or `route-review-finding` policies (they are declared when ADR-036 is accepted and Story 36.5 runs).

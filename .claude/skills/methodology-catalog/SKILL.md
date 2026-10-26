@@ -37,3 +37,11 @@ The nine `runnable` entries (#2, #3, #4, #5, #6, #12, #19, #20, #21) each have `
 - **Episodes must be complete to train.** `Episode.is_full` needs `intent_summary`, an action, `expected_outcome`, `execution_status` and `result_summary`; otherwise a learner uses zero episodes. The older `examples/quickstart.py` and `examples/next_best_action.py` omit these fields and train on nothing, and `next_best_action.py` needs PyYAML, which is not declared; the new examples do not use them.
 - **No state change.** Running an example never edits the catalog or any methodology's state (ADR-036 Invariant 1). Examples are not imported by `src/`.
 - **Adding a new example:** add the directory and files, set the entry's class and `path` in the catalog, add the id to `RUNNABLE` in `tests/test_methodology_examples.py`, and keep the README's falsification criterion in step with the Ideation hypothesis (LL-007).
+
+## 6. Proof-of-Concept Sketches (Story 36.3)
+The ten `proof_of_concept` entries (#8, #9, #10, #11, #13, #14, #15, #17, #22, #23) each have `examples/methodologies/<NN>-<slug>/` with `README.md` and `sketch.py`.
+
+- **Labeling contract.** Same lines as section 5, but `STATUS: proof_of_concept` and `CODE: sketch`, plus a note that the sketch is plain stdlib Python of the ADR formulas, not SDK code (ADR-036 section 4.2). The ADR is Proposed; the methodology is not implemented.
+- **Deterministic and offline.** A fixed seed (`SEED`), standard library only, no files written, exit 0. Sketches assert only their own arithmetic (for example, that a clamp holds), which checks the sketch, not the methodology.
+- **Where a hypothesis is registered** (#8, #9, #10, #15, #22, #23) the README quotes its falsification criterion; for #11, #13, #14, #17 the README says the criterion is proposed there.
+- **Adding a sketch:** add the directory and files, set the catalog entry's class and `path`, add the id to `RUNNABLE` in `tests/test_methodology_sketches.py` (the map name is reused for the sketch set).

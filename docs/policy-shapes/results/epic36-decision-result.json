@@ -30,8 +30,8 @@
       "criteria": [
         {
           "criterion_id": "code_shaped_testable",
-          "support": 0.7467417332849615,
-          "entropy_bits": 0.8164016295212392,
+          "support": 0.8158586988159726,
+          "entropy_bits": 0.6890533467344142,
           "disagreement_bits": 0.0,
           "source_count": 1
         },
@@ -44,15 +44,15 @@
         },
         {
           "criterion_id": "scope_correctly_bounded",
-          "support": 0.7708431110170424,
-          "entropy_bits": 0.7765386738949349,
+          "support": 0.8420607024512674,
+          "entropy_bits": 0.6293568288619033,
           "disagreement_bits": 0.0,
           "source_count": 1
         }
       ],
-      "expected_utility": 0.7874257817312861,
-      "uncertainty": 0.7386349246050173,
-      "robust_utility": 0.7135622892707844,
+      "expected_utility": 0.8342039673863647,
+      "uncertainty": 0.6471248819983985,
+      "robust_utility": 0.7694914791865248,
       "ruled_out_by": []
     },
     {

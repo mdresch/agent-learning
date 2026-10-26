@@ -37,8 +37,8 @@
         },
         {
           "criterion_id": "fix_location_correct",
-          "support": 0.8158586988159726,
-          "entropy_bits": 0.6890533467344142,
+          "support": 0.8420607024512674,
+          "entropy_bits": 0.6293568288619033,
           "disagreement_bits": 0.0,
           "source_count": 1
         },
@@ -57,9 +57,9 @@
           "source_count": 1
         }
       ],
-      "expected_utility": 0.8129963584711606,
-      "uncertainty": 0.6878459792633522,
-      "robust_utility": 0.7442117605448254,
+      "expected_utility": 0.8195468593799844,
+      "uncertainty": 0.6729218497952245,
+      "robust_utility": 0.7522546744004619,
       "ruled_out_by": []
     },
     {

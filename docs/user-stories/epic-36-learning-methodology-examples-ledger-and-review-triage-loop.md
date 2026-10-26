@@ -71,8 +71,9 @@
 - **$AC_1$ (Episode Metadata):** `to_episode_metadata()` returns a plain dict and `review_triage.py` imports nothing from `agent_learning.storage`, so no record type is added.
 - **$AC_2$ (Reliability Evidence):** `reliability()` returns the Wilson lower bound for a reviewer and claim type, excludes `unknown` records, counts `partial` as not verified, and returns `lower_bound = None` below `min_cases`.
 - **$AC_3$ (No Guessing):** a backfilled record has `reconstructed = True` and any field not shown by the repository history reads `unknown`.
-- **$AC_4$ (Human Decides):** the declared `triage-review-finding` shape has `requires_human_approval: true` and the `full` authority, and no code path in the module sets `decision`.
-- **$AC_5$ (Routing Policy Is Separate):** the declared `route-review-finding` shape contains no `accepted` or `declined` action, only verification-ordering actions.
+- **$AC_4$ (Triage Shape Keeps a Human):** `docs/policy-shapes/triage-review-finding.actions.json` lists exactly `accept_and_amend`, `decline_with_reason` and `defer_to_human`, and `triage-review-finding.profile.json` loads with `ComplexityProfile.from_dict` with `requires_human_approval` true.
+- **$AC_5$ (Routing Shape Is Separate):** `docs/policy-shapes/route-review-finding.actions.json` lists only `verify_logic_claims_first`, `verify_test_claims_first` and `verify_documentation_claims_first`, with no accept or decline action, and `route-review-finding.profile.json` loads with `ComplexityProfile.from_dict`.
+- **$AC_6$ (Nothing Sets the Decision):** a test builds records, calls `reliability()` and `to_episode_metadata()`, and asserts every record's `decision` is unchanged.
 
 ---
 

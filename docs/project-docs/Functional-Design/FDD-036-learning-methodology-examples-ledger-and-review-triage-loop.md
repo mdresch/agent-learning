@@ -72,6 +72,18 @@ class TriageRecord:
 ```
 The S0 line is `finding_id | claim type | verified: <v> | decision: <d> | <reason> | fix: <commit or none>`.
 
+### 2.4 Declared policy shapes
+Story 36.5 declares two shapes as files in `docs/policy-shapes/`, in the form the other policies use (an actions file and a complexity profile). Declaring a shape does not create a policy.
+
+| File | Content |
+|---|---|
+| `triage-review-finding.actions.json` | Exactly three actions: `accept_and_amend`, `decline_with_reason`, `defer_to_human` |
+| `triage-review-finding.profile.json` | A complexity profile that loads with `ComplexityProfile.from_dict` and has `requires_human_approval: true` |
+| `route-review-finding.actions.json` | Verification-ordering actions only: `verify_logic_claims_first`, `verify_test_claims_first`, `verify_documentation_claims_first`. No accept or decline action |
+| `route-review-finding.profile.json` | A complexity profile that loads with `ComplexityProfile.from_dict`, a low-impact reversible decision, without a human-approval requirement |
+
+Authority is applied when a policy is initialized, not stored in these files: `triage-review-finding` is initialized with `full` authority and `route-review-finding` with `low` authority, by the maintainer with `task-policy-init`, after Story 36.5. Under ADR-003 Invariant 6 the human-approval flag in the triage profile blocks every learned authorization path.
+
 ---
 
 ## 3. Behavior
@@ -101,4 +113,4 @@ The S0 line is `finding_id | claim type | verified: <v> | decision: <d> | <reaso
 
 ## 5. Out of Scope
 
-Building the unbuilt methodologies, any autonomy for accepting or declining findings, a `trace_id` on `Episode`, and creating the `triage-review-finding` or `route-review-finding` policies (they are declared when ADR-036 is accepted and Story 36.5 runs).
+Building the unbuilt methodologies, any autonomy for accepting or declining findings, a `trace_id` on `Episode`, and initializing the `triage-review-finding` and `route-review-finding` policies in a store. Story 36.5 declares their shape files (section 2.4); the maintainer initializes the policies afterwards.

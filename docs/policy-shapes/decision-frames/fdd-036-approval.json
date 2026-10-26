@@ -11,7 +11,7 @@
       "id": "fix_location_correct",
       "weight": 1.0,
       "minimum_sources": 1,
-      "description": "Three pure standard-library modules (methodology_catalog.py, methodology_ledger.py, review_triage.py), content under examples/methodologies/, the ledger under docs/project-docs, and a package re-export, in the style of lessons_learned.py and tailoring.py."
+      "description": "Three pure standard-library modules (methodology_catalog.py, methodology_ledger.py, review_triage.py), content under examples/methodologies/, the ledger under docs/project-docs, the two policy shapes as actions and profile files under docs/policy-shapes (section 2.4, authority applied at policy initialization), and a package re-export, in the style of lessons_learned.py and tailoring.py."
     },
     {
       "id": "no_invented_implementation",
@@ -39,8 +39,8 @@
         {
           "criterion_id": "fix_location_correct",
           "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-036-learning-methodology-examples-ledger-and-review-triage-loop.md; repo-verified against ADR-036 (Accepted), ADR-024 and the existing modules; author also scored this frame",
-          "support": 0.86,
-          "confidence": 0.82
+          "support": 0.88,
+          "confidence": 0.84
         },
         {
           "criterion_id": "no_invented_implementation",

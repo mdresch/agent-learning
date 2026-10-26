@@ -5,7 +5,7 @@
       "id": "code_shaped_testable",
       "weight": 1.0,
       "minimum_sources": 1,
-      "description": "Acceptance criteria for 36.1, 36.4 and 36.5 (AC_0 to AC_3) are contract-testable pure functions. Stories 36.2 and 36.3 are run-and-check criteria. Two criteria in 36.5 (AC_4, AC_5) test a declared policy shape, which FDD-036 lists as out of scope, so where the shape is declared is not defined."
+      "description": "Acceptance criteria for 36.1, 36.4 and 36.5 are contract-testable: pure functions, plus declared shape files that must load with ComplexityProfile.from_dict and contain exact action ids (36.5 AC_4 to AC_6). Stories 36.2 and 36.3 are run-and-check criteria."
     },
     {
       "id": "traceable_to_fdd_brd_adr",
@@ -17,7 +17,7 @@
       "id": "scope_correctly_bounded",
       "weight": 1.0,
       "minimum_sources": 1,
-      "description": "Six stories split the catalog, the 9 runnable examples, the 10 sketches, the ledger, the triage loop and the tailoring and propagation work. Policy declaration is in a story's criteria but out of scope in the FDD, a boundary mismatch to resolve."
+      "description": "Six stories split the catalog, the 9 runnable examples, the 10 sketches, the ledger, the triage loop and the tailoring and propagation work. Declaring the two policy shapes is now in both FDD-036 section 2.4 and Story 36.5; initializing the policies in a store stays a maintainer step outside the epic."
     }
   ],
   "options": [
@@ -27,8 +27,8 @@
         {
           "criterion_id": "code_shaped_testable",
           "source": "direct_doc_read:docs/user-stories/epic-36-learning-methodology-examples-ledger-and-review-triage-loop.md; repo-verified against ADR-036 (Accepted), ADR-024 and the existing modules; author also scored this frame",
-          "support": 0.8,
-          "confidence": 0.78
+          "support": 0.86,
+          "confidence": 0.82
         },
         {
           "criterion_id": "traceable_to_fdd_brd_adr",
@@ -39,8 +39,8 @@
         {
           "criterion_id": "scope_correctly_bounded",
           "source": "direct_doc_read:docs/user-stories/epic-36-learning-methodology-examples-ledger-and-review-triage-loop.md; repo-verified against ADR-036 (Accepted), ADR-024 and the existing modules; author also scored this frame",
-          "support": 0.82,
-          "confidence": 0.8
+          "support": 0.88,
+          "confidence": 0.84
         }
       ],
       "constraint_results": {
@@ -78,7 +78,7 @@
       "evidence": [
         {
           "criterion_id": "code_shaped_testable",
-          "source": "residual issues: Acceptance criteria for 36.1, 36.4 and 36.5 (AC_0 to AC_3) are contract-testable pure functions. Sto",
+          "source": "residual issues: Acceptance criteria for 36.1, 36.4 and 36.5 are contract-testable: pure functions, plus declared sha",
           "support": 0.2,
           "confidence": 0.75
         },

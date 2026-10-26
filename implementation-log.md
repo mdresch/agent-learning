@@ -217,3 +217,36 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `370b858` — `chore(tests): remove unused MagicMock and cosmos_mod imports`
 - **Validation re-run on 2026-10-26** (branch `docs/adr-028-pmbok-convergence`): `tests/test_storage_cosmos.py` 7 passed; suite with `--ignore=tests/test_spark.py --ignore=tests/pmbok` 490 passed, 2 skipped. The 459 count in the original entry reflects the suite at that time.
 - **The original entry is unchanged**, per the append-only rule.
+
+
+---
+
+## Story 3.1 — Build Tier-Specific Environment Overrides and Authority-Aware Autonomy Reporting
+- **Commit:** `759600f`
+- **Date:** 2026-10-26
+- **Branch:** `feat/story-3.1`
+- **Source ADR / BRD / FDD:** ADR-003 (sections 3, 4.3, 4.5, 6, 7), BRD-003, FDD-003
+- **Files Modified/Created:**
+  - `src/agent_learning/config.py` (tier-aware `_env_tier_int` / `_env_tier_float`, `AutonomyConfig.for_tier` resolves tier variable, then global, then default; `validate_autonomy_monotonicity()`)
+  - `src/agent_learning/autonomy.py` (`assess_autonomy()` validates monotonicity when it builds its own config; full-authority policies report `action_probability` and `probability_margin` as `not_applicable` with `authorization_basis="human_adjudication"`)
+  - `tests/test_autonomy.py` (Story 3.1 contract section appended; 17 new tests, 33 in the file)
+  - `.claude/skills/autonomy/SKILL.md` (new component skill)
+  - `docs/decision-making.md` (tier-suffix variables, monotonicity and full-authority reporting documented)
+  - `docs/user-stories/epic-3-tier-specific-autonomy-overrides.md` (status updated to Completed)
+- **Validation:**
+  - $AC_0$ and $AC_1$: `AGENT_LEARNING_AUTONOMY_{METRIC}_{TIER}` beats the global variable, which beats the tier default; `MIN_OUTCOMES_LOW=5` yields 5, 20, 50, 100 across the four tiers.
+  - $AC_2$: `validate_autonomy_monotonicity()` raises `ValueError` naming the metric and both tiers for each of the six gates; defaults and equal thresholds pass.
+  - $AC_3$: full-authority policies report the two probability criteria as `not_applicable` with `met=True`, `required=None` and a reason citing ADR-003; `authorization_basis` is `human_adjudication`.
+  - $AC_4$: low-authority policies keep numeric `required` values and no `status` key, and the existing autonomy tests pass unchanged.
+  - Observed RED first: 14 of the new tests failed before implementation (run with a temporary no-op stub of the validator, since the module could not otherwise be imported); the rest were regression guards that already passed.
+  - Story contract: `tests/test_autonomy.py` 33 passed.
+  - Full suite with `--ignore=tests/test_spark.py --ignore=tests/pmbok`: **507 passed, 2 skipped**. Not covered: `tests/pmbok` (15 files) cannot be collected from a clean install (undeclared `sqlalchemy` and `tenacity`) and `tests/test_spark.py` needs a JVM, so this is not the entire suite (LL-013).
+  - `ruff check` on the three touched Python files reports 12 findings, the same 12 as before the change (existing `UP045`, `UP037`, `RUF022`).
+- **Interpretations not stated verbatim in the acceptance criteria (LL-011), recorded in the test header:**
+  - I1: an unparseable tier-suffixed value falls through to the global variable, then the default, as the existing `_env_int` does (FDD-003's sketch would raise).
+  - I2: the monotonicity check covers all six statistical gates (ADR-003 Invariant 5), not only the three in FDD-003 Design 2. `audit_rate` is excluded (ADR-003 4.3).
+  - I3: `assess_autonomy()` runs the check when it resolves its own config; a config passed in explicitly is not re-validated.
+  - I4: for a full-authority policy, eligibility comes only from explicit acceptance and `requires_human_approval`; the frozen-logit statistical path no longer grants autonomy. This is a behavior change for full-authority policies and is the reading of FDD-003 Design 3, item 4.
+  - The story names "Invariant #5" for monotonicity, which matches ADR-003 Invariant 5; the FDD text cites it as a different section, and the ADR was followed.
+- **Open for a human:** whether FDD-003 should be amended to record I1 to I4 (FDD-003 is approved, so the amendment needs its own approval).
+- **Breakout recap (ADR-010 section 4.1):** pending; this is the epic's last story, to be held after the PR review (Step 9).

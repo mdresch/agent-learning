@@ -43,6 +43,7 @@ RUNNABLE = {
     20: "20-diff-classification",
     21: "21-category-escalation",
 }
+RUN_TIMEOUT_SECONDS = 60  # each example takes about two seconds
 FORBIDDEN_NAMES = {"LocalFileStore", "CosmosStore", "get_default_store"}
 FORBIDDEN_IMPORTS = {"requests", "urllib", "http", "socket", "azure", "aiohttp", "httpx"}
 
@@ -51,8 +52,16 @@ def _script(methodology_id: int) -> Path:
     return EXAMPLES / RUNNABLE[methodology_id] / "example.py"
 
 
+def _parse(path: Path) -> ast.Module:
+    """Parse a source file, failing the test with the path and error if it is not valid Python."""
+    try:
+        return ast.parse(path.read_text(encoding="utf-8"))
+    except SyntaxError as exc:
+        pytest.fail(f"cannot parse {path}: {exc}")
+
+
 def _docstring(path: Path) -> str:
-    return ast.get_docstring(ast.parse(path.read_text(encoding="utf-8"))) or ""
+    return ast.get_docstring(_parse(path)) or ""
 
 
 def _catalog() -> dict[int, dict]:
@@ -106,7 +115,7 @@ def test_ac2_example_runs_offline_and_exits_zero(methodology_id: int, tmp_path: 
         cwd=tmp_path,
         capture_output=True,
         text=True,
-        timeout=120,
+        timeout=RUN_TIMEOUT_SECONDS,
         check=False,
     )
     assert result.returncode == 0, result.stderr[-1500:]
@@ -118,7 +127,7 @@ def test_ac2_example_runs_offline_and_exits_zero(methodology_id: int, tmp_path: 
 @pytest.mark.parametrize("methodology_id", sorted(RUNNABLE))
 def test_ac3_example_uses_no_real_store_and_no_network(methodology_id: int) -> None:
     """AC_3 (interpretation I2): the script names no durable store and imports no network or cloud client."""
-    tree = ast.parse(_script(methodology_id).read_text(encoding="utf-8"))
+    tree = _parse(_script(methodology_id))
     names: set[str] = set()
     imports: set[str] = set()
     for node in ast.walk(tree):
@@ -139,7 +148,7 @@ def test_ac3_nothing_under_src_imports_from_examples() -> None:
     """AC_3 (ADR-036 Invariant 3): no module under src/ imports from examples/."""
     offenders = []
     for path in (ROOT / "src").rglob("*.py"):
-        tree = ast.parse(path.read_text(encoding="utf-8"))
+        tree = _parse(path)
         for node in ast.walk(tree):
             modules = []
             if isinstance(node, ast.Import):
@@ -155,12 +164,13 @@ def test_ac3_running_the_examples_leaves_the_catalog_unchanged(tmp_path: Path) -
     """AC_3 (ADR-036 Invariant 1): running every example does not change the catalog file."""
     before = hashlib.sha256(CATALOG.read_bytes()).hexdigest()
     for methodology_id in sorted(RUNNABLE):
-        subprocess.run(
+        proc = subprocess.run(
             [sys.executable, str(_script(methodology_id))],
             cwd=tmp_path,
             capture_output=True,
             text=True,
-            timeout=120,
-            check=True,
+            timeout=RUN_TIMEOUT_SECONDS,
+            check=False,
         )
+        assert proc.returncode == 0, f"#{methodology_id}: {proc.stderr[-1500:]}"
     assert hashlib.sha256(CATALOG.read_bytes()).hexdigest() == before

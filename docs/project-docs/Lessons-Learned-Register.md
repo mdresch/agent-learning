@@ -30,6 +30,8 @@
 | [LL-017](#ll-017--a-package-root-re-export-can-shadow-an-existing-name) | A Package-Root Re-Export Can Shadow an Existing Name | Epic 36 / Story 36.5 | Universal Code Quality | 2026-10-26 |
 | [LL-018](#ll-018--name-the-target-repository-on-every-pr-command) | Name the Target Repository on Every PR Command | Epic 36 / Story 36.3 | Universal Process | 2026-10-26 |
 | [LL-019](#ll-019--evidence-must-be-unambiguous-in-its-own-representation) | Evidence Must Be Unambiguous in Its Own Representation | Epic 36 / Story 36.3 | Universal Review | 2026-10-26 |
+| [LL-020](#ll-020--read-a-mutable-global-once) | Read a Mutable Global Once | Epic 3 / Story 3.1 | Universal Code Quality | 2026-10-26 |
+| [LL-021](#ll-021--read-a-posted-command-back-before-trusting-a-reply) | Read a Posted Command Back Before Trusting a Reply | Epic 3 / Story 3.1 | Universal Process | 2026-10-26 |
 
 ---
 
@@ -308,3 +310,28 @@
 - **The Trap:** The reviewer twice claimed a regex used a doubled backslash. The claim was false, and the first rebuttal pasted Python's `repr` of the line, which shows a single backslash as two characters. The pasted evidence therefore appeared to support the false claim, and a correction comment was needed.
 - **The Root Cause:** `repr` escapes backslashes, so its output cannot show how many are in the text. The rebuttal used a representation that hides the property in dispute.
 - **Actionable Invariant:** When declining a finding about exact characters, show a measurement that does not depend on escaping: a count of the character, a hex dump, or the match result on a real input. Check that the evidence cannot be read the other way before posting it.
+
+
+---
+
+### LL-020 — Read a Mutable Global Once
+- **Identifier:** `LL-020`
+- **Date:** 2026-10-26
+- **Epic / Story:** Epic 3 / Story 3.1 (PR [#11](https://github.com/mdresch/agent-learning/pull/11), commit `6a92064`)
+- **Scope:** Universal Code Quality
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/autonomy/SKILL.md`; Tier 3: `sidpa-template` coding conventions (proposed, needs human approval before any cross-repo change)
+- **The Trap:** `_note_global_override` read the global environment variable twice, once to test it and once to log it. A variable removed between the two reads raised `KeyError`. Automated review found it as a crash risk (Q-11-1).
+- **The Root Cause:** A value that can change at any time was treated as stable across two statements.
+- **Actionable Invariant:** Read an environment variable or other mutable global once into a local, and test and use the local. This applies to configuration, process state and files alike.
+
+---
+
+### LL-021 — Read a Posted Command Back Before Trusting a Reply
+- **Identifier:** `LL-021`
+- **Date:** 2026-10-26
+- **Epic / Story:** Epic 3 / Story 3.1 (the review loop on PRs [#10](https://github.com/mdresch/agent-learning/pull/10) to [#12](https://github.com/mdresch/agent-learning/pull/12))
+- **Scope:** Universal Process
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/implement-story/SKILL.md` (Step 8.2); Tier 3: `sidpa-template` implement-story skill (proposed, needs human approval before any cross-repo change)
+- **The Trap:** On Windows Git Bash, `gh pr comment --body "/q review"` had its leading `/` rewritten into a path, so the reviewer never received the command. The replies that followed were its automatic reviews, and a polling script counted them as answers to the command.
+- **The Root Cause:** The shell altered the argument on its way to the tool, and nothing checked what was actually posted or which commit a reply was for.
+- **Actionable Invariant:** After posting a command to an external reviewer, read the posted text back, and accept a reply only when it is for the head commit the command named. Prefix such commands with `MSYS_NO_PATHCONV=1` or pass the body with `--body-file`.

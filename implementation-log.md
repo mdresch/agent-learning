@@ -249,7 +249,7 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - I4: for a full-authority policy, eligibility comes only from explicit acceptance and `requires_human_approval`; the frozen-logit statistical path no longer grants autonomy. This is a behavior change for full-authority policies and is the reading of FDD-003 Design 3, item 4.
 - **Open for a human:** whether FDD-003 should be amended to record I1 to I4 (FDD-003 is approved, so the amendment needs its own approval).
 - **Review (Step 8):** Amazon Q round 1 raised one finding, `Q-11-1 | crash risk | verified: yes | decision: accepted | _note_global_override read the global variable twice, so a variable removed between the two reads could raise KeyError | fix: 6a92064`. An explicit verdict was then requested on the head commit; the reply is on PR #11.
-- **Breakout recap (ADR-010 section 4.1):** pending; this is the epic's last story, to be held after the PR review (Step 9).
+- **Breakout recap (ADR-010 section 4.1):** held 2026-10-26 after the PR review. Two lessons drafted and accepted by the maintainer: `LL-020` (read a mutable global once, from Q-11-1) and `LL-021` (read a posted command back before trusting a reply, from the `/q` path trap on PRs #10 to #12). Tier 2 targets updated in the autonomy and implement-story skills; Tier 3 proposed, not applied.
 
 ---
 

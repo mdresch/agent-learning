@@ -1,0 +1,133 @@
+{
+  "task": "ADR-024 (Learning Methodology Selection Chain): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "architectural_soundness",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Decides a human-declared use-case profile, hard filters that each carry a reason, a maturity ranking that only recommends, and a recorded human decision, with no new LearningStore record type (ADR-002), no autonomy granted by choosing a methodology (ADR-001, ADR-003 section 4.1), and the same recommend-then-decide pattern as ADR-011."
+    },
+    {
+      "id": "alternatives_considered",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Four alternatives evaluated and rejected with real reasons: skill and documents only, a learned selector now, an agent-inferred profile, and one default methodology for everything."
+    },
+    {
+      "id": "consequences_honest",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Discloses that a methodology choice becomes inspectable, that most branches will end in candidate-not-built, that recorded selections become the evidence for a later learned selector, and that the rule table can drift from the Ideation Document."
+    },
+    {
+      "id": "gap_disclosure_quality",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Bounds the open questions in Section 7 (where the rule table lives, the filter taxonomy, the relation to ADR-021 and ADR-022, retroactive profiling, linking a selection to its outcome) and states that the module, schema and rule table need their own BRD, FDD and stories."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_adr",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "direct_doc_read:docs/adr/ADR-024-learning-methodology-selection-chain.md; repo-verified against Ideation 2.1 (32 methodologies, 9 real or partly real), ADR-003 4.1 and Invariant 6, the selection skill and ADR-036; known gaps: ranking vocabulary narrower than Ideation states, no gate or policy named",
+          "support": 0.86,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "adr_024_section_5_four_alternatives",
+          "support": 0.88,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "adr_024_section_6",
+          "support": 0.86,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "adr_024_section_7_open_questions; does not name the TaskPolicy that records a selection or which source is authoritative between the rule table and the skill",
+          "support": 0.8,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_adr",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "no fundamental flaw found in direct_doc_read of ADR-024",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "adr_024_section_5",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "adr_024_section_6",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "adr_024_section_7",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "residual risk: vocabulary mismatch with Ideation states and no named gate; clarifications are amendment-sized",
+          "support": 0.16,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "adr_024_section_5",
+          "support": 0.12,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "adr_024_section_6",
+          "support": 0.12,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "adr_024_section_7: policy, authority and single-source questions unresolved",
+          "support": 0.18,
+          "confidence": 0.75
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

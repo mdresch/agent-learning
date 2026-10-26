@@ -8,7 +8,7 @@
 
 ## Story 8.1 — Native PMBOK 8 Orchestration Engine and PMP Decision Gate
 
-**Status:** Ready (2026-10-24)  
+**Status:** Superseded in part (2026-10-26) by ADR-034 and ADR-013; not to be implemented as written. Acceptance criteria AC_0, AC_1, AC_3 and AC_6 depend on the `pmbok/` package, `scripts/orchestrate_pmbok.py` and the 49 legacy PMBOK tests, which ADR-034 decommissions. The surviving intent (the `approve-pmp` gate, selective adaptation, baseline versioning and rollback) moves to the stories of the epic that implements ADR-034 and ADR-013. Was: Ready (2026-10-24).  
 **As** an autonomous project engineering and governance maintainer,  
 **I want** the PMBOK 8 orchestration engine and `approve-pmp` decision gate operating natively in `agent-learning`,  
 **So that** project baselines are rigorously synthesized and validated before technical specifications are authored, and adaptive feedback loops selectively update affected subsidiary plans upon governance changes.

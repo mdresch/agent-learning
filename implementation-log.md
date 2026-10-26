@@ -248,4 +248,5 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - I3: `assess_autonomy()` runs the check when it resolves its own config; a config passed in explicitly is not re-validated.
   - I4: for a full-authority policy, eligibility comes only from explicit acceptance and `requires_human_approval`; the frozen-logit statistical path no longer grants autonomy. This is a behavior change for full-authority policies and is the reading of FDD-003 Design 3, item 4.
 - **Open for a human:** whether FDD-003 should be amended to record I1 to I4 (FDD-003 is approved, so the amendment needs its own approval).
+- **Review (Step 8):** Amazon Q round 1 raised one finding, `Q-11-1 | crash risk | verified: yes | decision: accepted | _note_global_override read the global variable twice, so a variable removed between the two reads could raise KeyError | fix: 6a92064`. An explicit verdict was then requested on the head commit; the reply is on PR #11.
 - **Breakout recap (ADR-010 section 4.1):** pending; this is the epic's last story, to be held after the PR review (Step 9).

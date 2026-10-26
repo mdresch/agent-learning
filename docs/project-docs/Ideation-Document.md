@@ -5,8 +5,8 @@
 | Field | Value |
 |---|---|
 | Document Title | Ideation Document — agent-learning SDK |
-| Version | 1.11 |
-| Date | 2026-10-22 |
+| Version | 1.13 |
+| Date | 2026-10-25 |
 | Status | Draft |
 | Source | `README.md`, `PYPI.md`, `docs/decision-making.md`, `docs/autonomy-complexity.md`, `docs/experiential-reinforcement-learning-comparison.md`, `docs/scout-agent-learn-skill.md`, `docs/scout-automation-agent-learning.md`, `docs/research/main.tex`, `examples/next_best_action.py`, `src/agent_learning/decision.py`/`cli.py`/`audit.py`, `git log`, and this session's own real use of the SDK (building and validating eight real TaskPolicies against the SocialEngage project, including the diff/baseline classification pair) |
 
@@ -80,13 +80,13 @@ whether the technique is good in the abstract.
 
 | # | Methodology | Implementable here? | Status |
 |---|---|---|---|
-| 1 | Supervised Fine-Tuning (imitate a target output) | **No** | Requires updating model weights to copy an example — contradicts the frozen-model premise outright |
+| 1 | Supervised Fine-Tuning (imitate a target output) | **No** | Requires updating model weights to copy an example — contradicts the frozen-model premise outright. **Reopens if** a hosted or fine-tuned model enters scope (a product decision, not a learning one) |
 | 2 | RLVR / policy-gradient bandit (REINFORCE-with-baseline) | **Yes** | Implemented, production — `SoftmaxPolicy` + `ReinforceLearner` (HYP-AL-001) |
 | 3 | Bayesian / evidence-based reasoned resolution | **Yes** | Implemented, production — `DecisionResolver`; not gradient-based, a genuinely different resolution mode (HYP-AL-003) |
 | 4 | Contextual bandit | **Yes, proven feasible** | Example-only (`ContextualSoftmaxPolicy`/`ContextualReinforceLearner`), not packaged (HYP-AL-004) |
 | 5 | Pluggable reward shaping (local heuristics vs. LLM-judge evaluators) | **Yes** | Implemented, production — feeds #2 |
 | 6 | Durable explicit human override | **Yes** | Implemented, production — non-gradient, granted trust, bypasses statistical gates entirely |
-| 7 | ERL — experience, reflection, retry, internalize | **No, in full form** | Requires the policy itself to generate and internalize reflections — needs a generative model as the policy, not a small action-ID bandit |
+| 7 | ERL — experience, reflection, retry, internalize | **No, in full form** | Requires the policy itself to generate and internalize reflections — needs a generative model as the policy, not a small action-ID bandit. **Reopens if** replayable, resettable task environments exist |
 | 8 | Lightweight critique-to-evidence (ERL-inspired, no weight updates) | **Yes** | Not built — candidate; turns textual critique into `DecisionFrame` evidence adjustments without touching model weights |
 | 9 | Thompson sampling / Bayesian bandits | **Yes** | Not built — candidate; the SDK already computes Wilson lower bounds, halfway there |
 | 10 | UCB (Upper Confidence Bound) | **Yes** | Not built — candidate; simpler than REINFORCE, no gradient or entropy hyperparameter needed |
@@ -95,22 +95,40 @@ whether the technique is good in the abstract.
 | 13 | DPO-style pairwise preference learning | **Yes** | Not built — candidate; this session's own Red Team methodology already produces exactly this kind of paired-preference data |
 | 14 | Meta-learning across structurally similar TaskPolicies | **Yes** | Not built — candidate; motivated by cold-starting six structurally similar policies this session |
 | 15 | Warm-start / transfer of priors (simpler than #14) | **Yes** | Not built — candidate; seed a new policy's initial state from a similar existing policy's converged state instead of a cold uniform prior |
-| 16 | Model-based RL | **No** | Contradicts the project's explicit model-free simplicity philosophy — not worth pursuing |
+| 16 | Model-based RL | **No** | Contradicts the project's explicit model-free simplicity philosophy — not worth pursuing as an *acting* policy. **Reopens as evaluation only** once enough episodes exist to fit an outcome model (see #29) |
 | 17 | Ensemble routing across authority modes | **Yes** | Not built — candidate; a meta-decision choosing `low` vs. `full` per-instance rather than fixing it at policy-init time |
-| 18 | Federated / multi-agent learning | **Not applicable** | Each `TaskPolicy` is single-agent, single-tenant by design — no multi-agent coordination problem exists here |
+| 18 | Federated / multi-agent learning | **Not applicable** | Each `TaskPolicy` is single-agent, single-tenant by design — no multi-agent coordination problem exists here. **Reopens if** the hosted multi-tenant layer (HYP-AL-011) is pursued |
 | 19 | Adversarial / red-team example generation | **Yes, already practiced** | Used this session as *validation* (testing a policy's discriminative power), not yet as a *training* signal — could feed #13 directly |
 | 20 | Diff/baseline classification + scoped verification | **Yes** | **Implemented and validated this session** — `classify-diff-type`, correctly resolved 2 of 3 real test cases and correctly tie-broke the third |
 | 21 | Category-level escalation learning | **Yes** | Implemented (`escalate-diff-response`), not yet trained — no episodes registered yet |
 | 22 | Offline scored-search compilation of decision configuration (DSPy-style) | **Yes** | Not built — candidate added from external research (below); optimize `DecisionResolver`'s hand-set criteria weights/evidence-trust parameters against a labeled validation set via derivative-free search, instead of hand-tuning them as every `full`-authority policy this session did |
 | 23 | Dueling-bandit / active-ranking pairwise comparison (adaptive query selection over pairs + a principled preference model, e.g. Bradley-Terry) | **Yes** | Not built — candidate; registered this session, resolving an open question previously left on `HYP-AL-015`. Distinct from both #12 (single-instance, information-gain-driven evidence-seeking for one decision) and #13 (passive preference learning from an already-collected pairwise dataset) — this instead adaptively selects *which* pair to compare next, to rank a set of N items with fewer total comparisons than ADPA's current exhaustive `n*(n-1)/2` approach |
+| 24 | Linear contextual bandit (LinUCB / LinTS) | **Yes** | Not built — candidate; the principled step beyond `ContextualSoftmaxPolicy` (#4). Overlaps ADR-016 (UCB) and ADR-021 (contextual routing). Its exploration weight is a hyperparameter, so it is not parameter-free. Added 2026-10-25 from external review, checked against the repo |
+| 25 | Multi-stage credit assignment (propagate outcome credit across the steps of a chain) | **Yes, blocked** | Not built — candidate, blocked: `Episode` has no `trace_id` (only `correlation_id` / `session_id`), so linking steps needs a store-boundary decision under ADR-002 first. No hypothesis registered until that is settled |
+| 26 | Outcome-conditioned exemplar selection (choose which past episodes inform a decision) | **Yes** | Not built — candidate; only auditable if the selection itself is recorded in `Episode.metadata`. Distinct from #8 (turns critique into evidence) and #14 (shares priors across policies) |
+| 27 | Prioritized experience replay | **Not worth it now** | Declined — at current episode volume replay prioritization has no measurable payoff. Revisit if volume grows by orders of magnitude |
+| 28 | Conformal prediction / abstention (a calibrated "defer to a human" trigger) | **Yes** | Not built — candidate; fits the authority model directly. Its exchangeability assumption is weak when outcomes drift, so it is paired with #30 |
+| 29 | Off-policy evaluation (inverse-propensity / doubly-robust) | **Yes** | Not built — candidate; scores a candidate policy on logged episodes before it acts. The safe form of #16: evaluation, not acting. Requires the logged action probability to be recorded |
+| 30 | Non-stationarity and change-point handling (discounted or windowed updates) | **Yes** | Not built — candidate; project conditions drift, and none of #2, #9–11 assumes otherwise today |
+| 31 | Safe / constrained bandits with hard action masking | **Yes** | Not built — candidate; encodes ADR-011's floors and caps as constraints on the action set instead of penalties |
+| 32 | Active-learning triage of which decisions get scarce human adjudication | **Yes** | Not built — candidate; related to #23 and #12 but selects decisions to review, not pairs to compare or evidence to seek |
 
-Of the 23 surveyed, 10 are already real (implemented, production or
-this-session-validated); 3 are structurally impossible given the
-frozen-model/small-action-space premise (#1, #7 in full form, #16); 1 is
-not applicable to this project's single-agent shape (#18); the remaining
-9 (#8–11, #13–15, #17, #22–23) are genuine, not-yet-built candidates that fit
-the project's real constraints and are worth prioritizing deliberately
-rather than building ad hoc.
+Of the 32 surveyed (the original 23, plus #24-#32 added 2026-10-25):
+
+- 9 are real or partly real: 7 implemented (#2, #3, #5, #6, #19, #20, #21)
+  plus #4 (example-only, not packaged) and #12 (partially built);
+- 3 are structurally impossible under the frozen-model premise (#1, #7 in
+  full form, #16);
+- 1 is not applicable to the single-agent shape (#18);
+- 1 is declined for now (#27);
+- 18 are genuine, not-yet-built candidates worth prioritizing deliberately
+  rather than building ad hoc: #8-11, #13-15, #17, #22-23 (the original
+  10) and #24-26, #28-32 (8 added 2026-10-25). #25 is blocked on a store
+  decision.
+
+9 + 3 + 1 + 1 + 18 = 32. (The earlier text said 10 real and 9 candidates,
+which summed to 23 only because the candidate list was miscounted: it
+named ten.)
 
 ##### 2.1.1 External validation: what other agent SDKs actually ship
 
@@ -224,6 +242,49 @@ production volume (how many live Scout decisions have actually run
 through this, whether any have crossed an autonomy gate) — not
 checked, not assumed either way.
 
+##### 2.1.3 ADR coverage of the not-yet-built candidates (added 2026-10-25)
+
+Checked directly against `docs/adr/` and `src/agent_learning/policy/`, not
+assumed. Ten candidate ADRs (ADR-014 to ADR-023) exist, one per candidate
+methodology. **All ten are `Proposed`, untracked in git, unapproved
+(`approve-adr` not run), and have no code or tests.** Their text says only
+"ready for multi-criteria evaluation", so they are drafts derived from the
+table above, not evidence about the methodologies. The only learning
+policies actually implemented remain `SoftmaxPolicy` and
+`ContextualSoftmaxPolicy` (`policy/softmax_bandit.py`,
+`policy/contextual_softmax.py`).
+
+| Methodology | ADR | Linked hypothesis | ADR status | Code |
+|---|---|---|---|---|
+| #8 Critique-to-evidence | ADR-014 | HYP-AL-005 | Proposed | none |
+| #9 Thompson sampling | ADR-015 | HYP-AL-002 (see also HYP-AL-009) | Proposed | none |
+| #10 UCB | ADR-016 | HYP-AL-009 | Proposed | none |
+| #11 Epsilon-greedy | ADR-017 | none | Proposed | none |
+| #13 DPO-style pairwise preference | ADR-018 | none | Proposed | none |
+| #14 Meta-learning across policies | ADR-019 | none | Proposed | none |
+| #15 Warm-start / prior transfer | ADR-020 | HYP-AL-008 | Proposed | none |
+| #17 Authority ensemble routing | ADR-021 | none | Proposed | none |
+| #22 Scored-search compilation | ADR-022 | HYP-AL-010 | Proposed | none |
+| #23 Dueling-bandit ranking | ADR-023 | HYP-AL-015 | Proposed | none |
+
+**Not covered by an ADR:** #12 (active evidence-seeking, only partially
+built); #1, #7, #16 and #18 (ruled out or not applicable); and #2–6 and
+#19–21 (already real, decided earlier). ADR-013 (subsidiary plan approval
+gates) belongs to the planning redesign (ADR-011 chain), not to this
+landscape.
+
+**Reading of the exclusions, recorded so they are not mistaken for
+permanent:** #1, #7, #16 and #18 are excluded under stated premises
+(frozen model, no resettable environment, too few episodes to fit an
+outcome model, single tenant), not on implementation experience, since none
+of the ADRs above has been built. #18 is the one most likely to reopen,
+should the hosted multi-tenant layer (HYP-AL-011) be pursued. Reopening
+triggers are now recorded in the table rows.
+
+**Count discrepancy, resolved 2026-10-25:** the §2.1 summary said 9
+candidates but named ten; it now reads 9 / 3 / 1 / 1 / 18 = 32 after rows
+#24-#32 were added. Rows #24-#32 have no ADR yet and none is requested.
+
 #### 2.2 Hypothesis & Expected Value Premises
 
 Per `docs/templates/ideation-document-template.md`'s own convention. Several
@@ -269,6 +330,25 @@ not the Python SDK.
 | **HYP-AL-015** | FeasibilityHypothesis | An adaptive pairwise-comparison mechanism (dueling-bandit / active-ranking methodology — registered this session as Methodology #23, Ideation §2.1, distinct from the existing 22-methodology landscape) can reduce the number of human head-to-head judgments ADPA's portfolio prioritization currently forces: `PairwiseComparisonMatrix.tsx` generates every unique pair exhaustively (`n*(n-1)/2` — 190 manual comparisons for 20 projects), with no adaptive selection of which pair to ask next. Separately, a principled preference model (e.g. Bradley-Terry) could replace the current ad-hoc confidence-weighted-win-rate heuristic (min-max normalized, no statistical grounding) with ranks that carry real uncertainty bounds instead of a single point estimate. | If an adaptive pair-selection strategy, tested against a reconstructed or newly collected set of real pairwise judgments, does not reduce the comparisons needed to reach the same ranking confidence as today's exhaustive approach, invalidated. Untestable as scoped, not merely unvalidated, until the raw pairwise judgment data this hypothesis needs is actually collected — confirmed absent today, not assumed (see Status). | **Formulated** — blocked on a confirmed prerequisite, the strongest-confirmed blocker of any hypothesis in this registry so far (HYP-AL-012/014's gaps were calibration-only; this one has no raw data to even retrospectively analyze). Checked directly: grepped the whole `server/src` tree for `project1_id`/`winner_id`/a pairwise-comparison-history table — zero hits. `PairwiseComparisonMatrix.tsx` holds each individual comparison only in React component state (`useState<Comparison[]>`) and discards it once the aggregated `{project_id, priority_score, rank}` triples are POSTed to `prioritizationService.ts` — which itself only persists the final numbers under a synthetic "Pairwise Comparison" criterion, never the underlying judgments. This would need new persistence (an individual-comparison table) before it's testable at all. Resolved this session, previously left open: dueling-bandit/active-ranking methodology does not sit cleanly in the existing 22-methodology landscape — distinct from both #12 (single-instance evidence-seeking) and #13 (passive pairwise preference learning from an already-collected dataset) — and has been registered as a new **Methodology #23** in §2.1. |
 | **HYP-AL-016** | TechnicalHypothesis | A `low`-authority `TaskPolicy` can replace SIDPA's illustrative, static Confidence Factor (CF) rating bands (`AAA=1.00`/`AA=0.95`/`A=0.90`/`BBB=0.85`, prospectus §X.4) with a calibrated, auditable scoring mechanism learned from real governance/audit signals — the same category-level REINFORCE pattern already validated for `escalate-diff-response` (HYP-AL-007) — and can similarly calibrate the Accuracy Factor (AF, "ratio of validated outputs to total outputs") from real validated/invalidated output pairs, the same contrastive-evidence requirement HYP-AL-002 already proved REINFORCE needs. This directly answers the prospectus's own stated requirement (§X.9): CF/AF weightings and rating scales are explicitly illustrative and "must be established through the governance process," and any published metric "invites optimization toward the metric itself" — a risk a small, auditable, governed `TaskPolicy` is better positioned to resist than an opaque model, consistent with this SDK's own frozen-model, interpretable-policy constraint. | If a `TaskPolicy` trained on real governance/audit signals (CF) or real validated/invalidated output pairs (AF) cannot cross a `standard`-tier autonomy gate despite well-behaved contrastive data, invalidated — the same test HYP-AL-002/007 already apply elsewhere. Untestable as scoped, not merely unvalidated, until real IPC exists to generate either signal in the first place (see Status). | **Formulated** — two confirmed blockers, plus a third question deliberately left open rather than resolved unilaterally. (1) True IPC does not exist in code: `EnterpriseValueIndexEntity`/`CalculateEnterpriseValueIndex()` implements a weighted-additive hardware-efficiency composite (`0.35×power + 0.30×cost + 0.20×latency + 0.15×reliability`), not the prospectus's multiplicative `RC × AF × AV × CF` form — confirmed by direct comparison against the prospectus's Chapter X formula and worked example (Provider A: RC=100, AF=95%, AV=99%, CF=0.95 → IPC=89.3). (2) No real validated/invalidated output history or governance-audit-signal history exists yet, since nothing currently computes AF or CF at all — this hypothesis cannot be tested until a real IPC implementation exists and begins accumulating that history. (3) Naming convention is unresolved, flagged explicitly rather than assumed: whether RPAS-BA-Workbench's existing `EnterpriseValueIndex` should be renamed to avoid confusion with a future real IPC, kept as a distinct Compute-Capital-layer metric alongside a new Intelligence-Capital-layer IPC, or something else — the user's own call, not decided here. |
 | **HYP-AL-017** | FeasibilityHypothesis | A `low`-authority `TaskPolicy`, restricted at selection time to a task-capability-filtered candidate pool (only models verified capable of the task class in question — e.g. embedding models for embedding tasks, reasoning-capable models for multi-step tasks — mirroring SIDPA's IPC-class concept, prospectus §14: "classification allows buyers to match workloads to capacity of appropriate quality"), can learn a weighting that predicts each candidate's actual achieved outcome quality for that task class from real per-selection outcome history, rather than selecting on cost or capability-tier alone — the same confidence-interval bandit methodology already proposed for HYP-AL-009/012/014/016, now applied to model/provider selection itself rather than to a quality-gate threshold. This is the learned-selection core of the user's broader "AI Exchange" proposal (task-restricted pools + spot/contract pricing, SIDPA §14.2–14.4); the pricing-mechanism half is deliberately left un-hypothesized here, named as a separate, not-yet-formulated market-design question distinct from this selection-learning claim. | If a `TaskPolicy` trained on real per-selection outcome-quality data (within a task-capability-restricted pool) cannot cross a `standard`-tier autonomy gate despite well-behaved contrastive data, invalidated — the same test HYP-AL-002/007/013 already apply elsewhere. Untestable as scoped, not merely unvalidated, if (a) no task-capability taxonomy/restriction mechanism exists anywhere to build the candidate pool from, or (b) no real per-selection outcome-quality data is ever recorded (confirmed absent today, not assumed — see Status). | **Formulated** — genuinely new, not a calibration of an existing mechanism the way HYP-AL-012/014/016 are. Real precedent confirmed for the *selection* half (GitHub Copilot Auto, Azure AI Foundry Model Router, §2.1.1), but both are closed Microsoft systems — their actual weighting/training data is not inspectable, so they validate that the need is real, not that any specific mechanism works. No task-capability taxonomy, candidate-pool-restriction logic, or per-selection outcome-quality history exists anywhere in agent-learning, ADPA, or RPAS-BA-Workbench today — this would be built from scratch. Deliberately scoped to the learning/selection question only; the spot-price/reservation-contract market-mechanism half of the "AI Exchange" idea (SIDPA §14.3–14.4) is named but not hypothesized here — a market/pricing-design question, not a falsifiable ML claim in the shape this registry's other entries take, and would need its own framing before being added.<br><br>**Update — external submission, 2026-10-21:** The selection half described above was independently drafted as a public feature proposal and submitted upstream as a GitHub issue against Vercel's AI Gateway (`vercel-labs/ai-sdk-gateway-demo` issue #39, https://github.com/vercel-labs/ai-sdk-gateway-demo/issues/39 — confirmed via direct fetch: open, filed 2026-10-21, no comments yet), proposing a `quality` sort mode alongside AI Gateway's existing `cost`/`ttft`/`tps` routing, scored via either static capability rankings or live outcome telemetry. This is a different system than any named in §2.1.1/§2.2 (Vercel AI Gateway, not ADPA/RPAS-BA-Workbench/SocialEngage) and a real external artifact rather than an internal hypothesis, so it does not itself validate or invalidate this hypothesis's own falsification criteria — no training/outcome data exists for it either. Worth naming deliberately, not silently: the posted issue's Precedent section retains two sentences referencing a future "AI Exchange" where AI prompts route through an exchange and are treated "as a commodity and tradeable assets" — language that directly contradicts that same issue's own Scope section a few paragraphs later, which explicitly excludes marketplaces/spot-pricing/auctions/futures. Confirmed present in the live posted text (re-fetched and quoted verbatim), not an artifact of drafting. Left in on purpose, per explicit instruction, as a live external probe of how strictly outside reviewers (Vercel maintainers, GitHub commenters) distinguish "quality-aware Gateway routing" and provider-side "auto route" features from the market-pricing "AI Exchange" framing this hypothesis's own text already splits apart. Any resulting public reaction (or its absence) would be the first real external signal on the market-framing question this hypothesis explicitly declines to formulate on its own — tracked here, not yet resolved. |
+
+##### 2.2.3 Candidate-Methodology Hypotheses (HYP-AL-018-024), registered 2026-10-25
+
+Each tests one of the new candidates (#24, #26, #28-#32). All are
+**Formulated**, none is tested, and none depends on an unapproved ADR. The
+numeric targets are **proposed thresholds**, not agreed ones; they are to
+be confirmed or changed by the maintainer before any hypothesis is
+scheduled. #25 has no hypothesis because it is blocked on the `trace_id`
+decision.
+
+| ID | Type | Statement | Falsification criteria | Status |
+|---|---|---|---|---|
+| **HYP-AL-018** | TechnicalHypothesis | A linear contextual bandit (LinUCB or LinTS, #24) reaches the autonomy gate in fewer episodes than `ContextualSoftmaxPolicy` on the same contextual decision (candidate: `classify-diff-type`). | If, on the same episode set, it needs as many or more episodes to reach the gate (proposed margin: at least 20% fewer is required to keep the hypothesis), invalidated. | **Formulated** |
+| **HYP-AL-019** | TechnicalHypothesis | A conformal abstention rule (#28) over a `low`-authority policy's scores produces a calibrated "defer to a human" trigger. | If, on held-out episodes, the share of wrong autonomous decisions among non-abstained cases exceeds the configured error level (proposed: 10%) by more than sampling error, invalidated. Untestable until enough labeled outcomes exist. | **Formulated** |
+| **HYP-AL-020** | TechnicalHypothesis | Off-policy evaluation (#29) over logged episodes ranks candidate policies in the same order as running them. | If the OPE ranking disagrees with the realized ranking on a policy pair with a known winner, invalidated. Blocked until the logged action probability is recorded on `Episode`. | **Formulated** |
+| **HYP-AL-021** | TechnicalHypothesis | A discounted or windowed update (#30) recovers faster than the current cumulative update after a change in the reward distribution. | If, on a replayed shifted reward sequence, recovery to the pre-shift policy quality takes as many or more episodes than the cumulative update, invalidated. Needs a real or replayed drift case. | **Formulated** |
+| **HYP-AL-022** | FeasibilityHypothesis | Hard action masking (#31) can enforce ADR-011's floors and caps without lowering achievable reward below the unmasked policy by more than a stated margin. | If any masked-out action is ever selected, or reward falls by more than the proposed margin (5%) on a replay, invalidated. | **Formulated** |
+| **HYP-AL-023** | ValueHypothesis | Active-learning triage (#32) lets a fixed human review budget catch more incorrect autonomous decisions than random sampling. | If at equal review budget it catches no more errors than random sampling, invalidated. | **Formulated** |
+| **HYP-AL-024** | FeasibilityHypothesis | Outcome-conditioned exemplar selection (#26), with the selection recorded in `Episode.metadata`, improves a `full`-authority decision's accuracy over using the most recent episodes. | If accuracy on held-out cases is no better than the recency baseline, or the selection cannot be reconstructed from the record, invalidated. | **Formulated** |
 
 ---
 
@@ -361,9 +441,10 @@ entirely.
 |---|---|
 | Executive Summary & learning-variant landscape | Sourced directly from code (`reinforce.py`, `softmax_bandit.py`, `contextual_softmax.py`, `decision.py`) and this session's real usage |
 | Objectives | AI-inferred from the above, cross-checked against `README.md`'s stated goals |
-| Learning Methodologies Landscape (§2.1) | 23 methodologies surveyed against this project's real constraints, not the literature in the abstract — 10 already real, 4 structurally ruled out or not applicable, 9 genuine not-yet-built candidates (added #23, dueling-bandit/active-ranking pairwise comparison, resolving an open question previously left on `HYP-AL-015`). §2.1.1 cross-checks this landscape against eight real external agent SDKs/platforms (LangGraph, AutoGen, Semantic Kernel, CrewAI, OpenAI Agents SDK, DSPy, Haystack, and Microsoft's GitHub Copilot Auto / Azure AI Foundry Model Router), each cited to real documentation — four had no learning mechanism at all, three validated existing entries (AutoGen→#7/8, CrewAI→#6, Microsoft→#4/#9–10), one (DSPy) added #22. A second review proposed five more candidates; none survived verification against already-cited evidence (one freshly re-checked against CrewAI's current memory docs) — not added, reasoning recorded in §2.1.1 |
+| Learning Methodologies Landscape (§2.1) | 32 methodologies surveyed (23 original, 9 added 2026-10-25) against this project's real constraints, not the literature in the abstract — 9 real or partly real, 4 structurally ruled out or not applicable (premise-conditioned, with reopening triggers), 1 declined, 18 genuine not-yet-built candidates (added #23, dueling-bandit/active-ranking pairwise comparison, resolving an open question previously left on `HYP-AL-015`). §2.1.1 cross-checks this landscape against eight real external agent SDKs/platforms (LangGraph, AutoGen, Semantic Kernel, CrewAI, OpenAI Agents SDK, DSPy, Haystack, and Microsoft's GitHub Copilot Auto / Azure AI Foundry Model Router), each cited to real documentation — four had no learning mechanism at all, three validated existing entries (AutoGen→#7/8, CrewAI→#6, Microsoft→#4/#9–10), one (DSPy) added #22. A second review proposed five more candidates; none survived verification against already-cited evidence (one freshly re-checked against CrewAI's current memory docs) — not added, reasoning recorded in §2.1.1 |
+| ADR coverage (§2.1.3) | Checked against `docs/adr/` and `src/agent_learning/policy/` on 2026-10-25: ten Proposed, untracked ADRs (ADR-014 to ADR-023), none approved, none built. Recorded as drafts, not evidence. A count discrepancy in §2.1 (9 stated, 10 listed) is flagged, not fixed |
 | Confirmed Production Adoption (§2.1.2) | Not inferred from doc text: `docs/scout-agent-learn-skill.md` and `docs/scout-automation-agent-learning.md`'s authorship confirmed via `git log --follow` (`ctava-msft`, 10 commits, 2026-08-07–10, same author as `docs/research/main.tex`); the `policy_scope`/`delegated_decision`/`decision_authority` fields they describe confirmed implemented in `src/agent_learning/decision.py`/`cli.py`/`audit.py` with dedicated tests, not just described. HYP-AL-004 status corrected accordingly, not left stale |
-| Hypotheses (§2.2) | **4 of 17 validated this session with real citations; 1 testing; 12 formulated** — not aspirational. Split into §2.2.1 (Core SDK, HYP-AL-001–011) and §2.2.2 (Cross-System & Ecosystem Integration, HYP-AL-012–017) this session for readability. HYP-AL-011 reframed 2026-10-22: unlike every other entry, it cannot be advanced by this project's own research methods — flagged as a distinct category, not left to look like an oversight. |
+| Hypotheses (§2.2) | **4 of 24 validated this session with real citations; 1 testing; 19 formulated** — not aspirational. Split into §2.2.1 (Core SDK, HYP-AL-001–011), §2.2.2 (Cross-System & Ecosystem Integration, HYP-AL-012–017) and §2.2.3 (candidate-methodology hypotheses, HYP-AL-018–024, added 2026-10-25 with proposed, unconfirmed thresholds) this session for readability. HYP-AL-011 reframed 2026-10-22: unlike every other entry, it cannot be advanced by this project's own research methods — flagged as a distinct category, not left to look like an oversight. |
 | Stakeholders | Sourced from real `git log` contributor history |
 | Scope (§4.1) | Sourced directly from package exports (`__init__.py`'s `__all__`) and `experiential-reinforcement-learning-comparison.md`'s own stated scope boundary |
 | Sections 4.2–9 | Explicitly not populated — named as a scope mismatch, not silently skipped |

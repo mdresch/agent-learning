@@ -204,3 +204,16 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - **Not covered:** `tests/pmbok` (15 files) cannot be collected from a clean install (undeclared `sqlalchemy` and `tenacity`), and `tests/test_spark.py` needs a JVM. "All contracts green" therefore means every contract that can currently run, not the PMBOK contracts (LL-010).
 - **Breakout recap (ADR-010 section 4.1):** held, with the lessons drawn from how the ADR, BRD, FDD, stories, skills and code related. Recorded as `LL-008` to `LL-014` in `docs/project-docs/Lessons-Learned-Register.md`: keep only hardened decisions in an ADR (008), verify the edition of a cited standard (009), implement only against approved and committed specs (010), state every mode and parameter in the FDD (011), state each rule in one story's acceptance criteria (012), keep a skill's validation command one that runs (013), and define blank once and test every container type (014). These replace a first, narrower draft of three lessons (numbered `LL-008` to `LL-010` in that draft), revised after review of the recap.
 - **Open for a human:** the section-mode conflict interpretation of `resolve_home` (whole section versus per element, ADR-011 open question); the merge order of the stacked PRs (docs branch, #7, #8).
+
+---
+
+## Correction to Story 2.1 — commit identifiers
+- **Date:** 2026-10-26
+- **Corrects:** the `Commit` line of the Story 2.1 entry above, which records `61bf203`.
+- **Finding:** `61bf203` is the pre-amend commit and is not in `main`. The amend (`git commit --amend`) produced `7d374a1`, and the backfill recorded the old hash. The two commits differ only in `implementation-log.md`.
+- **Commits that reached `main` through PR #4 (merge `72e5f14`):**
+  - `7d374a1` — `feat(storage): implement optimistic concurrency and monotonicity guard for Cosmos active pointer (Story 2.1)` (the implementation commit this entry meant)
+  - `188ed8a` — `fix(storage): strip system fields from replace_item and address review feedback` (cited by LL-001 to LL-004)
+  - `370b858` — `chore(tests): remove unused MagicMock and cosmos_mod imports`
+- **Validation re-run on 2026-10-26** (branch `docs/adr-028-pmbok-convergence`): `tests/test_storage_cosmos.py` 7 passed; suite with `--ignore=tests/test_spark.py --ignore=tests/pmbok` 490 passed, 2 skipped. The 459 count in the original entry reflects the suite at that time.
+- **The original entry is unchanged**, per the append-only rule.

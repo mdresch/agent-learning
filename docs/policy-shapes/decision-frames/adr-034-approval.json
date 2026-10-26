@@ -1,0 +1,65 @@
+{
+  "task": "ADR-034 (PMBOK Tooling Decommissioning and Lightweight LearningStore Convergence): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "architectural_soundness",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Decommissions shadow SQLite/FastAPI/Typer/OCR stack in favor of LearningStore (ADR-002 Invariant #2, Zero Entity Sprawl); converges PMBOK lifecycle state onto Episode records with cross-references to authoritative governance episodes under agent-learning-governance; enforces Inversion of Control with a pure domain package agent_learning.pmbok (zero storage imports, zero network I/O, zero time.sleep) and isolated runtime harness agent_learning.pmbok_runtime; unifies CLI entry point under agent-learn pmbok with batch review unrolling per-plan accountability (ADR-013 §4.2); implements auditable approval verification with latest-wins ordering (created_at, sequence_number), human-accepted disposition checks (decision_disposition: accepted), recursive effective-upstream bypass for not_applicable nodes, and transitive DAG staleness validation across full_plan and staged pmp_section routes; defines reference sketch and provisional grammar in §4.3.1 with fail-closed governance law (fourth Technical Integrity Hard Block); scopes amendments cleanly to ADR-009 §4.13 and ADR-008; enforces audit-data minimalism (Invariant 6)."
+    },
+    {
+      "id": "alternatives_considered",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Five real alternatives named and rejected with explicit rationales: adding heavy packages to base dependencies, optional extras, stdlib sqlite3 rewrite, removing PMBOK orchestration entirely, and declaring pyyaml runtime dependency."
+    },
+    {
+      "id": "consequences_honest",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Honest disclosure of positive benefits (zero entity sprawl, permanent resolution of LL-013, 100% clean test collection, lightweight embeddable library) against negative trade-offs (permanent decommissioning of embedded FastAPI server and OCR ingestion, four-phase refactoring burden for Epic 12, parser maintenance overhead in agent_learning.pmbok); complete errata and carried-over item tracker in §8.1 with assigned owners and milestones."
+    },
+    {
+      "id": "gap_disclosure_quality",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Implementation specifics and scope cleanly bounded: legacy 49-process registry explicitly designated as 6th-edition process bridge mapped to ADR-012 legacy_process; PMBOK 8 40-process model scoped as future enhancement; concrete four-phase implementation sequencing with auditable completion criteria; normative 6-scenario test suite specification; explicit derivation logic for all seven plan lifecycle states with in-flight review and local edit precedence."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_adr",
+      "evidence": [
+        {"criterion_id": "architectural_soundness", "source": "direct_doc_read:docs/adr/ADR-034-pmbok-tooling-decommissioning-and-lightweight-learningstore-convergence.md; final pre-approval sealed text commit 98bd8e1; verified compliance with ADR-001, ADR-002, ADR-005, ADR-008, ADR-009, ADR-011, ADR-012, ADR-013; code marked illustrative reference sketch; grammar marked provisional; header amendments scoped cleanly; test reason strings verified", "support": 0.995, "confidence": 0.99},
+        {"criterion_id": "alternatives_considered", "source": "adr_034_section_7_five_alternatives", "support": 0.98, "confidence": 0.97},
+        {"criterion_id": "consequences_honest", "source": "adr_034_section_8_consequences_and_errata_tracker", "support": 0.97, "confidence": 0.96},
+        {"criterion_id": "gap_disclosure_quality", "source": "adr_034_section_6_phasing_test_specs_and_completion_criteria", "support": 0.98, "confidence": 0.97}
+      ],
+      "constraint_results": {"no_unfixed_critical_flaw": true}
+    },
+    {
+      "action_id": "reject_adr",
+      "evidence": [
+        {"criterion_id": "architectural_soundness", "source": "direct_doc_read:docs/adr/ADR-034-pmbok-tooling-decommissioning-and-lightweight-learningstore-convergence.md", "support": 0.002, "confidence": 0.96},
+        {"criterion_id": "alternatives_considered", "source": "adr_034_section_7_five_alternatives", "support": 0.005, "confidence": 0.94},
+        {"criterion_id": "consequences_honest", "source": "adr_034_section_8_consequences_and_errata_tracker", "support": 0.005, "confidence": 0.94},
+        {"criterion_id": "gap_disclosure_quality", "source": "adr_034_section_6_phasing_test_specs_and_completion_criteria", "support": 0.005, "confidence": 0.94}
+      ],
+      "constraint_results": {"no_unfixed_critical_flaw": true}
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {"criterion_id": "architectural_soundness", "source": "direct_doc_read:docs/adr/ADR-034-pmbok-tooling-decommissioning-and-lightweight-learningstore-convergence.md", "support": 0.005, "confidence": 0.94},
+        {"criterion_id": "alternatives_considered", "source": "adr_034_section_7_five_alternatives", "support": 0.005, "confidence": 0.92},
+        {"criterion_id": "consequences_honest", "source": "adr_034_section_8_consequences_and_errata_tracker", "support": 0.01, "confidence": 0.92},
+        {"criterion_id": "gap_disclosure_quality", "source": "adr_034_section_6_phasing_test_specs_and_completion_criteria", "support": 0.005, "confidence": 0.92}
+      ],
+      "constraint_results": {"no_unfixed_critical_flaw": true}
+    }
+  ],
+  "constraints": ["no_unfixed_critical_flaw"],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.10,
+  "max_uncertainty": 1.0
+}

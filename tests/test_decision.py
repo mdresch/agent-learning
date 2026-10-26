@@ -244,6 +244,46 @@ def test_human_approval_blocks_unique_reasoned_winner_until_accept_or_reject() -
     assert rejected.authorization_basis == "user_rejection"
 
 
+def test_human_approval_holds_when_frame_is_maximally_favorable_to_approval() -> None:
+    """Red team: a missed flaw or persuasive frame must not bypass the human gate."""
+    snapshot = _snapshot(DecisionAuthority.FULL)
+    snapshot.metadata["complexity_profile"] = {"requires_human_approval": True}
+    policy = TaskPolicy(snapshot)
+    frame = DecisionFrame(
+        task="approve, reject, or request revision of a flawed ADR",
+        criteria=[DecisionCriterion(id="architectural_soundness")],
+        constraints=("no_unfixed_critical_flaw",),
+        options=[
+            DecisionOption(
+                action=Action(id="east"),
+                evidence=[
+                    EvidencePoint(criterion_id="architectural_soundness", source="misled_reviewer", support=0.99, confidence=0.99)
+                ],
+                constraint_results={"no_unfixed_critical_flaw": True},
+            ),
+            DecisionOption(
+                action=Action(id="west"),
+                evidence=[
+                    EvidencePoint(criterion_id="architectural_soundness", source="misled_reviewer", support=0.01, confidence=0.99)
+                ],
+                constraint_results={"no_unfixed_critical_flaw": True},
+            ),
+        ],
+    )
+
+    pending = policy.decide(frame)
+
+    assert pending.status is DecisionStatus.NEEDS_USER_FEEDBACK
+    assert pending.proposed_action == Action(id="east")
+    assert pending.selected_action is None
+    assert pending.authorization_basis != "reasoned_evidence"
+
+    accepted = policy.adjudicate(pending, "accept")
+    assert accepted.status is DecisionStatus.RESOLVED
+    assert accepted.selected_action == Action(id="east")
+    assert accepted.authorization_basis == "user_acceptance"
+
+
 def test_decision_certificate_round_trips_for_later_adjudication() -> None:
     policy = TaskPolicy(_snapshot(DecisionAuthority.FULL))
     frame = DecisionFrame(

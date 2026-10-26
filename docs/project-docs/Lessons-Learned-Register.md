@@ -25,6 +25,7 @@
 | [LL-012](#ll-012--state-each-rule-in-one-storys-acceptance-criteria) | State Each Rule in One Story's Acceptance Criteria | Epic 11 / Stories 11.1, 11.2 | Universal Testing | 2026-10-25 |
 | [LL-013](#ll-013--keep-a-skills-validation-command-one-that-runs) | Keep a Skill's Validation Command One That Runs | Epic 11 / implement-story skill | Universal Process | 2026-10-25 |
 | [LL-014](#ll-014--define-blank-once-and-test-every-container-type) | Define Blank Once and Test Every Container Type | Epic 11 / Stories 11.1, 11.2 | Universal Code Quality | 2026-10-25 |
+| [LL-015](#ll-015--monolithic-integrated-gates-obscure-component-level-credit-assignment) | Monolithic Integrated Gates Obscure Component-Level Credit Assignment | ADR-013 / PMBOK Orchestration | Universal Governance & Architecture | 2026-10-25 |
 
 ---
 
@@ -241,3 +242,16 @@
 - **The Trap:** Automated review found that `_defined` treated empty tuples, sets and frozensets as defined (only `[]` and `{}` were excluded) and that one validation check combined two conditions in a single error message. Both were reachable through the public `Any` contract.
 - **The Root Cause:** Blank detection was written from the examples at hand, and two conditions shared one branch.
 - **Actionable Invariant:** For `Any`-typed inputs, define "blank" in one helper that covers `None`, blank strings and every empty container type, and test each one. Use one condition per error message so the message names what is actually missing.
+
+---
+
+### LL-015 — Monolithic Integrated Gates Obscure Component-Level Credit Assignment
+- **Identifier:** `LL-015`
+- **Date:** 2026-10-25
+- **Epic / Story:** ADR-013 / PMBOK Orchestration
+- **Scope:** Universal Governance & Architecture
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/learning-methodology-selection/SKILL.md`; Tier 3: `sidpa-template` PMBOK orchestration and governance rules
+- **The Trap:** When multiple generative components (e.g., nine subsidiary management plans) are synthesized into a single monolithic composite document (e.g., the integrated PMP) before evaluation, a rejection or revision request at the composite gate cannot be localized to a specific component. Maintainers must conduct an exhaustive manual diagnostic search across all components. Worse, stub or failed components slip into formal baseline labels undetected because individual components were never governed.
+- **The Root Cause:** Multi-input single-output (MIMO) evaluation conflates individual component deficiencies with cross-cutting integration conflicts.
+- **Actionable Invariant:** Every component destined for a baseline must pass an individual, hash-verified, route-aware approval gate before composite formalization. Decouple **Component-Level Defects** (governed at the component gate) from **Integration-Level Defects** (governed at the composite synthesis gate).
+- **Verification Gate:** Formalization steps must assert that every constituent component satisfies its route contract (e.g. hash match, non-stub) and carries zero active staleness flags before composite synthesis is permitted.

@@ -5,18 +5,19 @@
 | Field | Value |
 |---|---|
 | Document Title | Business Case — agent-learning SDK: Closing the Methodology Gap |
-| Version | 1.4 |
-| Date | 2026-10-21 |
+| Version | 1.5 |
+| Date | 2026-10-25 |
 | Status | Draft |
 | Author | This session, building directly on `docs/project-docs/Ideation-Document.md` v1.4 |
 | Approver(s) | Not yet assigned — open-source maintainer review model, per Ideation §3.3 |
-| Source | `Ideation-Document.md` §2.1/§2.1.1 (22-methodology landscape, cross-checked against 7 real external agent SDKs) and §2.2 (hypotheses), `docs/templates/business-case-template.md`, this session's own real `TaskPolicy` build history, one round of external review (applied selectively — see Provenance), and real cross-framework research closing the §9 competitive-positioning gap |
+| Source | `Ideation-Document.md` §2.1/§2.1.1 (methodology landscape, 22 rows when this case was written, 32 as of 2026-10-25, cross-checked against 7 real external agent SDKs) and §2.2 (hypotheses), `docs/templates/business-case-template.md`, this session's own real `TaskPolicy` build history, one round of external review (applied selectively — see Provenance), and real cross-framework research closing the §9 competitive-positioning gap |
 
 This Business Case does not argue for adopting `agent-learning` — that
 decision is already made; the SDK is in real use against SocialEngage.
 It argues for a specific next step: **which of the Ideation document's
-seven genuine, not-yet-built methodology candidates (§2.1, rows #8–11,
-#13–15, #17) should actually be built**, and why building on top of the
+genuine, not-yet-built methodology candidates (seven when this case was
+written: §2.1 rows #8–11, #13–15, #17; eighteen as of 2026-10-25, see
+§4.1) should actually be built**, and why building on top of the
 existing SDK rather than routing around it with more hand-built
 `full`-authority workarounds is the right call.
 
@@ -169,6 +170,34 @@ premise — B's is carried forward even though it is now deferred, since
 | **Falsification criteria** | If a reflection-based update path, implemented and run on the same real ADR-0146 episode data, does not converge faster/more sample-efficiently than REINFORCE, invalidated. | If a policy warm-started from a converged source reaches its autonomy gate in the same or more episodes than an equivalent cold-started policy, invalidated. | If Thompson/UCB, run against the same real `validate-intent-foundation` 146-episode dataset that defeated REINFORCE, also fails to cross the gate, invalidated — the failure would then be inherent to positive-only evidence itself, not specific to REINFORCE's entropy-bonus mechanics. |
 | **Validation method & timeline** | Implement the reflection path; re-run against ADR-0146's real two-round critique; compare episode-count-to-gate against the existing REINFORCE baseline. Deferred per §10 — not scheduled until Phase 3. | Warm-start a new policy (candidate: a 7th structurally-similar TaskPolicy, not yet built) from `approve-adr`'s converged state; compare its episode-count-to-gate against `approve-adr`'s own original cold-start curve. Scheduled Phase 1. | Implement a Thompson-sampling or UCB policy class; re-run it against `validate-intent-foundation`'s real stored episode history; compare against the REINFORCE result already on record (plateau ~0.417). Scheduled Phase 2. |
 | **Status** | **Formulated** (unchanged by this document) | **Formulated** (unchanged by this document) | **Formulated** — new this document, added directly in response to the external review's strongest point |
+
+## 4.1 ADR coverage of the options (added 2026-10-25)
+
+Options A, B and C each now have a drafted ADR, and so do the other
+candidate methodologies in `Ideation-Document.md` §2.1.3. Status checked
+against `docs/adr/` and `src/agent_learning/policy/`: **all are `Proposed`,
+untracked in git, unapproved, and unbuilt.**
+
+| Option | Hypothesis | Methodology (Ideation §2.1) | ADR | Status |
+|---|---|---|---|---|
+| A: warm-start | HYP-AL-008 | #15 | ADR-020 | Proposed, not built |
+| B: critique-to-evidence (deferred, §10) | HYP-AL-005 | #8 | ADR-014 | Proposed, not built |
+| C: confidence-interval bandit | HYP-AL-009 | #9 Thompson, #10 UCB | ADR-015, ADR-016 | Proposed, not built |
+
+Other candidates drafted but outside A to C: ADR-017 (#11 epsilon-greedy),
+ADR-018 (#13 pairwise preference), ADR-019 (#14 meta-learning), ADR-021
+(#17 authority ensemble routing), ADR-022 (#22 scored-search, HYP-AL-010)
+and ADR-023 (#23 dueling-bandit, HYP-AL-015). Candidates #24-#32, added to
+the Ideation Document on 2026-10-25 (HYP-AL-018 to HYP-AL-024), have no ADR
+and are not options in §3; they are not scored here.
+
+**What this does and does not change:** the existence of an ADR is not
+evidence for any hypothesis, and it does not move B's deferral or the
+Phase 1 / Phase 2 order in §10. ADR-015 and ADR-016 both address C, so
+choosing between Thompson sampling and UCB is still an open decision that
+`approve-adr` has not yet made. Ten unapproved ADRs also exceed what the
+phased plan can build; approving only those that §10 schedules is
+consistent with the roadmap, and the rest can stay as drafts.
 
 ---
 
@@ -375,6 +404,7 @@ document-only conclusion.
 | Gap Analysis (§2) | Each row traced to a specific Ideation §2.1 methodology row number |
 | Weighted scoring (§3) | Scores are this document's own first-pass judgment, not measured data — named as such, not disguised as empirical. **Revised once** (v1.1) after external review identified a real conflation in the "problem severity" criterion between B (opportunity cost) and C (proven failure); the correction was re-derived from this document's own evidence standards, not accepted on authority |
 | Hypotheses (§4) | Two cross-referenced from Ideation (HYP-AL-005, HYP-AL-008, unchanged), one new (HYP-AL-009, added directly from external review's strongest point) — none yet tested |
+| ADR coverage (§4.1) | Mapped from `docs/adr/` ADR-014 to ADR-023 on 2026-10-25; all Proposed, untracked, unbuilt. Presented as drafts, not as support for any hypothesis |
 | Financial Architecture (§5) | **Explicitly substituted** — no real budget/currency exists for this open-source SDK; ordinal effort/severity proxies used instead, and the substitution is named rather than hidden behind fabricated dollar figures |
 | Dependency Matrix (§7) | One real dependency (Option A on `SoftmaxPolicy`'s exposed state) explicitly flagged **unverified** rather than assumed |
 | Requirements Traceability (§9) | One row remains a named gap rather than force-filled: "convert critique into training signal" (no Objective covers it). The competitive-positioning row, left open at v1.1, is **closed at v1.2** with real cited research rather than left unsourced indefinitely — the difference between naming a gap and leaving it unaddressed |

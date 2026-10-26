@@ -1,0 +1,133 @@
+{
+  "task": "ADR-035 (Cycle Identification and Cross-Cycle Artifact Traceability): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "architectural_soundness",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Establishes cycle identification (CYC-NNN, lifecycle states, transition authority), an append-only Cycle Register with provenance pin sets, and a lookup rule from any artifact version to its cycle and baseline, without a new LearningStore record type (ADR-002), without in-file hashes (ADR-012), and consistent with ADR-008, ADR-009, ADR-011, ADR-013 and ADR-034."
+    },
+    {
+      "id": "alternatives_considered",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Five genuine alternatives evaluated and rejected with sound rationales: baseline ID as cycle ID, in-file pins, git history as the sole record, a new Cycle entity, and adding trace_id first."
+    },
+    {
+      "id": "consequences_honest",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Honest disclosure of benefits (version-to-cycle placement, visible rollbacks, pin-set diffs, resolved baseline_id naming) and costs (authoring burden, backfill with reconstructed pins, template lag in ADR-025 and ADR-026 to ADR-033)."
+    },
+    {
+      "id": "gap_disclosure_quality",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Bounds scope and discloses open questions in Section 8: amendments to accepted ADRs, git tags, trace_id, register validator, Charter versioning and register growth; records that no validator or tooling exists yet."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_adr",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "direct_doc_read:docs/adr/ADR-035-cycle-identification-and-cross-cycle-artifact-traceability.md; repo-verified: PMP-BL-v1.0.0 unapproved bootstrap (ADR-013 s4.8, ADR-034 s4.2.3), volatile-key list excludes baseline_id (ADR-013 s4.3), tailoring matrix home (ADR-011 Inv 5); no new LearningStore record type; amends accepted ADR-008/012/013 only on acceptance",
+          "support": 0.88,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "adr_035_section_6_five_alternatives_incl_baseline_as_cycle_and_in_file_pins",
+          "support": 0.88,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "adr_035_section_7_authoring_burden_backfill_and_template_lag",
+          "support": 0.86,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "adr_035_section_8_amendment_list_register_growth_trace_id; no tooling or validator exists yet and author is also reviewer",
+          "support": 0.85,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_adr",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "no fundamental flaw found in direct_doc_read of ADR-035",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "adr_035_section_6",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "adr_035_section_7",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "adr_035_section_8",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "residual risk: three accepted ADRs need amendment on acceptance",
+          "support": 0.15,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "adr_035_section_6",
+          "support": 0.15,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "adr_035_section_7",
+          "support": 0.15,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "adr_035_section_8: no validator or tooling to test the register rules",
+          "support": 0.15,
+          "confidence": 0.75
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

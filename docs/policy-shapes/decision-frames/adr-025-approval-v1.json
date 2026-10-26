@@ -1,0 +1,134 @@
+{
+  "task": "ADR-025 (Scope Management Plan Standard and Baseline Contract, Pre-amendment Round 3): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "architectural_soundness",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Establishes Scope Management Plan as Baseline-Substantiating Plan root node, but contains minor specification ambiguities: pmp_section 180-to-750 word band lacks lean floor guidance for WBS/RTM, variance threshold mixes sizing unit with qualitative judgment (<= 1 SP / minor refactoring), out-of-scope 'None: [rationale]' lacks word floor to prevent trivial bypass, and Invariant 4 lacks symmetric governance for full_plan rejection."
+    },
+    {
+      "id": "alternatives_considered",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Two genuine alternatives evaluated and rejected: inferring scope from user stories without a plan and combining scope and schedule into a single document."
+    },
+    {
+      "id": "consequences_honest",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Honest disclosure of positive benefits (defends the baseline, deterministic causal anchor) against negative trade-offs (upfront authoring burden)."
+    },
+    {
+      "id": "gap_disclosure_quality",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Bounds scope and discloses open questions in Section 8 (automated WBS extraction from User Story markdown artifacts deferred)."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_adr",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "direct_doc_read:docs/adr/ADR-025-scope-management-plan-standard-and-baseline-contract.md (v1 Round 3); pre-amendment ambiguities in ceiling and pmp_section floor",
+          "support": 0.93,
+          "confidence": 0.90
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "adr_025_section_6_alternatives_considered",
+          "support": 0.94,
+          "confidence": 0.92
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "adr_025_section_7_consequences",
+          "support": 0.94,
+          "confidence": 0.92
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "adr_025_section_8_open_questions_and_section_9_amendment_log",
+          "support": 0.93,
+          "confidence": 0.90
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_adr",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "direct_doc_read:docs/adr/ADR-025-scope-management-plan-standard-and-baseline-contract.md",
+          "support": 0.02,
+          "confidence": 0.88
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "adr_025_section_6_alternatives_considered",
+          "support": 0.02,
+          "confidence": 0.86
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "adr_025_section_7_consequences",
+          "support": 0.02,
+          "confidence": 0.86
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "adr_025_section_8_open_questions",
+          "support": 0.02,
+          "confidence": 0.86
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "direct_doc_read:docs/adr/ADR-025-scope-management-plan-standard-and-baseline-contract.md",
+          "support": 0.05,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "adr_025_section_6_alternatives_considered",
+          "support": 0.04,
+          "confidence": 0.84
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "adr_025_section_7_consequences",
+          "support": 0.04,
+          "confidence": 0.84
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "adr_025_section_8_open_questions",
+          "support": 0.05,
+          "confidence": 0.84
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.10,
+  "max_uncertainty": 1.0
+}
+

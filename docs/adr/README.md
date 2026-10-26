@@ -8,7 +8,7 @@ Every architectural transition across the 18-stage **Intent-to-Outcome Chain** (
 
 ## 1. The Four-Pillar Architectural Manifesto
 
-The architectural corpus (ADR-001 through ADR-011) rests upon **four mutually counterweighting pillars**. No single pillar operates in isolation; each acts as a structural counterweight to the failure modes of the others.
+The architectural corpus (ADR-001 through ADR-013) rests upon **four mutually counterweighting pillars**. No single pillar operates in isolation; each acts as a structural counterweight to the failure modes of the others.
 
 ```
                      ┌────────────────────────────────────────┐
@@ -73,9 +73,9 @@ The architectural corpus (ADR-001 through ADR-011) rests upon **four mutually co
 
 ---
 
-## 3. The Complete ADR Corpus (ADR-001 through ADR-011)
+## 3. The Complete ADR Corpus (ADR-001 through ADR-013)
 
-All eleven ADRs are formally **Accepted** by Menno Drescher. ADR-001 through ADR-009 and ADR-011 were evaluated via Bayesian decision policy through the live `agent-learning-governance` chain; ADR-010 was approved by Menno directly (see its §2):
+All thirteen ADRs are formally **Accepted** by Menno Drescher. ADR-001 through ADR-009 and ADR-011 were evaluated via Bayesian decision policy through the live `agent-learning-governance` chain; ADR-010 was approved by Menno directly (see its §2):
 
 | ADR | Title | Status | Intent-to-Outcome Stage & PMBOK 8 Process | Core Architectural Decision |
 |---|---|---|---|---|
@@ -90,6 +90,25 @@ All eleven ADRs are formally **Accepted** by Menno Drescher. ADR-001 through ADR
 | [**ADR-009**](ADR-009-intent-refinement-and-cognitive-feedback-loop.md) | Intent Refinement and Cognitive Feedback Loop | **Accepted** | Stage 18 (Intent Refinement)<br>4.7 Close Project or Phase | Double-loop cognitive feedback closing outcomes to spark; Bayes factor hypothesis retirement ($d_{\max}=2$); low-pass whiplash filter; cumulative lineage kernel. |
 | [**ADR-010**](ADR-010-lessons-learned-crystallization-and-register.md) | Lessons Learned Crystallization and the Organizational Process Assets Register | **Accepted** | Post-coding recap (separate from Stage 15)<br>Feeds Phase Close readiness (4.7) | Light breakout recap held once per epic after its last user story, on how the code was created from the stories, recorded in `docs/project-docs/Lessons-Learned-Register.md` as `LL-###` entries or a short no-new-lessons sign-off entry. Tier 2/3 propagation (component skills, universal memory) is optional. An Autonomous Breakout Facilitator (draft-and-propose only, human approval for entries and cross-repo actions) is permitted but not built. |
 | [**ADR-011**](ADR-011-project-tailoring-and-route-decision.md) | Project Tailoring and Route Decision | **Accepted** | Stage 17 (Adaptation, tailoring) & Stage 18 (Intent Refinement)<br>PMBOK 8 2.1.6.2, 2.1.7 | A route per management plan (full plan, PMP section, or not applicable), decided by a human with the system recommending; floors and caps as flags; the Charter sets limits and holds the integration section when it defines it; depth changes follow Stage 17, standard changes Stage 18. Wider design kept in `docs/design-notes/`. |
+| [**ADR-012**](ADR-012-subsidiary-management-plan-standards-and-content-contracts.md) | Subsidiary Management Plan Standards and Content Contracts | **Accepted** | Stage 6 (PMP Formalization)<br>PMBOK 8 Planning Focus Area | Universal 3-section content contract (Intent, Mechanics, Governance & Decision Rights), YAML frontmatter schema, deterministic floor/cap regex linting flags, PMBOK 8 7-domain bridge, and decoupled daughter plan ADR hierarchy starting at ADR-025. |
+| [**ADR-013**](ADR-013-subsidiary-plan-approval-gates-before-pmp-formalization.md) | Subsidiary Plan Approval Gates Before PMP Formalization | **Accepted** | Stage 6 (PMP Formalization)<br>PMBOK 8 4.2 Develop PMP | Inserts route-aware per-plan approval gates (`approve-subsidiary-plan`) between drafting and formalization; canonical content hashing (LF-normalized); transitive STALE_DEPENDENCY status propagation bounded to DAG branches; explicit plan governance state machine; separation of plan-level vs. integration-level defects; IoC module decoupling. |
+| [**ADR-025**](ADR-025-scope-management-plan-standard-and-baseline-contract.md) | Scope Management Plan Standard and Baseline Contract | **Accepted** | Stage 6 (Planning)<br>PMBOK 8 Planning (Legacy 5.1) | Primary Baseline-Substantiating Plan contract: mandatory in-scope and out-of-scope boundaries, WBS decomposition rules, deliverable acceptance DoD, and transitive DAG invalidation down to Schedule and Cost. |
+| [**ADR-034**](ADR-034-pmbok-tooling-decommissioning-and-lightweight-learningstore-convergence.md) | PMBOK Tooling Decommissioning and Lightweight LearningStore Convergence | **Accepted** | Stage 6 & Stage 17 Tooling<br>PMBOK 8 Orchestration (ADR-002) | Rejects tool and dependency sprawl (SQLAlchemy, FastAPI, Typer, OCR); decommissions the legacy SQLite monolith; converges PMBOK state onto standard LearningStore (Cosmos DB / File) as Episode entities; pure functional domain core in `agent_learning.pmbok` and runtime harness in `agent_learning.pmbok_runtime`. |
+
+### Proposed Standards & Pipeline ADRs
+
+| ADR | Title | Status | Intent-to-Outcome Stage & PMBOK 8 Process | Core Architectural Decision |
+|---|---|---|---|---|
+| [**ADR-024**](ADR-024-learning-methodology-selection-chain.md) | Learning Methodology Selection Chain | **Proposed** | Cross-Cutting Learning Policy<br>PMBOK 8 2.1.6.2 Tailoring | Human-declared use-case profiles, deterministic precondition filtering across 32 learning methodologies, maturity ranking recommendation, and metadata-recorded selections. |
+| [**ADR-026**](ADR-026-schedule-management-plan-standard-and-baseline-contract.md) | Schedule Management Plan Standard and Baseline Contract | **Proposed** | Stage 6 (Planning)<br>PMBOK 8 Planning (Legacy 6.1) | Plan Tier 1: milestone register traced to the WBS, timebox and sequencing model, estimation basis, schedule baseline and buffers, variance tolerances, and `STALE_DEPENDENCY` to Cost, Resource and Risk. |
+| [**ADR-027**](ADR-027-cost-management-plan-standard-and-baseline-contract.md) | Cost Management Plan Standard and Baseline Contract | **Proposed** | Stage 6 (Planning)<br>PMBOK 8 Planning (Legacy 7.1) | Plan Tier 1: management envelope, cost categories and estimating basis, staged funding, contingency versus reserve, burn-rate control, variance tolerances, and `STALE_DEPENDENCY` to Risk and Procurement. |
+| [**ADR-028**](ADR-028-risk-management-plan-standard.md) | Risk Management Plan Standard | **Proposed** | Stage 6 (Planning)<br>PMBOK 8 Planning (Legacy 11.1) | Plan Tier 2: taxonomy, reproducible probability-impact scale, register contract, response strategies, escalation thresholds that reach a human, and contingency link to Schedule and Cost. |
+| [**ADR-029**](ADR-029-quality-management-plan-standard.md) | Quality Management Plan Standard | **Proposed** | Stage 6 (Planning)<br>PMBOK 8 Planning (Legacy 8.1) | Plan Tier 2: quality gates with pass criteria, verification and coverage rules, nonconformance and recorded waivers, metrics; verifies Scope acceptance criteria without redefining them. |
+| [**ADR-030**](ADR-030-resource-management-plan-standard.md) | Resource Management Plan Standard | **Proposed** | Stage 6 (Planning)<br>PMBOK 8 Planning (Legacy 9.1) | Plan Tier 3: role catalogue with accountable humans, allocation against timeboxes, agent work boundaries, tooling assets, and capacity-conflict resolution. |
+| [**ADR-031**](ADR-031-stakeholder-engagement-plan-standard.md) | Stakeholder Engagement Plan Standard | **Proposed** | Stage 6 (Planning)<br>PMBOK 8 Planning (Legacy 13.2) | Plan Tier 3: stakeholder register contract (source of `owner_role` names), influence and interest, engagement-level gaps and actions, approval versus notification, data minimization. |
+| [**ADR-032**](ADR-032-communications-management-plan-standard.md) | Communications Management Plan Standard | **Proposed** | Stage 6 (Planning)<br>PMBOK 8 Planning (Legacy 10.1) | Plan Tier 3: communication matrix with owners and cadence, decision-recording rule (record is not the channel), status format, escalation path, confidentiality classes. |
+| [**ADR-033**](ADR-033-procurement-management-plan-standard.md) | Procurement Management Plan Standard | **Proposed** | Stage 6 (Planning)<br>PMBOK 8 Planning (Legacy 12.1) | Plan Tier 3: make-or-buy criteria, dependency intake rule extending ADR-034 anti-sprawl, supplier selection, contract and licence checks, exit path. |
+| [**ADR-035**](ADR-035-cycle-identification-and-cross-cycle-artifact-traceability.md) | Cycle Identification and Cross-Cycle Artifact Traceability | **Proposed** | Cross-Cutting Traceability<br>PMBOK 8 Integration (ADR-008 baselines) | Defines a cycle and `cycle_id`, an append-only Cycle Register with Provenance Pin Sets (version plus canonical hash), the lookup rule from any artifact version to its cycle and baseline, and register-as-authority validation; no new LearningStore record type. |
 
 ---
 

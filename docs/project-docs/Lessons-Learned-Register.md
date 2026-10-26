@@ -26,6 +26,10 @@
 | [LL-013](#ll-013--keep-a-skills-validation-command-one-that-runs) | Keep a Skill's Validation Command One That Runs | Epic 11 / implement-story skill | Universal Process | 2026-10-25 |
 | [LL-014](#ll-014--define-blank-once-and-test-every-container-type) | Define Blank Once and Test Every Container Type | Epic 11 / Stories 11.1, 11.2 | Universal Code Quality | 2026-10-25 |
 | [LL-015](#ll-015--monolithic-integrated-gates-obscure-component-level-credit-assignment) | Monolithic Integrated Gates Obscure Component-Level Credit Assignment | ADR-013 / PMBOK Orchestration | Universal Governance & Architecture | 2026-10-25 |
+| [LL-016](#ll-016--a-review-command-must-start-its-own-comment) | A Review Command Must Start Its Own Comment | Epic 36 / Stories 36.3 to 36.5 | Universal Process | 2026-10-26 |
+| [LL-017](#ll-017--a-package-root-re-export-can-shadow-an-existing-name) | A Package-Root Re-Export Can Shadow an Existing Name | Epic 36 / Story 36.5 | Universal Code Quality | 2026-10-26 |
+| [LL-018](#ll-018--name-the-target-repository-on-every-pr-command) | Name the Target Repository on Every PR Command | Epic 36 / Story 36.3 | Universal Process | 2026-10-26 |
+| [LL-019](#ll-019--evidence-must-be-unambiguous-in-its-own-representation) | Evidence Must Be Unambiguous in Its Own Representation | Epic 36 / Story 36.3 | Universal Review | 2026-10-26 |
 
 ---
 
@@ -255,3 +259,52 @@
 - **The Root Cause:** Multi-input single-output (MIMO) evaluation conflates individual component deficiencies with cross-cutting integration conflicts.
 - **Actionable Invariant:** Every component destined for a baseline must pass an individual, hash-verified, route-aware approval gate before composite formalization. Decouple **Component-Level Defects** (governed at the component gate) from **Integration-Level Defects** (governed at the composite synthesis gate).
 - **Verification Gate:** Formalization steps must assert that every constituent component satisfies its route contract (e.g. hash match, non-stub) and carries zero active staleness flags before composite synthesis is permitted.
+
+
+---
+
+### LL-016 — A Review Command Must Start Its Own Comment
+- **Identifier:** `LL-016`
+- **Date:** 2026-10-26
+- **Epic / Story:** Epic 36 / Story 36.3 (PR [#16](https://github.com/mdresch/agent-learning/pull/16))
+- **Scope:** Universal Process
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/implement-story/SKILL.md` (Step 8.2); Tier 3: `sidpa-template` implement-story skill (proposed, needs human approval before any cross-repo change)
+- **The Trap:** A triage comment that ended with the line `/q review` and a verdict request got no reply from the automated reviewer; a standalone comment that began with `/q` was answered within minutes. The wait on the first one cost about twenty minutes and one false conclusion that the reviewer was slow.
+- **The Root Cause:** The reviewer reads a comment as a command only when `/q` opens it; a command inside a longer comment is plain text.
+- **Actionable Invariant:** Post triage and the review command as two comments, and make the command the first characters of its comment. After posting, check that a reply or a new review appears on the new head commit before waiting longer.
+
+---
+
+### LL-017 — A Package-Root Re-Export Can Shadow an Existing Name
+- **Identifier:** `LL-017`
+- **Date:** 2026-10-26
+- **Epic / Story:** Epic 36 / Story 36.5 (PR [#18](https://github.com/mdresch/agent-learning/pull/18))
+- **Scope:** Universal Code Quality
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/methodology-catalog/SKILL.md` (section 8); Tier 3: `sidpa-template` conventions (proposed, needs human approval before any cross-repo change)
+- **The Trap:** The new module's `to_episode_metadata`, named as the design specified, was added to the package's `__init__.py` imports. The root already exported a different function of the same name from another module, so the second import silently replaced the first; every caller of `agent_learning.to_episode_metadata` would have received the wrong function with no error.
+- **The Root Cause:** A re-export is a plain name binding, and the import list was extended without searching for the name.
+- **Actionable Invariant:** Before re-exporting a name from a package root, search the root for it. When it exists, keep the new function importable from its module and leave it out of the root, and say so in the module's skill and the test header.
+
+---
+
+### LL-018 — Name the Target Repository on Every PR Command
+- **Identifier:** `LL-018`
+- **Date:** 2026-10-26
+- **Epic / Story:** Epic 36 / Story 36.3 (PR [#16](https://github.com/mdresch/agent-learning/pull/16))
+- **Scope:** Universal Process
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/implement-story/SKILL.md` (Step 8.1); Tier 3: `sidpa-template` implement-story skill (proposed, needs human approval before any cross-repo change)
+- **The Trap:** `gh pr create` for a pushed branch failed with "No commits between main and feat/story-36.3 ... Head sha can't be blank". The branch and its commits were on the remote. The skill already said to pass `--repo`; the command was run without it.
+- **The Root Cause:** `gh` resolved the working directory's default repository to the upstream (`microsoft/agent-learning`), where the branch does not exist. The error describes the wrong repository's state, not a problem with the branch.
+- **Actionable Invariant:** Pass `--repo` (or `-R`) on every `gh pr` and `gh api` command. When `gh` says a pushed branch has no commits, check `gh repo view` before touching the branch.
+
+---
+
+### LL-019 — Evidence Must Be Unambiguous in Its Own Representation
+- **Identifier:** `LL-019`
+- **Date:** 2026-10-26
+- **Epic / Story:** Epic 36 / Story 36.3 (PR [#16](https://github.com/mdresch/agent-learning/pull/16))
+- **Scope:** Universal Review
+- **Tier 2/3 Propagation Target:** Tier 1 only
+- **The Trap:** The reviewer twice claimed a regex used a doubled backslash. The claim was false, and the first rebuttal pasted Python's `repr` of the line, which shows a single backslash as two characters. The pasted evidence therefore appeared to support the false claim, and a correction comment was needed.
+- **The Root Cause:** `repr` escapes backslashes, so its output cannot show how many are in the text. The rebuttal used a representation that hides the property in dispute.
+- **Actionable Invariant:** When declining a finding about exact characters, show a measurement that does not depend on escaping: a count of the character, a hex dump, or the match result on a real input. Check that the evidence cannot be read the other way before posting it.

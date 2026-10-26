@@ -467,4 +467,6 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - The two review-triage policies are declared, not initialized.
   - `examples/quickstart.py` and `examples/next_best_action.py` still train on zero episodes.
 - **Open for a human:** approve or change the five new ledger candidates (BP-005 to BP-009) and the template matrix wording; approve the Tier 3 propagation of LL-016 to LL-018; whether to push the template branch.
-- **Review:** pending; the Q review rounds and the findings accepted or declined are added before the merge (Step 8).
+- **Review (Step 8):** Amazon Q round 1 reviewed head `c727c14` (two reviews, no inline finding, no merge-blocking defect). One non-blocking observation:
+  - `Q-19-1 | style | verified: yes | decision: declined | bare asserts in the matrix test helper; inside a pytest test the assertion names the failing row, and a drifted matrix header should fail loudly | fix: none`
+  A standalone `/q` command asked for an explicit verdict; Q replied "No further additions" on `c727c14` and accepted the declination.

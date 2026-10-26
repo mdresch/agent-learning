@@ -49,7 +49,7 @@
 
 ## Story 36.4 — The Best-Practice Ledger
 
-**Status:** Approved (2026-10-26, Menno) — derived from Accepted ADR-036, BRD-036 and FDD-036; adjudicated via `approve-user-stories` (episode `80fe8a45-29a0-4a52-baa9-476f70d88209`).  
+**Status:** Approved (2026-10-26, Menno) — derived from Accepted ADR-036, BRD-036 and FDD-036; adjudicated via `approve-user-stories` (episode `80fe8a45-29a0-4a52-baa9-476f70d88209`). Completed (2026-10-26) — implemented in feat/story-36.4 with contract tests in tests/test_methodology_ledger.py.  
 **As** a maintainer, **I want** an append-only ledger of practices per methodology with an honest evidence class, **so that** only practices backed by real episodes become adopted.
 
 ### Acceptance Criteria:

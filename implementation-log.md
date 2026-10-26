@@ -470,3 +470,42 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Review (Step 8):** Amazon Q round 1 reviewed head `c727c14` (two reviews, no inline finding, no merge-blocking defect). One non-blocking observation:
   - `Q-19-1 | style | verified: yes | decision: declined | bare asserts in the matrix test helper; inside a pytest test the assertion names the failing row, and a drifted matrix header should fail loudly | fix: none`
   A standalone `/q` command asked for an explicit verdict; Q replied "No further additions" on `c727c14` and accepted the declination.
+
+
+---
+
+## Story 4.1 — Capture Diagnostic Migration Snapshot and Correct Replay Docstring
+- **Commit:** `194376d`
+- **Date:** 2026-10-26
+- **Branch:** `feat/story-4.1`
+- **Source ADR / BRD / FDD:** ADR-004 (sections 3, 4.1, 4.2, 7), BRD-004, FDD-004 (designs 1 to 3, error-handling table)
+- **Files Modified/Created:**
+  - `src/agent_learning/cli.py` (`_cmd_set_task_policy_authority` appends a `MigrationRecord` to `metadata["migration_records"]` when the authority changes; an unchanged authority writes nothing)
+  - `src/agent_learning/types.py` (`Episode` docstring: the `context_features` replay claim replaced, pointing to ADR-004)
+  - `tests/test_authority_migration.py` (new, 15 tests)
+  - `.claude/skills/autonomy/SKILL.md` (migration-snapshot section), `docs/decision-making.md` (paragraph under the authority-set command)
+  - `docs/user-stories/epic-4-authority-migration-diagnostic-snapshot.md` (status updated to Completed)
+- **Validation:**
+  - $AC_0$: a change from `low` to `full` and from `full` to `low` each appends one record.
+  - $AC_1$: the record has exactly the five fields; `policy_version_at_migration` equals the snapshot version; `action_probabilities_at_migration` equals `SoftmaxPolicy.probabilities()` for non-uniform logits and sums to 1; `migrated_at` parses as ISO 8601 with a zero UTC offset.
+  - $AC_2$: setting the current authority appends no record and writes nothing (the stored metadata, including `decision_authority_updated_at`, is unchanged); setting `low` on a policy with no stored authority is a no-op; repeating a change appends once.
+  - $AC_3$: `low` to `full` to `low` to `full` appends three records in chronological order, each earlier record equal to its earlier copy, and each record keeps the distribution of its own moment after the logits change.
+  - $AC_4$: the `Episode` docstring no longer contains "replay" and states that `context_features` is not consumed by non-contextual bandit selection (ADR-004).
+  - $AC_5$: no second snapshot is stored, the only keys added to the metadata are `migration_records` and the three authority keys, and `PolicySnapshot` keeps its fields.
+  - Observed RED first: 11 of 15 tests failed before the change; the 4 that passed are guards (the policy-snapshot fields, an empty record list on an old snapshot, the reported authority, and `low` on a policy with no stored authority).
+  - Full suite with `--ignore=tests/test_spark.py --ignore=tests/pmbok`: **718 passed, 2 skipped**. Not covered: `tests/pmbok` and `tests/test_spark.py` (LL-013).
+  - `ruff check`: the new test is clean; `cli.py` and `types.py` have 78 findings, the same 78 as before the change.
+- **Interpretations not stated verbatim in the acceptance criteria (LL-011), recorded in the test header:**
+  - I1: the current authority is what `TaskPolicy(snapshot).authority` reports, which is `low` when none is stored.
+  - I2: FDD-004's "a 1-element list containing the initial snapshot" is read as one `MigrationRecord`, not a copy of the snapshot.
+  - I3: an unchanged authority is idempotent in full (nothing appended, nothing stored). This changes the earlier behavior, where every call rewrote `decision_authority_updated_at`; the command still prints its result and exits 0.
+  - I4: "ISO 8601 UTC" means `datetime.fromisoformat` parses it and the offset is zero.
+  - I5: "never overwritten or mutated" is tested by comparing earlier records with deep copies taken before later transitions.
+  - I6: AC_4 is tested on the docstring text.
+  - I7: the CLI builds only `SoftmaxPolicy` snapshots, so a contextual snapshot is not handled.
+- **Open for a human:** whether FDD-004 should be amended for I2 and I3 (it is approved, so an amendment needs its own approval). Behavior change to note: a no-op `task-policy-authority-set` no longer refreshes `decision_authority_updated_at`.
+- **Review (Step 8):** Amazon Q round 1 reviewed head `afcf87e` (two reviews, two findings, both in the test file; none in `cli.py` or `types.py`); round 2 reviewed `b247eea`; then an explicit verdict.
+  - `Q-21-1 | crash risk | verified: yes | decision: accepted | the _stored() test helper could return None and fail with an AttributeError; it now asserts a policy exists | fix: b247eea`
+  - `Q-21-2 | test gap | verified: yes | decision: declined | asked for strictly increasing timestamps; that would flake on a coarse clock that repeats a value, the order is proven by the (from, to) pairs, and a comment in the test says so | fix: b247eea (comment only)`
+  - Verdict on `b247eea`: Q replied "No" to further additions, with no new findings.
+- **Breakout recap (ADR-010 section 4.1):** pending; this is the epic's last story, to be held after the PR review (Step 9).

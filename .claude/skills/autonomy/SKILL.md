@@ -20,6 +20,13 @@ description: Guidance and constraints for evidence-gated autonomy thresholds (ag
 - **Low authority is unchanged:** the probability gates keep their numeric `required` and no `status` key (AC_4).
 - Authority is read from `snapshot.metadata["decision_authority"]` (default `low`); do not import `decision.py` into `autonomy.py`.
 
+### Authority-migration snapshot (Story 4.1, ADR-004)
+- `task-policy-authority-set` appends one `MigrationRecord` to `snapshot.metadata["migration_records"]` when the authority changes (`low` to `full` or `full` to `low`): `policy_version_at_migration`, `action_probabilities_at_migration` (the softmax distribution at that moment), `from_authority`, `to_authority` and an ISO 8601 UTC `migrated_at`. Records are append-only; earlier ones are never edited.
+- Setting the current authority is a full no-op: no record and no store write, so `decision_authority_updated_at` does not move. A policy with no stored authority reads as `low`.
+- It is a diagnostic snapshot for inspection. It is not a replay: historical `low` episodes are never recomputed under `full` (ADR-004 section 4.1). `Episode.context_features` is caller-supplied context and is not consumed by non-contextual bandit selection.
+- No new `LearningStore` record type or container (ADR-002 Invariant 2); the CLI builds `SoftmaxPolicy` snapshots only.
+- Tests: `tests/test_authority_migration.py`.
+
 ## 3. Call Sites
 - `src/agent_learning/cli.py` calls `assess_autonomy()` unconditionally for both authorities; the branch on authority lives inside `assess_autonomy()`.
 - `docs/decision-making.md` documents the environment variables, including the tier suffix.

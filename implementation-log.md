@@ -427,4 +427,4 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - I7: `to_episode_metadata` is not re-exported from the package root, because `agent_learning.to_episode_metadata` already is the tailoring function.
 - **Not done (by design):** the two shapes are declared, not initialized. The maintainer runs `task-policy-init` for each (triage with `full` authority, routing with `low`). No backfill of earlier stories was run: the log already holds 15 complete records in the fixed shape, and no field was reconstructed.
 - **Open for a human:** whether to initialize the two policies now or after Story 36.6; the profile values in I6 are my choice.
-- **Review:** pending; the Q review rounds and the findings accepted or declined are added before the merge (Step 8).
+- **Review (Step 8):** Amazon Q round 1 reviewed head `706a308` (two reviews, no inline finding, no merge-blocking defect; findings: 0 accepted, 0 declined, 0 deferred). A standalone `/q` command then asked for an explicit verdict, and Q replied "No" to further additions on `706a308`.

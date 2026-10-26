@@ -177,11 +177,11 @@ Its `opening_pin_set` is **reconstructed** from git history at the commit that c
 
 ## 8. Open Questions & Future Extensions
 1. **Amending the Accepted ADRs:** On acceptance, apply: ADR-008 §4.6 (canonical `baseline_id`, aliases), ADR-012 §4.2 (`cycle_id` key) and §4.3.4 (add `FLAG: INVALID_METADATA` use for ids and the new Tier B `FLAG: TRACEABILITY_MISMATCH`), and ADR-013 §4.3 (add `cycle_id` and `baseline_id` to the volatile set). This draft does not edit them.
-6. **Register Growth:** Whether closed-cycle rows may be moved to dated archive files, or a machine-readable projection kept alongside, once the register is large (deferred to tooling; the latest-row-wins rule must survive any split).
 2. **Per-Cycle Tags:** Whether git tags `cycle/CYC-NNN` should mark the closing commit (deferred to tooling).
 3. **`trace_id`:** Whether a per-run `trace_id` should later be added to `Episode` (methodology #25) and how it would relate to `cycle_id`.
 4. **Register Parsing:** A validator for the register and pin sets in the pure `agent_learning.pmbok` module (ADR-034).
 5. **Charter Versioning:** Whether the Charter's no-bump-for-routine-updates convention should be tightened now that hashes carry identity.
+6. **Register Growth:** Whether closed-cycle rows may be moved to dated archive files, or a machine-readable projection kept alongside, once the register is large (deferred to tooling; the latest-row-wins rule must survive any split).
 
 ---
 

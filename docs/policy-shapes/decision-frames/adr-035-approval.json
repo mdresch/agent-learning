@@ -5,25 +5,25 @@
       "id": "architectural_soundness",
       "weight": 1.0,
       "minimum_sources": 1,
-      "description": "Establishes the Scope Management Plan as the primary Baseline-Substantiating Plan forming the foundational root node (depends_on: []) in the planning causal DAG (5.1 Scope -> 6.1 Schedule -> 7.1 Cost); inherits ADR-012 frontmatter specification and authentic PMBOK 8 Scope domain under Planning focus area; mandates explicit in-scope and out-of-scope boundaries (requiring a non-empty, lint-checkable >= 10-word rationale when 'None: [rationale]' is declared); sets route-differentiated word count floors (180 for pmp_section, 700 for full_plan) and caps (750 for pmp_section, 4,500 for full_plan) with Unicode tokenization; preserves lean pmp_section agility by making full WBS dictionary tables and RTM matrices optional for embedded sections while requiring a concise hierarchy line and DoD summary; defines disjunctive variance thresholds (<= 1 SP or minor localized refactoring with zero architectural impact) with formal Stage 17 Integrated Change Control (approve-adaptation-plan) for structural expansions; establishes symmetric rejection governance across approve-pmp and approve-subsidiary-plan with transitive downstream invalidation per ADR-013 \u00c2\u00a74.5; strictly adheres to ADR-001, ADR-002, ADR-005, ADR-008, ADR-011, ADR-012, ADR-013, and ADR-034."
+      "description": "Establishes cycle identification (CYC-NNN, lifecycle states, transition authority), an append-only Cycle Register with provenance pin sets, and a lookup rule from any artifact version to its cycle and baseline, without a new LearningStore record type (ADR-002), without in-file hashes (ADR-012), and consistent with ADR-008, ADR-009, ADR-011, ADR-013 and ADR-034."
     },
     {
       "id": "alternatives_considered",
       "weight": 1.0,
       "minimum_sources": 1,
-      "description": "Two genuine alternatives evaluated and rejected with sound architectural rationales: allowing scope to be inferred from user stories without a plan (rejected for inverting governance and causing unanchored scope creep) and combining scope and schedule into a single document (rejected for violating LL-015 component credit assignment)."
+      "description": "Five genuine alternatives evaluated and rejected with sound rationales: baseline ID as cycle ID, in-file pins, git history as the sole record, a new Cycle entity, and adding trace_id first."
     },
     {
       "id": "consequences_honest",
       "weight": 1.0,
       "minimum_sources": 1,
-      "description": "Honest disclosure of positive benefits (defends the baseline, deterministic causal anchor for schedule and cost, automated linter rules) against negative trade-offs (authoring burden of upfront boundary definition and exclusion itemization before implementation)."
+      "description": "Honest disclosure of benefits (version-to-cycle placement, visible rollbacks, pin-set diffs, resolved baseline_id naming) and costs (authoring burden, backfill with reconstructed pins, template lag in ADR-025 and ADR-026 to ADR-033)."
     },
     {
       "id": "gap_disclosure_quality",
       "weight": 1.0,
       "minimum_sources": 1,
-      "description": "Clearly bounds scope and discloses open questions in Section 8 (automated WBS extraction from User Story markdown artifacts deferred to future tooling enhancements); complete amendment log tracking four review rounds."
+      "description": "Bounds scope and discloses open questions in Section 8: amendments to accepted ADRs, git tags, trace_id, register validator, Charter versioning and register growth; records that no validator or tooling exists yet."
     }
   ],
   "options": [

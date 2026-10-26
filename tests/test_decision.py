@@ -278,6 +278,11 @@ def test_human_approval_holds_when_frame_is_maximally_favorable_to_approval() ->
     assert pending.selected_action is None
     assert pending.authorization_basis != "reasoned_evidence"
 
+    accepted = policy.adjudicate(pending, "accept")
+    assert accepted.status is DecisionStatus.RESOLVED
+    assert accepted.selected_action == Action(id="east")
+    assert accepted.authorization_basis == "user_acceptance"
+
 
 def test_decision_certificate_round_trips_for_later_adjudication() -> None:
     policy = TaskPolicy(_snapshot(DecisionAuthority.FULL))

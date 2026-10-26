@@ -317,3 +317,38 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-15-4 | style | verified: yes | decision: accepted | the 120 s per-script timeout is generous for scripts that take about 2 s; now 60 s | fix: 5048fe2`
   - `Q-15-5 | test gap | verified: yes | decision: declined | the static scan cannot catch dynamic network calls (os.system and similar); this is interpretation I1, stated in the test header and the PR | fix: none`
   An explicit verdict on the final head was then requested; the reply is on PR #15.
+
+
+---
+
+## Story 36.3 — Proof-of-Concept Sketches for the ADR-Backed Candidates
+- **Commit:** `55ea011`
+- **Date:** 2026-10-26
+- **Branch:** `feat/story-36.3`
+- **Source ADR / BRD / FDD:** ADR-036 (section 4.2), ADR-014 to ADR-023 (formulas sketched), BRD-036 (BRU-036-02), FDD-036
+- **Files Modified/Created:**
+  - `examples/methodologies/{08-critique-to-evidence,09-thompson-sampling,10-ucb,11-epsilon-greedy,13-pairwise-preference,14-meta-learning,15-warm-start,17-authority-routing,22-scored-search,23-dueling-bandit}/` (each: `README.md`, `sketch.py`)
+  - `tests/test_methodology_sketches.py` (53 tests)
+  - `.claude/skills/methodology-catalog/SKILL.md` (section 6 added)
+  - `docs/user-stories/epic-36-...md` (Story 36.3 status updated to Completed)
+- **Validation:**
+  - $AC_0$: each of the ten entries has `README.md` and `sketch.py` and is `proof_of_concept` in the catalog; the proof-of-concept ids are exactly these ten.
+  - $AC_1$: each header carries `STATUS: proof_of_concept`, `CODE: sketch`, `DATA: SYNTHETIC`, the Ideation row, ADR, hypothesis and `NOT EVIDENCE`.
+  - $AC_2$: each sketch runs in an empty temporary directory with a fixed seed, exits 0, writes no file, names no durable store and imports no network or cloud client; standard library only.
+  - $AC_3$: each README has Falsification and Real data needed sections. Quoted from the registered hypothesis for #8, #9, #10, #15, #22, #23.
+  - $AC_4$: the catalog file is byte-identical after running all ten.
+  - Observed RED first: 51 of 53 tests failed before the sketches existed (the 2 guards passed). One sketch (#17) then failed its own hysteresis assertion (my example input had entropy below the floor); fixed the input, not the assertion.
+  - Full suite with `--ignore=tests/test_spark.py --ignore=tests/pmbok`: **639 passed, 2 skipped**. Not covered: `tests/pmbok` and `tests/test_spark.py` (LL-013).
+  - `ruff check` on `examples/methodologies` and the new test: all checks passed.
+- **Interpretations not stated verbatim in the acceptance criteria (LL-011):**
+  - I1: the test docstrings label the offline / no-store check as AC_2 and the README check as AC_3 following the Story text; the same I1 limits as Story 36.2 apply (network absence is not provable, only scanned).
+  - I2: sketches are plain stdlib Python of the ADR formulas; they do not import `agent_learning`, so "the public SDK only" holds trivially.
+  - I3: for #11, #13, #14 and #17 no hypothesis is registered; the README states a criterion proposed there and says so. Those four criteria are authored here, not in the Ideation Document.
+  - I4: a sketch asserts only its own arithmetic (a clamp, a band, an ordering of invented data); this checks the sketch, not the methodology.
+- **Open for a human:** the four proposed criteria (#11, #13, #14, #17) need review; whether #11 and #17 should get Ideation hypotheses.
+- **Review (Step 8):** Amazon Q round 1 reviewed head `146a0b1` (two reviews, four distinct findings, all in the test file, none in the sketches); round 2 reviewed `4e891a9`; then an explicit verdict.
+  - `Q-16-1 | logic | verified: yes | decision: accepted | the forbidden-import check missed relative imports (from . import requests) because node.module is None; aliases of ImportFrom nodes are now checked too | fix: 4e891a9`
+  - `Q-16-2 | style | verified: yes | decision: declined | implicit None return from _parse; pytest.fail never returns, an unreachable raise adds noise | fix: none`
+  - `Q-16-3 | crash risk | verified: yes | decision: declined | rglob on a missing src/ raises on Python 3.12+; src/ is part of this repository and a missing src/ should fail loudly | fix: none`
+  - `Q-16-4 | logic | verified: yes | decision: declined | claimed a double backslash in the ADR and HYPOTHESIS regexes; the file has one backslash per line (counted), the pattern matches a real header; Q repeated it in round 2 and retracted it after the evidence | fix: none`
+  - Verdict on `4e891a9`: Q replied "No further additions" (after one command that Q did not answer because /q was not at the start of the comment; the second, starting with /q, was answered).

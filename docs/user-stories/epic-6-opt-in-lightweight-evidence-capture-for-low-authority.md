@@ -7,7 +7,7 @@
 
 ## Story 6.1 — Implement Opt-In Policy Configuration and Lightweight Evidence Capture
 
-**Status:** Ready (2026-10-23); acceptance criteria clarified 2026-10-26 against the code (`audit_evidence` on `DecisionResult` and `decide()` already exists). Awaiting `approve-user-stories`.
+**Status:** Approved (2026-10-26, Menno) — derived from Accepted ADR-006; adjudicated via `approve-user-stories` (robust utility 0.698, episode `206bf95d-8537-4bdb-a44f-be89cd3aa924`).
 **As** an agent operator configuring a `low`-authority delegated task policy,
 **I want** to optionally enable lightweight evidence capture (`capture_decision_evidence = true`) and attach caller-supplied audit context to decisions,
 **So that** low-authority decisions preserve diagnostic rationale for future forensic review and replay without imposing a blanket cost penalty on policies that do not opt in.

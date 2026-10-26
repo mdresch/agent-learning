@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-006](../../adr/ADR-006-opt-in-lightweight-evidence-capture-for-low-authority.md) — Accepted (2026-10-23)
 **Source BRD:** [BRD-006](../Business-Requirements/BRD-006-opt-in-lightweight-evidence-capture-for-low-authority.md)
-**Status:** Draft — technical design derived from an Accepted ADR; revised 2026-10-26 against the code at commit `0b49a9e` (see Current State). Awaiting `approve-fdd`.
+**Status:** Approved (2026-10-26, Menno) — derived from Accepted ADR-006; adjudicated via `approve-fdd` (robust utility 0.709, episode `e018b727-3cfe-4b0c-8bf9-bbb1b7b95dc9`).
 
 This document specifies the technical architecture, schema extensions, interface contracts, and lifecycle invariants for opt-in evidence capture under `low` decision authority.
 

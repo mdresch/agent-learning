@@ -1,7 +1,7 @@
 # BRD-006: Opt-In, Lightweight Evidence Capture for `low`-Authority Decisions
 
 **Source ADR:** [ADR-006](../../adr/ADR-006-opt-in-lightweight-evidence-capture-for-low-authority.md) — Accepted (2026-10-23)
-**Status:** Draft — business requirements derived from an Accepted ADR
+**Status:** Approved (2026-10-26, Menno) — derived from Accepted ADR-006; adjudicated via `approve-brd` (robust utility 0.717, episode `4b7e2806-4cd7-40f0-9f16-d26ec1b4e1a9`).
 **Stakeholders:** Menno (Sponsor/PM/maintainer)
 
 ## Business Need

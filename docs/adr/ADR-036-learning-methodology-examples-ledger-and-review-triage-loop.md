@@ -13,7 +13,7 @@ It adds no `LearningStore` record type (ADR-002 Invariant #2), grants no autonom
 ---
 
 ## 2. Status
-**Proposed (2026-10-26)** — Cross-cutting. Not yet evaluated under `approve-adr`.
+**Accepted (2026-10-26, Menno)** — Cross-cutting. Episode: `f0047810-a3f2-49f4-8023-e3058fce3ed9`.
 
 ---
 
@@ -126,3 +126,4 @@ Per-methodology effectiveness, any change to a methodology's state in the Ideati
 | Date | Change | Why |
 |---|---|---|
 | 2026-10-26 | Proposed | Initial drafting: example catalog, best-practice ledger, review-triage learning loop. |
+| 2026-10-26 | **Accepted by Menno** | Formally adjudicated and accepted through `approve-adr`; robust utility 0.748, expected utility 0.816; Episode `f0047810-a3f2-49f4-8023-e3058fce3ed9`. |

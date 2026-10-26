@@ -1,0 +1,350 @@
+{
+  "agent_id": "agent-learning-governance",
+  "task_id": "approve-user-stories",
+  "policy_id": "0d32ca03-f924-4c8c-80d4-d7bc6335434e",
+  "policy_version": 0,
+  "status": "needs_user_feedback",
+  "reason": "The policy requires human approval; accept or reject the reasoned recommendation.",
+  "selection_basis": "bayesian_decision",
+  "selected_action": null,
+  "proposed_action": {
+    "id": "approve_user_stories",
+    "description": "The user stories are code-shaped with real, testable acceptance criteria, correctly distinguish code-shaped stories from documentation-only items rather than forcing everything into a Story template, and are traceable to their BRD/FDD/ADR -- approve them",
+    "parameters": {}
+  },
+  "candidate_actions": [
+    {
+      "id": "approve_user_stories",
+      "description": "The user stories are code-shaped with real, testable acceptance criteria, correctly distinguish code-shaped stories from documentation-only items rather than forcing everything into a Story template, and are traceable to their BRD/FDD/ADR -- approve them",
+      "parameters": {}
+    }
+  ],
+  "assessments": [
+    {
+      "action": {
+        "id": "approve_user_stories",
+        "description": "The user stories are code-shaped with real, testable acceptance criteria, correctly distinguish code-shaped stories from documentation-only items rather than forcing everything into a Story template, and are traceable to their BRD/FDD/ADR -- approve them",
+        "parameters": {}
+      },
+      "feasible": true,
+      "criteria": [
+        {
+          "criterion_id": "code_shaped_testable",
+          "support": 0.8212506141673467,
+          "entropy_bits": 0.6773335108156493,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "traceable_to_fdd_brd_adr",
+          "support": 0.7957185792187359,
+          "entropy_bits": 0.7304087317484977,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "scope_correctly_bounded",
+          "support": 0.7060001987214465,
+          "entropy_bits": 0.8738321565961021,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        }
+      ],
+      "expected_utility": 0.7743231307025097,
+      "uncertainty": 0.7605247997200831,
+      "robust_utility": 0.6982706507305014,
+      "ruled_out_by": []
+    },
+    {
+      "action": {
+        "id": "reject_user_stories",
+        "description": "The user stories have a fundamental, unfixed flaw -- e.g. acceptance criteria that cannot actually be contract-tested, or a story forced into a shape the underlying work does not have -- reject them outright",
+        "parameters": {}
+      },
+      "feasible": true,
+      "criteria": [
+        {
+          "criterion_id": "code_shaped_testable",
+          "support": 0.0866255450880921,
+          "entropy_bits": 0.42510488271276886,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "traceable_to_fdd_brd_adr",
+          "support": 0.0866255450880921,
+          "entropy_bits": 0.42510488271276886,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "scope_correctly_bounded",
+          "support": 0.0866255450880921,
+          "entropy_bits": 0.42510488271276886,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        }
+      ],
+      "expected_utility": 0.0866255450880921,
+      "uncertainty": 0.42510488271276886,
+      "robust_utility": 0.04411505681681521,
+      "ruled_out_by": [
+        "pareto_dominated_by:approve_user_stories"
+      ]
+    },
+    {
+      "action": {
+        "id": "request_revision_before_decision",
+        "description": "The user stories need a real change before they can be judged -- distinct from a named, deliberately out-of-scope follow-on item already scoped correctly",
+        "parameters": {}
+      },
+      "feasible": true,
+      "criteria": [
+        {
+          "criterion_id": "code_shaped_testable",
+          "support": 0.279035722304788,
+          "entropy_bits": 0.8541335852435865,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "traceable_to_fdd_brd_adr",
+          "support": 0.279035722304788,
+          "entropy_bits": 0.8541335852435865,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "scope_correctly_bounded",
+          "support": 0.279035722304788,
+          "entropy_bits": 0.8541335852435865,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        }
+      ],
+      "expected_utility": 0.279035722304788,
+      "uncertainty": 0.8541335852435865,
+      "robust_utility": 0.19362236378042935,
+      "ruled_out_by": [
+        "pareto_dominated_by:approve_user_stories"
+      ]
+    }
+  ],
+  "information_needs": [],
+  "rejected_action_ids": [],
+  "authorization_basis": null,
+  "action_probabilities": {
+    "approve_user_stories": 0.3333333333333333,
+    "reject_user_stories": 0.3333333333333333,
+    "request_revision_before_decision": 0.3333333333333333
+  },
+  "action_logprob": null,
+  "audit_evidence": null,
+  "decision_context": "Given drafted user stories, decide whether to approve them, reject them, or request revision before deciding -- shape reused directly from sidpa-template/ADPA",
+  "decision_authority": "full",
+  "selection_mode": "reasoned",
+  "selected_action_feedback": {
+    "attempts": 7,
+    "correctness_evaluated": 7,
+    "correct": 7,
+    "correctness_rate": 1.0,
+    "rewarded_episodes": 0,
+    "mean_reward": null,
+    "recent_outcomes": [
+      {
+        "created_at": "2026-10-26T11:11:33.135184+00:00",
+        "was_correct": true,
+        "reward": null,
+        "execution_status": "completed",
+        "result_summary": "Approved directly by Menno, 2026-10-26.",
+        "score_breakdown": {}
+      },
+      {
+        "created_at": "2026-10-25T18:58:58.863827+00:00",
+        "was_correct": true,
+        "reward": null,
+        "execution_status": "completed",
+        "result_summary": "Approved directly by Menno, 2026-10-25 (\"Please run approve-brd approve-fdd and approve-user-stories\").",
+        "score_breakdown": {}
+      },
+      {
+        "created_at": "2026-10-25T09:08:02.156832+00:00",
+        "was_correct": true,
+        "reward": null,
+        "execution_status": "completed",
+        "result_summary": "Approved directly by Menno, 2026-10-25 (\"draft the BRD, FDD and User Stories and run approve-brd, approve-fdd and approve-story\").",
+        "score_breakdown": {}
+      }
+    ]
+  },
+  "historical_feedback": {
+    "episodes_reviewed": 7,
+    "actions": {
+      "approve_user_stories": {
+        "attempts": 7,
+        "correctness_evaluated": 7,
+        "correct": 7,
+        "correctness_rate": 1.0,
+        "rewarded_episodes": 0,
+        "mean_reward": null,
+        "recent_outcomes": [
+          {
+            "created_at": "2026-10-26T11:11:33.135184+00:00",
+            "was_correct": true,
+            "reward": null,
+            "execution_status": "completed",
+            "result_summary": "Approved directly by Menno, 2026-10-26.",
+            "score_breakdown": {}
+          },
+          {
+            "created_at": "2026-10-25T18:58:58.863827+00:00",
+            "was_correct": true,
+            "reward": null,
+            "execution_status": "completed",
+            "result_summary": "Approved directly by Menno, 2026-10-25 (\"Please run approve-brd approve-fdd and approve-user-stories\").",
+            "score_breakdown": {}
+          },
+          {
+            "created_at": "2026-10-25T09:08:02.156832+00:00",
+            "was_correct": true,
+            "reward": null,
+            "execution_status": "completed",
+            "result_summary": "Approved directly by Menno, 2026-10-25 (\"draft the BRD, FDD and User Stories and run approve-brd, approve-fdd and approve-story\").",
+            "score_breakdown": {}
+          }
+        ]
+      },
+      "reject_user_stories": {
+        "attempts": 0,
+        "correctness_evaluated": 0,
+        "correct": 0,
+        "correctness_rate": null,
+        "rewarded_episodes": 0,
+        "mean_reward": null,
+        "recent_outcomes": []
+      },
+      "request_revision_before_decision": {
+        "attempts": 0,
+        "correctness_evaluated": 0,
+        "correct": 0,
+        "correctness_rate": null,
+        "rewarded_episodes": 0,
+        "mean_reward": null,
+        "recent_outcomes": []
+      }
+    }
+  },
+  "autonomy": {
+    "eligible": false,
+    "authorization_basis": "none",
+    "decision_authority": "full",
+    "mode": "supervised",
+    "execute_without_confirmation": false,
+    "request_user_feedback": true,
+    "observable_outcome_satisfies_feedback": false,
+    "feedback_reason": "human_approval_required",
+    "outcome_recording": "user_feedback",
+    "complexity": {
+      "tier": "standard",
+      "score": 4,
+      "intent_score": 1,
+      "decision_score": 3,
+      "action_count": 3,
+      "action_space_points": 1,
+      "profile_source": "configured",
+      "profile": {
+        "intent_ambiguity": "low",
+        "context_variability": "variable",
+        "outcome_observability": "direct",
+        "decision_impact": "high",
+        "reversibility": "reversible",
+        "requires_human_approval": true,
+        "rationale": "Reused directly from sidpa-template's own shared-complexity-profile.json, which itself was corrected from a real ADPA mistake (approve-adr was first built with requires_human_approval: false, and the resolver's own execute_without_confirmation logic would have bypassed a real governance rule as a result). Correct this down per-policy only with real evidence the specific decision doesn't need a human sign-off -- never flip it the other direction speculatively."
+      },
+      "risk_floors": []
+    },
+    "learned_policy_assessment": {
+      "eligible": false,
+      "authorization_basis": "human_adjudication",
+      "user_feedback_status": null,
+      "user_feedback_episode_id": null,
+      "recommended_action_id": "approve_user_stories",
+      "scored_outcomes": 0,
+      "correctness_evaluated": 0,
+      "correct_outcomes": 0,
+      "correctness_rate": null,
+      "correctness_lower_bound": 0.0,
+      "mean_reward": null,
+      "action_probability": 0.3333333333333333,
+      "probability_margin": 0.0,
+      "stable_snapshots": 0,
+      "audit_rate": 0.1,
+      "complexity": {
+        "tier": "standard",
+        "score": 4,
+        "intent_score": 1,
+        "decision_score": 3,
+        "action_count": 3,
+        "action_space_points": 1,
+        "profile_source": "configured",
+        "profile": {
+          "intent_ambiguity": "low",
+          "context_variability": "variable",
+          "outcome_observability": "direct",
+          "decision_impact": "high",
+          "reversibility": "reversible",
+          "requires_human_approval": true,
+          "rationale": "Reused directly from sidpa-template's own shared-complexity-profile.json, which itself was corrected from a real ADPA mistake (approve-adr was first built with requires_human_approval: false, and the resolver's own execute_without_confirmation logic would have bypassed a real governance rule as a result). Correct this down per-policy only with real evidence the specific decision doesn't need a human sign-off -- never flip it the other direction speculatively."
+        },
+        "risk_floors": []
+      },
+      "criteria": {
+        "minimum_outcomes": {
+          "actual": 0,
+          "required": 20,
+          "met": false
+        },
+        "correctness_lower_bound": {
+          "actual": 0.0,
+          "required": 0.9,
+          "wilson_z": 1.96,
+          "met": false
+        },
+        "positive_mean_reward": {
+          "actual": null,
+          "required_greater_than": 0.0,
+          "met": false
+        },
+        "action_probability": {
+          "actual": 0.3333333333333333,
+          "required": null,
+          "status": "not_applicable",
+          "reason": "full decision authority uses reasoned resolution, not learned policy logits (ADR-003 section 4.5)",
+          "met": true
+        },
+        "probability_margin": {
+          "actual": 0.0,
+          "required": null,
+          "status": "not_applicable",
+          "reason": "full decision authority uses reasoned resolution, not learned policy logits (ADR-003 section 4.5)",
+          "met": true
+        },
+        "stable_snapshots": {
+          "actual": 0,
+          "required": 3,
+          "met": false
+        },
+        "human_approval_not_required": {
+          "actual": true,
+          "required": false,
+          "met": false
+        },
+        "latest_user_feedback_not_rejected": {
+          "actual": null,
+          "required_not": "rejected",
+          "met": true
+        }
+      }
+    }
+  }
+}

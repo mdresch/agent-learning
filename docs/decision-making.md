@@ -588,6 +588,16 @@ Environment variables override the resolved tier thresholds globally:
 | `AGENT_LEARNING_AUTONOMY_AUDIT_RATE` | `0.10` |
 | `AGENT_LEARNING_AUTONOMY_WILSON_Z` | `1.96` |
 
+Each threshold also accepts a tier suffix (`_LOW`, `_STANDARD`, `_HIGH`,
+`_CRITICAL`), for example `AGENT_LEARNING_AUTONOMY_MIN_OUTCOMES_LOW=5`. A
+suffixed variable wins over the global one for that tier only; the other tiers
+keep their own values. Wilson z has no tier suffix. A configuration in which a
+higher tier would be easier to enter than a lower one is rejected with a
+`ValueError` naming the metric and the tiers (`validate_autonomy_monotonicity`).
+For `full`-authority policies the `action_probability` and `probability_margin`
+criteria are reported as `not_applicable`, and `authorization_basis` is
+`human_adjudication`.
+
 Safety, compliance, financial, and destructive-operation approvals remain
 outside the learned autonomy gate. A policy preference must never override a
 deterministic approval requirement.

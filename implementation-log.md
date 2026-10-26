@@ -217,3 +217,35 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `370b858` — `chore(tests): remove unused MagicMock and cosmos_mod imports`
 - **Validation re-run on 2026-10-26** (branch `docs/adr-028-pmbok-convergence`): `tests/test_storage_cosmos.py` 7 passed; suite with `--ignore=tests/test_spark.py --ignore=tests/pmbok` 490 passed, 2 skipped. The 459 count in the original entry reflects the suite at that time.
 - **The original entry is unchanged**, per the append-only rule.
+
+
+---
+
+## Story 36.1 — The Catalog and Its Integrity Check
+- **Commit:** `bc467cc`
+- **Date:** 2026-10-26
+- **Branch:** `feat/story-36.1`
+- **Source ADR / BRD / FDD:** ADR-036 (section 4.1, Invariants 1 to 3), BRD-036 (BRU-036-01, BRU-036-08), FDD-036 (sections 1, 2.1)
+- **Files Modified/Created:**
+  - `src/agent_learning/methodology_catalog.py` (new: `CatalogEntry`, `ExampleClass`, `derive_class`, `parse_catalog`, `validate_catalog`; pure, no file I/O or storage)
+  - `src/agent_learning/__init__.py` (re-exports only)
+  - `examples/methodologies/catalog.json` (the 32 entries: 9 runnable, 10 proof_of_concept, 13 documented)
+  - `tests/test_methodology_catalog.py` (31 tests) and `tests/fixtures/methodology_catalog/ideation_states.json`
+  - `.claude/skills/methodology-catalog/SKILL.md` (new component skill)
+  - `docs/user-stories/epic-36-...md` (Story 36.1 status updated to Completed)
+- **Validation:**
+  - $AC_0$: `validate_catalog()` raises `ValueError` naming a missing, duplicate or out-of-range id; the shipped catalog covers 1 to 32 once each.
+  - $AC_1$: `derive_class()` maps every state per FDD-036 section 2.1, an unknown state raises, and an entry whose class or state differs from the derived class or the fixture raises, naming the id.
+  - $AC_2$: a documented entry with an empty `reason` or `reopening_condition` raises.
+  - $AC_3$: a path outside `examples/methodologies/` (including a `..` path) raises; a missing path for a runnable or proof_of_concept entry raises; with `existing_paths` a listed path that is absent raises.
+  - $AC_4$: an AST test confirms the module imports nothing from `agent_learning.storage` and none of `os`, `pathlib`, `io`, `shutil`.
+  - Observed RED first: collection failed without the module; with a throwaway stub (since removed) 27 of the 31 tests failed on behavior and 4 already passed as guards.
+  - Story contract: `tests/test_methodology_catalog.py` 31 passed. One test regex (`outside` before the id) over-specified the message order and was corrected; the module was not bent to it.
+  - Full suite with `--ignore=tests/test_spark.py --ignore=tests/pmbok`: **521 passed, 2 skipped**. Not covered: `tests/pmbok` (undeclared `sqlalchemy` and `tenacity`) and `tests/test_spark.py` (needs a JVM), so this is not the entire suite (LL-013).
+  - `ruff check` on the two new Python files: all checks passed.
+- **Interpretations not stated verbatim in the acceptance criteria (LL-011), recorded in the test header:**
+  - I1: the module does no file I/O (FDD-036 section 1), so AC_3's existence check takes an `existing_paths` set from the caller; `None` skips it, because the example directories are built by Stories 36.2 and 36.3.
+  - I2: the catalog `state` uses canonical tokens, and the expected states are a hand-transcribed fixture of Ideation section 2.1 (v1.13). Drift between the fixture and the Ideation table is not detected automatically.
+  - I3: a candidate with a Proposed ADR is a proof_of_concept even when the Ideation notes a data prerequisite (#23); #29 is a candidate with no ADR, so it is documented.
+- **Open for a human:** FDD-036 is approved, so recording I1 (the optional `existing_paths` argument) and I2 (canonical state tokens) there needs its own approval.
+- **Review:** pending; the Q review rounds and the findings accepted or declined are added before the merge (Step 8).

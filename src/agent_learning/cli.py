@@ -917,14 +917,32 @@ def _cmd_set_task_policy_authority(args: argparse.Namespace) -> int:
             file=sys.stderr,
         )
         return 2
-    snapshot.metadata.update(
-        {
-            "decision_authority": args.authority,
-            "decision_authority_source": "configured",
-            "decision_authority_updated_at": datetime.now(timezone.utc).isoformat(),
-        }
-    )
-    store.store_policy(snapshot)
+    current_authority = TaskPolicy(snapshot).authority.value
+    target_authority = args.authority.lower()
+    if current_authority != target_authority:
+        # Diagnostic snapshot of the converged distribution at the moment authority changes
+        # (ADR-004, FDD-004 design 2). Append only: earlier records are never touched.
+        probabilities = SoftmaxPolicy.from_snapshot(snapshot).probabilities()
+        migrated_at = datetime.now(timezone.utc).isoformat()
+        snapshot.metadata.setdefault("migration_records", []).append(
+            {
+                "policy_version_at_migration": snapshot.version,
+                "action_probabilities_at_migration": {
+                    action.id: probability for action, probability in zip(snapshot.actions, probabilities)
+                },
+                "from_authority": current_authority,
+                "to_authority": target_authority,
+                "migrated_at": migrated_at,
+            }
+        )
+        snapshot.metadata.update(
+            {
+                "decision_authority": target_authority,
+                "decision_authority_source": "configured",
+                "decision_authority_updated_at": migrated_at,
+            }
+        )
+        store.store_policy(snapshot)
     print(
         json.dumps(
             {

@@ -7,7 +7,7 @@ One story, matching FDD-004's designs.
 
 ## Story 4.1 — Capture Diagnostic Migration Snapshot and Correct Replay Docstring
 
-**Status:** Approved (2026-10-23, Menno) — derived from an Accepted ADR's disclosed gap; adjudicated via `approve-user-stories` (robust utility 0.883, episode `fb2fab25...`).
+**Status:** Approved (2026-10-23, Menno) — derived from an Accepted ADR's disclosed gap; adjudicated via `approve-user-stories` (robust utility 0.883, episode `fb2fab25...`). Completed (2026-10-26) — implemented in feat/story-4.1 with contract tests in tests/test_authority_migration.py.
 **As** a policy auditor and operator, **I want** authority migrations to capture a frozen snapshot of the policy's converged softmax distribution and code docstrings to reflect actual non-contextual behavior, **so that** the state at authority elevation is permanently inspectable and developers are not misled into proposing impossible retroactive replays.
 
 **Acceptance Criteria:**

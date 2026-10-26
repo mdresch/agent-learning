@@ -698,6 +698,13 @@ agent-learn task-policy-authority-set `
 This changes policy configuration, not its ID, version, action set, or learned
 snapshot history. Never create parallel low and full policies for one decision.
 
+Each change of authority also appends a diagnostic `MigrationRecord` to
+`metadata["migration_records"]`: the policy version, the softmax distribution at
+that moment, the old and new authority, and a UTC timestamp. Setting the authority
+the policy already has changes nothing and appends nothing. The record is for
+inspection only; it does not replay earlier decisions under the new authority
+(ADR-004).
+
 ### Low authority: choose and execute
 
 ```powershell

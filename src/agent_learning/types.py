@@ -127,8 +127,9 @@ class Episode:
     """A complete agent interaction: prompt → tool calls → response.
 
     The episode is the unit of evaluation and the unit on which rewards
-    are attached. ``context_features`` carries the input the policy used
-    to choose its action (so the learner can replay the decision).
+    are attached. ``context_features`` carries optional caller-supplied
+    contextual attributes used for reward shaping and observability;
+    it is not consumed by non-contextual bandit action selection (see ADR-004).
     """
 
     id: str = field(default_factory=_new_id)

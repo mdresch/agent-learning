@@ -117,11 +117,12 @@ def _tier_override_keys(metric: str, tier: str) -> tuple[str, str]:
 
 def _note_global_override(metric: str, tier: str) -> None:
     tier_key, global_key = _tier_override_keys(metric, tier)
-    if not os.getenv(tier_key) and os.getenv(global_key):
+    global_value = os.getenv(global_key)
+    if global_value and not os.getenv(tier_key):
         logger.info(
             "Using global autonomy override %s=%s for tier %s",
             global_key,
-            os.environ[global_key],
+            global_value,
             tier,
         )
 

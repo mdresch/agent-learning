@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import os
+
 import pytest
 
 from agent_learning.autonomy import (
@@ -10,7 +12,7 @@ from agent_learning.autonomy import (
     assess_complexity,
     wilson_lower_bound,
 )
-from agent_learning.config import AutonomyConfig
+from agent_learning.config import AutonomyConfig, validate_autonomy_monotonicity
 from agent_learning.policy import SoftmaxPolicy
 from agent_learning.storage import InMemoryStore
 from agent_learning.training import LearningRunner
@@ -488,3 +490,246 @@ def test_human_approval_profile_blocks_otherwise_eligible_policy() -> None:
 def test_complexity_profile_rejects_unknown_fields() -> None:
     with pytest.raises(ValueError, match="unknown complexity profile fields"):
         ComplexityProfile.from_dict({"intent_complexity": "low"})
+
+
+# ---------------------------------------------------------------------------
+# Story 3.1 contract: tier-specific overrides and authority-aware reporting.
+#
+# Story 3.1 (docs/user-stories/epic-3-tier-specific-autonomy-overrides.md)
+# ADR-003 s3, s4.5, s6, s7 (Invariants 5 and 7)
+# BRD-003 / FDD-003 (Designs 1 to 3)
+#
+# Interpretations not stated verbatim in the acceptance criteria (LL-011):
+# - I1: an invalid tier-suffixed value falls through to the global variable, then
+#   the built-in default, matching the lenient behavior of the existing _env_int.
+# - I2: validate_autonomy_monotonicity() checks all six statistical entry gates
+#   (ADR-003 Invariant 5), not only the three listed in FDD-003 Design 2.
+# - I3: assess_autonomy() runs the monotonicity check when it resolves its own
+#   config (FDD-003: "before policy initialization or decision execution").
+# - I4: for a full-authority policy, eligibility comes only from explicit
+#   adjudication and requires_human_approval (FDD-003 Design 3, item 4); the
+#   frozen-logit statistical path does not grant autonomy.
+# ---------------------------------------------------------------------------
+
+_TIERS = ("low", "standard", "high", "critical")
+
+
+def _clear_autonomy_env(monkeypatch: pytest.MonkeyPatch) -> None:
+    for name in list(os.environ):
+        if name.startswith("AGENT_LEARNING_AUTONOMY_"):
+            monkeypatch.delenv(name)
+
+
+def test_ac0_tier_suffixed_variable_takes_precedence_over_global_and_default(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """AC_0: AGENT_LEARNING_AUTONOMY_{METRIC}_{TIER} > global variable > default."""
+    _clear_autonomy_env(monkeypatch)
+    monkeypatch.setenv("AGENT_LEARNING_AUTONOMY_MIN_OUTCOMES", "9")
+    monkeypatch.setenv("AGENT_LEARNING_AUTONOMY_MIN_OUTCOMES_STANDARD", "7")
+
+    assert AutonomyConfig.for_tier("standard").min_outcomes == 7
+    assert AutonomyConfig.for_tier("high").min_outcomes == 9
+
+    monkeypatch.delenv("AGENT_LEARNING_AUTONOMY_MIN_OUTCOMES")
+    monkeypatch.delenv("AGENT_LEARNING_AUTONOMY_MIN_OUTCOMES_STANDARD")
+    assert AutonomyConfig.for_tier("high").min_outcomes == 50
+
+
+def test_ac0_float_metrics_resolve_with_tier_suffix(monkeypatch: pytest.MonkeyPatch) -> None:
+    """AC_0: every metric, including float ones, resolves its tier-suffixed variable."""
+    _clear_autonomy_env(monkeypatch)
+    monkeypatch.setenv("AGENT_LEARNING_AUTONOMY_MIN_CORRECTNESS_LOWER_BOUND_HIGH", "0.96")
+    monkeypatch.setenv("AGENT_LEARNING_AUTONOMY_STABLE_SNAPSHOTS_CRITICAL", "6")
+
+    assert AutonomyConfig.for_tier("high").min_correctness_lower_bound == pytest.approx(0.96)
+    assert AutonomyConfig.for_tier("critical").stable_snapshots == 6
+    assert AutonomyConfig.for_tier("standard").min_correctness_lower_bound == pytest.approx(0.90)
+
+
+def test_ac0_invalid_tier_value_falls_through_to_global(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """AC_0 (interpretation I1): an unparseable tier value is ignored, as _env_int does."""
+    _clear_autonomy_env(monkeypatch)
+    monkeypatch.setenv("AGENT_LEARNING_AUTONOMY_MIN_OUTCOMES_LOW", "many")
+    monkeypatch.setenv("AGENT_LEARNING_AUTONOMY_MIN_OUTCOMES", "4")
+
+    assert AutonomyConfig.for_tier("low").min_outcomes == 4
+
+
+def test_ac1_low_tier_override_preserves_other_tiers(monkeypatch: pytest.MonkeyPatch) -> None:
+    """AC_1: MIN_OUTCOMES_LOW=5 sets low to 5; standard, high, critical keep 20, 50, 100."""
+    _clear_autonomy_env(monkeypatch)
+    monkeypatch.setenv("AGENT_LEARNING_AUTONOMY_MIN_OUTCOMES_LOW", "5")
+
+    assert [AutonomyConfig.for_tier(tier).min_outcomes for tier in _TIERS] == [5, 20, 50, 100]
+
+
+@pytest.mark.parametrize(
+    ("metric", "attr", "low_value"),
+    [
+        ("MIN_OUTCOMES", "min_outcomes", "30"),
+        ("MIN_CORRECTNESS_LOWER_BOUND", "min_correctness_lower_bound", "0.95"),
+        ("MIN_MEAN_REWARD", "min_mean_reward", "0.05"),
+        ("MIN_ACTION_PROBABILITY", "min_action_probability", "0.7"),
+        ("MIN_PROBABILITY_MARGIN", "min_probability_margin", "0.2"),
+        ("STABLE_SNAPSHOTS", "stable_snapshots", "4"),
+    ],
+)
+def test_ac2_monotonicity_names_inverted_metric_and_tiers(
+    monkeypatch: pytest.MonkeyPatch, metric: str, attr: str, low_value: str
+) -> None:
+    """AC_2 (interpretation I2): low stricter than standard is rejected for all six gates."""
+    _clear_autonomy_env(monkeypatch)
+    monkeypatch.setenv(f"AGENT_LEARNING_AUTONOMY_{metric}_LOW", low_value)
+
+    with pytest.raises(ValueError, match=rf"monotonicity.*{attr}.*low.*standard"):
+        validate_autonomy_monotonicity()
+
+
+def test_ac2_monotonicity_accepts_defaults_and_equal_thresholds(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """AC_2: defaults, and a global override that makes tiers equal, are not violations."""
+    _clear_autonomy_env(monkeypatch)
+    validate_autonomy_monotonicity()
+
+    monkeypatch.setenv("AGENT_LEARNING_AUTONOMY_MIN_OUTCOMES", "10")
+    validate_autonomy_monotonicity()
+
+
+def test_ac2_monotonicity_checks_the_upper_tier_pairs(monkeypatch: pytest.MonkeyPatch) -> None:
+    """AC_2: all four tiers are compared, including high against critical."""
+    _clear_autonomy_env(monkeypatch)
+    monkeypatch.setenv("AGENT_LEARNING_AUTONOMY_MIN_OUTCOMES_HIGH", "150")
+
+    with pytest.raises(ValueError, match=r"min_outcomes.*high.*critical"):
+        validate_autonomy_monotonicity()
+
+
+def test_ac2_assess_autonomy_rejects_inverted_thresholds(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """AC_2 (interpretation I3): assessing with an env-resolved config validates it first."""
+    _clear_autonomy_env(monkeypatch)
+    monkeypatch.setenv("AGENT_LEARNING_AUTONOMY_MIN_OUTCOMES_LOW", "500")
+    store = InMemoryStore()
+    snapshot = _policy(1)
+    store.store_policy(snapshot)
+
+    with pytest.raises(ValueError, match="monotonicity"):
+        assess_autonomy(store, snapshot)
+
+
+def _full_authority_policy(version: int = 1, **metadata: object) -> PolicySnapshot:
+    snapshot = _policy(version, winner_logit=0.0)
+    snapshot.metadata["decision_authority"] = "full"
+    snapshot.metadata.update(metadata)
+    return snapshot
+
+
+def _accepted_episode(episode_id: str) -> Episode:
+    return Episode(
+        id=episode_id,
+        agent_id="scout",
+        task_id="choose-delegate",
+        intent_summary="Choose a delegate",
+        action_id="winner",
+        expected_outcome="Use the accepted delegate",
+        execution_status="completed",
+        result_summary="The user accepted the winner",
+        metadata={"feedback_status": "accepted", "correct_action_id": "winner"},
+    )
+
+
+def test_ac3_full_authority_reports_probability_criteria_as_not_applicable(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """AC_3: action_probability and probability_margin are not_applicable and met."""
+    _clear_autonomy_env(monkeypatch)
+    store = InMemoryStore()
+    snapshot = _full_authority_policy()
+    store.store_policy(snapshot)
+
+    assessment = assess_autonomy(store, snapshot)
+
+    for name in ("action_probability", "probability_margin"):
+        criterion = assessment.criteria[name]
+        assert criterion["status"] == "not_applicable"
+        assert criterion["met"] is True
+        assert criterion["required"] is None
+        assert "ADR-003" in criterion["reason"]
+    assert assessment.criteria["action_probability"]["actual"] == pytest.approx(0.5)
+    assert assessment.authorization_basis == "human_adjudication"
+
+
+def test_ac3_full_authority_eligibility_comes_only_from_adjudication(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """AC_3 (interpretation I4): statistics never grant a full-authority policy autonomy."""
+    _clear_autonomy_env(monkeypatch)
+    store = InMemoryStore()
+    for version in range(1, 4):
+        strong = _policy(version)
+        strong.metadata["decision_authority"] = "full"
+        store.store_policy(strong)
+    snapshot = store.get_active_policy("scout", "choose-delegate")
+    assert snapshot is not None
+    _store_outcomes(store, 40)
+
+    assessment = assess_autonomy(store, snapshot)
+
+    assert not assessment.eligible
+    assert assessment.authorization_basis == "human_adjudication"
+
+    store.store_episode(_accepted_episode("accepted-full"))
+    accepted = assess_autonomy(store, snapshot)
+    assert accepted.eligible
+    assert accepted.authorization_basis == "human_adjudication"
+
+
+def test_ac3_full_authority_human_approval_requirement_still_blocks(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """AC_3: requires_human_approval stays absolute for full authority (ADR-003 Invariant 6)."""
+    _clear_autonomy_env(monkeypatch)
+    store = InMemoryStore()
+    snapshot = _full_authority_policy(
+        complexity_profile=ComplexityProfile(requires_human_approval=True).to_dict()
+    )
+    store.store_policy(snapshot)
+    store.store_episode(_accepted_episode("accepted-blocked"))
+
+    assessment = assess_autonomy(store, snapshot)
+
+    assert not assessment.eligible
+    assert assessment.criteria["human_approval_not_required"]["met"] is False
+    assert assessment.authorization_basis == "human_adjudication"
+
+
+def test_ac4_low_authority_statistical_gates_are_unchanged(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """AC_4: low-authority policies evaluate the probability gates exactly as before."""
+    _clear_autonomy_env(monkeypatch)
+    store = InMemoryStore()
+    for version in range(1, 4):
+        store.store_policy(_policy(version))
+    snapshot = store.get_active_policy("scout", "choose-delegate")
+    assert snapshot is not None
+    _store_outcomes(store, 40)
+
+    assessment = assess_autonomy(store, snapshot)
+
+    assert assessment.eligible
+    assert assessment.authorization_basis == "statistical_evidence"
+    for name in ("action_probability", "probability_margin"):
+        assert "status" not in assessment.criteria[name]
+        assert assessment.criteria[name]["required"] is not None
+
+    weak = _policy(1, winner_logit=0.0)
+    weak_store = InMemoryStore()
+    weak_store.store_policy(weak)
+    weak_assessment = assess_autonomy(weak_store, weak)
+    assert weak_assessment.criteria["action_probability"]["met"] is False

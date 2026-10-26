@@ -7,7 +7,7 @@ One story, matching FDD-003's three designs.
 
 ## Story 3.1 — Build Tier-Specific Environment Overrides and Authority-Aware Autonomy Reporting
 
-**Status:** Approved (2026-10-23, Menno) — derived from an Accepted ADR's disclosed gap; adjudicated via `approve-user-stories` (robust utility 0.883, episode `9e0b9639...`).
+**Status:** Approved (2026-10-23, Menno) — derived from an Accepted ADR's disclosed gap; adjudicated via `approve-user-stories` (robust utility 0.883, episode `9e0b9639...`). Completed (2026-10-26) — implemented in feat/story-3.1 with contract tests in tests/test_autonomy.py.
 **As** an operator configuring policy autonomy, **I want** to override thresholds for specific complexity tiers and see accurate autonomy reporting for full-authority policies, **so that** routine policies can be tuned without weakening critical safety gates and full-authority policies are not falsely reported as failing statistical gates.
 
 **Acceptance Criteria:**

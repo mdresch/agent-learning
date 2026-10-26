@@ -6,7 +6,7 @@ import math
 from dataclasses import dataclass
 from typing import Any
 
-from .config import AutonomyConfig, AutonomyTier
+from .config import AutonomyConfig, AutonomyTier, validate_autonomy_monotonicity
 from .policy.softmax_bandit import SoftmaxPolicy
 from .storage.base import LearningStore
 from .types import Episode, PolicySnapshot, RewardSource
@@ -363,6 +363,33 @@ def _stable_snapshot_count(
     return stable
 
 
+def _is_full_authority(snapshot: PolicySnapshot) -> bool:
+    return str(snapshot.metadata.get("decision_authority", "low")).lower() == "full"
+
+
+def _mark_probability_criteria_not_applicable(
+    criteria: dict[str, dict[str, Any]],
+    action_probability: float,
+    probability_margin: float,
+) -> None:
+    """Full authority uses reasoned resolution, so frozen logits are not a gate (ADR-003 4.5)."""
+    reason = (
+        "full decision authority uses reasoned resolution, not learned policy logits "
+        "(ADR-003 section 4.5)"
+    )
+    for name, actual in (
+        ("action_probability", action_probability),
+        ("probability_margin", probability_margin),
+    ):
+        criteria[name] = {
+            "actual": actual,
+            "required": None,
+            "status": "not_applicable",
+            "reason": reason,
+            "met": True,
+        }
+
+
 def assess_autonomy(
     store: LearningStore,
     snapshot: PolicySnapshot,
@@ -370,7 +397,10 @@ def assess_autonomy(
 ) -> AutonomyAssessment:
     """Assess whether the active policy has enough evidence for autonomy."""
     complexity = complexity_for_snapshot(snapshot)
-    config = config or AutonomyConfig.for_tier(complexity.tier)
+    if config is None:
+        validate_autonomy_monotonicity()
+        config = AutonomyConfig.for_tier(complexity.tier)
+    full_authority = _is_full_authority(snapshot)
     recommended_action_id, action_probability, probability_margin = (
         _recommended_action(snapshot)
     )
@@ -468,14 +498,22 @@ def assess_autonomy(
             "met": user_feedback_status != "rejected",
         },
     }
-    statistically_eligible = all(criterion["met"] for criterion in criteria.values())
+    if full_authority:
+        _mark_probability_criteria_not_applicable(
+            criteria, action_probability, probability_margin
+        )
+    statistically_eligible = not full_authority and all(
+        criterion["met"] for criterion in criteria.values()
+    )
     explicitly_approved = (
         user_feedback_status == "accepted"
         and not complexity.profile.requires_human_approval
     )
     eligible = explicitly_approved or statistically_eligible
     authorization_basis = (
-        "user_acceptance"
+        "human_adjudication"
+        if full_authority
+        else "user_acceptance"
         if explicitly_approved
         else "statistical_evidence"
         if statistically_eligible

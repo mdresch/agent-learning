@@ -346,4 +346,9 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - I3: for #11, #13, #14 and #17 no hypothesis is registered; the README states a criterion proposed there and says so. Those four criteria are authored here, not in the Ideation Document.
   - I4: a sketch asserts only its own arithmetic (a clamp, a band, an ordering of invented data); this checks the sketch, not the methodology.
 - **Open for a human:** the four proposed criteria (#11, #13, #14, #17) need review; whether #11 and #17 should get Ideation hypotheses.
-- **Review:** pending; the Q review rounds and the findings accepted or declined are added before the merge (Step 8).
+- **Review (Step 8):** Amazon Q round 1 reviewed head `146a0b1` (two reviews, four distinct findings, all in the test file, none in the sketches); round 2 reviewed `4e891a9`; then an explicit verdict.
+  - `Q-16-1 | logic | verified: yes | decision: accepted | the forbidden-import check missed relative imports (from . import requests) because node.module is None; aliases of ImportFrom nodes are now checked too | fix: 4e891a9`
+  - `Q-16-2 | style | verified: yes | decision: declined | implicit None return from _parse; pytest.fail never returns, an unreachable raise adds noise | fix: none`
+  - `Q-16-3 | crash risk | verified: yes | decision: declined | rglob on a missing src/ raises on Python 3.12+; src/ is part of this repository and a missing src/ should fail loudly | fix: none`
+  - `Q-16-4 | logic | verified: yes | decision: declined | claimed a double backslash in the ADR and HYPOTHESIS regexes; the file has one backslash per line (counted), the pattern matches a real header; Q repeated it in round 2 and retracted it after the evidence | fix: none`
+  - Verdict on `4e891a9`: Q replied "No further additions" (after one command that Q did not answer because /q was not at the start of the comment; the second, starting with /q, was answered).

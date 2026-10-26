@@ -82,7 +82,9 @@ def _set(authority: str, capsys: pytest.CaptureFixture[str]) -> dict:
 
 
 def _stored(store: InMemoryStore) -> PolicySnapshot:
-    return store.get_active_policy("agent-1", "choose-region")
+    snapshot = store.get_active_policy("agent-1", "choose-region")
+    assert snapshot is not None, "no active policy for agent-1 / choose-region"
+    return snapshot
 
 
 def _records(store: InMemoryStore) -> list[dict]:
@@ -185,7 +187,7 @@ def test_ac3_oscillation_appends_records_in_order_and_never_changes_earlier_ones
     final = _records(store)
     assert [(r["from_authority"], r["to_authority"]) for r in final] == [("low", "full"), ("full", "low"), ("low", "full")]
     stamps = [datetime.fromisoformat(r["migrated_at"]) for r in final]
-    assert stamps == sorted(stamps)
+    assert stamps == sorted(stamps)  # non-decreasing: a coarse clock may repeat a value; order is proven by the pairs above
     for step, earlier in enumerate(history):
         assert final[: len(earlier)] == earlier, f"records changed after step {step + 1}"
 

@@ -352,3 +352,36 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-16-3 | crash risk | verified: yes | decision: declined | rglob on a missing src/ raises on Python 3.12+; src/ is part of this repository and a missing src/ should fail loudly | fix: none`
   - `Q-16-4 | logic | verified: yes | decision: declined | claimed a double backslash in the ADR and HYPOTHESIS regexes; the file has one backslash per line (counted), the pattern matches a real header; Q repeated it in round 2 and retracted it after the evidence | fix: none`
   - Verdict on `4e891a9`: Q replied "No further additions" (after one command that Q did not answer because /q was not at the start of the comment; the second, starting with /q, was answered).
+
+
+---
+
+## Story 36.4 — The Best-Practice Ledger
+- **Commit:** `4761f63`
+- **Date:** 2026-10-26
+- **Branch:** `feat/story-36.4`
+- **Source ADR / BRD / FDD:** ADR-036 (section 4.3, Invariants 4 and 5), BRD-036 (BRU-036-04), FDD-036 (sections 2.2 and 3 item 2)
+- **Files Modified/Created:**
+  - `src/agent_learning/methodology_ledger.py` (new; `parse_ledger`, `current_entries`, `LedgerEntry`), exported in `__init__.py`
+  - `docs/project-docs/Methodology-Best-Practice-Ledger.md` (new register, four candidate entries)
+  - `tests/test_methodology_ledger.py` (25 tests)
+  - `.claude/skills/methodology-catalog/SKILL.md` (section 7 added; stale pending note updated)
+  - `docs/user-stories/epic-36-...md` (Story 36.4 status updated to Completed)
+- **Validation:**
+  - $AC_0$: an unknown enumeration value, an unknown methodology id, an unknown or missing field, a duplicate id and a bad evidence count each raise `ValueError` naming the entry.
+  - $AC_1$: `adopted` on `source-doc` or `synthetic-demo` raises; `adopted` below the declared tier gate raises and at the gate parses (standard 20, low 3); `adopted` without a tier raises.
+  - $AC_2$: a status change is a new entry with `supersedes`; an unknown, forward-pointing, cross-methodology or already-superseded target raises; `current_entries` returns the chain tails.
+  - $AC_3$: link format is always checked; resolution is checked when `known_links` is passed, and the real-register test passes the LL ids from the Lessons Learned Register and the HYP-AL ids from the Ideation Document.
+  - $AC_4$: an AST test shows the module imports nothing from storage and no file-I/O modules.
+  - Observed RED first: the test module failed at collection (no module); 25 passed after.
+  - Full suite with `--ignore=tests/test_spark.py --ignore=tests/pmbok`: **664 passed, 2 skipped**. Not covered: `tests/pmbok` and `tests/test_spark.py` (LL-013).
+  - `ruff check` on the new module and test: clean. `__init__.py` has 3 findings (import order, unused `DEFAULT_EPSILON`, unsorted `__all__`) that exist on main; not touched here.
+- **Interpretations not stated verbatim in the acceptance criteria (LL-011), recorded in the test header:**
+  - I1: link resolution takes the known identifiers from the caller (the module does no file I/O).
+  - I2: "the declared tier" is a `tier` field on the entry, required when adopted; the gate is `AutonomyConfig.for_tier(tier).min_outcomes`, so an environment override applies as it does to autonomy. The FDD dataclass does not list `tier`; it is added.
+  - I3: a superseding entry must come after its target, concern the same methodology, and be the only one to supersede it.
+  - I4: append-only (never edit) is a file maintenance rule guarded by git history; the parser cannot see it, so it is not tested.
+  - I5: an empty register is valid.
+- **Seed entries:** BP-001 to BP-004 are `candidate` on `source-doc` evidence with `evidence_count: 0`, each tied to a registered hypothesis or LL entry. They state practices already written in the Ideation Document and LL-004; I authored the wording of the practice and preconditions, which a human should review. Nothing is adopted, because no real episodes of a methodology exist.
+- **Open for a human:** FDD-036 section 2.2 should gain the `tier` field (an amendment, not made here); whether BP-004 belongs under #6 (human override) or another catalog id.
+- **Review:** pending; the Q review rounds and the findings accepted or declined are added before the merge (Step 8).

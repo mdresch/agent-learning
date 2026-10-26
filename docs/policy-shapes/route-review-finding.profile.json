@@ -1,0 +1,9 @@
+{
+  "intent_ambiguity": "low",
+  "context_variability": "variable",
+  "outcome_observability": "direct",
+  "decision_impact": "low",
+  "reversibility": "reversible",
+  "requires_human_approval": false,
+  "rationale": "Choosing which claims to verify first changes only the order of work, never what is accepted, and is trivially reversible. It may be learned from reviewer reliability per claim type (ADR-036 section 4.5). Declared in Story 36.5; initialized with low authority by the maintainer with task-policy-init after this story."
+}

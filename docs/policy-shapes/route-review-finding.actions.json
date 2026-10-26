@@ -1,0 +1,17 @@
+[
+  {
+    "id": "verify_logic_claims_first",
+    "description": "Order the verification of a review's findings so logic-error and crash-risk claims are checked first",
+    "parameters": {}
+  },
+  {
+    "id": "verify_test_claims_first",
+    "description": "Order the verification so test-gap claims are checked first",
+    "parameters": {}
+  },
+  {
+    "id": "verify_documentation_claims_first",
+    "description": "Order the verification so documentation and style claims are checked first",
+    "parameters": {}
+  }
+]

@@ -1,0 +1,17 @@
+[
+  {
+    "id": "accept_and_amend",
+    "description": "The finding is verified (fully or in part); amend the change and record the fix",
+    "parameters": {}
+  },
+  {
+    "id": "decline_with_reason",
+    "description": "The finding is false, out of scope or not worth the change; record the evidence for declining",
+    "parameters": {}
+  },
+  {
+    "id": "defer_to_human",
+    "description": "The claim cannot be settled from the evidence at hand; the maintainer decides",
+    "parameters": {}
+  }
+]

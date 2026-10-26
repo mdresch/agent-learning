@@ -1,0 +1,9 @@
+{
+  "intent_ambiguity": "medium",
+  "context_variability": "variable",
+  "outcome_observability": "direct",
+  "decision_impact": "medium",
+  "reversibility": "reversible",
+  "requires_human_approval": true,
+  "rationale": "Whether to accept or decline an automated-review finding changes the code that ships, so a person decides every case (ADR-003 Invariant 6). The policy is initialized with full authority and exists to record the decision as an episode, not to learn to make it. Declared in Story 36.5 (ADR-036 section 4.5); the shape is not a policy until the maintainer runs task-policy-init."
+}

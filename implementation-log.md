@@ -509,3 +509,46 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-21-2 | test gap | verified: yes | decision: declined | asked for strictly increasing timestamps; that would flake on a coarse clock that repeats a value, the order is proven by the (from, to) pairs, and a comment in the test says so | fix: b247eea (comment only)`
   - Verdict on `b247eea`: Q replied "No" to further additions, with no new findings.
 - **Breakout recap (ADR-010 section 4.1):** pending; this is the epic's last story, to be held after the PR review (Step 9).
+
+
+---
+
+## Story 6.1 — Implement Opt-In Policy Configuration and Lightweight Evidence Capture
+- **Commit:** `4d698fa`
+- **Date:** 2026-10-26
+- **Branch:** `feat/story-6.1`
+- **Source ADR / BRD / FDD:** ADR-006 (sections 4.1 to 4.4, 5), BRD-006 (BRU-006-01 to BRU-006-07), FDD-006 (designs 1 to 4 and the error table). BRD-006, FDD-006 and the story were approved first (PR #23; FDD-006 and the story had been aligned with the code, because `audit_evidence` on `DecisionResult` and `decide()` already existed from Epic 7).
+- **Files Modified/Created:**
+  - `src/agent_learning/decision.py` (`CAPTURE_DECISION_EVIDENCE_KEY`, `capture_decision_evidence_enabled()`, `TaskPolicy(capture_decision_evidence=None)`, enforcement on the low path)
+  - `src/agent_learning/capture.py` (`EpisodeCapture.start(decision_result=...)`, write-once check in `end()`)
+  - `src/agent_learning/cli.py` (`task-policy-init --capture-decision-evidence`; `task-episode-register --decision-result` with the write-once carry-over; `task-policy-decide` exits 2 on an opted-in policy)
+  - `src/agent_learning/__init__.py` (two names exported)
+  - `tests/test_evidence_capture.py` (new, 48 tests)
+  - `.claude/skills/governance/SKILL.md`, `docs/decision-making.md`, `docs/user-stories/epic-6-...md` (status Completed)
+- **Validation:**
+  - $AC_0$: absent flag reads False; `TaskPolicy(capture_decision_evidence=True/False)` sets it, `None` leaves a stored value alone; deciding never changes it; the CLI init flag sets it true, and without the flag the key is absent; no toggle subcommand exists.
+  - $AC_1$: an opted-in low policy raises `ValueError` with the FDD's exact message for `None`, `{}`, a string, a list, an integer and a list of pairs; a forced action goes through the same check; a failed check leaves the policy unchanged.
+  - $AC_2$: a valid mapping, including nested and odd keys, is attached equal in value and the caller's mapping is not changed.
+  - $AC_3$: with the flag off or absent no evidence is needed, optional evidence is still attached, and the chosen action sequence is identical with and without evidence for the same seed; the CLI decide on a default policy is unchanged.
+  - $AC_4$: `to_dict()` and `from_dict()` round-trip `None`, `{}`, nested and odd mappings through JSON.
+  - $AC_5$: `start(decision_result=...)` and `--decision-result` copy the evidence (a copy, not an alias); a different value already present fails; a re-registration without the key carries the stored value over; the same value changes nothing; a different value exits 2 and stores nothing; `end()` rejects a different value in `extra_metadata`; `Episode` and `PolicySnapshot` keep their fields.
+  - $AC_6$: one REINFORCE update gives identical logits with and without evidence in the episode metadata; episodes with evidence store and reload; no module under `learners`, `metrics`, `rewards` or `policy` mentions `audit_evidence`.
+  - Observed RED first: 25 of 46 tests failed before the change; the 21 that passed are guards for behavior that already existed (the `DecisionResult` round trip and attachment, the learner, the store). Later additions brought the file to 48 tests.
+  - A first version wrote `capture_decision_evidence: false` on every `task-policy-init`; that broke `tests/test_cli.py::test_task_policy_init_and_inspection`, which pins the default metadata exactly. The CLI now writes the key only with the flag.
+  - Full suite with `--ignore=tests/test_spark.py --ignore=tests/pmbok`: **766 passed, 2 skipped**. Not covered: `tests/pmbok` and `tests/test_spark.py` (LL-013).
+  - `ruff check`: the new test is clean; `decision.py`, `capture.py` and `cli.py` have the same findings as before the change.
+- **Interpretations not stated verbatim in the acceptance criteria (LL-011), recorded in the test header:**
+  - I1: `capture_decision_evidence` defaults to `None` in `TaskPolicy` (leave the stored value), not `False` as the FDD sketch shows, so a stored True is not switched off silently.
+  - I2: `decide()` never writes the flag.
+  - I3: `task-policy-init` writes the key only when the flag is passed.
+  - I4: a forced action goes through the same enforcement.
+  - I5: enforcement applies only to the low path.
+  - I6: "verbatim" means equal in value.
+  - I7: the write-once rule for the two entry points and `end()`.
+  - I8: "no performance overhead" is tested as behavior, not time.
+  - I9: the learner test and the source scan.
+  - I10: `task-policy-decide` cannot pass evidence, so on an opted-in policy it exits 2 with a message pointing to the SDK.
+- **Found, not fixed (outside this story):** `task-policy-decide` has no option to supply `audit_evidence` (I10). A policy opted in from the CLI therefore cannot be used through that command. FDD-006 and the story do not specify a way; one would be a small follow-up (for example `--audit-evidence PATH`).
+- **Open for a human:** whether to add a CLI way to pass the evidence (FDD amendment and story); whether FDD-006 should record I1 (the `None` default).
+- **Review:** pending; the Q review rounds and the findings accepted or declined are added before the merge (Step 8).
+- **Breakout recap (ADR-010 section 4.1):** pending; this is the epic's last story, to be held after the PR review (Step 9).

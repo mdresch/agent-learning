@@ -1,8 +1,8 @@
 # FDD-036: Learning Methodology Examples, Best-Practice Ledger and the Review-Triage Learning Loop
 
-**Source ADR:** [ADR-036](../../adr/ADR-036-learning-methodology-examples-ledger-and-review-triage-loop.md) — Proposed (2026-10-26)  
+**Source ADR:** [ADR-036](../../adr/ADR-036-learning-methodology-examples-ledger-and-review-triage-loop.md) — Accepted (2026-10-26)  
 **Source BRD:** [BRD-036](../Business-Requirements/BRD-036-learning-methodology-examples-ledger-and-review-triage-loop.md)  
-**Status:** Draft (2026-10-26) — not yet approved; `approve-fdd` has not been run.  
+**Status:** Approved (2026-10-26, Menno) — derived from Accepted ADR-036; adjudicated via `approve-fdd` (robust utility 0.752, episode `4f0e2583-5c6a-43cc-a931-1f54b7aceae3`).  
 
 ---
 

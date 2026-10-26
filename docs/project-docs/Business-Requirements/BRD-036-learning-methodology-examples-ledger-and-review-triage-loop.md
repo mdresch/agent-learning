@@ -1,8 +1,8 @@
 # BRD-036: Learning Methodology Examples, Best-Practice Ledger and the Review-Triage Learning Loop
 
-**Source ADR:** [ADR-036](../../adr/ADR-036-learning-methodology-examples-ledger-and-review-triage-loop.md) — Proposed (2026-10-26)  
+**Source ADR:** [ADR-036](../../adr/ADR-036-learning-methodology-examples-ledger-and-review-triage-loop.md) — Accepted (2026-10-26)  
 **Governing Baseline:** `baseline_id` none approved yet; cycle `CYC-001` (ADR-035, Proposed)  
-**Status:** Draft (2026-10-26) — not yet approved; `approve-brd` has not been run. Derived from a Proposed ADR, so it cannot be approved before ADR-036 is accepted.  
+**Status:** Approved (2026-10-26, Menno) — derived from Accepted ADR-036; adjudicated via `approve-brd` (robust utility 0.770, episode `d3e5e596-322c-4784-a6c4-7347ca6ab0cc`).  
 **Stakeholders:** Menno (Sponsor/PM/maintainer); SDK adopters who need to see how each methodology behaves  
 
 ## Business Need

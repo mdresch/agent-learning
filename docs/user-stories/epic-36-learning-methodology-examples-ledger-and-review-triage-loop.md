@@ -1,14 +1,14 @@
 # Epic 36: Learning Methodology Examples, Best-Practice Ledger and the Review-Triage Learning Loop
 
-**Source ADR:** [ADR-036](../adr/ADR-036-learning-methodology-examples-ledger-and-review-triage-loop.md) — Proposed (2026-10-26)  
+**Source ADR:** [ADR-036](../adr/ADR-036-learning-methodology-examples-ledger-and-review-triage-loop.md) — Accepted (2026-10-26)  
 **Source BRD/FDD:** [BRD-036](../project-docs/Business-Requirements/BRD-036-learning-methodology-examples-ledger-and-review-triage-loop.md) / [FDD-036](../project-docs/Functional-Design/FDD-036-learning-methodology-examples-ledger-and-review-triage-loop.md)  
-**Status:** Draft (2026-10-26) — not yet approved; `approve-user-stories` has not been run. The epic number follows the source ADR number, as Epic 11 follows ADR-011.  
+**Status:** Approved (2026-10-26, Menno) — derived from Accepted ADR-036; adjudicated via `approve-user-stories` (robust utility 0.769, episode `80fe8a45-29a0-4a52-baa9-476f70d88209`).  The epic number follows the source ADR number, as Epic 11 follows ADR-011.  
 
 ---
 
 ## Story 36.1 — The Catalog and Its Integrity Check
 
-**Status:** Draft  
+**Status:** Approved (2026-10-26, Menno) — derived from Accepted ADR-036, BRD-036 and FDD-036; adjudicated via `approve-user-stories` (episode `80fe8a45-29a0-4a52-baa9-476f70d88209`).  
 **As** a maintainer, **I want** a catalog entry for each of the 32 methodologies with a class derived from its state, **so that** no methodology is silently missing or mislabeled.
 
 ### Acceptance Criteria:
@@ -22,7 +22,7 @@
 
 ## Story 36.2 — Runnable Examples for What Exists
 
-**Status:** Draft  
+**Status:** Approved (2026-10-26, Menno) — derived from Accepted ADR-036, BRD-036 and FDD-036; adjudicated via `approve-user-stories` (episode `80fe8a45-29a0-4a52-baa9-476f70d88209`).  
 **As** an adopter, **I want** to run an example of each implemented, example-only, partial or practiced methodology, **so that** I can see how it behaves before using it.
 
 ### Acceptance Criteria:
@@ -35,7 +35,7 @@
 
 ## Story 36.3 — Proof-of-Concept Sketches for the ADR-Backed Candidates
 
-**Status:** Draft  
+**Status:** Approved (2026-10-26, Menno) — derived from Accepted ADR-036, BRD-036 and FDD-036; adjudicated via `approve-user-stories` (episode `80fe8a45-29a0-4a52-baa9-476f70d88209`).  
 **As** a maintainer, **I want** a clearly labeled sketch for each candidate that has a Proposed ADR, **so that** the design can be examined without claiming it works.
 
 ### Acceptance Criteria:
@@ -49,7 +49,7 @@
 
 ## Story 36.4 — The Best-Practice Ledger
 
-**Status:** Draft  
+**Status:** Approved (2026-10-26, Menno) — derived from Accepted ADR-036, BRD-036 and FDD-036; adjudicated via `approve-user-stories` (episode `80fe8a45-29a0-4a52-baa9-476f70d88209`).  
 **As** a maintainer, **I want** an append-only ledger of practices per methodology with an honest evidence class, **so that** only practices backed by real episodes become adopted.
 
 ### Acceptance Criteria:
@@ -63,7 +63,7 @@
 
 ## Story 36.5 — The Review-Triage Learning Loop
 
-**Status:** Draft  
+**Status:** Approved (2026-10-26, Menno) — derived from Accepted ADR-036, BRD-036 and FDD-036; adjudicated via `approve-user-stories` (episode `80fe8a45-29a0-4a52-baa9-476f70d88209`).  
 **As** the maintainer triaging automated-review findings, **I want** each decision recorded in a fixed shape and turned into evidence for the next one, **so that** the project learns from its own build loop without any learned accept or decline.
 
 ### Acceptance Criteria:
@@ -79,7 +79,7 @@
 
 ## Story 36.6 — Tailoring for the Store and Lessons Learned, and Template Propagation
 
-**Status:** Draft  
+**Status:** Approved (2026-10-26, Menno) — derived from Accepted ADR-036, BRD-036 and FDD-036; adjudicated via `approve-user-stories` (episode `80fe8a45-29a0-4a52-baa9-476f70d88209`).  
 **As** a maintainer, **I want** a tailoring matrix of candidate pairings and its propagation to the template, **so that** new projects start from methodologies matched to their store and lessons learned.
 
 ### Acceptance Criteria:

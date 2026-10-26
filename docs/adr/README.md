@@ -73,9 +73,9 @@ The architectural corpus (ADR-001 through ADR-013) rests upon **four mutually co
 
 ---
 
-## 3. The Complete ADR Corpus (ADR-001 through ADR-013)
+## 3. The Accepted ADR Corpus
 
-All thirteen ADRs are formally **Accepted** by Menno Drescher. ADR-001 through ADR-009 and ADR-011 were evaluated via Bayesian decision policy through the live `agent-learning-governance` chain; ADR-010 was approved by Menno directly (see its §2):
+Every ADR in this table is formally **Accepted** by Menno Drescher. ADR-001 through ADR-013 are the foundational corpus; later ADRs were added to the table as they were accepted. ADR-001 through ADR-009 and ADR-011 were evaluated via Bayesian decision policy through the live `agent-learning-governance` chain; ADR-010 was approved by Menno directly (see its §2):
 
 | ADR | Title | Status | Intent-to-Outcome Stage & PMBOK 8 Process | Core Architectural Decision |
 |---|---|---|---|---|
@@ -94,12 +94,13 @@ All thirteen ADRs are formally **Accepted** by Menno Drescher. ADR-001 through A
 | [**ADR-013**](ADR-013-subsidiary-plan-approval-gates-before-pmp-formalization.md) | Subsidiary Plan Approval Gates Before PMP Formalization | **Accepted** | Stage 6 (PMP Formalization)<br>PMBOK 8 4.2 Develop PMP | Inserts route-aware per-plan approval gates (`approve-subsidiary-plan`) between drafting and formalization; canonical content hashing (LF-normalized); transitive STALE_DEPENDENCY status propagation bounded to DAG branches; explicit plan governance state machine; separation of plan-level vs. integration-level defects; IoC module decoupling. |
 | [**ADR-025**](ADR-025-scope-management-plan-standard-and-baseline-contract.md) | Scope Management Plan Standard and Baseline Contract | **Accepted** | Stage 6 (Planning)<br>PMBOK 8 Planning (Legacy 5.1) | Primary Baseline-Substantiating Plan contract: mandatory in-scope and out-of-scope boundaries, WBS decomposition rules, deliverable acceptance DoD, and transitive DAG invalidation down to Schedule and Cost. |
 | [**ADR-034**](ADR-034-pmbok-tooling-decommissioning-and-lightweight-learningstore-convergence.md) | PMBOK Tooling Decommissioning and Lightweight LearningStore Convergence | **Accepted** | Stage 6 & Stage 17 Tooling<br>PMBOK 8 Orchestration (ADR-002) | Rejects tool and dependency sprawl (SQLAlchemy, FastAPI, Typer, OCR); decommissions the legacy SQLite monolith; converges PMBOK state onto standard LearningStore (Cosmos DB / File) as Episode entities; pure functional domain core in `agent_learning.pmbok` and runtime harness in `agent_learning.pmbok_runtime`. |
+| [**ADR-024**](ADR-024-learning-methodology-selection-chain.md) | Learning Methodology Selection Chain | **Accepted** | Cross-Cutting Learning Policy<br>PMBOK 8 2.1.6.2 Tailoring | Human-declared use-case profiles, deterministic precondition filtering across 32 learning methodologies, maturity ranking recommendation, and metadata-recorded selections. |
+| [**ADR-036**](ADR-036-learning-methodology-examples-ledger-and-review-triage-loop.md) | Learning Methodology Examples, Best-Practice Ledger and the Review-Triage Learning Loop | **Accepted** | Cross-Cutting Learning<br>PMBOK 8 Manage Project Knowledge (4.4) | An example catalog for all 32 methodologies (runnable, proof of concept, or documented only, always labeled synthetic), an append-only best-practice ledger that adopts a practice only on real episodes, and a staged review-triage loop that learns during `implement-story` Step 8 while accept and decline stay human. |
 
 ### Proposed Standards & Pipeline ADRs
 
 | ADR | Title | Status | Intent-to-Outcome Stage & PMBOK 8 Process | Core Architectural Decision |
 |---|---|---|---|---|
-| [**ADR-024**](ADR-024-learning-methodology-selection-chain.md) | Learning Methodology Selection Chain | **Proposed** | Cross-Cutting Learning Policy<br>PMBOK 8 2.1.6.2 Tailoring | Human-declared use-case profiles, deterministic precondition filtering across 32 learning methodologies, maturity ranking recommendation, and metadata-recorded selections. |
 | [**ADR-026**](ADR-026-schedule-management-plan-standard-and-baseline-contract.md) | Schedule Management Plan Standard and Baseline Contract | **Proposed** | Stage 6 (Planning)<br>PMBOK 8 Planning (Legacy 6.1) | Plan Tier 1: milestone register traced to the WBS, timebox and sequencing model, estimation basis, schedule baseline and buffers, variance tolerances, and `STALE_DEPENDENCY` to Cost, Resource and Risk. |
 | [**ADR-027**](ADR-027-cost-management-plan-standard-and-baseline-contract.md) | Cost Management Plan Standard and Baseline Contract | **Proposed** | Stage 6 (Planning)<br>PMBOK 8 Planning (Legacy 7.1) | Plan Tier 1: management envelope, cost categories and estimating basis, staged funding, contingency versus reserve, burn-rate control, variance tolerances, and `STALE_DEPENDENCY` to Risk and Procurement. |
 | [**ADR-028**](ADR-028-risk-management-plan-standard.md) | Risk Management Plan Standard | **Proposed** | Stage 6 (Planning)<br>PMBOK 8 Planning (Legacy 11.1) | Plan Tier 2: taxonomy, reproducible probability-impact scale, register contract, response strategies, escalation thresholds that reach a human, and contingency link to Schedule and Cost. |

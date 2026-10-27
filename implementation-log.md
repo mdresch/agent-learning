@@ -696,3 +696,43 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-30-1 | test gap | verified: yes | decision: accepted | the test helper adr_frontmatter used an unguarded next(glob(...)), which raises a bare StopIteration if ADR-025 is absent; it now fails with a clear assertion message, as in Q-28-1. Q called the pattern pre-existing, but the helper is new in this PR | fix: b1c183f`
   - Verdict: Q's explicit reply on head `8f9ad84` is "No further additions required. No merge-blocking issues." Its findings table lists items that were never raised (the PR's own contents, restated as resolved); only Q-30-1 was a finding. It also notes `MAX_AUTO_RETRIES = 2` is added in `standards.py` and unused by Story 12.3 code: it is a Story 12.4 constant (FDD-012 section 2.1) declared early with the other constants. This log edit is the only change after that head.
 - **Breakout recap (ADR-010 section 4.1):** not due; Story 12.3 is the third of four stories in Epic 12.
+
+
+---
+
+## Story 12.4 — Precedence and the Next Step
+- **Commit:** `ff43228`
+- **Date:** 2026-10-27
+- **Branch:** `feat/story-12.4`
+- **Source ADR / BRD / FDD:** ADR-012 (sections 4.3.4 and 4.5), BRD-012 (BRU-012-06, BRU-012-07, BRU-012-08), FDD-012 (section 3.7 and the `LintFlag` contract in section 2). Approved in PR #27; Stories 12.1 to 12.3 merged in PR #28, #29 and #30.
+- **Files Modified/Created:**
+  - `src/agent_learning/pmbok/standards.py` (`LintFlag` now rejects a tier outside A, B, C and has `label`)
+  - `src/agent_learning/pmbok/lint.py` (`NextStep`, `NextStepDecision`, `next_step`)
+  - `src/agent_learning/pmbok/__init__.py`, `src/agent_learning/__init__.py` (exports)
+  - `tests/test_plan_next_step.py` (new, 245 tests)
+  - `.claude/skills/plan-lint/SKILL.md`, `docs/user-stories/epic-12-...md` (Story 12.4 status Completed)
+- **Validation:**
+  - $AC_0$: the seven rules apply in table order; Tier A beats B beats C in every tested mix (a pair-by-pair test), a section cap beats other Tier C flags, and a human plan with a Tier A flag escalates immediately instead of keeping its text.
+  - $AC_1$: a Tier A flag, `stub`, `mock`, `None`, an empty string and unknown values (`bot`, `LLM`, `Human`) all give `ESCALATE_IMMEDIATELY` at retry counts 0, 1, 2 and 10.
+  - $AC_2$: Tier B with a `human` generator gives `ESCALATE_KEEP_HUMAN_TEXT` at every retry count, and a human plan never gets `AUTO_REMEDIATE` for any flag set.
+  - $AC_3$: Tier B with an `llm` generator gives `AUTO_REMEDIATE` for 0 and 1 retries and `ESCALATE_RETRIES_EXHAUSTED` from 2 (also 10 and one million); `retries` defaults to 0 and is unchanged by the call.
+  - $AC_4$: `EXCEEDS_SECTION_CAP` gives `HUMAN_ROUTE_REVIEW`; `EXCEEDS_PLAN_CAP`, `OMISSION_OF_BASE_PLAN` and other Tier C flags give `CARRY_TO_APPROVAL`; no flags gives `READY_FOR_FORMALIZATION`; no Tier B or C flag ever gives the immediate-escalation step.
+  - $AC_5$: all 150 combinations of six flag sets, five generators and five retry counts give exactly one step with a reason that names the deciding condition and every flag code; `NextStepDecision.flags` holds every flag passed in, in order; an exhaustive sweep over up to three flags from eight, six generators and four retry counts never raises.
+  - $AC_6$: a tier outside A, B, C (including lower case, empty, `None`, `1`, `AB`) raises `ValueError` at construction; `label` is `FLAG: ` plus the code, and every finding the lint produces has a valid tier and label.
+  - $AC_7$: an AST scan shows `lint.py`, `standards.py` and `parser.py` import only the standard library, their siblings and (in `lint.py` only) `tailoring`; none reaches storage, the legacy `pmbok/` or a YAML library; the result types are frozen dataclasses; the store module holds no new record type; the package and the root export the whole lint.
+  - Observed RED first: collection error (`NextStep` and `next_step` did not exist).
+  - Full suite with `--ignore=tests/test_spark.py --ignore=tests/pmbok`: **1383 passed, 2 skipped**. Not covered: `tests/pmbok` (legacy, needs `tenacity`) and `tests/test_spark.py` (LL-013).
+  - `ruff check` on the new files: clean.
+- **Interpretations not stated verbatim in the acceptance criteria (LL-011), recorded in the test header:**
+  - I1: `next_step` returns a `NextStepDecision(step, reason, flags)`; `flags` is every flag passed in, in order, as a tuple.
+  - I2: `reason` is "<deciding condition>; flags: <codes, deduplicated in order, or none>".
+  - I3: a generator that is `None`, empty or outside llm/human/stub/mock is unreadable and escalates at once.
+  - I4: `retries` must be an int (bool rejected) and not negative; a bad value is a call error (`TypeError` or `ValueError`).
+  - I5: `flags` must be a sequence of `LintFlag`; anything else is a `TypeError`.
+  - I6: only `EXCEEDS_SECTION_CAP` asks for the keep-or-graduate review; every other Tier C flag is carried to approval.
+  - I7: a clean plan whose generator is `stub` or `mock` still escalates immediately.
+  - I8: the code is stored without the "FLAG: " prefix and printed with it (FDD-012 section 6, interpretation 1).
+- **Found, not fixed (outside this story):** nothing new in the code. Process traps met while building the epic are for the recap: `ruff check --fix` on `src/agent_learning/__init__.py` re-sorted its whole import block (251 changed lines), so it was reverted and only the three new names were re-applied by hand.
+- **Open for a human:** whether FDD-012 section 3.7 should state that an unreadable generator escalates even when there are no flags (I3, I7), and the ADR-012 / ADR-034 underscore tokenizer behavior from Story 12.3.
+- **Review:** pending; the Q review rounds and the findings accepted or declined are added before the merge (Step 8).
+- **Breakout recap (ADR-010 section 4.1):** due; this is the last story of Epic 12. To be held after the PR review (Step 9).

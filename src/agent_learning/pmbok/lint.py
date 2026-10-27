@@ -5,6 +5,7 @@ from __future__ import annotations
 import re
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
+from enum import Enum
 from typing import Any
 
 from ..tailoring import compute_flags
@@ -15,6 +16,7 @@ from .standards import (
     FLOORS,
     GENERATORS,
     HEADINGS,
+    MAX_AUTO_RETRIES,
     MIN_OUT_OF_SCOPE_ITEMS,
     NONE_MIN_TOKENS,
     PLAN_STANDARDS,
@@ -326,3 +328,77 @@ def lint_plan(
             plan.body, route, min_floor_words=min_floor_words, min_out_of_scope_items=min_out_of_scope_items
         )
     return LintResult(plan=plan, flags=tuple(flags), word_count=word_count)
+
+
+# ---------------------------------------------------------------------------
+# Precedence and the next step (Story 12.4)
+
+
+class NextStep(str, Enum):
+    """What happens to a plan after a lint (FDD-012 section 3.7). No step blocks approval for a Tier B or C flag."""
+
+    READY_FOR_FORMALIZATION = "ready_for_formalization"
+    CARRY_TO_APPROVAL = "carry_to_approval"
+    HUMAN_ROUTE_REVIEW = "human_route_review"  # keep as a section with a rationale, or graduate to a full plan
+    AUTO_REMEDIATE = "auto_remediate"
+    ESCALATE_IMMEDIATELY = "escalate_immediately"
+    ESCALATE_KEEP_HUMAN_TEXT = "escalate_keep_human_text"
+    ESCALATE_RETRIES_EXHAUSTED = "escalate_retries_exhausted"
+
+
+@dataclass(frozen=True)
+class NextStepDecision:
+    """The next step, why, and every flag that was passed in (including those that did not decide it)."""
+
+    step: NextStep
+    reason: str
+    flags: tuple[LintFlag, ...]
+
+
+def _codes(flags: Sequence[LintFlag]) -> str:
+    seen: list[str] = []
+    for item in flags:
+        if item.code not in seen:
+            seen.append(item.code)
+    return ", ".join(seen) if seen else "none"
+
+
+def next_step(flags: Sequence[LintFlag], *, generator: str | None, retries: int = 0) -> NextStepDecision:
+    """Decide what happens next from the findings, the generator and the retries already made.
+
+    Rules, first match wins (FDD-012 section 3.7). ``flags`` may include Tier A flags supplied by the caller
+    (their detection belongs to ADR-013). ``generator`` is the frontmatter value, or ``None`` when the
+    frontmatter was unreadable.
+    """
+    if isinstance(flags, (str, bytes)) or not isinstance(flags, Sequence):
+        raise TypeError("flags must be a sequence of LintFlag")
+    if not all(isinstance(item, LintFlag) for item in flags):
+        raise TypeError("flags must be a sequence of LintFlag")
+    if isinstance(retries, bool) or not isinstance(retries, int):
+        raise TypeError("retries must be an int")
+    if retries < 0:
+        raise ValueError("retries must not be negative")
+
+    held = tuple(flags)
+    suffix = f"; flags: {_codes(held)}"
+    tiers = {item.tier for item in held}
+
+    def decide(step: NextStep, condition: str) -> NextStepDecision:
+        return NextStepDecision(step=step, reason=condition + suffix, flags=held)
+
+    if "A" in tiers:
+        return decide(NextStep.ESCALATE_IMMEDIATELY, "a Tier A flag: escalate immediately, never regenerate")
+    if generator not in GENERATORS or generator in ("stub", "mock"):
+        shown = "unreadable" if generator is None or generator == "" else repr(generator)
+        return decide(NextStep.ESCALATE_IMMEDIATELY, f"generator is {shown}: cannot be audited or regenerated, escalate immediately")
+    if "B" in tiers:
+        if generator == "human":
+            return decide(NextStep.ESCALATE_KEEP_HUMAN_TEXT, "a Tier B flag on human-written text: escalate and keep the human text, never regenerate over it")
+        if retries < MAX_AUTO_RETRIES:
+            return decide(NextStep.AUTO_REMEDIATE, f"a Tier B flag on LLM text with {retries} of {MAX_AUTO_RETRIES} automatic retries used")
+        return decide(NextStep.ESCALATE_RETRIES_EXHAUSTED, f"a Tier B flag on LLM text after {retries} retries (limit {MAX_AUTO_RETRIES}): escalate")
+    if any(item.code == "EXCEEDS_SECTION_CAP" for item in held):
+        return decide(NextStep.HUMAN_ROUTE_REVIEW, "a section over its cap needs a keep-or-graduate decision from a human")
+    if held:
+        return decide(NextStep.CARRY_TO_APPROVAL, "Tier C flags are evidence carried to approval, not blocks")
+    return decide(NextStep.READY_FOR_FORMALIZATION, "no flags: ready for formalization")

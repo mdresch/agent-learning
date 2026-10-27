@@ -64,7 +64,7 @@ Four stories build the pure plan lint in `src/agent_learning/pmbok/`. Each rule 
 
 ## Story 12.4 — Precedence and the Next Step
 
-**Status:** Ready (2026-10-27)  
+**Status:** Completed (2026-10-27)  
 **As** a maintainer deciding what happens after a lint,  
 **I want** the next step fixed by the findings, the generator and the retry count,  
 **So that** an LLM plan is retried at most twice, a human's text is never overwritten, and flags reach the approver as evidence instead of blocks.

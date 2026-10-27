@@ -48,6 +48,16 @@ class LintFlag:
     line: int | None = None
     evidence: str = ""
 
+    def __post_init__(self) -> None:
+        # A tier outside A, B, C is a programming error: raise here so next_step never meets one.
+        if self.tier not in ("A", "B", "C"):
+            raise ValueError(f"tier must be 'A', 'B' or 'C', got {self.tier!r}")
+
+    @property
+    def label(self) -> str:
+        """The printed form, "FLAG: " followed by the code (the code is stored without the prefix)."""
+        return f"FLAG: {self.code}"
+
 
 @dataclass(frozen=True)
 class PlanStandard:

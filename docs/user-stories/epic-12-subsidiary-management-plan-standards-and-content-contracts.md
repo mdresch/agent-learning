@@ -38,7 +38,7 @@ Four stories build the pure plan lint in `src/agent_learning/pmbok/`. Each rule 
 - **$AC_2$ (Governance Policy):** `governance_policy` must be `approve-subsidiary-plan` for `full_plan` and `approve-pmp` for `pmp_section`; for `not_applicable` any value passes.
 - **$AC_3$ (Nine-Plan Table):** `PLAN_STANDARDS` holds the nine rows of ADR-012 §4.4 (primary domain, secondary domains, legacy number, Plan Tier). For each known `plan_id`, a domain set or legacy number that differs from the table is a finding. An unknown `plan_id` is checked only against the closed lists.
 - **$AC_4$ (Route Agreement):** Given `tailoring.PlanRoute` records, a frontmatter `route` that differs from the plan's recorded route is a finding; a plan absent from the records is not.
-- **$AC_5$ (Conformance):** The frontmatter of each of the nine daughter ADRs (ADR-025 to ADR-033, read from `docs/adr/`) parses and returns no metadata finding, so a drift between the ADRs and the table is caught.
+- **$AC_5$ (Conformance):** The frontmatter of each of the nine daughter ADRs (ADR-025 to ADR-033, read from `docs/adr/`) parses and returns no metadata finding, so a drift between the ADRs and the table is caught. The example is not at the top of those files: the test extracts the first fenced `yaml` block whose first line is `---` (ADR §4.1) and passes its inner text, delimiters included, to `parse_frontmatter`; a missing block fails the test.
 - **$AC_6$ (Extra Keys):** Keys beyond the required and optional ones, such as `cycle_id`, are accepted without a finding.
 
 ---

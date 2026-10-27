@@ -1,0 +1,133 @@
+{
+  "task": "BRD-012 (Subsidiary Management Plan Standards and Content Contracts): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "traceable_to_adr",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Business rules BRU-012-01 to BRU-012-08 trace to ADR-012 sections 4.1 to 4.5 and 5 and to the ADR-034 section 4.3.1 grammar (one contract, deterministic frontmatter, closed metadata, measured length, stated boundaries, three flag tiers, fixed next step, storage boundary and purity), and stay inside ADR-002 Invariant #2 and ADR-034 Invariant 1."
+    },
+    {
+      "id": "honest_metrics",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Metrics are concrete and testable (canonical example parses with full fidelity, zero raises, determinism, zero blocks from Tier B or C, floors never lowered, every combination maps to one next step, zero new record types), except that 'zero inputs make the lint raise' can only be shown over a sampled input set, not exhaustively."
+    },
+    {
+      "id": "out_of_scope_accurate",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Out of scope excludes Tier A detection, the content hash, the DAG, staleness and the approval gate (ADR-013), orchestration and the legacy removal (ADR-034), per-plan domain rules (ADR-025 to ADR-033), plan quality scoring and route changes, matching the ADRs."
+    },
+    {
+      "id": "rules_actionable",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "BRU-012-01 to BRU-012-08 are concrete enough to drive an FDD and contract tests. BRU-012-07 (the next step) is stated in prose and made exact as a first-match table in FDD-012; BRU-012-03 route agreement needs the caller to pass the tailoring routes."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_brd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_adr",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-012-subsidiary-management-plan-standards-and-content-contracts.md; repo-verified against ADR-012 (Accepted; sections 4.2 to 4.5 and 5), ADR-034 section 4.3.1, the nine daughter ADR frontmatter blocks (ADR-025 to ADR-033: domains, legacy numbers, route and policy fields) and src/agent_learning/tailoring.py at 4d70e8e; author also scored this frame",
+          "support": 0.88,
+          "confidence": 0.86
+        },
+        {
+          "criterion_id": "honest_metrics",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-012-subsidiary-management-plan-standards-and-content-contracts.md; repo-verified against ADR-012 (Accepted; sections 4.2 to 4.5 and 5), ADR-034 section 4.3.1, the nine daughter ADR frontmatter blocks (ADR-025 to ADR-033: domains, legacy numbers, route and policy fields) and src/agent_learning/tailoring.py at 4d70e8e; author also scored this frame",
+          "support": 0.8,
+          "confidence": 0.78
+        },
+        {
+          "criterion_id": "out_of_scope_accurate",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-012-subsidiary-management-plan-standards-and-content-contracts.md; repo-verified against ADR-012 (Accepted; sections 4.2 to 4.5 and 5), ADR-034 section 4.3.1, the nine daughter ADR frontmatter blocks (ADR-025 to ADR-033: domains, legacy numbers, route and policy fields) and src/agent_learning/tailoring.py at 4d70e8e; author also scored this frame",
+          "support": 0.86,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "rules_actionable",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-012-subsidiary-management-plan-standards-and-content-contracts.md; repo-verified against ADR-012 (Accepted; sections 4.2 to 4.5 and 5), ADR-034 section 4.3.1, the nine daughter ADR frontmatter blocks (ADR-025 to ADR-033: domains, legacy numbers, route and policy fields) and src/agent_learning/tailoring.py at 4d70e8e; author also scored this frame",
+          "support": 0.82,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_brd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_adr",
+          "source": "no fundamental flaw found in direct_doc_read of BRD-012-subsidiary-management-plan-standards-and-content-contracts.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "honest_metrics",
+          "source": "no fundamental flaw found in direct_doc_read of BRD-012-subsidiary-management-plan-standards-and-content-contracts.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "out_of_scope_accurate",
+          "source": "no fundamental flaw found in direct_doc_read of BRD-012-subsidiary-management-plan-standards-and-content-contracts.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "rules_actionable",
+          "source": "no fundamental flaw found in direct_doc_read of BRD-012-subsidiary-management-plan-standards-and-content-contracts.md",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_adr",
+          "source": "residual issues: Business rules BRU-012-01 to BRU-012-08 trace to ADR-012 and ADR-034 section 4.3.1; no gap found, small residual that the ADR text and the FDD readings differ in places listed in FDD-012 section 6",
+          "support": 0.2,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "honest_metrics",
+          "source": "residual issues: Metrics are concrete; the zero-raise claim is shown over a sampled set only",
+          "support": 0.2,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "out_of_scope_accurate",
+          "source": "residual issues: Out of scope matches the ADRs; no gap found",
+          "support": 0.2,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "rules_actionable",
+          "source": "residual issues: BRU-012-07 is exact only in the FDD; BRU-012-03 route agreement depends on the caller passing routes",
+          "support": 0.2,
+          "confidence": 0.75
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

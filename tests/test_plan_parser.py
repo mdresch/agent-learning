@@ -34,12 +34,14 @@ from agent_learning.pmbok.parser import ParsedPlan, parse_frontmatter
 from agent_learning.pmbok.standards import LintFlag
 
 REPO = Path(__file__).resolve().parents[1]
-ADR_012 = next((REPO / "docs" / "adr").glob("ADR-012-*.md"))
+ADR_DIR = REPO / "docs" / "adr"
 
 
 def adr_012_example() -> str:
     """The canonical frontmatter of ADR-012 section 4.2, taken from the real file."""
-    text = ADR_012.read_text(encoding="utf-8")
+    matches = sorted(ADR_DIR.glob("ADR-012-*.md"))
+    assert matches, f"ADR-012 is missing from {ADR_DIR}; the canonical example cannot be checked"
+    text = matches[0].read_text(encoding="utf-8")
     start = text.index("### 4.2 Universal Frontmatter Metadata Schema")
     fence = text.index("```yaml\n", start) + len("```yaml\n")
     return text[fence : text.index("```", fence)]

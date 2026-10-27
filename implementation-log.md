@@ -642,5 +642,10 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - I11: the legacy number is the text before the first space.
 - **Found, not fixed (outside this story):** none. The nine daughter ADR examples agree with the table, so no ADR needed a change.
 - **Open for a human:** whether FDD-012 section 3.2 should record I2, I3 and I4 (the no-cascade rule); they follow its "one per problem" wording but it does not say them.
-- **Review:** pending; the Q review rounds and the findings accepted or declined are added before the merge (Step 8).
+- **Review (Step 8):** Amazon Q round 1 reviewed head `481b53e` (two reviews, five inline comments). It reported no defect in the structure, the no-cascade design or the table.
+  - `Q-29-1 | logic error | verified: yes | decision: accepted | the plan id pattern from FDD-012 section 3.2 (^[a-z][a-z0-9-]*$) accepts a trailing or doubled hyphen although ADR-012 section 4.2 says kebab-case; no real plan id is affected. Tightened to ^[a-z][a-z0-9]*(-[a-z0-9]+)*$ in code and in FDD-012 section 3.2 (ADR over FDD), with five new test cases | fix: ceb4a69`
+  - `Q-29-2 | logic error | verified: no | decision: declined | claimed the dots in the version pattern are unescaped; the raw string r"[0-9]+\.[0-9]+\.[0-9]+" passes a literal backslash-dot, and Q retracted the comment itself | fix: none`
+  - `Q-29-3 | style | verified: yes | decision: accepted | the MISSING sentinel was defined after its first use in the test file; it works at call time but the order hid the dependency | fix: ceb4a69`
+  - `Q-29-4 | test gap | verified: partial | decision: declined | the table reader in the test slices to the first code fence after the table header; if the ADR gained a fence earlier the slice would truncate, but the test asserts exactly nine rows, so it fails loudly rather than silently | fix: none`
+- **FDD amendment:** FDD-012 section 3.2 item 2 now carries the stricter plan id pattern with a note naming Q-29-1. For a human to confirm.
 - **Breakout recap (ADR-010 section 4.1):** not due; Story 12.2 is the second of four stories in Epic 12.

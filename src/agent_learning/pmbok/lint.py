@@ -15,7 +15,7 @@ from .standards import (
     LintFlag,
 )
 
-_PLAN_ID = re.compile(r"[a-z][a-z0-9-]*", re.ASCII)
+_PLAN_ID = re.compile(r"[a-z][a-z0-9]*(?:-[a-z0-9]+)*", re.ASCII)
 _VERSION = re.compile(r"[0-9]+\.[0-9]+\.[0-9]+", re.ASCII)
 _LEGACY = re.compile(r"[0-9]+\.[0-9]+ \S", re.ASCII)
 _NON_EMPTY_LISTS = ("inputs", "outputs")

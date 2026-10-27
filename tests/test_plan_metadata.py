@@ -67,6 +67,8 @@ BASE = {
     "governance_policy": "approve-subsidiary-plan",
 }
 
+MISSING = object()  # a key that must be removed from the mapping
+
 LIST_KEYS = ("depends_on", "inputs", "outputs", "secondary_pmbok_domains")
 SCALAR_KEYS = tuple(k for k in REQUIRED_KEYS if k not in LIST_KEYS)
 
@@ -79,9 +81,6 @@ def meta(**changes):
         else:
             out[key] = value
     return out
-
-
-MISSING = object()
 
 
 def table_meta(plan_id: str, **changes):
@@ -215,11 +214,11 @@ class TestClosedListsAndFormats:
     def test_malformed_legacy_process(self, legacy):
         one(validate_metadata(meta(legacy_process=legacy)), "legacy_process", legacy)
 
-    @pytest.mark.parametrize("plan_id", ["Scope", "scope_management", "-scope", "1scope", "scope management", "scope!"])
+    @pytest.mark.parametrize("plan_id", ["Scope", "scope_management", "-scope", "1scope", "scope management", "scope!", "scope-", "scope--management", "a--"])
     def test_malformed_plan_id(self, plan_id):
         one(validate_metadata(meta(plan_id=plan_id)), "plan_id", plan_id)
 
-    @pytest.mark.parametrize("item", ["Bad Id", "UPPER", "a_b", "-x"])
+    @pytest.mark.parametrize("item", ["Bad Id", "UPPER", "a_b", "-x", "x-", "x--y"])
     def test_malformed_depends_on_item(self, item):
         one(validate_metadata(meta(depends_on=("scope-management", item))), "depends_on", item)
 

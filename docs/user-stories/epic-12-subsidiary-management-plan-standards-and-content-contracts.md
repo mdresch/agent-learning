@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-012](../adr/ADR-012-subsidiary-management-plan-standards-and-content-contracts.md) — Accepted (2026-10-25)  
 **Source BRD/FDD:** [BRD-012](../project-docs/Business-Requirements/BRD-012-subsidiary-management-plan-standards-and-content-contracts.md) / [FDD-012](../project-docs/Functional-Design/FDD-012-subsidiary-management-plan-standards-and-content-contracts.md)  
-**Status:** Draft — stories derived from Accepted ADR-012, BRD-012 and FDD-012; awaiting `approve-user-stories`.  
+**Status:** Approved (2026-10-27, Menno) — stories derived from Accepted ADR-012, BRD-012 and FDD-012; adjudicated via `approve-user-stories` (robust utility 0.698, episode `d90bceb7-53df-43ef-b046-6acb728146ec`).  
 
 Four stories build the pure plan lint in `src/agent_learning/pmbok/`. Each rule sits in exactly one story's criteria (LL-012). Contract tests are `tests/test_plan_parser.py`, `tests/test_plan_metadata.py`, `tests/test_plan_content.py` and `tests/test_plan_next_step.py`. Fixtures that are real artifacts live committed under `tests/fixtures/pmbok/`; the conformance tests also read the real ADR files, anchored to the test file's location (LL-006).
 
@@ -10,7 +10,7 @@ Four stories build the pure plan lint in `src/agent_learning/pmbok/`. Each rule 
 
 ## Story 12.1 — The Frontmatter Grammar Parser
 
-**Status:** Draft  
+**Status:** Ready (2026-10-27)  
 **As** a maintainer reading generated plans,  
 **I want** frontmatter read by a fixed standard-library grammar that reports every violation instead of crashing,  
 **So that** a plan with broken metadata is found and sent to a human, and no outside YAML package is needed.
@@ -27,7 +27,7 @@ Four stories build the pure plan lint in `src/agent_learning/pmbok/`. Each rule 
 
 ## Story 12.2 — Metadata Validation and the Nine-Plan Standards
 
-**Status:** Draft  
+**Status:** Ready (2026-10-27)  
 **As** a governance reviewer,  
 **I want** a plan's metadata checked against the closed lists and the ADR-012 table,  
 **So that** a wrong domain, route or generator is a visible finding and the route agrees with the tailoring matrix.
@@ -38,14 +38,14 @@ Four stories build the pure plan lint in `src/agent_learning/pmbok/`. Each rule 
 - **$AC_2$ (Governance Policy):** `governance_policy` must be `approve-subsidiary-plan` for `full_plan` and `approve-pmp` for `pmp_section`; for `not_applicable` any value passes.
 - **$AC_3$ (Nine-Plan Table):** `PLAN_STANDARDS` holds the nine rows of ADR-012 §4.4 (primary domain, secondary domains, legacy number, Plan Tier). For each known `plan_id`, a domain set or legacy number that differs from the table is a finding. An unknown `plan_id` is checked only against the closed lists.
 - **$AC_4$ (Route Agreement):** Given `tailoring.PlanRoute` records, a frontmatter `route` that differs from the plan's recorded route is a finding; a plan absent from the records is not.
-- **$AC_5$ (Conformance):** The frontmatter of each of the nine daughter ADRs (ADR-025 to ADR-033, read from `docs/adr/`) parses and returns no metadata finding, so a drift between the ADRs and the table is caught.
+- **$AC_5$ (Conformance):** The frontmatter of each of the nine daughter ADRs (ADR-025 to ADR-033, read from `docs/adr/`) parses and returns no metadata finding, so a drift between the ADRs and the table is caught. The example is not at the top of those files: the test extracts the first fenced `yaml` block whose first line is `---` (ADR §4.1) and passes its inner text, delimiters included, to `parse_frontmatter`; a missing block fails the test.
 - **$AC_6$ (Extra Keys):** Keys beyond the required and optional ones, such as `cycle_id`, are accepted without a finding.
 
 ---
 
 ## Story 12.3 — The Content Contract: Headings, Length and Boundaries
 
-**Status:** Draft  
+**Status:** Ready (2026-10-27)  
 **As** a governance reviewer,  
 **I want** every plan measured the same way for structure, length and stated boundaries,  
 **So that** flags are reproducible evidence and a project standard can only raise the bar.
@@ -64,7 +64,7 @@ Four stories build the pure plan lint in `src/agent_learning/pmbok/`. Each rule 
 
 ## Story 12.4 — Precedence and the Next Step
 
-**Status:** Draft  
+**Status:** Ready (2026-10-27)  
 **As** a maintainer deciding what happens after a lint,  
 **I want** the next step fixed by the findings, the generator and the retry count,  
 **So that** an LLM plan is retried at most twice, a human's text is never overwritten, and flags reach the approver as evidence instead of blocks.

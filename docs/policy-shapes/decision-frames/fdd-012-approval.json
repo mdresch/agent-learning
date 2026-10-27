@@ -1,0 +1,133 @@
+{
+  "task": "FDD-012 (Subsidiary Management Plan Standards and Content Contracts): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "traceable_to_brd_adr",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Sections 3.1 to 3.7 implement BRU-012-01 to BRU-012-08 and ADR-012 sections 4.2 to 4.5: the grammar rule by rule (ADR-034 4.3.1), the closed metadata checks, the measured word count and heading regexes, the boundary rule, and the precedence and next-step table including 2 retries, human text kept and stub or mock escalated at once. The nine-plan table equals ADR-012 section 4.4."
+    },
+    {
+      "id": "placement_and_purity",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "The new package src/agent_learning/pmbok/ is pure (standard library only, no I/O, no storage), as ADR-034 section 4.3 names; the legacy top-level pmbok/ directory is not imported; tailoring is reused, not changed; no record type is added."
+    },
+    {
+      "id": "no_invented_implementation",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "The FDD makes eight readings that ADR-012 does not state verbatim (flag code spelling, fail closed, extra keys, table agreement as Tier B, policy match scope, out-of-scope detection, EXCEEDS_PLAN_CAP carried to approval, equal to floor or cap). They are disclosed in section 6 for the maintainer to confirm, not hidden."
+    },
+    {
+      "id": "compatibility_preserved",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Nothing existing changes: tailoring.PlanRoute, Route and compute_flags are used as they are, and agent_learning/__init__.py only gains exports. The two Tier scales are always written out in full."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_fdd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_brd_adr",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-012-subsidiary-management-plan-standards-and-content-contracts.md; repo-verified against ADR-012 (Accepted; sections 4.2 to 4.5 and 5), ADR-034 section 4.3.1, the nine daughter ADR frontmatter blocks (ADR-025 to ADR-033: domains, legacy numbers, route and policy fields) and src/agent_learning/tailoring.py at 4d70e8e; author also scored this frame",
+          "support": 0.88,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "placement_and_purity",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-012-subsidiary-management-plan-standards-and-content-contracts.md; repo-verified against ADR-012 (Accepted; sections 4.2 to 4.5 and 5), ADR-034 section 4.3.1, the nine daughter ADR frontmatter blocks (ADR-025 to ADR-033: domains, legacy numbers, route and policy fields) and src/agent_learning/tailoring.py at 4d70e8e; author also scored this frame",
+          "support": 0.86,
+          "confidence": 0.83
+        },
+        {
+          "criterion_id": "no_invented_implementation",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-012-subsidiary-management-plan-standards-and-content-contracts.md; repo-verified against ADR-012 (Accepted; sections 4.2 to 4.5 and 5), ADR-034 section 4.3.1, the nine daughter ADR frontmatter blocks (ADR-025 to ADR-033: domains, legacy numbers, route and policy fields) and src/agent_learning/tailoring.py at 4d70e8e; author also scored this frame",
+          "support": 0.74,
+          "confidence": 0.76
+        },
+        {
+          "criterion_id": "compatibility_preserved",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-012-subsidiary-management-plan-standards-and-content-contracts.md; repo-verified against ADR-012 (Accepted; sections 4.2 to 4.5 and 5), ADR-034 section 4.3.1, the nine daughter ADR frontmatter blocks (ADR-025 to ADR-033: domains, legacy numbers, route and policy fields) and src/agent_learning/tailoring.py at 4d70e8e; author also scored this frame",
+          "support": 0.88,
+          "confidence": 0.84
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_fdd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_brd_adr",
+          "source": "no fundamental flaw found in direct_doc_read of FDD-012-subsidiary-management-plan-standards-and-content-contracts.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "placement_and_purity",
+          "source": "no fundamental flaw found in direct_doc_read of FDD-012-subsidiary-management-plan-standards-and-content-contracts.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "no_invented_implementation",
+          "source": "no fundamental flaw found in direct_doc_read of FDD-012-subsidiary-management-plan-standards-and-content-contracts.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "compatibility_preserved",
+          "source": "no fundamental flaw found in direct_doc_read of FDD-012-subsidiary-management-plan-standards-and-content-contracts.md",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_brd_adr",
+          "source": "residual issues: Sections 3.1 to 3.7 trace to the BRD rules and the ADR; residual: the first-match table orders rules in a way the ADR flowchart implies but does not number",
+          "support": 0.2,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "placement_and_purity",
+          "source": "residual issues: Package is pure and placed as ADR-034 names; residual: the import path agent_learning.pmbok sits next to a legacy top-level pmbok/ directory with the same name",
+          "support": 0.2,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "no_invented_implementation",
+          "source": "residual issues: Eight disclosed interpretations (FDD section 6) still need the maintainer's confirmation",
+          "support": 0.2,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "compatibility_preserved",
+          "source": "residual issues: No compatibility problem found",
+          "support": 0.2,
+          "confidence": 0.75
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

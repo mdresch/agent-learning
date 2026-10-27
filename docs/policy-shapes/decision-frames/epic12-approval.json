@@ -1,0 +1,109 @@
+{
+  "task": "Epic 12 (Subsidiary Management Plan Standards and Content Contracts - Stories 12.1 to 12.4): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "code_shaped_testable",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "AC_0 to AC_7 across the four stories are contract-testable: the canonical frontmatter parses to known values, each grammar rule has passing and failing cases, every malformed construct gives a Tier B finding with line and content, a measured word count returns a known number, floors and caps have boundary cases, and next_step is checked over the full tier by generator by retries matrix. Story 12.2 AC_5 now states how the test extracts the ADR example."
+    },
+    {
+      "id": "traceable_to_fdd_brd_adr",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Each criterion traces to an FDD-012 section, a BRU-012 rule and an ADR-012 section, and each rule sits in one story's criteria (LL-012): grammar in 12.1, metadata in 12.2, content in 12.3, precedence in 12.4."
+    },
+    {
+      "id": "scope_correctly_bounded",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Four stories of one pure package. Story 12.3 is the broadest (word count, headings, floors, caps, boundary, omission flags, lint_plan); omission_flags and lint_plan could move to their own story. Out of Scope excludes Tier A detection, hashing, the DAG, orchestration and per-plan rules."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_user_stories",
+      "evidence": [
+        {
+          "criterion_id": "code_shaped_testable",
+          "source": "direct_doc_read:docs/user-stories/epic-12-subsidiary-management-plan-standards-and-content-contracts.md; repo-verified against ADR-012 (Accepted; sections 4.2 to 4.5 and 5), ADR-034 section 4.3.1, the nine daughter ADR frontmatter blocks (ADR-025 to ADR-033: domains, legacy numbers, route and policy fields) and src/agent_learning/tailoring.py at 4d70e8e; author also scored this frame",
+          "support": 0.85,
+          "confidence": 0.83
+        },
+        {
+          "criterion_id": "traceable_to_fdd_brd_adr",
+          "source": "direct_doc_read:docs/user-stories/epic-12-subsidiary-management-plan-standards-and-content-contracts.md; repo-verified against ADR-012 (Accepted; sections 4.2 to 4.5 and 5), ADR-034 section 4.3.1, the nine daughter ADR frontmatter blocks (ADR-025 to ADR-033: domains, legacy numbers, route and policy fields) and src/agent_learning/tailoring.py at 4d70e8e; author also scored this frame",
+          "support": 0.85,
+          "confidence": 0.83
+        },
+        {
+          "criterion_id": "scope_correctly_bounded",
+          "source": "direct_doc_read:docs/user-stories/epic-12-subsidiary-management-plan-standards-and-content-contracts.md; repo-verified against ADR-012 (Accepted; sections 4.2 to 4.5 and 5), ADR-034 section 4.3.1, the nine daughter ADR frontmatter blocks (ADR-025 to ADR-033: domains, legacy numbers, route and policy fields) and src/agent_learning/tailoring.py at 4d70e8e; author also scored this frame",
+          "support": 0.76,
+          "confidence": 0.76
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_user_stories",
+      "evidence": [
+        {
+          "criterion_id": "code_shaped_testable",
+          "source": "no fundamental flaw found in direct_doc_read of epic-12-subsidiary-management-plan-standards-and-content-contracts.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "traceable_to_fdd_brd_adr",
+          "source": "no fundamental flaw found in direct_doc_read of epic-12-subsidiary-management-plan-standards-and-content-contracts.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "scope_correctly_bounded",
+          "source": "no fundamental flaw found in direct_doc_read of epic-12-subsidiary-management-plan-standards-and-content-contracts.md",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "code_shaped_testable",
+          "source": "residual issues: AC_0 to AC_7 are contract-testable; residual: the zero-raise claim for lint_plan is shown over a sampled set of texts",
+          "support": 0.2,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "traceable_to_fdd_brd_adr",
+          "source": "residual issues: Each criterion traces to an FDD section, a BRU rule and an ADR section; no gap found",
+          "support": 0.2,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "scope_correctly_bounded",
+          "source": "residual issues: Story 12.3 has eight criteria; a split of omission_flags and lint_plan is possible",
+          "support": 0.2,
+          "confidence": 0.75
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

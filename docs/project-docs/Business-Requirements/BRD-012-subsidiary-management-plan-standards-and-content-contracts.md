@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-012](../../adr/ADR-012-subsidiary-management-plan-standards-and-content-contracts.md) — Accepted (2026-10-25)  
 **Governing Baseline:** none approved yet (`approve-pmp` is not built; see ADR-011 §2)  
-**Status:** Draft — business requirements derived from Accepted ADR-012; awaiting `approve-brd`.  
+**Status:** Approved (2026-10-27, Menno) — derived from Accepted ADR-012; adjudicated via `approve-brd` (robust utility 0.725, episode `53722d17-b5b0-4305-b63e-012b21abac1d`).  
 **Stakeholders:** Menno (Sponsor/PM/maintainer)  
 
 ## Business Need

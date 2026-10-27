@@ -93,7 +93,19 @@ from .review_triage import (
     reconstruct_record,
     reliability,
 )
-from .pmbok import PLAN_STANDARDS, LintFlag, ParsedPlan, PlanStandard, parse_frontmatter, validate_metadata
+from .pmbok import (
+    PLAN_STANDARDS,
+    LintFlag,
+    LintResult,
+    ParsedPlan,
+    PlanStandard,
+    check_content,
+    count_words,
+    lint_plan,
+    omission_flags,
+    parse_frontmatter,
+    validate_metadata,
+)
 from .tailoring import (
     BASELINE_SUBSTANTIATING,
     INTEGRATION_ELEMENTS,
@@ -332,6 +344,11 @@ __all__ = [
     "PlanStandard",
     "parse_frontmatter",
     "validate_metadata",
+    "LintResult",
+    "check_content",
+    "count_words",
+    "lint_plan",
+    "omission_flags",
     "shape_episode_reward",
     "wilson_lower_bound",
 ]

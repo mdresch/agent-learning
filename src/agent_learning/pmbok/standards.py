@@ -5,6 +5,7 @@ Pure: standard library only, no I/O and no storage.
 
 from __future__ import annotations
 
+import re
 from collections.abc import Mapping
 from dataclasses import dataclass
 from types import MappingProxyType
@@ -71,3 +72,17 @@ PLAN_STANDARDS: Mapping[str, PlanStandard] = MappingProxyType(
         "stakeholder-engagement": PlanStandard("Stakeholders", ("Governance",), "13.2", 3),
     }
 )
+
+
+# Floors, caps and measurement (ADR-012 sections 4.3.1 to 4.3.3).
+FLOORS = MappingProxyType({"pmp_section": 150, "full_plan": 600})
+CAPS = MappingProxyType({"pmp_section": 800, "full_plan": 5000})
+NONE_MIN_TOKENS = 10
+MIN_OUT_OF_SCOPE_ITEMS = 1
+MAX_AUTO_RETRIES = 2
+HEADINGS = (
+    re.compile(r"^##\s+1\.\s+Intent,\s+Alignment\s+&\s+Boundaries", re.MULTILINE),
+    re.compile(r"^##\s+2\.\s+Domain\s+Mechanics\s+&\s+Standards", re.MULTILINE),
+    re.compile(r"^##\s+3\.\s+Governance,\s+Control\s+&\s+Decision\s+Rights", re.MULTILINE),
+)
+TOKEN = re.compile(r"\b[^\W_]+(?:['’][^\W_]+)?\b")

@@ -4,14 +4,23 @@ from __future__ import annotations
 
 import re
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from typing import Any
 
+from ..tailoring import compute_flags
+from .parser import ParsedPlan, parse_frontmatter
 from .standards import (
+    CAPS,
     DOMAINS,
+    FLOORS,
     GENERATORS,
+    HEADINGS,
+    MIN_OUT_OF_SCOPE_ITEMS,
+    NONE_MIN_TOKENS,
     PLAN_STANDARDS,
     REQUIRED_KEYS,
     ROUTES,
+    TOKEN,
     LintFlag,
 )
 
@@ -141,3 +150,179 @@ def validate_metadata(metadata: Mapping[str, Any], routes: Sequence[Any] | None 
                 fail("route", f"route {valid['route']!r} differs from the tailoring route {recorded!r} recorded for plan {number}")
 
     return flags
+
+
+# ---------------------------------------------------------------------------
+# Content contract (Story 12.3): word count, headings, floors, caps, boundaries
+
+
+_COMMENT = re.compile(r"<!--.*?(?:-->|\Z)", re.DOTALL)
+_NONE_LINE = re.compile(r"^\s*[-*]?\s*None:\s+(.+)$")
+_BULLET = re.compile(r"^\s*[-*]\s+(\S.*)$")
+_MD_HEADING = re.compile(r"^\s{0,3}#{1,6}\s")
+_MARKERS = ("out-of-scope", "out of scope")
+_SECTION_NAMES = (
+    "1. Intent, Alignment & Boundaries",
+    "2. Domain Mechanics & Standards",
+    "3. Governance, Control & Decision Rights",
+)
+
+
+@dataclass(frozen=True)
+class LintResult:
+    """The outcome of linting one plan: the parsed plan, every finding in a stable order, the word count."""
+
+    plan: ParsedPlan
+    flags: tuple[LintFlag, ...]
+    word_count: int | None
+
+
+def _visible(text: str) -> str:
+    """The text with fenced code and then HTML comments removed (an unclosed fence or comment runs to the end)."""
+    kept: list[str] = []
+    in_fence = False
+    for line in text.replace("\r\n", "\n").split("\n"):
+        if line.lstrip().startswith("```"):
+            in_fence = not in_fence
+        elif not in_fence:
+            kept.append(line)
+    return _COMMENT.sub(" ", "\n".join(kept))
+
+
+def count_words(body: str) -> int:
+    """Count words in a plan body the same way every time (ADR-012 section 4.3.1)."""
+    if not isinstance(body, str):
+        raise TypeError("body must be a str")
+    return len(TOKEN.findall(_visible(body)))
+
+
+def _option(name: str, value: int | None) -> int:
+    if value is None:
+        return 0
+    if isinstance(value, bool) or not isinstance(value, int):
+        raise TypeError(f"{name} must be an int or None")
+    return value
+
+
+def _content_flag(code: str, tier: str, message: str) -> LintFlag:
+    return LintFlag(code=code, tier=tier, message=message)  # type: ignore[arg-type]
+
+
+def _section_one(visible: str) -> str | None:
+    first = HEADINGS[0].search(visible)
+    if first is None:
+        return None
+    newline = visible.find("\n", first.end())
+    start = len(visible) if newline == -1 else newline + 1
+    second = HEADINGS[1].search(visible, first.end())
+    return visible[start : second.start() if second else len(visible)]
+
+
+def _boundary_problem(section: str, needed: int) -> str | None:
+    """None when Section 1 states its boundaries; otherwise the reason it does not."""
+    lines = section.split("\n")
+    reasons: list[str] = []
+    short_none = False
+    for line in lines:
+        match = _NONE_LINE.match(line)
+        if match is None:
+            continue
+        if len(TOKEN.findall(match.group(1))) >= NONE_MIN_TOKENS:
+            return None
+        short_none = True
+    best = -1
+    for index, line in enumerate(lines):
+        if not any(marker in line.lower() for marker in _MARKERS):
+            continue
+        seen: set[str] = set()
+        for after in lines[index + 1 :]:
+            if _MD_HEADING.match(after):
+                break
+            bullet = _BULLET.match(after)
+            if bullet is not None:
+                seen.add(bullet.group(1).strip().lower())
+            elif seen and after.strip():
+                break
+        if len(seen) >= needed:
+            return None
+        best = max(best, len(seen))
+    if best >= 0:
+        reasons.append(f"the out-of-scope list has {best} distinct item(s); at least {needed} required")
+    if short_none:
+        reasons.append(f"the 'None:' rationale has fewer than {NONE_MIN_TOKENS} tokens")
+    if not reasons:
+        reasons.append("Section 1 has no out-of-scope list and no 'None: [rationale]' line")
+    return "; ".join(reasons)
+
+
+def check_content(
+    body: str,
+    route: str,
+    *,
+    min_floor_words: int | None = None,
+    min_out_of_scope_items: int | None = 1,
+) -> list[LintFlag]:
+    """Check a plan body against the content contract (FDD-012 section 3.4).
+
+    Findings come in a stable order: headings (Tier B), floor, cap and boundary (Tier C). A project
+    standard may raise the floor or the out-of-scope minimum and never lower it.
+    """
+    if not isinstance(body, str):
+        raise TypeError("body must be a str")
+    if route not in ROUTES:
+        raise ValueError(f"route must be one of {', '.join(ROUTES)}")
+    floor_option = _option("min_floor_words", min_floor_words)
+    items_option = _option("min_out_of_scope_items", min_out_of_scope_items)
+    if route == "not_applicable":
+        return []
+
+    visible = _visible(body)
+    flags: list[LintFlag] = []
+    for pattern, name in zip(HEADINGS, _SECTION_NAMES):
+        if pattern.search(visible) is None:
+            flags.append(_content_flag("MISSING_REQUIRED_SECTION", "B", f"Section {name} is missing"))
+
+    count = len(TOKEN.findall(visible))
+    floor = max(FLOORS[route], floor_option)
+    if count < floor:
+        flags.append(_content_flag("BELOW_STANDARD_FLOOR", "C", f"{count} words is below the floor of {floor} for a {route}"))
+    if count > CAPS[route]:
+        code = "EXCEEDS_SECTION_CAP" if route == "pmp_section" else "EXCEEDS_PLAN_CAP"
+        flags.append(_content_flag(code, "C", f"{count} words exceeds the cap of {CAPS[route]} for a {route}"))
+
+    section = _section_one(visible)
+    if section is not None:
+        problem = _boundary_problem(section, max(MIN_OUT_OF_SCOPE_ITEMS, items_option))
+        if problem is not None:
+            flags.append(_content_flag("MISSING_BOUNDARY_DEF", "C", f"Section 1 does not state its boundaries: {problem}"))
+    return flags
+
+
+def omission_flags(routes: Sequence[Any]) -> list[LintFlag]:
+    """Turn the tailoring omission flags into Tier C findings (ADR-012 section 4.4, Plan Tier 1)."""
+    return [
+        LintFlag(code="OMISSION_OF_BASE_PLAN", tier="C", message=flag.message, evidence=flag.evidence)
+        for flag in compute_flags(routes)
+    ]
+
+
+def lint_plan(
+    text: str,
+    *,
+    routes: Sequence[Any] | None = None,
+    min_floor_words: int | None = None,
+    min_out_of_scope_items: int | None = 1,
+) -> LintResult:
+    """Parse, validate and check one plan (FDD-012 section 3.5). Never raises for content."""
+    plan = parse_frontmatter(text)
+    if not plan.parsed:
+        return LintResult(plan=plan, flags=plan.flags, word_count=None)
+    flags = list(plan.flags) + validate_metadata(plan.metadata, routes)
+    route = plan.metadata.get("route")
+    word_count: int | None = None
+    if isinstance(route, str) and route in ROUTES and route != "not_applicable":
+        word_count = count_words(plan.body)
+        flags += check_content(
+            plan.body, route, min_floor_words=min_floor_words, min_out_of_scope_items=min_out_of_scope_items
+        )
+    return LintResult(plan=plan, flags=tuple(flags), word_count=word_count)

@@ -45,7 +45,7 @@ Four stories build the pure plan lint in `src/agent_learning/pmbok/`. Each rule 
 
 ## Story 12.3 — The Content Contract: Headings, Length and Boundaries
 
-**Status:** Ready (2026-10-27)  
+**Status:** Completed (2026-10-27)  
 **As** a governance reviewer,  
 **I want** every plan measured the same way for structure, length and stated boundaries,  
 **So that** flags are reproducible evidence and a project standard can only raise the bar.

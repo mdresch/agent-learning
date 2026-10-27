@@ -83,7 +83,9 @@ def codes(flags) -> list[str]:
 
 
 def adr_frontmatter() -> str:
-    adr = next((REPO / "docs" / "adr").glob("ADR-025-*.md")).read_text(encoding="utf-8")
+    matches = sorted((REPO / "docs" / "adr").glob("ADR-025-*.md"))
+    assert matches, "ADR-025 is missing from docs/adr; the frontmatter example cannot be read"
+    adr = matches[0].read_text(encoding="utf-8")
     for block in re.finditer(r"```yaml\n(.*?)```", adr, re.DOTALL):
         if block.group(1).startswith("---\n"):
             return block.group(1)

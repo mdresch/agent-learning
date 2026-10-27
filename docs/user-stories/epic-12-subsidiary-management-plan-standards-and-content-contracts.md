@@ -10,7 +10,7 @@ Four stories build the pure plan lint in `src/agent_learning/pmbok/`. Each rule 
 
 ## Story 12.1 — The Frontmatter Grammar Parser
 
-**Status:** Ready (2026-10-27)  
+**Status:** Completed (2026-10-27)  
 **As** a maintainer reading generated plans,  
 **I want** frontmatter read by a fixed standard-library grammar that reports every violation instead of crashing,  
 **So that** a plan with broken metadata is found and sent to a human, and no outside YAML package is needed.

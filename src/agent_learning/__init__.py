@@ -93,6 +93,7 @@ from .review_triage import (
     reconstruct_record,
     reliability,
 )
+from .pmbok import LintFlag, ParsedPlan, parse_frontmatter
 from .tailoring import (
     BASELINE_SUBSTANTIATING,
     INTEGRATION_ELEMENTS,
@@ -325,6 +326,9 @@ __all__ = [
     "LedgerEntry",
     "current_entries",
     "parse_ledger",
+    "LintFlag",
+    "ParsedPlan",
+    "parse_frontmatter",
     "shape_episode_reward",
     "wilson_lower_bound",
 ]

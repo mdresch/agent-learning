@@ -556,3 +556,49 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-24-3 | style | verified: yes | decision: declined | design note that DecisionResult.to_dict() copies audit_evidence shallowly; existing behavior from the change that introduced the field, outside this story, and the new episode entry points deep-copy | fix: none`
   - Verdict: Q did not answer two explicit verdict requests on `bb06aa7` (about 25 minutes). The maintainer forwarded Q's second review text and the story was merged on that basis, not on an explicit "no further additions" reply.
 - **Breakout recap (ADR-010 section 4.1):** pending; this is the epic's last story, to be held after the PR review (Step 9).
+
+
+---
+
+## Story 12.1 — The Frontmatter Grammar Parser
+- **Commit:** `1557981`
+- **Date:** 2026-10-27
+- **Branch:** `feat/story-12.1`
+- **Source ADR / BRD / FDD:** ADR-012 (sections 4.2 and 4.2.1; normative grammar ADR-034 section 4.3.1), BRD-012 (BRU-012-02), FDD-012 (sections 2 and 3.1). BRD-012, FDD-012 and the Epic 12 stories were approved first (PR #27; the eight interpretations of FDD-012 section 6 were accepted as written).
+- **Files Modified/Created:**
+  - `src/agent_learning/pmbok/__init__.py`, `standards.py` (`LintFlag`), `parser.py` (`ParsedPlan`, `parse_frontmatter`) (new, standard library only)
+  - `src/agent_learning/__init__.py` (three names exported)
+  - `tests/test_plan_parser.py` (new, 106 tests)
+  - `.claude/skills/plan-lint/SKILL.md` (new)
+  - `docs/user-stories/epic-12-...md` (Story 12.1 status Completed)
+- **Validation:**
+  - $AC_0$: the real ADR-012 section 4.2 example (read from the ADR, anchored to the test file) parses with every documented value; scalars are `str`, lists tuples, `[]` is `()`; body and `body_start_line` are right.
+  - $AC_1$: each FDD-012 section 3.1 rule has passing and failing cases (CRLF, BOM, standalone delimiters, keys, escapes, single-quoted literals, bare tokens, two-space lists, comments after each allowed position, `#` inside quotes).
+  - $AC_2$: duplicate key, unquoted value with spaces, nested mapping, block scalar, anchor, alias, flow mapping, type tag, missing opening and closing delimiter, empty and BOM-only text each give one Tier B `INVALID_METADATA` finding with the line and the line's content. Never raises: a 2,000-seed random sweep and an exhaustive sweep of 3-character strings over a 22-entry alphabet; a non-`str` raises `TypeError`.
+  - $AC_3$: with any finding `parsed` is False, `metadata` is `{}`, `body` is `""`, `body_start_line` is `None`.
+  - $AC_4$: same text twice, and LF versus CRLF, give equal results; keys and list items keep file order; `metadata` is read-only.
+  - $AC_5$: an AST scan shows `parser.py` imports only the standard library and `standards`; `standards.py` only the standard library; no storage, `tailoring`, legacy `pmbok/` or YAML import in the package.
+  - Observed RED first: collection error (`agent_learning.pmbok.parser` did not exist). All tests then passed except one of my own, which wrongly assumed `pyproject.toml` has no YAML dependency (see below); I corrected the test.
+  - Full suite with `--ignore=tests/test_spark.py --ignore=tests/pmbok`: **872 passed, 2 skipped**. Not covered: `tests/pmbok` (the legacy suite needs `tenacity`, which the dev extra does not install) and `tests/test_spark.py` (LL-013).
+  - `ruff check` on the new files: clean.
+- **Interpretations not stated verbatim in the acceptance criteria (LL-011), recorded in the test header:**
+  - I1: a `#` starts a comment only after whitespace; `val#x` is a finding.
+  - I2: an escape other than `\"`, `\\`, `\n` in a double-quoted string is a finding.
+  - I3: `key:value` (no space after the colon) is a finding.
+  - I4: a list item after a key with a scalar or `[]`, or before any key, is a finding.
+  - I5: only `[]` is a flow list; `[a]` and `[ ]` are findings.
+  - I6: a missing closing delimiter reports the last line; empty text reports line 1.
+  - I7: a key with no items is `()`.
+  - I8: blank lines are dropped; a tab or any indent other than two spaces before `- ` is a finding.
+  - I9: a delimiter with trailing whitespace is not a delimiter.
+  - I10: `metadata` is a read-only mapping (`MappingProxyType`) that compares equal to a dict.
+  - I11: `LintFlag` exists with its fields only; the closed tier check and `label` belong to Story 12.4 (LL-012).
+  - I12: line numbers are 1-based and identical in the original and the normalized text; a finding's `evidence` is the line verbatim, not trimmed (FDD-012 section 2 says "trimmed" for the flag type in general).
+- **Found, not fixed (outside this story):** `pyproject.toml` still lists `pyyaml` (used by the legacy stack that ADR-034 decommissions). BRD-012's "no third-party package" holds for the new package only; the dependency is removed with the legacy `pmbok/`. Story 12.4 AC_7 says "`pyproject.toml` gains no dependency", which is still true.
+- **Open for a human:** whether FDD-012 section 2 should say `evidence` is the verbatim line (I12), and whether the unknown-escape rule (I2) should be added to ADR-034 section 4.3.1.
+- **Review (Step 8):** Amazon Q round 1 reviewed head `0ad663a` (two reviews, three inline comments, all on one line of the test file). Both reviews say the parser itself has no issue.
+  - `Q-28-1 | crash risk | verified: yes | decision: accepted | module-level next() on the ADR-012 glob raises StopIteration at import and drops all 106 tests as a collection error when the ADR is absent; the ADR is now looked up inside the helper and a missing file fails the tests that read it with a clear message (not skipped, because a skip would hide drift) | fix: 1799605`
+  - `Q-28-2 | crash risk | verified: no | decision: declined | claimed test_the_package_does_not_import_a_yaml_library iterates the ADR directory; it globs src/agent_learning/pmbok, so a missing ADR does not affect it | fix: none`
+  - `Q-28-3 | crash risk | verified: partial | decision: declined | suggested defaulting to None or skipping when the ADR is missing; the AttributeError it predicts only follows from that default, and a skip would hide drift between the ADR and the parser | fix: none`
+  - Verdict: Q's explicit reply on head `e5daa58` is "No further additions required. No merge-blocking issues." All three findings confirmed as disposed correctly. This log line is the only change after that head.
+- **Breakout recap (ADR-010 section 4.1):** not due; Story 12.1 is the first of four stories in Epic 12.

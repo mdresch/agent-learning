@@ -120,7 +120,7 @@ class FormalizationCheck:
 2. Route `pmp_section`: a missing hash, a stub, or a `raw:` hash gives `(False, "INVALID_OR_STUB_SECTION", plan_id)`; otherwise every effective upstream must be fresh (its failure is returned as is), then `(True, "SECTION_FRESH", None)`.
 3. Route `full_plan`:
    - no approval record: `NO_APPROVAL_RECORD`;
-   - `action_id` is not `approve_plan`: `NOT_APPROVED_<action_id>`; the action is `approve_plan` but the disposition or feedback status is not `accepted`: `NOT_APPROVED_UNACCEPTED`;
+   - `action_id` is not `approve_plan`: `NOT_APPROVED_<action_id>`; the action is `approve_plan` but the disposition or feedback status is not `accepted`: `NOT_APPROVED_UNACCEPTED` (a split the ADR-034 sketch does not make; interpretation 8);
    - current hash missing or `raw:`: `INVALID_METADATA_UNPARSEABLE`;
    - recorded hash differs from the current one: `REAPPROVAL_REQUIRED_CONTENT_MODIFIED`.
 4. For each effective upstream: a recorded upstream hash that differs from the current hash gives `STALE_DEPENDENCY_<upstream>`; otherwise the upstream's own freshness is checked, and a failure becomes `PENDING_UPSTREAM_<offending>` when its reason starts `NO_APPROVAL` or `NOT_APPROVED`, and `TRANSITIVE_STALE_FROM_<offending>` otherwise, where `<offending>` is the plan that caused the failure (interpretation 2).
@@ -181,7 +181,7 @@ These readings are not stated verbatim in ADR-013 or are decided against ADR-034
 5. **Tier A codes** are `GENERATION_FAILED`, `MISSING_ARTIFACT`, `INVALID_METADATA` (promoted at the gate), `STUB_GENERATOR` and `PLACEHOLDER_TOKEN`; an unbracketed `TBD` or `TODO` is a Tier C `PROVISIONAL_TOKEN`. ADR-012 and ADR-013 name the conditions, not the codes.
 6. **Placeholders are searched in the visible text** (fences and comments removed), so a plan that quotes `[TBD]` as an example in a code block is not ruled out.
 7. **A change to an upstream plan that is invalid or `raw:`** makes the dependent plan stale (`STALE_DEPENDENCY`), not pending.
-8. **A record that is not `accepted`/`accepted` is not a verdict.** A `modify` disposition or a rejected recommendation leaves the plan `DRAFTED` and freshness answers `NOT_APPROVED_UNACCEPTED`.
+8. **A record that is not `accepted`/`accepted` is not a verdict.** A `modify` disposition or a rejected recommendation leaves the plan `DRAFTED` and freshness answers `NOT_APPROVED_UNACCEPTED`. The ADR-034 sketch has no such branch: it returns `NOT_APPROVED_<action_id>` for every non-accepted record, so an `approve_plan` record with a `modify` disposition would give `NOT_APPROVED_approve_plan`. Both start with `NOT_APPROVED`, so the pending-versus-stale routing of section 3.5 step 4 is the same; only the reason code differs, and tests pin this FDD's code.
 9. **Whitespace and blank lines.** The hard-break exception applies only to a line with content before the two spaces, and only outer blank lines (not outer spaces) are stripped; the ADR sketch's `strip()` and its `endswith("  ")` test differ on those edges.
 10. **Metadata limits.** Every string in an approval record is at most 256 characters, and the producer writes only the ADR-034 keys.
 11. **The `approve-subsidiary-plan` actions shape is declared here.** ADR-034 ERR-034-02 assigns policy-shape creation to the daughter-ADR milestone; ADR-013 owns the policy, so the idle shape is declared with this epic.

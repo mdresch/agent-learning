@@ -1,0 +1,143 @@
+"""Plan lint checks (ADR-012; FDD-012 section 3). Pure: standard library only, no I/O, no storage."""
+
+from __future__ import annotations
+
+import re
+from collections.abc import Mapping, Sequence
+from typing import Any
+
+from .standards import (
+    DOMAINS,
+    GENERATORS,
+    PLAN_STANDARDS,
+    REQUIRED_KEYS,
+    ROUTES,
+    LintFlag,
+)
+
+_PLAN_ID = re.compile(r"[a-z][a-z0-9]*(?:-[a-z0-9]+)*", re.ASCII)
+_VERSION = re.compile(r"[0-9]+\.[0-9]+\.[0-9]+", re.ASCII)
+_LEGACY = re.compile(r"[0-9]+\.[0-9]+ \S", re.ASCII)
+_NON_EMPTY_LISTS = ("inputs", "outputs")
+_LIST_KEYS = ("depends_on", "inputs", "outputs")
+_POLICY = {"full_plan": "approve-subsidiary-plan", "pmp_section": "approve-pmp"}
+
+
+def _flag(message: str) -> LintFlag:
+    return LintFlag(code="INVALID_METADATA", tier="B", message=message)
+
+
+def validate_metadata(metadata: Mapping[str, Any], routes: Sequence[Any] | None = None) -> list[LintFlag]:
+    """Check parsed frontmatter against the closed lists and the nine-plan table (FDD-012 section 3.2).
+
+    Returns Tier B ``INVALID_METADATA`` findings, one per problem, in a stable order. A key that is
+    missing, empty or of the wrong shape is reported once and the checks that depend on it are skipped.
+    ``routes`` are tailoring route records (read by ``plan_id`` and ``route``).
+    """
+    if not isinstance(metadata, Mapping):
+        raise TypeError("metadata must be a mapping")
+    if not metadata:
+        return [_flag("no metadata: the frontmatter is empty")]
+
+    flags: list[LintFlag] = []
+    bad: set[str] = set()
+
+    def fail(key: str, message: str) -> None:
+        bad.add(key)
+        flags.append(_flag(message))
+
+    # 1. Required keys: present, the right shape, not empty.
+    valid: dict[str, Any] = {}
+    for key in REQUIRED_KEYS:
+        if key not in metadata:
+            fail(key, f"{key} is required but missing")
+            continue
+        value = metadata[key]
+        if key in _LIST_KEYS:
+            if not isinstance(value, tuple):
+                fail(key, f"{key} must be a list, got {value!r}")
+            elif key in _NON_EMPTY_LISTS and not value:
+                fail(key, f"{key} is required but empty")
+            else:
+                valid[key] = value
+        elif not isinstance(value, str):
+            fail(key, f"{key} must be a single value, got {value!r}")
+        elif value.strip() == "":
+            fail(key, f"{key} is required but empty")
+        else:
+            valid[key] = value
+
+    # 2. plan_id format and the plan ids this plan depends on.
+    if "plan_id" in valid and not _PLAN_ID.fullmatch(valid["plan_id"]):
+        fail("plan_id", f"plan_id {valid['plan_id']!r} must be kebab-case (a-z, 0-9, -)")
+    for item in valid.get("depends_on", ()):
+        if not _PLAN_ID.fullmatch(item):
+            fail("depends_on", f"depends_on item {item!r} must be a kebab-case plan_id")
+
+    # 3. Fixed values and formats.
+    if "pmbok_edition" in valid and valid["pmbok_edition"] != "PMBOK 8":
+        fail("pmbok_edition", f"pmbok_edition {valid['pmbok_edition']!r} must be 'PMBOK 8'")
+    if "pmbok_focus_area" in valid and valid["pmbok_focus_area"] != "Planning":
+        fail("pmbok_focus_area", f"pmbok_focus_area {valid['pmbok_focus_area']!r} must be 'Planning'")
+    if "version" in valid and not _VERSION.fullmatch(valid["version"]):
+        fail("version", f"version {valid['version']!r} must look like 1.0.0")
+    if "legacy_process" in valid and not _LEGACY.match(valid["legacy_process"]):
+        fail("legacy_process", f"legacy_process {valid['legacy_process']!r} must look like '5.1 Plan Scope Management'")
+
+    # 4. Domains from the closed list of seven.
+    if "primary_pmbok_domain" in valid and valid["primary_pmbok_domain"] not in DOMAINS:
+        fail("primary_pmbok_domain", f"primary_pmbok_domain {valid['primary_pmbok_domain']!r} is not one of {', '.join(DOMAINS)}")
+    secondary = metadata.get("secondary_pmbok_domains", ())
+    if not isinstance(secondary, tuple):
+        fail("secondary_pmbok_domains", f"secondary_pmbok_domains must be a list, got {secondary!r}")
+    else:
+        for item in secondary:
+            if item not in DOMAINS:
+                fail("secondary_pmbok_domains", f"secondary_pmbok_domains item {item!r} is not one of {', '.join(DOMAINS)}")
+
+    # 5. Closed lists for route and generator.
+    route_ok = "route" in valid and valid["route"] in ROUTES
+    if "route" in valid and not route_ok:
+        fail("route", f"route {valid['route']!r} is not one of {', '.join(ROUTES)}")
+    if "generator" in valid and valid["generator"] not in GENERATORS:
+        fail("generator", f"generator {valid['generator']!r} is not one of {', '.join(GENERATORS)}")
+
+    # 6. The governance policy follows the route (any value is accepted for not_applicable).
+    if route_ok and valid["route"] in _POLICY and "governance_policy" in valid:
+        expected = _POLICY[valid["route"]]
+        if valid["governance_policy"] != expected:
+            fail(
+                "governance_policy",
+                f"governance_policy {valid['governance_policy']!r} must be {expected!r} for route {valid['route']!r}",
+            )
+
+    # 7. A known plan must follow its row of the ADR-012 section 4.4 table.
+    row = PLAN_STANDARDS.get(valid.get("plan_id", ""))
+    if row is not None:
+        plan_id = valid["plan_id"]
+        if "primary_pmbok_domain" in valid and "primary_pmbok_domain" not in bad and valid["primary_pmbok_domain"] != row.primary:
+            fail(
+                "primary_pmbok_domain",
+                f"primary_pmbok_domain {valid['primary_pmbok_domain']!r} differs from the ADR-012 table for {plan_id}: {row.primary!r}",
+            )
+        if isinstance(secondary, tuple) and "secondary_pmbok_domains" not in bad and set(secondary) != set(row.secondary):
+            fail(
+                "secondary_pmbok_domains",
+                f"secondary_pmbok_domains {list(secondary)!r} differs from the ADR-012 table for {plan_id}: {list(row.secondary)!r}",
+            )
+        if "legacy_process" in valid and "legacy_process" not in bad and valid["legacy_process"].split(" ")[0] != row.legacy:
+            fail(
+                "legacy_process",
+                f"legacy_process {valid['legacy_process']!r} differs from the ADR-012 table for {plan_id}: number {row.legacy}",
+            )
+
+    # 8. The frontmatter route agrees with the tailoring route recorded for the plan.
+    if routes and route_ok and "legacy_process" in valid and "legacy_process" not in bad:
+        number = valid["legacy_process"].split(" ")[0]
+        record = next((r for r in routes if str(r.plan_id) == number), None)
+        if record is not None:
+            recorded = getattr(record.route, "value", record.route)
+            if recorded != valid["route"]:
+                fail("route", f"route {valid['route']!r} differs from the tailoring route {recorded!r} recorded for plan {number}")
+
+    return flags

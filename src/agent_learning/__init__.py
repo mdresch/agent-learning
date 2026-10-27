@@ -93,7 +93,7 @@ from .review_triage import (
     reconstruct_record,
     reliability,
 )
-from .pmbok import LintFlag, ParsedPlan, parse_frontmatter
+from .pmbok import PLAN_STANDARDS, LintFlag, ParsedPlan, PlanStandard, parse_frontmatter, validate_metadata
 from .tailoring import (
     BASELINE_SUBSTANTIATING,
     INTEGRATION_ELEMENTS,
@@ -326,9 +326,12 @@ __all__ = [
     "LedgerEntry",
     "current_entries",
     "parse_ledger",
+    "PLAN_STANDARDS",
     "LintFlag",
     "ParsedPlan",
+    "PlanStandard",
     "parse_frontmatter",
+    "validate_metadata",
     "shape_episode_reward",
     "wilson_lower_bound",
 ]

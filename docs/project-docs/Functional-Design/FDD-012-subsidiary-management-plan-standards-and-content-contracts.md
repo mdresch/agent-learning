@@ -106,7 +106,7 @@ Implements the grammar of ADR-012 §4.2.1 and ADR-034 §4.3.1, rule by rule:
 ### 3.2 `validate_metadata(metadata, routes=None) -> list[LintFlag]` (BRU-012-03)
 Returns Tier B `INVALID_METADATA` findings, one per problem, in the order below. `metadata` is the parsed mapping; an empty mapping returns one finding (no metadata).
 1. Each key in `REQUIRED_KEYS` is present and non-empty (a list key may not be `()` for `inputs` and `outputs`; `depends_on` may be `()`).
-2. `plan_id` matches `^[a-z][a-z0-9-]*$`; every `depends_on` item matches the same pattern.
+2. `plan_id` matches `^[a-z][a-z0-9]*(-[a-z0-9]+)*$` (kebab-case: no leading, trailing or doubled hyphen); every `depends_on` item matches the same pattern. *(Tightened in Story 12.2 from `^[a-z][a-z0-9-]*$` to match ADR-012 section 4.2 "kebab-case"; Q-29-1.)*
 3. `pmbok_edition == "PMBOK 8"`, `pmbok_focus_area == "Planning"`, `version` matches `^\d+\.\d+\.\d+$`, `legacy_process` matches `^\d+\.\d+ \S`.
 4. `primary_pmbok_domain` is in `DOMAINS`; every item of `secondary_pmbok_domains` is in `DOMAINS`.
 5. `route` is in `ROUTES`; `generator` is in `GENERATORS`.

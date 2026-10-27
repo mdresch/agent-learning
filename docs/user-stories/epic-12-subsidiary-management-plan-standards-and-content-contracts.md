@@ -27,7 +27,7 @@ Four stories build the pure plan lint in `src/agent_learning/pmbok/`. Each rule 
 
 ## Story 12.2 — Metadata Validation and the Nine-Plan Standards
 
-**Status:** Ready (2026-10-27)  
+**Status:** Completed (2026-10-27)  
 **As** a governance reviewer,  
 **I want** a plan's metadata checked against the closed lists and the ADR-012 table,  
 **So that** a wrong domain, route or generator is a visible finding and the route agrees with the tailoring matrix.

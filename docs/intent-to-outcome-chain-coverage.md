@@ -113,6 +113,24 @@ flowchart TD
 - **Separate from the execution loop.** Never a lesson learned, never Stage 17, never Intent Refinement (Stage 18). No new TaskPolicy.
 - **Versioning.** Design-time revisions are patch increments (`PMP-BL-v1.0.x`); minor increments (`PMP-BL-v1.1.0`) stay reserved for Stage 17 adaptations.
 
+### 3.2 The Stage 13-15 knowledge path (Observation → Insight → Lesson Learned)
+
+A written path for Stages 13-15 was adopted by the Project Owner on 2026-10-27 for the SIDPA template and for Kayros Bay (their PROP-002); it is in the template's `docs/chain-coverage.md` section 3.2. In short: Stage 13 records only what was seen (what ran, when, the evidence), with no interpretation or fix; Stage 14 decides with `resolve-kb-conflict` (`trust_existing`, `supersede`, `flag`) whether an insight contradicts an existing knowledge-base node, and the knowledge base can never supersede an accepted project document; Stage 15 states the lesson; a lesson that changes how the project works enters Stage 16 with `evidence_basis: execution`. A contradiction visible from the documents alone is a baseline feedback item (section 3.1); a lesson from executed work that shows an accepted ADR to be wrong takes the execution route.
+
+**What exists in this repository, as of 2026-10-27.**
+| Stage | Realized here as | Not here |
+|---|---|---|
+| 13 Observation | Review findings recorded in the fixed triage shape in `implementation-log.md` (ADR-036 `review_triage`), and the log entries themselves | No vault capture, no `OBS-nnnn` notes |
+| 14 Insight | The "root cause" of a register entry | No separate insight record, no `resolve-kb-conflict` policy or shape, no episodes |
+| 15 Lesson Learned | `docs/project-docs/Lessons-Learned-Register.md` (`LL-###`, ADR-010 light recap, once per epic, human-accepted). ADR-010 states it does not itself define Stage 15 | The register is not ingested into the shared vault, whose `lesson_learned` notes use `Lesson-nnnn` ids |
+
+This repository has no recorded `resolve-kb-conflict` decision, so no shape is declared here: a policy is built only on a real, repeating judgment, and a shape is declared idle only once independently confirmed. The Stage 16 input from a lesson is `evidence_basis: execution` (ADR-037 section 4.10, Proposed).
+
+**Open decisions for the Project Owner** (nothing below is applied):
+1. Whether review-triage records count as Stage 13 observations and register root causes as Stage 14 insights, or Stages 13-14 stay unbuilt here.
+2. Whether register entries are ingested into the shared vault as lesson notes, which needs an id mapping (`LL-###` to `Lesson-nnnn`) and a reserved id range.
+3. Whether this repository declares the `resolve-kb-conflict` shape, which it should do only after a real adjudication.
+
 ---
 
 ## 4. Active & Available Policies in Governance Lineage

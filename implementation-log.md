@@ -663,7 +663,7 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `src/agent_learning/pmbok/standards.py` (`FLOORS`, `CAPS`, `NONE_MIN_TOKENS`, `MIN_OUT_OF_SCOPE_ITEMS`, `MAX_AUTO_RETRIES`, `HEADINGS`, `TOKEN`)
   - `src/agent_learning/pmbok/lint.py` (`count_words`, `check_content`, `omission_flags`, `lint_plan`, `LintResult`)
   - `src/agent_learning/pmbok/__init__.py`, `src/agent_learning/__init__.py` (exports)
-  - `tests/test_plan_content.py` (new, 89 tests)
+  - `tests/test_plan_content.py` (new, 90 tests; an earlier count of 89 in this entry was wrong)
   - `.claude/skills/plan-lint/SKILL.md`, `docs/user-stories/epic-12-...md` (Story 12.3 status Completed)
 - **Validation:**
   - $AC_0$: `count_words` counts "don't" as one word and "well-known" as two, ignores `##`, `---`, `|` and `-`, removes raw HTML comments (single and multi-line) and fenced code (an unclosed fence runs to the end), and returns a known count for a fixed text.
@@ -694,4 +694,5 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Open for a human:** whether ADR-012 section 4.3.1 and ADR-034 should state the underscore behavior as intended or change the regex (an ADR amendment and a test change); and I1 to I8, which FDD-012 section 3.3 and 3.4 do not state.
 - **Review (Step 8):** Amazon Q round 1 reviewed head `3891d94` (two reviews, no inline comments). Both say no merge-blocking defect and verify the fence handling, option validation, boundary scan and `word_count=None` cases. One non-blocking remark.
   - `Q-30-1 | test gap | verified: yes | decision: accepted | the test helper adr_frontmatter used an unguarded next(glob(...)), which raises a bare StopIteration if ADR-025 is absent; it now fails with a clear assertion message, as in Q-28-1. Q called the pattern pre-existing, but the helper is new in this PR | fix: b1c183f`
+  - Verdict: Q's explicit reply on head `8f9ad84` is "No further additions required. No merge-blocking issues." Its findings table lists items that were never raised (the PR's own contents, restated as resolved); only Q-30-1 was a finding. It also notes `MAX_AUTO_RETRIES = 2` is added in `standards.py` and unused by Story 12.3 code: it is a Story 12.4 constant (FDD-012 section 2.1) declared early with the other constants. This log edit is the only change after that head.
 - **Breakout recap (ADR-010 section 4.1):** not due; Story 12.3 is the third of four stories in Epic 12.

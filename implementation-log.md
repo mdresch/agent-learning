@@ -650,3 +650,47 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - Verdict: Q's explicit reply on head `c2f1aa4` is "Explicit verdict: No. No further additions are required and no merge-blocking issues remain." This log line is the only change after that head.
 - **FDD amendment:** FDD-012 section 3.2 item 2 now carries the stricter plan id pattern with a note naming Q-29-1. For a human to confirm.
 - **Breakout recap (ADR-010 section 4.1):** not due; Story 12.2 is the second of four stories in Epic 12.
+
+
+---
+
+## Story 12.3 — The Content Contract: Headings, Length and Boundaries
+- **Commit:** `42a4cdf`
+- **Date:** 2026-10-27
+- **Branch:** `feat/story-12.3`
+- **Source ADR / BRD / FDD:** ADR-012 (sections 4.3.1 to 4.3.3 and 4.4), BRD-012 (BRU-012-04, BRU-012-05), FDD-012 (sections 3.3 to 3.6). Approved in PR #27; Stories 12.1 and 12.2 merged in PR #28 and PR #29.
+- **Files Modified/Created:**
+  - `src/agent_learning/pmbok/standards.py` (`FLOORS`, `CAPS`, `NONE_MIN_TOKENS`, `MIN_OUT_OF_SCOPE_ITEMS`, `MAX_AUTO_RETRIES`, `HEADINGS`, `TOKEN`)
+  - `src/agent_learning/pmbok/lint.py` (`count_words`, `check_content`, `omission_flags`, `lint_plan`, `LintResult`)
+  - `src/agent_learning/pmbok/__init__.py`, `src/agent_learning/__init__.py` (exports)
+  - `tests/test_plan_content.py` (new, 89 tests)
+  - `.claude/skills/plan-lint/SKILL.md`, `docs/user-stories/epic-12-...md` (Story 12.3 status Completed)
+- **Validation:**
+  - $AC_0$: `count_words` counts "don't" as one word and "well-known" as two, ignores `##`, `---`, `|` and `-`, removes raw HTML comments (single and multi-line) and fenced code (an unclosed fence runs to the end), and returns a known count for a fixed text.
+  - $AC_1$: each missing mandatory heading is one Tier B `MISSING_REQUIRED_SECTION`; present headings give none; heading order is not checked; the patterns equal the ADR-012 section 4.3.1 patterns.
+  - $AC_2$: below the floor (150 section, 600 full plan) is a Tier C `BELOW_STANDARD_FLOOR`, equal to the floor is not; `min_floor_words` raises the floor and a lower value is ignored.
+  - $AC_3$: above 800 (section) gives `EXCEEDS_SECTION_CAP`, above 5,000 (full plan) gives `EXCEEDS_PLAN_CAP`, equal to the cap gives nothing.
+  - $AC_4$: Section 1 passes with a `None:` line of at least 10 tokens or an out-of-scope marker followed by at least the required distinct bullets; a short rationale, too few bullets and no declaration each give one Tier C `MISSING_BOUNDARY_DEF`; a plan with no Section 1 heading gets none.
+  - $AC_5$: `check_content` returns `[]` for `not_applicable`; `lint_plan` still validates the metadata.
+  - $AC_6$: `omission_flags` turns each tailoring `baseline_plan_omitted` flag into a Tier C `OMISSION_OF_BASE_PLAN`; only plans 5.1, 6.1 and 7.1 can raise it.
+  - $AC_7$: `lint_plan` runs parse, metadata and content in the stable order, returns only grammar findings and `word_count=None` when parsing failed, is deterministic and gives equal results for LF and CRLF; a 1,500-seed sweep and edge texts never raise.
+  - Observed RED first: collection error (`agent_learning.pmbok.lint` had none of the new names). After implementation 2 tests failed: one because my helper asked for 10 words when the three headings alone are 23 (test bug), one because the ADR tokenizer behaves differently from my assumption (see Found, not fixed).
+  - Full suite with `--ignore=tests/test_spark.py --ignore=tests/pmbok`: **1138 passed, 2 skipped**. Not covered: `tests/pmbok` (legacy, needs `tenacity`) and `tests/test_spark.py` (LL-013).
+  - `ruff check` on the new files: clean.
+- **Interpretations not stated verbatim in the acceptance criteria (LL-011), recorded in the test header:**
+  - I1: a fence is a line starting (after whitespace) with three backticks; only backtick fences count.
+  - I2: fences are removed first, then HTML comments; an unclosed comment runs to the end.
+  - I3: headings and Section 1 are read from the visible text, so a heading or a boundary declaration inside code or a comment does not count.
+  - I4: `check_content` raises `ValueError` for a route outside the closed list and `TypeError` for a non-str body or a non-int option (bool rejected); a value below the baseline is ignored.
+  - I5: Section 1 runs from the end of its heading to the Section 2 heading found after it, or to the end.
+  - I6: after a marker line, scanning skips blank and prose lines until the first bullet, stops at a heading, and after the first bullet stops at prose; bullets are distinct by lower-cased text.
+  - I7: a qualifying `None:` line or marker passes; otherwise exactly one finding names the reason.
+  - I8: the marker is "out-of-scope" or "out of scope", case-insensitive, anywhere in a line.
+  - I9: `omission_flags` keeps the tailoring order; message and evidence come from the tailoring flag.
+  - I10: `lint_plan` gives `word_count=None` when parsing fails, when the route is not a valid string and when it is `not_applicable`.
+  - I11: a count equal to the floor or the cap is not a finding.
+  - I12: the ADR tokenizer counts nothing for a word touching an underscore (see below).
+- **Found, not fixed (outside this story):** the normative tokenizer `\b[^\W_]+(?:['’][^\W_]+)?\b` (ADR-012 section 4.3.1, ADR-034) gives no token at all for `snake_case` or `plan_id`: the underscore is a word character, so there is no `\b` after the first part, and the whole word is skipped, not split into two. ADR-012 describes it as "letters and digits, excluding underscore", which reads as splitting. Plans full of identifiers will count lower than a reader expects. The test pins the actual behavior.
+- **Open for a human:** whether ADR-012 section 4.3.1 and ADR-034 should state the underscore behavior as intended or change the regex (an ADR amendment and a test change); and I1 to I8, which FDD-012 section 3.3 and 3.4 do not state.
+- **Review:** pending; the Q review rounds and the findings accepted or declined are added before the merge (Step 8).
+- **Breakout recap (ADR-010 section 4.1):** not due; Story 12.3 is the third of four stories in Epic 12.

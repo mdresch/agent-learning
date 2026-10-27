@@ -24,7 +24,7 @@ description: Automated governance change pipeline (Stage 16) and the ADR-010 Bre
 - Deferred audit logging (audit integrity): `Episode` audit record is constructed and persisted strictly after progression verification, ensuring blocked regressions never leave false autonomous execution records in storage.
 - Progression gating (ADR-005): candidate amendment verified via `compare_decision_results()`. Progression yields +1.0 reward; regression triggers healing/reversion, disposition override to `escalate_to_human`, and yields -1.5 penalty.
 - Stage 16 scope boundary: pipeline terminates with a validated governance baseline; Stage 17 Execution Adaptation is strictly out of scope.
-- Design-time route (ADR-037, Proposed): a Stage 7-8 baseline finding (`BFI-NNN`) is classified and routed by this same pair with `evidence_basis = design_time`, goes Stage 16 → Stage 6, and never goes through a Stage 17 Adaptation Plan. `evaluate_governance_diff` does not take `evidence_basis` yet (a later story after ADR-037 is accepted). Do not use this route for evidence from executed work.
+- Design-time route (ADR-037, **Proposed: inert until ADR-037 is accepted and its `evidence_basis` story is merged**): a Stage 7-8 baseline finding (`BFI-NNN`) would be classified and routed by this same pair with `evidence_basis = design_time`, go Stage 16 → Stage 6, and never go through a Stage 17 Adaptation Plan. Until then do not call `evaluate_governance_diff` for a design-time finding: it records no `evidence_basis`, so the episode would read as `execution`. Not for evidence from executed work.
 - Zero storage expansion: no new Cosmos containers or LearningStore record types (ADR-002 Invariant #2).
 
 ## 2. Breakout & Recap Session (`agent_learning.lessons_learned`)

@@ -78,6 +78,8 @@ Design-time revisions are patch increments (`PMP-BL-v1.0.x`). Minor increments (
 ### 4.10 Evidence separation in episodes
 Change-control episodes carry `evidence_basis: design_time | execution`. `evaluate_governance_diff` takes an optional `evidence_basis` (closed list, default `execution`, so existing callers are unchanged) and writes it into the `audit_evidence` envelope and the audit episode metadata. It is not a feature of the low-authority bandit (ADR-006 non-interpretation); it exists so that any later learning from these episodes does not mix the two kinds of evidence. The code change follows this ADR's acceptance as its own BRD, FDD and Epic.
 
+**Gate until then.** The route is specified here and is gated, in code, on that story. Until the parameter exists, `evaluate_governance_diff` must not be used for a design-time BFI: it records no `evidence_basis`, and an episode without the key reads as `execution`. A design-time finding is classified instead through the policy CLI (`task-policy-decide`, `task-episode-register`) with `evidence_basis: design_time` written into the episode metadata by the caller.
+
 ### 4.11 Plan and template standard
 - The PMP's feedback section names both loops and carries the Pending Baseline Feedback table. The PMP is produced by tooling and is not hand-edited: the standard belongs in the generator. The legacy generator is being decommissioned (ADR-034), so the ported PMP builder must emit it; this ADR does not change the legacy generator.
 - The SIDPA template carries the matching changes (chain coverage §3.1, Rule #21, PMP template §3, and the four spec templates).

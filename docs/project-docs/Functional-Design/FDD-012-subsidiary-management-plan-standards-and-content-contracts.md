@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-012](../../adr/ADR-012-subsidiary-management-plan-standards-and-content-contracts.md) — Accepted (2026-10-25)  
 **Source BRD:** [BRD-012](../Business-Requirements/BRD-012-subsidiary-management-plan-standards-and-content-contracts.md)  
-**Status:** Draft — functional design derived from Accepted ADR-012 and BRD-012; awaiting `approve-fdd`.  
+**Status:** Approved (2026-10-27, Menno) — derived from Accepted ADR-012 and BRD-012; adjudicated via `approve-fdd` (robust utility 0.728, episode `efd38564-7812-491f-bcc7-e7bb8b4138e0`). The eight interpretations of section 6 are accepted as written.  
 
 ---
 

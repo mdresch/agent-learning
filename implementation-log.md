@@ -737,3 +737,13 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Review (Step 8):** Amazon Q round 1 reviewed head `0c18cf9` (two reviews, no inline comments). Both say no merge-blocking defect and confirm the seven rules, the retry boundary, the two-part generator guard, the tier check and the exports. No findings were raised, so none were accepted or declined.
   - Verdict: Q's explicit reply on head `0c18cf9` is "No. No further additions are required and no merge-blocking issues remain." It repeats two items already recorded as open for a human: FDD-012 section 3.7 does not state that an unreadable generator escalates with an empty flag list, and the underscore tokenizer behavior from Story 12.3. This log edit is the only change after that head.
 - **Breakout recap (ADR-010 section 4.1):** due; this is the last story of Epic 12. Held after the merge (Step 9); lessons proposed to the maintainer, not yet written to the register.
+
+
+---
+
+## Epic 12 — Breakout Recap (ADR-010 section 4.1), correction to the Story 12.4 entry
+- **Date:** 2026-10-27
+- **Correction:** the Story 12.4 entry above says the recap was pending. It was held after PR #32 merged. Five lessons were proposed and accepted by Menno ("accept") and recorded as LL-022 to LL-026 in `docs/project-docs/Lessons-Learned-Register.md`: a normative pattern must be run, not paraphrased (LL-022); never read a document at import time in a test file (LL-023); check what an acceptance criterion leans on before scoring a gate (LL-024); shell heredocs and tool inputs change backslashes (LL-025); do not run an auto-fixer on files outside your change (LL-026).
+- **Propagation:** Tier 2: `implement-story` Steps 3, 5 and 6 and the `plan-lint` skill. Tier 3 (`sidpa-template`) is proposed, not done.
+- **Held back:** a sixth candidate from the ADR-037 PR (a skill note that depends on unbuilt code must be marked inert, Q-31-1) was not confirmed and is not recorded.
+- **Review:** the recap PR goes through the Q loop like any other.

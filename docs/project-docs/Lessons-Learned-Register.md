@@ -32,6 +32,11 @@
 | [LL-019](#ll-019--evidence-must-be-unambiguous-in-its-own-representation) | Evidence Must Be Unambiguous in Its Own Representation | Epic 36 / Story 36.3 | Universal Review | 2026-10-26 |
 | [LL-020](#ll-020--read-a-mutable-global-once) | Read a Mutable Global Once | Epic 3 / Story 3.1 | Universal Code Quality | 2026-10-26 |
 | [LL-021](#ll-021--read-a-posted-command-back-before-trusting-a-reply) | Read a Posted Command Back Before Trusting a Reply | Epic 3 / Story 3.1 | Universal Process | 2026-10-26 |
+| [LL-022](#ll-022--a-normative-pattern-must-be-run-not-paraphrased) | A Normative Pattern Must Be Run, Not Paraphrased | Epic 12 / Story 12.3 | Universal Testing | 2026-10-27 |
+| [LL-023](#ll-023--never-read-a-document-at-import-time-in-a-test-file) | Never Read a Document at Import Time in a Test File | Epic 12 / Stories 12.1 and 12.3 | Universal Testing | 2026-10-27 |
+| [LL-024](#ll-024--check-what-an-acceptance-criterion-leans-on-before-scoring-a-gate) | Check What an Acceptance Criterion Leans On Before Scoring a Gate | Epic 12 / Story 12.2 | Universal Process | 2026-10-27 |
+| [LL-025](#ll-025--shell-heredocs-and-tool-inputs-change-backslashes) | Shell Heredocs and Tool Inputs Change Backslashes | Epic 12 / Story 12.3 | Universal Tooling | 2026-10-27 |
+| [LL-026](#ll-026--do-not-run-an-auto-fixer-on-files-outside-your-change) | Do Not Run an Auto-Fixer on Files Outside Your Change | Epic 12 / Story 12.4 | Universal Tooling | 2026-10-27 |
 
 ---
 
@@ -335,3 +340,64 @@
 - **The Trap:** On Windows Git Bash, `gh pr comment --body "/q review"` had its leading `/` rewritten into a path, so the reviewer never received the command. The replies that followed were its automatic reviews, and a polling script counted them as answers to the command.
 - **The Root Cause:** The shell altered the argument on its way to the tool, and nothing checked what was actually posted or which commit a reply was for.
 - **Actionable Invariant:** After posting a command to an external reviewer, read the posted text back, and accept a reply only when it is for the head commit the command named. Prefix such commands with `MSYS_NO_PATHCONV=1` or pass the body with `--body-file`.
+
+
+---
+
+### LL-022 — A Normative Pattern Must Be Run, Not Paraphrased
+- **Identifier:** `LL-022`
+- **Date:** 2026-10-27
+- **Epic / Story:** Epic 12 / Story 12.3 (PR [#30](https://github.com/mdresch/agent-learning/pull/30))
+- **Scope:** Universal Testing
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/plan-lint/SKILL.md` (done) and `.claude/skills/implement-story/SKILL.md` (Step 3); Tier 3: `sidpa-template` implement-story skill (proposed, needs human approval before any cross-repo change)
+- **The Trap:** ADR-012 section 4.3.1 describes its word tokenizer in prose ("letters and digits, excluding underscore") and gives the pattern. A test written from the prose expected `snake_case` to count as two words. The pattern, run on that input, finds no token at all, because the underscore is a word character for `\b` and the whole word is skipped. The mismatch surfaced only because the test ran the real pattern.
+- **The Root Cause:** The prose was read as the specification and the pattern as its illustration. When both are normative, they can disagree, and only running the pattern shows it.
+- **Actionable Invariant:** Before writing a test from a spec that gives both prose and a pattern, run the pattern on every case the prose claims. Where they differ, pin the pattern's actual behavior in the test, report the gap to the maintainer, and change neither the code nor the ADR silently.
+
+---
+
+### LL-023 — Never Read a Document at Import Time in a Test File
+- **Identifier:** `LL-023`
+- **Date:** 2026-10-27
+- **Epic / Story:** Epic 12 / Stories 12.1 and 12.3 (PRs [#28](https://github.com/mdresch/agent-learning/pull/28) and [#30](https://github.com/mdresch/agent-learning/pull/30); Q-28-1 and Q-30-1)
+- **Scope:** Universal Testing
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/implement-story/SKILL.md` (Step 3); Tier 3: `sidpa-template` implement-story skill (proposed, needs human approval before any cross-repo change)
+- **The Trap:** A test file looked up an ADR with `next(glob(...))` at module level. If the file is missing, import raises `StopIteration` and every test in the file is lost as one collection error. The same weakness came back in a new helper two stories later and was flagged again.
+- **The Root Cause:** The lookup was written as a constant. A constant is evaluated at import, where a failure cannot be tied to the test that needed the file.
+- **Actionable Invariant:** Read documents inside the helper or test that needs them, and assert that the file exists with a message naming the missing path. Do not default to `None` or skip: a silent skip hides drift between a spec and the code.
+
+---
+
+### LL-024 — Check What an Acceptance Criterion Leans On Before Scoring a Gate
+- **Identifier:** `LL-024`
+- **Date:** 2026-10-27
+- **Epic / Story:** Epic 12 / Story 12.2 (approval gates, PR [#27](https://github.com/mdresch/agent-learning/pull/27))
+- **Scope:** Universal Process
+- **Tier 2/3 Propagation Target:** Tier 1 only
+- **The Trap:** Story 12.2 AC_5 said the frontmatter of each daughter ADR would be "read from `docs/adr/`". The examples sit inside fenced blocks in the middle of those documents, not at the top, so a test had no stated way to find them. The gap was found only while checking the claims the story depends on, before scoring `approve-user-stories`.
+- **The Root Cause:** An acceptance criterion named a source without saying how to extract from it, and the drafting step never ran the extraction.
+- **Actionable Invariant:** Before scoring an approval gate, run or open each external artifact a criterion depends on, and fix the criterion so it states the extraction rule. A gate scores what it is shown; verify the claims behind it first.
+
+---
+
+### LL-025 — Shell Heredocs and Tool Inputs Change Backslashes
+- **Identifier:** `LL-025`
+- **Date:** 2026-10-27
+- **Epic / Story:** Epic 12 / Story 12.3 (PR [#30](https://github.com/mdresch/agent-learning/pull/30))
+- **Scope:** Universal Tooling
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/implement-story/SKILL.md` (Step 5); Tier 3: `sidpa-template` implement-story skill (proposed, needs human approval before any cross-repo change)
+- **The Trap:** A tokenizer pattern was appended through a shell heredoc. Its `\b` markers arrived as backspace characters, so the pattern silently lost both word boundaries. A tool parameter likewise turned a `\u2019` escape into the character itself. Nothing failed at write time; the test comparing the pattern caught it.
+- **The Root Cause:** The text passed through a layer that interprets escape sequences before the file received it.
+- **Actionable Invariant:** Write code that contains backslashes or escape sequences with the file-write tool, not a shell heredoc, and read the result back with a measurement that does not depend on escaping (see LL-019): the pattern's `.pattern` value, a character count, or a match on a real input.
+
+---
+
+### LL-026 — Do Not Run an Auto-Fixer on Files Outside Your Change
+- **Identifier:** `LL-026`
+- **Date:** 2026-10-27
+- **Epic / Story:** Epic 12 / Story 12.4 (PR [#32](https://github.com/mdresch/agent-learning/pull/32))
+- **Scope:** Universal Tooling
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/implement-story/SKILL.md` (Step 6); Tier 3: `sidpa-template` implement-story skill (proposed, needs human approval before any cross-repo change)
+- **The Trap:** `ruff check --fix` was run on `src/agent_learning/__init__.py` after adding three exports. The file had an import block that was already out of order, and the fixer re-sorted all of it: 251 changed lines in a story that needed 6.
+- **The Root Cause:** The fixer repairs every violation in a file, not only the ones the change introduced.
+- **Actionable Invariant:** Run `ruff check --fix` only on files the change created. For an existing file, run `ruff check` without `--fix` and fix new findings by hand. Read `git diff --stat` before committing; a small change with a large diff is a signal to revert and redo it.

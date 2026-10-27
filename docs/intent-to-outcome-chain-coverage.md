@@ -69,6 +69,8 @@ There is an important distinction between the abstract conceptual trace and the 
 
 ## 3. The Continuous Adaptation & PMP Feedback Cycle
 
+The approved baseline (Stage 6) has two routes back, kept apart (ADR-037, Proposed). This section's cycle is the **execution loop**; section 3.1 is the **design-time loop**.
+
 When an operational gap, audit finding, or governance amendment occurs:
 
 ```mermaid
@@ -85,6 +87,31 @@ flowchart TD
     A -->|"Refines strategic motivation"| IR["Stage 18: Intent Refinement<br/>(4.7 Close Phase / Strategic Feedback)<br/>approve-intent-refinement"]
     IR -->|"Updates Spark / Ideation"| SPARK["Stage 1: Intent<br/>(Pre-Project Initiating)<br/>approve-ideation"]
 ```
+
+### 3.1 The design-time loop (Stage 7-8 → Stage 16 → Stage 6) — Proposed in ADR-037
+
+The cycle above is the **execution loop**: its trigger is evidence from executed work (Stages 9-15). A defect in the approved baseline found while writing Stage 7 requirements or checking Stage 8 readiness has no such evidence yet, so it takes a second route, alongside the first and not replacing it. This route becomes active when ADR-037 is accepted.
+
+```mermaid
+flowchart TD
+    R["Stage 7 review / Stage 8 readiness check"] -->|"finding cites the documents"| B["BFI-NNN logged<br/>(PMP Pending Baseline Feedback)"]
+    B --> C["Stage 16: classify-diff-type<br/>evidence_basis = design_time"]
+    C --> E["escalate-diff-response<br/>(Charter approval-limit thresholds)"]
+    E -->|"editorial"| ED["Apply and log"]
+    E -->|"upstream ADR / BRD / FDD"| UP["Amend, re-confirm with its own policy"]
+    E -->|"within PM authority"| PM["PM revises the plan; the plan's policy re-approves"]
+    E -->|"Steering Committee"| BRP["Baseline Revision Package<br/>approve-pmp records PMP-BL-v1.0.x"]
+    ED --> X["Cascade check of downstream Stage 7 documents"]
+    UP --> X
+    PM --> X
+    BRP --> X
+    X -->|"re-enter where the finding was raised"| R
+```
+
+- **Package, not amendment.** A Steering-Committee-level item is submitted as a Baseline Revision Package: always the revised PMP, the changed plans and the standard set (Spark, Ideation, Business Case, Benefits Statement, Stakeholder Register); the Charter only if amended.
+- **Guardrails.** Logic fixes and recorded variance only; no new durations, costs or estimated dates; no invented evidence; human approval throughout.
+- **Separate from the execution loop.** Never a lesson learned, never Stage 17, never Intent Refinement (Stage 18). No new TaskPolicy.
+- **Versioning.** Design-time revisions are patch increments (`PMP-BL-v1.0.x`); minor increments (`PMP-BL-v1.1.0`) stay reserved for Stage 17 adaptations.
 
 ---
 

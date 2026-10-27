@@ -602,3 +602,45 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-28-3 | crash risk | verified: partial | decision: declined | suggested defaulting to None or skipping when the ADR is missing; the AttributeError it predicts only follows from that default, and a skip would hide drift between the ADR and the parser | fix: none`
   - Verdict: Q's explicit reply on head `e5daa58` is "No further additions required. No merge-blocking issues." All three findings confirmed as disposed correctly. This log line is the only change after that head.
 - **Breakout recap (ADR-010 section 4.1):** not due; Story 12.1 is the first of four stories in Epic 12.
+
+
+---
+
+## Story 12.2 — Metadata Validation and the Nine-Plan Standards
+- **Commit:** `eff3c42`
+- **Date:** 2026-10-27
+- **Branch:** `feat/story-12.2`
+- **Source ADR / BRD / FDD:** ADR-012 (sections 4.2 and 4.4; daughter ADR-025 to ADR-033), BRD-012 (BRU-012-03), FDD-012 (sections 2.1 and 3.2). Approved in PR #27; Story 12.1 merged in PR #28.
+- **Files Modified/Created:**
+  - `src/agent_learning/pmbok/standards.py` (`DOMAINS`, `ROUTES`, `GENERATORS`, `REQUIRED_KEYS`, `PlanStandard`, `PLAN_STANDARDS`)
+  - `src/agent_learning/pmbok/lint.py` (new: `validate_metadata`)
+  - `src/agent_learning/pmbok/__init__.py`, `src/agent_learning/__init__.py` (exports)
+  - `tests/test_plan_metadata.py` (new, 171 tests)
+  - `.claude/skills/plan-lint/SKILL.md`, `docs/user-stories/epic-12-...md` (Story 12.2 status Completed)
+- **Validation:**
+  - $AC_0$: each of the 15 required keys, when missing, empty, whitespace-only or of the wrong shape, gives exactly one finding naming the key; `depends_on` and `secondary_pmbok_domains` may be empty, `inputs` and `outputs` may not; an empty mapping gives one "no metadata" finding.
+  - $AC_1$: domains outside the seven (primary and each secondary item), route, generator, `pmbok_edition`, `pmbok_focus_area`, `version`, `legacy_process`, `plan_id` and `depends_on` items each give a finding naming the key and the value; several problems come in the documented order.
+  - $AC_2$: `full_plan` needs `approve-subsidiary-plan`, `pmp_section` needs `approve-pmp`, `not_applicable` accepts any value.
+  - $AC_3$: `PLAN_STANDARDS` equals the table read from ADR-012 section 4.4 (nine rows, Plan Tiers 1 to 3); a differing primary domain, secondary set or legacy number is a finding; secondary order and the text after the legacy number are free; an unknown `plan_id` is checked against the closed lists only.
+  - $AC_4$: a tailoring `PlanRoute` with another route is a finding; the same route, a plan absent from the records, an empty list and `None` are not.
+  - $AC_5$: the frontmatter example in each of ADR-025 to ADR-033 (first fenced `yaml` block that starts with `---`) parses and validates with no finding, and the nine examples cover the nine plans exactly.
+  - $AC_6$: extra keys such as `cycle_id` are accepted and do not hide a real finding.
+  - Observed RED first: collection error (`agent_learning.pmbok.lint` did not exist). After implementation 6 tests failed because of a bug in my own `table_meta` helper (it passed a key twice); fixed in the test, not in the code.
+  - Full suite with `--ignore=tests/test_spark.py --ignore=tests/pmbok`: **1043 passed, 2 skipped**. Not covered: `tests/pmbok` (legacy, needs `tenacity`) and `tests/test_spark.py` (LL-013).
+  - `ruff check` on the new files: clean.
+- **Interpretations not stated verbatim in the acceptance criteria (LL-011), recorded in the test header:**
+  - I1: "empty" is an empty or whitespace-only string or an empty tuple.
+  - I2: a list key given a string, or a scalar key given a tuple, is a finding naming the key.
+  - I3: no cascade; a key reported once is skipped by the checks that depend on it.
+  - I4: route agreement is skipped when the frontmatter route is outside the closed list.
+  - I5: an empty mapping gives one "no metadata" finding; a non-mapping raises `TypeError`.
+  - I6: a finding's message names the key and shows the value (repr); `line` is `None`. A missing or empty key has no value to show.
+  - I7: a tailoring route is matched by `plan_id` equal to the legacy number; routes are read by attribute, so `lint.py` does not import `tailoring`.
+  - I8: secondary domains are compared to the table as sets.
+  - I9: the ADR example is the first fenced `yaml` block that starts with `---`.
+  - I10: the table row type is `PlanStandard(primary, secondary, legacy, plan_tier)`; `PLAN_STANDARDS` is a read-only mapping.
+  - I11: the legacy number is the text before the first space.
+- **Found, not fixed (outside this story):** none. The nine daughter ADR examples agree with the table, so no ADR needed a change.
+- **Open for a human:** whether FDD-012 section 3.2 should record I2, I3 and I4 (the no-cascade rule); they follow its "one per problem" wording but it does not say them.
+- **Review:** pending; the Q review rounds and the findings accepted or declined are added before the merge (Step 8).
+- **Breakout recap (ADR-010 section 4.1):** not due; Story 12.2 is the second of four stories in Epic 12.

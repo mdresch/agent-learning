@@ -19,6 +19,7 @@ It inherits the ADR-012 universal contract and specifies only what is Stakeholde
 * **Engagement drift:** A stakeholder who is unsupportive or unaware of a baseline change becomes a late change request.
 * **Personal data:** Registers can hold personal information; the plan must limit what is recorded.
 * **Bounded invalidation:** A Stakeholder change does not invalidate other plans (ADR-013 §4.5); a Scope change makes it stale.
+* **Zero Upfront Deliverable or Breakout Prerequisite:** Designing and baselining the Stakeholder Engagement Plan requires only the Project Charter and Scope baseline. It does **not** require pre-conducted stakeholder interview breakout sessions in advance; it establishes the stakeholder register contract and engagement mechanisms for the lifecycle.
 
 ---
 
@@ -55,6 +56,10 @@ governance_policy: "approve-subsidiary-plan" # "approve-subsidiary-plan" (if ful
 ### 4.2 Required Content
 
 #### Under `## 1. Intent, Alignment & Boundaries`
+* **PMBOK Input, Process & Output (IPO) Specification:**
+  * **Inputs:** `Project-Charter.md` (sponsor and approver roles), approved `Scope-Management-Plan.md` (affected deliverables). Zero stakeholder interviews or breakout sessions required prior to planning.
+  * **Processes:** Stakeholder identification, influence/interest grid mapping, engagement level gap assessment, targeted engagement action planning, decision rights matrix formulation.
+  * **Outputs:** `Stakeholder-Engagement-Plan.md` (or `.staging/pmp-sections/Stakeholder-Engagement-Plan.md`), Stakeholder Register schema contract, role source registry for `owner_role` values, and decision consultation protocols.
 * **Charter and Scope Traceability:** Maps stakeholders to the Charter's sponsor and approver roles and to Scope deliverables they accept or are affected by.
 * **Stakeholder Register Contract:** Location of the register and minimum fields: identifier, name or role, organization or team, project role, interest, influence, current engagement level, desired engagement level, and contact channel reference.
 * **Out-of-Scope Engagement Boundaries:** Groups explicitly not engaged (for example end users outside the pilot). The ADR-012 §4.1 `None: [rationale]` form applies when there are none.
@@ -120,8 +125,8 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 ---
 
 ## 8. Open Questions & Future Extensions
-1. **Register Location:** Whether the register is a Markdown artifact or structured data with a validator (deferred to tooling).
-2. **Role Cross-Check:** A linter check that every `owner_role` in plan frontmatter exists in the register (deferred to tooling).
+1. **Register Location:** Whether the register is a Markdown artifact or structured data with a validator (deferred to tooling). *Resolved in practice:* In accordance with ADR-002 Invariant #2 and ADR-034 anti-sprawl, the register is maintained as a Markdown table within `Stakeholder-Engagement-Plan.md` (or companion `Stakeholder-Register.md`), validated by text linting rather than custom database entities.
+2. **Role Cross-Check:** A linter check that every `owner_role` in plan frontmatter exists in the register (deferred to tooling). *Clarified:* Story 12.2 / FDD-012 enforces non-empty string format for `owner_role`; semantic consistency between frontmatter `owner_role` and register entries is verified during `approve-subsidiary-plan` human review.
 
 ---
 
@@ -131,3 +136,4 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 |---|---|---|
 | 2026-10-26 | Proposed | Initial drafting of ADR-031 under the ADR-012 framework, using ADR-025 as the structural template. |
 | 2026-10-26 | Learning Methodology Note | Added §4.4 recording the methodology that applies now and the candidates that apply only if their constraints are lifted. |
+| 2026-10-28 | Daughter ADR Review & Alignment Draft | Resolved register location and role cross-check questions under ADR-002/034, verified `depends_on: [scope-management]`, and prepared for review. |

@@ -19,6 +19,7 @@ It inherits the ADR-012 universal contract and specifies only what is Resource-s
 * **Capacity is implicit:** Allocation that is not stated cannot be compared with Schedule durations, so over-allocation is invisible.
 * **Tooling as a resource:** Environments, services and licences constrain delivery and cost; unlisted assets surface as late blockers.
 * **Bounded invalidation:** A Resource change does not invalidate Scope, Schedule or Cost (ADR-013 §4.5); a Scope or Schedule change makes Resource stale.
+* **Zero Upfront Deliverable or Breakout Prerequisite:** Designing and baselining the Resource Management Plan requires only the Project Charter and Scope/Schedule baselines. It does **not** require pre-executed staffing contracts, tooling procurement, or human breakout sessions in advance; it establishes the role catalogue and capacity-conflict mechanisms for project execution.
 
 ---
 
@@ -57,6 +58,10 @@ governance_policy: "approve-subsidiary-plan" # "approve-subsidiary-plan" (if ful
 ### 4.2 Required Content
 
 #### Under `## 1. Intent, Alignment & Boundaries`
+* **PMBOK Input, Process & Output (IPO) Specification:**
+  * **Inputs:** `Project-Charter.md` (team roles and limits), approved `Scope-Management-Plan.md` (work decomposition), approved `Schedule-Management-Plan.md` (timebox cadence). Zero executed staffing contracts, vendor procurements, or breakout sessions required prior to planning.
+  * **Processes:** Role cataloguing, accountable human assignment, agent work boundary restriction, timebox capacity and allocation modeling, tooling/environment tracking, capacity-conflict resolution.
+  * **Outputs:** `Resource-Management-Plan.md` (or `.staging/pmp-sections/Resource-Management-Plan.md`), Role Catalogue, agent concurrency/token quotas, and resource onboarding/release schedules.
 * **Charter, Scope and Schedule Traceability:** Maps resource needs to Scope epics and Schedule timeboxes.
 * **Resource Classes:** Human roles, autonomous agents, and tooling/environment assets, each declared as in or out of this plan.
 * **Out-of-Scope Resource Boundaries:** Resources explicitly not managed here (for example shared infrastructure owned by another team). The ADR-012 §4.1 `None: [rationale]` form applies when there are none.
@@ -122,8 +127,8 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 ---
 
 ## 8. Open Questions & Future Extensions
-1. **Agent Capacity Units:** How agent capacity (for example token or run budgets) should be expressed alongside human capacity.
-2. **Cost Link:** Whether Resource should become a dependency of Cost (the baseline has no such edge).
+1. **Agent Capacity Units:** How agent capacity (for example token or run budgets) should be expressed alongside human capacity. *Clarified:* Expressed as API token limits, model context quotas, or concurrent runner slots allocated per timebox.
+2. **Cost Link:** Whether Resource should become a dependency of Cost (the baseline has no such edge). *Resolved in PLAN_DAG:* In accordance with FDD-013 §2.1 and `standards.py`, Cost does NOT depend on Resource (`PLAN_DAG['cost-management'] = ('scope-management', 'schedule-management')`). Resource Management remains a Tier 3 Execution Support plan downstream of Scope and Schedule. Fixed-stage envelopes govern costs rather than bottom-up rate rollups, avoiding cyclic dependencies and preserving Tier 1 baseline stability.
 
 ---
 
@@ -133,3 +138,4 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 |---|---|---|
 | 2026-10-26 | Proposed | Initial drafting of ADR-030 under the ADR-012 framework, using ADR-025 as the structural template. |
 | 2026-10-26 | Learning Methodology Note | Added §4.4 recording the methodology that applies now and the candidates that apply only if their constraints are lifted. |
+| 2026-10-28 | Daughter ADR Review & Alignment Draft | Resolved Cost-Resource DAG dependency open question confirming Cost does not depend on Resource in `PLAN_DAG`, clarified agent capacity unit metrics, verified `depends_on`, and prepared for review. |

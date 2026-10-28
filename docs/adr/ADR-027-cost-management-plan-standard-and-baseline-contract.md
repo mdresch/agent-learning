@@ -1,7 +1,7 @@
 # ADR 027: Cost Management Plan Standard and Baseline Contract
 
 ## 1. Executive Brief
-Under **ADR-012** (§4.6), the **Cost Management Plan** is the third Baseline-Substantiating (Plan Tier 1) standard: `5.1 Scope` $\to$ `6.1 Schedule` $\to$ `7.1 Cost`. In PMBOK 8 its primary domain is **Finance** under the *Planning* Focus Area.
+Under **ADR-012** (§4.6), the **Cost Management Plan** is the third Baseline-Substantiating (Plan Tier 1) standard: `5.1 Scope` $\to$ `6.1 Schedule` $\to$ `7.1 Cost`. In PMBOK 8 its primary domain is **Finance**, with **Governance** as secondary domain (ADR-012 §4.4), under the *Planning* Focus Area.
 
 In baseline `PMP-BL-v1.0.0` the Cost plan has no normative standard. This ADR defines what a valid Cost plan must contain for a project funded in stages against a management envelope: the cost categories tracked, the estimating basis, a staged funding model, contingency and reserve rules, a burn-rate control method, and variance and change-control triggers.
 
@@ -19,6 +19,7 @@ It inherits the ADR-012 universal contract and specifies only what is Cost-speci
 * **Hidden spend categories:** For a learning-systems project, material cost is not only staff time: compute, model/API usage and tooling can dominate and drift unnoticed unless categories are named.
 * **Unbounded envelopes:** Without a stated envelope, funding stages and a contingency rule, overruns are discovered after the fact.
 * **No casual omission:** ADR-011 §3.2 and Invariant #2 make Cost a baseline plan; `not_applicable` raises `FLAG: OMISSION_OF_BASE_PLAN`.
+* **Zero Upfront Deliverable or Breakout Prerequisite:** Designing and baselining the Cost Management Plan requires only the Project Charter and the upstream Scope and Schedule baselines. It does **not** require detailed expenditure receipts, vendor contracts, or human breakout sessions in advance; the management envelope and funding stages govern progressive elaboration.
 
 ---
 
@@ -57,6 +58,10 @@ governance_policy: "approve-subsidiary-plan" # "approve-subsidiary-plan" (if ful
 ### 4.2 Required Content
 
 #### Under `## 1. Intent, Alignment & Boundaries`
+* **PMBOK Input, Process & Output (IPO) Specification:**
+  * **Inputs:** `Project-Charter.md` (funding limits), approved `Scope-Management-Plan.md` (deliverable commitments), approved `Schedule-Management-Plan.md` (timeboxes/milestones). Zero invoices, receipts, or contracts required prior to planning.
+  * **Processes:** Management envelope sizing, multi-category cost estimation (compute, token quotas, licences, effort), staged funding gates, contingency vs. reserve partitioning, burn-rate tracking.
+  * **Outputs:** `Cost-Management-Plan.md` (or `.staging/pmp-sections/Cost-Management-Plan.md`), Management Envelope ceiling, Staged Budget allocations, and token/compute consumption caps.
 * **Charter, Scope and Schedule Traceability:** Links the envelope and funding stages to Charter objectives, Scope epics and Schedule milestones.
 * **Management Envelope:** The total spend ceiling and unit (currency or an explicitly defined effort unit), with the approving authority.
 * **Out-of-Scope Cost Boundaries:** Explicit exclusions (e.g. costs borne by another budget, post-handover operating cost, sunk costs). The ADR-012 §4.1 `None: [rationale]` form applies when there are none.
@@ -73,7 +78,7 @@ governance_policy: "approve-subsidiary-plan" # "approve-subsidiary-plan" (if ful
 * **Accountability:** The Project Manager is accountable for cost baseline compliance. Envelope increases require the Sponsor / Charter Approver.
 * **Variance Tolerances (baseline defaults; a stricter Charter tolerance takes precedence):**
   * Stage variance within $\pm 10\%$ of the stage budget and inside the stage's contingency: PM discretion, logged.
-  * Variance beyond $\pm 10\%$, any envelope change, or any management-reserve release: Stage 17 Integrated Change Control (`approve-adaptation-plan`).
+  * Variance beyond $\pm 10\%$, any envelope change, or any management-reserve release: Stage 17 Integrated Change Control (`approve-adaptation-plan`) or design-time baseline revision via ADR-037 (`BFI-NNN`).
 * **Review Cadence:** At each stage boundary and at phase close.
 * **Transitive Downstream Invalidation:** An approved Cost baseline change marks Risk (11.1) and Procurement (12.1) `STALE_DEPENDENCY` (ADR-013 §4.5).
 
@@ -94,7 +99,7 @@ Measurement follows ADR-012 §4.3.1. Floors are raised and caps tightened for Ti
 
 **Now (implemented):** #3 reasoned resolution under `full` authority with permanent `requires_human_approval: true` through `approve-subsidiary-plan` (ADR-013 §4.2), and #6 durable human override. Methodology choice never grants autonomy, and no selection Episode exists yet (ADR-024 is Proposed).
 
-**Possible later (only if its constraint is lifted):** #25 multi-stage credit assignment, to attribute a Cost deviation to Scope, Schedule or estimating basis. *Unblocked when:* `Episode` gains a `trace_id` linking a plan's episodes to its upstream plans.
+**Possible later (only if its constraint is lifted):** #25 multi-stage credit assignment, to attribute a Cost deviation to Scope, Schedule or estimating basis. *Unblocked when:* Cryptographic parent plan lineage (`PlanApprovalRecord.parent_hashes`) implemented in Epic 13 provides the multi-stage dependency trace linking downstream cost deviations to upstream scope and schedule elements.
 
 Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 
@@ -130,7 +135,7 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 
 ## 8. Open Questions & Future Extensions
 1. **Usage-Based Measurement:** Whether compute and API spend should be sourced from the repository cost model (`tests/test_cost_model.py` scope) rather than manual entry (deferred to tooling).
-2. **Effort Unit:** Whether a project funded in effort rather than currency should use a standard unit across all plans.
+2. **Effort Unit:** Whether a project funded in effort rather than currency should use a standard unit across all plans. *Resolved in practice:* Person-hours or story points can serve as effort currency when declared in the management envelope.
 
 ---
 
@@ -140,3 +145,4 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 |---|---|---|
 | 2026-10-26 | Proposed | Initial drafting of ADR-027 under the ADR-012 framework, using ADR-025 as the structural template. |
 | 2026-10-26 | Learning Methodology Note | Added §4.4 recording the methodology that applies now and the candidates that apply only if their constraints are lifted. |
+| 2026-10-28 | Daughter ADR Review & Alignment Draft | Explicitly stated Governance secondary domain in §1, connected ADR-037 design-time feedback loop, noted Epic 13 cryptographic parent hashes unblocking #25 credit assignment, resolved effort unit open question, and prepared for review. |

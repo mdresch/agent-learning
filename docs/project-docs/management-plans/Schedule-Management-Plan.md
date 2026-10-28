@@ -32,7 +32,7 @@ governance_policy: "approve-subsidiary-plan"
 
 ---
 
-## 1. Intent, Alignment & Schedule Boundaries
+## 1. Intent, Alignment & Boundaries
 
 ### 1.1 Mandate & Progressive Elaboration Model
 This Schedule Management Plan establishes the scheduling methodology, milestone dependencies, critical path controls, and variance tolerances for **Phase 1: Warm-Start & Confidence-Interval Bandits**. 
@@ -53,9 +53,31 @@ The schedule directly anchors to the strategic timeline authorized in the Projec
 | **M4** | Positive-Only Autonomy Gate Benchmark | 1.5 Sprints | M3 Resolvers | Synthetic benchmark report (146-episode dataset) |
 | **M5** | Phase 1 Close & Option B Go/No-Go Gate | 1 Sprint (1 wk) | M0.5, M4 | Empirical Bayes factor report & Intent Refinement Episode |
 
-### 1.3 Boundary Definitions
+### 1.3 Out-of-Scope Schedule Boundaries
 * **In-Scope Schedule Controls:** Timeboxing of research spikes; milestone DAG tracking; critical path monitoring; automated test execution timing benchmarks.
-* **Out-of-Scope Schedule Activities:** Calendar estimation for deferred Option B (Phase 2); continuous release pipelines; operational 24/7 on-call schedules.
+* **Out-of-Scope Activities:** The following schedule elements are explicitly excluded:
+  - Calendar estimation for deferred Option B (Phase 2).
+  - Continuous release pipelines beyond manual GitHub release tags.
+  - Operational 24/7 on-call schedules.
+
+---
+
+### 1.4 PMBOK Input, Process & Output (IPO) Specification
+In accordance with PMBOK® Guide 8th Edition (Schedule Performance Domain §2.3):
+* **Inputs (PMBOK 8 §2.3.2.1, §2.3.2.2 & §4):**
+  - **Project Charter:** Summary milestone schedule, target delivery dates, and funding horizons ([Project-Charter.md](../Project-Charter.md)).
+  - **Project Management Plan (Scope Baseline):** WBS epics, deliverables, and Definition of Done ([Scope-Management-Plan.md](Scope-Management-Plan.md)).
+  - **Development Approach:** Adaptive / hybrid progressive elaboration model.
+  - **Enterprise Environmental Factors (EEFs):** Team capacity, velocity benchmarks, developer environment availability.
+  - **Organizational Process Assets (OPAs):** ADR standards ([ADR-012](../../adr/ADR-012-subsidiary-management-plan-standards-and-content-contracts.md), [ADR-026](../../adr/ADR-026-schedule-management-plan-standard-and-baseline-contract.md)).
+* **Processes (PMBOK 8 §2.3.2 & §5):**
+  - **Plan Schedule Management:** Establishing policies, timebox units, and control thresholds.
+  - **Develop Schedule:** Defining activities, determining sequence (PDM finish-to-start logic), estimating effort/duration, and adjusting via Critical Path Method (CPM).
+  - **Monitor & Control Schedule:** Evaluating milestone progress, managing buffers, and applying variance analysis.
+* **Outputs (PMBOK 8 §2.3.2 & §4):**
+  - **Schedule Management Plan:** `docs/project-docs/management-plans/Schedule-Management-Plan.md`.
+  - **Schedule Baseline:** Approved Milestone Register (M0.5–M5) and timebox schedule model.
+  - **Schedule Forecasts & Buffer Reports:** Critical path tracking and milestone progress updates.
 
 ---
 

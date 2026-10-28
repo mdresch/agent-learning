@@ -32,7 +32,7 @@ governance_policy: "approve-subsidiary-plan"
 
 ---
 
-## 1. Intent, Alignment & System Boundaries
+## 1. Intent, Alignment & Boundaries
 
 ### 1.1 Core Mandate & Charter Traceability
 This Scope Management Plan establishes the formal mechanisms, verification gates, and boundary definitions for **Phase 1: Warm-Start & Confidence-Interval Bandits** of the `agent-learning` project. It directly operationalizes the strategic objectives authorized in [Project-Charter.md](../Project-Charter.md) §2 and §3:
@@ -61,7 +61,27 @@ To prevent silent scope creep and maintain architectural focus, the following ca
 
 ---
 
-## 2. Domain Mechanics & Scope Standards
+### 1.4 PMBOK Input, Process & Output (IPO) Specification
+In accordance with PMBOK® Guide 8th Edition (Scope Performance Domain §2.2):
+* **Inputs (PMBOK 8 §2.2.2.1 & §4):**
+  - **Project Charter:** High-level scope, strategic intent, and approval requirements ([Project-Charter.md](../Project-Charter.md)).
+  - **Business Documents:** Business Case ([Business-Case.md](../Business-Case.md)) and Ideation Document ([Ideation-Document.md](../Ideation-Document.md)).
+  - **Enterprise Environmental Factors (EEFs):** Organizational governance frameworks, technology constraints (CPU-only execution, frozen models).
+  - **Organizational Process Assets (OPAs):** ADR standards ([ADR-012](../../adr/ADR-012-subsidiary-management-plan-standards-and-content-contracts.md), [ADR-025](../../adr/ADR-025-scope-management-plan-standard-and-baseline-contract.md)) and lessons learned.
+* **Processes (PMBOK 8 §2.2.2 & §5):**
+  - **Plan Scope Management:** Defining how scope is identified, structured, and validated.
+  - **Elicit & Analyze Requirements:** Eliciting stakeholder requirements without gold plating.
+  - **Define Scope:** Delineating in-scope capabilities and non-negotiable out-of-scope exclusions.
+  - **Develop Scope Structure (WBS):** Decomposing scope across 4 tiers (`Phase` $\to$ `Epic` $\to$ `Story` $\to$ `Commit`) with 100% rule.
+  - **Validate & Control Scope:** Enforcing Definition of Done (DoD) verification gates and managing scope variance.
+* **Outputs (PMBOK 8 §2.2.2 & §4):**
+  - **Scope Management Plan:** `docs/project-docs/management-plans/Scope-Management-Plan.md`.
+  - **Scope Baseline:** Approved Scope Statement, WBS architecture, and progressive User Story acceptance criteria.
+  - **Requirements Traceability Matrix (RTM):** Linking high-level goals (BRD) to functional specs (FDD) and Pytest contract suites.
+
+---
+
+## 2. Domain Mechanics & Standards
 
 ### 2.1 Work Breakdown Structure (WBS) & Decomposition Hierarchy
 Project scope is decomposed across four hierarchical tiers:

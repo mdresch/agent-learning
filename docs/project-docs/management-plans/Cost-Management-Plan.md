@@ -6,7 +6,6 @@ pmbok_focus_area: "Planning"
 primary_pmbok_domain: "Finance"
 secondary_pmbok_domains:
   - "Governance"
-  - "Resources"
 legacy_process: "7.1 Plan Cost Management"
 route: "full_plan"
 generator: "llm"
@@ -35,7 +34,7 @@ governance_policy: "approve-subsidiary-plan"
 
 ---
 
-## 1. Intent, Alignment & Financial Boundaries
+## 1. Intent, Alignment & Boundaries
 
 ### 1.1 Core Mandate & Charter Financial Alignment
 This Cost Management Plan establishes the cost management processes, effort accounting mechanisms, contingency reserves, and financial controls for **Phase 1: Warm-Start & Confidence-Interval Bandits**. 
@@ -48,11 +47,34 @@ In strict alignment with [Project-Charter.md](../Project-Charter.md) §4 and §7
 ### 1.2 Financial Boundaries & Constraints
 * **Zero-Cost Open-Source Policy:** The project relies strictly on open-source Python ecosystems (`numpy`, `pydantic`, `pytest`, `ruff`, `mypy`). Zero paid software licenses, proprietary SaaS platforms, or third-party subscription APIs are permitted without prior written sponsor authorization.
 * **Cloud & Infrastructure Ceiling:** Azure Cosmos DB testing operates within free-tier limits or local emulator environments. Cloud compute expenditure is capped at baseline developer development subscriptions.
-* **Out-of-Scope Financial Commitments:** External contractor procurement; marketing budgets; production GPU cluster provisioning; Phase 2 DPO fine-tuning infrastructure.
+* **Out-of-Scope Financial Commitments:** The following are strictly excluded:
+  - External contractor procurement.
+  - Marketing and commercialization budgets.
+  - Production GPU cluster provisioning.
+  - Phase 2 DPO fine-tuning infrastructure.
 
 ---
 
-## 2. Domain Mechanics & Financial Standards
+### 1.4 PMBOK Input, Process & Output (IPO) Specification
+In accordance with PMBOK® Guide 8th Edition (Finance Performance Domain §2.4):
+* **Inputs (PMBOK 8 §2.4.2.1, §2.4.2.2 & §4):**
+  - **Project Charter:** Funding limits, preapproved financial resources, and commercial constraints ([Project-Charter.md](../Project-Charter.md)).
+  - **Project Management Plan:** Scope baseline ([Scope-Management-Plan.md](Scope-Management-Plan.md)) and schedule baseline ([Schedule-Management-Plan.md](Schedule-Management-Plan.md)).
+  - **Enterprise Environmental Factors (EEFs):** Exchange rates, compute cost structures, local hosting options.
+  - **Organizational Process Assets (OPAs):** ADR standards ([ADR-012](../../adr/ADR-012-subsidiary-management-plan-standards-and-content-contracts.md), [ADR-027](../../adr/ADR-027-cost-management-plan-standard-and-baseline-contract.md)) and financial policies.
+* **Processes (PMBOK 8 §2.4.2 & §5):**
+  - **Plan Financial Management:** Defining units of measure (hours / currency), accuracy levels, and variance thresholds.
+  - **Estimate Costs:** Aggregating bottom-up estimates per work package and compute resource requirement.
+  - **Develop Budget:** Formulating the cost baseline and funding limit reconciliation.
+  - **Monitor & Control Finances:** Tracking burn rates, earned value analysis (EVM), and managing contingency reserves.
+* **Outputs (PMBOK 8 §2.4.2 & §4):**
+  - **Cost Management Plan:** `docs/project-docs/management-plans/Cost-Management-Plan.md`.
+  - **Cost Baseline:** Approved time-phased budget and milestone staged funding allocations.
+  - **Cost Forecasts & EVM Reports:** Actual vs. planned spend tracking and contingency drawdown logs.
+
+---
+
+## 2. Domain Mechanics & Standards
 
 ### 2.1 Staged Funding & Capital Allocation Model
 Financial and effort commitments are staged across the milestone lifecycle to minimize capital at risk:

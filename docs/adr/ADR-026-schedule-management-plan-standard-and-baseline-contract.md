@@ -19,6 +19,7 @@ It inherits the ADR-012 universal contract (frontmatter, three literal headings,
 * **False precision:** Fixed calendar dates for work that is elaborated progressively create commitments the project cannot keep. The standard must allow near-term detail and far-term milestones without becoming empty.
 * **Silent slippage:** Without defined variance tolerances and an escalation trigger, schedule drift is absorbed informally and only surfaces at phase close.
 * **No casual omission:** ADR-011 §3.2 and Invariant #2 make Schedule a baseline plan; `not_applicable` is a flagged deviation (`FLAG: OMISSION_OF_BASE_PLAN`).
+* **Zero Upfront Deliverable or Breakout Prerequisite:** Designing and baselining the Schedule Management Plan requires only the Project Charter and the upstream Scope baseline. It does **not** require lower-level sprint tasks, code deliverables, or human breakout sessions in advance. Milestones and timeboxes are progressively elaborated from the Scope WBS.
 
 ---
 
@@ -59,6 +60,10 @@ governance_policy: "approve-subsidiary-plan" # "approve-subsidiary-plan" (if ful
 The plan body uses the three literal ADR-012 §4.3.1 headings. Schedule content is carried as subsections.
 
 #### Under `## 1. Intent, Alignment & Boundaries`
+* **PMBOK Input, Process & Output (IPO) Specification:**
+  * **Inputs:** `Project-Charter.md` (target milestones), approved `Scope-Management-Plan.md` (WBS epics, boundaries, and DoD). Zero sprint tasks or code deliverables required prior to planning.
+  * **Processes:** Progressive elaboration, timebox sequencing, critical path dependency analysis, duration estimation (story points/observed velocity), schedule buffer sizing and consumption control.
+  * **Outputs:** `Schedule-Management-Plan.md` (or `.staging/pmp-sections/Schedule-Management-Plan.md`), Approved Milestone Register (M0.5–M5), timebox cadences, and critical path constraints.
 * **Charter and Scope Traceability:** Maps the schedule horizon and milestones to Charter objectives and to the Scope baseline (ADR-025) epics.
 * **Planning Horizon:** States what is scheduled in detail (the current timebox window) and what is held at milestone level only.
 * **Out-of-Scope Scheduling Boundaries:** Explicit exclusions (e.g. calendar-date commitments beyond the detailed horizon, resource-levelled staffing calendars, external-vendor delivery dates). The ADR-012 §4.1 `None: [rationale]` form applies when there are none.
@@ -74,7 +79,7 @@ The plan body uses the three literal ADR-012 §4.3.1 headings. Schedule content 
 * **Accountability:** The Project Manager is accountable for schedule baseline compliance. Milestone acceptance follows the Scope DoD (ADR-025).
 * **Variance Tolerances (baseline defaults; a stricter Charter tolerance takes precedence):**
   * Milestone slip $\le 2$ working days, not on the critical path: PM discretion, logged.
-  * Milestone slip $> 2$ working days, or any slip of a critical-path milestone, or a changed milestone exit condition: Stage 17 Integrated Change Control (`approve-adaptation-plan`).
+  * Milestone slip $> 2$ working days, or any slip of a critical-path milestone, or a changed milestone exit condition: Stage 17 Integrated Change Control (`approve-adaptation-plan`) or design-time baseline revision via ADR-037 (`BFI-NNN`).
 * **Review Cadence:** At each timebox boundary and at phase close.
 * **Transitive Downstream Invalidation:** An approved Schedule baseline change marks Cost (7.1), Resource (9.1) and Risk (11.1) `STALE_DEPENDENCY`; Procurement (12.1) follows transitively through Cost (ADR-013 §4.5).
 
@@ -98,7 +103,7 @@ Measurement follows ADR-012 §4.3.1. Floors are raised above the ADR-012 baselin
 
 **Now (implemented):** #3 reasoned resolution under `full` authority with permanent `requires_human_approval: true` through `approve-subsidiary-plan` (ADR-013 §4.2), and #6 durable human override. Methodology choice never grants autonomy, and no selection Episode exists yet (ADR-024 is Proposed).
 
-**Possible later (only if its constraint is lifted):** #25 multi-stage credit assignment, to attribute a Schedule failure to Scope, estimation or sequencing along the DAG (LL-015). *Unblocked when:* `Episode` gains a `trace_id` linking a plan's episodes to its upstream plans.
+**Possible later (only if its constraint is lifted):** #25 multi-stage credit assignment, to attribute a Schedule failure to Scope, estimation or sequencing along the DAG (LL-015). *Unblocked when:* Cryptographic parent plan lineage (`PlanApprovalRecord.parent_hashes`) implemented in Epic 13 provides the multi-stage dependency trace linking downstream schedule deviations to upstream scope elements.
 
 Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 
@@ -133,7 +138,7 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 ---
 
 ## 8. Open Questions & Future Extensions
-1. **Tolerance Authority:** May the Charter alone tighten the default 2-working-day tolerance, or does that need an ADR-011 route-style decision?
+1. **Tolerance Authority:** May the Charter alone tighten the default 2-working-day tolerance, or does that need an ADR-011 route-style decision? *Resolved in practice:* The Charter approver declares stricter tolerances in Charter success metrics; ADR-011 tailoring adopts Charter thresholds without requiring a separate route decision.
 2. **Velocity Evidence:** Whether estimation basis should reference measured velocity from `LearningStore` episodes (deferred to tooling).
 
 ---
@@ -144,3 +149,4 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 |---|---|---|
 | 2026-10-26 | Proposed | Initial drafting of ADR-026 under the ADR-012 framework, using ADR-025 as the structural template. |
 | 2026-10-26 | Learning Methodology Note | Added §4.4 recording the methodology that applies now and the candidates that apply only if their constraints are lifted. |
+| 2026-10-28 | Daughter ADR Review & Alignment Draft | Connected ADR-037 design-time feedback loop for pre-execution schedule adjustments, noted Epic 13 `PlanApprovalRecord.parent_hashes` cryptographic lineage unblocking #25 credit assignment, resolved tolerance authority open question, and prepared for review. |

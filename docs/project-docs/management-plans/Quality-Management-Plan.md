@@ -32,7 +32,7 @@ governance_policy: "approve-subsidiary-plan"
 
 ---
 
-## 1. Intent, Alignment & Quality Boundaries
+## 1. Intent, Alignment & Boundaries
 
 ### 1.1 Core Mandate & Quality Objectives
 This Quality Management Plan defines the quality standards, automated verification gates, mathematical confidence thresholds, and testing policies for **Phase 1: Warm-Start & Confidence-Interval Bandits**. 
@@ -45,11 +45,33 @@ In strict alignment with [Project-Charter.md](../Project-Charter.md) §2 and **P
 
 ### 1.2 Boundary Definitions
 * **In-Scope Quality Controls:** Automated unit and integration testing; contract test enforcement (observed RED first); static type checking; Wilson score lower-bound evaluations; code review quality gates.
-* **Out-of-Scope Quality Activities:** Physical load testing; penetration testing on non-existent cloud endpoints; manual GUI testing (repository is headless SDK).
+* **Out-of-Scope Quality Activities:** The following verification activities are strictly excluded:
+  - Physical load and stress testing on non-existent server infrastructure.
+  - Penetration testing on non-existent cloud endpoints.
+  - Manual GUI testing (repository is headless SDK and CLI).
 
 ---
 
-## 2. Domain Mechanics & Quality Standards
+### 1.4 PMBOK Input, Process & Output (IPO) Specification
+In accordance with PMBOK® Guide 8th Edition (Scope Performance Domain §2.2 & Quality Practices §3.5):
+* **Inputs (PMBOK 8 §2.2.2, §3.5 & §4):**
+  - **Project Charter:** Quality objectives and project success criteria ([Project-Charter.md](../Project-Charter.md)).
+  - **Project Management Plan:** Scope baseline ([Scope-Management-Plan.md](Scope-Management-Plan.md)) and Definition of Done gates.
+  - **Enterprise Environmental Factors (EEFs):** Python test ecosystem, linting tools (`ruff`, `mypy`, `pytest`), CI runtime environment.
+  - **Organizational Process Assets (OPAs):** ADR standards ([ADR-012](../../adr/ADR-012-subsidiary-management-plan-standards-and-content-contracts.md), [ADR-029](../../adr/ADR-029-quality-management-plan-standard.md)) and peer review checklists.
+* **Processes (PMBOK 8 §2.1.6.5, §3.5 & §5):**
+  - **Plan Quality Management:** Establishing quality metrics, test inspection thresholds, and gate criteria.
+  - **Manage Quality Assurance:** Translating standards into executable contract tests and continuous integration checks.
+  - **Control Quality (Verification):** Executing automated test suites, assessing code coverage, and triaging nonconformances.
+  - **Waiver Governance:** Enforcing recorded rationale and authorization for all criteria waivers.
+* **Outputs (PMBOK 8 §2.1.6.5 & §4):**
+  - **Quality Management Plan:** `docs/project-docs/management-plans/Quality-Management-Plan.md`.
+  - **Quality Gate Definitions & Metrics:** Strict contract test pass rules, stdlib-first verification, zero unhandled errors.
+  - **Quality Reports & Audit Records:** Pytest verification logs and `PlanApprovalRecord` quality evidence in `Episode.metadata`.
+
+---
+
+## 2. Domain Mechanics & Standards
 
 ### 2.1 Verification Architecture & Test Hierarchy
 Quality is verified across four deterministic testing rings:

@@ -19,6 +19,7 @@ It inherits the ADR-012 universal contract and specifies only what is Risk-speci
 * **Risk without thresholds:** A register that never triggers escalation is a list, not a control. Thresholds must say when a risk moves a decision to a human.
 * **Link to baselines:** Contingency in the Cost plan (ADR-027) and buffers in the Schedule plan (ADR-026) should be justified by identified risks.
 * **Omission is allowed but recorded:** Tier 2 plans may be `not_applicable` with an approved tailoring rationale (ADR-011); it is not a Tier 1 `OMISSION_OF_BASE_PLAN` case.
+* **Zero Upfront Deliverable or Breakout Prerequisite:** Designing and baselining the Risk Management Plan requires only the Project Charter and upstream Scope, Schedule, and Cost baselines. It does **not** require an exhaustive pre-populated risk register, quantified exposure models, or human breakout sessions in advance; the plan establishes the taxonomy, scales, and register contract under which risks are progressively identified.
 
 ---
 
@@ -60,6 +61,10 @@ governance_policy: "approve-subsidiary-plan" # "approve-subsidiary-plan" (if ful
 ### 4.2 Required Content
 
 #### Under `## 1. Intent, Alignment & Boundaries`
+* **PMBOK Input, Process & Output (IPO) Specification:**
+  * **Inputs:** `Project-Charter.md` (risk appetite), approved `Scope-Management-Plan.md`, `Schedule-Management-Plan.md`, `Cost-Management-Plan.md` (baseline exposures). Zero populated risk registers or breakout sessions required prior to planning.
+  * **Processes:** Risk taxonomy classification, reproducible probability-impact banded scoring, response strategy selection (avoid, mitigate, transfer, accept, escalate), contingency linking, escalation threshold enforcement.
+  * **Outputs:** `Risk-Management-Plan.md` (or `.staging/pmp-sections/Risk-Management-Plan.md`), Risk Register schema contract, escalation criteria reaching human authority, and contingency drawdown triggers.
 * **Charter and Baseline Traceability:** Maps risk objectives to Charter objectives and states which Scope, Schedule and Cost baseline elements are in the assessed exposure.
 * **Risk Appetite:** A short statement per objective area (scope, schedule, cost, quality, governance integrity) of what level of exposure is acceptable.
 * **Out-of-Scope Risk Boundaries:** Risk categories explicitly not managed by this plan (for example, risks owned by an external party). The ADR-012 §4.1 `None: [rationale]` form applies when there are none.
@@ -128,7 +133,7 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 
 ## 8. Open Questions & Future Extensions
 1. **Risk and Learning Evidence:** Whether recorded risk outcomes should feed an advisory learner (deferred to learner ADRs).
-2. **Register Format:** Whether the register should be a Markdown table or structured data with a parser (deferred to tooling).
+2. **Register Format:** Whether the register should be a Markdown table or structured data with a parser (deferred to tooling). *Resolved in practice:* Per ADR-002 Invariant #2 and ADR-034 anti-sprawl, the register is formatted as a standardized Markdown table within `Risk-Management-Plan.md`, parsed and checked by text linter rules rather than requiring a dedicated database entity.
 
 ---
 
@@ -138,3 +143,4 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 |---|---|---|
 | 2026-10-26 | Proposed | Initial drafting of ADR-028 under the ADR-012 framework, using ADR-025 as the structural template. |
 | 2026-10-26 | Learning Methodology Note | Added §4.4 recording the methodology that applies now and the candidates that apply only if their constraints are lifted. |
+| 2026-10-28 | Daughter ADR Review & Alignment Draft | Resolved register format open question confirming Markdown table format under ADR-002/034, verified DAG dependencies (`scope-management`, `schedule-management`, `cost-management`), and prepared for review. |

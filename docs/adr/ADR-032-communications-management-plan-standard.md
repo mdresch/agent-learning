@@ -19,6 +19,7 @@ It inherits the ADR-012 universal contract and specifies only what is Communicat
 * **Decisions lost in channels:** In a governance-driven project, approvals and rationales must land in the record (`Episode.metadata`, version-controlled artifacts), not only in chat or meetings.
 * **Audience mismatch:** The same status text rarely suits a sponsor and a developer.
 * **Bounded invalidation:** A Communications change does not invalidate other plans (ADR-013 §4.5); a Scope change makes it stale.
+* **Zero Upfront Deliverable or Breakout Prerequisite:** Designing and baselining the Communications Management Plan requires only the Project Charter and Scope baseline. It does **not** require historical meeting minutes, communications logs, or human breakout sessions in advance; it establishes the flow matrix, cadence, and decision-recording rules.
 
 ---
 
@@ -55,6 +56,10 @@ governance_policy: "approve-subsidiary-plan" # "approve-subsidiary-plan" (if ful
 ### 4.2 Required Content
 
 #### Under `## 1. Intent, Alignment & Boundaries`
+* **PMBOK Input, Process & Output (IPO) Specification:**
+  * **Inputs:** `Project-Charter.md` (governance reporting obligations), approved `Scope-Management-Plan.md` (deliverable triggers and boundaries). Zero historical communications logs or breakout sessions required prior to planning.
+  * **Processes:** Communication requirements analysis, communication technology selection, channel and audience matrix mapping, decision-recording protocol ("the record is not the channel"), urgent escalation sequencing.
+  * **Outputs:** `Communications-Management-Plan.md` (or `.staging/pmp-sections/Communications-Management-Plan.md`), Communication Matrix, standard status report templates, and issue escalation paths.
 * **Charter and Scope Traceability:** Links communication needs to Charter reporting obligations and to Scope deliverables that trigger notices.
 * **Audience List:** Audiences by role, referencing the Stakeholder Register (ADR-031).
 * **Out-of-Scope Communication Boundaries:** Communications explicitly not covered (for example public marketing, external press). The ADR-012 §4.1 `None: [rationale]` form applies when there are none.
@@ -120,7 +125,7 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 ---
 
 ## 8. Open Questions & Future Extensions
-1. **Dependency on Stakeholder Engagement:** The baseline DAG makes Communications depend only on Scope. Whether it should also depend on `stakeholder-engagement` (audiences come from its register) is a DAG decision for a later ADR-013 amendment.
+1. **Dependency on Stakeholder Engagement:** The baseline DAG makes Communications depend only on Scope. Whether it should also depend on `stakeholder-engagement` (audiences come from its register) is a DAG decision for a later ADR-013 amendment. *Resolved in PLAN_DAG:* In accordance with FDD-013 §2.1 and `standards.py`, `communications-management` depends solely on `('scope-management',)`. Decoupling communication logistics (channels, cadence, reports) from stakeholder engagement strategies prevents cascading invalidation churn across Tier 3 execution plans. Role names resolve to the register without imposing a DAG edge.
 2. **Automated Status Reports:** Generating the status report from episodes and baselines (deferred to tooling).
 
 ---
@@ -131,3 +136,4 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 |---|---|---|
 | 2026-10-26 | Proposed | Initial drafting of ADR-032 under the ADR-012 framework, using ADR-025 as the structural template. |
 | 2026-10-26 | Learning Methodology Note | Added §4.4 recording the methodology that applies now and the candidates that apply only if their constraints are lifted. |
+| 2026-10-28 | Daughter ADR Review & Alignment Draft | Resolved Stakeholder Engagement dependency open question confirming Communications depends solely on `scope-management` in `PLAN_DAG` to prevent cascading churn, verified `depends_on`, and prepared for review. |

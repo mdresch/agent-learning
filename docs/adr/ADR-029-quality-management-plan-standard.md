@@ -19,6 +19,7 @@ It inherits the ADR-012 universal contract and specifies only what is Quality-sp
 * **Gates without criteria:** A gate that names no pass criteria cannot be audited.
 * **Coverage as a number only:** Coverage targets stated without what they measure invite gaming; the plan must state scope of measurement.
 * **Bounded invalidation:** Per ADR-013 §4.5, a Quality change does not invalidate Scope, Schedule or Cost; a Scope change does make Quality stale.
+* **Zero Upfront Deliverable or Breakout Prerequisite:** Designing and baselining the Quality Management Plan requires only the Project Charter and Scope baseline. It does **not** require test suite code, verification evidence, or human breakout sessions in advance; it establishes the quality gates, verification rules, and DoD conformance criteria under which subsequent deliverables are audited.
 
 ---
 
@@ -55,6 +56,10 @@ governance_policy: "approve-subsidiary-plan" # "approve-subsidiary-plan" (if ful
 ### 4.2 Required Content
 
 #### Under `## 1. Intent, Alignment & Boundaries`
+* **PMBOK Input, Process & Output (IPO) Specification:**
+  * **Inputs:** `Project-Charter.md` (quality standards), approved `Scope-Management-Plan.md` (acceptance criteria and DoD). Zero test suites or code deliverables required prior to planning.
+  * **Processes:** Quality gate identification and lifecycle mapping, verification type categorization (contract, unit, integration), coverage scope measurement, nonconformance triage, waiver governance.
+  * **Outputs:** `Quality-Management-Plan.md` (or `.staging/pmp-sections/Quality-Management-Plan.md`), Quality Gate Definitions, Verification Standards, and DoD audit checklists authorizing Stage 10 Verification Evidence.
 * **Charter and Scope Traceability:** Maps quality objectives to Charter objectives and to the Scope acceptance criteria and DoD (ADR-025).
 * **Quality Objectives:** Measurable objectives (for example defect escape limits, statistical confidence requirements, or contract-test pass rules appropriate to the project).
 * **Out-of-Scope Quality Boundaries:** Verification activities explicitly not performed (for example formal third-party audit, load certification). The ADR-012 §4.1 `None: [rationale]` form applies when there are none.
@@ -122,8 +127,8 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 ---
 
 ## 8. Open Questions & Future Extensions
-1. **Gate Automation:** Whether gate results should be registered as episodes by tooling (deferred).
-2. **Waiver Authority:** Whether one waiver authority suffices across gates (deferred to the Charter).
+1. **Gate Automation:** Whether gate results should be registered as episodes by tooling (deferred). *Resolved in practice:* In Epic 13 (Story 13.3, `PlanApprovalRecord`), plan gate results and validation checks are recorded directly into `Episode.metadata` without bespoke database entities.
+2. **Waiver Authority:** Whether one waiver authority suffices across gates (deferred to the Charter). *Clarified:* The Project Manager or Sponsor holds waiver authority as declared in the Project Charter; silent waivers remain strictly prohibited under Invariant 3.
 
 ---
 
@@ -133,3 +138,4 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 |---|---|---|
 | 2026-10-26 | Proposed | Initial drafting of ADR-029 under the ADR-012 framework, using ADR-025 as the structural template. |
 | 2026-10-26 | Learning Methodology Note | Added §4.4 recording the methodology that applies now and the candidates that apply only if their constraints are lifted. |
+| 2026-10-28 | Daughter ADR Review & Alignment Draft | Resolved gate automation open question referencing Epic 13 `PlanApprovalRecord` episode persistence, clarified waiver authority, verified single upstream dependency on `scope-management`, and prepared for review. |

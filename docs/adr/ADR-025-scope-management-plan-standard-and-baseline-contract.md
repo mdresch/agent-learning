@@ -21,6 +21,7 @@ This ADR formalizes the **Scope Management Plan Standard and Baseline Contract**
 * **Root Node of the Planning DAG:** Per ADR-013 §4.1 and §4.5, planning dependencies form a directed acyclic graph where Schedule and Cost are causally downstream from Scope. If the Scope baseline is vague or unanchored, all downstream baselines (durations, milestones, budgets) become invalid.
 * **The Silent Creep Failure Mode:** Without explicit **Out-of-Scope** declarations, generative agents and development teams progressively expand feature sets without formal governance or resource allocation.
 * **ADR-011 Mandate for Baseline Plans:** ADR-011 §3.2 and Invariant #2 mandate that cost, scope, and schedule plans cannot be casually omitted; setting `not_applicable` on Scope is a strongly flagged deviation (`FLAG: OMISSION_OF_BASE_PLAN`) requiring an explicit recorded justification and sponsor confirmation.
+* **Zero Upfront Deliverable or Breakout Prerequisite:** Designing and baselining the Scope Management Plan requires only high-level Initiating governance inputs ([Project-Charter.md](../project-docs/Project-Charter.md), [Ideation-Document.md](../project-docs/Ideation-Document.md), [Business-Case.md](../project-docs/Business-Case.md)). It does **not** require subsidiary deliverables (such as User Stories, functional specifications, or code work packages) or human breakout sessions to exist prior to designing the plan. The plan establishes the decomposition rules and Definition of Done under which detailed deliverables are elaborated progressively downstream in Stages 7–9.
 
 ---
 
@@ -63,6 +64,10 @@ governance_policy: "approve-subsidiary-plan" # "approve-subsidiary-plan" (if ful
 The plan body must use the three literal ADR-012 §4.3.1 headings (`## 1. Intent, Alignment & Boundaries`, `## 2. Domain Mechanics & Standards`, `## 3. Governance, Control & Decision Rights`). The Scope-specific content below is carried as subsections under those headings; renaming the top-level headings raises `FLAG: MISSING_REQUIRED_SECTION`.
 
 #### Under `## 1. Intent, Alignment & Boundaries`
+* **PMBOK Input, Process & Output (IPO) Specification:**
+  * **Inputs:** `Project-Charter.md` (high-level objectives and constraints), `Ideation-Document.md` (intent spark), `Business-Case.md` (benefits). Zero lower-level deliverables or breakout sessions required prior to planning.
+  * **Processes:** Scope boundary itemization, 4-tier WBS decomposition hierarchy (`Phase` $\to$ `Epic` $\to$ `Story` $\to$ `Commit`), WBS dictionary definition, Definition of Done protocol, scope variance categorization.
+  * **Outputs:** `Scope-Management-Plan.md` (or `.staging/pmp-sections/Scope-Management-Plan.md`), Approved Project Scope Statement, WBS architecture, and DoD criteria authorizing Stage 7 User Stories.
 * **Charter Traceability:** Explicit mapping of project scope to the strategic objectives, high-level requirements, and success metrics declared in [Project-Charter.md](../project-docs/Project-Charter.md).
 * **In-Scope Boundary Definition:** Exhaustive itemization of major features, architectural deliverables, code modules, and test suites authorized for development.
 * **Mandatory Out-of-Scope Boundary List:** Explicit list of features, platforms, integrations, or capabilities that are **strictly excluded** from the current lifecycle stage or project phase. If no exclusions exist, the plan must state *"None: [rationale]"* in the ADR-012 §4.1 form (rationale $\ge 10$ words, lint-checked) justifying why project exclusions do not apply.
@@ -74,19 +79,19 @@ The plan body must use the three literal ADR-012 §4.3.1 headings (`## 1. Intent
 * **Scope Baseline Definition:** The scope baseline comprises:
   1. The Approved Project Scope Statement.
   2. The WBS and Story Mapping in `docs/project-docs/`.
-  3. Acceptance Criteria defined in individual User Story artifacts (`docs/project-docs/User-Stories/`).
+  3. Acceptance Criteria defined in individual User Story artifacts (`docs/project-docs/User-Stories/`). *(Note: Detailed User Story artifacts are progressively elaborated downstream in Stage 7 and verified before work package execution; they are not required prior to designing the plan.)*
 * **Requirements Traceability Matrix (RTM) Integration:** Traces high-level business goals (BRD) to functional specifications (FDD) and code verification units (Pytest suites) (required for `full_plan`; optional for `pmp_section`).
 * **Deliverable Acceptance & Verification Protocol:** Formal Definition of Done (DoD) required before a deliverable moves to Stage 10 (Verification Evidence). Acceptance criteria must be testable or objectively verifiable; a qualitative criterion (e.g. "user friendly") needs a named validation method. This is assessed in peer review and semantic linting, not by a structural flag.
 
 #### Under `## 3. Governance, Control & Decision Rights`
 * **Accountability & Decision Rights:**
   * Project Manager is accountable for scope baseline compliance.
-  * Baseline revisions and expansions require Sponsor / Charter Approver authorization via Stage 17 Integrated Change Control (`approve-adaptation-plan`).
+  * Baseline revisions and expansions require Sponsor / Charter Approver authorization via Stage 17 Integrated Change Control (`approve-adaptation-plan`) or design-time baseline feedback via ADR-037 (`BFI-NNN`).
   * Deliverable acceptance authority resides with the Product Owner / PM named in the Stakeholder Register.
 * **Variance Tolerances & Escalation:**
   * Unplanned additions $\le 1$ story point or localized refactoring that affects no public interface, approved deliverable, architectural decision, or acceptance criterion (either condition alone qualifies): PM discretion.
   * Structural boundary changes or new feature epics: Triggers Stage 17 Integrated Change Control (`approve-adaptation-plan`) and updates the Project Charter.
-* **Transitive Downstream Invalidation:** Per ADR-013 §4.5, any approved Scope baseline modification automatically marks downstream Schedule (6.1) and Cost (7.1) plans as `STALE_DEPENDENCY`, requiring re-evaluation.
+* **Transitive Downstream Invalidation:** Per ADR-013 §4.5, any approved Scope baseline modification automatically marks all downstream subsidiary plans in the DAG (Schedule 6.1, Cost 7.1, Quality 8.1, Resource 9.1, Communications 10.1, Risk 11.1, Procurement 12.1, and Stakeholder Engagement 13.2) as `STALE_DEPENDENCY`, requiring re-evaluation.
 
 ---
 
@@ -108,13 +113,21 @@ Word count is measured on the Markdown body below `---`, using the ADR-012 §4.3
 > [!NOTE]
 > Requirements Traceability Matrix (RTM) integration in `full_plan` is verified during peer review and semantic linting rather than structural flag count.
 
+### 4.4 Learning Methodology
+
+**Now (implemented):** #3 reasoned resolution under `full` authority with permanent `requires_human_approval: true` through `approve-subsidiary-plan` (ADR-013 §4.2), and #6 durable human override. Methodology choice never grants autonomy, and no selection Episode exists yet (ADR-024).
+
+**Possible later (only if its constraint is lifted):** #18 pairwise preference optimization for ranking candidate WBS decompositions from historical project approvals. *Unblocked when:* Sufficient decomposed story branches exist with paired reviewer acceptance/rejection episodes.
+
+Source: `learning-methodology-selection` skill and Ideation Document §2.1.
+
 ---
 
 ## 5. Architectural Invariants
 1. **Scope Precedes Schedule and Cost:** Scope drafting and approval must precede Schedule and Cost baseline finalization in the causal DAG.
 2. **Mandatory Out-of-Scope Declaration:** A Scope Management Plan without an explicit out-of-scope section (or a valid "None: rationale") raises `FLAG: MISSING_BOUNDARY_DEF`; approval then requires a recorded human rationale in `Episode.metadata`. This is a Tier C flag, not a mechanical block (ADR-012 Invariant 8).
 3. **No Silent Omission:** Setting route to `not_applicable` triggers `FLAG: OMISSION_OF_BASE_PLAN` requiring explicit sponsor approval and rationale (ADR-011 §3.2 and Invariant #2).
-4. **Remedial Breakouts & Rejection Governance:** If a staged `pmp_section` suffers structural failure or is rejected during PMP formalization (`approve-pmp`), the orchestrator triggers a remedial foundation breakout within `.staging/pmp-sections/Scope-Management-Plan.md`. Symmetrically, if a standalone `full_plan` is rejected under `approve-subsidiary-plan`, its lifecycle state projects to `REJECTED` or `REVISION_REQUESTED` from `LearningStore` episodes (ADR-034 §4.2.2), returning to `DRAFTED` upon staged file modification. In either route, downstream dependent plans become `STALE_DEPENDENCY` per ADR-013 §4.5.
+4. **Remedial Breakouts & Rejection Governance:** 'Breakout' in this context refers strictly to automated intra-section remedial regeneration (ADR-012 §4.5) when a staged section fails linting or formalization; it is never an upfront ceremony or human breakout session. Neither the ADR nor the Scope plan requires prior breakout sessions or pre-existing deliverables before being made available. Symmetrically, if a standalone `full_plan` is rejected under `approve-subsidiary-plan`, its lifecycle state projects to `REJECTED` or `REVISION_REQUESTED` from `LearningStore` episodes (ADR-034 §4.2.2), returning to `DRAFTED` upon staged file modification. In either route, downstream dependent plans become `STALE_DEPENDENCY` per ADR-013 §4.5.
 5. **Graduation:** If a `pmp_section` exceeds 750 words, the linter emits `FLAG: EXCEEDS_SECTION_CAP`, prompting the team to graduate the plan to `docs/project-docs/management-plans/Scope-Management-Plan.md`.
 6. **Integrity Blocks:** Frontmatter containing `generator: stub` or bodies containing unresolved `[TODO]` tokens are technical integrity violations that mechanically block `approve_plan` (ADR-013 §4.2).
 7. **Precedence Hierarchy:** Follows ADR-012 §4.3.4: Tier A (Hard Blocks, ADR-013 §4.2) > Tier B (Structural Flags, ADR-012) > Tier C (Content Flags, ADR-011).
@@ -157,3 +170,4 @@ Word count is measured on the Markdown body below `---`, using the ADR-012 §4.3
 | 2026-10-26 | ADR-012 Alignment Review | Restored literal ADR-012 §4.3.1 headings (Scope content as subsections), split over-cap flag into `EXCEEDS_SECTION_CAP`/`EXCEEDS_PLAN_CAP`, reworded Invariant 2 as a Tier C flag with recorded rationale, switched to the stdlib tokenizer, and described lifecycle states as episode-derived projections. |
 | 2026-10-26 | Review Refinements | Clarified `depends_on: []` as root of the subsidiary-plan DAG (governance inputs are not plan nodes), required testable acceptance criteria (semantic review), tightened "localized refactoring", and defined placeholder-only out-of-scope items as non-counting. |
 | 2026-10-26 | **Accepted by Menno** | Formally adjudicated and accepted through `approve-adr` TaskPolicy; robust utility 0.944, expected utility 0.965; Episode `432bae92-29a2-4598-8bb0-ec5d38bafbf2`. |
+| 2026-10-28 | Daughter ADR Review & Alignment | Added §4.4 Learning Methodology for symmetry with ADR-026–033, linked ADR-037 design-time feedback loop (`BFI-NNN`), and clarified universal downstream invalidation across all 8 daughter plans in `PLAN_DAG`. |

@@ -19,6 +19,7 @@ It inherits the ADR-012 universal contract and specifies only what is Procuremen
 * **Hidden cost and lock-in:** External model/API usage and licences drive Cost (ADR-027) and create exit risk (ADR-028) that must be assessed before acquisition.
 * **Licence and data exposure:** Terms covering licence compatibility and what data may be sent to a supplier must be checked before adoption.
 * **Downstream of Cost:** Procurement depends on Scope and Cost in the baseline DAG; a Cost baseline change makes it stale.
+* **Zero Upfront Deliverable or Breakout Prerequisite:** Designing and baselining the Procurement Management Plan requires only the Project Charter and Scope/Cost baselines. It does **not** require pre-signed vendor contracts, executed licences, or human breakout sessions in advance; it establishes make-or-buy criteria and third-party intake rules.
 
 ---
 
@@ -58,6 +59,10 @@ governance_policy: "approve-subsidiary-plan" # "approve-subsidiary-plan" (if ful
 ### 4.2 Required Content
 
 #### Under `## 1. Intent, Alignment & Boundaries`
+* **PMBOK Input, Process & Output (IPO) Specification:**
+  * **Inputs:** `Project-Charter.md` (make-or-buy guidance), approved `Scope-Management-Plan.md` (acquisitions needed), approved `Cost-Management-Plan.md` (budget envelope). Zero pre-signed contracts, RFPs, or breakout sessions required prior to planning.
+  * **Processes:** Make-or-buy analysis, source selection criteria weighting, third-party dependency intake justification (ADR-034 anti-sprawl), licence compatibility verification, supplier performance and exit control.
+  * **Outputs:** `Procurement-Management-Plan.md` (or `.staging/pmp-sections/Procurement-Management-Plan.md`), Dependency Intake Register, source selection scorecards, and supplier exit plans.
 * **Charter, Scope and Cost Traceability:** Maps planned acquisitions to Scope deliverables and to Cost categories and envelope.
 * **Acquisition Classes:** The kinds of external acquisition in play (for example open-source libraries, hosted model/API services, tooling licences, contracted work).
 * **Out-of-Scope Procurement Boundaries:** Acquisitions explicitly excluded (for example hardware purchasing, paid third-party review). The ADR-012 §4.1 `None: [rationale]` form applies when there are none.
@@ -124,8 +129,9 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 ---
 
 ## 8. Open Questions & Future Extensions
-1. **Threshold Value:** The plan declares its authorization threshold; whether a repository default is needed is open.
+1. **Threshold Value:** The plan declares its authorization threshold; whether a repository default is needed is open. *Clarified:* Default threshold is defined in the Cost Management Plan envelope (e.g. any single contract or annual service exceeding 10% of stage contingency requires Sponsor approval).
 2. **Dependency Audit Tooling:** Cross-checking `pyproject.toml` dependencies against intake records (deferred to tooling).
+3. **DAG Dependencies:** Whether Procurement should also depend on `resource-management`. *Resolved in PLAN_DAG:* In accordance with FDD-013 §2.1 and `standards.py`, `procurement-management` depends on `('scope-management', 'cost-management')`. External services, models, and third-party licences consume project budget (Cost) to fulfill deliverables (Scope); internal staffing allocations (Resource) do not constrain external acquisitions, preventing cross-Tier-3 invalidation churn.
 
 ---
 
@@ -135,3 +141,4 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 |---|---|---|
 | 2026-10-26 | Proposed | Initial drafting of ADR-033 under the ADR-012 framework, using ADR-025 as the structural template. |
 | 2026-10-26 | Learning Methodology Note | Added §4.4 recording the methodology that applies now and the candidates that apply only if their constraints are lifted. |
+| 2026-10-28 | Daughter ADR Review & Alignment Draft | Clarified authorization threshold and confirmed `PLAN_DAG` dependency edges (`scope-management`, `cost-management`) without coupling to `resource-management`, verified frontmatter, and prepared for review. |

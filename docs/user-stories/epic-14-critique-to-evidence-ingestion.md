@@ -4,9 +4,9 @@
 **Source BRD/FDD:** [BRD-014](../project-docs/Business-Requirements/BRD-014-critique-to-evidence-ingestion.md) / [FDD-014](../project-docs/Functional-Design/FDD-014-critique-to-evidence-ingestion.md)  
 **Status:** Draft (2026-10-28) — stories derived from Accepted ADR-014, BRD-014 and FDD-014; not yet adjudicated through `approve-user-stories`. The epic number follows the source ADR number, as Epic 11 follows ADR-011.  
 
-Five stories build the pure module `src/agent_learning/critique_evidence.py`. Each rule sits in exactly one story's criteria (LL-012). Contract tests are `tests/test_critique_parse.py` (14.1), `tests/test_critique_apply.py` (14.2 and 14.3) and `tests/test_critique_metadata.py` (14.4). Story 14.5 is data work and has no test file.
+Six stories build the pure module `src/agent_learning/critique_evidence.py`. Each rule sits in exactly one story's criteria (LL-012). Contract tests are `tests/test_critique_parse.py` (14.1), `tests/test_critique_apply.py` (14.2 and 14.3), `tests/test_critique_metadata.py` (14.4) and `tests/test_critique_rubric.py` (14.6). Story 14.5 is data work and has no test file. The long-term learned rubric (FDD-014 §8) is not a story yet.
 
-**Do not start Stories 14.2 to 14.4 until the maintainer has decided FDD-014 §4 (D1 to D5).** ADR-014 §4.4 as written fails BRU-014-03: it makes a defect finding raise the pooled support. The stories below build the corrected mechanism of FDD-014 §3.
+**Stories 14.2 to 14.4 are unblocked.** Menno confirmed FDD-014 §4 (D1 to D5) on 2026-10-28 and ADR-014 was amended to match. ADR-014 §4.4 as first accepted failed BRU-014-03: it made a defect finding raise the pooled support. The stories below build the corrected mechanism of FDD-014 §3.
 
 Fixture used by the criteria below ("the base frame"): one option with two evidence points on one criterion, (support 0.8, confidence 0.8) and (support 0.7, confidence 0.9). The resolver pools them to 0.8666.
 
@@ -19,7 +19,7 @@ Fixture used by the criteria below ("the base frame"): one option with two evide
 
 ### Acceptance Criteria:
 - **$AC_0$ (Grammar):** `parse_critique(text, source_id)` returns one `CritiqueDelta` per bullet of the form in FDD-014 §2.1, in line order, with the rationale kept verbatim. Lines that are not bullets are ignored.
-- **$AC_1$ (No Guessing):** a bullet without a `[criterion: ...]` tag, or without a signed number, raises `ValueError` naming the line number.
+- **$AC_1$ (No Guessing):** a bullet without a `[criterion: ...]` tag, or with neither a signed number nor both `[claim: ...]` and `[verified: ...]` tags, raises `ValueError` naming the line number.
 - **$AC_2$ (Bounds):** a delta of `-1.20` or `+1.01` raises `ValueError`; `-1.00` and `+1.00` are accepted.
 - **$AC_3$ (Fields):** an empty rationale, an invalid finding id, or an invalid `source_id` raises `ValueError`.
 - **$AC_4$ (Finding Ids):** a bullet with `[finding: Q-34-1]` keeps that id; one without gets `<source_id>#<n>`, where `n` counts the bullets from 1.
@@ -60,7 +60,7 @@ Fixture used by the criteria below ("the base frame"): one option with two evide
 **As** a maintainer, **I want** the applied adjustments stored as plain metadata on the episode, **so that** the audit trail needs no new record type.
 
 ### Acceptance Criteria:
-- **$AC_0$ (Shape):** `to_episode_metadata(applied)` returns `{"critique_adjustments": [...]}` with one entry per delta holding the fields of FDD-014 §2.2.
+- **$AC_0$ (Shape):** `to_episode_metadata(applied)` returns `{"critique_adjustments": [...]}` with one entry per delta holding the fields of FDD-014 §2.2, including `basis`, `rubric_delta`, `override` and `rubric_version`.
 - **$AC_1$ (JSON Safe):** the result survives `json.dumps` and `json.loads` unchanged, and floats are not converted to strings.
 - **$AC_2$ (Consistent):** for each entry, `support_after` equals the pooled support of the output frame within 1e-9, and `point_confidence` equals the appended point's confidence.
 - **$AC_3$ (Storage Boundary):** attaching the result to an `Episode` and storing it in an in-memory store adds no record type and round-trips the metadata.
@@ -78,3 +78,17 @@ Fixture used by the criteria below ("the base frame"): one option with two evide
 - **$AC_2$ (Declined Findings):** a finding the human *declined* in triage is one the human judged not to be a real defect, so its recorded delta is zero or positive and never negative; applying it does not lower the pooled support of the criterion it names. Any declined finding tagged with a negative delta is listed, not hidden.
 - **$AC_3$ (Accepted Findings):** a finding the human *accepted* in triage was a real defect, so its recorded delta is negative, and applying it lowers the pooled support by that delta.
 - **$AC_4$ (Not Evidence Of Effectiveness):** the result is recorded as a consistency check on the tagging. It makes no claim that the method improves decisions (HYP-AL-005 stays open).
+
+---
+
+## Story 14.6 — The Delta Rubric
+
+**Status:** Draft  
+**As** a reviewer, **I want** a finding's size to follow from its claim type and verification result, **so that** two reviewers give the same finding the same delta.
+
+### Acceptance Criteria:
+- **$AC_0$ (Table):** `rubric_delta(claim_type, verified)` returns the cell of the FDD-014 §2.4 table for each of the 18 pairs of claim type (the five defect types and `confirmation`) and verification result (`yes`, `partial`, `no`); for example `crash risk` with `yes` gives -0.30, `logic error` with `partial` gives -0.13, `style` with `no` gives 0.0, `confirmation` with `partial` gives +0.05. The test compares all 18 values against the table.
+- **$AC_1$ (Refuses Unknown):** `unknown` or any other value for the claim type or the verification result raises `ValueError` naming the field.
+- **$AC_2$ (Rubric Form):** a bullet with `[claim: ...]` and `[verified: ...]` and no number is parsed with `basis="rubric"` and the rubric's delta; the delta then goes through the same application as an explicit one.
+- **$AC_3$ (Override):** an explicit number written with both tags is parsed with `basis="explicit"`, `rubric_delta` set, and `override` true when the two differ by more than 0.005; an explicit number without the tags has `rubric_delta` of `None` and `override` false.
+- **$AC_4$ (Version):** every adjustment records `rubric_version`; the value is `"1"` for the table of FDD-014 §2.4.

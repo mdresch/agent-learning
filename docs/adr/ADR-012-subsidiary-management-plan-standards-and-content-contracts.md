@@ -306,7 +306,7 @@ ADR-012 defines the universal contract and meta-rules. Domain-specific plan stan
 
 ## 8. Open Questions & Future Extensions
 1. **Automated Linter Integration:** When should the linter run in the orchestrator? (Target: Run during `scripts/orchestrate_pmbok.py --mode draft` to emit warnings before `approve-subsidiary-plan` is invoked).
-2. **Learner Policy Scoring Rubrics:** How do the advisory learners (`docs/design-notes/planning-redesign-notes.md §4.12` and ADR-011 §6) score domain mechanics beyond word count? (Addressed in future learner ADRs).
+2. **Learner Policy Scoring Rubrics:** How do the advisory learners (`docs/design-notes/planning-redesign-notes.md §4.12` and ADR-011 §6) score domain mechanics beyond word count? (Addressed per plan in §4.4.1 of ADR-025 to ADR-033; the scoring rubrics themselves remain open.)
 
 ---
 
@@ -321,3 +321,4 @@ ADR-012 defines the universal contract and meta-rules. Domain-specific plan stan
 | 2026-10-25 | Accepted | Evaluated via Bayesian decision policy through `approve-adr` (`task-policy-decide`, `task-policy-adjudicate --disposition accept`, `task-episode-register`): robust utility 0.873 vs. 0.015 (reject) and 0.037 (revise), episode `736a528e-e069-4fff-96cb-45c5eb68c3a7`. Approved directly by Menno. |
 | 2026-10-25 | Amended (ADR-034 Alignment) | Added §4.2.1 defining the standard-library frontmatter grammar subset (flat keys, string lists, empty flow lists `[]`, inline comments) and non-blocking `FLAG: INVALID_METADATA` parser rejection behavior to eliminate `pyyaml` runtime dependency per ADR-034 Invariant 1. |
 | 2026-10-26 | Amended (ADR-025 Alignment Review) | (1) Replaced the `\p{L}\p{N}` tokenizer, unsupported by Python `re`, with the stdlib regex `\b[^\W_]+(?:['’][^\W_]+)?\b`, and corrected the hyphen rule (hyphenated terms count as two words). (2) Defined the lint-checked `None: [rationale]` form (>= 10 tokens). (3) Permitted comments after list items in the frontmatter grammar. (4) Disambiguated Plan Tiers 1–3 from Flag Tiers A–C. |
+| 2026-10-28 | Pointer to per-plan learner decisions | §8 item 2 notes that learner decisions are made in §4.4.1 of ADR-025 to ADR-033. No decision in this ADR changed. Re-approved 2026-10-29 under `approve-adr` (adjudicated accept, robust utility 0.741 vs. 0.044 reject and 0.110 revise, episode `2727c2f1-e3b8-4cbe-8cb6-c8e3f4bc51fd`). |

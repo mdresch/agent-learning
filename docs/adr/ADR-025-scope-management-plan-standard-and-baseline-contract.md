@@ -117,7 +117,25 @@ Word count is measured on the Markdown body below `---`, using the ADR-012 §4.3
 
 **Now (implemented):** #3 reasoned resolution under `full` authority with permanent `requires_human_approval: true` through `approve-subsidiary-plan` (ADR-013 §4.2), and #6 durable human override. Methodology choice never grants autonomy, and no selection Episode exists yet (ADR-024).
 
-**Possible later (only if its constraint is lifted):** #18 pairwise preference optimization for ranking candidate WBS decompositions from historical project approvals. *Unblocked when:* Sufficient decomposed story branches exist with paired reviewer acceptance/rejection episodes.
+**Possible later (only if its constraint is lifted):** #13 DPO-style pairwise preference for ranking candidate WBS decompositions from historical project approvals. *Unblocked when:* Sufficient decomposed story branches exist with paired reviewer acceptance/rejection episodes.
+
+### 4.4.1 Learner Decision
+
+**Decision:** Build one advisory learner for the Scope Management Plan, as the policy `advise-scope-plan-decision`. The shape is declared with this standard and stays idle, with zero episodes and baseline logits, until real recommendation-versus-decision pairs exist. Synthetic episodes are not used. Building goes through BRD, FDD and a story; this ADR only decides that it is built and on which methodology. The methodology was chosen by hand from the `learning-methodology-selection` skill; when the policy is declared, the selection is recorded as an ADR-024 selection Episode with a human-declared profile. None exists yet and none is invented here.
+
+**What it trains:** The decisions made in this area: the route (full plan, PMP section or N/A with reason), paragraph sufficiency against §4.3, graduation of an over-cap PMP section, and acceptance of a flagged deviation. These four decision types are the maintainer's working list and await confirmation.
+
+**Selected methodology:** #2 softmax bandit with REINFORCE at `low` authority, over a small discrete recommendation set. It fits `learning-methodology-selection` step 3: the decision recurs, the action set is small, and outcomes are contrastive because the human either follows or overrides the recommendation. The reward comes from #5 reward shaping applied to the human decision recorded through #6 durable human override (followed is positive, overridden is negative). The learner trains on the recommendation, not on the approval decision itself.
+
+**Boundaries:**
+* Advisory only. The learner recommends and never approves; `approve-subsidiary-plan` stays `full` authority with permanent `requires_human_approval: true`, and its episodes are meant to stay outside REINFORCE (ADR-013 §4.2, ADR-001 §4.2). ADR-001 §4.5 records that this exclusion is not yet enforced in code, so the learner uses its own task id and never shares one with a gate policy.
+* The recommendation and the human decision are both recorded; the gap between them is evidence.
+* Methodology choice grants no autonomy. The complexity tier is declared by a human in the policy profile and its evidence gate in `autonomy-complexity.md` applies.
+* No warm start is assumed. A shared prior across the nine learners (#15, ADR-020) is an untested hypothesis (HYP-AL-008) and is not built; each learner starts cold.
+* Positive-only history would plateau REINFORCE (HYP-AL-002). Overrides must therefore be recorded as faithfully as agreements, or the learner is not trained.
+* Anchoring and thin data: the learner's recommendation is persisted with a timestamp before the human sees it, so it cannot be altered after the decision. A minimum number of recorded decisions for this area is declared by the maintainer in the policy profile, above the tier minimum, and until it is reached the recommendation is stored but not shown. The number is not set here because no data exists to justify one.
+
+**Plan-specific note:** Out-of-scope sufficiency is a measured floor here (§4.3), so it is one of this learner's paragraph-sufficiency checks. The later candidate stays #13 DPO-style pairwise preference, for ranking candidate WBS decompositions once paired reviewer accept/reject episodes exist.
 
 Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 
@@ -172,6 +190,7 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 
 ## 8. Open Questions & Future Extensions
 1. **Automated WBS Extraction:** Should the orchestrator automatically parse existing User Story markdown files to populate the WBS Dictionary during `full_plan` generation? (Deferred to tooling enhancement).
+2. **PMBOK 8 Domain Re-basing:** PMBOK 8 has seven performance domains, while the repo uses nine plan areas and one learner per area. The nine are kept; whether learners are regrouped by domain is decided in the plan standards ADR.
 
 ---
 
@@ -188,3 +207,5 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 | 2026-10-26 | **Accepted by Menno** | Formally adjudicated and accepted through `approve-adr` TaskPolicy; robust utility 0.944, expected utility 0.965; Episode `432bae92-29a2-4598-8bb0-ec5d38bafbf2`. |
 | 2026-10-28 | Daughter ADR Review & Alignment | Added §4.4 Learning Methodology for symmetry with ADR-026–033, linked ADR-037 design-time feedback loop (`BFI-NNN`), and clarified universal downstream invalidation across all 8 daughter plans in `PLAN_DAG`. |
 | 2026-10-28 | PMBOK 8 Edition Review | Added §4.5 comparing this standard with the guide's planning process: inputs, tools and techniques, outputs, and each difference with a decision. No change to `depends_on`, `PLAN_DAG`, thresholds or the plan files. Proposed, for maintainer confirmation. |
+| 2026-10-28 | Learner Decision | Added §4.4.1 deciding to build the `advise-scope-plan-decision` advisory learner on #2 softmax bandit with REINFORCE at `low` authority, fed by #5 and #6. Advisory only; no episodes created. Corrected the methodology number for pairwise preference from #18 (federated) to #13. This ADR is Accepted. Re-approved 2026-10-29 under `approve-adr` (adjudicated accept, robust utility 0.715 vs. 0.044 reject and 0.110 revise, episode `983c2b87-8309-4414-98fe-93337989b9b5`). |
+| 2026-10-28 | Learner Safeguards and Re-basing Gap | Added to §4.4.1 the anchoring and thin-data safeguard, and to §8 the open question on regrouping learners by PMBOK 8 domain. |

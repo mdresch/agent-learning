@@ -79,7 +79,7 @@ def route(probs: Sequence[float], tier: str, task_id: str, previous: DecisionAut
 PINNED_FULL: frozenset[str]                              # the §7 baseline gates; route() asserts on them
 # route() also pins any task with requires_human_approval=True, and returns FULL with anomaly set on invalid input.
 # previous=None is treated as FULL before the hysteresis comparison, so a first call inside the deadband routes FULL.
-def shadow_record(low_action_id: str, final_action_id: str) -> dict[str, str]: ...   # §4.4
+def shadow_record(low_action_id: str, final_action_id: str, entropy_bits: float) -> dict[str, object]: ...   # §4.4; entropy stays a float
 ```
 
 Tests (`tests/test_routing.py`): a `RoutingConfig` with a gap under 0.15 bits is rejected (including inverted thresholds, `tau_esc < tau_deesc`), a first call (`previous=None`) inside the deadband routes `FULL`, a pinned gate always routes `full`, a `critical` tier always routes `full`, no flip inside the hysteresis band, entropy is in bits (uniform over 4 actions = 2.0), the margin rule escalates, a bucket without `approved_for_low` never routes `LOW`, invalid input (NaN, empty, not summing to 1) routes `FULL` with an anomaly, `approve-adaptation-plan` and `approve-subsidiary-plan` are pinned, `shadow_record` output is never read by `LearningRunner`, a `full` episode is skipped by `ReinforceLearner`, and an untagged episode from an unrouted `low` policy is still trained on.
@@ -137,6 +137,7 @@ Tests (`tests/test_routing.py`): a `RoutingConfig` with a gap under 0.15 bits is
 | 2026-10-28 | Review fix | Defined $\text{Margin}$ and $\epsilon_{\text{margin}}$, moved entropy to bits so $\Delta H$ is in bits, and bounded $R_{\text{previous}}$ per context bucket. Added §4.4 and Invariant 7: the gradient exclusion left `full`-routed contexts with no way to become `low`. Removed the unsourced "70-90%" saving. |
 | 2026-10-28 | Code design | Added §4.5: module layout, signatures, tests, and which real data exists and which is missing. |
 | 2026-10-28 | Amazon Q review (PR #36) | `RoutingConfig` enforces the 0.15-bit gap (`__post_init__`, dataclass fields on separate lines); `previous=None` is FULL before the hysteresis comparison; the starvation-guard proposal reports the bucket base rate and the entropy of the recorded shadow distribution. |
+| 2026-10-28 | Amazon Q review, round 4 | `shadow_record` takes `entropy_bits` and returns `dict[str, object]`, so the recorded entropy stays a number (§4.4 requires it beside the shadow action). |
 | 2026-10-28 | External review triage | Accepted: promotion seeds the bucket prior without a gradient (the §4.4 guard could not otherwise lower entropy); `ApprovedForLow` added to §4.1 and `route()`; `approve-adaptation-plan`, `approve-subsidiary-plan` and any `requires_human_approval` task pinned; §4.3 filter skips `routed_authority == "full"` instead of requiring `"low"`; fail-safe routing and threshold change control (Invariants 8 and 9); evidence expiry parameter; wording fixes. Declined: invented roles, cadence and a 90-day figure, router KPIs (the benchmark is designed separately), and making the ADR-001 §4.5 story a condition of approval (it stays a build dependency). |
 | 2026-10-28 | Amazon Q review, round 2 | Test list names inverted thresholds. |
 

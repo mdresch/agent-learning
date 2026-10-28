@@ -3,7 +3,7 @@
 ## 1. Executive Brief
 In portfolio management, backlog prioritization, and capability assessment, ranking a set of $N$ candidate initiatives or items has traditionally required exhaustive pairwise comparison matrices (e.g. in ADPA portfolio planning). However, evaluating all unique pairs scales quadratically as $\frac{N(N-1)}{2} = \mathcal{O}(N^2)$. For $N = 20$ items, human leadership is forced to review $190$ separate head-to-head comparisons, inducing severe cognitive fatigue and low decision fidelity. Furthermore, selecting pairs at random wastes human effort comparing items whose relative ranking is already obvious.
 
-This ADR introduces the **Active Dueling-Bandit Ranking Engine** (Methodology #23 from `Ideation-Document.md` §2.1, addressing `HYP-AL-015`). By combining an active information-gain query selection policy with the Bradley-Terry probabilistic preference model, this engine adaptively queries only the most informative pairs, reducing required human comparisons by $60\text{--}75\%$ (from $\mathcal{O}(N^2)$ to $\mathcal{O}(N \log N)$) while providing rigorous confidence intervals over the global ranking.
+This ADR introduces the **Active Dueling-Bandit Ranking Engine** (Methodology #23 from `Ideation-Document.md` §2.1, addressing `HYP-AL-015`). By combining an active information-gain query selection policy with the Bradley-Terry probabilistic preference model, this engine adaptively queries only the most informative pairs, aiming to reduce required human comparisons from $\mathcal{O}(N^2)$ towards $\mathcal{O}(N \log N)$ (the saving is measured under HYP-AL-015) while providing approximate (Laplace) confidence intervals over the global ranking.
 
 ## 2. Status
 **Proposed (2026-10-25)** — Derived from `Ideation-Document.md` §2.1 (Methodology #23) and `HYP-AL-015`. Ready for multi-criteria evaluation under `approve-adr`.
@@ -36,7 +36,7 @@ Where:
 - Obvious pairs (e.g. $P(i \succ j) > 0.95$) are bypassed once all items satisfy the minimum exposure constraint.
 
 ### 4.3 Tournament Termination & Convergence
-The active ranking tournament halts when the posterior ranking variance across all items drops below a declared threshold:
+The regularized maximum-likelihood estimate has no posterior, so the variance is a Laplace approximation: $\text{Var}(\lambda_i) \approx [H^{-1}]_{ii}$, where $H$ is the Hessian of the negative penalized log-likelihood at $\hat{\boldsymbol{\lambda}}$ (positive definite because $\lambda_{\text{reg}} > 0$). The active ranking tournament halts when this variance across all items drops below a declared threshold:
 $$\max_{i \in I} \text{Var}(\lambda_i) \le \tau_{\text{rank\_confidence}}$$
 Or when total comparisons reach an allocated budget cap $B_{\max} \le 2 N \log_2 N$.
 
@@ -51,6 +51,24 @@ The tournament state is stored in `PolicySnapshot.metadata["dueling_bandit"]`:
 }
 ```
 
+### 4.5 Code design and test data
+Design only: nothing below is built, and the signatures are the contract an FDD must confirm or change.
+Module `src/agent_learning/dueling.py`, pure; the tournament state is a plain dict stored under `PolicySnapshot.metadata["dueling_bandit"]` by the caller.
+
+```python
+def fit_bradley_terry(items: Sequence[str], comparisons: Sequence[tuple[str, str]], *,
+                      lam: float = 0.01, iters: int = 200) -> dict[str, float]: ...      # MM, Hunter 2004
+def laplace_variance(items, comparisons, utilities, *, lam: float) -> dict[str, float]: ...
+def next_pair(items, comparisons, utilities, *, k_min: int = 2) -> tuple[str, str] | None: ...
+def converged(variances: Mapping[str, float], tau: float, used: int, budget: int) -> bool: ...
+```
+
+Tests (`tests/test_dueling.py`): finite utilities for a winless item (the L2 term), the MM iteration never decreases the penalized likelihood, `next_pair` serves every item at least `k_min` times first, the budget is respected, utilities sum to zero, and 100 items fit well inside 50 ms.
+
+**Test data.** *Real:* the backlog itself is real (the user stories under `docs/user-stories/`, the ADRs and epics), but the repository holds **no recorded pairwise judgments** about it. *Gap:* the real data is Menno's own comparisons; the engine's first real run should present real pairs and persist each answer as an episode. Until then HYP-AL-015 is untested. A synthetic tournament may only check the maths: recover a known utility ordering from simulated noisy comparisons, labeled synthetic and not evidence. *Oracle tests:* a two-item case with a closed-form answer.
+
+**Walkthrough.** [Methodology 23 in the walkthroughs](../learning-methodology-walkthroughs.md#23-dueling-bandit-ranking-adr-023-45). It runs the sketch today; it must be rewritten against the real module once this is built.
+
 ## 5. Alternatives Considered
 
 | Alternative | Rationale for Rejection |
@@ -62,7 +80,7 @@ The tournament state is stored in `PolicySnapshot.metadata["dueling_bandit"]`:
 ## 6. Consequences
 
 ### Positive
-- Reduces human comparison workload by $60\text{--}75\%$, scaling ranking capacity to large backlogs.
+- Expected to cut human comparisons below the exhaustive $N(N-1)/2$, bounded by the budget $B_{\max} \le 2N\log_2 N$; the actual saving is unmeasured and is what HYP-AL-015 tests.
 - Bradley-Terry maximum likelihood estimation provides principled handling of transitive preferences.
 - CPU-only Minorization-Maximization algorithm converges in milliseconds without GPU dependencies.
 
@@ -92,4 +110,6 @@ The tournament state is stored in `PolicySnapshot.metadata["dueling_bandit"]`:
 |---|---|---|
 | 2026-10-25 | Initial Draft | Candidate derived from Ideation Document §2.1 (Methodology #23). |
 | 2026-10-25 | Peer-Review Hardening | Added Invariant 5 (Minimum Exposure $k_{\min} \ge 2$) and Invariant 6 (L2 Regularization $\lambda_{\text{reg}} \ge 0.01$) per Cybernetics Control Theorist and Systems Architect recommendations. |
+| 2026-10-28 | Review fix | The stopping rule used a variance a penalized MLE does not provide; it is now a Laplace approximation. Removed the unsourced "60-75%" saving. |
+| 2026-10-28 | Code design | Added §4.5: module layout, signatures, tests, and which real data exists and which is missing. |
 

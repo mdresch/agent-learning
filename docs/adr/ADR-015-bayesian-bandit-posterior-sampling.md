@@ -19,7 +19,7 @@ This ADR introduces **Bayesian Bandit Posterior Sampling (Thompson Sampling)** (
 For binary or unit-scaled rewards $r \in [0, 1]$, each action $a \in A$ maintains a conjugate Beta prior:
 $$\theta_a \sim \text{Beta}(\alpha_a, \beta_a)$$
 - Prior initialization: $\alpha_a = 1.0, \beta_a = 1.0$ (uniform prior).
-- Update rule upon observing reward $r \in [0, 1]$:
+- Update rule upon observing reward $r \in [0, 1]$. For binary $r$ this is the exact conjugate Beta-Bernoulli update; for fractional $r$ it is a pseudo-count approximation, not an exact posterior, and is documented as such:
   $$\alpha_a \leftarrow \alpha_a + r, \quad \beta_a \leftarrow \beta_a + (1 - r)$$
 - **Effective Sample Size (ESS) Cap & Discounting:** To prevent parameter lock-in under non-stationary conditions, total pseudo-counts are capped at $N_{\max} = 5000$:
   $$\text{If } (\alpha_a + \beta_a) > N_{\max}, \quad \alpha_a \leftarrow \alpha_a \cdot \frac{N_{\max}}{\alpha_a + \beta_a}, \quad \beta_a \leftarrow \beta_a \cdot \frac{N_{\max}}{\alpha_a + \beta_a}$$
@@ -35,16 +35,39 @@ At each decision point:
 ### 4.3 Deterministic Audit & Cryptographic Replayability
 To satisfy repository auditability without compromising the mathematical properties of Thompson sampling:
 - The pseudo-random number generator (PRNG) is seeded via an HMAC-SHA256 hash of the immutable request context:
-  $$\text{seed} = \text{int}(\text{HMAC-SHA256}(\text{key}=\text{policy\_id}, \text{msg}=\text{request\_id} \,\|\, \text{timestamp})[:8], 16)$$
+  $$\text{seed} = \text{int}(\text{HMAC-SHA256}(\text{key}=\text{policy\_id}, \text{msg}=\text{request\_id} \,\|\, \text{timestamp}).\text{hexdigest}()[:16], 16)$$
+  (the first 16 hex digits, a 64-bit seed; the example below is a value of that width). It is stored as a decimal string, because a 64-bit integer above $2^{53} - 1$ loses its low bits in the double-precision JSON parsers used by Cosmos DB and common dashboards.
 - The resulting seed and the sampled vector $\hat{\boldsymbol{\theta}}$ are saved in `Episode.metadata["thompson_sampling"]`:
   ```json
   {
-    "prng_seed": 847291038471,
+    "prng_seed": "8472910384719203841",
     "posterior_parameters": {"alpha": [14.0, 3.0], "beta": [2.0, 8.0]},
     "sampled_payoffs": {"action_1": 0.842, "action_2": 0.315}
   }
   ```
 Any historical decision can be re-run deterministically by re-initializing the PRNG with the recorded seed.
+
+### 4.4 Code design and test data
+Design only: nothing below is built, and the signatures are the contract an FDD must confirm or change.
+Module `src/agent_learning/policy/thompson.py`, implementing `Policy`, plus a `ThompsonLearner(Learner)`.
+
+```python
+def seed_for(policy_id: str, request_id: str, timestamp: str) -> int: ...   # §4.3, 64-bit
+class ThompsonPolicy(Policy):
+    @classmethod
+    def from_snapshot(cls, snapshot: PolicySnapshot) -> ThompsonPolicy: ...  # reads metadata["posterior_parameters"]
+    def choose(self, state=None, *, request_id: str, timestamp: str) -> Decision: ...
+class ThompsonLearner(Learner):
+    def update(self, policy, episodes, rewards) -> LearnerResult: ...      # alpha += r, beta += 1 - r, ESS cap
+```
+
+`Policy.choose` returns a `Decision` with a log-probability, which probability matching does not define. The policy therefore records the seed and sampled vector in `Episode.metadata["thompson_sampling"]` and sets `selection_basis="thompson"`. `ReinforceLearner` today consumes any episode with a matching `action_id` (ADR-001 §4.5), so the FDD must add a guard that it skips these episodes.
+
+Tests (`tests/test_thompson.py`): same seed gives the same draw, the replay in §4.3 reproduces a recorded episode, the update on Beta(1,1) with r=1 gives (2,1), the ESS cap holds at 5000, `ReinforceLearner` skips Thompson episodes, and an all-ones reward history keeps posteriors wide where REINFORCE's update goes to zero (the HYP-AL-002 check).
+
+**Test data.** *Real:* the 41 recorded approval episodes, replayed as $r = 1.0$ for the action taken. This is a genuine positive-only history, the exact situation HYP-AL-002 describes, so it tests the failure mode of the baseline. *Gap:* every one of the 41 is accepted and the `approve-*` policies are full authority, so there is no real low-authority policy with failures and the data cannot show Thompson sampling is better. Needed: a low-authority policy with at least 100 scored episodes including failures. *Oracle tests:* closed-form Beta updates, labeled as arithmetic checks.
+
+**Walkthrough.** [Methodology 9 in the walkthroughs](../learning-methodology-walkthroughs.md#9-thompson-sampling-adr-015-44). It runs the sketch today; it must be rewritten against the real module once this is built.
 
 ## 5. Alternatives Considered
 
@@ -83,4 +106,6 @@ Any historical decision can be re-run deterministically by re-initializing the P
 |---|---|---|
 | 2026-10-25 | Initial Draft | Candidate derived from Ideation Document §2.1 (Methodology #9). |
 | 2026-10-25 | Peer-Review Hardening | Added Invariant 4 (Effective Sample Size Ceiling $N_{\max} \le 5000$ and exponential discounting) per Cybernetics Control Theorist and Systems Architect recommendations to prevent posterior lock-in. |
+| 2026-10-28 | Review fix | Seed formula took 8 hex digits (32 bits) while the example showed a larger value; it now takes 16 (64 bits). Stated that the fractional-reward update is an approximation, not an exact conjugate posterior. |
+| 2026-10-28 | Code design | Added §4.4: module layout, signatures, tests, and which real data exists and which is missing. |
 

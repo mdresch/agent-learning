@@ -17,12 +17,12 @@ This ADR introduces **Lightweight Critique-to-Evidence Ingestion** (Methodology 
 
 ### 4.1 Critique Mapping Formulation
 Let a `DecisionFrame` contain a set of evaluation criteria $C = \{c_1, \dots, c_m\}$.
-A textual critique $T$ consists of discrete finding statements. A deterministic mapper parses target criteria tags:
+A textual critique $T$ consists of discrete finding statements. A deterministic parser extracts the criterion tag and the reviewer-supplied delta from each finding. The parser is the only deterministic part: $f_{\text{critique}}$ is the identity on the tagged number, which the reviewer chooses against an explicit rubric (see Negative consequences), and the parser rejects any untagged finding rather than guessing a delta:
 $$\Delta s_c = f_{\text{critique}}(T, c), \quad \Delta s_c \in [-1.0, 1.0]$$
 The updated support $s_c'$ is clipped to the unit interval:
 $$s_c' = \text{clip}(s_c + \Delta s_c, 0.0, 1.0)$$
-The epistemic uncertainty $u_c'$ expands proportionally to the magnitude of the delta, reflecting increased doubt:
-$$u_c' = \min(1.0, u_c + \kappa \cdot |\Delta s_c|), \quad \kappa \in [0.1, 0.5]$$
+Only a defect finding (negative delta) adds doubt; a confirming finding (positive delta) leaves the uncertainty unchanged, so confirmation never raises it:
+$$u_c' = \min(1.0, u_c + \kappa \cdot \max(0, -\Delta s_c)), \quad \kappa \in [0.1, 0.5]$$
 
 ### 4.2 Ingestion Interfaces & Tag Schema
 Critiques are supplied as structured markdown bullet points or parsed via token extraction:
@@ -52,6 +52,32 @@ class CritiqueEvidenceMapper:
 - **Authority:** Evaluated strictly under `DecisionAuthority.FULL` via `DecisionResolver`.
 - **Storage Boundary (ADR-002 Invariant #2):** The applied critique deltas and raw review findings are persisted strictly within `Episode.metadata["critique_adjustments"]`. Zero new database containers or record types.
 
+### 4.4 Code design and test data
+Design only: nothing below is built, and the signatures are the contract an FDD must confirm or change.
+Module `src/agent_learning/critique_evidence.py`, standard library only and no file I/O, like `review_triage.py`; callers pass text in and get dataclasses or dicts out.
+
+```python
+@dataclass(frozen=True)
+class CritiqueDelta:
+    criterion_id: str
+    support_delta: float     # [-1.0, 1.0]
+    rationale: str
+    finding_id: str          # e.g. "Q-34-1"; becomes the evidence source
+
+def parse_critique(text: str) -> list[CritiqueDelta]: ...        # ValueError on an untagged or out-of-range line
+def apply_critique(frame: DecisionFrame, option_id: str,
+                   deltas: Sequence[CritiqueDelta], *, kappa: float = 0.2) -> DecisionFrame: ...
+def to_episode_metadata(deltas: Sequence[CritiqueDelta]) -> dict[str, object]: ...  # {"critique_adjustments": [...]}
+```
+
+`DecisionFrame` and `EvidencePoint` are frozen, so `apply_critique` returns a new frame. For each delta it appends an `EvidencePoint(criterion_id, source=f"critique:{finding_id}", support=s', confidence=1 - u')`, where $s'$ and $u'$ come from §4.1 applied to the option's current mean support and mean confidence on that criterion. Appending, rather than editing an existing point, is what makes Invariant 3 (every change cites its finding) hold; the FDD confirms this choice.
+
+Tests (`tests/test_critique_evidence.py`): bounds and clipping, uncertainty does not rise on a positive delta, an untagged line is rejected, each changed criterion cites its finding, the input frame is not mutated, metadata round-trips.
+
+**Test data.** *Real:* the 30 review-triage records in `implementation-log.md` (read with `review_triage.find_triage_lines`): real Amazon Q findings with claim type, verification result and the human decision. A person tags each with a criterion and a delta, recording who tagged it; the check is directional (a finding the human declined should not lower support on the criterion it names). *Gap:* the log keeps the human's one-line reason, not the reviewer's original comment; the originals are in the PR threads and must be exported before tagging. *Oracle tests:* hand-computed expected values for the §4.1 formulas, labeled as arithmetic checks and not as evidence.
+
+**Walkthrough.** [Methodology 8 in the walkthroughs](../learning-methodology-walkthroughs.md#8-critique-to-evidence-adr-014-44). It runs the sketch today; it must be rewritten against the real module once this is built.
+
 ## 5. Alternatives Considered
 
 | Alternative | Rationale for Rejection |
@@ -78,7 +104,15 @@ class CritiqueEvidenceMapper:
 3. **Audit Traceability:** Every modified criterion in a `DecisionFrame` must cite its triggering critique finding in its evidence source.
 4. **Zero Storage Sprawl:** Persisted exclusively in `Episode.metadata["critique_adjustments"]` under ADR-002 Invariant #2.
 
-## 8. References
+## 8. Amendment Log
+
+| Date | Change | Why |
+|---|---|---|
+| 2026-10-25 | Initial Draft | Candidate derived from Ideation Document §2.1 (Methodology #8). |
+| 2026-10-28 | Review fix | The mapper is a parser of reviewer-supplied deltas, not an inference step; uncertainty now rises only on negative deltas, because a confirming finding must not add doubt. |
+| 2026-10-28 | Code design | Added §4.4: module layout, signatures, tests, and which real data exists and which is missing. |
+
+## 9. References
 - `docs/project-docs/Ideation-Document.md` §2.1 (Methodology #8)
 - `HYP-AL-005`: Critique-to-evidence Bayesian resolution
 - `ADR-001`: Decision Authority Model

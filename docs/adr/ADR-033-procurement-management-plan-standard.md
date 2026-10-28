@@ -103,6 +103,22 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 
 ---
 
+### 4.5 PMBOK 8 Alignment
+
+**Source:** *A Guide to the Project Management Body of Knowledge*, Eighth Edition, Plan Sourcing Strategy (Figure 2-5). The figure lists end with "Etc.", so the rows below are what the figure names, not an exhaustive set. This subsection records how the ADR relates to the guide; it does not change `depends_on`, `PLAN_DAG` or any threshold.
+
+| | PMBOK 8 | This ADR |
+|---|---|---|
+| Inputs | Project charter; project management plan (scope, quality, schedule, financial and resource management plans, scope baseline); project documents (among others milestone list, requirements documentation, requirements traceability matrix, quality metrics, resource requirements, project team assignments, risk register, stakeholder register); enterprise environmental factors; organizational process assets. | Charter, approved Scope and Cost plans in; Procurement Management Plan out, with the dependency intake register and selection scorecards (§4.2). |
+| Tools and techniques | Expert judgment; market research; make-or-buy analysis; source selection analysis; document analysis. | Not prescribed; the standard sets structure and measured thresholds and leaves method to the generator and the human reviewer. |
+| Outputs | Sourcing strategy plan, including insourcing or outsourcing decisions and source selection criteria. | See §4.1 `outputs` and §4.2. |
+
+**Differences and decisions:**
+
+* **Name.** The guide's process produces a sourcing strategy plan, and the guide's glossary also defines a procurement management plan as a plan component. Decision: keep the plan id `procurement-management`; this ADR covers the sourcing decisions and the third-party intake rules.
+* **Five plan inputs in the guide, two here.** `PLAN_DAG` gives Procurement `scope-management` and `cost-management`. Schedule, Quality and Resource plans are not gating. Decision: Procurement may read them, without a staleness edge. The guide notes that sourcing differs from resource planning (it is for external sources), which supports keeping the two plans apart.
+* **Make-or-buy and source selection analysis** are covered by §4.2. Market research is not required; the repo's anti-sprawl rule (ADR-034) prefers fewer third-party dependencies, so research is only needed when a dependency is proposed.
+
 ## 5. Architectural Invariants
 1. **No Unrecorded Dependency:** Adding an external dependency or service without the intake record violates the plan; the record is evidence in the approval or change episode, not a new entity (ADR-002 Invariant #2).
 2. **Acquisition Respects the Cost Envelope:** An acquisition that would exceed the envelope or a stage budget requires change control.
@@ -142,3 +158,4 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 | 2026-10-26 | Proposed | Initial drafting of ADR-033 under the ADR-012 framework, using ADR-025 as the structural template. |
 | 2026-10-26 | Learning Methodology Note | Added §4.4 recording the methodology that applies now and the candidates that apply only if their constraints are lifted. |
 | 2026-10-28 | Daughter ADR Review & Alignment Draft | Clarified authorization threshold and confirmed `PLAN_DAG` dependency edges (`scope-management`, `cost-management`) without coupling to `resource-management`, verified frontmatter, and prepared for review. |
+| 2026-10-28 | PMBOK 8 Edition Review | Added §4.5 comparing this standard with the guide's planning process: inputs, tools and techniques, outputs, and each difference with a decision. No change to `depends_on`, `PLAN_DAG`, thresholds or the plan files. Proposed, for maintainer confirmation. |

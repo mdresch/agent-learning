@@ -105,6 +105,21 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 
 ---
 
+### 4.5 PMBOK 8 Alignment
+
+**Source:** *A Guide to the Project Management Body of Knowledge*, Eighth Edition, Plan Financial Management (Figure 2-27). The figure lists end with "Etc.", so the rows below are what the figure names, not an exhaustive set. This subsection records how the ADR relates to the guide; it does not change `depends_on`, `PLAN_DAG` or any threshold.
+
+| | PMBOK 8 | This ADR |
+|---|---|---|
+| Inputs | Project charter; project management plan (schedule management plan, risk management plan); project documents; enterprise environmental factors; organizational process assets. | Charter, approved Scope and Schedule plans in; Cost Management Plan out, with the envelope, staged funding and contingency partition (§4.2). |
+| Tools and techniques | Expert judgment; data analysis (alternative analysis); meetings. | Not prescribed; the standard sets structure and measured thresholds and leaves method to the generator and the human reviewer. |
+| Outputs | Financial management plan; funding strategy. | See §4.1 `outputs` and §4.2. |
+
+**Differences and decisions:**
+
+* **Name and scope.** The guide's plan is a financial management plan covering project revenues and expenses. This ADR covers costs and funding of a project with no revenue line. Decision: keep the plan id `cost-management` (it is fixed in `PLAN_DAG` and in the plan file name) and record that revenue planning is out of scope. The guide's "funding strategy" output corresponds to the staged funding gates.
+* **Risk management plan is a guide input; here Risk depends on Cost.** `PLAN_DAG` has `risk-management` depending on `cost-management`, the reverse of the guide. The guide itself has Plan Risk Management read all plan components, so its own ordering is circular. Decision: keep Cost before Risk, because a Risk plan needs the baseline exposure to score, and a DAG must not have a cycle (ADR-013 §4.5). Contingency sizing in this ADR is therefore set without an approved Risk plan and is reconciled when the Risk plan is approved. Open question for the maintainer: whether that reconciliation needs an explicit re-approval step.
+
 ## 5. Architectural Invariants
 1. **Cost Follows Scope and Schedule:** Cost baseline finalization follows approval of both upstream plans.
 2. **Budget Traces to Plan Elements:** Every funded stage names the Schedule milestone or Scope epic it funds.
@@ -146,3 +161,4 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 | 2026-10-26 | Proposed | Initial drafting of ADR-027 under the ADR-012 framework, using ADR-025 as the structural template. |
 | 2026-10-26 | Learning Methodology Note | Added §4.4 recording the methodology that applies now and the candidates that apply only if their constraints are lifted. |
 | 2026-10-28 | Daughter ADR Review & Alignment Draft | Explicitly stated Governance secondary domain in §1, connected ADR-037 design-time feedback loop, noted Epic 13 cryptographic parent hashes unblocking #25 credit assignment, resolved effort unit open question, and prepared for review. |
+| 2026-10-28 | PMBOK 8 Edition Review | Added §4.5 comparing this standard with the guide's planning process: inputs, tools and techniques, outputs, and each difference with a decision. No change to `depends_on`, `PLAN_DAG`, thresholds or the plan files. Proposed, for maintainer confirmation. |

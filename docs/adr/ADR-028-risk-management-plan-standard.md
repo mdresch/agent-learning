@@ -105,6 +105,22 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 
 ---
 
+### 4.5 PMBOK 8 Alignment
+
+**Source:** *A Guide to the Project Management Body of Knowledge*, Eighth Edition, Plan Risk Management (Figure 2-48). The figure lists end with "Etc.", so the rows below are what the figure names, not an exhaustive set. This subsection records how the ADR relates to the guide; it does not change `depends_on`, `PLAN_DAG` or any threshold.
+
+| | PMBOK 8 | This ADR |
+|---|---|---|
+| Inputs | Project charter; project management plan (all components); project documents (stakeholder register); enterprise environmental factors; organizational process assets. | Charter and approved Scope, Schedule and Cost plans in; Risk Management Plan out, with the scoring bands and escalation rules (§4.2). |
+| Tools and techniques | Expert judgment; data gathering (interviews); data analysis (stakeholder analysis); meetings. | Not prescribed; the standard sets structure and measured thresholds and leaves method to the generator and the human reviewer. |
+| Outputs | Project management plan updates: risk management plan. | See §4.1 `outputs` and §4.2. |
+
+**Differences and decisions:**
+
+* **"All components" against three.** The guide reads every plan component. `PLAN_DAG` gives Risk three dependencies: Scope, Schedule and Cost. Quality, Resource, Communications, Procurement and Stakeholder Engagement are not gating inputs. Decision: Risk may read them if they exist, without a staleness edge. Nothing in `PLAN_DAG` depends on Risk, so no plan goes stale when it changes.
+* **Stakeholder register** is a guide input and Stakeholder Engagement (ADR-031) owns the register schema. Decision: Risk reads it when it exists; not gating.
+* **Stakeholder analysis** (the guide's technique) is not required here; the stakeholder inputs to risk appetite come from the Charter.
+
 ## 5. Architectural Invariants
 1. **Ratings Are Reproducible:** Every rating can be recomputed from the declared scale; unanchored qualitative ratings raise `FLAG: MISSING_REQUIRED_SECTION`.
 2. **Thresholds Reach a Human:** A risk at or above the escalation threshold cannot be accepted without a recorded human decision.
@@ -144,3 +160,4 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 | 2026-10-26 | Proposed | Initial drafting of ADR-028 under the ADR-012 framework, using ADR-025 as the structural template. |
 | 2026-10-26 | Learning Methodology Note | Added §4.4 recording the methodology that applies now and the candidates that apply only if their constraints are lifted. |
 | 2026-10-28 | Daughter ADR Review & Alignment Draft | Resolved register format open question confirming Markdown table format under ADR-002/034, verified DAG dependencies (`scope-management`, `schedule-management`, `cost-management`), and prepared for review. |
+| 2026-10-28 | PMBOK 8 Edition Review | Added §4.5 comparing this standard with the guide's planning process: inputs, tools and techniques, outputs, and each difference with a decision. No change to `depends_on`, `PLAN_DAG`, thresholds or the plan files. Proposed, for maintainer confirmation. |

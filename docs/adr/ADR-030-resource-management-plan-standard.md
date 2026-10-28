@@ -102,6 +102,23 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 
 ---
 
+### 4.5 PMBOK 8 Alignment
+
+**Source:** *A Guide to the Project Management Body of Knowledge*, Eighth Edition, Plan Resource Management (Figure 2-41). The figure lists end with "Etc.", so the rows below are what the figure names, not an exhaustive set. This subsection records how the ADR relates to the guide; it does not change `depends_on`, `PLAN_DAG` or any threshold.
+
+| | PMBOK 8 | This ADR |
+|---|---|---|
+| Inputs | Project charter; project management plan (quality management plan, scope baseline); project documents (project schedule, requirements documentation, risk register, stakeholder register); enterprise environmental factors; organizational process assets. | Charter, approved Scope and Schedule plans in; Resource Management Plan out, with the role catalogue and agent quotas (§4.2). |
+| Tools and techniques | Expert judgment; data gathering (interviews); data analysis (SWOT); data representation (hierarchical charts, responsibility assignment matrix, text-oriented formats); organizational theory; meetings; green human resource management; resource-based view. | Not prescribed; the standard sets structure and measured thresholds and leaves method to the generator and the human reviewer. |
+| Outputs | Resource management plan; team charter; project document updates (assumption log, risk register). | See §4.1 `outputs` and §4.2. |
+
+**Differences and decisions:**
+
+* **Schedule input is stronger here.** The guide reads the project schedule (a document); `PLAN_DAG` makes Resource depend on the approved Schedule Management Plan. Decision: keep; the plan's capacity model needs the timebox cadence.
+* **Quality management plan is a guide input; not a dependency here.** Decision: Resource may read it, without a staleness edge (see ADR-029).
+* **Team charter** is a guide output. This ADR has none. Decision: whether a team charter is needed is an open question for the maintainer; the role catalogue and the Charter's approver roles cover part of it.
+* **Responsibility assignment matrix** is a guide technique. The accountable-human assignment in §4.2 overlaps with it; the ADR does not require a RACI format.
+
 ## 5. Architectural Invariants
 1. **Every Role Has an Accountable Human:** Agent work never lacks a named accountable human role.
 2. **Allocation Is Comparable With Schedule:** Allocation uses the Schedule plan's timebox unit.
@@ -139,3 +156,4 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 | 2026-10-26 | Proposed | Initial drafting of ADR-030 under the ADR-012 framework, using ADR-025 as the structural template. |
 | 2026-10-26 | Learning Methodology Note | Added §4.4 recording the methodology that applies now and the candidates that apply only if their constraints are lifted. |
 | 2026-10-28 | Daughter ADR Review & Alignment Draft | Resolved Cost-Resource DAG dependency open question confirming Cost does not depend on Resource in `PLAN_DAG`, clarified agent capacity unit metrics, verified `depends_on`, and prepared for review. |
+| 2026-10-28 | PMBOK 8 Edition Review | Added §4.5 comparing this standard with the guide's planning process: inputs, tools and techniques, outputs, and each difference with a decision. No change to `depends_on`, `PLAN_DAG`, thresholds or the plan files. Proposed, for maintainer confirmation. |

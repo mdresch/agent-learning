@@ -100,6 +100,22 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 
 ---
 
+### 4.5 PMBOK 8 Alignment
+
+**Source:** *A Guide to the Project Management Body of Knowledge*, Eighth Edition, Plan Communications Management (Figure 2-35). The figure lists end with "Etc.", so the rows below are what the figure names, not an exhaustive set. This subsection records how the ADR relates to the guide; it does not change `depends_on`, `PLAN_DAG` or any threshold.
+
+| | PMBOK 8 | This ADR |
+|---|---|---|
+| Inputs | Project charter; project management plan (resource management plan, stakeholder engagement plan); project documents (requirements documentation, stakeholder register); enterprise environmental factors; organizational process assets. | Charter and approved Scope plan in; Communications Management Plan out, with the communication matrix and escalation paths (§4.2). |
+| Tools and techniques | Expert judgment; communication requirements analysis; communication technology; communication models; communication methods; interpersonal and team skills (communication styles assessment, political awareness, cultural awareness); data representation (stakeholder engagement assessment matrix); meetings. | Not prescribed; the standard sets structure and measured thresholds and leaves method to the generator and the human reviewer. |
+| Outputs | Project management plan updates: communications management plan, stakeholder engagement plan; project document updates (project schedule, stakeholder register). | See §4.1 `outputs` and §4.2. |
+
+**Differences and decisions:**
+
+* **Communications and Stakeholder Engagement read each other in the guide.** Each takes the other's plan as an input (Figures 2-34 and 2-35), and the guide describes the two as closely aligned. In `PLAN_DAG` both depend only on Scope, with no edge between them, so there is no cycle and no cascade. Decision: keep. Consequence: a change to one does not make the other stale. The human reviewer must check the pair for consistency, and this is stated here so the reviewer knows it is theirs to do.
+* **Guide outputs include updates to the stakeholder engagement plan and the project schedule.** Under ADR-013 each plan is owned and approved by itself. Decision: this plan does not write into another plan; an update needed elsewhere is a change request to that plan's owner.
+* **Resource management plan** is a guide input; not a dependency here. Decision: may be read, without a staleness edge.
+
 ## 5. Architectural Invariants
 1. **Every Flow Has an Owner and a Cadence:** A flow without owner or cadence/trigger raises `FLAG: MISSING_REQUIRED_SECTION`.
 2. **The Record Is Not the Channel:** Governance decisions are recorded per ADR-002 Invariant #2 and ADR-013; no decision exists only in a channel.
@@ -137,3 +153,4 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 | 2026-10-26 | Proposed | Initial drafting of ADR-032 under the ADR-012 framework, using ADR-025 as the structural template. |
 | 2026-10-26 | Learning Methodology Note | Added §4.4 recording the methodology that applies now and the candidates that apply only if their constraints are lifted. |
 | 2026-10-28 | Daughter ADR Review & Alignment Draft | Resolved Stakeholder Engagement dependency open question confirming Communications depends solely on `scope-management` in `PLAN_DAG` to prevent cascading churn, verified `depends_on`, and prepared for review. |
+| 2026-10-28 | PMBOK 8 Edition Review | Added §4.5 comparing this standard with the guide's planning process: inputs, tools and techniques, outputs, and each difference with a decision. No change to `depends_on`, `PLAN_DAG`, thresholds or the plan files. Proposed, for maintainer confirmation. |

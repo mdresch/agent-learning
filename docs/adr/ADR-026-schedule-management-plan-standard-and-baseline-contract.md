@@ -109,6 +109,22 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 
 ---
 
+### 4.5 PMBOK 8 Alignment
+
+**Source:** *A Guide to the Project Management Body of Knowledge*, Eighth Edition, Plan Schedule Management (Figure 2-21). The figure lists end with "Etc.", so the rows below are what the figure names, not an exhaustive set. This subsection records how the ADR relates to the guide; it does not change `depends_on`, `PLAN_DAG` or any threshold.
+
+| | PMBOK 8 | This ADR |
+|---|---|---|
+| Inputs | Project charter; project management plan (scope management plan); development approach; enterprise environmental factors; organizational process assets. | Charter and approved Scope Management Plan in; Schedule Management Plan out (§4.2). Dependency matches: `schedule-management` depends on `scope-management`. |
+| Tools and techniques | Expert judgment; data analysis (alternative analysis); meetings. | Not prescribed; the standard sets structure and measured thresholds and leaves method to the generator and the human reviewer. |
+| Outputs | Project management plan updates: schedule management plan. | See §4.1 `outputs` and §4.2. |
+
+**Differences and decisions:**
+
+* **Dependency agrees with the guide.** Scope management plan is the guide's only plan input here, and it is the only dependency in `PLAN_DAG` besides the Charter.
+* **Development approach is a named guide input.** This ADR has no field for it. Decision: the approach is taken from the Charter and the ADR-011 tailoring route. If a project's Charter does not state it, the Schedule plan must state it in Section 1. Proposed, for the maintainer to confirm.
+* **Alternative analysis** (the guide's data-analysis technique) is not prescribed; no new requirement.
+
 ## 5. Architectural Invariants
 1. **Schedule Follows Scope, Precedes Cost:** Schedule approval follows Scope and precedes Cost baseline finalization.
 2. **Every Milestone Traces to the WBS:** A milestone with no parent epic in the Scope baseline raises `FLAG: MISSING_REQUIRED_SECTION`.
@@ -150,3 +166,4 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 | 2026-10-26 | Proposed | Initial drafting of ADR-026 under the ADR-012 framework, using ADR-025 as the structural template. |
 | 2026-10-26 | Learning Methodology Note | Added §4.4 recording the methodology that applies now and the candidates that apply only if their constraints are lifted. |
 | 2026-10-28 | Daughter ADR Review & Alignment Draft | Connected ADR-037 design-time feedback loop for pre-execution schedule adjustments, noted Epic 13 `PlanApprovalRecord.parent_hashes` cryptographic lineage unblocking #25 credit assignment, resolved tolerance authority open question, and prepared for review. |
+| 2026-10-28 | PMBOK 8 Edition Review | Added §4.5 comparing this standard with the guide's planning process: inputs, tools and techniques, outputs, and each difference with a decision. No change to `depends_on`, `PLAN_DAG`, thresholds or the plan files. Proposed, for maintainer confirmation. |

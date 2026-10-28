@@ -100,6 +100,21 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 
 ---
 
+### 4.5 PMBOK 8 Alignment
+
+**Source:** *A Guide to the Project Management Body of Knowledge*, Eighth Edition, Plan Scope Management (the guide has no separate Plan Quality Management process) (Figure 2-14). The figure lists end with "Etc.", so the rows below are what the figure names, not an exhaustive set. This subsection records how the ADR relates to the guide; it does not change `depends_on`, `PLAN_DAG` or any threshold.
+
+| | PMBOK 8 | This ADR |
+|---|---|---|
+| Inputs | As for Plan Scope Management; the quality management plan is one of that process's outputs. | Charter and approved Scope plan (acceptance criteria and Definition of Done) in; Quality Management Plan out, with the gate definitions and verification standards (§4.2). |
+| Tools and techniques | Includes test and inspection planning. | Not prescribed; the standard sets structure and measured thresholds and leaves method to the generator and the human reviewer. |
+| Outputs | Project management plan updates: quality management plan. | See §4.1 `outputs` and §4.2. |
+
+**Differences and decisions:**
+
+* **No separate process in the guide.** The quality plan comes out of Plan Scope Management, and the guide treats it as a plan component. This repo gives it its own standard and its own approval. Decision: keep it; the dependency on Scope is consistent with the guide, since both are produced together.
+* **Quality management plan is a guide input to other plans.** The guide takes it as input to Plan Resource Management, Estimate Costs and Plan Sourcing Strategy. `PLAN_DAG` has no edge from `quality-management` to Resource, Cost or Procurement. Decision: those plans may read it, without a staleness edge. A change to the Quality plan does not make them stale; the human reviewer checks consistency.
+
 ## 5. Architectural Invariants
 1. **Quality Verifies Scope, Not Redefines It:** Acceptance criteria live in the Scope baseline; the Quality plan references them.
 2. **Gates Have Pass Criteria:** A gate with no stated pass criterion raises `FLAG: MISSING_REQUIRED_SECTION`.
@@ -139,3 +154,4 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 | 2026-10-26 | Proposed | Initial drafting of ADR-029 under the ADR-012 framework, using ADR-025 as the structural template. |
 | 2026-10-26 | Learning Methodology Note | Added §4.4 recording the methodology that applies now and the candidates that apply only if their constraints are lifted. |
 | 2026-10-28 | Daughter ADR Review & Alignment Draft | Resolved gate automation open question referencing Epic 13 `PlanApprovalRecord` episode persistence, clarified waiver authority, verified single upstream dependency on `scope-management`, and prepared for review. |
+| 2026-10-28 | PMBOK 8 Edition Review | Added §4.5 comparing this standard with the guide's planning process: inputs, tools and techniques, outputs, and each difference with a decision. No change to `depends_on`, `PLAN_DAG`, thresholds or the plan files. Proposed, for maintainer confirmation. |

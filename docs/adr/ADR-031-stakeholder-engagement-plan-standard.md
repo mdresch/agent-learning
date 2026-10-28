@@ -100,6 +100,22 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 
 ---
 
+### 4.5 PMBOK 8 Alignment
+
+**Source:** *A Guide to the Project Management Body of Knowledge*, Eighth Edition, Plan Stakeholder Engagement (Figure 2-34). The figure lists end with "Etc.", so the rows below are what the figure names, not an exhaustive set. This subsection records how the ADR relates to the guide; it does not change `depends_on`, `PLAN_DAG` or any threshold.
+
+| | PMBOK 8 | This ADR |
+|---|---|---|
+| Inputs | Project charter; project management plan (resource, communications and risk management plans); project documents (assumption log, change log, issue log, project schedule, risk register, stakeholder register); agreements; enterprise environmental factors; organizational process assets. | Charter and approved Scope plan in; Stakeholder Engagement Plan out, with the register schema and consultation protocols (§4.2). |
+| Tools and techniques | Expert judgment; data gathering (benchmarking); data analysis (assumption and constraint analysis, root cause analysis); decision-making (prioritization and ranking); data representation (mind mapping, stakeholder engagement assessment matrix); meetings. | Not prescribed; the standard sets structure and measured thresholds and leaves method to the generator and the human reviewer. |
+| Outputs | Project management plan updates: stakeholder engagement plan. | See §4.1 `outputs` and §4.2. |
+
+**Differences and decisions:**
+
+* **Three plan inputs in the guide, one here.** The guide reads the resource, communications and risk plans. `PLAN_DAG` gives Stakeholder Engagement only `scope-management`. The earlier alignment review verified `depends_on: [scope-management]`, and keeping it avoids cascading re-approval (the reason ADR-032's review gave for its own). Decision: keep. Resource, Communications and Risk are optional reading with no staleness edge; the human reviewer checks consistency at approval.
+* **Engagement assessment matrix** is a guide technique. The engagement-level gap assessment in §4.2 is the equivalent.
+* **Agreements** are a guide input. They are created through Procurement (ADR-033); this ADR does not require them.
+
 ## 5. Architectural Invariants
 1. **Register Is the Role Source:** `owner_role` values across plans must exist as roles in the register.
 2. **Approval Is Distinct From Notification:** Decision rights state which stakeholders approve and which are only informed.
@@ -137,3 +153,4 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 | 2026-10-26 | Proposed | Initial drafting of ADR-031 under the ADR-012 framework, using ADR-025 as the structural template. |
 | 2026-10-26 | Learning Methodology Note | Added §4.4 recording the methodology that applies now and the candidates that apply only if their constraints are lifted. |
 | 2026-10-28 | Daughter ADR Review & Alignment Draft | Resolved register location and role cross-check questions under ADR-002/034, verified `depends_on: [scope-management]`, and prepared for review. |
+| 2026-10-28 | PMBOK 8 Edition Review | Added §4.5 comparing this standard with the guide's planning process: inputs, tools and techniques, outputs, and each difference with a decision. No change to `depends_on`, `PLAN_DAG`, thresholds or the plan files. Proposed, for maintainer confirmation. |

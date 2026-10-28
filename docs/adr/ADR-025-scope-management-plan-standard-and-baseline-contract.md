@@ -123,6 +123,22 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 
 ---
 
+### 4.5 PMBOK 8 Alignment
+
+**Source:** *A Guide to the Project Management Body of Knowledge*, Eighth Edition, Plan Scope Management (Figure 2-14). The figure lists end with "Etc.", so the rows below are what the figure names, not an exhaustive set. This subsection records how the ADR relates to the guide; it does not change `depends_on`, `PLAN_DAG` or any threshold.
+
+| | PMBOK 8 | This ADR |
+|---|---|---|
+| Inputs | Project charter; project management plan; project documents (requirements documentation, risk register, stakeholder register); enterprise environmental factors; organizational process assets. | Charter, Ideation Document and Business Case in; Scope Management Plan out, with the WBS decomposition, Out-of-Scope list and Definition of Done (§4.2). |
+| Tools and techniques | Expert judgment; data gathering (interviews, focus groups, questionnaires and surveys); data analysis; test and inspection planning. | Not prescribed; the standard sets structure and measured thresholds and leaves method to the generator and the human reviewer. |
+| Outputs | Project management plan updates: scope management plan, requirements management plan, quality management plan. | See §4.1 `outputs` and §4.2. |
+
+**Differences and decisions:**
+
+* **Outputs are wider in the guide.** The same process yields a requirements management plan and a quality management plan. Here the quality plan is its own standard (ADR-029); a requirements management plan has no ADR. Decision: leave both as they are. Whether a requirements management plan is needed is an open question for the maintainer.
+* **Requirements documentation, risk register and stakeholder register are guide inputs.** Here they come after Scope (Risk and Stakeholder Engagement depend on Scope in `PLAN_DAG`). Decision: Scope reads them if they exist, but they are not gating inputs and there is no staleness edge back to Scope; a human decides when a change in them calls for re-baselining Scope.
+* **Tools and techniques are not specified here.** The guide names interviews, focus groups, questionnaires and test and inspection planning. Decision: not adopted as requirements. The plan standards set structure and measured thresholds, and leave method to the generator and the human reviewer.
+
 ## 5. Architectural Invariants
 1. **Scope Precedes Schedule and Cost:** Scope drafting and approval must precede Schedule and Cost baseline finalization in the causal DAG.
 2. **Mandatory Out-of-Scope Declaration:** A Scope Management Plan without an explicit out-of-scope section (or a valid "None: rationale") raises `FLAG: MISSING_BOUNDARY_DEF`; approval then requires a recorded human rationale in `Episode.metadata`. This is a Tier C flag, not a mechanical block (ADR-012 Invariant 8).
@@ -171,3 +187,4 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 | 2026-10-26 | Review Refinements | Clarified `depends_on: []` as root of the subsidiary-plan DAG (governance inputs are not plan nodes), required testable acceptance criteria (semantic review), tightened "localized refactoring", and defined placeholder-only out-of-scope items as non-counting. |
 | 2026-10-26 | **Accepted by Menno** | Formally adjudicated and accepted through `approve-adr` TaskPolicy; robust utility 0.944, expected utility 0.965; Episode `432bae92-29a2-4598-8bb0-ec5d38bafbf2`. |
 | 2026-10-28 | Daughter ADR Review & Alignment | Added §4.4 Learning Methodology for symmetry with ADR-026–033, linked ADR-037 design-time feedback loop (`BFI-NNN`), and clarified universal downstream invalidation across all 8 daughter plans in `PLAN_DAG`. |
+| 2026-10-28 | PMBOK 8 Edition Review | Added §4.5 comparing this standard with the guide's planning process: inputs, tools and techniques, outputs, and each difference with a decision. No change to `depends_on`, `PLAN_DAG`, thresholds or the plan files. Proposed, for maintainer confirmation. |

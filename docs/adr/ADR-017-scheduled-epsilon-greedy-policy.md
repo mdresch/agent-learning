@@ -6,7 +6,7 @@ To evaluate whether advanced exploration mechanisms (REINFORCE policy gradients,
 This ADR introduces the **Scheduled Epsilon-Greedy Policy Baseline** (Methodology #11 from `Ideation-Document.md` §2.1). By combining running empirical mean tracking with a decaying exploration schedule ($\epsilon_t$) and explicit exploration-branch logging in episode metadata, this policy establishes a rigorous, low-complexity reference standard for all discrete bandit policies in `agent-learning`.
 
 ## 2. Status
-**Proposed (2026-10-25)** — Derived from `Ideation-Document.md` §2.1 (Methodology #11). Ready for multi-criteria evaluation under `approve-adr`.
+**Accepted (2026-10-28, Menno)** — Derived from `Ideation-Document.md` §2.1 (Methodology #11). Approved as a design through `approve-adr` (robust utility 0.667, expected utility 0.747; Episode `dea2df98-8adb-49e2-9b7f-f690262756a7`). Amazon Q reviewed this text in PR #36. Nothing is built; the gaps named in the code-design section stay open.
 
 ## 3. Context & Problem Statement
 - **The Empirical Baseline Deficit:** Without an $\epsilon$-greedy reference implementation, it is impossible to rigorously quantify whether more complex policy-gradient mechanisms (such as REINFORCE with moving-average baselines) justify their computational and hyperparameter tuning costs.
@@ -114,4 +114,5 @@ Tests (`tests/test_epsilon_greedy.py`): `epsilon_at` rejects `delta < 0`, `eps0 
 | 2026-10-28 | Code design | Added §4.3: module layout, signatures, tests, and which real data exists and which is missing. |
 | 2026-10-28 | External review triage | Cold start ($\bar{X}_a = 0$ when unpulled) and the exploitation tie-break (pull count, then action id, as ADR-016) specified; `epsilon_at` bounds; `prng_seed` stored as a string because 64-bit integers lose precision in Cosmos DB and browser JSON parsers; placeholder action ids and no comment inside the JSON; reward scale stated; "zero-hyperparameter" reworded. Declined: benchmark metrics and report templates (the benchmark is designed separately), an invented owner and cadence for the `reversible` flag, and a claimed missing minus sign (the formula is correct). |
 | 2026-10-28 | Amazon Q review, round 2 | `reversible` must be a JSON boolean; any other type raises instead of silently reading as not safe. |
+| 2026-10-28 | Accepted | Approved by Menno through `approve-adr`: robust utility 0.667, expected utility 0.747; Episode `dea2df98-8adb-49e2-9b7f-f690262756a7`. Design only. |
 

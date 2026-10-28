@@ -6,7 +6,7 @@ In mission-critical autonomous governance, regulatory compliance and audit repea
 This ADR introduces the **Deterministic Upper Confidence Bound (UCB) Decision Policy** (Methodology #10 from `Ideation-Document.md` §2.1, addressing `HYP-AL-009`). By combining empirical mean rewards with deterministic confidence bounds (integrating with the repo's existing Wilson score calculator), UCB guarantees optimal balance of exploration and exploitation without gradient hyperparameters, entropy tuning, or stochastic seed dependencies.
 
 ## 2. Status
-**Proposed (2026-10-25)** — Derived from `Ideation-Document.md` §2.1 (Methodology #10) and `HYP-AL-009`. Ready for multi-criteria evaluation under `approve-adr`.
+**Accepted (2026-10-28, Menno)** — Derived from `Ideation-Document.md` §2.1 (Methodology #10) and `HYP-AL-009`. Approved as a design through `approve-adr` (robust utility 0.697, expected utility 0.774; Episode `dcf700e1-6a3d-4e90-877b-0c2661b10878`). Amazon Q reviewed this text in PR #37. Nothing is built; the gaps named in the code-design section stay open.
 
 ## 3. Context & Problem Statement
 - **The Audit Replay Liability of Stochastic Sampling:** In safety-critical agent systems, an auditor must be able to replay a historical decision and observe the exact same action chosen. When policies use softmax exploration ($\pi(a) \propto e^{\theta_a / \tau}$) or random draws, determinism requires preserving and restoring PRNG states across sessions.
@@ -109,3 +109,4 @@ Tests (`tests/test_ucb.py`): round-robin on $N_a = 0$, tie-break by pull count t
 | Date | Change | Why |
 |---|---|---|
 | 2026-10-28 | Code design | Added §4.4: module layout, signatures, tests, and which real data exists and which is missing. |
+| 2026-10-28 | Accepted | Approved by Menno through `approve-adr`: robust utility 0.697, expected utility 0.774; Episode `dcf700e1-6a3d-4e90-877b-0c2661b10878`. Design only. |

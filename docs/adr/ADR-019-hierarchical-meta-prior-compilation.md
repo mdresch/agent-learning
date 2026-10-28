@@ -6,7 +6,7 @@ As autonomous governance expands across the 18-stage lifecycle (ADR-008, ADR-009
 This ADR introduces **Hierarchical Meta-Prior Compilation Across Task Families** (Methodology #14 from `Ideation-Document.md` §2.1). Grounded in Empirical Bayes hierarchical modeling, this offline compilation utility aggregates parameter vectors across family members into a robust meta-prior distribution, providing accelerated cold-start convergence for newly instantiated family members without cross-task contamination.
 
 ## 2. Status
-**Proposed (2026-10-25)** — Derived from `Ideation-Document.md` §2.1 (Methodology #14). Ready for multi-criteria evaluation under `approve-adr`.
+**Accepted (2026-10-28, Menno)** — Derived from `Ideation-Document.md` §2.1 (Methodology #14). Approved as a design through `approve-adr` (robust utility 0.677, expected utility 0.757; Episode `f3a99dcf-b62b-4810-b043-1c1c0dfb0289`). Amazon Q reviewed this text in PR #36. Nothing is built; the gaps named in the code-design section stay open.
 
 ## 3. Context & Problem Statement
 - **The Limits of 1-to-1 Transfer (ADR-020):** 1-to-1 prior transfer is vulnerable to donor-specific idiosyncrasies or localized overfitting. If the selected donor policy converged on a skewed distribution, that bias is transferred directly to the target.
@@ -113,6 +113,7 @@ Tests (`tests/test_meta_prior.py`): the mean over $K$ members, two members that 
 | 2026-10-28 | Amazon Q review, round 2 | The zero-denominator precondition is stated at the formula; `FamilyMember.logits` renamed `params` because it also holds Beta counts. |
 | 2026-10-28 | Amazon Q review, round 5 | The Thompson pooled-rate formula is indexed by role ($r$), like the softmax formula and the role-indexed prior in §4.1. |
 | 2026-10-28 | External review triage | Family example corrected: ADR-013 §5 rejected nine per-plan policies and the `approve-*` gates are `full` authority, so the family is the nine advisory learners (planning-redesign-notes §4.12). Logits are zero-centred before pooling; Thompson heterogeneity defined over payoff rates; priors indexed by role with a bijective `role_map`; `params` can hold an (alpha, beta) pair; converged defined by the ADR-003 gate; provenance and supersession added (Invariants 7 and 8). Declined: a family registry with invented owners, a re-compilation cadence, a drift parameter, and a claimed missing minus sign (the formula is correct). |
+| 2026-10-28 | Accepted | Approved by Menno through `approve-adr`: robust utility 0.677, expected utility 0.757; Episode `f3a99dcf-b62b-4810-b043-1c1c0dfb0289`. Design only. |
 
 ## 9. References
 - `docs/project-docs/Ideation-Document.md` §2.1 (Methodology #14)

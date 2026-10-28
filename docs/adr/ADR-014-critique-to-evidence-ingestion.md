@@ -6,7 +6,7 @@ In the `agent-learning` governance lifecycle, human code reviews, retrospective 
 This ADR introduces **Lightweight Critique-to-Evidence Ingestion** (Methodology #8 from `Ideation-Document.md` §2.1, addressing `HYP-AL-005`). It establishes a deterministic mechanism that parses structured textual critique into numeric criteria support deltas ($\Delta s_c$) and uncertainty adjustments ($u_c$) within an instance-specific `DecisionFrame`. This closes the cognitive loop between textual review findings and Bayesian decision adjudication without modifying foundation model weights or expanding storage schemas.
 
 ## 2. Status
-**Proposed (2026-10-25)** — Derived from `Ideation-Document.md` §2.1 (Methodology #8) and `HYP-AL-005`. Ready for multi-criteria evaluation under `approve-adr`.
+**Accepted (2026-10-28, Menno)** — Derived from `Ideation-Document.md` §2.1 (Methodology #8) and `HYP-AL-005`. Approved as a design through `approve-adr` (robust utility 0.662, expected utility 0.744; Episode `22072e4f-1024-48b5-a32d-b5c0a2d48e8b`). Amazon Q reviewed this text in PR #37. Nothing is built; the gaps named in the code-design section stay open.
 
 ## 3. Context & Problem Statement
 - **The Frozen Model Constraint:** Foundation models in this repository are strictly frozen. Techniques that require backpropagating loss through weights (SFT) are permanently ruled out.
@@ -96,6 +96,7 @@ Tests (`tests/test_critique_evidence.py`): bounds and clipping, uncertainty does
 | 2026-10-28 | Review fix | The mapper is a parser of reviewer-supplied deltas, not an inference step; uncertainty now rises only on negative deltas, because a confirming finding must not add doubt. |
 | 2026-10-28 | Code design | Added §4.4: module layout, signatures, tests, and which real data exists and which is missing. |
 | 2026-10-28 | Amazon Q review (PR #37) | Section 4.2 kept a second, older interface (`CritiqueEvidenceMapper`, `CritiqueDelta` without `finding_id`) that contradicted section 4.4. Section 4.2 now fixes only the tag grammar and points to section 4.4 as the single interface. |
+| 2026-10-28 | Accepted | Approved by Menno through `approve-adr`: robust utility 0.662, expected utility 0.744; Episode `22072e4f-1024-48b5-a32d-b5c0a2d48e8b`. Design only. |
 
 ## 9. References
 - `docs/project-docs/Ideation-Document.md` §2.1 (Methodology #8)

@@ -6,7 +6,7 @@ In portfolio management, backlog prioritization, and capability assessment, rank
 This ADR introduces the **Active Dueling-Bandit Ranking Engine** (Methodology #23 from `Ideation-Document.md` §2.1, addressing `HYP-AL-015`). By combining an active information-gain query selection policy with the Bradley-Terry probabilistic preference model, this engine adaptively queries only the most informative pairs, aiming to reduce required human comparisons from $\mathcal{O}(N^2)$ towards $\mathcal{O}(N \log N)$ (the saving is measured under HYP-AL-015) while providing approximate (Laplace) confidence intervals over the global ranking.
 
 ## 2. Status
-**Proposed (2026-10-25)** — Derived from `Ideation-Document.md` §2.1 (Methodology #23) and `HYP-AL-015`. Ready for multi-criteria evaluation under `approve-adr`.
+**Accepted (2026-10-28, Menno)** — Derived from `Ideation-Document.md` §2.1 (Methodology #23) and `HYP-AL-015`. Approved as a design through `approve-adr` (robust utility 0.658, expected utility 0.740; Episode `723b7f27-65bd-496f-ab86-130da1198f3b`). Amazon Q reviewed this text in PR #37. Nothing is built; the gaps named in the code-design section stay open.
 
 ## 3. Context & Problem Statement
 - **The Combinatorial Explosion of Exhaustive Matrices:** As project backlogs grow, evaluating full pairwise matrices becomes humanly unsustainable ($N=10 \to 45$ comparisons; $N=30 \to 435$ comparisons).
@@ -112,4 +112,5 @@ Tests (`tests/test_dueling.py`): finite utilities for a winless item (the L2 ter
 | 2026-10-25 | Peer-Review Hardening | Added Invariant 5 (Minimum Exposure $k_{\min} \ge 2$) and Invariant 6 (L2 Regularization $\lambda_{\text{reg}} \ge 0.01$) per Cybernetics Control Theorist and Systems Architect recommendations. |
 | 2026-10-28 | Review fix | The stopping rule used a variance a penalized MLE does not provide; it is now a Laplace approximation. Removed the unsourced "60-75%" saving. |
 | 2026-10-28 | Code design | Added §4.5: module layout, signatures, tests, and which real data exists and which is missing. |
+| 2026-10-28 | Accepted | Approved by Menno through `approve-adr`: robust utility 0.658, expected utility 0.740; Episode `723b7f27-65bd-496f-ab86-130da1198f3b`. Design only. |
 

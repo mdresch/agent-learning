@@ -451,6 +451,10 @@ def derive_plan_state(
     if in_flight_hash is not None and in_flight_hash == current_hash:
         return PlanState.UNDER_REVIEW
 
+    if latest is not None and latest.action_id not in APPROVAL_ACTIONS:
+        # approval_record() validates the id, but a PlanApprovalRecord can be built by hand.
+        raise ValueError(f"unrecognised action_id {latest.action_id!r} in derive_plan_state")
+
     if latest is not None and latest.canonical_content_hash != current_hash:
         if latest.action_id == "approve_plan":
             return PlanState.REAPPROVAL_REQUIRED

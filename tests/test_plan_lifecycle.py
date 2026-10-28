@@ -309,3 +309,20 @@ def test_ac5_all_ten_states_reachable():
     for st in PlanState:
         assert st in reached_states
 
+
+
+def test_unrecognised_action_is_refused():
+    """Q-42-1 (Amazon Q, PR 42): a record whose action id is not an approval action is refused, not read as DRAFTED.
+
+    Interpretation (LL-011, FDD-013 section 6 item 10): the story criteria do not say what a record with an
+    unknown action id means. The record is built by hand here, bypassing `approval_record()`, which validates
+    the id. The function fails closed with `ValueError`, whether the recorded hash matches the current hash or not.
+    """
+    fresh = Freshness(True, "APPROVED_AND_FRESH", None)
+    for recorded in (H1, H2):
+        rec = make_record(action_id="approve_everything", content_hash=recorded)
+        with pytest.raises(ValueError, match="approve_everything"):
+            derive_plan_state(exists=True, current_hash=H1, in_flight_hash=None, latest=rec, freshness=fresh)
+    # a known action still behaves as before
+    ok = make_record(action_id="approve_plan", content_hash=H1)
+    assert derive_plan_state(exists=True, current_hash=H1, in_flight_hash=None, latest=ok, freshness=fresh) == PlanState.APPROVED

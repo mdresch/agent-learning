@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-013](../../adr/ADR-013-subsidiary-plan-approval-gates-before-pmp-formalization.md) — Accepted (2026-10-25)  
 **Governing Baseline:** none approved yet (`approve-pmp` is not built; see ADR-013 §4.8)  
-**Status:** Draft — business requirements derived from Accepted ADR-013; awaiting `approve-brd`.  
+**Status:** Approved (2026-10-27, Menno) — derived from Accepted ADR-013; adjudicated via `approve-brd` (robust utility 0.752, episode `76353af5-6092-4374-865b-7c2dbd2110cf`).  
 **Stakeholders:** Menno (Sponsor/PM/maintainer)  
 
 ## Business Need

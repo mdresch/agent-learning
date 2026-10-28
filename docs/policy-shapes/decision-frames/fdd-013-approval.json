@@ -1,0 +1,134 @@
+{
+  "task": "FDD-013 (Subsidiary Plan Approval Gates Before PMP Formalization): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "traceable_to_brd_adr",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Sections 3.1 to 3.7 implement BRU-013-01 to BRU-013-08 and ADR-013: canonical plan hashing, technical integrity flags, PlanApprovalRecord schema, dependency graph traversal, transitive staleness logic, deterministic state machine, and route-conditioned formalization readiness."
+    },
+    {
+      "id": "placement_and_purity",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Modules placed in pure package src/agent_learning/pmbok/ (hashing.py, integrity.py, governance.py); standard library only (no storage, no network, no I/O); Epic 12 parser and standards reused without mutation."
+    },
+    {
+      "id": "no_invented_implementation",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "All departures from the ADR-034 sketch are disclosed in Section 6 (NOT_APPROVED_UNACCEPTED, INVALID_METADATA precedence, omission bypass precedence) for explicit maintainer sign-off."
+    },
+    {
+      "id": "compatibility_preserved",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Preserves compatibility with Epic 12 parser, LintFlag, and tailoring module; no storage entities added."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_fdd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_brd_adr",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-013-subsidiary-plan-approval-gates-before-pmp-formalization.md; verified against BRD-013 and ADR-013",
+          "support": 0.88,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "placement_and_purity",
+          "source": "fdd_013_section_1_architecture",
+          "support": 0.87,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "no_invented_implementation",
+          "source": "fdd_013_section_6_interpretations_and_departures",
+          "support": 0.85,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "compatibility_preserved",
+          "source": "fdd_013_section_1_and_section_2",
+          "support": 0.86,
+          "confidence": 0.84
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_fdd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_brd_adr",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-013-subsidiary-plan-approval-gates-before-pmp-formalization.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "placement_and_purity",
+          "source": "fdd_013_section_1",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "no_invented_implementation",
+          "source": "fdd_013_section_6",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "compatibility_preserved",
+          "source": "fdd_013_section_1",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_brd_adr",
+          "source": "residual risk: complexity of transitive staleness traversal",
+          "support": 0.12,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "placement_and_purity",
+          "source": "fdd_013_section_1",
+          "support": 0.1,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "no_invented_implementation",
+          "source": "fdd_013_section_6",
+          "support": 0.13,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "compatibility_preserved",
+          "source": "fdd_013_section_1",
+          "support": 0.1,
+          "confidence": 0.75
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}
+

@@ -1,0 +1,134 @@
+{
+  "task": "BRD-013 (Subsidiary Plan Approval Gates Before PMP Formalization): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "traceable_to_adr",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Business rules BRU-013-01 to BRU-013-09 trace directly to ADR-013 sections 4.1 to 4.10, Invariants 1-9, and ADR-034 sections 4.2.1-4.2.2 (content hash, technical integrity gate constraint, single policy approve-subsidiary-plan, authoritative graph, DAG-bounded transitive staleness, derived lifecycle state, route-conditioned formalization readiness, and standard-library purity)."
+    },
+    {
+      "id": "honest_metrics",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Metrics are concrete and testable: hash invariance across OS line endings, volatile metadata, and BOMs; block coverage across stub generators, placeholders, process failures, and unparseable frontmatter; approval record round-trip fidelity; DAG acyclicity and diamond support; normative staleness and omission scenarios; deterministic state derivation; route-conditioned formalization blocking; zero storage imports."
+    },
+    {
+      "id": "out_of_scope_accurate",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Accurately bounds scope by excluding the CLI runtime and dashboard (ADR-034), building approve-pmp, human review scoring, adaptation mode, and legacy pmbok removal."
+    },
+    {
+      "id": "rules_actionable",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Rules BRU-013-01 to BRU-013-09 are stated with sufficient precision to drive FDD-013 and unit test criteria; BRU-013-09 correctly clarifies that defect attribution convention requires no code in this epic."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_brd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_adr",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-013-subsidiary-plan-approval-gates-before-pmp-formalization.md; verified against ADR-013 (Accepted) and ADR-034",
+          "support": 0.88,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "honest_metrics",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-013-subsidiary-plan-approval-gates-before-pmp-formalization.md; Section 3 table",
+          "support": 0.85,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "out_of_scope_accurate",
+          "source": "brd_013_section_4_out_of_scope",
+          "support": 0.86,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "rules_actionable",
+          "source": "brd_013_section_2_business_rules",
+          "support": 0.85,
+          "confidence": 0.82
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_brd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_adr",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-013-subsidiary-plan-approval-gates-before-pmp-formalization.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "honest_metrics",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-013-subsidiary-plan-approval-gates-before-pmp-formalization.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "out_of_scope_accurate",
+          "source": "brd_013_section_4",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "rules_actionable",
+          "source": "brd_013_section_2",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_adr",
+          "source": "residual risk: ADR-034 illustrative sketch departures",
+          "support": 0.12,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "honest_metrics",
+          "source": "brd_013_section_3",
+          "support": 0.1,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "out_of_scope_accurate",
+          "source": "brd_013_section_4",
+          "support": 0.1,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "rules_actionable",
+          "source": "brd_013_section_2",
+          "support": 0.12,
+          "confidence": 0.75
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}
+

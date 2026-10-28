@@ -75,7 +75,9 @@ The architectural corpus (ADR-001 through ADR-013) rests upon **four mutually co
 
 ## 3. The Accepted ADR Corpus
 
-Every ADR in this table is formally **Accepted** by Menno Drescher. ADR-001 through ADR-013 are the foundational corpus; later ADRs were added to the table as they were accepted. ADR-001 through ADR-009 and ADR-011 were evaluated via Bayesian decision policy through the live `agent-learning-governance` chain; ADR-010 was approved by Menno directly (see its §2):
+Every ADR in this table is formally **Accepted** by Menno Drescher. ADR-001 through ADR-013 are the foundational corpus; later ADRs were added to the table as they were accepted. ADR-001 through ADR-009 and ADR-011 were evaluated via Bayesian decision policy through the live `agent-learning-governance` chain; ADR-010 was approved by Menno directly (see its §2).
+
+ADR-014 to ADR-023 are the ten learning-method designs (Thompson sampling, UCB, epsilon-greedy, pairwise preference, meta-priors, warm-starting, authority routing, scored search, dueling-bandit ranking, and critique-to-evidence). They were accepted on 2026-10-28 **as designs only**: none is built, and the gaps named in each ADR's code-design section stay open. For how to run the sketches that illustrate them, see [`docs/learning-methodology-walkthroughs.md`](../learning-methodology-walkthroughs.md). ADR-024 selects among them per use case.
 
 | ADR | Title | Status | Intent-to-Outcome Stage & PMBOK 8 Process | Core Architectural Decision |
 |---|---|---|---|---|
@@ -192,4 +194,4 @@ python -m agent_learning.cli task-episode-register \
   --episode docs/policy-shapes/results/adr-009-reg.json
 ```
 
-Every accepted ADR, BRD, FDD, and User Story in this repository possesses a complete cryptographic and Bayesian adjudication record in `docs/policy-shapes/episodes/`.
+As of 2026-10-28, every accepted ADR except ADR-008, ADR-010 and ADR-034 has a registered adjudication record in `docs/policy-shapes/episodes/` (ADR-010 was approved by Menno directly). Ten of the 14 BRDs and ten of the 14 FDDs have one (the BRD and FDD numbered 5, 7, 8 and 10 do not). Each record holds the decision's robust and expected utility and the human disposition. The records are plain JSON files; they are not cryptographically signed.

@@ -46,11 +46,11 @@ Fixture used by the criteria below ("the base frame"): one option with two evide
 **As** an auditor, **I want** every appended point to name its finding and nothing else to change, **so that** I can trace each score change and trust the rest of the frame.
 
 ### Acceptance Criteria:
-- **$AC_0$ (Doubt):** the appended point's confidence is `max(1 - u_after, 0.05)`, where `u_after = min(1, u + kappa * max(0, -delta))` and `u = 1 - mean(confidence)` of the criterion's points. A positive delta leaves `u_after = u`.
+- **$AC_0$ (Doubt):** the appended point's confidence is `max(1 - u_after, 0.05)`, where `u_after = min(1, u + kappa * max(0, -delta))` and `u = 1 - mean(confidence)` of the criterion's points at that step, including points appended by earlier deltas in the same call. A positive delta leaves `u_after = u`.
 - **$AC_1$ (Source):** every appended point has the source `critique:<finding_id>`, and every point of the input frame is present unchanged in the output.
 - **$AC_2$ (No Mutation):** the input frame is equal to its earlier copy after `apply_critique`; the output is a new object.
 - **$AC_3$ (Validation):** `ValueError` for an unknown criterion, an unknown option, a criterion with no evidence on the option, the same finding id twice for one criterion, a finding id already used as a source, and `kappa` outside [0.1, 0.5].
-- **$AC_4$ (Resolver Accepts It):** the resolver accepts every output frame, including one with the minimum confidence of 0.05 and one with a support of exactly 0 or 1.
+- **$AC_4$ (Resolver Accepts It):** the resolver accepts every output frame, including one with the minimum confidence of 0.05 and one whose appended point has a support within 1e-6 of 0 or 1 (the point's own support may round to exactly 1.0; the pooled support never reaches the edge, because the target is clamped).
 
 ---
 
@@ -75,5 +75,6 @@ Fixture used by the criteria below ("the base frame"): one option with two evide
 ### Acceptance Criteria:
 - **$AC_0$ (Real Source):** the findings come from the records in `implementation-log.md` read with `review_triage.find_triage_lines`, with the original comment text exported beside each.
 - **$AC_1$ (Tagged By A Person):** every criterion tag and delta is entered by a named person, and the name is recorded; the module never proposes them.
-- **$AC_2$ (Directional Check):** for each finding the human declined, the delta recorded for it does not lower the pooled support of the criterion it names. Any disagreement is listed, not hidden.
-- **$AC_3$ (Not Evidence Of Effectiveness):** the result is recorded as a consistency check on the tagging. It makes no claim that the method improves decisions (HYP-AL-005 stays open).
+- **$AC_2$ (Declined Findings):** a finding the human *declined* in triage is one the human judged not to be a real defect, so its recorded delta is zero or positive and never negative; applying it does not lower the pooled support of the criterion it names. Any declined finding tagged with a negative delta is listed, not hidden.
+- **$AC_3$ (Accepted Findings):** a finding the human *accepted* in triage was a real defect, so its recorded delta is negative, and applying it lowers the pooled support by that delta.
+- **$AC_4$ (Not Evidence Of Effectiveness):** the result is recorded as a consistency check on the tagging. It makes no claim that the method improves decisions (HYP-AL-005 stays open).

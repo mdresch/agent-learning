@@ -56,12 +56,12 @@ Each adjustment dict holds: `finding_id`, `criterion_id`, `support_delta`, `rati
 
 ## 3. Behavior
 
-1. **`parse_critique(text, source_id)`** returns the deltas in line order. It raises `ValueError` naming the line number for: a bullet with no criterion tag; a missing, unsigned or non-numeric delta; a delta outside [-1.0, 1.0]; an empty rationale; an invalid finding id; a `source_id` that does not match `[A-Za-z0-9._-]+`. A line that is not a bullet is ignored.
+1. **`parse_critique(text, source_id)`** returns the deltas in line order. It raises `ValueError` naming the line number for: a bullet with no criterion tag; a missing, unsigned or non-numeric delta; a delta outside [-1.0, 1.0]; an empty rationale; an invalid finding id; a `source_id` that does not match `[A-Za-z0-9._-]+`. A line that is not a bullet is ignored. An auto-generated finding id is `f"{source_id}#{n}"`, where `n` counts the bullets from 1.
 2. **`apply_critique(frame, option_id, deltas, *, kappa=KAPPA_DEFAULT)`** returns an `AppliedCritique` and leaves the input frame unchanged. It validates first (kappa in range; the option exists; every criterion is in the frame; no finding id repeats for one criterion or collides with an existing source). Then, for each delta in order:
    1. Take the option's evidence points on that criterion, including those appended earlier in this call. If there are none, raise `ValueError` (there is nothing to adjust, and no prior is invented).
    2. Pool them exactly as the resolver does: `s = sigmoid(sum(c_i * logit(clamp(p_i))))`, with `clamp` to `[RESOLVER_EPSILON, 1 - RESOLVER_EPSILON]`.
    3. Target: `s_star = clamp(s + delta, TARGET_EPSILON, 1 - TARGET_EPSILON)`.
-   4. Doubt: `u = 1 - mean(c_i)`; `u_after = min(1, u + kappa * max(0, -delta))`; the new point's confidence is `c_new = max(1 - u_after, CONFIDENCE_FLOOR)`.
+   4. Doubt: `u = 1 - mean(c_i)`, where `c_i` are the confidences of all the points on that criterion at this step, including points appended by earlier deltas in the same call (the same state step 2 pools); `u_after = min(1, u + kappa * max(0, -delta))`; the new point's confidence is `c_new = max(1 - u_after, CONFIDENCE_FLOOR)`.
    5. The new point's support is the value that moves the pooled log-odds onto the target: `p_new = sigmoid((logit(s_star) - logit(s)) / c_new)`.
    6. Append `EvidencePoint(criterion_id, f"critique:{finding_id}", p_new, c_new)` and record the adjustment.
 3. **`to_episode_metadata(applied)`** returns `{"critique_adjustments": [<adjustment dicts>]}`, JSON-serialisable, imports nothing from `agent_learning.storage`.

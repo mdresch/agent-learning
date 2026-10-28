@@ -12,7 +12,7 @@ The six normative scenarios of ADR-034 §6.1 map as follows: Test 1 and Test 2 t
 
 ## Story 13.1 — The Canonical Content Hash
 
-**Status:** Ready (2026-10-27)  
+**Status:** Completed (2026-10-28) — implemented in PR #42 (`feat/epic-13-plan-approval-gates`), commit `d9c8bdb`.  
 **As** a governance reviewer,  
 **I want** one hash per plan that does not change with line endings, a BOM, trailing spaces or volatile metadata, and does change with real content,  
 **So that** an approval stays valid exactly as long as the approved content does.
@@ -29,7 +29,7 @@ The six normative scenarios of ADR-034 §6.1 map as follows: Test 1 and Test 2 t
 
 ## Story 13.2 — Technical Integrity and the Gate Constraint
 
-**Status:** Ready (2026-10-27)  
+**Status:** Completed (2026-10-28) — implemented in PR #42 (`feat/epic-13-plan-approval-gates`), commit `d9c8bdb`.  
 **As** a governance reviewer,  
 **I want** the conditions that rule a plan out found mechanically and handed to the decision frame as a hard constraint,  
 **So that** a stub, a placeholder or a failed generation can never be approved, while floors, caps and provisional tokens stay evidence.
@@ -48,7 +48,7 @@ The six normative scenarios of ADR-034 §6.1 map as follows: Test 1 and Test 2 t
 
 ## Story 13.3 — The Approval Record and the Policy Shape
 
-**Status:** Ready (2026-10-27)  
+**Status:** Completed (2026-10-28) — implemented in PR #42 (`feat/epic-13-plan-approval-gates`), commit `d9c8bdb`.  
 **As** a maintainer,  
 **I want** one definition of what an approval leaves in the store, shared by the writer and the reader, and the policy's actions declared,  
 **So that** the gate that produces approvals and the check that consumes them cannot drift apart.
@@ -65,7 +65,7 @@ The six normative scenarios of ADR-034 §6.1 map as follows: Test 1 and Test 2 t
 
 ## Story 13.4 — The Dependency Graph
 
-**Status:** Ready (2026-10-27)  
+**Status:** Completed (2026-10-28) — implemented in PR #42 (`feat/epic-13-plan-approval-gates`), commit `d9c8bdb`.  
 **As** a maintainer,  
 **I want** one authoritative dependency graph that every plan's `depends_on` must agree with,  
 **So that** staleness follows a single, checkable structure.
@@ -82,7 +82,7 @@ The six normative scenarios of ADR-034 §6.1 map as follows: Test 1 and Test 2 t
 
 ## Story 13.5 — Freshness and Transitive Staleness
 
-**Status:** Ready (2026-10-27)  
+**Status:** Completed (2026-10-28) — implemented in PR #42 (`feat/epic-13-plan-approval-gates`), commit `d9c8bdb`.  
 **As** a governance reviewer,  
 **I want** to know whether an approval still holds, and which plan broke it,  
 **So that** a change stales only the branch that depends on it and the answer points at its cause.
@@ -102,7 +102,7 @@ The six normative scenarios of ADR-034 §6.1 map as follows: Test 1 and Test 2 t
 
 ## Story 13.6 — The Lifecycle State
 
-**Status:** Ready (2026-10-27)  
+**Status:** Completed (2026-10-28) — implemented in PR #42 (`feat/epic-13-plan-approval-gates`), commit `d9c8bdb`.  
 **As** a maintainer,  
 **I want** each plan's governance state computed from what is on disk and in the store,  
 **So that** the state is never stored, never ambiguous, and always agrees with the hash.
@@ -119,7 +119,7 @@ The six normative scenarios of ADR-034 §6.1 map as follows: Test 1 and Test 2 t
 
 ## Story 13.7 — Formalization and the Package Contract
 
-**Status:** Ready (2026-10-27)  
+**Status:** Completed (2026-10-28) — implemented in PR #42 (`feat/epic-13-plan-approval-gates`), commit `d9c8bdb`.  
 **As** a maintainer,  
 **I want** one answer to "may the PMP be formalized, and if not which plans stand in the way",  
 **So that** a stub, a stale approval or an unrationalized omission can never reach a baseline, and a refusal points at a plan.

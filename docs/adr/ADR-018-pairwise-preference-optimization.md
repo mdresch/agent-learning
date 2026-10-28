@@ -31,7 +31,7 @@ The regularized loss has no closed-form minimizer. It is minimized by projected 
 
 ### 4.3 Training Pipeline & Data Sourcing
 Training data is extracted directly from historical `Episode` records in `LearningStore`:
-- An episode where `metadata["decision_disposition"] == "override"` yields pair $(a_{\text{adjudicated}} \succ a_{\text{proposed}})$.
+- An episode whose `metadata["decision_disposition"]` is `modify` or `rejected` (the values ADR-034 defines besides `accepted`) and whose `correct_action_id` differs from `action_id` yields pair $(a_{\text{adjudicated}} \succ a_{\text{proposed}})$, with $a_{\text{adjudicated}}$ = `correct_action_id`. This is the same rule as §4.4; there is no `"override"` value.
 - A Red Team contrastive evaluation yields pair $(a_{\text{compliant}} \succ a_{\text{adversarial}})$.
 Zero manual labeling or new database records are required.
 
@@ -100,4 +100,5 @@ Tests (`tests/test_pairwise.py`): the gradient matches a finite-difference check
 | 2026-10-25 | Peer-Review Hardening | Added Invariant 5 (Logit Clamping to $[-8.0, +8.0]$) and bound $\lambda_{\text{reg}} \ge 0.05$ per Control Theorist and Systems Architect recommendations. |
 | 2026-10-28 | Review fix | Removed the false closed-form claim (iterative projected gradient descent). Named the missing data prerequisites and the selection bias of override-only pairs. |
 | 2026-10-28 | Code design | Added §4.4: module layout, signatures, tests, and which real data exists and which is missing. |
+| 2026-10-28 | Amazon Q review (PR #37), round 2 | Section 4.3 said an override is `decision_disposition == "override"` while section 4.4 said `modify` or `rejected`. ADR-034 defines `accepted`, `rejected` and `modify`, so section 4.3 now uses that rule and says there is no `"override"` value. |
 

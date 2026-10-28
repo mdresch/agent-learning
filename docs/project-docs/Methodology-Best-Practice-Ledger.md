@@ -170,3 +170,26 @@ Append a section `## BP-###` (next number) with one `- field: value` line per fi
 - status: candidate
 - links: HYP-AL-009
 
+
+## BP-014
+- methodology: 20
+- practice: Retired. BP-003 was filed under diff/baseline classification (#20); the practice describes category-level escalation learning (#21) from Ideation HYP-AL-007 (escalate-diff-response). See BP-015.
+- preconditions: Not applicable; this entry only retires BP-003.
+- applies_to: both
+- evidence_class: source-doc
+- evidence_ref: Maintainer decision on the Epic 36 walkthrough, 2026-10-27; Ideation HYP-AL-007
+- evidence_count: 0
+- status: retired
+- supersedes: BP-003
+- links: HYP-AL-007
+
+## BP-015
+- methodology: 21
+- practice: Learn the question "does this category of change warrant escalation" from aggregate outcomes, and keep the per-instance classification a resolver judgment.
+- preconditions: A stable, repeated category-level question with recorded outcomes.
+- applies_to: both
+- evidence_class: source-doc
+- evidence_ref: Ideation HYP-AL-007; implemented as escalate-diff-response
+- evidence_count: 0
+- status: candidate
+- links: HYP-AL-007

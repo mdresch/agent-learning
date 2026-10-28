@@ -12,7 +12,7 @@ A reviewer's finding ("missing boundary validation on negative inputs") is text,
 ## Business Rules (BRU)
 
 - **BRU-014-01 (Frozen Model):** Ingesting a critique never updates model weights or embeddings (ADR-014 Invariant 1).
-- **BRU-014-02 (Bounded Change):** A finding's delta is within [-1.0, 1.0] and the resulting support stays within [0.0, 1.0] (ADR-014 §4.1, Invariant 2).
+- **BRU-014-02 (Bounded Change):** A finding's delta is within [-1.0, 1.0], and the pooled-support target is clipped to [1e-6, 1 - 1e-6] so the log-odds stay finite (ADR-014 §4.1, Invariant 2).
 - **BRU-014-03 (Direction):** A defect finding (negative delta) never raises the pooled support of the criterion it names, and a confirming finding (positive delta) never lowers it. The pooled support moves by the delta, clipped to [0, 1]. This is the rule ADR-014 §4.1 states in prose ("only a defect adds doubt"). The mechanism first written in ADR-014 §4.4 did not meet it (FDD-014 §4, D1), so ADR-014 was amended on 2026-10-28 (new Invariant 5).
 - **BRU-014-04 (No Guessed Delta):** The system never infers a delta. A finding without a criterion tag and a number is rejected, not guessed. The reviewer chooses the number (ADR-014 §4.1, §6 Negative).
 - **BRU-014-05 (Traceability):** Every change to a criterion cites the finding that caused it, in the evidence source (ADR-014 Invariant 3).
@@ -24,8 +24,8 @@ A reviewer's finding ("missing boundary validation on negative inputs") is text,
 | Metric | Target |
 |---|---|
 | Direction | 0 cases where a defect finding raises, or a confirming finding lowers, the pooled support |
-| Exactness | pooled support after = clip(support before + delta) within 1e-9 for every tested case |
-| Bounds | 0 deltas outside [-1.0, 1.0] accepted; 0 supports outside [0.0, 1.0] produced |
+| Exactness | pooled support after = clip(support before + delta, 1e-6, 1 - 1e-6) within 1e-9 for every tested case |
+| Bounds | 0 deltas outside [-1.0, 1.0] accepted; 0 pooled-support targets outside [1e-6, 1 - 1e-6] produced |
 | No guessing | 100% of findings without a tag and a number rejected |
 | Traceability | 100% of changed criteria carry a `critique:<finding id>` source |
 | Storage boundary | 0 new record types; 0 imports from `agent_learning.storage` in the module |

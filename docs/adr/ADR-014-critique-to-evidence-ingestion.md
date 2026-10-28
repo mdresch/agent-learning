@@ -21,12 +21,12 @@ A textual critique $T$ consists of discrete finding statements. A deterministic 
 $$\Delta s_c = f_{\text{critique}}(T, c), \quad \Delta s_c \in [-1.0, 1.0]$$
 The delta moves the criterion's **pooled** support, the value the resolver itself computes, $s_c = \sigma\big(\sum_i c_i \,\text{logit}(p_i)\big)$ over the evidence points $(p_i, c_i)$ of that criterion. The target is clipped away from the edges so the log-odds stay finite:
 $$s_c^{*} = \text{clip}(s_c + \Delta s_c, \varepsilon, 1 - \varepsilon), \quad \varepsilon = 10^{-6}$$
-The finding is added as one evidence point $(p, c)$ chosen so that the pooled log-odds land on the target, $c \cdot \text{logit}(p) = \text{logit}(s_c^{*}) - \text{logit}(s_c)$, which gives
-$$p = \sigma\!\left(\frac{\text{logit}(s_c^{*}) - \text{logit}(s_c)}{c}\right)$$
-so the pooled support becomes $s_c^{*}$ for any $c$. A defect (negative delta) therefore never raises the pooled support, and a confirmation (positive delta) never lowers it.
+The finding is added as one evidence point $(p, c_{\text{new}})$ chosen so that the pooled log-odds land on the target, $c_{\text{new}} \cdot \text{logit}(p) = \text{logit}(s_c^{*}) - \text{logit}(s_c)$, which gives
+$$p = \sigma\!\left(\frac{\text{logit}(s_c^{*}) - \text{logit}(s_c)}{c_{\text{new}}}\right)$$
+so the pooled support becomes $s_c^{*}$ for any $c_{\text{new}}$. A defect (negative delta) therefore never raises the pooled support, and a confirmation (positive delta) never lowers it.
 
 Only a defect finding adds doubt; a confirming finding leaves the uncertainty unchanged. With $u_c$ equal to one minus the mean confidence of the criterion's points at that step:
-$$u_c' = \min(1.0, u_c + \kappa \cdot \max(0, -\Delta s_c)), \quad \kappa \in [0.1, 0.5], \qquad c = \max(1 - u_c', 0.05)$$
+$$u_c' = \min(1.0, u_c + \kappa \cdot \max(0, -\Delta s_c)), \quad \kappa \in [0.1, 0.5], \qquad c_{\text{new}} = \max(1 - u_c', 0.05)$$
 The resolver measures an option's uncertainty as the entropy of the pooled support, so a defect adds doubt by moving the support toward 0.5; $u_c'$ sets the weight of the appended point and is recorded, and it does not by itself change the option's uncertainty.
 
 ### 4.2 Ingestion Interfaces & Tag Schema
@@ -89,7 +89,7 @@ Tests (`tests/test_critique_evidence.py`): the pooled support after a finding eq
 ## 7. Architectural Invariants
 
 1. **Frozen Model Invariance:** Critique ingestion never updates model weights or fine-tunes embeddings.
-2. **Deterministic Bounding:** All criteria adjustments $\Delta s_c$ must be bounded in $[-1.0, 1.0]$ and clipped to $[0.0, 1.0]$.
+2. **Deterministic Bounding:** All criteria adjustments $\Delta s_c$ must be bounded in $[-1.0, 1.0]$, and the pooled-support target is clipped to $[\varepsilon, 1 - \varepsilon]$ with $\varepsilon = 10^{-6}$, so the log-odds stay finite.
 3. **Audit Traceability:** Every modified criterion in a `DecisionFrame` must cite its triggering critique finding in its evidence source.
 4. **Zero Storage Sprawl:** Persisted exclusively in `Episode.metadata["critique_adjustments"]` under ADR-002 Invariant #2.
 5. **Direction:** A defect finding never raises the pooled support of the criterion it names, and a confirming finding never lowers it; the pooled support moves by the clipped delta.

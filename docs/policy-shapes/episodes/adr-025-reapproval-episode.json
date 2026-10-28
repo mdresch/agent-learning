@@ -1,4 +1,5 @@
 {
+  "id": "983c2b87-8309-4414-98fe-93337989b9b5",
   "agent_id": "agent-learning-governance",
   "agent_name": "agent-learning-governance",
   "task_id": "approve-adr",
@@ -34,5 +35,6 @@
     "task_completed": true,
     "robust_utility": 0.7145669377500522,
     "expected_utility": 0.7886973757645847
-  }
+  },
+  "created_at": "2026-10-28T23:08:35.428649+00:00"
 }

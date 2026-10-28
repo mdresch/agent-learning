@@ -3,15 +3,15 @@
   "task_id": "approve-adr",
   "policy_id": "1d73c501-8ac0-4814-b7b4-b4bc3cb36854",
   "policy_version": 0,
-  "status": "needs_user_feedback",
-  "reason": "The policy requires human approval; accept or reject the reasoned recommendation.",
+  "status": "resolved",
+  "reason": "The user accepted the proposed option to resolve the tie.",
   "selection_basis": "bayesian_decision",
-  "selected_action": null,
-  "proposed_action": {
+  "selected_action": {
     "id": "approve_adr",
     "description": "The ADR is architecturally sound, considers real alternatives, states clear consequences, and is consistent with prior ADRs -- approve it",
     "parameters": {}
   },
+  "proposed_action": null,
   "candidate_actions": [
     {
       "id": "approve_adr",
@@ -153,7 +153,7 @@
   ],
   "information_needs": [],
   "rejected_action_ids": [],
-  "authorization_basis": null,
+  "authorization_basis": "user_acceptance",
   "action_probabilities": {
     "approve_adr": 0.3333333333333333,
     "reject_adr": 0.3333333333333333,

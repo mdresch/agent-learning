@@ -6,7 +6,7 @@ In reinforcement learning systems applied to software engineering and governance
 This ADR introduces **Bayesian Bandit Posterior Sampling (Thompson Sampling)** (Methodology #9 from `Ideation-Document.md` §2.1, addressing `HYP-AL-002` and `HYP-AL-009`). By modeling action value distributions using conjugate Beta posteriors, Thompson sampling dynamically balances exploration and exploitation through probability matching, maintaining explicit epistemic uncertainty and preventing policy collapse under positive-skewed telemetry.
 
 ## 2. Status
-**Proposed (2026-10-25)** — Derived from `Ideation-Document.md` §2.1 (Methodology #9) and `HYP-AL-002`. Ready for multi-criteria evaluation under `approve-adr`.
+**Accepted (2026-10-28, Menno)** — Derived from `Ideation-Document.md` §2.1 (Methodology #9) and `HYP-AL-002`. Approved as a design through `approve-adr` (robust utility 0.680, expected utility 0.759; Episode `5a8c1d42-34d3-4d4e-8642-cd61091349b3`). Amazon Q reviewed this text in PR #37. Nothing is built; the gaps named in the code-design section stay open.
 
 ## 3. Context & Problem Statement
 - **The Positive-Only Collapse (HYP-AL-002):** In production agent execution, bad actions are often filtered before persistence, or tasks simply succeed repeatedly. When $r_i \approx 1.0$ for all $i$, REINFORCE updates $\nabla \log \pi(a) (r - b)$ decay to zero as baseline $b \rightarrow 1.0$, freezing learning.
@@ -108,4 +108,5 @@ Tests (`tests/test_thompson.py`): same seed gives the same draw, the replay in �
 | 2026-10-25 | Peer-Review Hardening | Added Invariant 4 (Effective Sample Size Ceiling $N_{\max} \le 5000$ and exponential discounting) per Cybernetics Control Theorist and Systems Architect recommendations to prevent posterior lock-in. |
 | 2026-10-28 | Review fix | Seed formula took 8 hex digits (32 bits) while the example showed a larger value; it now takes 16 (64 bits). Stated that the fractional-reward update is an approximation, not an exact conjugate posterior. |
 | 2026-10-28 | Code design | Added §4.4: module layout, signatures, tests, and which real data exists and which is missing. |
+| 2026-10-28 | Accepted | Approved by Menno through `approve-adr`: robust utility 0.680, expected utility 0.759; Episode `5a8c1d42-34d3-4d4e-8642-cd61091349b3`. Design only. |
 

@@ -6,7 +6,7 @@ ADR-001 established the foundational two-route decision authority model: high-fr
 This ADR introduces **Contextual Authority Ensemble Routing** (Methodology #17 from `Ideation-Document.md` §2.1). By evaluating request uncertainty, Shannon entropy, and declared ADR-003 complexity tiers at runtime, an ensemble router dynamically dispatches requests to either fast statistical bandits or thorough Bayesian reasoning, achieving optimal trade-offs between execution velocity and governance rigor.
 
 ## 2. Status
-**Proposed (2026-10-25)** — Derived from `Ideation-Document.md` §2.1 (Methodology #17). Ready for multi-criteria evaluation under `approve-adr`.
+**Accepted (2026-10-28, Menno)** — Derived from `Ideation-Document.md` §2.1 (Methodology #17). Approved as a design through `approve-adr` (robust utility 0.683, expected utility 0.762; Episode `a8e8fb11-e936-4cbd-9ce7-f872b1d0ee7a`). Amazon Q reviewed this text in PR #36. Nothing is built; the gaps named in the code-design section stay open.
 
 ## 3. Context & Problem Statement
 - **The Static Authority Inefficiency:** A policy configured with `full` authority must evaluate a multi-criteria `DecisionFrame` for every single instance, even when an identical input has been processed hundreds of times with high confidence.
@@ -141,4 +141,5 @@ Tests (`tests/test_routing.py`): a `RoutingConfig` with a gap under 0.15 bits is
 | 2026-10-28 | Amazon Q review, round 4 | `shadow_record` takes `entropy_bits` and returns `dict[str, object]`, so the recorded entropy stays a number (§4.4 requires it beside the shadow action). |
 | 2026-10-28 | External review triage | Accepted: promotion seeds the bucket prior without a gradient (the §4.4 guard could not otherwise lower entropy); `ApprovedForLow` added to §4.1 and `route()`; `approve-adaptation-plan`, `approve-subsidiary-plan` and any `requires_human_approval` task pinned; §4.3 filter skips `routed_authority == "full"` instead of requiring `"low"`; fail-safe routing and threshold change control (Invariants 8 and 9); evidence expiry parameter; wording fixes. Declined: invented roles, cadence and a 90-day figure, router KPIs (the benchmark is designed separately), and making the ADR-001 §4.5 story a condition of approval (it stays a build dependency). |
 | 2026-10-28 | Amazon Q review, round 2 | Test list names inverted thresholds. |
+| 2026-10-28 | Accepted | Approved by Menno through `approve-adr`: robust utility 0.683, expected utility 0.762; Episode `a8e8fb11-e936-4cbd-9ce7-f872b1d0ee7a`. Design only. |
 

@@ -6,7 +6,7 @@ When initializing a new delegated decision policy (`TaskPolicy`) under `Decision
 This ADR introduces **Explicit Policy Prior Warm-Starting** (Methodology #15 from `Ideation-Document.md` §2.1, addressing `HYP-AL-008`). It specifies an operational CLI and SDK mechanism allowing a new policy to transfer converged parameters from an existing donor policy, applying confidence damping to prevent premature convergence in order to reduce the supervision a new policy needs (the effect size is to be measured under HYP-AL-008, and the ADR-003 evidence gate is unchanged).
 
 ## 2. Status
-**Proposed (2026-10-25)** — Derived from `Ideation-Document.md` §2.1 (Methodology #15) and `HYP-AL-008`. Ready for multi-criteria evaluation under `approve-adr`.
+**Accepted (2026-10-28, Menno)** — Derived from `Ideation-Document.md` §2.1 (Methodology #15) and `HYP-AL-008`. Approved as a design through `approve-adr` (robust utility 0.661, expected utility 0.743; Episode `0b67ee72-67f8-4db6-8775-aa62094f1a58`). Amazon Q reviewed this text in PR #37. Nothing is built; the gaps named in the code-design section stay open.
 
 ## 3. Context & Problem Statement
 - **Cold-Start Latency:** A standard policy requires at least 20 scored outcomes and a Wilson lower bound $\ge 0.90$ to earn autonomous execution (ADR-003). Starting from zero knowledge requires substantial initial human supervision.
@@ -110,3 +110,4 @@ Tests (`tests/test_warm_start.py`): $\tau \in (0, 1]$ enforced, an incomplete or
 | 2026-10-25 | Initial Draft | Candidate derived from Ideation Document §2.1 (Methodology #15). |
 | 2026-10-28 | Review fix | Added Invariant 5: transferred weights are not scored outcomes and never count towards the ADR-003 gate. Replaced the unsourced "60-80% faster" claim with a statement that HYP-AL-008 measures the effect. |
 | 2026-10-28 | Code design | Added §4.4: module layout, signatures, tests, and which real data exists and which is missing. |
+| 2026-10-28 | Accepted | Approved by Menno through `approve-adr`: robust utility 0.661, expected utility 0.743; Episode `0b67ee72-67f8-4db6-8775-aa62094f1a58`. Design only. |

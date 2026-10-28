@@ -6,7 +6,7 @@ In human-in-the-loop decision governance (ADR-001, ADR-003), human adjudications
 This ADR introduces **Pairwise Preference Optimization for Discrete Action Logits** (Methodology #13 from `Ideation-Document.md` §2.1). Inspired by Direct Preference Optimization (DPO) and grounded in the classical Bradley-Terry preference model, this learner optimizes discrete action logits directly from observed human preference pairs $(a_w \succ a_l)$ without intermediate reward modeling, hyperparameter instability, or GPU infrastructure.
 
 ## 2. Status
-**Proposed (2026-10-25)** — Derived from `Ideation-Document.md` §2.1 (Methodology #13). Ready for multi-criteria evaluation under `approve-adr`.
+**Accepted (2026-10-28, Menno)** — Derived from `Ideation-Document.md` §2.1 (Methodology #13). Approved as a design through `approve-adr` (robust utility 0.677, expected utility 0.757; Episode `63bf5225-a320-46d8-bc54-b26d84a1ea46`). Amazon Q reviewed this text in PR #37. Nothing is built; the gaps named in the code-design section stay open.
 
 ## 3. Context & Problem Statement
 - **The Qualitative Preference Signal:** When a human adjudicator rejects an agent's proposal and selects an alternative, the true signal is ordinal ($a_{\text{selected}} \succ a_{\text{proposed}}$), not cardinal ($r = +1.0, r = -1.0$).
@@ -101,4 +101,5 @@ Tests (`tests/test_pairwise.py`): the gradient matches a finite-difference check
 | 2026-10-28 | Review fix | Removed the false closed-form claim (iterative projected gradient descent). Named the missing data prerequisites and the selection bias of override-only pairs. |
 | 2026-10-28 | Code design | Added §4.4: module layout, signatures, tests, and which real data exists and which is missing. |
 | 2026-10-28 | Amazon Q review (PR #37), round 2 | Section 4.3 said an override is `decision_disposition == "override"` while section 4.4 said `modify` or `rejected`. ADR-034 defines `accepted`, `rejected` and `modify`, so section 4.3 now uses that rule and says there is no `"override"` value. |
+| 2026-10-28 | Accepted | Approved by Menno through `approve-adr`: robust utility 0.677, expected utility 0.757; Episode `63bf5225-a320-46d8-bc54-b26d84a1ea46`. Design only. |
 

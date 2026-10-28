@@ -1,0 +1,133 @@
+{
+ "task": "ADR-019 (meta-prior): approve, reject, or request revision",
+ "criteria": [
+  {
+   "id": "architectural_soundness",
+   "weight": 1.0,
+   "minimum_sources": 1,
+   "description": "The decision is technically coherent, its formulas and storage fit ADR-001/002/003, and its invariants are consistent with each other."
+  },
+  {
+   "id": "alternatives_considered",
+   "weight": 1.0,
+   "minimum_sources": 1,
+   "description": "Real alternatives were evaluated and rejected with real reasons."
+  },
+  {
+   "id": "consequences_honest",
+   "weight": 1.0,
+   "minimum_sources": 1,
+   "description": "Positive and negative consequences are stated, with no unsourced numeric claims."
+  },
+  {
+   "id": "gap_disclosure_quality",
+   "weight": 1.0,
+   "minimum_sources": 1,
+   "description": "Prerequisites, unbuilt dependencies and open questions are disclosed and bounded."
+  }
+ ],
+ "options": [
+  {
+   "action_id": "approve_adr",
+   "evidence": [
+    {
+     "criterion_id": "architectural_soundness",
+     "source": "adr_019_rereview_2026_10_28_v3:family example corrected (ADR-013 rejected nine per-plan policies); logits zero-centred; Thompson heterogeneity defined; priors indexed by role with a bijective role_map; params hold (alpha, beta); convergence tied to the ADR-003 gate; provenance and supersession",
+     "support": 0.8,
+     "confidence": 0.8
+    },
+    {
+     "criterion_id": "alternatives_considered",
+     "source": "adr_019_rereview_2026_10_28_v3:sections 5 and 6 as in the previous run",
+     "support": 0.78,
+     "confidence": 0.8
+    },
+    {
+     "criterion_id": "consequences_honest",
+     "source": "adr_019_rereview_2026_10_28_v3:sections 5 and 6 as in the previous run",
+     "support": 0.8,
+     "confidence": 0.8
+    },
+    {
+     "criterion_id": "gap_disclosure_quality",
+     "source": "adr_019_rereview_2026_10_28_v3:states that no suitable family exists today (approve-* are full authority) and that the role map and K>=4 converged members are missing",
+     "support": 0.84,
+     "confidence": 0.8
+    }
+   ],
+   "constraint_results": {
+    "no_unfixed_critical_flaw": true
+   }
+  },
+  {
+   "action_id": "reject_adr",
+   "evidence": [
+    {
+     "criterion_id": "architectural_soundness",
+     "source": "adr_019_rereview_2026_10_28_v3:no fundamental flaw found",
+     "support": 0.05,
+     "confidence": 0.8
+    },
+    {
+     "criterion_id": "alternatives_considered",
+     "source": "adr_019_rereview_2026_10_28_v3:no fundamental flaw found",
+     "support": 0.05,
+     "confidence": 0.8
+    },
+    {
+     "criterion_id": "consequences_honest",
+     "source": "adr_019_rereview_2026_10_28_v3:no fundamental flaw found",
+     "support": 0.05,
+     "confidence": 0.8
+    },
+    {
+     "criterion_id": "gap_disclosure_quality",
+     "source": "adr_019_rereview_2026_10_28_v3:no fundamental flaw found",
+     "support": 0.05,
+     "confidence": 0.8
+    }
+   ],
+   "constraint_results": {
+    "no_unfixed_critical_flaw": true
+   }
+  },
+  {
+   "action_id": "request_revision_before_decision",
+   "evidence": [
+    {
+     "criterion_id": "architectural_soundness",
+     "source": "adr_019_rereview_2026_10_28_v3:family example corrected (ADR-013 rejected nine per-plan policies); logits zero-centred; Thompson heterogeneity defined; priors indexed by role with a bijective role_map; params hold (alpha, beta); convergence tied to the ADR-003 gate; provenance and supersession",
+     "support": 0.2,
+     "confidence": 0.8
+    },
+    {
+     "criterion_id": "alternatives_considered",
+     "source": "adr_019_rereview_2026_10_28_v3:sections 5 and 6 as in the previous run",
+     "support": 0.22,
+     "confidence": 0.8
+    },
+    {
+     "criterion_id": "consequences_honest",
+     "source": "adr_019_rereview_2026_10_28_v3:sections 5 and 6 as in the previous run",
+     "support": 0.2,
+     "confidence": 0.8
+    },
+    {
+     "criterion_id": "gap_disclosure_quality",
+     "source": "adr_019_rereview_2026_10_28_v3:states that no suitable family exists today (approve-* are full authority) and that the role map and K>=4 converged members are missing",
+     "support": 0.16,
+     "confidence": 0.8
+    }
+   ],
+   "constraint_results": {
+    "no_unfixed_critical_flaw": true
+   }
+  }
+ ],
+ "constraints": [
+  "no_unfixed_critical_flaw"
+ ],
+ "minimum_margin": 0.05,
+ "uncertainty_penalty": 0.1,
+ "max_uncertainty": 1.0
+}

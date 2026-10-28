@@ -6,7 +6,7 @@ In Bayesian multi-criteria decision reasoning (`DecisionResolver`, ADR-001), dec
 This ADR introduces **Scored-Search Decision Configuration Compilation** (Methodology #22 from `Ideation-Document.md` §2.1, addressing `HYP-AL-010`). Inspired by DSPy's teleprompter compilers (BootstrapFewShot, MIPROv2) and grounded in derivative-free black-box optimization, this offline utility optimizes criteria weights and threshold parameters against a labeled validation suite of past decision episodes, then **freezes** the compiled configuration for zero-overhead runtime deployment.
 
 ## 2. Status
-**Proposed (2026-10-25)** — Derived from `Ideation-Document.md` §2.1 (Methodology #22) and `HYP-AL-010`. Ready for multi-criteria evaluation under `approve-adr`.
+**Accepted (2026-10-28, Menno)** — Derived from `Ideation-Document.md` §2.1 (Methodology #22) and `HYP-AL-010`. Approved as a design through `approve-adr` (robust utility 0.650, expected utility 0.734; Episode `032469aa-a602-4ee5-a47c-df789986893f`). Amazon Q reviewed this text in PR #37. Nothing is built; the gaps named in the code-design section stay open.
 
 ## 3. Context & Problem Statement
 - **The Heuristic Weight Trap:** In ADR-001 through ADR-011, criteria weights were set manually by authors. While transparent, manual weights cannot guarantee that the resulting decision margin $\Delta \mathcal{U}$ is maximized or that edge-case ties are properly resolved.
@@ -109,3 +109,4 @@ Tests (`tests/test_weight_compiler.py`): weights stay on the simplex, no hard co
 | 2026-10-25 | Initial Draft | Candidate derived from Ideation Document §2.1 (Methodology #22). |
 | 2026-10-28 | Review fix | Added the holdout split, a defined beta, the label-independence rule, holdout acceptance and human adoption (Invariants 5 and 6). Coordinate ascent is now primary and Nelder-Mead runs on a smoothed surrogate, because the raw objective is piecewise constant. |
 | 2026-10-28 | Code design | Added §4.4: module layout, signatures, tests, and which real data exists and which is missing. |
+| 2026-10-28 | Accepted | Approved by Menno through `approve-adr`: robust utility 0.650, expected utility 0.734; Episode `032469aa-a602-4ee5-a47c-df789986893f`. Design only. |

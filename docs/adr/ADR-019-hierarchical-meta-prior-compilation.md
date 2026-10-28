@@ -26,7 +26,7 @@ When a new policy $P_{\text{new}}$ is initialized within family $\mathcal{F}$:
 - **Softmax policies:** its initial logits are $\boldsymbol{\theta}_{\text{new}, 0} = \hat{\boldsymbol{\mu}}_{\text{meta}}$.
 - **Thompson policies (ADR-015):** the prior is compiled in the same representation, never converted from logits. The family prior is the pooled, strength-capped count per action:
   $$\alpha_a = 1 + \kappa_{\text{prior}} \cdot \bar{p}_a, \quad \beta_a = 1 + \kappa_{\text{prior}} \cdot (1 - \bar{p}_a), \quad \bar{p}_a = \frac{\sum_k (\alpha_{k,a} - 1)}{\sum_k (\alpha_{k,a} + \beta_{k,a} - 2)}$$
-  where $\kappa_{\text{prior}} \le 10$ is the effective pseudo-count strength. Softmax logits and Beta payoff rates are different quantities, so a family is compiled in one representation only.
+  The denominator is nonzero only if every member has at least one observation for the action ($\alpha_{k,a} + \beta_{k,a} > 2$); a family with an unconverged member is rejected before this formula is evaluated (§4.4). Here $\kappa_{\text{prior}} \le 10$ is the effective pseudo-count strength. Softmax logits and Beta payoff rates are different quantities, so a family is compiled in one representation only.
 - **Evidence gate:** pseudo-counts and initial logits from a meta-prior are not scored outcomes. They do not count towards the ADR-003 gate (at least 20 outcomes, Wilson lower bound $\ge 0.90$).
 
 ### 4.3 Tooling & Storage Architecture
@@ -51,7 +51,7 @@ Module `src/agent_learning/meta_prior.py`, pure and standard library only; the C
 class FamilyMember:
     task_id: str
     role_map: Mapping[str, str]       # action id -> role ("approve", "reject", "revise"); identity when ids already match
-    logits: Mapping[str, float]       # or alpha/beta counts, keyed by action id
+    params: Mapping[str, float]       # logits (softmax) or alpha/beta counts (Thompson), keyed by action id
 
 def compile_meta_prior(members: Sequence[FamilyMember], *, representation: str,
                        sigma_het: float, kappa_prior: float = 10.0) -> MetaPrior: ...
@@ -102,6 +102,7 @@ Tests (`tests/test_meta_prior.py`): the mean over $K$ members, rejection when $K
 | 2026-10-28 | Review fix | The draft claimed James-Stein shrinkage but computed a plain mean and an unused covariance. Now a pooled mean plus a heterogeneity check, $K \ge 4$. Removed the sigmoid conversion from softmax logits to Beta counts (different quantities). Added the ADR-003 gate separation and the human-declared `family` field. |
 | 2026-10-28 | Code design | Added §4.4: module layout, signatures, tests, and which real data exists and which is missing. |
 | 2026-10-28 | Amazon Q review (PR #36) | Added `role_map` to `FamilyMember` and Invariant 3 (the real `approve-*` family could not otherwise satisfy it); `kappa_prior` bounds and the unconverged-member (zero denominator) case added to the raises contract and tests; dataclass fields on separate lines. |
+| 2026-10-28 | Amazon Q review, round 2 | The zero-denominator precondition is stated at the formula; `FamilyMember.logits` renamed `params` because it also holds Beta counts. |
 
 ## 9. References
 - `docs/project-docs/Ideation-Document.md` §2.1 (Methodology #14)

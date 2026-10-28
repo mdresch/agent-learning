@@ -61,7 +61,7 @@ class EpsilonGreedyPolicy(Policy):
     # metadata: branch_taken, exploration_rate_applied, prng_seed, empirical_means
 ```
 
-`A_safe` is read from `Action.parameters["reversible"] is True`. Existing action definitions (for example `approve-adr.actions.json`) carry empty `parameters`, so no action is safe today and $\epsilon_t$ is forced to 0 until a human declares the flag.
+`A_safe` is read from `Action.parameters["reversible"] is True`. The value must be a JSON boolean: any other type (for example the string `"true"`) raises `ValueError` rather than being read as "not safe", so a serialisation mistake is reported instead of silently forcing $\epsilon_t = 0$. Existing action definitions (for example `approve-adr.actions.json`) carry empty `parameters`, so no action is safe today and $\epsilon_t$ is forced to 0 until a human declares the flag.
 
 Tests (`tests/test_epsilon_greedy.py`): the schedule is non-increasing and never below the floor, an empty $A_{\text{safe}}$ forces $\epsilon = 0$, exploration never selects an unflagged action, the recorded seed reproduces the draw, `branch_taken` is always present.
 
@@ -109,4 +109,5 @@ Tests (`tests/test_epsilon_greedy.py`): the schedule is non-increasing and never
 | 2026-10-25 | Peer-Review Hardening | Added Invariant 5 (Action Safety Masking) per PMBOK Governance Auditor and Systems Architecture Reviewer condition, preventing pseudo-random execution of irreversible actions. |
 | 2026-10-28 | Review fix | ADR-016 rejects epsilon-greedy because random draws need seed logging, yet this ADR logged no seed. Added the seeded, replayable draw (ADR-015 §4.3) and Invariant 6. Defined $A_{\text{safe}}$ as actions declaring `reversible: true`. |
 | 2026-10-28 | Code design | Added §4.3: module layout, signatures, tests, and which real data exists and which is missing. |
+| 2026-10-28 | Amazon Q review, round 2 | `reversible` must be a JSON boolean; any other type raises instead of silently reading as not safe. |
 

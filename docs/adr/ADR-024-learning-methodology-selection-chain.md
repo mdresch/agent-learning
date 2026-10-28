@@ -37,13 +37,14 @@
 - The rule table can drift from the Ideation Document; it must be updated in the same change (LL-007).
 - The module, the profile schema and the seed rule table need their own BRD, FDD and stories. This ADR decides only the shape.
 
-## 7. Open questions
-- Where the rule table lives (code, or a data file read by a pure module), and who may change it.
-- The exact filter taxonomy and the feedback-type vocabulary.
-- How this relates to ADR-021 (authority routing, which picks `low` or `full` per instance) and ADR-022 (scored search); this ADR selects a methodology per use case, those operate inside one.
-- Whether already-built policies are profiled retroactively as seed cases.
-- Whether the recorded selection should link to the later outcome of the policy it chose.
+## 7. Open questions (resolved 2026-10-28)
+- **Rule table:** a versioned JSON data file read by a pure standard-library module, like `catalog.json` (ADR-036). Changes go through a pull request that you approve, and a test checks the table against the Ideation Document (LL-007).
+- **Vocabulary:** small closed lists, grown when needed. About five feedback types (scalar reward, binary outcome, ordinal preference, textual critique, none) and a closed list of filter reasons. Unknown values are rejected, as in the plan lint (ADR-012).
+- **Relation to ADR-021 and ADR-022:** layers. This ADR picks a methodology once per use case; ADR-021 and ADR-022 are themselves catalog methodologies, so this ADR may recommend them but never calls them.
+- **Seed cases:** the real, already-built policies are profiled as seed cases and flagged `retroactive`, so the rules can be checked against known answers. No episodes are invented.
+- **Outcome link:** the selection Episode stores the chosen policy's task id in `metadata`. Outcomes are read later from that policy's own episodes; nothing is written back and no record type is added (ADR-002).
 
 ## 8. Amendment Log
 - 2026-10-25: initial draft.
 - 2026-10-26: **Accepted by Menno** via `approve-adr`; robust utility 0.739, expected utility 0.809; Episode `f99f1078-db8f-4575-9bb4-77a95ef73b97`.
+- 2026-10-28: **Open questions resolved by Menno** (rule table, vocabulary, ADR-021/022 relation, seed cases, outcome link); the decision in section 3 is unchanged.

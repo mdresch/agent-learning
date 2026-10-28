@@ -51,6 +51,27 @@ The policy state is stored within standard `PolicySnapshot.metadata`:
 }
 ```
 
+### 4.4 Code design and test data
+Design only: nothing below is built, and the signatures are the contract an FDD must confirm or change.
+Module `src/agent_learning/policy/ucb.py`, implementing `Policy`, plus `UCBLearner(Learner)`.
+
+```python
+def ucb_scores(stats: Mapping[str, ActionStats], total: int, *,
+               variant: str = "wilson", c: float = 2 ** 0.5) -> dict[str, float]: ...
+class UCBPolicy(Policy):
+    def choose(self, state=None) -> Decision: ...   # no RNG; probabilities one-hot, logprob 0.0
+class UCBLearner(Learner):
+    def update(self, policy, episodes, rewards) -> LearnerResult: ...   # pull_count, cumulative_reward
+```
+
+The Wilson upper bound reuses the existing code through symmetry: $\text{WilsonUpper}(k, N) = 1 - \text{WilsonLower}(N - k, N)$ with `autonomy.wilson_lower_bound`. That function takes integer counts, so fractional rewards need a float-count variant; the FDD decides whether to generalise it or to round (a stated approximation).
+
+Tests (`tests/test_ucb.py`): round-robin on $N_a = 0$, tie-break by pull count then action id (§4.2), two `choose` calls on one snapshot return the same action, no `random` import (static check), the symmetry identity against `wilson_lower_bound`, scores match the UCB1 formula on hand-computed cases.
+
+**Test data.** *Real:* the same 41-episode positive-only replay as ADR-015; it shows how a deterministic bound behaves when every reward is 1.0. *Gap:* as ADR-015; no real data can show UCB beats REINFORCE (HYP-AL-009) until a low-authority policy with failures exists. *Oracle tests:* published UCB1 worked examples, labeled as arithmetic checks.
+
+**Walkthrough.** [Methodology 10 in the walkthroughs](../learning-methodology-walkthroughs.md#10-ucb-adr-016-44). It runs the sketch today; it must be rewritten against the real module once this is built.
+
 ## 5. Alternatives Considered
 
 | Alternative | Rationale for Rejection |
@@ -83,3 +104,8 @@ The policy state is stored within standard `PolicySnapshot.metadata`:
 - `ADR-001`: Decision Authority Model
 - `ADR-003`: Evidence-Gated Autonomy Thresholds
 
+## Amendment Log
+
+| Date | Change | Why |
+|---|---|---|
+| 2026-10-28 | Code design | Added §4.4: module layout, signatures, tests, and which real data exists and which is missing. |

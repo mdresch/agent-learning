@@ -55,6 +55,14 @@ class AppliedCritique:
 ```
 Each adjustment dict holds: `finding_id`, `criterion_id`, `support_delta`, `rationale`, `basis`, `rubric_delta`, `override`, `rubric_version`, `support_before`, `support_after`, `uncertainty_before`, `uncertainty_after`, `point_support`, `point_confidence`, `kappa`.
 
+### 2.3 Constants
+| Name | Value | Meaning |
+|---|---|---|
+| `KAPPA_DEFAULT` | 0.2 | doubt added per unit of defect delta; allowed range [0.1, 0.5] (ADR-014 §4.1) |
+| `CONFIDENCE_FLOOR` | 0.05 | the lowest confidence an appended point may carry; the resolver requires confidence in (0, 1] |
+| `TARGET_EPSILON` | 1e-6 | pooled-support targets are clamped to [1e-6, 1 - 1e-6] so the log-odds stay finite |
+| `RESOLVER_EPSILON` | 1e-12 | the clamp the resolver applies to each point's support; reproduced here to pool identically |
+
 ### 2.4 Delta rubric (design A, version "1")
 The rubric turns two fields a person declared into a delta. It infers nothing: a claim type or verification result that is `unknown` is refused, not guessed (BRU-014-04, BRU-014-08). The claim types and verification values are those of `review_triage` (ADR-036).
 
@@ -74,14 +82,6 @@ How the cells were set: the `yes` column is the size per claim type; `partial` i
 `rubric_delta(claim_type, verified)` returns the cell, and raises `ValueError` naming the field for `unknown` or any other value. The values are provisional (section 7). A change to the table is a new `RUBRIC_VERSION`, made by the maintainer through an amendment to this FDD; the version used is recorded in every adjustment.
 
 **Why a fixed table.** In the 32 Amazon Q findings in `implementation-log.md` the human declined 19 and accepted 13, so most findings were not real defects. Scaling by the verification result keeps an unverified or false finding from moving a decision.
-
-### 2.3 Constants
-| Name | Value | Meaning |
-|---|---|---|
-| `KAPPA_DEFAULT` | 0.2 | doubt added per unit of defect delta; allowed range [0.1, 0.5] (ADR-014 §4.1) |
-| `CONFIDENCE_FLOOR` | 0.05 | the lowest confidence an appended point may carry; the resolver requires confidence in (0, 1] |
-| `TARGET_EPSILON` | 1e-6 | pooled-support targets are clamped to [1e-6, 1 - 1e-6] so the log-odds stay finite |
-| `RESOLVER_EPSILON` | 1e-12 | the clamp the resolver applies to each point's support; reproduced here to pool identically |
 
 ---
 

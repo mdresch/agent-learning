@@ -19,6 +19,7 @@ from .standards import (
     MAX_AUTO_RETRIES,
     MIN_OUT_OF_SCOPE_ITEMS,
     NONE_MIN_TOKENS,
+    PLAN_DAG,
     PLAN_STANDARDS,
     REQUIRED_KEYS,
     ROUTES,
@@ -402,3 +403,41 @@ def next_step(flags: Sequence[LintFlag], *, generator: str | None, retries: int 
     if held:
         return decide(NextStep.CARRY_TO_APPROVAL, "Tier C flags are evidence carried to approval, not blocks")
     return decide(NextStep.READY_FOR_FORMALIZATION, "no flags: ready for formalization")
+
+
+
+def validate_dependencies(
+    metadata: Mapping[str, Any],
+    dag: Mapping[str, Sequence[str]] = PLAN_DAG,
+) -> list[LintFlag]:
+    """Validate that a plan's depends_on frontmatter metadata matches the authoritative PLAN_DAG (FDD-013 section 3.4).
+
+    For a plan that is a key of dag, a depends_on that differs as a set from dag[plan_id]
+    is one Tier B INVALID_METADATA naming depends_on and the expected list.
+    Other plans, and a missing or malformed depends_on, give nothing.
+    """
+    if not isinstance(metadata, Mapping):
+        return []
+    plan_id = metadata.get("plan_id")
+    if not isinstance(plan_id, str) or plan_id not in dag:
+        return []
+
+    depends_on = metadata.get("depends_on")
+    if not isinstance(depends_on, (tuple, list)):
+        return []
+    if not all(isinstance(x, str) for x in depends_on):
+        return []
+
+    expected = dag[plan_id]
+    if set(depends_on) != set(expected):
+        expected_list = list(expected)
+        return [
+            LintFlag(
+                code="INVALID_METADATA",
+                tier="B",
+                message=f"depends_on differs from authoritative DAG dependencies {expected_list!r}",
+                evidence=str(depends_on),
+            )
+        ]
+
+    return []

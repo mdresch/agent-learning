@@ -37,6 +37,12 @@
 | [LL-024](#ll-024--check-what-an-acceptance-criterion-leans-on-before-scoring-a-gate) | Check What an Acceptance Criterion Leans On Before Scoring a Gate | Epic 12 / Story 12.2 | Universal Process | 2026-10-27 |
 | [LL-025](#ll-025--shell-heredocs-and-tool-inputs-change-backslashes) | Shell Heredocs and Tool Inputs Change Backslashes | Epic 12 / Story 12.3 | Universal Tooling | 2026-10-27 |
 | [LL-026](#ll-026--do-not-run-an-auto-fixer-on-files-outside-your-change) | Do Not Run an Auto-Fixer on Files Outside Your Change | Epic 12 / Story 12.4 | Universal Tooling | 2026-10-27 |
+| [LL-027](#ll-027--approvals-must-be-committed-before-the-code-they-gate) | Approvals Must Be Committed Before the Code They Gate | Epic 13 / Stories 13.1–13.7 | Universal Process | 2026-10-28 |
+| [LL-028](#ll-028--an-unloaded-skill-is-not-followed) | An Unloaded Skill Is Not Followed | Epic 13 / Stories 13.1–13.7 | Universal Process | 2026-10-28 |
+| [LL-029](#ll-029--do-not-use-python-hash-in-tests) | Do Not Use Python `hash()` in Tests | Epic 13 / Stories 13.1–13.7 | Universal Testing | 2026-10-28 |
+| [LL-030](#ll-030--a-missing-tool-is-not-a-skipped-gate) | A Missing Tool Is Not a Skipped Gate | Epic 13 / Stories 13.1–13.7 | Universal Tooling | 2026-10-28 |
+| [LL-031](#ll-031--triage-a-reviewers-confirmation-too) | Triage a Reviewer's Confirmation Too | Epic 13 / Stories 13.1–13.7 | Universal Process | 2026-10-28 |
+| [LL-032](#ll-032--check-for-an-omission-without-a-filter) | Check for an Omission Without a Filter | Epic 13 / Stories 13.1–13.7 | Universal Process | 2026-10-28 |
 
 ---
 
@@ -401,3 +407,75 @@
 - **The Trap:** `ruff check --fix` was run on `src/agent_learning/__init__.py` after adding three exports. The file had an import block that was already out of order, and the fixer re-sorted all of it: 251 changed lines in a story that needed 6.
 - **The Root Cause:** The fixer repairs every violation in a file, not only the ones the change introduced.
 - **Actionable Invariant:** Run `ruff check --fix` only on files the change created. For an existing file, run `ruff check` without `--fix` and fix new findings by hand. Read `git diff --stat` before committing; a small change with a large diff is a signal to revert and redo it.
+
+---
+
+### LL-027 — Approvals Must Be Committed Before the Code They Gate
+- **Identifier:** `LL-027`
+- **Date:** 2026-10-28
+- **Epic / Story:** Epic 13 / Stories 13.1–13.7 (PR [#42](https://github.com/mdresch/agent-learning/pull/42))
+- **Scope:** Universal Process
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/implement-story/SKILL.md` (Step 0); Tier 3: `sidpa-template` implement-story skill (proposed, needs human approval before any cross-repo change)
+- **The Trap:** The BRD, FDD and Epic 13 were approved through `approve-brd/fdd/user-stories`, but the episodes and decision records stayed uncommitted in the working tree while the code was built. The history showed code with no approval behind it.
+- **The Root Cause:** An approval is a file in the working tree until it is committed; nothing in the loop checks that it reached a commit.
+- **Actionable Invariant:** Commit the approval records (`docs/policy-shapes/...`) in a docs commit before the first code commit of the story, and have the PR show them. At Step 0, confirm with `git log` that the approval is in history.
+
+---
+
+### LL-028 — An Unloaded Skill Is Not Followed
+- **Identifier:** `LL-028`
+- **Date:** 2026-10-28
+- **Epic / Story:** Epic 13 / Stories 13.1–13.7 (PR [#42](https://github.com/mdresch/agent-learning/pull/42))
+- **Scope:** Universal Process
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/implement-story/SKILL.md` (Step 0, load the skill and re-read it before each step); Tier 3: `sidpa-template` implement-story skill (proposed, needs human approval before any cross-repo change)
+- **The Trap:** Seven stories were built in one working tree and committed together in `d9c8bdb`, with no worktree or PR per story and no RED run before the code. The loop was applied from memory, not from the skill text.
+- **The Root Cause:** The skill steps were remembered, not read; a remembered loop drops the steps that feel like overhead.
+- **Actionable Invariant:** Invoke the skill at the start of the story and re-read the step before doing it. Where a step was missed and cannot be recovered, record the deviation in the log; do not claim a result (such as "observed RED first") that did not happen.
+
+---
+
+### LL-029 — Do Not Use Python `hash()` in Tests
+- **Identifier:** `LL-029`
+- **Date:** 2026-10-28
+- **Epic / Story:** Epic 13 / Stories 13.1–13.7 (PR [#42](https://github.com/mdresch/agent-learning/pull/42))
+- **Scope:** Universal Testing
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/implement-story/SKILL.md` (Step 3, test rules); Tier 3: `sidpa-template` implement-story skill (proposed, needs human approval before any cross-repo change)
+- **The Trap:** The Story 13.5 test derived plan hashes with `hash()`. It passed locally, but `hash()` of a `str` is salted per process, so the values change on every run and the test depends on chance.
+- **The Root Cause:** The built-in `hash()` is made for dict lookup, not for stable values.
+- **Actionable Invariant:** In tests, derive any stable digest with `hashlib.sha256`. Treat `hash(` in a test file as a finding.
+
+---
+
+### LL-030 — A Missing Tool Is Not a Skipped Gate
+- **Identifier:** `LL-030`
+- **Date:** 2026-10-28
+- **Epic / Story:** Epic 13 / Stories 13.1–13.7 (PR [#42](https://github.com/mdresch/agent-learning/pull/42))
+- **Scope:** Universal Tooling
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/implement-story/SKILL.md` (Step 6); Tier 3: `sidpa-template` implement-story skill (proposed, needs human approval before any cross-repo change)
+- **The Trap:** `ruff` was reported as not installed and the lint gate was skipped. Amazon Q then named the gap, `uvx ruff` ran at once, and it found 29 findings in the new files.
+- **The Root Cause:** "Not installed" was read as "cannot run". `uvx` runs a tool without installing it.
+- **Actionable Invariant:** When a gate's tool is missing, try `uvx <tool>` (or the project's runner) before skipping. Skip only if that fails, and then record the gate as not run, with the reason.
+
+---
+
+### LL-031 — Triage a Reviewer's Confirmation Too
+- **Identifier:** `LL-031`
+- **Date:** 2026-10-28
+- **Epic / Story:** Epic 13 / Stories 13.1–13.7 (PR [#42](https://github.com/mdresch/agent-learning/pull/42))
+- **Scope:** Universal Process
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/implement-story/SKILL.md` (Step 8); Tier 3: `sidpa-template` implement-story skill (proposed, needs human approval before any cross-repo change)
+- **The Trap:** After the fixes, Amazon Q's confirmation at head `21285eb` still contained a stale claim about ruff and a noise item (`Q-28-1`) that belonged to an older PR. Taking the confirmation at face value would have recorded both as findings.
+- **The Root Cause:** Q's confirmations rest on logs and can repeat what is already resolved or belongs elsewhere.
+- **Actionable Invariant:** Check each claim in a confirmation against the head commit, as with a first-round finding. Log the ones that are stale or out of scope as noise with the reason.
+
+---
+
+### LL-032 — Check for an Omission Without a Filter
+- **Identifier:** `LL-032`
+- **Date:** 2026-10-28
+- **Epic / Story:** Epic 13 / Stories 13.1–13.7 (PR [#42](https://github.com/mdresch/agent-learning/pull/42))
+- **Scope:** Universal Process
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/implement-story/SKILL.md` (Step 9, audit); Tier 3: `sidpa-template` implement-story skill (proposed, needs human approval before any cross-repo change)
+- **The Trap:** An audit said the log omitted acceptance criteria. The check had been run through a filter that hid them, so the claim was wrong and had to be retracted.
+- **The Root Cause:** A filtered view cannot prove that something is absent.
+- **Actionable Invariant:** To claim an omission, read the unfiltered source (for example `grep -c` on the whole entry, or the file itself) and quote what you saw. A filtered output only supports "not found in this view".

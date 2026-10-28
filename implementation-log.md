@@ -747,3 +747,170 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Propagation:** Tier 2: `implement-story` Steps 3, 5 and 6 and the `plan-lint` skill. Tier 3 (`sidpa-template`) is proposed, not done.
 - **Held back:** a sixth candidate from the ADR-037 PR (a skill note that depends on unbuilt code must be marked inert, Q-31-1) was not confirmed and is not recorded.
 - **Review:** the recap PR goes through the Q loop like any other.
+
+
+---
+
+## Story 13.1 — The Canonical Content Hash
+- **Commit:** `d9c8bdb`
+- **Date:** 2026-10-28
+- **Branch:** `feat/epic-13-plan-approval-gates`
+- **Source ADR / BRD / FDD:** ADR-013 (section 4.3), ADR-034 (sections 4.2.1, 4.3.1), BRD-013 (BRU-013-01), FDD-013 (section 3.1)
+- **Files Modified/Created:**
+  - `src/agent_learning/pmbok/standards.py` (added `VOLATILE_KEYS`, `PLACEHOLDER_TOKENS`, `PROVISIONAL_TOKENS`, `APPROVAL_ACTIONS`, `DISPOSITIONS`, `FEEDBACK_STATUSES`, `GATE_CRITERIA`, `DRAFT_ORDER`, `PLAN_DAG`)
+  - `src/agent_learning/pmbok/hashing.py` (`compute_canonical_plan_hash`, `raw_change_hash`, `is_raw_hash`, `plan_hash`)
+  - `src/agent_learning/pmbok/__init__.py`, `src/agent_learning/__init__.py` (re-exported hashing functions and constants)
+  - `tests/test_plan_hash.py` (contract tests covering $AC_0$ through $AC_5$, 16 tests)
+  - `docs/user-stories/epic-13-subsidiary-plan-approval-gates-before-pmp-formalization.md` (Story 13.1 status updated to Completed)
+- **Validation:**
+  - $AC_0$: `compute_canonical_plan_hash` of a fixed plan text equals the independent SHA-256 of the expected normalized text (64 lowercase hex characters).
+  - $AC_1$: Hash is invariant across LF, CRLF, and lone-CR line endings; with and without leading BOMs; NFC and NFD Unicode normalization; added/removed trailing spaces/tabs (preserving Markdown hard break); added leading/trailing blank lines; and volatile keys (`last_modified`, `generated_at`, `governance_hash`, `approval_ref`) added, modified, or removed.
+  - $AC_2$: Hash is sensitive to changes in body text, static frontmatter values, added static keys, reordered static keys, and hard breaks (`\\S  $`); whitespace-only lines of two spaces evaluate identically to empty lines.
+  - $AC_3$: `raw_change_hash` starts with `raw:` and detects byte-level changes; `plan_hash` returns canonical hash for valid frontmatter and raw hash for unparseable text; `is_raw_hash` discriminates between them; `compute_canonical_plan_hash` raises `ValueError` on unparseable frontmatter.
+  - $AC_4$: `plan_hash` is total on `str` (does not raise on lone surrogates, empty strings, or unparseable frontmatter); non-`str` arguments raise `TypeError`; operations are deterministic and pure.
+  - $AC_5$: ADR-025 frontmatter example with body appended produces identical hash in LF and CRLF forms.
+  - Test suite: 16 passed in `tests/test_plan_hash.py`, 633 passed across all 5 PMBOK plan test suites.
+
+
+---
+
+## Story 13.2 — Technical Integrity and the Gate Constraint
+- **Commit:** `d9c8bdb`
+- **Date:** 2026-10-28
+- **Branch:** `feat/epic-13-plan-approval-gates`
+- **Source ADR / BRD / FDD:** ADR-013 (section 4.2), ADR-034 (sections 4.2.1, 4.3.1), BRD-013 (BRU-013-02), FDD-013 (section 3.2)
+- **Files Modified/Created:**
+  - `src/agent_learning/pmbok/integrity.py` (`integrity_flags`, `gate_constraint_results`)
+  - `src/agent_learning/pmbok/__init__.py`, `src/agent_learning/__init__.py` (re-exported integrity functions and constants)
+  - `tests/test_plan_integrity.py` (contract tests covering $AC_0$ through $AC_7$, 8 tests)
+  - `docs/user-stories/epic-13-subsidiary-plan-approval-gates-before-pmp-formalization.md` (Story 13.2 status updated to Completed)
+- **Validation:**
+  - $AC_0$: Generator `stub` or `mock` gives one Tier A `STUB_GENERATOR` with generator evidence; `llm` and `human` give none.
+  - $AC_1$: Each token in `PLACEHOLDER_TOKENS` (`Stub content for Artifact`, `[Insert here]`, `[TBD]`, `[TODO]`) in visible text produces one Tier A `PLACEHOLDER_TOKEN`; tokens inside fenced code or HTML comments are excluded; multiple tokens are emitted strictly in `PLACEHOLDER_TOKENS` order.
+  - $AC_2$: Non-empty `generation_error` produces Tier A `GENERATION_FAILED`; `text=None` produces Tier A `MISSING_ARTIFACT` and returns immediately.
+  - $AC_3$: Unparseable frontmatter yields grammar findings upgraded to Tier A `INVALID_METADATA` with identical line and evidence; stub generator check is bypassed.
+  - $AC_4$: Unbracketed `TBD` or `TODO` words in visible text yield Tier C `PROVISIONAL_TOKEN`; plans below floors or above caps produce no integrity findings of any tier.
+  - $AC_5$: `gate_constraint_results` returns `{"no_technical_integrity_block": False}` for `approve_plan` if and only if any flag is Tier A; `reject_plan` and `request_revision_before_decision` remain True always; Tier B and C flags never block approval.
+  - $AC_6$: Tier A findings from a stub plan fed into Epic 12 `next_step` yield `NextStep.ESCALATE_IMMEDIATELY`; a clean plan yields zero integrity findings.
+  - $AC_7$: Findings are returned in deterministic FDD-013 §3.2 priority order; function is total on arbitrary `str` or `None` inputs without raising; non-`str`/non-`None` raises `TypeError`.
+  - Test suite: 8 passed in `tests/test_plan_integrity.py`, 24 passed across Stories 13.1 and 13.2.
+
+
+---
+
+## Story 13.3 — The Approval Record and the Policy Shape
+- **Commit:** `d9c8bdb`
+- **Date:** 2026-10-28
+- **Branch:** `feat/epic-13-plan-approval-gates`
+- **Source ADR / BRD / FDD:** ADR-013 (section 4.2), ADR-034 (sections 4.2.1, 4.3.1), BRD-013 (BRU-013-03), FDD-013 (section 3.3)
+- **Files Modified/Created:**
+  - `docs/policy-shapes/approve-subsidiary-plan.actions.json` (declared 3 idle actions of `APPROVAL_ACTIONS`)
+  - `src/agent_learning/pmbok/governance.py` (`PlanApprovalRecord`, `build_approval_metadata`, `approval_record`, `latest_approvals`, domain types)
+  - `src/agent_learning/pmbok/__init__.py`, `src/agent_learning/__init__.py` (re-exported governance symbols)
+  - `tests/test_plan_approval_record.py` (contract tests covering $AC_0$ through $AC_5$, 6 tests)
+  - `docs/user-stories/epic-13-subsidiary-plan-approval-gates-before-pmp-formalization.md` (Story 13.3 status updated to Completed)
+- **Validation:**
+  - $AC_0$: `build_approval_metadata` returns exactly the seven ADR-034 §4.2.1 contract keys and no others with validated values.
+  - $AC_1$: `approval_record` deserializes output of `build_approval_metadata` losslessly across all 3 actions, 3 dispositions, and 2 feedback statuses; extra metadata keys are safely ignored.
+  - $AC_2$: Validation raises `ValueError` naming the key for: non-kebab `plan_id`; hashes that are not 64 lowercase hex (including `raw:` hashes) in `canonical_content_hash` or `upstream_hashes`; unknown actions/dispositions/feedback statuses; non-integer, negative, or boolean `sequence_number`; empty `run_id`; and missing contract keys.
+  - $AC_3$: `latest_approvals` deterministically selects the record with maximum `(sequence_number, created_at)` per plan without mutating input sequence.
+  - $AC_4$: Audit-data minimalism enforced; any string field exceeding 256 characters is refused in both producer and reader.
+  - $AC_5$: `docs/policy-shapes/approve-subsidiary-plan.actions.json` matches `APPROVAL_ACTIONS` schema; `GATE_CRITERIA` holds the 4 ADR-013 §4.2 weights summing to 1.0.
+  - Test suite: 6 passed in `tests/test_plan_approval_record.py`, 30 passed across Stories 13.1–13.3.
+
+
+---
+
+## Story 13.4 — The Dependency Graph
+- **Commit:** `d9c8bdb`
+- **Date:** 2026-10-28
+- **Branch:** `feat/epic-13-plan-approval-gates`
+- **Source ADR / BRD / FDD:** ADR-013 (section 4.1), ADR-034 (sections 4.2.2, ERR-034-06), BRD-013 (BRU-013-04), FDD-013 (sections 2.1, 3.4)
+- **Files Modified/Created:**
+  - `src/agent_learning/pmbok/governance.py` (`effective_upstreams`, `topological_order`, `CyclicDependencyError`)
+  - `src/agent_learning/pmbok/lint.py` (`validate_dependencies`)
+  - `src/agent_learning/pmbok/__init__.py`, `src/agent_learning/__init__.py` (re-exported symbols)
+  - `tests/test_plan_graph.py` (contract tests covering $AC_0$ through $AC_5$, 6 tests)
+  - `docs/user-stories/epic-13-subsidiary-plan-approval-gates-before-pmp-formalization.md` (Story 13.4 status updated to Completed)
+- **Validation:**
+  - $AC_0$: `PLAN_DAG` holds the authoritative 9 plans and edges per FDD-013 §2.1; verified against daughter ADRs ADR-025 through ADR-033 frontmatter examples.
+  - $AC_1$: `topological_order(PLAN_DAG)` evaluates dependencies before dependents; breaks ties by `DRAFT_ORDER`; `DRAFT_ORDER` confirmed as valid topological sort.
+  - $AC_2$: `effective_upstreams` recurses through `not_applicable` nodes, dropping them in favor of active ancestors; sorts and deduplicates; missing routes default to `full_plan`.
+  - $AC_3$: Cycles (2-node and multi-node rings) raise `CyclicDependencyError` in both `effective_upstreams` and `topological_order`; diamond DAGs resolve cleanly without cycle false positives; edges to missing keys raise `ValueError` in `topological_order`.
+  - $AC_4$: `validate_dependencies` emits 1 Tier B `INVALID_METADATA` naming `depends_on` and the expected list if dependencies differ as a set; emits nothing for matches in any order, unknown plans, or malformed/missing fields.
+  - $AC_5$: All 9 daughter ADRs (ADR-025 through ADR-033) produce 0 findings under `validate_dependencies`.
+  - Test suite: 6 passed in `tests/test_plan_graph.py`, 36 passed across Stories 13.1–13.4.
+
+---
+
+## Story 13.5 — Freshness and Transitive Staleness
+- **Commit:** `d9c8bdb`
+- **Date:** 2026-10-28
+- **Branch:** `feat/epic-13-plan-approval-gates`
+- **Source ADR / BRD / FDD:** ADR-013 (section 4.5), ADR-034 (sections 4.2.3, 6.1 Tests 1, 2, 6), BRD-013 (BRU-013-05), FDD-013 (sections 3.5, 6)
+- **Files Modified/Created:**
+  - `src/agent_learning/pmbok/governance.py` (`check_plan_freshness`)
+  - `src/agent_learning/pmbok/__init__.py`, `src/agent_learning/__init__.py` (re-exported `check_plan_freshness`)
+  - `tests/test_plan_freshness.py` (contract tests covering $AC_0$ through $AC_8$, 9 tests)
+  - `docs/user-stories/epic-13-subsidiary-plan-approval-gates-before-pmp-formalization.md` (Story 13.5 status updated to Completed)
+- **Validation:**
+  - $AC_0$: `check_plan_freshness` returns `(True, "NOT_APPLICABLE", None)` for omitted plans, `(True, "SECTION_FRESH", None)` for present non-stub sections with fresh ancestors, and `(True, "APPROVED_AND_FRESH", None)` for accepted approvals whose hash and recorded upstreams match.
+  - $AC_1$: Missing record gives `NO_APPROVAL_RECORD`; rejection gives `NOT_APPROVED_reject_plan`; revision request gives `NOT_APPROVED_request_revision_before_decision`; unaccepted disposition or feedback status gives `NOT_APPROVED_UNACCEPTED`.
+  - $AC_2$: Current hash mismatch gives `REAPPROVAL_REQUIRED_CONTENT_MODIFIED`; missing or `raw:` current hash gives `INVALID_METADATA_UNPARSEABLE`; recorded upstream hash mismatch gives `STALE_DEPENDENCY_<upstream>`.
+  - $AC_3$ (ADR-034 Test 1): Scope (`full_plan`) $\to$ Schedule (`pmp_section`) $\to$ Cost (`full_plan`): editing Scope's disk hash makes Cost `(False, "TRANSITIVE_STALE_FROM_scope-management", "scope-management")` through Schedule's active ancestor walk while Schedule is unchanged.
+  - $AC_4$ (ADR-034 Test 2): Scope (`full_plan`) $\to$ Schedule (`not_applicable`) $\to$ Cost (`full_plan`): editing Scope's disk hash invalidates Cost through the bypass; editing Schedule's omission leaves Cost fresh.
+  - $AC_5$: On `PLAN_DAG`, mutating leaf/support plans (Communications) leaves Scope, Schedule, and Cost fresh without orthogonal spillover.
+  - $AC_6$ (ADR-034 Test 6): Upstream section with stub or `raw:` hash gives `INVALID_OR_STUB_SECTION` and makes dependent approvals stale (`TRANSITIVE_STALE_FROM_<section>`).
+  - $AC_7$: Dependent whose upstream has no accepted approval gives `PENDING_UPSTREAM_<offending>`; dependent whose upstream was modified gives `TRANSITIVE_STALE_FROM_<offending>`.
+  - $AC_8$: Pure functional execution; cycles raise `CyclicDependencyError`; diamond DAGs resolve cleanly without false cycle detection; inputs not mutated; repeated calls idempotent.
+  - Test suite: 9 passed in `tests/test_plan_freshness.py`, 45 passed across Stories 13.1–13.5.
+
+---
+
+## Story 13.6 — The Lifecycle State
+- **Commit:** `d9c8bdb`
+- **Date:** 2026-10-28
+- **Branch:** `feat/epic-13-plan-approval-gates`
+- **Source ADR / BRD / FDD:** ADR-013 (section 4.6), ADR-034 (sections 4.2.4, 6.1 Test 4), BRD-013 (BRU-013-06), FDD-013 (sections 3.6, 6)
+- **Files Modified/Created:**
+  - `src/agent_learning/pmbok/governance.py` (`derive_plan_state`, `PlanState`)
+  - `src/agent_learning/pmbok/__init__.py`, `src/agent_learning/__init__.py` (re-exported `derive_plan_state`)
+  - `tests/test_plan_lifecycle.py` (contract tests covering $AC_0$ through $AC_5$, 6 tests)
+  - `docs/user-stories/epic-13-subsidiary-plan-approval-gates-before-pmp-formalization.md` (Story 13.6 status updated to Completed)
+- **Validation:**
+  - $AC_0$: `derive_plan_state` enforces precedence order: missing file $\to$ `NOT_STARTED`; missing/`raw:` hash $\to$ `INVALID_METADATA`; in-flight matching hash $\to$ `UNDER_REVIEW`; local edit outranks adjudication; matching hash verdict; else `DRAFTED`.
+  - $AC_1$ (ADR-034 Test 4): Editing approved plan on disk yields `REAPPROVAL_REQUIRED`; editing rejected or revision-requested plan yields `DRAFTED`; submitting edited plan for review yields `UNDER_REVIEW`.
+  - $AC_2$: Matching verdicts: accepted `reject_plan` $\to$ `REJECTED`; accepted `request_revision_before_decision` $\to$ `REVISION_REQUESTED`; accepted `approve_plan` yields `APPROVED` (if fresh), `PENDING_UPSTREAM` (if freshness reason starts `PENDING_UPSTREAM`), or `STALE_DEPENDENCY` (any other staleness reason).
+  - $AC_3$: Non-accepted dispositions (`modify`, `rejected`) or non-accepted feedback status leave plan `DRAFTED`; unreviewed unrecorded plan is `DRAFTED`.
+  - $AC_4$: Accepted `approve_plan` matching current hash requires `freshness` argument, raising `ValueError` if missing; other states evaluate without requiring `freshness`.
+  - $AC_5$: All 10 states in `PlanState` verified reachable; every input combination yields exactly one deterministic `PlanState`.
+  - Test suite: 6 passed in `tests/test_plan_lifecycle.py`, 51 passed across Stories 13.1–13.6.
+
+---
+
+## Story 13.7 — Formalization and the Package Contract
+- **Commit:** `d9c8bdb`
+- **Date:** 2026-10-28
+- **Branch:** `feat/epic-13-plan-approval-gates`
+- **Source ADR / BRD / FDD:** ADR-013 (section 4.7), ADR-034 (sections 4.2.5, 4.3), BRD-013 (BRU-013-07), FDD-013 (sections 3.7, 6)
+- **Files Modified/Created:**
+  - `src/agent_learning/pmbok/governance.py` (`check_formalization`, `Blocker`, `FormalizationCheck`)
+  - `src/agent_learning/pmbok/__init__.py`, `src/agent_learning/__init__.py` (re-exported all Epic 13 public symbols)
+  - `tests/test_plan_formalization.py` (contract tests covering $AC_0$ through $AC_5$, 6 tests)
+  - `docs/user-stories/epic-13-subsidiary-plan-approval-gates-before-pmp-formalization.md` (Story 13.7 status updated to Completed)
+- **Validation:**
+  - $AC_0$: `check_formalization` returns `ready=True` and `blockers=()` when every `full_plan` is `APPROVED`, every `pmp_section` is `section_ok=True`, and every `not_applicable` is `rationale_recorded=True`.
+  - $AC_1$: Produces blockers for: `full_plan` in any state other than `APPROVED` (`PLAN_<STATE>`); missing plan state (`NO_STATE`); `pmp_section` missing or stub (`SECTION_MISSING_OR_STUB`); unrationalized omission (`NO_OMISSION_RATIONALE`).
+  - $AC_2$: Routes validation: missing plan route produces `NO_ROUTE`; route outside closed list produces `INVALID_ROUTE`; routes for plans outside the nine `DRAFT_ORDER` plans are ignored.
+  - $AC_3$: Blockers strictly ordered by `DRAFT_ORDER`; each blocker accurately attributes `plan_id`, `route`, and `reason`; `ready` is true if and only if blockers is empty.
+  - $AC_4$: End-to-end multi-story scenario verified: 3 plans initialized, hashed, approved, verified fresh, and states derived $\to$ formalization ready $\to$ upstream disk edit produces `PLAN_REAPPROVAL_REQUIRED` and dependent `PLAN_STALE_DEPENDENCY` blockers $\to$ topological re-approval restores formalization readiness.
+  - $AC_5$: Purity and package exports: AST analysis verifies `hashing.py`, `integrity.py`, and `governance.py` import strictly standard library and siblings; zero external dependencies; result types are frozen dataclasses or named tuples; all 30 public symbols exported from both `pmbok` and root `agent_learning`.
+  - Test suite: 6 passed in `tests/test_plan_formalization.py`, 57 passed across all Epic 13 stories (Stories 13.1–13.7).
+  - Full suite with `--ignore=tests/test_spark.py --ignore=tests/pmbok`: **1440 passed, 2 skipped**. Not covered: `tests/pmbok` (legacy, needs `tenacity`) and `tests/test_spark.py` (LL-013).
+  - `ruff check` (run with `uvx ruff`, version 0.17.3, after Amazon Q named the gap): 29 findings in the created files, 25 fixed with `--fix` (unused imports, import order), 1 unused variable removed, 4 TRY004 exempted on purpose (FDD-013 and ADR-034 specify `ValueError` naming the key). The two existing files changed, `pmbok/__init__.py` and `agent_learning/__init__.py`, got only the fixes this work caused (a duplicate `PLAN_DAG` import and `__all__` entry, and the sort order of `pmbok.__all__`) and now match `main`'s ruff result. Fix: `0cb8cb8`.
+  - Review follow-up: the Story 13.5 test derived plan hashes with Python's salted `hash()`; replaced by sha256 in `3264593`.
+  - Process notes (audit of 2026-10-28): stories 13.1 to 13.7 were built in one working tree and committed together in `d9c8bdb`, not one worktree and PR per story (implement-story Steps 0 and 8). The contracts were not observed failing before the code (Step 3), so no "Observed RED first" is claimed here.
+  - Amazon Q review, PR #42, round 1 (head `a27998a`): one finding, accepted. A first request got a "Review Failed" reply (head modified during the review) and was repeated.
+    - `Q-42-1 | logic error | verified: yes | decision: accepted | derive_plan_state read a hand-built record with an unrecognised action id as DRAFTED on both hash paths; it now raises ValueError, with a test seen failing first (1441 passed, 2 skipped on the same exclusions) | fix: aa8889a`
+  - Amazon Q, later rounds (head `21285eb`): Q confirmed no unresolved finding. Two items in its confirmation were noise, not findings: `Q-28-1` (belongs to an older PR) and a claim that ruff had not run (stale; ruff ran, see above).
+  - Breakout recap (accepted 2026-10-28): LL-027 to LL-032 in `docs/project-docs/Lessons-Learned-Register.md`.

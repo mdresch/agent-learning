@@ -35,7 +35,7 @@ Training data is extracted directly from historical `Episode` records in `Learni
 - A Red Team contrastive evaluation yields pair $(a_{\text{compliant}} \succ a_{\text{adversarial}})$.
 Zero manual labeling or new database records are required.
 
-**Prerequisites and bias.** `decision_disposition` and `correct_action_id` are already present on recorded episodes, but no code under `src/` reads `decision_disposition`, and all 41 recorded episodes are accepted, so no preference pair exists in real data today. The alternatives a human considered are not persisted beyond `correct_action_id`. Override pairs are also a biased sample: an accepted proposal yields no pair, so the data over-represents disagreements. The pairs are therefore used only to adjust logits relative to $oldsymbol{	heta}_{	ext{ref}}$ (the regularizer above), never as an estimate of the overall acceptance rate.
+**Prerequisites and bias.** `decision_disposition` and `correct_action_id` are already present on recorded episodes, but no code under `src/` reads `decision_disposition`, and all 41 recorded episodes are accepted, so no preference pair exists in real data today. The alternatives a human considered are not persisted beyond `correct_action_id`. Override pairs are also a biased sample: an accepted proposal yields no pair, so the data over-represents disagreements. The pairs are therefore used only to adjust logits relative to $\boldsymbol{\theta}_{\text{ref}}$ (the regularizer above), never as an estimate of the overall acceptance rate.
 
 ### 4.4 Code design and test data
 Design only: nothing below is built, and the signatures are the contract an FDD must confirm or change.

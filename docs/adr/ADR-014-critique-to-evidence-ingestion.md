@@ -30,23 +30,7 @@ Critiques are supplied as structured markdown bullet points or parsed via token 
 - [criterion: architectural_soundness] -0.20: Unchecked concurrency race on active pointer replace
 - [criterion: consequences_honest] +0.10: Explicit disclosure of negative performance trade-offs
 ```
-The SDK provides `CritiqueEvidenceMapper`:
-```python
-@dataclass(frozen=True)
-class CritiqueDelta:
-    criterion_id: str
-    support_delta: float
-    rationale: str
-
-class CritiqueEvidenceMapper:
-    @staticmethod
-    def apply_critique(
-        frame: DecisionFrame,
-        critiques: Sequence[CritiqueDelta],
-        uncertainty_penalty_factor: float = 0.2
-    ) -> DecisionFrame:
-        ...
-```
+This section fixes the tag grammar only. The interface (`CritiqueDelta`, which carries a `finding_id`, `parse_critique` and `apply_critique`) is specified once, in section 4.4, so that the evidence source of every change can be traced to its finding (Invariant 3).
 
 ### 4.3 Authority & Persistence
 - **Authority:** Evaluated strictly under `DecisionAuthority.FULL` via `DecisionResolver`.
@@ -111,6 +95,7 @@ Tests (`tests/test_critique_evidence.py`): bounds and clipping, uncertainty does
 | 2026-10-25 | Initial Draft | Candidate derived from Ideation Document §2.1 (Methodology #8). |
 | 2026-10-28 | Review fix | The mapper is a parser of reviewer-supplied deltas, not an inference step; uncertainty now rises only on negative deltas, because a confirming finding must not add doubt. |
 | 2026-10-28 | Code design | Added §4.4: module layout, signatures, tests, and which real data exists and which is missing. |
+| 2026-10-28 | Amazon Q review (PR #37) | Section 4.2 kept a second, older interface (`CritiqueEvidenceMapper`, `CritiqueDelta` without `finding_id`) that contradicted section 4.4. Section 4.2 now fixes only the tag grammar and points to section 4.4 as the single interface. |
 
 ## 9. References
 - `docs/project-docs/Ideation-Document.md` §2.1 (Methodology #8)

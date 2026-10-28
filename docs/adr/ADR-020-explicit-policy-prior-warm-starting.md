@@ -109,5 +109,4 @@ Tests (`tests/test_warm_start.py`): $\tau \in (0, 1]$ enforced, an incomplete or
 |---|---|---|
 | 2026-10-25 | Initial Draft | Candidate derived from Ideation Document §2.1 (Methodology #15). |
 | 2026-10-28 | Review fix | Added Invariant 5: transferred weights are not scored outcomes and never count towards the ADR-003 gate. Replaced the unsourced "60-80% faster" claim with a statement that HYP-AL-008 measures the effect. |
-
 | 2026-10-28 | Code design | Added §4.4: module layout, signatures, tests, and which real data exists and which is missing. |

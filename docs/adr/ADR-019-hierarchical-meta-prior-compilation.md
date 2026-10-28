@@ -49,16 +49,20 @@ Module `src/agent_learning/meta_prior.py`, pure and standard library only; the C
 ```python
 @dataclass(frozen=True)
 class FamilyMember:
-    task_id: str; action_ids: tuple[str, ...]; logits: Mapping[str, float]   # or alpha/beta counts
+    task_id: str
+    role_map: Mapping[str, str]       # action id -> role ("approve", "reject", "revise"); identity when ids already match
+    logits: Mapping[str, float]       # or alpha/beta counts, keyed by action id
 
 def compile_meta_prior(members: Sequence[FamilyMember], *, representation: str,
                        sigma_het: float, kappa_prior: float = 10.0) -> MetaPrior: ...
-# raises ValueError: K < 4, action spaces differ, or max sigma_a > sigma_het
+# raises ValueError: K < 4; the role sets differ; max sigma_a > sigma_het;
+#   kappa_prior <= 0 or > 10; or (Thompson) any member with alpha + beta <= 2 for an action (not converged,
+#   which would also make the pooled-rate denominator zero)
 ```
 
-Tests (`tests/test_meta_prior.py`): the mean over $K$ members, rejection when $K < 4$, rejection when the spaces differ or the family is heterogeneous, the Thompson prior counts follow the §4.2 formula, the compiled prior has `is_family_meta_prior=True` and no member snapshot is changed, and the prior does not count towards the ADR-003 gate.
+Tests (`tests/test_meta_prior.py`): the mean over $K$ members, rejection when $K < 4$, rejection when the role sets differ or the family is heterogeneous, rejection of `kappa_prior` above 10 or not positive, rejection of an unconverged Thompson member (no zero denominator), the same family compiles when ids differ but `role_map` agrees, the Thompson prior counts follow the §4.2 formula, the compiled prior has `is_family_meta_prior=True` and no member snapshot is changed, and the prior does not count towards the ADR-003 gate.
 
-**Test data.** *Real:* the repository does have a real family, the `approve-*` tasks (`approve-adr`, `approve-brd`, `approve-fdd`, `approve-user-stories` and others). Their action ids differ by name (`approve_adr`, `approve_brd`, ...), so Invariant 3 (identical action spaces) needs an explicit role mapping (approve, reject, revise) that the ADR does not yet define. *Gap:* none of these policies has learned logits (they are full authority at version 0), so no member is a converged donor, and $K \ge 4$ converged members do not exist. Needed: that role mapping, and at least four low-authority policies of one family with real episodes. *Oracle tests:* hand-computed pooled means on small vectors, as arithmetic.
+**Test data.** *Real:* the repository does have a real family, the `approve-*` tasks (`approve-adr`, `approve-brd`, `approve-fdd`, `approve-user-stories` and others). Their action ids differ by name (`approve_adr`, `approve_brd`, ...), so Invariant 3 is met through the declared `role_map` (approve, reject, revise); the map for the real `approve-*` tasks still has to be written by a human. *Gap:* none of these policies has learned logits (they are full authority at version 0), so no member is a converged donor, and $K \ge 4$ converged members do not exist. Needed: that role map written for the real tasks, and at least four low-authority policies of one family with real episodes. *Oracle tests:* hand-computed pooled means on small vectors, as arithmetic.
 
 **Walkthrough.** [Methodology 14 in the walkthroughs](../learning-methodology-walkthroughs.md#14-hierarchical-meta-prior-adr-019-44). It runs the sketch today; it must be rewritten against the real module once this is built.
 
@@ -85,7 +89,7 @@ Tests (`tests/test_meta_prior.py`): the mean over $K$ members, rejection when $K
 
 1. **Read-Only Aggregation:** Meta-compilation is strictly a read-only batch aggregation over historical snapshots; it never alters active policies.
 2. **Decoupled Local Execution:** Once a policy is seeded from a meta-prior, its runtime updates are 100% localized to its own snapshot.
-3. **Action Space Identity:** All policies included in a family compilation must possess identical action spaces.
+3. **Action Space Identity:** All policies included in a family compilation must possess identical action spaces after each member's action ids are mapped through its declared `role_map`. The map is declared by a human; the compiler never infers it.
 4. **Storage Law (ADR-002):** Meta-priors reside within standard `PolicySnapshot` records.
 5. **Evidence Gate Separation:** A meta-prior never counts as scored outcomes for the ADR-003 autonomy gate.
 6. **Single Representation:** A family is compiled either in logits or in Beta counts, never a mix.
@@ -97,6 +101,7 @@ Tests (`tests/test_meta_prior.py`): the mean over $K$ members, rejection when $K
 | 2026-10-25 | Initial Draft | Candidate derived from Ideation Document §2.1 (Methodology #14). |
 | 2026-10-28 | Review fix | The draft claimed James-Stein shrinkage but computed a plain mean and an unused covariance. Now a pooled mean plus a heterogeneity check, $K \ge 4$. Removed the sigmoid conversion from softmax logits to Beta counts (different quantities). Added the ADR-003 gate separation and the human-declared `family` field. |
 | 2026-10-28 | Code design | Added §4.4: module layout, signatures, tests, and which real data exists and which is missing. |
+| 2026-10-28 | Amazon Q review (PR #36) | Added `role_map` to `FamilyMember` and Invariant 3 (the real `approve-*` family could not otherwise satisfy it); `kappa_prior` bounds and the unconverged-member (zero denominator) case added to the raises contract and tests; dataclass fields on separate lines. |
 
 ## 9. References
 - `docs/project-docs/Ideation-Document.md` §2.1 (Methodology #14)

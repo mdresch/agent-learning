@@ -6,6 +6,8 @@ BRD-013 BRU-013-05 (docs/project-docs/Business-Requirements/)
 FDD-013 sections 3.5 and 6 (docs/project-docs/Functional-Design/); ADR-034 Test 1, Test 2 and Test 6
 """
 
+import hashlib
+
 import pytest
 
 from agent_learning.pmbok import (
@@ -246,7 +248,7 @@ def test_ac5_bounded_scope():
     is_non_stub = {}
 
     for p in PLAN_DAG:
-        curr_hashes[p] = f"{hash(p) & 0xffffffffffffffff:016x}" * 4
+        curr_hashes[p] = hashlib.sha256(p.encode("utf-8")).hexdigest()  # Python hash() is salted per process
         is_non_stub[p] = True
 
     # Build approvals in topological order

@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-013](../../adr/ADR-013-subsidiary-plan-approval-gates-before-pmp-formalization.md) — Accepted (2026-10-25)  
 **Source BRD:** [BRD-013](../Business-Requirements/BRD-013-subsidiary-plan-approval-gates-before-pmp-formalization.md)  
-**Status:** Draft — functional design derived from Accepted ADR-013 and BRD-013; awaiting `approve-fdd`.  
+**Status:** Approved (2026-10-27, Menno) — derived from Accepted ADR-013 and BRD-013; adjudicated via `approve-fdd` (robust utility 0.760, episode `bda74e1b-78d2-4493-9f29-7578df7ec889`).  
 
 ADR-034 §4.2.2 gives the staleness and lifecycle logic only as an "illustrative reference sketch ... to be formally specified in a follow-on ADR". This FDD is that specification for the pure part. Where it departs from the sketch, section 6 says so.
 

@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-013](../adr/ADR-013-subsidiary-plan-approval-gates-before-pmp-formalization.md) — Accepted (2026-10-25)  
 **Source BRD/FDD:** [BRD-013](../project-docs/Business-Requirements/BRD-013-subsidiary-plan-approval-gates-before-pmp-formalization.md) / [FDD-013](../project-docs/Functional-Design/FDD-013-subsidiary-plan-approval-gates-before-pmp-formalization.md)  
-**Status:** Draft — stories derived from Accepted ADR-013, BRD-013 and FDD-013; awaiting `approve-user-stories`.  
+**Status:** Approved (2026-10-27, Menno) — stories derived from Accepted ADR-013, BRD-013 and FDD-013; adjudicated via `approve-user-stories` (robust utility 0.768, episode `6f9c55a8-407f-4895-a70f-d2562b43185e`).  
 
 Seven stories build the pure decision logic of the per-plan gate in `src/agent_learning/pmbok/`, on top of the Epic 12 parser and lint. Each rule sits in exactly one story's criteria (LL-012). Contract tests are `tests/test_plan_hash.py`, `tests/test_plan_integrity.py`, `tests/test_plan_approval_record.py`, `tests/test_plan_graph.py`, `tests/test_plan_freshness.py`, `tests/test_plan_lifecycle.py` and `tests/test_plan_formalization.py`. Fixtures that are real artifacts live committed under `tests/fixtures/pmbok/`; tests that read the real ADRs anchor their paths to the test file's location and look the file up inside the helper, with an assertion that names it if missing (LL-006, LL-023). A test that depends on a normative pattern runs the pattern first (LL-022).
 
@@ -12,7 +12,7 @@ The six normative scenarios of ADR-034 §6.1 map as follows: Test 1 and Test 2 t
 
 ## Story 13.1 — The Canonical Content Hash
 
-**Status:** Draft  
+**Status:** Ready (2026-10-27)  
 **As** a governance reviewer,  
 **I want** one hash per plan that does not change with line endings, a BOM, trailing spaces or volatile metadata, and does change with real content,  
 **So that** an approval stays valid exactly as long as the approved content does.
@@ -29,7 +29,7 @@ The six normative scenarios of ADR-034 §6.1 map as follows: Test 1 and Test 2 t
 
 ## Story 13.2 — Technical Integrity and the Gate Constraint
 
-**Status:** Draft  
+**Status:** Ready (2026-10-27)  
 **As** a governance reviewer,  
 **I want** the conditions that rule a plan out found mechanically and handed to the decision frame as a hard constraint,  
 **So that** a stub, a placeholder or a failed generation can never be approved, while floors, caps and provisional tokens stay evidence.
@@ -48,7 +48,7 @@ The six normative scenarios of ADR-034 §6.1 map as follows: Test 1 and Test 2 t
 
 ## Story 13.3 — The Approval Record and the Policy Shape
 
-**Status:** Draft  
+**Status:** Ready (2026-10-27)  
 **As** a maintainer,  
 **I want** one definition of what an approval leaves in the store, shared by the writer and the reader, and the policy's actions declared,  
 **So that** the gate that produces approvals and the check that consumes them cannot drift apart.
@@ -65,7 +65,7 @@ The six normative scenarios of ADR-034 §6.1 map as follows: Test 1 and Test 2 t
 
 ## Story 13.4 — The Dependency Graph
 
-**Status:** Draft  
+**Status:** Ready (2026-10-27)  
 **As** a maintainer,  
 **I want** one authoritative dependency graph that every plan's `depends_on` must agree with,  
 **So that** staleness follows a single, checkable structure.
@@ -82,7 +82,7 @@ The six normative scenarios of ADR-034 §6.1 map as follows: Test 1 and Test 2 t
 
 ## Story 13.5 — Freshness and Transitive Staleness
 
-**Status:** Draft  
+**Status:** Ready (2026-10-27)  
 **As** a governance reviewer,  
 **I want** to know whether an approval still holds, and which plan broke it,  
 **So that** a change stales only the branch that depends on it and the answer points at its cause.
@@ -102,7 +102,7 @@ The six normative scenarios of ADR-034 §6.1 map as follows: Test 1 and Test 2 t
 
 ## Story 13.6 — The Lifecycle State
 
-**Status:** Draft  
+**Status:** Ready (2026-10-27)  
 **As** a maintainer,  
 **I want** each plan's governance state computed from what is on disk and in the store,  
 **So that** the state is never stored, never ambiguous, and always agrees with the hash.
@@ -119,7 +119,7 @@ The six normative scenarios of ADR-034 §6.1 map as follows: Test 1 and Test 2 t
 
 ## Story 13.7 — Formalization and the Package Contract
 
-**Status:** Draft  
+**Status:** Ready (2026-10-27)  
 **As** a maintainer,  
 **I want** one answer to "may the PMP be formalized, and if not which plans stand in the way",  
 **So that** a stub, a stale approval or an unrationalized omission can never reach a baseline, and a refusal points at a plan.

@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-014](../../adr/ADR-014-critique-to-evidence-ingestion.md) — Accepted (2026-10-28)  
 **Source BRD:** [BRD-014](../Business-Requirements/BRD-014-critique-to-evidence-ingestion.md)  
-**Status:** Draft (2026-10-28) — derived from Accepted ADR-014; not yet adjudicated through `approve-fdd`. Section 4 lists where this design departs from ADR-014 §4.4; those departures need the maintainer's decision and an ADR-014 amendment before the stories are built.  
+**Status:** Draft (2026-10-28) — derived from Accepted ADR-014; not yet adjudicated through `approve-fdd`. Section 4 lists where this design departs from ADR-014 §4.4. Menno confirmed all five departures (D1 to D5) on 2026-10-28, and ADR-014 §4.1, §4.4 and Invariant 5 were amended to match.  
 
 ---
 
@@ -73,7 +73,7 @@ Each adjustment dict holds: `finding_id`, `criterion_id`, `support_delta`, `rati
 
 ## 4. Departures from ADR-014 §4.4
 
-ADR-014 is Accepted. These are changes this FDD needs; each needs the maintainer's decision, and an amendment to the ADR if confirmed.
+These are the changes this FDD made to the text ADR-014 had when it was accepted (2026-10-28). Menno confirmed each on 2026-10-28 and ADR-014 was amended; the "ADR-014 §4.4 says" column is the text before that amendment.
 
 | # | ADR-014 §4.4 says | This FDD does | Why |
 |---|---|---|---|
@@ -107,9 +107,9 @@ Inferring tags or deltas from free text; the rubric a reviewer uses to choose a 
 
 ---
 
-## 7. Open Questions (provisional values, for the maintainer)
+## 7. Decisions and Open Questions
 
-1. **D1 to D5** above: confirm, and amend ADR-014 §4.1 and §4.4 to match. Until then the stories build the §3 behavior, which is the only one that meets BRU-014-03.
-2. **`KAPPA_DEFAULT = 0.2`, `CONFIDENCE_FLOOR = 0.05`, `TARGET_EPSILON = 1e-6`** are starting values.
-3. **Do critique points count toward a criterion's `minimum_sources`?** They carry distinct source names, so the resolver counts them. A criterion that lacks independent sources could therefore be satisfied by a reviewer's tag. The default here is that they count; say if they should not.
-4. **The delta rubric** is not defined anywhere yet. Without it two reviewers may pick different numbers for the same finding.
+1. **D1 to D5: decided (2026-10-28).** Menno confirmed them and ADR-014 §4.1, §4.4 and Invariant 5 were amended to match §3.
+2. **`KAPPA_DEFAULT = 0.2`, `CONFIDENCE_FLOOR = 0.05`, `TARGET_EPSILON = 1e-6`:** accepted as the starting values (2026-10-28). They stay provisional until a real replay (Story 14.5) says otherwise.
+3. **Critique points count toward a criterion's `minimum_sources`: decided as the default (2026-10-28).** They carry distinct source names, so the resolver counts them. A criterion that lacks independent sources can therefore be satisfied by a reviewer's tag; revisit if that proves a problem.
+4. **Open: the delta rubric.** It is not defined anywhere yet. Without it two reviewers may pick different numbers for the same finding.

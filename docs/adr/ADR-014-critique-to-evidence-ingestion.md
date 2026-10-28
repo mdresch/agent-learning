@@ -19,10 +19,15 @@ This ADR introduces **Lightweight Critique-to-Evidence Ingestion** (Methodology 
 Let a `DecisionFrame` contain a set of evaluation criteria $C = \{c_1, \dots, c_m\}$.
 A textual critique $T$ consists of discrete finding statements. A deterministic parser extracts the criterion tag and the reviewer-supplied delta from each finding. The parser is the only deterministic part: $f_{\text{critique}}$ is the identity on the tagged number, which the reviewer chooses against an explicit rubric (see Negative consequences), and the parser rejects any untagged finding rather than guessing a delta:
 $$\Delta s_c = f_{\text{critique}}(T, c), \quad \Delta s_c \in [-1.0, 1.0]$$
-The updated support $s_c'$ is clipped to the unit interval:
-$$s_c' = \text{clip}(s_c + \Delta s_c, 0.0, 1.0)$$
-Only a defect finding (negative delta) adds doubt; a confirming finding (positive delta) leaves the uncertainty unchanged, so confirmation never raises it:
-$$u_c' = \min(1.0, u_c + \kappa \cdot \max(0, -\Delta s_c)), \quad \kappa \in [0.1, 0.5]$$
+The delta moves the criterion's **pooled** support, the value the resolver itself computes, $s_c = \sigma\big(\sum_i c_i \,\text{logit}(p_i)\big)$ over the evidence points $(p_i, c_i)$ of that criterion. The target is clipped away from the edges so the log-odds stay finite:
+$$s_c^{*} = \text{clip}(s_c + \Delta s_c, \varepsilon, 1 - \varepsilon), \quad \varepsilon = 10^{-6}$$
+The finding is added as one evidence point $(p, c)$ chosen so that the pooled log-odds land on the target, $c \cdot \text{logit}(p) = \text{logit}(s_c^{*}) - \text{logit}(s_c)$, which gives
+$$p = \sigma\!\left(\frac{\text{logit}(s_c^{*}) - \text{logit}(s_c)}{c}\right)$$
+so the pooled support becomes $s_c^{*}$ for any $c$. A defect (negative delta) therefore never raises the pooled support, and a confirmation (positive delta) never lowers it.
+
+Only a defect finding adds doubt; a confirming finding leaves the uncertainty unchanged. With $u_c$ equal to one minus the mean confidence of the criterion's points at that step:
+$$u_c' = \min(1.0, u_c + \kappa \cdot \max(0, -\Delta s_c)), \quad \kappa \in [0.1, 0.5], \qquad c = \max(1 - u_c', 0.05)$$
+The resolver measures an option's uncertainty as the entropy of the pooled support, so a defect adds doubt by moving the support toward 0.5; $u_c'$ sets the weight of the appended point and is recorded, and it does not by itself change the option's uncertainty.
 
 ### 4.2 Ingestion Interfaces & Tag Schema
 Critiques are supplied as structured markdown bullet points or parsed via token extraction:
@@ -48,15 +53,15 @@ class CritiqueDelta:
     rationale: str
     finding_id: str          # e.g. "Q-34-1"; becomes the evidence source
 
-def parse_critique(text: str) -> list[CritiqueDelta]: ...        # ValueError on an untagged or out-of-range line
+def parse_critique(text: str, source_id: str) -> list[CritiqueDelta]: ...   # ValueError on an untagged or out-of-range line
 def apply_critique(frame: DecisionFrame, option_id: str,
-                   deltas: Sequence[CritiqueDelta], *, kappa: float = 0.2) -> DecisionFrame: ...
-def to_episode_metadata(deltas: Sequence[CritiqueDelta]) -> dict[str, object]: ...  # {"critique_adjustments": [...]}
+                   deltas: Sequence[CritiqueDelta], *, kappa: float = 0.2) -> AppliedCritique: ...
+def to_episode_metadata(applied: AppliedCritique) -> dict[str, object]: ...  # {"critique_adjustments": [...]}
 ```
 
-`DecisionFrame` and `EvidencePoint` are frozen, so `apply_critique` returns a new frame. For each delta it appends an `EvidencePoint(criterion_id, source=f"critique:{finding_id}", support=s', confidence=1 - u')`, where $s'$ and $u'$ come from §4.1 applied to the option's current mean support and mean confidence on that criterion. Appending, rather than editing an existing point, is what makes Invariant 3 (every change cites its finding) hold; the FDD confirms this choice.
+`DecisionFrame` and `EvidencePoint` are frozen, so `apply_critique` returns an `AppliedCritique` holding a new frame and one adjustment record per delta (with the support and uncertainty before and after). For each delta, in order, it appends an `EvidencePoint(criterion_id, source=f"critique:{finding_id}", support=p, confidence=c)` where $p$ and $c$ come from §4.1, computed against the pooled state left by the previous delta. Appending, rather than editing an existing point, is what makes Invariant 3 (every change cites its finding) hold. A criterion with no evidence on the option raises `ValueError`, since there is nothing to adjust and no prior is invented. A finding without a `[finding: ...]` tag gets the id `<source_id>#<n>`, counting bullets from 1. The full algorithm is in FDD-014 §3.
 
-Tests (`tests/test_critique_evidence.py`): bounds and clipping, uncertainty does not rise on a positive delta, an untagged line is rejected, each changed criterion cites its finding, the input frame is not mutated, metadata round-trips.
+Tests (`tests/test_critique_evidence.py`): the pooled support after a finding equals the clipped target when measured through `DecisionResolver.resolve()`, a defect never raises and a confirmation never lowers the pooled support, bounds and clipping, uncertainty does not rise on a positive delta, an untagged line is rejected, each changed criterion cites its finding, the input frame is not mutated, metadata round-trips. The Epic 14 stories split these across `tests/test_critique_parse.py`, `tests/test_critique_apply.py` and `tests/test_critique_metadata.py`.
 
 **Test data.** *Real:* the 30 review-triage records in `implementation-log.md` (read with `review_triage.find_triage_lines`): real Amazon Q findings with claim type, verification result and the human decision. A person tags each with a criterion and a delta, recording who tagged it; the check is directional (a finding the human declined should not lower support on the criterion it names). *Gap:* the log keeps the human's one-line reason, not the reviewer's original comment; the originals are in the PR threads and must be exported before tagging. *Oracle tests:* hand-computed expected values for the §4.1 formulas, labeled as arithmetic checks and not as evidence.
 
@@ -87,6 +92,7 @@ Tests (`tests/test_critique_evidence.py`): bounds and clipping, uncertainty does
 2. **Deterministic Bounding:** All criteria adjustments $\Delta s_c$ must be bounded in $[-1.0, 1.0]$ and clipped to $[0.0, 1.0]$.
 3. **Audit Traceability:** Every modified criterion in a `DecisionFrame` must cite its triggering critique finding in its evidence source.
 4. **Zero Storage Sprawl:** Persisted exclusively in `Episode.metadata["critique_adjustments"]` under ADR-002 Invariant #2.
+5. **Direction:** A defect finding never raises the pooled support of the criterion it names, and a confirming finding never lowers it; the pooled support moves by the clipped delta.
 
 ## 8. Amendment Log
 
@@ -97,6 +103,7 @@ Tests (`tests/test_critique_evidence.py`): bounds and clipping, uncertainty does
 | 2026-10-28 | Code design | Added §4.4: module layout, signatures, tests, and which real data exists and which is missing. |
 | 2026-10-28 | Amazon Q review (PR #37) | Section 4.2 kept a second, older interface (`CritiqueEvidenceMapper`, `CritiqueDelta` without `finding_id`) that contradicted section 4.4. Section 4.2 now fixes only the tag grammar and points to section 4.4 as the single interface. |
 | 2026-10-28 | Accepted | Approved by Menno through `approve-adr`: robust utility 0.662, expected utility 0.744; Episode `22072e4f-1024-48b5-a32d-b5c0a2d48e8b`. Design only. |
+| 2026-10-28 | Amendment after FDD-014 | Menno confirmed FDD-014 §4 (D1 to D5). Appending a point that carries the adjusted support does not move the pooled support by the delta, because the resolver adds confidence-weighted log-odds: tested on the real resolver, a -0.20 defect finding raised the pooled support from 0.8666 to 0.9188. §4.1 and §4.4 now append a point chosen so the pooled log-odds land on the target (exact for any confidence); `parse_critique` takes a `source_id`; `apply_critique` returns an `AppliedCritique`; a criterion with no evidence raises; Invariant 5 (Direction) added. The role of `u'` is stated as it is in the resolver. |
 
 ## 9. References
 - `docs/project-docs/Ideation-Document.md` §2.1 (Methodology #8)

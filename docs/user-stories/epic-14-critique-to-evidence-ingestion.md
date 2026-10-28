@@ -6,7 +6,7 @@
 
 Five stories build the pure module `src/agent_learning/critique_evidence.py`. Each rule sits in exactly one story's criteria (LL-012). Contract tests are `tests/test_critique_parse.py` (14.1), `tests/test_critique_apply.py` (14.2 and 14.3) and `tests/test_critique_metadata.py` (14.4). Story 14.5 is data work and has no test file.
 
-**Do not start Stories 14.2 to 14.4 until the maintainer has decided FDD-014 §4 (D1 to D5).** ADR-014 §4.4 as written fails BRU-014-03: it makes a defect finding raise the pooled support. The stories below build the corrected mechanism of FDD-014 §3.
+**Stories 14.2 to 14.4 are unblocked.** Menno confirmed FDD-014 §4 (D1 to D5) on 2026-10-28 and ADR-014 was amended to match. ADR-014 §4.4 as first accepted failed BRU-014-03: it made a defect finding raise the pooled support. The stories below build the corrected mechanism of FDD-014 §3.
 
 Fixture used by the criteria below ("the base frame"): one option with two evidence points on one criterion, (support 0.8, confidence 0.8) and (support 0.7, confidence 0.9). The resolver pools them to 0.8666.
 

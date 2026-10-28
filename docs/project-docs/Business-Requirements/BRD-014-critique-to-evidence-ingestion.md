@@ -13,7 +13,7 @@ A reviewer's finding ("missing boundary validation on negative inputs") is text,
 
 - **BRU-014-01 (Frozen Model):** Ingesting a critique never updates model weights or embeddings (ADR-014 Invariant 1).
 - **BRU-014-02 (Bounded Change):** A finding's delta is within [-1.0, 1.0] and the resulting support stays within [0.0, 1.0] (ADR-014 §4.1, Invariant 2).
-- **BRU-014-03 (Direction):** A defect finding (negative delta) never raises the pooled support of the criterion it names, and a confirming finding (positive delta) never lowers it. The pooled support moves by the delta, clipped to [0, 1]. This is the rule ADR-014 §4.1 states in prose ("only a defect adds doubt"); FDD-014 §4 shows the mechanism written in ADR-014 §4.4 does not meet it.
+- **BRU-014-03 (Direction):** A defect finding (negative delta) never raises the pooled support of the criterion it names, and a confirming finding (positive delta) never lowers it. The pooled support moves by the delta, clipped to [0, 1]. This is the rule ADR-014 §4.1 states in prose ("only a defect adds doubt"). The mechanism first written in ADR-014 §4.4 did not meet it (FDD-014 §4, D1), so ADR-014 was amended on 2026-10-28 (new Invariant 5).
 - **BRU-014-04 (No Guessed Delta):** The system never infers a delta. A finding without a criterion tag and a number is rejected, not guessed. The reviewer chooses the number (ADR-014 §4.1, §6 Negative).
 - **BRU-014-05 (Traceability):** Every change to a criterion cites the finding that caused it, in the evidence source (ADR-014 Invariant 3).
 - **BRU-014-06 (Storage Boundary):** The applied adjustments and the findings are stored only in `Episode.metadata["critique_adjustments"]`. Zero new `LearningStore` record types (ADR-014 Invariant 4; ADR-002 Invariant #2).

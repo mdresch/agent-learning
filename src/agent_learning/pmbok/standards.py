@@ -96,3 +96,54 @@ HEADINGS = (
     re.compile(r"^##\s+3\.\s+Governance,\s+Control\s+&\s+Decision\s+Rights", re.MULTILINE),
 )
 TOKEN = re.compile(r"\b[^\W_]+(?:['’][^\W_]+)?\b")
+
+
+# Epic 13 constants (ADR-013, ADR-034, FDD-013 section 2.1)
+VOLATILE_KEYS: tuple[str, ...] = ("last_modified", "generated_at", "governance_hash", "approval_ref")
+PLACEHOLDER_TOKENS: tuple[str, ...] = (
+    "Stub content for Artifact",
+    "[Insert here]",
+    "[TBD]",
+    "[TODO]",
+)
+PROVISIONAL_TOKENS: tuple[str, ...] = ("TBD", "TODO")
+APPROVAL_ACTIONS: tuple[str, ...] = (
+    "approve_plan",
+    "reject_plan",
+    "request_revision_before_decision",
+)
+DISPOSITIONS: tuple[str, ...] = ("accepted", "rejected", "modify")
+FEEDBACK_STATUSES: tuple[str, ...] = ("accepted", "rejected")
+GATE_CRITERIA: Mapping[str, float] = MappingProxyType(
+    {
+        "charter_alignment": 0.30,
+        "substantive_content": 0.30,
+        "internal_completeness": 0.25,
+        "consistency_with_dependent_plans": 0.15,
+    }
+)
+DRAFT_ORDER: tuple[str, ...] = (
+    "scope-management",
+    "schedule-management",
+    "cost-management",
+    "quality-management",
+    "resource-management",
+    "communications-management",
+    "risk-management",
+    "procurement-management",
+    "stakeholder-engagement",
+)
+PLAN_DAG: Mapping[str, tuple[str, ...]] = MappingProxyType(
+    {
+        "scope-management": (),
+        "schedule-management": ("scope-management",),
+        "cost-management": ("scope-management", "schedule-management"),
+        "quality-management": ("scope-management",),
+        "resource-management": ("scope-management", "schedule-management"),
+        "communications-management": ("scope-management",),
+        "risk-management": ("scope-management", "schedule-management", "cost-management"),
+        "procurement-management": ("scope-management", "cost-management"),
+        "stakeholder-engagement": ("scope-management",),
+    }
+)
+

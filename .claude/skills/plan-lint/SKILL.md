@@ -29,7 +29,7 @@ A pure package (standard library only, no I/O, no storage) that reads a plan's t
 - **Grammar is not YAML.** Do not widen it to "make a file parse": a plan that breaks the subset goes to a human (ADR-012 section 4.2.1 rule 8).
 
 ## Out of scope (see FDD-012 section 5)
-Tier A detection, the content hash, the dependency graph, staleness and the approval gate (ADR-013); orchestration and the legacy removal (ADR-034); per-plan domain rules (ADR-025 to ADR-033).
+Tier A detection, the content hash, the dependency graph, staleness and the approval gate (ADR-013; built in Epic 13, see the `plan-approval-gate` skill); orchestration and the legacy removal (ADR-034); per-plan domain rules (ADR-025 to ADR-033).
 
 ## Call sites
 - `agent_learning/__init__.py` re-exports `LintFlag`, `ParsedPlan`, `parse_frontmatter`, `validate_metadata`, `PLAN_STANDARDS`, `PlanStandard`, `LintResult`, `check_content`, `count_words`, `lint_plan`, `omission_flags`, `NextStep`, `NextStepDecision` and `next_step`.

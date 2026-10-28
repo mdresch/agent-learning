@@ -8,41 +8,21 @@ FDD-013 sections 3.7 and 6 (docs/project-docs/Functional-Design/)
 
 import ast
 from pathlib import Path
-import pytest
 
+import agent_learning
 from agent_learning.pmbok import (
-    APPROVAL_ACTIONS,
-    Blocker,
-    CyclicDependencyError,
-    DISPOSITIONS,
     DRAFT_ORDER,
-    FEEDBACK_STATUSES,
+    Blocker,
     FormalizationCheck,
-    Freshness,
-    GATE_CRITERIA,
-    PLACEHOLDER_TOKENS,
-    PLAN_DAG,
-    PlanApprovalRecord,
     PlanState,
-    PROVISIONAL_TOKENS,
-    VOLATILE_KEYS,
     approval_record,
     build_approval_metadata,
     check_formalization,
     check_plan_freshness,
     compute_canonical_plan_hash,
     derive_plan_state,
-    effective_upstreams,
-    gate_constraint_results,
-    integrity_flags,
-    is_raw_hash,
     latest_approvals,
-    plan_hash,
-    raw_change_hash,
-    topological_order,
-    validate_dependencies,
 )
-import agent_learning
 
 
 def test_ac0_ready_all_approved_and_satisfied():

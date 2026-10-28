@@ -92,9 +92,11 @@ class FormalizationCheck:
     blockers: tuple[Blocker, ...]
 
 
+# The validators below raise ValueError, with a TRY004 exemption, for a wrongly typed field: FDD-013 section 5 and ADR-034
+# specify "ValueError naming the key" for an invalid approval record, whatever way a field is invalid.
 def _validate_str(key: str, val: Any, *, allow_empty: bool = False) -> str:
     if not isinstance(val, str):
-        raise ValueError(f"{key} must be a str, got {type(val).__name__}")
+        raise ValueError(f"{key} must be a str, got {type(val).__name__}")  # noqa: TRY004
     if len(val) > _MAX_STRING_LEN:
         raise ValueError(f"{key} exceeds maximum length of {_MAX_STRING_LEN} characters")
     if not allow_empty and val.strip() == "":
@@ -118,7 +120,7 @@ def _validate_hash(key: str, hash_val: Any) -> str:
 
 def _validate_sequence_number(val: Any) -> int:
     if isinstance(val, bool) or not isinstance(val, int):
-        raise ValueError(f"sequence_number must be an integer, got {type(val).__name__}")
+        raise ValueError(f"sequence_number must be an integer, got {type(val).__name__}")  # noqa: TRY004
     if val < 0:
         raise ValueError(f"sequence_number must be non-negative, got {val}")
     return val
@@ -126,7 +128,7 @@ def _validate_sequence_number(val: Any) -> int:
 
 def _validate_upstream_hashes(val: Any) -> dict[str, str]:
     if not isinstance(val, Mapping):
-        raise ValueError(f"upstream_hashes must be a mapping, got {type(val).__name__}")
+        raise ValueError(f"upstream_hashes must be a mapping, got {type(val).__name__}")  # noqa: TRY004
     cleaned: dict[str, str] = {}
     for k, v in val.items():
         k_str = _validate_str("upstream_hashes key", k)
@@ -195,7 +197,7 @@ def approval_record(
     v_created_at = _validate_str("created_at", created_at)
 
     if not isinstance(metadata, Mapping):
-        raise ValueError(f"metadata must be a mapping, got {type(metadata).__name__}")
+        raise ValueError(f"metadata must be a mapping, got {type(metadata).__name__}")  # noqa: TRY004
 
     for k in _REQUIRED_METADATA_KEYS:
         if k not in metadata:
@@ -215,7 +217,7 @@ def approval_record(
     if feed not in FEEDBACK_STATUSES:
         raise ValueError(f"feedback_status must be one of {FEEDBACK_STATUSES}, got {feed!r}")
 
-    v_run_id = _validate_str("run_id", metadata["run_id"])
+    _validate_str("run_id", metadata["run_id"])  # validated, not stored on the record
     v_seq = _validate_sequence_number(metadata["sequence_number"])
 
     return PlanApprovalRecord(

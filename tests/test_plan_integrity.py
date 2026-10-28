@@ -12,7 +12,6 @@ import pytest
 
 from agent_learning.pmbok import (
     PLACEHOLDER_TOKENS,
-    PROVISIONAL_TOKENS,
     LintFlag,
     NextStep,
     gate_constraint_results,

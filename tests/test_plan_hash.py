@@ -16,7 +16,6 @@ from pathlib import Path
 import pytest
 
 from agent_learning.pmbok import (
-    VOLATILE_KEYS,
     compute_canonical_plan_hash,
     is_raw_hash,
     plan_hash,

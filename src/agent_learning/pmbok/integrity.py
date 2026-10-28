@@ -10,7 +10,6 @@ from collections.abc import Sequence
 
 from .parser import parse_frontmatter
 from .standards import (
-    APPROVAL_ACTIONS,
     PLACEHOLDER_TOKENS,
     PROVISIONAL_TOKENS,
     LintFlag,

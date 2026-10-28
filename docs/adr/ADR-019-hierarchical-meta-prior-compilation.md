@@ -11,27 +11,23 @@ This ADR introduces **Hierarchical Meta-Prior Compilation Across Task Families**
 ## 3. Context & Problem Statement
 - **The Limits of 1-to-1 Transfer (ADR-020):** 1-to-1 prior transfer is vulnerable to donor-specific idiosyncrasies or localized overfitting. If the selected donor policy converged on a skewed distribution, that bias is transferred directly to the target.
 - **Shared Family Structure:** Policies within a common governance family (e.g., `family = "pmbok_subsidiary_gates"`) share identical action semantics (`approve`, `reject`, `request_revision`) and experience similar baseline rejection rates.
-- **Statistical Shrinkage:** Hierarchical Bayesian modeling provides James-Stein shrinkage, borrowing statistical strength across multiple sparse policies to produce a more robust prior than any single policy could generate alone.
+- **Statistical Shrinkage:** Hierarchical Bayesian modeling provides pooled (empirical Bayes) estimation, borrowing statistical strength across multiple sparse policies to produce a more robust prior than any single policy could generate alone.
 
 ## 4. Technical Decision
 
-### 4.1 Empirical Bayes Hierarchical Formulation
-Let a policy family $\mathcal{F} = \{P_1, \dots, P_K\}$ consist of $K$ converged policies sharing action space $A$.
-Each policy $k$ has converged logit vector $\boldsymbol{\theta}_k \in \mathbb{R}^{|A|}$.
-We model the parameters as exchangeable draws from a family-level Gaussian meta-prior:
-$$\boldsymbol{\theta}_k \sim \mathcal{N}(\boldsymbol{\mu}_{\text{meta}}, \boldsymbol{\Sigma}_{\text{meta}})$$
+### 4.1 Empirical Bayes Pooling
+Let a policy family $\mathcal{F} = \{P_1, \dots, P_K\}$ consist of $K \ge 4$ converged policies sharing action space $A$ and a declared `family` value (a human-set field in the policy metadata; policies without it are never pooled).
+Each policy $k$ has converged logit vector $\boldsymbol{\theta}_k \in \mathbb{R}^{|A|}$. The pooled estimates are the family mean and the per-action variance:
+$$\hat{\boldsymbol{\mu}}_{\text{meta}} = \frac{1}{K} \sum_{k=1}^K \boldsymbol{\theta}_k, \qquad \hat{\sigma}^2_a = \frac{1}{K-1} \sum_{k=1}^K (\theta_{k,a} - \hat{\mu}_a)^2$$
+The variance is a **heterogeneity diagnostic**, not a prior covariance: if $\max_a \hat{\sigma}_a > \sigma_{\text{het}}$ (declared at compile time), the family is too dissimilar to pool and compilation fails with a reason. Pooling the mean across $K \ge 4$ members is the shrinkage this ADR provides; a per-member James-Stein factor is not computed.
 
-The Empirical Bayes estimators are computed in closed form:
-$$\hat{\boldsymbol{\mu}}_{\text{meta}} = \frac{1}{K} \sum_{k=1}^K \boldsymbol{\theta}_k$$
-$$\hat{\boldsymbol{\Sigma}}_{\text{meta}} = \text{diag}\left( \frac{1}{K} \sum_{k=1}^K (\boldsymbol{\theta}_k - \hat{\boldsymbol{\mu}}_{\text{meta}})^2 + \gamma \mathbf{I} \right)$$
-Where $\gamma > 0$ is a variance floor preventing singularity on unvaried actions.
-
-### 4.2 Initializing Target Policies via Shrinkage
+### 4.2 Initializing Target Policies from the Meta-Prior
 When a new policy $P_{\text{new}}$ is initialized within family $\mathcal{F}$:
-- Its initial action logits $\boldsymbol{\theta}_{\text{new}, 0}$ are set to $\hat{\boldsymbol{\mu}}_{\text{meta}}$.
-- If Thompson sampling (ADR-015) is used, the conjugate prior counts are set to:
-  $$\alpha_a = \kappa_{\text{prior}} \cdot \sigma(\mu_{\text{meta}, a}), \quad \beta_a = \kappa_{\text{prior}} \cdot (1 - \sigma(\mu_{\text{meta}, a}))$$
-  Where $\kappa_{\text{prior}}$ represents the effective pseudo-count strength of the meta-prior.
+- **Softmax policies:** its initial logits are $\boldsymbol{\theta}_{\text{new}, 0} = \hat{\boldsymbol{\mu}}_{\text{meta}}$.
+- **Thompson policies (ADR-015):** the prior is compiled in the same representation, never converted from logits. The family prior is the pooled, strength-capped count per action:
+  $$\alpha_a = 1 + \kappa_{\text{prior}} \cdot \bar{p}_a, \quad \beta_a = 1 + \kappa_{\text{prior}} \cdot (1 - \bar{p}_a), \quad \bar{p}_a = \frac{\sum_k (\alpha_{k,a} - 1)}{\sum_k (\alpha_{k,a} + \beta_{k,a} - 2)}$$
+  where $\kappa_{\text{prior}} \le 10$ is the effective pseudo-count strength. Softmax logits and Beta payoff rates are different quantities, so a family is compiled in one representation only.
+- **Evidence gate:** pseudo-counts and initial logits from a meta-prior are not scored outcomes. They do not count towards the ADR-003 gate (at least 20 outcomes, Wilson lower bound $\ge 0.90$).
 
 ### 4.3 Tooling & Storage Architecture
 Meta-compilation is executed via an offline CLI utility:
@@ -45,6 +41,26 @@ The compiled meta-prior is stored as a template snapshot in `LearningStore`:
 - `PolicySnapshot.metadata["is_family_meta_prior"] = True`
 - `PolicySnapshot.metadata["family_member_count"] = K`
 - Individual active policies remain completely independent; updates never propagate backward to mutate the compiled meta-prior.
+
+### 4.4 Code design and test data
+Design only: nothing below is built, and the signatures are the contract an FDD must confirm or change.
+Module `src/agent_learning/meta_prior.py`, pure and standard library only; the CLI wiring (`task-policy-meta-compile`) lives in `cli.py` and does the storage reads.
+
+```python
+@dataclass(frozen=True)
+class FamilyMember:
+    task_id: str; action_ids: tuple[str, ...]; logits: Mapping[str, float]   # or alpha/beta counts
+
+def compile_meta_prior(members: Sequence[FamilyMember], *, representation: str,
+                       sigma_het: float, kappa_prior: float = 10.0) -> MetaPrior: ...
+# raises ValueError: K < 4, action spaces differ, or max sigma_a > sigma_het
+```
+
+Tests (`tests/test_meta_prior.py`): the mean over $K$ members, rejection when $K < 4$, rejection when the spaces differ or the family is heterogeneous, the Thompson prior counts follow the §4.2 formula, the compiled prior has `is_family_meta_prior=True` and no member snapshot is changed, and the prior does not count towards the ADR-003 gate.
+
+**Test data.** *Real:* the repository does have a real family, the `approve-*` tasks (`approve-adr`, `approve-brd`, `approve-fdd`, `approve-user-stories` and others). Their action ids differ by name (`approve_adr`, `approve_brd`, ...), so Invariant 3 (identical action spaces) needs an explicit role mapping (approve, reject, revise) that the ADR does not yet define. *Gap:* none of these policies has learned logits (they are full authority at version 0), so no member is a converged donor, and $K \ge 4$ converged members do not exist. Needed: that role mapping, and at least four low-authority policies of one family with real episodes. *Oracle tests:* hand-computed pooled means on small vectors, as arithmetic.
+
+**Walkthrough.** [Methodology 14 in the walkthroughs](../learning-methodology-walkthroughs.md#14-hierarchical-meta-prior-adr-019-44). It runs the sketch today; it must be rewritten against the real module once this is built.
 
 ## 5. Alternatives Considered
 
@@ -62,7 +78,7 @@ The compiled meta-prior is stored as a template snapshot in `LearningStore`:
 - Fully offline compilation with zero runtime inference overhead.
 
 ### Negative
-- Requires a minimum family size ($K \ge 3$ converged policies) to produce meaningful meta-priors.
+- Requires a minimum family size ($K \ge 4$ converged policies) to produce meaningful meta-priors.
 - Assumes exchangeability across family members; if one policy is radically different, it can distort the family mean.
 
 ## 7. Architectural Invariants
@@ -71,8 +87,18 @@ The compiled meta-prior is stored as a template snapshot in `LearningStore`:
 2. **Decoupled Local Execution:** Once a policy is seeded from a meta-prior, its runtime updates are 100% localized to its own snapshot.
 3. **Action Space Identity:** All policies included in a family compilation must possess identical action spaces.
 4. **Storage Law (ADR-002):** Meta-priors reside within standard `PolicySnapshot` records.
+5. **Evidence Gate Separation:** A meta-prior never counts as scored outcomes for the ADR-003 autonomy gate.
+6. **Single Representation:** A family is compiled either in logits or in Beta counts, never a mix.
 
-## 8. References
+## 8. Amendment Log
+
+| Date | Change | Why |
+|---|---|---|
+| 2026-10-25 | Initial Draft | Candidate derived from Ideation Document §2.1 (Methodology #14). |
+| 2026-10-28 | Review fix | The draft claimed James-Stein shrinkage but computed a plain mean and an unused covariance. Now a pooled mean plus a heterogeneity check, $K \ge 4$. Removed the sigmoid conversion from softmax logits to Beta counts (different quantities). Added the ADR-003 gate separation and the human-declared `family` field. |
+| 2026-10-28 | Code design | Added §4.4: module layout, signatures, tests, and which real data exists and which is missing. |
+
+## 9. References
 - `docs/project-docs/Ideation-Document.md` §2.1 (Methodology #14)
 - `ADR-001`: Decision Authority Model
 - `ADR-002`: Storage Backend Strategy

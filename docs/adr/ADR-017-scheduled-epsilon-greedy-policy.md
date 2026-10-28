@@ -25,7 +25,8 @@ With probability $1 - \epsilon_t$ (Exploitation):
 $$a^* = \arg\max_{a \in A} \bar{X}_a$$
 With probability $\epsilon_t$ (Exploration):
 $$a^* \sim \text{UniformRandom}(A_{\text{safe}})$$
-Where $A_{\text{safe}} \subseteq A$ is the declared safety-masked subset of benign/reversible actions. If $A_{\text{safe}} = \emptyset$ (all candidate actions carry destructive or irreversible impact), $\epsilon_t$ is forced to $0.0$, disabling random exploration entirely.
+Where $A_{\text{safe}} \subseteq A$ is the safety-masked subset of benign/reversible actions: those whose action definition declares `"reversible": true`. The flag is declared by a human in the action definition; an action without the flag is treated as not safe.
+The uniform draw is made with a PRNG seeded exactly as in ADR-015 §4.3 (HMAC-SHA256 over `request_id || timestamp`, keyed by `policy_id`, 64-bit seed), so an exploration step is replayable. If $A_{\text{safe}} = \emptyset$ (all candidate actions carry destructive or irreversible impact), $\epsilon_t$ is forced to $0.0$, disabling random exploration entirely.
 
 #### Decay Schedule:
 The exploration rate $\epsilon_t$ follows a harmonic decay schedule parameterized by initial rate $\epsilon_0$, decay constant $\delta$, and floor $\epsilon_{\text{floor}}$:
@@ -39,6 +40,7 @@ To maintain audit integrity, every generated `DecisionResult` and `Episode` reco
   "metadata": {
     "exploration_rate_applied": 0.142,
     "branch_taken": "exploitation", // "exploitation" | "exploration"
+    "prng_seed": 8472910384719203841,
     "empirical_means": {
       "approve_plan": 0.88,
       "reject_plan": 0.05,
@@ -47,6 +49,25 @@ To maintain audit integrity, every generated `DecisionResult` and `Episode` reco
   }
 }
 ```
+
+### 4.3 Code design and test data
+Design only: nothing below is built, and the signatures are the contract an FDD must confirm or change.
+Module `src/agent_learning/policy/epsilon_greedy.py`, implementing `Policy`, plus an `EpsilonGreedyLearner(Learner)` that shares the `action_statistics` update with ADR-016.
+
+```python
+def epsilon_at(t: int, eps0: float, delta: float, floor: float) -> float: ...   # harmonic, §4.1
+class EpsilonGreedyPolicy(Policy):
+    def choose(self, state=None, *, request_id: str, timestamp: str) -> Decision: ...
+    # metadata: branch_taken, exploration_rate_applied, prng_seed, empirical_means
+```
+
+`A_safe` is read from `Action.parameters["reversible"] is True`. Existing action definitions (for example `approve-adr.actions.json`) carry empty `parameters`, so no action is safe today and $\epsilon_t$ is forced to 0 until a human declares the flag.
+
+Tests (`tests/test_epsilon_greedy.py`): the schedule is non-increasing and never below the floor, an empty $A_{\text{safe}}$ forces $\epsilon = 0$, exploration never selects an unflagged action, the recorded seed reproduces the draw, `branch_taken` is always present.
+
+**Test data.** *Real:* none specific; its role is the baseline run on the same replay as ADR-015 and ADR-016, so the three can be compared on identical history. *Gap:* the `reversible` flag has never been declared on a real action; that human decision is needed first. *Oracle tests:* the schedule values, checked by hand.
+
+**Walkthrough.** [Methodology 11 in the walkthroughs](../learning-methodology-walkthroughs.md#11-epsilon-greedy-adr-017-43). It runs the sketch today; it must be rewritten against the real module once this is built.
 
 ## 5. Alternatives Considered
 
@@ -73,6 +94,7 @@ To maintain audit integrity, every generated `DecisionResult` and `Episode` reco
 3. **Storage Boundary (ADR-002):** Running action means and pull counts reside in `PolicySnapshot.metadata["action_statistics"]`.
 4. **Authority Boundary (ADR-001):** Operates under `DecisionAuthority.LOW`.
 5. **Action Safety Mask Invariant:** Random exploratory selection ($\epsilon_t$) is strictly prohibited from selecting unmasked destructive or irreversible actions. Exploratory probes are restricted to the subset $A_{\text{safe}} \subseteq A$; if $A_{\text{safe}}$ is empty, $\epsilon_t$ must evaluate to $0.0$.
+6. **Replayable Exploration:** Every exploration step must record its `prng_seed` in `metadata`; re-seeding with it must reproduce the same draw.
 
 ## 8. References
 - `docs/project-docs/Ideation-Document.md` §2.1 (Methodology #11)
@@ -85,4 +107,6 @@ To maintain audit integrity, every generated `DecisionResult` and `Episode` reco
 |---|---|---|
 | 2026-10-25 | Initial Draft | Candidate derived from Ideation Document §2.1 (Methodology #11). |
 | 2026-10-25 | Peer-Review Hardening | Added Invariant 5 (Action Safety Masking) per PMBOK Governance Auditor and Systems Architecture Reviewer condition, preventing pseudo-random execution of irreversible actions. |
+| 2026-10-28 | Review fix | ADR-016 rejects epsilon-greedy because random draws need seed logging, yet this ADR logged no seed. Added the seeded, replayable draw (ADR-015 §4.3) and Invariant 6. Defined $A_{\text{safe}}$ as actions declaring `reversible: true`. |
+| 2026-10-28 | Code design | Added §4.3: module layout, signatures, tests, and which real data exists and which is missing. |
 

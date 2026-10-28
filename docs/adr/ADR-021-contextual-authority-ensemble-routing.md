@@ -23,9 +23,12 @@ Regardless of confidence or entropy, lifecycle baseline gates (`approve-charter`
 
 #### Operational Dispatch Logic:
 For operational tasks, the ensemble router evaluates two safety signals:
-1. **Low-Authority Shannon Entropy:**
-   $$H(\pi_{\text{low}}(\cdot \mid \mathbf{x})) = -\sum_{a \in A} \pi(a \mid \mathbf{x}) \log \pi(a \mid \mathbf{x})$$
-2. **Complexity Tier Impact:** Whether the declared complexity tier is `critical` or high-impact.
+1. **Low-Authority Shannon Entropy**, in bits (base-2 logarithm, so that $\Delta H$ below is in bits):
+   $$H(\pi_{\text{low}}(\cdot \mid \mathbf{x})) = -\sum_{a \in A} \pi(a \mid \mathbf{x}) \log_2 \pi(a \mid \mathbf{x})$$
+2. **Decision Margin:** the gap between the two most probable actions, $\text{Margin}(\pi) = \pi_{(1)}(\mathbf{x}) - \pi_{(2)}(\mathbf{x})$, with default $\epsilon_{\text{margin}} = 0.20$.
+3. **Complexity Tier Impact:** Whether the declared complexity tier is `critical` or high-impact.
+
+$R_{\text{previous}}(\mathbf{x})$ is kept per context bucket (the declared context key), not per raw input, in a bounded map in `PolicySnapshot.metadata["routing_state"]` (at most 1000 buckets, least recently used evicted). A bucket with no previous route starts at `FULL`.
 
 To prevent high-frequency mode switching ("hunting" oscillation), routing employs a hysteresis band $\Delta H \ge 0.15 \text{ bits}$ between escalation ceiling $\tau_{\text{esc}}$ and de-escalation floor $\tau_{\text{deesc}}$:
 $$R(\mathbf{x}) = \begin{cases} 
@@ -43,6 +46,35 @@ A critical architectural pitfall in ensemble systems is training contamination. 
 - The router tags every episode: `Episode.metadata["routed_authority"] = "low" | "full"`.
 - `LearningRunner` and `ReinforceLearner` filter training batches, strictly ignoring any episode where `routed_authority != "low"`.
 
+### 4.4 Starvation Guard (No Gradient Path Required)
+Excluding `full` episodes from training (§4.3) creates a loop: contexts the low policy is unsure about route to `full`, never train it, and so stay uncertain. The guard breaks the loop without letting any `full` episode into a gradient batch:
+- For every `full`-routed instance the router also records, without acting on it, the low policy's argmax: `Episode.metadata["shadow_low_action"]`.
+- Per context bucket, agreement between `shadow_low_action` and the final adjudicated action is tracked as a count of scored agreements.
+- A bucket may be proposed for `low` routing only when its agreements pass the ADR-003 gate (at least 20 outcomes, Wilson lower bound $\ge 0.90$). The proposal is a recommendation; a human approves it, and the entropy test in §4.1 still applies afterwards.
+- Shadow actions are never rewards and never enter `LearningRunner` batches.
+
+### 4.5 Code design and test data
+Design only: nothing below is built, and the signatures are the contract an FDD must confirm or change.
+Module `src/agent_learning/routing.py`, pure; the router returns a decision and the caller records it.
+
+```python
+@dataclass(frozen=True)
+class RoutingConfig:
+    tau_esc: float; tau_deesc: float; eps_margin: float = 0.20   # tau_esc - tau_deesc >= 0.15 bits
+def route(probs: Sequence[float], tier: str, task_id: str, previous: DecisionAuthority | None,
+          cfg: RoutingConfig) -> RouteDecision: ...      # authority, entropy_bits, margin, reason
+PINNED_FULL: frozenset[str]                              # the §7 baseline gates; route() asserts on them
+def shadow_record(low_action_id: str, final_action_id: str) -> dict[str, str]: ...   # §4.4
+```
+
+Tests (`tests/test_routing.py`): a pinned gate always routes `full`, a `critical` tier always routes `full`, no flip inside the hysteresis band, entropy is in bits (uniform over 4 actions = 2.0), the margin rule escalates, `shadow_record` output is never read by `LearningRunner`, and a `full` episode is skipped by `ReinforceLearner`.
+
+**Dependency that must be built first.** ADR-001 §4.5 records that the rule "only `low` episodes train REINFORCE" is not enforced in code today. Invariant 2 of this ADR cannot hold until that story is done.
+
+**Test data.** *Real:* none. No episode carries `routed_authority` or a low-policy distribution, because no policy has been run in both modes. The 14 `approve-adr` episodes do carry real `expected_utility` and `robust_utility`, which could inform where `eps_margin` sits, but they say nothing about entropy. *Gap:* real mixed-difficulty traffic through a hybrid policy; thresholds stay uncalibrated until then. *Oracle tests:* entropy and margin values on fixed distributions, as arithmetic.
+
+**Walkthrough.** [Methodology 17 in the walkthroughs](../learning-methodology-walkthroughs.md#17-authority-routing-adr-021-45). It runs the sketch today; it must be rewritten against the real module once this is built.
+
 ## 5. Alternatives Considered
 
 | Alternative | Rationale for Rejection |
@@ -54,7 +86,7 @@ A critical architectural pitfall in ensemble systems is training contamination. 
 ## 6. Consequences
 
 ### Positive
-- Reduces LLM token costs and latency by $70\text{--}90\%$ for routine, low-uncertainty operational requests.
+- Expected to reduce LLM token costs and latency for routine, low-uncertainty operational requests; the size of the saving is unmeasured and depends on the share of requests that reach `low`.
 - Eliminates low-authority blind spots: high-entropy edge cases automatically escalate to full Bayesian review.
 - Strictly adheres to ADR-001 and ADR-003 safety invariants.
 
@@ -71,6 +103,8 @@ A critical architectural pitfall in ensemble systems is training contamination. 
 5. **Strategic Baseline Pinned Authority Invariant:** Governance lifecycle baseline gates (`approve-charter`, `approve-adr`, `approve-brd`, `approve-fdd`, `approve-user-stories`, `approve-pmp`, `retrospective`) are permanently pinned to `DecisionAuthority.FULL` with `requires_human_approval: true`. Autonomous down-routing to `LOW` authority for these tasks is strictly prohibited by code assertion.
 6. **Switching Hysteresis Invariant:** Dynamic transitions between `LOW` and `FULL` authority must enforce a hysteresis deadband $\Delta H \ge 0.15 \text{ bits}$ to prevent switching oscillation.
 
+7. **Starvation Guard:** A context bucket moves from `full` to `low` only through the §4.4 evidence gate and a human approval; no `full` episode ever enters a gradient batch.
+
 ## 8. References
 - `docs/project-docs/Ideation-Document.md` §2.1 (Methodology #17)
 - `ADR-001`: Decision Authority Model
@@ -83,4 +117,6 @@ A critical architectural pitfall in ensemble systems is training contamination. 
 |---|---|---|
 | 2026-10-25 | Initial Draft | Candidate derived from Ideation Document §2.1 (Methodology #17). |
 | 2026-10-25 | Peer-Review Hardening | Added Invariant 5 (Strategic Baseline Pinned Authority) per PMBOK Auditor condition to protect core governance gates; added Invariant 6 (Switching Hysteresis Deadband $\Delta H \ge 0.15 \text{ bits}$) per Cybernetics Control Theorist to prevent limit-cycle hunting. |
+| 2026-10-28 | Review fix | Defined $\text{Margin}$ and $\epsilon_{\text{margin}}$, moved entropy to bits so $\Delta H$ is in bits, and bounded $R_{\text{previous}}$ per context bucket. Added §4.4 and Invariant 7: the gradient exclusion left `full`-routed contexts with no way to become `low`. Removed the unsourced "70-90%" saving. |
+| 2026-10-28 | Code design | Added §4.5: module layout, signatures, tests, and which real data exists and which is missing. |
 

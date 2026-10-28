@@ -859,11 +859,9 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - $AC_2$: Current hash mismatch gives `REAPPROVAL_REQUIRED_CONTENT_MODIFIED`; missing or `raw:` current hash gives `INVALID_METADATA_UNPARSEABLE`; recorded upstream hash mismatch gives `STALE_DEPENDENCY_<upstream>`.
   - $AC_3$ (ADR-034 Test 1): Scope (`full_plan`) $\to$ Schedule (`pmp_section`) $\to$ Cost (`full_plan`): editing Scope's disk hash makes Cost `(False, "TRANSITIVE_STALE_FROM_scope-management", "scope-management")` through Schedule's active ancestor walk while Schedule is unchanged.
   - $AC_4$ (ADR-034 Test 2): Scope (`full_plan`) $\to$ Schedule (`not_applicable`) $\to$ Cost (`full_plan`): editing Scope's disk hash invalidates Cost through the bypass; editing Schedule's omission leaves Cost fresh.
-  - $AC_5$ (bounded scope): changing a plan that no core plan depends on (Communications) leaves Scope, Schedule and Cost `APPROVED_AND_FRESH` on the real `PLAN_DAG`.
   - $AC_5$: On `PLAN_DAG`, mutating leaf/support plans (Communications) leaves Scope, Schedule, and Cost fresh without orthogonal spillover.
   - $AC_6$ (ADR-034 Test 6): Upstream section with stub or `raw:` hash gives `INVALID_OR_STUB_SECTION` and makes dependent approvals stale (`TRANSITIVE_STALE_FROM_<section>`).
   - $AC_7$: Dependent whose upstream has no accepted approval gives `PENDING_UPSTREAM_<offending>`; dependent whose upstream was modified gives `TRANSITIVE_STALE_FROM_<offending>`.
-  - $AC_8$ (pure and safe): a diamond graph is not read as a cycle, repeated calls give equal results, and a cycle raises `CyclicDependencyError`.
   - $AC_8$: Pure functional execution; cycles raise `CyclicDependencyError`; diamond DAGs resolve cleanly without false cycle detection; inputs not mutated; repeated calls idempotent.
   - Test suite: 9 passed in `tests/test_plan_freshness.py`, 45 passed across Stories 13.1–13.5.
 
@@ -904,7 +902,6 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - $AC_0$: `check_formalization` returns `ready=True` and `blockers=()` when every `full_plan` is `APPROVED`, every `pmp_section` is `section_ok=True`, and every `not_applicable` is `rationale_recorded=True`.
   - $AC_1$: Produces blockers for: `full_plan` in any state other than `APPROVED` (`PLAN_<STATE>`); missing plan state (`NO_STATE`); `pmp_section` missing or stub (`SECTION_MISSING_OR_STUB`); unrationalized omission (`NO_OMISSION_RATIONALE`).
   - $AC_2$: Routes validation: missing plan route produces `NO_ROUTE`; route outside closed list produces `INVALID_ROUTE`; routes for plans outside the nine `DRAFT_ORDER` plans are ignored.
-  - $AC_3$ (attribution): with every plan `DRAFTED`, the nine blockers come in `DRAFT_ORDER`, each naming its plan, route and reason `PLAN_DRAFTED`; `ready` is false.
   - $AC_3$: Blockers strictly ordered by `DRAFT_ORDER`; each blocker accurately attributes `plan_id`, `route`, and `reason`; `ready` is true if and only if blockers is empty.
   - $AC_4$: End-to-end multi-story scenario verified: 3 plans initialized, hashed, approved, verified fresh, and states derived $\to$ formalization ready $\to$ upstream disk edit produces `PLAN_REAPPROVAL_REQUIRED` and dependent `PLAN_STALE_DEPENDENCY` blockers $\to$ topological re-approval restores formalization readiness.
   - $AC_5$: Purity and package exports: AST analysis verifies `hashing.py`, `integrity.py`, and `governance.py` import strictly standard library and siblings; zero external dependencies; result types are frozen dataclasses or named tuples; all 30 public symbols exported from both `pmbok` and root `agent_learning`.

@@ -910,3 +910,5 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `ruff` is not installed in this environment, so `ruff check` was not run on the created files (LL-026).
   - Review follow-up: the Story 13.5 test derived plan hashes with Python's salted `hash()`; replaced by sha256 in `3264593`.
   - Process notes (audit of 2026-10-28): stories 13.1 to 13.7 were built in one working tree and committed together in `d9c8bdb`, not one worktree and PR per story (implement-story Steps 0 and 8). The contracts were not observed failing before the code (Step 3), so no "Observed RED first" is claimed here.
+  - Amazon Q review, PR #42, round 1 (head `a27998a`): one finding, accepted. A first request got a "Review Failed" reply (head modified during the review) and was repeated.
+    - `Q-42-1 | logic error | verified: yes | decision: accepted | derive_plan_state read a hand-built record with an unrecognised action id as DRAFTED on both hash paths; it now raises ValueError, with a test seen failing first (1441 passed, 2 skipped on the same exclusions) | fix: aa8889a`

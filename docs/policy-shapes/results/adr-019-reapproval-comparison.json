@@ -1,0 +1,52 @@
+{
+  "before_policy_id": "1d73c501-8ac0-4814-b7b4-b4bc3cb36854",
+  "after_policy_id": "1d73c501-8ac0-4814-b7b4-b4bc3cb36854",
+  "before_version": 0,
+  "after_version": 0,
+  "leader_before": "approve_adr",
+  "leader_after": "approve_adr",
+  "leader_changed": false,
+  "leader_feasible": true,
+  "margin_before": 0.5138444330013563,
+  "margin_after": 0.5839821005525349,
+  "margin_delta": 0.07013766755117856,
+  "leader_robust_utility_delta": 0.017108592172797032,
+  "action_deltas": {
+    "approve_adr": {
+      "robust_utility_delta": 0.017108592172797032,
+      "expected_utility_delta": 0.014497197499613645,
+      "uncertainty_delta": -0.026113946731834203,
+      "criteria_deltas": {
+        "alternatives_considered": 0.0,
+        "architectural_soundness": 0.028536921760436096,
+        "gap_disclosure_quality": 0.020066927275616986,
+        "consequences_honest": 0.009384940962401389
+      }
+    },
+    "reject_adr": {
+      "robust_utility_delta": 0.0,
+      "expected_utility_delta": 0.0,
+      "uncertainty_delta": 0.0,
+      "criteria_deltas": {
+        "alternatives_considered": 0.0,
+        "architectural_soundness": 0.0,
+        "gap_disclosure_quality": 0.0,
+        "consequences_honest": 0.0
+      }
+    },
+    "request_revision_before_decision": {
+      "robust_utility_delta": -0.05302907537838156,
+      "expected_utility_delta": -0.06556361604991112,
+      "uncertainty_delta": -0.1253454067152957,
+      "criteria_deltas": {
+        "alternatives_considered": -0.10509393418169236,
+        "architectural_soundness": -0.06477693542724644,
+        "gap_disclosure_quality": -0.005723325418458047,
+        "consequences_honest": -0.08666026917224767
+      }
+    }
+  },
+  "classification": "progression",
+  "classification_reason": "margin widened by +0.0701; robust utility rose by +0.0171",
+  "attribution": []
+}

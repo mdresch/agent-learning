@@ -6,7 +6,7 @@
 
 Seven stories build `src/agent_learning/routing.py`, the command `task-policy-routing-set`, the two approval shapes, and one condition in `ReinforceLearner`. Each rule sits in exactly one story's criteria (LL-012). Contract tests are `tests/test_routing_signals.py` (21.1), `tests/test_routing_route.py` (21.2), `tests/test_routing_pinning.py` (21.3), `tests/test_routing_guard.py` (21.4), `tests/test_routing_decisions.py` (21.5), `tests/test_routing_dispatch.py` (21.6) and `tests/test_routing_real_data.py` (21.7). Calibrating the thresholds, measuring savings and wiring the router into `task-policy-decide` are not stories (BRD-021 Out of Scope).
 
-**Stories 21.1 to 21.7 are unblocked:** Menno confirmed FDD-021 §4 (K1 to K7) on 2026-10-29 and ADR-021 was amended to match. No story depends on another epic, but Story 21.6 changes `learners/reinforce.py`, which conflicts with the source-comparison criteria of Stories 15.5, 16.5 and 17.5 (FDD-021 §7 item 2).
+**Stories 21.1 to 21.7 are unblocked:** Menno confirmed FDD-021 §4 (K1 to K7) on 2026-10-29 and ADR-021 was amended to match. No story depends on another epic. Story 21.6 changes `learners/reinforce.py`; the criteria of Stories 15.5, 16.5 and 17.5 that would have failed on that change were made behavioural first (PR 56; FDD-021 §7 item 2).
 
 Fixture used by the criteria below ("the base config"): `tau_esc` 1.0, `tau_deesc` 0.7, `eps_margin` 0.20; tier `standard`; task `classify-request` (not pinned); a bucket `ctx-17`. The episodes and snapshots are built in the tests and labelled synthetic.
 

@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-021](../../adr/ADR-021-contextual-authority-ensemble-routing.md) — Accepted (2026-10-28)  
 **Source BRD:** [BRD-021](../Business-Requirements/BRD-021-contextual-authority-ensemble-routing.md)  
-**Status:** Draft (2026-10-29) — derived from Accepted ADR-021; not yet adjudicated through `approve-fdd`. Section 4 lists where this design departs from ADR-021 §4.1 to §4.5. Menno confirmed the departures K1 to K7 on 2026-10-29 (K1, K4 and K5 as the options recommended in this FDD) and ADR-021 §4.1 to §4.5 were amended to match.  
+**Status:** Approved (2026-10-29, Menno) — derived from Accepted ADR-021 and BRD-021; adjudicated via `approve-fdd` (robust utility 0.726, episode `46c77417-3c2f-4700-a187-da8212145cc8`). Section 4 lists where this design departs from ADR-021 §4.1 to §4.5. Menno confirmed the departures K1 to K7 on 2026-10-29 (K1, K4 and K5 as the options recommended in this FDD) and ADR-021 §4.1 to §4.5 were amended to match.  
 
 ---
 

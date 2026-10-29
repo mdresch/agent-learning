@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-021](../adr/ADR-021-contextual-authority-ensemble-routing.md) — Accepted (2026-10-28)  
 **Source BRD/FDD:** [BRD-021](../project-docs/Business-Requirements/BRD-021-contextual-authority-ensemble-routing.md) / [FDD-021](../project-docs/Functional-Design/FDD-021-contextual-authority-ensemble-routing.md)  
-**Status:** Draft (2026-10-29) — stories derived from Accepted ADR-021, BRD-021 and FDD-021; not yet adjudicated through `approve-user-stories`. The epic number follows the source ADR number, as Epic 20 follows ADR-020.  
+**Status:** Approved (2026-10-29, Menno) — stories derived from Accepted ADR-021, BRD-021 and FDD-021; adjudicated via `approve-user-stories` (robust utility 0.735, episode `5a905107-ff04-4e89-84c5-680fa5716d47`). The epic number follows the source ADR number, as Epic 20 follows ADR-020.  
 
 Seven stories build `src/agent_learning/routing.py`, the command `task-policy-routing-set`, the two approval shapes, and one condition in `ReinforceLearner`. Each rule sits in exactly one story's criteria (LL-012). Contract tests are `tests/test_routing_signals.py` (21.1), `tests/test_routing_route.py` (21.2), `tests/test_routing_pinning.py` (21.3), `tests/test_routing_guard.py` (21.4), `tests/test_routing_decisions.py` (21.5), `tests/test_routing_dispatch.py` (21.6) and `tests/test_routing_real_data.py` (21.7). Calibrating the thresholds, measuring savings and wiring the router into `task-policy-decide` are not stories (BRD-021 Out of Scope).
 
@@ -14,7 +14,7 @@ Fixture used by the criteria below ("the base config"): `tau_esc` 1.0, `tau_dees
 
 ## Story 21.1 — Entropy and Margin
 
-**Status:** Draft  
+**Status:** Ready  
 **As** an auditor, **I want** the two uncertainty signals computed by plain arithmetic, **so that** a route can be checked by hand.
 
 ### Acceptance Criteria:
@@ -26,7 +26,7 @@ Fixture used by the criteria below ("the base config"): `tau_esc` 1.0, `tau_dees
 
 ## Story 21.2 — The Route
 
-**Status:** Draft  
+**Status:** Ready  
 **As** a maintainer, **I want** a request routed by entropy, margin, tier and the bucket's approval, with no flapping, **so that** unsure requests reach full review and routine ones stay fast.
 
 ### Acceptance Criteria:
@@ -42,7 +42,7 @@ Fixture used by the criteria below ("the base config"): `tau_esc` 1.0, `tau_dees
 
 ## Story 21.3 — Pinned Gates
 
-**Status:** Draft  
+**Status:** Ready  
 **As** an auditor, **I want** the governance gates impossible to route down, **so that** no entropy value can take a human out of a baseline decision.
 
 ### Acceptance Criteria:
@@ -56,7 +56,7 @@ Fixture used by the criteria below ("the base config"): `tau_esc` 1.0, `tau_dees
 
 ## Story 21.4 — The Shadow Record and the Agreement Gate
 
-**Status:** Draft  
+**Status:** Ready  
 **As** an approver, **I want** the evidence that a bucket is ready for the fast path presented with its base rate, **so that** I can see whether the learned policy agrees more than chance.
 
 ### Acceptance Criteria:
@@ -72,7 +72,7 @@ Fixture used by the criteria below ("the base config"): `tau_esc` 1.0, `tau_dees
 
 ## Story 21.5 — Human Decisions and the Promotion Seed
 
-**Status:** Draft  
+**Status:** Ready  
 **As** a maintainer, **I want** thresholds and bucket approvals to change only through a recorded human decision, **so that** the fast path is never granted silently.
 
 ### Acceptance Criteria:
@@ -88,7 +88,7 @@ Fixture used by the criteria below ("the base config"): `tau_esc` 1.0, `tau_dees
 
 ## Story 21.6 — Dispatch and Gradient Exclusion
 
-**Status:** Draft — changes `learners/reinforce.py`; see FDD-021 §7 item 2.  
+**Status:** Ready — changes `learners/reinforce.py`; see FDD-021 §7 item 2.  
 **As** a maintainer, **I want** the chosen route dispatched without touching the stored policy, and full-routed episodes kept out of training, **so that** reasoned decisions never contaminate the learned policy.
 
 ### Acceptance Criteria:
@@ -103,7 +103,7 @@ Fixture used by the criteria below ("the base config"): `tau_esc` 1.0, `tau_dees
 
 ## Story 21.7 — The Real-Data Check (No Routed Traffic)
 
-**Status:** Draft  
+**Status:** Ready  
 **As** a maintainer, **I want** the router tried against the recorded policies, **so that** the absence of routed traffic and calibrated thresholds is shown, not assumed.
 
 ### Acceptance Criteria:

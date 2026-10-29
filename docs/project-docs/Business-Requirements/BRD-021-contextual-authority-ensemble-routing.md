@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-021](../../adr/ADR-021-contextual-authority-ensemble-routing.md) — Accepted (2026-10-28)  
 **Governing Baseline:** none approved yet; cycle `CYC-001` (ADR-035, Proposed)  
-**Status:** Draft (2026-10-29) — derived from Accepted ADR-021; not yet adjudicated through `approve-brd`.  
+**Status:** Approved (2026-10-29, Menno) — derived from Accepted ADR-021; adjudicated via `approve-brd` (robust utility 0.732, episode `f7d8b1b7-acbe-4d79-b550-d55a91a26cf6`).  
 **Stakeholders:** Menno (Sponsor/PM/maintainer); SDK adopters who run a mix of routine and unusual requests through one decision task; auditors who must see why a request was handled by a learned policy or by full reasoned review  
 
 ## Business Need

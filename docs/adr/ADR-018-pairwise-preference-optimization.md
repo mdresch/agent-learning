@@ -27,15 +27,15 @@ Where $\boldsymbol{\theta}_{\text{ref}}$ is a frozen reference policy snapshot (
 ### 4.2 Exact CPU-Bound Gradient Updates
 The gradient with respect to logit $\theta_a$ is:
 $$\nabla_{\theta_a} \mathcal{L} = -\sum_{i=1}^M \sigma(\theta_{a_{l, i}} - \theta_{a_{w, i}}) \cdot \left( \mathbb{I}[a = a_{w, i}] - \mathbb{I}[a = a_{l, i}] \right) + \lambda_{\text{reg}}(\theta_a - \theta_{\text{ref}, a})$$
-The regularized loss has no closed-form minimizer. It is minimized by projected gradient descent (gradient step, then clamp to $[-8.0, +8.0]$) with a fixed iteration cap. The loss is convex, and the clamp is a projection onto a convex box, so the iteration still converges to the global minimum of the constrained problem. It runs on a single CPU core in the order of milliseconds for discrete action spaces ($|A| \le 20$) and a few thousand pairs; the timing is to be measured, not assumed.
+The regularized loss has no closed-form minimizer. It is minimized by projected gradient descent (gradient step, then clamp to $[-8.0, +8.0]$) with a fixed iteration cap. The loss is convex, and the clamp is a projection onto a convex box, so the iteration still converges to the global minimum of the constrained problem. The gradient is a sum over pairs, so the step must shrink as pairs grow: a fixed step of 0.1 diverged at 3,000 pairs in a prototype (the loss rose on 1,000 iterations and the logits ended in the wrong order). The pairs are therefore aggregated into an $|A| \times |A|$ count matrix, so one iteration costs $O(|A|^2)$ whatever the number of pairs, and the step is $\min(\text{lr}, 1/(\lambda_{\text{reg}} + 0.5 \cdot d_{\max}))$ with $d_{\max}$ the largest number of pairs naming one action, which keeps the loss from rising. The iteration stops early on a stationarity tolerance, and the result says whether it converged; at that step 3,000 pairs did not converge in 2,000 steps, and the result reports it instead of claiming an optimum. Measured on three actions, 2,000 steps took about 50 ms (FDD-018 G1, G2).
 
 ### 4.3 Training Pipeline & Data Sourcing
 Training data is extracted directly from historical `Episode` records in `LearningStore`:
-- An episode whose `metadata["decision_disposition"]` is `modify` or `rejected` (the values ADR-034 defines besides `accepted`) and whose `correct_action_id` differs from `action_id` yields pair $(a_{\text{adjudicated}} \succ a_{\text{proposed}})$, with $a_{\text{adjudicated}}$ = `correct_action_id`. This is the same rule as §4.4; there is no `"override"` value.
+- An episode whose `metadata["feedback_status"]` is `rejected` and whose `correct_action_id` is in the policy's actions and differs from `action_id` yields pair $(a_{\text{adjudicated}} \succ a_{\text{proposed}})$, with $a_{\text{adjudicated}}$ = `correct_action_id`. These are the fields `autonomy.py` reads and episode registration validates; `decision_disposition` is not read, because no code reads or writes it (FDD-018 G3). There is no `"override"` value.
 - A Red Team contrastive evaluation yields pair $(a_{\text{compliant}} \succ a_{\text{adversarial}})$.
 Zero manual labeling or new database records are required.
 
-**Prerequisites and bias.** `decision_disposition` and `correct_action_id` are already present on recorded episodes, but no code under `src/` reads `decision_disposition`, and all 41 recorded episodes are accepted, so no preference pair exists in real data today. The alternatives a human considered are not persisted beyond `correct_action_id`. Override pairs are also a biased sample: an accepted proposal yields no pair, so the data over-represents disagreements. The pairs are therefore used only to adjust logits relative to $\boldsymbol{\theta}_{\text{ref}}$ (the regularizer above), never as an estimate of the overall acceptance rate.
+**Prerequisites and bias.** `feedback_status` and `correct_action_id` are already present on recorded episodes, and all 41 recorded episodes are accepted, so no preference pair exists in real data today. The alternatives a human considered are not persisted beyond `correct_action_id`. Override pairs are also a biased sample: an accepted proposal yields no pair, so the data over-represents disagreements. The pairs are therefore used only to adjust logits relative to $\boldsymbol{\theta}_{\text{ref}}$ (the regularizer above), never as an estimate of the overall acceptance rate.
 
 ### 4.4 Code design and test data
 Design only: nothing below is built, and the signatures are the contract an FDD must confirm or change.
@@ -45,16 +45,16 @@ Module `src/agent_learning/learners/pairwise.py`, with `PairwiseLearner(Learner)
 @dataclass(frozen=True)
 class PreferencePair:
     winner: str; loser: str; source_episode_id: str
-def pairs_from_episodes(episodes: Iterable[Episode]) -> list[PreferencePair]: ...   # §4.3 override rule
-def fit_logits(pairs, action_ids, theta_ref, *, lam: float = 0.05,
-               lr: float = 0.1, steps: int = 2000, clamp: float = 8.0) -> dict[str, float]: ...
+def pairs_from_episodes(episodes: Iterable[Episode], action_ids: Sequence[str]) -> list[PreferencePair]: ...   # §4.3 override rule; an episode id counts once
+def fit_logits(pairs, action_ids, theta_ref, *, lam: float = 0.05, lr: float = 0.1,
+               steps: int = 2000, clamp: float = 8.0, tol: float = 1e-8) -> FitResult: ...   # logits, converged, iterations, stationarity, step_size, loss
 class PairwiseLearner(Learner):
     def update(self, policy, episodes, rewards) -> LearnerResult: ...
 ```
 
-An override is an episode whose `metadata["decision_disposition"]` is `modify` or `rejected` and whose `correct_action_id` differs from `action_id`. Note that `correct_action_id` and `feedback_status` are read by `autonomy.py`, but nothing in `src/` reads `decision_disposition` yet.
+An override is an episode whose `metadata["feedback_status"]` is `rejected` and whose `correct_action_id` is in the policy's actions and differs from `action_id`. `theta_ref` is stored in `PolicySnapshot.metadata["pairwise_reference_logits"]` on the first update that has a pair and is never overwritten. Each update refits from `theta_ref` over the pairs offered, so it is idempotent for a fixed pair set; pairs that leave the training runner's episode window are forgotten (FDD-018 G4, G5). The learner refuses a policy whose `max_logit_abs` is below the 8.0 clamp, because `SoftmaxPolicy.apply_update` would cut the fitted values. There are no rewards to consume, so `consumed_inputs` is `None` and the audit replay reports insufficient lineage, as it does for every learner except REINFORCE (FDD-018 G6, G7).
 
-Tests (`tests/test_pairwise.py`): the gradient matches a finite-difference check, the loss never increases, logits stay in $[-8, 8]$, with no pairs the logits stay at $\theta_{\text{ref}}$, $\lambda_{\text{reg}} < 0.05$ is rejected, the `Episode` input is not changed.
+Tests (`tests/test_pairwise_pairs.py`, `tests/test_pairwise_loss.py`, `tests/test_pairwise_fit.py`, `tests/test_pairwise_learner.py`, `tests/test_pairwise_runner.py`, `tests/test_pairwise_real_data.py`, split by story in Epic 18): the loss never increases for pair sets up to 3,000, the same episodes offered twice give the same pairs, the gradient matches a finite-difference check, the loss never increases, logits stay in $[-8, 8]$, with no pairs the logits stay at $\theta_{\text{ref}}$, $\lambda_{\text{reg}} < 0.05$ is rejected, the `Episode` input is not changed.
 
 **Test data.** *Real:* all 41 recorded approval episodes carry `decision_disposition`, `correct_action_id` and `feedback_status`, and every one is `accepted` with the recommended action, so the real number of preference pairs is **zero**. The governance fixtures hold 3 adversarial and 6 diff frames; these are single classification frames, not (compliant, non-compliant) pairs, so the Red Team claim in §3 needs a labeled pair set built from them before it can be used. *Gap:* real override episodes. Needed: adjudications where a human chose differently from the proposal (the 30 review-triage records include `declined` and `accepted with modification` decisions, but the reviewer there is not a policy, so they do not qualify). *Oracle tests:* the finite-difference gradient check, as arithmetic.
 
@@ -73,7 +73,7 @@ Tests (`tests/test_pairwise.py`): the gradient matches a finite-difference check
 ### Positive
 - Directly aligns action logits with human adjudication choices without scalar reward distortion.
 - Convex loss function guarantees global convergence without local minima traps.
-- Operates entirely on CPU in sub-millisecond execution times.
+- Operates entirely on CPU in tens of milliseconds (about 50 ms for 2,000 steps on three actions, measured), independent of the number of pairs.
 
 ### Negative
 - Requires paired comparison data; cannot learn from solitary execution traces where no alternative action was considered.
@@ -102,4 +102,4 @@ Tests (`tests/test_pairwise.py`): the gradient matches a finite-difference check
 | 2026-10-28 | Code design | Added §4.4: module layout, signatures, tests, and which real data exists and which is missing. |
 | 2026-10-28 | Amazon Q review (PR #37), round 2 | Section 4.3 said an override is `decision_disposition == "override"` while section 4.4 said `modify` or `rejected`. ADR-034 defines `accepted`, `rejected` and `modify`, so section 4.3 now uses that rule and says there is no `"override"` value. |
 | 2026-10-28 | Accepted | Approved by Menno through `approve-adr`: robust utility 0.677, expected utility 0.757; Episode `63bf5225-a320-46d8-bc54-b26d84a1ea46`. Design only. |
-
+| 2026-10-29 | FDD alignment | Menno confirmed FDD-018 G1 to G7: a step size that cannot overshoot with a matrix form and an honest convergence report (a fixed step of 0.1 diverged at 3,000 pairs); the timing claims replaced by a measurement; overrides read from `feedback_status` `rejected` and `correct_action_id`, not from the unused `decision_disposition`; `theta_ref` stored in the snapshot metadata and frozen; a refit from `theta_ref` that counts an episode once and forgets pairs outside the runner window; the 8.0 clamp checked against `max_logit_abs`; no consumed inputs. §4.2, §4.3, §4.4 and §6 amended to match. Re-approved 2026-10-29 under `approve-adr` (adjudicated accept, robust utility 0.705 vs. 0.044 reject and 0.110 revise, episode `e225dbbc-a0cc-4dbb-a39f-32d11293a753`). The ADR-005 comparison with the original approval (0.677) classifies as **progression**: margin 0.514 to 0.595, expected utility 0.757 to 0.781, uncertainty 0.797 to 0.757, no criterion lower (soundness +0.055, gap disclosure +0.020, consequences +0.019, alternatives 0.000; the alternatives section did not change). The largest rise is soundness because the amendment fixed real defects (the divergent step size, the unsupported timing claim and the unused override field). The inputs are the same reader's scoring both times, so this is not independent evidence. Result: `docs/policy-shapes/results/adr-018-reapproval-comparison.json`. |

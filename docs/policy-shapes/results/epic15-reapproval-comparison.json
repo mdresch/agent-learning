@@ -1,0 +1,49 @@
+{
+  "before_policy_id": "0d32ca03-f924-4c8c-80d4-d7bc6335434e",
+  "after_policy_id": "0d32ca03-f924-4c8c-80d4-d7bc6335434e",
+  "before_version": 0,
+  "after_version": 0,
+  "leader_before": "approve_user_stories",
+  "leader_after": "approve_user_stories",
+  "leader_changed": false,
+  "leader_feasible": true,
+  "margin_before": 0.6354969110105052,
+  "margin_after": 0.6436830458281372,
+  "margin_delta": 0.008186134817631974,
+  "leader_robust_utility_delta": 0.008186134817631974,
+  "action_deltas": {
+    "approve_user_stories": {
+      "robust_utility_delta": 0.008186134817631974,
+      "expected_utility_delta": 0.006765707644438401,
+      "uncertainty_delta": -0.01420427173193517,
+      "criteria_deltas": {
+        "traceable_to_fdd_brd_adr": 0.010148561466657546,
+        "code_shaped_testable": 0.010148561466657546,
+        "scope_correctly_bounded": 0.0
+      }
+    },
+    "reject_user_stories": {
+      "robust_utility_delta": 0.0,
+      "expected_utility_delta": 0.0,
+      "uncertainty_delta": 0.0,
+      "criteria_deltas": {
+        "traceable_to_fdd_brd_adr": 0.0,
+        "code_shaped_testable": 0.0,
+        "scope_correctly_bounded": 0.0
+      }
+    },
+    "request_revision_before_decision": {
+      "robust_utility_delta": 0.0,
+      "expected_utility_delta": 0.0,
+      "uncertainty_delta": 0.0,
+      "criteria_deltas": {
+        "traceable_to_fdd_brd_adr": 0.0,
+        "code_shaped_testable": 0.0,
+        "scope_correctly_bounded": 0.0
+      }
+    }
+  },
+  "classification": "flat",
+  "classification_reason": "Deltas within tolerance [-0.01, +0.01]",
+  "attribution": []
+}

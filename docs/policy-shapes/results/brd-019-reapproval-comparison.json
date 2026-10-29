@@ -1,0 +1,52 @@
+{
+  "before_policy_id": "d64067ca-5b2c-4602-ab98-e0a191c5cf51",
+  "after_policy_id": "d64067ca-5b2c-4602-ab98-e0a191c5cf51",
+  "before_version": 0,
+  "after_version": 0,
+  "leader_before": "approve_brd",
+  "leader_after": "approve_brd",
+  "leader_changed": false,
+  "leader_feasible": true,
+  "margin_before": 0.6255835260703445,
+  "margin_after": 0.6285826400383937,
+  "margin_delta": 0.002999113968049194,
+  "leader_robust_utility_delta": 0.002999113968049194,
+  "action_deltas": {
+    "approve_brd": {
+      "robust_utility_delta": 0.002999113968049194,
+      "expected_utility_delta": 0.002497889532644737,
+      "uncertainty_delta": -0.005012244354045237,
+      "criteria_deltas": {
+        "out_of_scope_accurate": 0.0,
+        "honest_metrics": 0.0,
+        "rules_actionable": 0.00999155813057917,
+        "traceable_to_adr": 0.0
+      }
+    },
+    "reject_brd": {
+      "robust_utility_delta": 0.0,
+      "expected_utility_delta": 0.0,
+      "uncertainty_delta": 0.0,
+      "criteria_deltas": {
+        "out_of_scope_accurate": 0.0,
+        "honest_metrics": 0.0,
+        "rules_actionable": 0.0,
+        "traceable_to_adr": 0.0
+      }
+    },
+    "request_revision_before_decision": {
+      "robust_utility_delta": 0.0,
+      "expected_utility_delta": 0.0,
+      "uncertainty_delta": 0.0,
+      "criteria_deltas": {
+        "out_of_scope_accurate": 0.0,
+        "honest_metrics": 0.0,
+        "rules_actionable": 0.0,
+        "traceable_to_adr": 0.0
+      }
+    }
+  },
+  "classification": "flat",
+  "classification_reason": "Deltas within tolerance [-0.01, +0.01]",
+  "attribution": []
+}

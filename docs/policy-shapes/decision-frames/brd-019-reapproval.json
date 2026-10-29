@@ -1,0 +1,133 @@
+{
+  "task": "BRD-019 (Hierarchical Meta-Prior Compilation), corrected 2026-10-29: approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "traceable_to_adr",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "traceable to adr: Second approval after the correction: BRU-019-08 now records a seeding through ADR-020's warm_start provenance and BRU-019-11 records supersession on the newer snapshot with the older left unchanged; the other rules and metrics are unchanged and still trace to ADR-019."
+    },
+    {
+      "id": "honest_metrics",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "honest metrics: Second approval after the correction: BRU-019-08 now records a seeding through ADR-020's warm_start provenance and BRU-019-11 records supersession on the newer snapshot with the older left unchanged; the other rules and metrics are unchanged and still trace to ADR-019."
+    },
+    {
+      "id": "out_of_scope_accurate",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "out of scope accurate: Second approval after the correction: BRU-019-08 now records a seeding through ADR-020's warm_start provenance and BRU-019-11 records supersession on the newer snapshot with the older left unchanged; the other rules and metrics are unchanged and still trace to ADR-019."
+    },
+    {
+      "id": "rules_actionable",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "rules actionable: Second approval after the correction: BRU-019-08 now records a seeding through ADR-020's warm_start provenance and BRU-019-11 records supersession on the newer snapshot with the older left unchanged; the other rules and metrics are unchanged and still trace to ADR-019."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_brd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_adr",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-019-hierarchical-meta-prior-compilation.md; checked against src/agent_learning (policy/base.py, learners/base.py, learners/reinforce.py, types.py, decision.py)",
+          "support": 0.85,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "honest_metrics",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-019-hierarchical-meta-prior-compilation.md; checked against src/agent_learning (policy/base.py, learners/base.py, learners/reinforce.py, types.py, decision.py)",
+          "support": 0.85,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "out_of_scope_accurate",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-019-hierarchical-meta-prior-compilation.md; checked against src/agent_learning (policy/base.py, learners/base.py, learners/reinforce.py, types.py, decision.py)",
+          "support": 0.85,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "rules_actionable",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-019-hierarchical-meta-prior-compilation.md; checked against src/agent_learning (policy/base.py, learners/base.py, learners/reinforce.py, types.py, decision.py)",
+          "support": 0.85,
+          "confidence": 0.82
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_brd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_adr",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-019-hierarchical-meta-prior-compilation.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "honest_metrics",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-019-hierarchical-meta-prior-compilation.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "out_of_scope_accurate",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-019-hierarchical-meta-prior-compilation.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "rules_actionable",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-019-hierarchical-meta-prior-compilation.md",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_adr",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-019-hierarchical-meta-prior-compilation.md",
+          "support": 0.12,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "honest_metrics",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-019-hierarchical-meta-prior-compilation.md",
+          "support": 0.1,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "out_of_scope_accurate",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-019-hierarchical-meta-prior-compilation.md",
+          "support": 0.1,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "rules_actionable",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-019-hierarchical-meta-prior-compilation.md",
+          "support": 0.12,
+          "confidence": 0.75
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

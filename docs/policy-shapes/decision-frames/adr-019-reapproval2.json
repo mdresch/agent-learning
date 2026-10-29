@@ -1,0 +1,133 @@
+{
+  "task": "ADR-019 (Hierarchical Meta-Prior Compilation), corrected 2026-10-29 for how the stores treat the active pointer",
+  "criteria": [
+    {
+      "id": "architectural_soundness",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "architectural soundness: Second re-approval after the store correction: the prior is the active policy of its own pseudo-task (store_policy sets the pointer on both stores) and of no member task, supersession is recorded on the newer snapshot (supersedes) and the older one is never rewritten (re-storing it would move the pointer back on LocalFileStore), and seed_record is dropped in favour of ADR-020's warm_start provenance."
+    },
+    {
+      "id": "alternatives_considered",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "alternatives considered: Second re-approval after the store correction: the prior is the active policy of its own pseudo-task (store_policy sets the pointer on both stores) and of no member task, supersession is recorded on the newer snapshot (supersedes) and the older one is never rewritten (re-storing it would move the pointer back on LocalFileStore), and seed_record is dropped in favour of ADR-020's warm_start provenance."
+    },
+    {
+      "id": "consequences_honest",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "consequences honest: Second re-approval after the store correction: the prior is the active policy of its own pseudo-task (store_policy sets the pointer on both stores) and of no member task, supersession is recorded on the newer snapshot (supersedes) and the older one is never rewritten (re-storing it would move the pointer back on LocalFileStore), and seed_record is dropped in favour of ADR-020's warm_start provenance."
+    },
+    {
+      "id": "gap_disclosure_quality",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "gap disclosure quality: Second re-approval after the store correction: the prior is the active policy of its own pseudo-task (store_policy sets the pointer on both stores) and of no member task, supersession is recorded on the newer snapshot (supersedes) and the older one is never rewritten (re-storing it would move the pointer back on LocalFileStore), and seed_record is dropped in favour of ADR-020's warm_start provenance."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_adr",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "direct_doc_read:docs/adr/ADR-019-hierarchical-meta-prior-compilation.md; checked against src/agent_learning (policy/base.py, learners/base.py, learners/reinforce.py, types.py, decision.py)",
+          "support": 0.84,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "direct_doc_read:docs/adr/ADR-019-hierarchical-meta-prior-compilation.md; checked against src/agent_learning (policy/base.py, learners/base.py, learners/reinforce.py, types.py, decision.py)",
+          "support": 0.78,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "direct_doc_read:docs/adr/ADR-019-hierarchical-meta-prior-compilation.md; checked against src/agent_learning (policy/base.py, learners/base.py, learners/reinforce.py, types.py, decision.py)",
+          "support": 0.81,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "direct_doc_read:docs/adr/ADR-019-hierarchical-meta-prior-compilation.md; checked against src/agent_learning (policy/base.py, learners/base.py, learners/reinforce.py, types.py, decision.py)",
+          "support": 0.86,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_adr",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "direct_doc_read:docs/adr/ADR-019-hierarchical-meta-prior-compilation.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "direct_doc_read:docs/adr/ADR-019-hierarchical-meta-prior-compilation.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "direct_doc_read:docs/adr/ADR-019-hierarchical-meta-prior-compilation.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "direct_doc_read:docs/adr/ADR-019-hierarchical-meta-prior-compilation.md",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "direct_doc_read:docs/adr/ADR-019-hierarchical-meta-prior-compilation.md",
+          "support": 0.12,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "direct_doc_read:docs/adr/ADR-019-hierarchical-meta-prior-compilation.md",
+          "support": 0.1,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "direct_doc_read:docs/adr/ADR-019-hierarchical-meta-prior-compilation.md",
+          "support": 0.1,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "direct_doc_read:docs/adr/ADR-019-hierarchical-meta-prior-compilation.md",
+          "support": 0.14,
+          "confidence": 0.75
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

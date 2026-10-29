@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-019](../../adr/ADR-019-hierarchical-meta-prior-compilation.md) — Accepted (2026-10-28)  
 **Governing Baseline:** none approved yet; cycle `CYC-001` (ADR-035, Proposed)  
-**Status:** Approved (2026-10-29, Menno) — derived from Accepted ADR-019; adjudicated via `approve-brd` (robust utility 0.732, episode `7c750fae-af86-41db-a5dd-ae299cb25438`).  
+**Status:** Approved (2026-10-29, Menno) — derived from Accepted ADR-019; adjudicated via `approve-brd` (robust utility 0.732, episode `7c750fae-af86-41db-a5dd-ae299cb25438`); corrected 2026-10-29 (BRU-019-08 and BRU-019-11, FDD-019 H8) and re-approved via `approve-brd` (robust utility 0.735, episode `d65f2549-c709-4476-93ad-efee969f3777`; comparison with the previous approval: flat, within tolerance, no criterion lower).  
 **Stakeholders:** Menno (Sponsor/PM/maintainer); SDK adopters who run a cluster of similar low-authority policies and want a new member to start from the family's experience; auditors who must see which policies a starting point came from  
 
 ## Business Need
@@ -18,10 +18,10 @@ A new policy in a cluster of similar policies (the nine advisory knowledge-area 
 - **BRU-019-05 (Zero-Centred Pooling):** Softmax logits are zero-centred per member before pooling, so a constant added to every logit of a member changes nothing. The prior is the mean of the centred logits per role (ADR-019 §4.1).
 - **BRU-019-06 (Heterogeneity Refusal):** The per-role standard deviation across members is a diagnostic. If its maximum exceeds the `sigma_het` declared at compile time, no prior is produced and the reason is reported. `sigma_het` has no default (ADR-019 §4.1; FDD-019 H4).
 - **BRU-019-07 (One Representation):** A family is compiled either as logits or as Beta counts, never mixed. For Beta counts the prior per role is `alpha = 1 + kappa * p`, `beta = 1 + kappa * (1 - p)` with `p` the pooled payoff rate and `0 < kappa <= 10`; a member with no observation for a role is rejected before the rate is computed (ADR-019 §4.2, Invariant 6).
-- **BRU-019-08 (Seeding Through The Policy's Own Map):** A new policy's initial values are the prior's values mapped from roles to its own action ids through its own declared `role_map`, and the seeding is recorded in its snapshot (ADR-019 §4.2, §4.3).
+- **BRU-019-08 (Seeding Through The Policy's Own Map):** A new policy's initial values are the prior's values mapped from roles to its own action ids through its own declared `role_map`, and the seeding is recorded in its snapshot by the `warm_start_*` provenance of ADR-020 (ADR-019 §4.2, §4.3; FDD-019 H8).
 - **BRU-019-09 (No Borrowed Evidence):** A meta-prior and the values a policy takes from it are not scored outcomes. They never count toward the ADR-003 gate (ADR-019 §4.2, Invariant 5).
 - **BRU-019-10 (Storage Boundary):** A prior is an ordinary `PolicySnapshot` with `is_family_meta_prior` set, plus its provenance in metadata. Zero new `LearningStore` record types (ADR-019 Invariant 4; ADR-002).
-- **BRU-019-11 (Reproducible Provenance):** Every prior records its members (task id and snapshot version), the compile time, `sigma_het`, `kappa_prior`, the representation, and the validation report. A defective prior is superseded by a new compilation; the old one is kept, marked `superseded_by`, and no longer offered for seeding (ADR-019 §4.3, Invariant 8).
+- **BRU-019-11 (Reproducible Provenance):** Every prior records its members (task id and snapshot version), the compile time, `sigma_het`, `kappa_prior`, the representation, and the validation report. A defective prior is superseded by a new compilation; the old one is kept unchanged, the new one records `supersedes`, and only the latest version is offered for seeding (ADR-019 §4.3, Invariant 8; FDD-019 H8).
 - **BRU-019-12 (No Claim Of Effectiveness):** No suitable family exists today. The `approve-*` policies share roles but are full authority and have no learned logits; the nine advisory learners are not built. The first evidence is that compilation on the recorded store finds no family and says why. Nothing is claimed about faster convergence (ADR-019 §4.4, test data).
 
 ## Stakeholder Success Metrics

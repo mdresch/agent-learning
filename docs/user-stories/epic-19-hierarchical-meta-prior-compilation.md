@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-019](../adr/ADR-019-hierarchical-meta-prior-compilation.md) — Accepted (2026-10-28)  
 **Source BRD/FDD:** [BRD-019](../project-docs/Business-Requirements/BRD-019-hierarchical-meta-prior-compilation.md) / [FDD-019](../project-docs/Functional-Design/FDD-019-hierarchical-meta-prior-compilation.md)  
-**Status:** Approved (2026-10-29, Menno) — stories derived from Accepted ADR-019, BRD-019 and FDD-019; adjudicated via `approve-user-stories` (robust utility 0.735, episode `13fbf581-1222-49d1-8b5c-06eaf2843811`). The epic number follows the source ADR number, as Epic 18 follows ADR-018.  
+**Status:** Approved (2026-10-29, Menno) — stories derived from Accepted ADR-019, BRD-019 and FDD-019; adjudicated via `approve-user-stories` (robust utility 0.735, episode `13fbf581-1222-49d1-8b5c-06eaf2843811`); corrected 2026-10-29 (Stories 19.5 and 19.6, FDD-019 H8) and re-approved via `approve-user-stories` (robust utility 0.739, episode `bf3c50c4-178f-4120-88be-e5029f054c75`; comparison with the previous approval: flat, within tolerance, no criterion lower). The epic number follows the source ADR number, as Epic 18 follows ADR-018.  
 
 Seven stories build `src/agent_learning/meta_prior.py` and the two commands `task-policy-family-set` and `task-policy-meta-compile` in `cli.py`. Each rule sits in exactly one story's criteria (LL-012). Contract tests are `tests/test_meta_prior_softmax.py` (19.1), `tests/test_meta_prior_thompson.py` (19.2), `tests/test_meta_prior_refusals.py` (19.3), `tests/test_meta_prior_members.py` (19.4), `tests/test_meta_prior_store.py` (19.5), `tests/test_meta_prior_seed.py` (19.6) and `tests/test_meta_prior_real_data.py` (19.7). Building the nine advisory learners, wiring the seeding command (ADR-020) and showing faster convergence are not stories (BRD-019 Out of Scope).
 
@@ -76,10 +76,10 @@ Fixture used by the criteria below ("the base family"): four low-authority softm
 **As** an auditor, **I want** the compiled prior stored as an ordinary snapshot with its full provenance, **so that** I can see exactly which policies and versions it came from.
 
 ### Acceptance Criteria:
-- **$AC_0$ (Snapshot):** `task-policy-meta-compile` on a constructed store with the base family stores one `PolicySnapshot` whose task id is the output name, with one `Action` per role, `logits` equal to the prior values, and `is_family_meta_prior` true; it is not made the active policy of any task.
+- **$AC_0$ (Snapshot):** `task-policy-meta-compile` on a constructed store with the base family stores one `PolicySnapshot` whose task id is the output name, with one `Action` per role, `logits` equal to the prior values, and `is_family_meta_prior` true; it is the active policy of its own pseudo-task (the store sets the pointer) and of no member task, and `tasks-list` shows it.
 - **$AC_1$ (Provenance):** the snapshot metadata holds `family`, `family_member_count`, `compiled_from` with each member's task id and version, `compile_time`, `sigma_het`, `kappa_prior`, `representation` and `validation_report` with the family size, the excluded members with reasons and the per-role spread; the metadata survives `json.dumps` and `json.loads` unchanged.
 - **$AC_2$ (Members Unchanged):** every member snapshot is equal to its earlier copy after the command, and a failed compilation stores nothing and exits non-zero with the reasons.
-- **$AC_3$ (Supersession):** compiling again under the same name stores the next version, sets `superseded_by` on the earlier snapshot, and leaves the earlier snapshot otherwise unchanged and still present; the earlier prior is no longer offered for seeding.
+- **$AC_3$ (Supersession):** compiling again under the same name stores the next version, which records `supersedes` with the earlier snapshot's id; the earlier snapshot is not written (equal to its earlier copy) and still present; only the latest version is offered for seeding; on a `LocalFileStore` the active pointer of the output name ends at the newest version.
 - **$AC_4$ (Thompson Form):** a Thompson family stores `posterior_parameters` keyed by role, in the shape of FDD-015 §2.2.
 - **$AC_5$ (Storage Boundary):** the store gains no record type, and the pooling module imports nothing from `agent_learning.storage`.
 
@@ -94,7 +94,7 @@ Fixture used by the criteria below ("the base family"): four low-authority softm
 - **$AC_0$ (Through The Map):** `seed_values` for a new policy whose action ids differ from the family's, in a different order, gives each action the prior value of the role its `role_map` names.
 - **$AC_1$ (Refuses A Bad Map):** a `role_map` that is not a bijection from the policy's action ids onto the prior's roles raises `ValueError`.
 - **$AC_2$ (Thompson Seeding):** for a Thompson prior the values are the `(alpha, beta)` pair of the role, not logits.
-- **$AC_3$ (Recorded):** `seed_record` returns the prior's task id, snapshot id, version and the seeding time, as stored under `seeded_from_meta_prior`.
+- **$AC_3$ (No Separate Record):** `seed_values` returns values only and changes neither the prior nor the role map it is given; the record of a seeding is the `warm_start_*` provenance of Story 20.2 of Epic 20, and the module has no `seed_record` (FDD-019 H8).
 - **$AC_4$ (No Borrowed Evidence):** a snapshot seeded from a prior, with no episodes, is not eligible under `assess_autonomy` with the `standard` tier thresholds (FDD-019 H1).
 - **$AC_5$ (Decoupled):** after the seeded policy's logits are changed, the stored prior is equal to its earlier copy.
 

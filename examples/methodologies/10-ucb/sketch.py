@@ -28,13 +28,14 @@ def main() -> None:
     total = {k: 0.0 for k in true_p}
     c = 1.0
 
-    def score(k: str, t: int) -> tuple[float, int, str]:
+    def score(k: str, t: int) -> float:
         if count[k] == 0:
-            return (math.inf, 0, k)
-        return (total[k] / count[k] + c * math.sqrt(2 * math.log(t) / count[k]), -count[k], k)
+            return math.inf
+        return total[k] / count[k] + c * math.sqrt(2 * math.log(t) / count[k])
 
     for t in range(1, 301):
-        pick = max(true_p, key=lambda k: score(k, t))
+        # ADR-016 section 4.2: equal bounds go to the higher pull count, then the smaller id
+        pick = min(true_p, key=lambda k: (-score(k, t), -count[k], k))
         count[pick] += 1
         total[pick] += 1.0 if rng.random() < true_p[pick] else 0.0
     print(f"  pulls: {count}")

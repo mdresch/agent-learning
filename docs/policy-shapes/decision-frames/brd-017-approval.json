@@ -1,0 +1,133 @@
+{
+  "task": "BRD-017 (Scheduled Epsilon-Greedy Policy Baseline): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "traceable_to_adr",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "traceable to adr: BRU-017-01 to BRU-017-13 trace to ADR-017 \u00a74.1 to \u00a74.3 and Invariants 1-6; metrics are checkable schedule, safety, replay and arithmetic properties with no invented effectiveness target; out of scope names the benchmark, the undeclared reversible flag and the missing failure data."
+    },
+    {
+      "id": "honest_metrics",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "honest metrics: BRU-017-01 to BRU-017-13 trace to ADR-017 \u00a74.1 to \u00a74.3 and Invariants 1-6; metrics are checkable schedule, safety, replay and arithmetic properties with no invented effectiveness target; out of scope names the benchmark, the undeclared reversible flag and the missing failure data."
+    },
+    {
+      "id": "out_of_scope_accurate",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "out of scope accurate: BRU-017-01 to BRU-017-13 trace to ADR-017 \u00a74.1 to \u00a74.3 and Invariants 1-6; metrics are checkable schedule, safety, replay and arithmetic properties with no invented effectiveness target; out of scope names the benchmark, the undeclared reversible flag and the missing failure data."
+    },
+    {
+      "id": "rules_actionable",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "rules actionable: BRU-017-01 to BRU-017-13 trace to ADR-017 \u00a74.1 to \u00a74.3 and Invariants 1-6; metrics are checkable schedule, safety, replay and arithmetic properties with no invented effectiveness target; out of scope names the benchmark, the undeclared reversible flag and the missing failure data."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_brd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_adr",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-017-scheduled-epsilon-greedy-policy.md; checked against src/agent_learning (policy/base.py, learners/base.py, learners/reinforce.py, types.py, decision.py)",
+          "support": 0.85,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "honest_metrics",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-017-scheduled-epsilon-greedy-policy.md; checked against src/agent_learning (policy/base.py, learners/base.py, learners/reinforce.py, types.py, decision.py)",
+          "support": 0.85,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "out_of_scope_accurate",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-017-scheduled-epsilon-greedy-policy.md; checked against src/agent_learning (policy/base.py, learners/base.py, learners/reinforce.py, types.py, decision.py)",
+          "support": 0.85,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "rules_actionable",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-017-scheduled-epsilon-greedy-policy.md; checked against src/agent_learning (policy/base.py, learners/base.py, learners/reinforce.py, types.py, decision.py)",
+          "support": 0.84,
+          "confidence": 0.82
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_brd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_adr",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-017-scheduled-epsilon-greedy-policy.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "honest_metrics",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-017-scheduled-epsilon-greedy-policy.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "out_of_scope_accurate",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-017-scheduled-epsilon-greedy-policy.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "rules_actionable",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-017-scheduled-epsilon-greedy-policy.md",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_adr",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-017-scheduled-epsilon-greedy-policy.md",
+          "support": 0.12,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "honest_metrics",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-017-scheduled-epsilon-greedy-policy.md",
+          "support": 0.1,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "out_of_scope_accurate",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-017-scheduled-epsilon-greedy-policy.md",
+          "support": 0.1,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "rules_actionable",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-017-scheduled-epsilon-greedy-policy.md",
+          "support": 0.12,
+          "confidence": 0.75
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

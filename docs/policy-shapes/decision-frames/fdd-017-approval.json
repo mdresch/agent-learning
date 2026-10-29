@@ -1,0 +1,133 @@
+{
+  "task": "FDD-017 (Scheduled Epsilon-Greedy Policy Baseline): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "traceable_to_brd_adr",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "traceable to brd adr: Sections 2 and 3 implement BRU-017-01 to BRU-017-13; placement in policy/epsilon_greedy.py, learners/epsilon_greedy.py and the shared action_statistics.py is checked against Policy, Learner, PolicySnapshot, Reward, TrainingRunner and ReinforceLearner as they exist; F1 to F7 were confirmed by Menno; open questions (sketch alignment, shared module amendment of FDD-016, seed_for location, replay across Python versions) are disclosed."
+    },
+    {
+      "id": "placement_and_purity",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "placement and purity: Sections 2 and 3 implement BRU-017-01 to BRU-017-13; placement in policy/epsilon_greedy.py, learners/epsilon_greedy.py and the shared action_statistics.py is checked against Policy, Learner, PolicySnapshot, Reward, TrainingRunner and ReinforceLearner as they exist; F1 to F7 were confirmed by Menno; open questions (sketch alignment, shared module amendment of FDD-016, seed_for location, replay across Python versions) are disclosed."
+    },
+    {
+      "id": "no_invented_implementation",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "no invented implementation: Sections 2 and 3 implement BRU-017-01 to BRU-017-13; placement in policy/epsilon_greedy.py, learners/epsilon_greedy.py and the shared action_statistics.py is checked against Policy, Learner, PolicySnapshot, Reward, TrainingRunner and ReinforceLearner as they exist; F1 to F7 were confirmed by Menno; open questions (sketch alignment, shared module amendment of FDD-016, seed_for location, replay across Python versions) are disclosed."
+    },
+    {
+      "id": "compatibility_preserved",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "compatibility preserved: Sections 2 and 3 implement BRU-017-01 to BRU-017-13; placement in policy/epsilon_greedy.py, learners/epsilon_greedy.py and the shared action_statistics.py is checked against Policy, Learner, PolicySnapshot, Reward, TrainingRunner and ReinforceLearner as they exist; F1 to F7 were confirmed by Menno; open questions (sketch alignment, shared module amendment of FDD-016, seed_for location, replay across Python versions) are disclosed."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_fdd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_brd_adr",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-017-scheduled-epsilon-greedy-policy.md; checked against src/agent_learning (policy/base.py, learners/base.py, learners/reinforce.py, types.py, decision.py)",
+          "support": 0.84,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "placement_and_purity",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-017-scheduled-epsilon-greedy-policy.md; checked against src/agent_learning (policy/base.py, learners/base.py, learners/reinforce.py, types.py, decision.py)",
+          "support": 0.84,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "no_invented_implementation",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-017-scheduled-epsilon-greedy-policy.md; checked against src/agent_learning (policy/base.py, learners/base.py, learners/reinforce.py, types.py, decision.py)",
+          "support": 0.82,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "compatibility_preserved",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-017-scheduled-epsilon-greedy-policy.md; checked against src/agent_learning (policy/base.py, learners/base.py, learners/reinforce.py, types.py, decision.py)",
+          "support": 0.83,
+          "confidence": 0.82
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_fdd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_brd_adr",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-017-scheduled-epsilon-greedy-policy.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "placement_and_purity",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-017-scheduled-epsilon-greedy-policy.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "no_invented_implementation",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-017-scheduled-epsilon-greedy-policy.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "compatibility_preserved",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-017-scheduled-epsilon-greedy-policy.md",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_brd_adr",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-017-scheduled-epsilon-greedy-policy.md",
+          "support": 0.12,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "placement_and_purity",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-017-scheduled-epsilon-greedy-policy.md",
+          "support": 0.1,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "no_invented_implementation",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-017-scheduled-epsilon-greedy-policy.md",
+          "support": 0.13,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "compatibility_preserved",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-017-scheduled-epsilon-greedy-policy.md",
+          "support": 0.1,
+          "confidence": 0.75
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

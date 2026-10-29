@@ -2,13 +2,13 @@
 
 **Source ADR:** [ADR-016](../../adr/ADR-016-deterministic-ucb-decision-policy.md) — Accepted (2026-10-28)  
 **Source BRD:** [BRD-016](../Business-Requirements/BRD-016-deterministic-ucb-decision-policy.md)  
-**Status:** Approved (2026-10-29, Menno) — derived from Accepted ADR-016 and BRD-016; adjudicated via `approve-fdd` (robust utility 0.720, episode `675a19db-33b2-4cf4-a954-6fd545e13d9f`). Section 4 lists where this design departs from ADR-016 §4.3 and §4.4. Menno confirmed the departures E1 to E6 on 2026-10-29 (E1, E2 and E4 follow his choices for ADR-015) and ADR-016 §4.3 and §4.4 are amended to match.  
+**Status:** Approved (2026-10-29, Menno), amended 2026-10-29 with E7 (shared statistics module) and re-approved via `approve-fdd` (robust utility 0.732, episode `ea37755a-c23e-4f12-b11c-984bbae6ae3f`; comparison with the previous approval 0.720: progression, margin 0.612 to 0.624, no criterion lower) — derived from Accepted ADR-016 and BRD-016; adjudicated via `approve-fdd` (robust utility 0.720, episode `675a19db-33b2-4cf4-a954-6fd545e13d9f`). Section 4 lists where this design departs from ADR-016 §4.3 and §4.4. Menno confirmed the departures E1 to E6 on 2026-10-29 (E1, E2 and E4 follow his choices for ADR-015) and ADR-016 §4.3 and §4.4 are amended to match.  
 
 ---
 
 ## 1. Architecture & Component Placement
 
-1. **New modules** `src/agent_learning/policy/ucb.py` (`UCBPolicy(Policy)`, `ActionStats`, `ucb_scores`) and `src/agent_learning/learners/ucb.py` (`UCBLearner(Learner)`). Both use the standard library only; `ucb.py` imports `wilson_lower_bound` from `agent_learning.autonomy` and `PolicySnapshot`, `Action` from `agent_learning.types`. Neither imports `random` or anything from `agent_learning.storage`, and neither does file I/O.
+1. **New modules** `src/agent_learning/policy/ucb.py` (`UCBPolicy(Policy)`, `ucb_scores`), `src/agent_learning/learners/ucb.py` (`UCBLearner(Learner)`) and `src/agent_learning/policy/action_statistics.py` (`ActionStats`, `read_statistics`, `add_rewards`; section 2.4), the last shared with the epsilon-greedy policy of FDD-017 (E7). `ucb.py` and `learners/ucb.py` import it and hold no copy of its rules. All three use the standard library only; `ucb.py` imports `wilson_lower_bound` from `agent_learning.autonomy` and `PolicySnapshot`, `Action` from `agent_learning.types`. Neither imports `random` or anything from `agent_learning.storage`, and neither does file I/O.
 2. **Package export:** `UCBPolicy` and `UCBLearner` are re-exported from `agent_learning/__init__.py` and from the `policy` and `learners` packages.
 3. **State in the snapshot** (BRU-016-07): `PolicySnapshot.metadata` holds `policy_type`, `ucb_variant`, `exploration_constant`, `action_statistics` and `consumed_episode_ids` (E6). `logits` stays at its zero default.
 4. **Caller owns persistence.** The policy never touches the store; the caller persists the snapshot and attaches the decision record to `Episode.metadata`.
@@ -43,6 +43,21 @@
 ### 2.3 Decision record
 `Episode.metadata["ucb"]` holds `variant`, `exploration_constant`, `total_pulls`, `chosen`, and `scores`, a mapping from action id to the bound or to `null` when the bound is infinite (JSON has no infinity; E4). `selection_basis` is stored beside it. The record lets a reader check the choice without the snapshot.
 
+### 2.4 The shared statistics module (E7)
+`policy/action_statistics.py` owns the statistics record of section 2.2 for every policy that keeps pull counts and rewards (this one and FDD-017). It is pure: standard library only, no `random`, nothing from `agent_learning.storage`.
+```python
+@dataclass(frozen=True)
+class ActionStats:
+    pull_count: int
+    cumulative_reward: float
+    mean_reward: float
+def read_statistics(metadata: Mapping[str, object], action_ids: Sequence[str]) -> dict[str, ActionStats]: ...
+def add_rewards(metadata: dict[str, object], action_ids: Sequence[str],
+                items: Iterable[tuple[str, str, float]]) -> tuple[str, ...]: ...
+```
+- `read_statistics` returns the statistics of every action in `action_ids` (an action absent from the record reads as zero pulls) and raises `ValueError` naming the action or the id for: an action outside `action_ids`, a negative or non-integer `pull_count`, a `cumulative_reward` outside `[0, pull_count]` or not finite, a `mean_reward` differing from `cumulative_reward / pull_count` by more than 1e-9, or a duplicate in `consumed_episode_ids`.
+- `add_rewards` takes `(episode_id, action_id, value)` items with `value` in [-1, 1], raises `ValueError` for a value that is not finite or outside that range, and changes `metadata` in place: for each item whose episode id is not in `consumed_episode_ids` and not already counted in this call, it adds `r = (value + 1) / 2` (E1), increments `pull_count`, recomputes `mean_reward`, and appends the id. It returns the ids it counted, in order. It does not look at `selection_basis`; each learner selects its own episodes.
+
 ---
 
 ## 3. Behavior
@@ -55,7 +70,7 @@
 3. **`choose(state=None) -> Decision`.** Scores every action. The chosen action has the highest score; a tie goes first to the higher `pull_count`, then to the lexicographically smaller `action.id` (BRU-016-02). When several actions are unpulled they all score `inf`, tie on a pull count of 0, and the smallest id wins, which gives the round-robin of BRU-016-04. `Decision.logprob` is `None` (E2) and `probabilities` is one-hot on the chosen action. The call changes nothing on the policy.
 4. **`last_decision_record()`** returns a deep copy of the record of section 2.3.
 5. **`apply_update(...)`** raises `TypeError("use UCBLearner")`: there are no logits to move.
-6. **`UCBLearner.update(policy, episodes, rewards)`** requires a `UCBPolicy` (`TypeError` otherwise). It indexes the newest `RewardSource.AGGREGATE` reward per episode, as `ReinforceLearner` does, and raises `ValueError` for a reward that is not finite or lies outside [-1, 1]. An episode is used when its `metadata["selection_basis"]` is `"ucb"`, its `action_id` is in the action space, it has a reward, and its id is not in `consumed_episode_ids` (E6). For each: `r = (value + 1) / 2` (E1); `pull_count += 1`; `cumulative_reward += r`; `mean_reward` is recomputed; the id is appended to `consumed_episode_ids`. An id that occurs twice in one call is counted once. The snapshot version advances, and the result is a `LearnerResult` with `episodes_used`, `mean_reward` of the mapped `r`, the statistics before and after in `extra`, and `consumed_inputs`. A call with no usable episode changes nothing and returns `episodes_used=0`.
+6. **`UCBLearner.update(policy, episodes, rewards)`** requires a `UCBPolicy` (`TypeError` otherwise). It indexes the newest `RewardSource.AGGREGATE` reward per episode, as `ReinforceLearner` does. An episode is offered when its `metadata["selection_basis"]` is `"ucb"`, its `action_id` is in the action space and it has a reward. The learner passes the offered `(episode_id, action_id, value)` items to `add_rewards` (section 2.4), which maps the reward, skips ids already in `consumed_episode_ids` (E6), adds the rest and recomputes the means (E1, E7). The snapshot version advances, and the result is a `LearnerResult` with `episodes_used`, `mean_reward` of the mapped `r`, the statistics before and after in `extra`, and `consumed_inputs`. A call with no usable episode changes nothing and returns `episodes_used=0`.
 7. **`ReinforceLearner` is unchanged.** It skips an episode whose `action_logprob` is `None`, and `Decision.logprob=None` flows to `Episode.action_logprob=None`. Story 16.5 tests the existing behaviour.
 
 **Worked checks (arithmetic, to be re-run when built).** `standard`, c = sqrt(2): action A with N = 10, mean 0.8 and action B with N = 5, mean 0.6, total 15: A = 0.8 + sqrt(2) * sqrt(2 ln 15 / 10) = 1.8408; B = 0.6 + sqrt(2) * sqrt(2 ln 15 / 5) = 2.0719; B is chosen. `wilson`: k = 10, N = 10 gives an upper bound of 1.0 exactly (its center plus spread is 1 + z squared over N); k = 0, N = 10 gives 0.2775.
@@ -64,7 +79,7 @@
 
 ## 4. Departures from ADR-016 §4.3 and §4.4
 
-Each is a place where ADR-016, as first accepted, did not fit the code that exists today. Menno confirmed all six on 2026-10-29 and ADR-016 is amended to match; the "ADR-016 says" column is the text before that amendment.
+Each is a place where ADR-016, as first accepted, did not fit the code that exists today. Menno confirmed E1 to E6 on 2026-10-29 and ADR-016 is amended to match; E7 is added by the amendment that moves the shared statistics code; the "ADR-016 says" column is the text before that amendment.
 
 | # | ADR-016 says | This FDD does | Why |
 |---|---|---|---|
@@ -74,6 +89,7 @@ Each is a place where ADR-016, as first accepted, did not fit the code that exis
 | E4 | Unpulled actions have an infinite bound | Same, and the stored decision record uses `null` for an infinite score | JSON has no infinity |
 | E5 | `action_statistics` stores `mean_reward` with the counts | Keeps it, as in the ADR, and enforces that it equals `cumulative_reward / pull_count` | Menno chose to keep the ADR's shape (2026-10-29). The risk is a stored copy that disagrees with its parts, so the learner recomputes it and the reader rejects a mismatch |
 | E6 | Not stated | The snapshot keeps `consumed_episode_ids`, a list of unique episode ids, and the learner skips an episode whose id is already in it | `TrainingRunner.run_offline_batch` re-queries the latest `episode_limit` episodes on every run and marks none as consumed. REINFORCE tolerates a repeat; a counter does not. Menno chose unique consumed ids (2026-10-29), after first choosing a `created_at` watermark, which would skip a late-rewarded episode for good |
+| E7 | Not stated (`ActionStats` was placed in `ucb.py`) | `ActionStats`, its validation and the counted-once update live in `policy/action_statistics.py`, shared with FDD-017 | ADR-017 shares the `action_statistics` record with this policy, and two copies of the validation and of the update can drift apart. Chosen by Menno for FDD-017 F6 (2026-10-29); this amendment applies it here. It changes where the code lives, not what it does |
 
 ---
 
@@ -104,9 +120,10 @@ A study of decision quality against REINFORCE or Thompson sampling (data gap, BR
 
 1. **E1 to E6: decided (2026-10-29).** Menno confirmed them and ADR-016 is amended to match.
 2. **Open: the size of `consumed_episode_ids`.** It grows by one id per counted episode and is stored in the snapshot, so it is read and written with every update. It has no late-reward loss, which a `created_at` watermark would have. If the list becomes large, pruning ids older than the runner's `episode_limit` window is the next step; it is not built or decided here.
-3. **Open: the same gap in ADR-015.** The Thompson learner of FDD-015 adds to a posterior on each pass and has the same repeat problem. FDD-015 and Epic 15 have not been amended.
+3. **Done: the same gap in ADR-015.** The Thompson learner of FDD-015 had the same repeat problem; ADR-015, BRD-015, FDD-015 and Epic 15 were amended and re-approved (PR 46).
 4. **Walkthrough sketch aligned (2026-10-29).** `examples/methodologies/10-ucb/sketch.py` broke ties toward the lower pull count and the larger id, the opposite of ADR-016 §4.2; it now breaks them as the ADR does (higher pull count, then smaller id). It is still a sketch, not evidence (ADR-036), and is rewritten against the real module once built.
-5. **`WILSON_Z = 1.96` and `C_DEFAULT = sqrt(2)`:** taken from ADR-016 §4.1. There is no data behind either.
+5. **Epic 17 repeats some criteria.** Story 17.4 of Epic 17 tests the epsilon-greedy learner against the same rules; both epics run against the one function of section 2.4, whose rules are owned by Stories 16.3 and 16.4. Whichever epic is built first delivers the module.
+6. **`WILSON_Z = 1.96` and `C_DEFAULT = sqrt(2)`:** taken from ADR-016 §4.1. There is no data behind either.
 
 ---
 

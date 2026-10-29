@@ -2,9 +2,9 @@
 
 **Source ADR:** [ADR-016](../adr/ADR-016-deterministic-ucb-decision-policy.md) — Accepted (2026-10-28)  
 **Source BRD/FDD:** [BRD-016](../project-docs/Business-Requirements/BRD-016-deterministic-ucb-decision-policy.md) / [FDD-016](../project-docs/Functional-Design/FDD-016-deterministic-ucb-decision-policy.md)  
-**Status:** Approved (2026-10-29, Menno) — stories derived from Accepted ADR-016, BRD-016 and FDD-016; adjudicated via `approve-user-stories` (robust utility 0.739, episode `3d00424a-a01d-4bca-8623-a5953d3347d5`). The epic number follows the source ADR number, as Epic 15 follows ADR-015.  
+**Status:** Approved (2026-10-29, Menno), amended 2026-10-29 for the shared statistics module (FDD-016 E7) and re-approved via `approve-user-stories` (robust utility 0.747, episode `7a3c966d-60e0-4fc7-ac2d-c203359f8c96`; comparison with the previous approval 0.739: flat, within tolerance, no criterion lower) — stories derived from Accepted ADR-016, BRD-016 and FDD-016; adjudicated via `approve-user-stories` (robust utility 0.739, episode `3d00424a-a01d-4bca-8623-a5953d3347d5`). The epic number follows the source ADR number, as Epic 15 follows ADR-015.  
 
-Six stories build `src/agent_learning/policy/ucb.py` and `src/agent_learning/learners/ucb.py`. Each rule sits in exactly one story's criteria (LL-012). Contract tests are `tests/test_ucb_scores.py` (16.1), `tests/test_ucb_policy.py` (16.2 and 16.3), `tests/test_ucb_learner.py` (16.4), `tests/test_ucb_reinforce_guard.py` (16.5) and `tests/test_ucb_positive_only.py` (16.6). A study of decision quality against REINFORCE or Thompson sampling is a data gap, not a story (BRD-016 Out of Scope).
+Six stories build `src/agent_learning/policy/ucb.py`, `src/agent_learning/learners/ucb.py` and the shared `src/agent_learning/policy/action_statistics.py` (FDD-016 §2.4, E7). Each rule sits in exactly one story's criteria (LL-012); the statistics rules are owned by Stories 16.3 and 16.4 and are also exercised by Story 17.4 of Epic 17. Contract tests are `tests/test_ucb_scores.py` (16.1), `tests/test_ucb_policy.py` (16.2 and 16.3), `tests/test_action_statistics.py` (the shared rules of 16.3 and 16.4), `tests/test_ucb_learner.py` (16.4), `tests/test_ucb_reinforce_guard.py` (16.5) and `tests/test_ucb_positive_only.py` (16.6). A study of decision quality against REINFORCE or Thompson sampling is a data gap, not a story (BRD-016 Out of Scope).
 
 **Stories 16.1 to 16.6 are unblocked except for one dependency:** Menno confirmed FDD-016 §4 (E1 to E6) on 2026-10-29. Stories 16.2 and 16.5 depend on Story 15.3 of Epic 15, which makes `Decision.logprob` optional; 16.1, 16.3, 16.4 and 16.6 do not.
 
@@ -51,7 +51,7 @@ Fixture used by the criteria below ("the base statistics"): action `a` with 10 p
 ### Acceptance Criteria:
 - **$AC_0$ (Initial):** `UCBPolicy.from_actions` gives every action `pull_count` 0, `cumulative_reward` 0.0 and `mean_reward` 0.0 in `metadata["action_statistics"]`, stores `policy_type` `"ucb"`, the variant and the exploration constant, an empty `consumed_episode_ids`, and leaves `logits` at zero.
 - **$AC_1$ (Read):** `from_snapshot` reads the example of FDD-016 §2.2, including `mean_reward` and `consumed_episode_ids`; an action missing from the statistics reads as zero pulls.
-- **$AC_2$ (Validation):** an action id outside the action space, an invalid statistic, an unknown variant, a duplicate id in `consumed_episode_ids`, or a `mean_reward` that differs from `cumulative_reward / pull_count` by more than 1e-9 in a snapshot raises `ValueError` naming it.
+- **$AC_2$ (Validation):** an action id outside the action space, an invalid statistic, an unknown variant, a duplicate id in `consumed_episode_ids`, or a `mean_reward` that differs from `cumulative_reward / pull_count` by more than 1e-9 in a snapshot raises `ValueError` naming it. The statistics checks are those of `read_statistics` in `policy/action_statistics.py`, which `UCBPolicy.from_snapshot` calls; `ucb.py` holds no copy of them, and the test calls `read_statistics` directly with the same inputs.
 - **$AC_3$ (Storage Boundary):** a snapshot survives `json.dumps` and `json.loads` unchanged and round-trips through an in-memory store with no new record type; `ucb.py` imports nothing from `agent_learning.storage`.
 
 ---
@@ -68,7 +68,8 @@ Fixture used by the criteria below ("the base statistics"): action `a` with 10 p
 - **$AC_3$ (Once):** offering the same episodes to `update` a second time, in the same call or in a later one, leaves the statistics and `episodes_used` as after the first; each counted id appears once in `consumed_episode_ids`, and an episode whose id is already there is skipped.
 - **$AC_4$ (Through The Runner):** two successive `run_offline_batch` runs over the same stored episodes give the statistics of one pass.
 - **$AC_5$ (Late Reward):** an episode created before newer, already counted episodes, whose reward is recorded afterwards, is counted when it is first offered with its reward, and once only.
-- **$AC_6$ (Result):** `update` advances the snapshot version and returns a `LearnerResult` with `episodes_used`, `mean_reward` of the mapped values and `consumed_inputs`; a call with no usable episode changes nothing and returns `episodes_used` of 0; given a `SoftmaxPolicy` it raises `TypeError`.
+- **$AC_6$ (Shared Function):** `UCBLearner.update` counts through `add_rewards` of `policy/action_statistics.py`: for the same items, the statistics it produces equal those of a direct call to `add_rewards`, and a source check finds no second implementation of the update in `learners/ucb.py`.
+- **$AC_7$ (Result):** `update` advances the snapshot version and returns a `LearnerResult` with `episodes_used`, `mean_reward` of the mapped values and `consumed_inputs`; a call with no usable episode changes nothing and returns `episodes_used` of 0; given a `SoftmaxPolicy` it raises `TypeError`.
 
 ---
 

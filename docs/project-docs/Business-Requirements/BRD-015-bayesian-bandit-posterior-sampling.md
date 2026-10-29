@@ -19,7 +19,8 @@ A low-authority policy trained with REINFORCE stops learning when nearly every o
 - **BRU-015-06 (Storage Boundary):** Posterior parameters live in `PolicySnapshot.metadata["posterior_parameters"]`. Zero new `LearningStore` record types (ADR-015 Invariant 2; ADR-002).
 - **BRU-015-07 (Low Authority Only):** The Thompson policy operates under `DecisionAuthority.LOW`. It never grants autonomy and it never replaces a full-authority resolution (ADR-015 Invariant 3; ADR-001).
 - **BRU-015-08 (Stays Out Of REINFORCE):** A Thompson episode never trains `ReinforceLearner`: it carries no behaviour probability, and a REINFORCE update on it would treat the draw as a softmax sample (ADR-015 §4.4; ADR-001 §4.5).
-- **BRU-015-09 (No Claim Of Effectiveness):** The first evidence recorded is a consistency check on the recorded positive-only history. It does not claim Thompson sampling decides better than REINFORCE. That needs a low-authority policy with failures, which does not exist (ADR-015 §4.4, test data).
+- **BRU-015-09 (Counted Once):** An episode adds to a posterior at most once, however many times it is offered to the learner. The training runner re-queries recent episodes on every run, so a learner that adds on each pass would count the same episode repeatedly. The snapshot keeps the unique ids of the episodes already counted, and the learner skips any episode whose id is in it (FDD-015 D7).
+- **BRU-015-10 (No Claim Of Effectiveness):** The first evidence recorded is a consistency check on the recorded positive-only history. It does not claim Thompson sampling decides better than REINFORCE. That needs a low-authority policy with failures, which does not exist (ADR-015 §4.4, test data).
 
 ## Stakeholder Success Metrics
 
@@ -30,6 +31,7 @@ A low-authority policy trained with REINFORCE stops learning when nearly every o
 | Update | the update on Beta(1, 1) with r = 1.0 gives (2, 1); closed-form Beta updates match to 1e-12 on every tested case |
 | Ceiling | 0 posteriors with `alpha + beta` above 5000 after an update; the `alpha : beta` ratio is kept within 1e-9 |
 | Scale | 100% of rewards outside [-1, 1] or non-finite rejected; -1 maps to 0, 0 to 0.5, +1 to 1 |
+| Counted once | feeding the same episodes to the learner twice leaves the posteriors as after the first time; an episode whose reward arrives after newer episodes were counted is still counted exactly once |
 | Stays out of REINFORCE | 0 Thompson episodes consumed by `ReinforceLearner` |
 | HYP-AL-002 check | on the recorded all-ones history (41 episodes when ADR-015 was written; the test records the count it ran on) the posterior of the taken action keeps a standard deviation above 0 and the other actions keep their prior width, while the REINFORCE update on the same history goes to zero |
 | Storage boundary | 0 new record types; 0 imports from `agent_learning.storage` in the module |

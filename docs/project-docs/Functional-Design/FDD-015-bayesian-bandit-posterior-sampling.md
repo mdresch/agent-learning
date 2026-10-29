@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-015](../../adr/ADR-015-bayesian-bandit-posterior-sampling.md) — Accepted (2026-10-28)  
 **Source BRD:** [BRD-015](../Business-Requirements/BRD-015-bayesian-bandit-posterior-sampling.md)  
-**Status:** Approved (2026-10-29, Menno) — derived from Accepted ADR-015 and BRD-015; adjudicated via `approve-fdd` (robust utility 0.720, episode `c3801042-49c4-407e-823d-282071b3d05f`). Section 4 lists where this design departs from ADR-015 §4.4. Menno confirmed the departures D1 to D6 on 2026-10-29 and ADR-015 §4.1, §4.3 and §4.4 were amended to match.  
+**Status:** Approved (2026-10-29, Menno); amended 2026-10-29 with D7 (counted once), re-approval under `approve-fdd` pending — derived from Accepted ADR-015 and BRD-015; adjudicated via `approve-fdd` (robust utility 0.720, episode `c3801042-49c4-407e-823d-282071b3d05f`). Section 4 lists where this design departs from ADR-015 §4.4. Menno confirmed the departures D1 to D6 on 2026-10-29 and ADR-015 §4.1, §4.3 and §4.4 were amended to match.  
 
 ---
 
@@ -10,7 +10,7 @@
 
 1. **New module** `src/agent_learning/policy/thompson.py` with `ThompsonPolicy(Policy)` and the pure function `seed_for`. A second module `src/agent_learning/learners/thompson.py` holds `ThompsonLearner(Learner)`. The policy imports `random`, `hmac`, `hashlib` and `math` from the standard library; it reads `PolicySnapshot` and `Action` from `agent_learning.types`. Nothing is imported from `agent_learning.storage`, and nothing does file I/O. No numpy is needed: `random.Random.betavariate` draws a Beta sample.
 2. **Package export:** `ThompsonPolicy` and `ThompsonLearner` are re-exported from `agent_learning/__init__.py` and from the `policy` and `learners` packages, as `SoftmaxPolicy` and `ReinforceLearner` are.
-3. **State in the snapshot.** The posterior lives in `PolicySnapshot.metadata["posterior_parameters"]` (BRU-015-06). `logits` stays at its zero default, because `PolicySnapshot` has no field for a posterior and ADR-002 forbids a new record type.
+3. **State in the snapshot.** The posterior lives in `PolicySnapshot.metadata["posterior_parameters"]` (BRU-015-06), and the ids of the episodes already counted in `metadata["consumed_episode_ids"]` (D7). `logits` stays at its zero default, because `PolicySnapshot` has no field for a posterior and ADR-002 forbids a new record type.
 4. **Caller owns persistence.** As for `SoftmaxPolicy`, the policy never touches the store. The caller persists the snapshot and attaches the sampling record to `Episode.metadata`.
 5. **Shared types change in one place:** `Decision.logprob` becomes `Optional[float]` (D3). Everything else in `policy/base.py` and `learners/base.py` is unchanged.
 
@@ -30,6 +30,8 @@
 "posterior_parameters": {"alpha": {"action_1": 14.0, "action_2": 3.0}, "beta": {"action_1": 2.0, "action_2": 8.0}}
 ```
 Keyed by action id (D4). An action absent from the mapping is read as the prior. A value that is not finite or not positive is rejected when the snapshot is read.
+
+`metadata["consumed_episode_ids"]` is a list of the ids of the episodes already counted by `ThompsonLearner`. Each id appears at most once; the list is empty before the first update, and a snapshot with a duplicate id is rejected when it is read (D7).
 
 ### 2.3 Sampling record
 `Episode.metadata["thompson_sampling"]` holds:
@@ -58,9 +60,10 @@ Keyed by action id (D4). An action absent from the mapping is read as the prior.
    5. The sampling record of section 2.3 is made available as `policy.last_sampling_record()`, a deep copy, for the caller to attach to the episode. The policy does not hold a reference the caller can mutate.
 4. **`replay(record) -> dict`** (module function). Re-derives the seed from the record's `request_id` and `timestamp` and the snapshot id, checks it equals `prng_seed`, redraws from the recorded `posterior_parameters`, and returns the redrawn vector. It does not read the store.
 5. **`apply_update(...)`** raises `TypeError("use ThompsonLearner")`: a Thompson policy has no logits to move (D6).
-6. **`ThompsonLearner.update(policy, episodes, rewards)`** requires a `ThompsonPolicy` (`TypeError` otherwise). It indexes the newest `RewardSource.AGGREGATE` reward per episode, as `ReinforceLearner` does; it raises `ValueError` for a reward that is not finite or lies outside [-1, 1]. For each episode whose `metadata["selection_basis"]` is `"thompson_sampling"`, whose `action_id` is in the action space, and that has a reward:
+6. **`ThompsonLearner.update(policy, episodes, rewards)`** requires a `ThompsonPolicy` (`TypeError` otherwise). It indexes the newest `RewardSource.AGGREGATE` reward per episode, as `ReinforceLearner` does; it raises `ValueError` for a reward that is not finite or lies outside [-1, 1]. For each episode whose `metadata["selection_basis"]` is `"thompson_sampling"`, whose `action_id` is in the action space, that has a reward, and whose id is not in `consumed_episode_ids` (D7):
    1. `r = (value + 1) / 2` (D1).
    2. `alpha_a += r`, `beta_a += 1 - r` for the chosen action.
+   3. The episode id is appended to `consumed_episode_ids`. An id that occurs twice in one call is counted once.
    Then, once per call and per action, the ceiling: with `total = alpha + beta` computed first, if `total > N_MAX`, both parameters are multiplied by `N_MAX / total`. The snapshot version advances (`advance_version`) and `episodes_seen` and `updates_applied` are updated. The result is a `LearnerResult` with `episodes_used`, `mean_reward` (of the mapped `r`), the posterior before and after in `extra`, and `consumed_inputs`. A call with no usable episode changes nothing and returns `episodes_used=0`.
 7. **`ReinforceLearner` is unchanged.** It already skips an episode whose `action_logprob` is `None` (`reinforce.py`, the check on `action_logprob is None`), and `Decision.logprob=None` flows to `Episode.action_logprob=None` through `decision.py` and `__init__.py`. The code design of ADR-015 §4.4 asked the FDD to add a guard; none is needed, and Story 15.5 tests the existing behaviour (D6 also covers the counter name).
 
@@ -80,6 +83,7 @@ Each is a place where the code design of ADR-015 §4.4, as first accepted, did n
 | D4 | `{"alpha": [14.0, 3.0], "beta": [2.0, 8.0]}` as lists | Mappings keyed by action id | A list is correct only while the action order never changes; the sampled payoffs in the same example are already keyed by id |
 | D5 | The record holds `prng_seed`, `posterior_parameters`, `sampled_payoffs` | Adds `request_id` and `timestamp` | The seed is an HMAC of the request id and timestamp; without them a reader can store the seed but not check it |
 | D6 | `ReinforceLearner` needs a guard that skips Thompson episodes; `ThompsonPolicy` implements `Policy` | No guard is added (the `None` log-probability already skips it); `apply_update` raises | `Policy.apply_update` takes logit deltas, which a posterior does not have. The existing skip counts these episodes as `full_authority_excluded`, a name that is wrong for them; renaming it is out of scope (section 7, item 3) |
+| D7 | Not stated | The snapshot keeps `consumed_episode_ids`, a list of unique episode ids, and the learner skips an episode whose id is already in it | `TrainingRunner.run_offline_batch` re-queries the latest `episode_limit` episodes on every run and marks none as consumed. REINFORCE tolerates a repeat; adding to a posterior does not. Added 2026-10-29 after the same gap was found in FDD-016; it follows Menno's E6 choice there (unique consumed ids). It was not in the version approved on 2026-10-29 |
 
 ---
 
@@ -93,7 +97,8 @@ Each is a place where the code design of ADR-015 §4.4, as first accepted, did n
 | `choose` on a policy with no actions | `ValueError`, as `SoftmaxPolicy` |
 | Reward outside [-1, 1] or not finite | `ValueError` |
 | `ThompsonLearner.update` given a `SoftmaxPolicy` | `TypeError` |
-| Episode with another `selection_basis`, an unknown `action_id`, or no reward | skipped, not counted in `episodes_used` |
+| Episode with another `selection_basis`, an unknown `action_id`, no reward, or an id already in `consumed_episode_ids` | skipped, not counted in `episodes_used` |
+| `from_snapshot` where `consumed_episode_ids` holds a duplicate | `ValueError` naming the id |
 | `apply_update` on a `ThompsonPolicy` | `TypeError("use ThompsonLearner")` |
 | `replay` where the re-derived seed differs from `prng_seed` | `ValueError`; the record is not trusted |
 | Total pseudo-count above `N_MAX` | rescaled, ratio kept within 1e-9 |
@@ -108,11 +113,12 @@ A study of decision quality against REINFORCE (data gap, BRD-015 Out of Scope); 
 
 ## 7. Decisions and Open Questions
 
-1. **D1 to D6: decided (2026-10-29).** Menno confirmed them and ADR-015 was amended to match.
+1. **D1 to D6: decided (2026-10-29).** Menno confirmed them and ADR-015 was amended to match. **D7** (counted once) follows his E6 choice for ADR-016 and is awaiting re-approval of this FDD.
 2. **Open: discounting.** ADR-015 §4.1 allows an exponential factor as an alternative to the ceiling. Only the ceiling is built; the maintainer says if the factor is wanted.
 3. **Open: the REINFORCE counter name.** Thompson episodes are counted under `full_authority_excluded`. Either the name widens to "no behaviour probability" or a second counter is added. A change touches `reinforce.py` and its tests, so it is a separate decision.
 4. **Open: replay across Python versions.** `random.Random.betavariate` is deterministic for one implementation, but CPython does not promise the same stream across versions. The recorded `sampled_payoffs` is the ground truth; `replay` checks the redraw against it and reports a mismatch as a version difference, not as tampering. Whether to record the interpreter version in the record is open.
-5. **`N_MAX = 5000`:** taken from ADR-015 Invariant 4. There is no data on non-stationarity behind it.
+5. **Open: the size of `consumed_episode_ids`.** It grows by one id per counted episode and is stored in the snapshot, so it is read and written with every update. If the list becomes large, pruning ids older than the runner's `episode_limit` window is the next step; it is not built or decided here (the same open question as FDD-016 section 7 item 2).
+6. **`N_MAX = 5000`:** taken from ADR-015 Invariant 4. There is no data on non-stationarity behind it.
 
 ---
 

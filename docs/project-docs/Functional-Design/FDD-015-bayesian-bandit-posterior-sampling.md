@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-015](../../adr/ADR-015-bayesian-bandit-posterior-sampling.md) — Accepted (2026-10-28)  
 **Source BRD:** [BRD-015](../Business-Requirements/BRD-015-bayesian-bandit-posterior-sampling.md)  
-**Status:** Approved (2026-10-29, Menno); amended 2026-10-29 with D7 (counted once), re-approval under `approve-fdd` pending — derived from Accepted ADR-015 and BRD-015; adjudicated via `approve-fdd` (robust utility 0.720, episode `c3801042-49c4-407e-823d-282071b3d05f`). Section 4 lists where this design departs from ADR-015 §4.4. Menno confirmed the departures D1 to D6 on 2026-10-29 and ADR-015 §4.1, §4.3 and §4.4 were amended to match.  
+**Status:** Approved (2026-10-29, Menno); amended 2026-10-29 with D7 (counted once) and re-approved via `approve-fdd` (robust utility 0.735, episode `166b1b67-0cc1-4e4d-ac46-a1ed10de9871`; comparison with the previous approval: progression, margin 0.612 to 0.627, no criterion lower) — derived from Accepted ADR-015 and BRD-015; adjudicated via `approve-fdd` (robust utility 0.720, episode `c3801042-49c4-407e-823d-282071b3d05f`). Section 4 lists where this design departs from ADR-015 §4.4. Menno confirmed the departures D1 to D6 on 2026-10-29 and ADR-015 §4.1, §4.3 and §4.4 were amended to match.  
 
 ---
 
@@ -113,7 +113,7 @@ A study of decision quality against REINFORCE (data gap, BRD-015 Out of Scope); 
 
 ## 7. Decisions and Open Questions
 
-1. **D1 to D6: decided (2026-10-29).** Menno confirmed them and ADR-015 was amended to match. **D7** (counted once) follows his E6 choice for ADR-016 and is awaiting re-approval of this FDD.
+1. **D1 to D6: decided (2026-10-29).** Menno confirmed them and ADR-015 was amended to match. **D7** (counted once) follows his E6 choice for ADR-016 and was approved with the re-approval of this FDD (2026-10-29).
 2. **Open: discounting.** ADR-015 §4.1 allows an exponential factor as an alternative to the ceiling. Only the ceiling is built; the maintainer says if the factor is wanted.
 3. **Open: the REINFORCE counter name.** Thompson episodes are counted under `full_authority_excluded`. Either the name widens to "no behaviour probability" or a second counter is added. A change touches `reinforce.py` and its tests, so it is a separate decision.
 4. **Open: replay across Python versions.** `random.Random.betavariate` is deterministic for one implementation, but CPython does not promise the same stream across versions. The recorded `sampled_payoffs` is the ground truth; `replay` checks the redraw against it and reports a mismatch as a version difference, not as tampering. Whether to record the interpreter version in the record is open.

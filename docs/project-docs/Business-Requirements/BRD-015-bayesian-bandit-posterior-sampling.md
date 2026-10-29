@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-015](../../adr/ADR-015-bayesian-bandit-posterior-sampling.md) — Accepted (2026-10-28)  
 **Governing Baseline:** none approved yet; cycle `CYC-001` (ADR-035, Proposed)  
-**Status:** Approved (2026-10-29, Menno) — derived from Accepted ADR-015; adjudicated via `approve-brd` (robust utility 0.741, episode `4017d16c-1a58-4337-9db7-c1a037730ead`).  
+**Status:** Approved (2026-10-29, Menno) — derived from Accepted ADR-015; adjudicated via `approve-brd` (robust utility 0.741, episode `4017d16c-1a58-4337-9db7-c1a037730ead`); amended 2026-10-29 with BRU-015-09 (counted once) and re-approved via `approve-brd` (robust utility 0.747, episode `83e17b71-40cd-477b-bd6f-a5c0cd3eedfe`; comparison with the previous approval: flat, within tolerance, no criterion lower).  
 **Stakeholders:** Menno (Sponsor/PM/maintainer); SDK adopters who run low-authority policies whose history is mostly successes; auditors who replay a decision  
 
 ## Business Need

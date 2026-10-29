@@ -27,6 +27,7 @@ def main() -> None:
         "approve-adaptation-plan", "approve-subsidiary-plan", "retrospective",
         "approve-routing-thresholds", "approve-routing-bucket",
     }
+    valid_tiers = {"low", "standard", "high", "critical"}  # the autonomy tiers of config.py
     esc, deesc, eps_margin = 1.0, 0.7, 0.20  # entropy in bits; the band is wider than the 0.15-bit minimum
     assert esc - deesc >= 0.15
 
@@ -42,6 +43,8 @@ def main() -> None:
             return "full"
         if not p or any(x < 0 or math.isnan(x) for x in p) or abs(sum(p) - 1.0) > 1e-6:
             return "full"  # fail safe: invalid input routes full
+        if tier not in valid_tiers:
+            return "full"  # fail safe: an unknown tier routes full (ADR-021 4.1, Invariant 8)
         h = entropy(p)
         if h >= esc or tier == "critical" or margin(p) < eps_margin:
             return "full"
@@ -60,6 +63,7 @@ def main() -> None:
     assert route("classify", [0.45, 0.40, 0.15], "standard", "low", True) == "full"  # thin margin
     assert route("classify", [0.95, 0.05], "critical", "low", True) == "full"
     assert route("classify", [0.7, 0.4], "standard", "low", True) == "full"  # invalid sum
+    assert route("classify", [0.95, 0.05], "urgent", "low", True) == "full"  # unknown tier
     print("  routing checks passed (pinned, low, full, hysteresis, margin, approval, critical, fail safe)")
 
 

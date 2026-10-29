@@ -1,0 +1,133 @@
+{
+  "task": "ADR-015 (Bayesian Bandit Posterior Sampling), amended 2026-10-29 to the confirmed FDD-015 D1 to D6",
+  "criteria": [
+    {
+      "id": "architectural_soundness",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "architectural soundness: Re-approval after \u00a74.1, \u00a74.3 and \u00a74.4 were aligned with the code: reward mapped from [-1,1] to [0,1], request_id and timestamp optional and recorded, Decision.logprob Optional, posterior keyed by action id, no REINFORCE guard needed because action_logprob None is already skipped."
+    },
+    {
+      "id": "alternatives_considered",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "alternatives considered: Re-approval after \u00a74.1, \u00a74.3 and \u00a74.4 were aligned with the code: reward mapped from [-1,1] to [0,1], request_id and timestamp optional and recorded, Decision.logprob Optional, posterior keyed by action id, no REINFORCE guard needed because action_logprob None is already skipped."
+    },
+    {
+      "id": "consequences_honest",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "consequences honest: Re-approval after \u00a74.1, \u00a74.3 and \u00a74.4 were aligned with the code: reward mapped from [-1,1] to [0,1], request_id and timestamp optional and recorded, Decision.logprob Optional, posterior keyed by action id, no REINFORCE guard needed because action_logprob None is already skipped."
+    },
+    {
+      "id": "gap_disclosure_quality",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "gap disclosure quality: Re-approval after \u00a74.1, \u00a74.3 and \u00a74.4 were aligned with the code: reward mapped from [-1,1] to [0,1], request_id and timestamp optional and recorded, Decision.logprob Optional, posterior keyed by action id, no REINFORCE guard needed because action_logprob None is already skipped."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_adr",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "direct_doc_read:docs/adr/ADR-015-bayesian-bandit-posterior-sampling.md; checked against src/agent_learning (policy/base.py, learners/base.py, learners/reinforce.py, types.py, decision.py)",
+          "support": 0.86,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "direct_doc_read:docs/adr/ADR-015-bayesian-bandit-posterior-sampling.md; checked against src/agent_learning (policy/base.py, learners/base.py, learners/reinforce.py, types.py, decision.py)",
+          "support": 0.84,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "direct_doc_read:docs/adr/ADR-015-bayesian-bandit-posterior-sampling.md; checked against src/agent_learning (policy/base.py, learners/base.py, learners/reinforce.py, types.py, decision.py)",
+          "support": 0.84,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "direct_doc_read:docs/adr/ADR-015-bayesian-bandit-posterior-sampling.md; checked against src/agent_learning (policy/base.py, learners/base.py, learners/reinforce.py, types.py, decision.py)",
+          "support": 0.84,
+          "confidence": 0.82
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_adr",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "direct_doc_read:docs/adr/ADR-015-bayesian-bandit-posterior-sampling.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "direct_doc_read:docs/adr/ADR-015-bayesian-bandit-posterior-sampling.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "direct_doc_read:docs/adr/ADR-015-bayesian-bandit-posterior-sampling.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "direct_doc_read:docs/adr/ADR-015-bayesian-bandit-posterior-sampling.md",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "direct_doc_read:docs/adr/ADR-015-bayesian-bandit-posterior-sampling.md",
+          "support": 0.12,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "direct_doc_read:docs/adr/ADR-015-bayesian-bandit-posterior-sampling.md",
+          "support": 0.1,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "direct_doc_read:docs/adr/ADR-015-bayesian-bandit-posterior-sampling.md",
+          "support": 0.1,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "direct_doc_read:docs/adr/ADR-015-bayesian-bandit-posterior-sampling.md",
+          "support": 0.14,
+          "confidence": 0.75
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

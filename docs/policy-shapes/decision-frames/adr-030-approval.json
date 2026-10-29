@@ -1,0 +1,133 @@
+{
+  "task": "ADR-030 (Resource Management Plan Standard): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "architectural_soundness",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Tier 3 resource contract downstream of Scope and Schedule, with no dependents: role catalogue with an accountable human, allocation on the Schedule timebox, agent work boundaries that cannot hold an ADR-001 or ADR-008 decision, and tooling assets. Floors and caps stay at the ADR-012 defaults, 150/600 and 800/5000. The learner advise-resource-plan-decision keeps Procurement and HR logits separate."
+    },
+    {
+      "id": "alternatives_considered",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Two alternatives rejected: treating agents as unmanaged tooling, and folding resources into the Schedule plan."
+    },
+    {
+      "id": "consequences_honest",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Names visible over-allocation and unowned tooling, and the cost: capacity figures need an evidence basis that small teams may find heavy."
+    },
+    {
+      "id": "gap_disclosure_quality",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Section 8 clarifies agent capacity units and records that Cost does not depend on Resource. Section 4.5 leaves the team charter as an open question. Domain re-basing stays open."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_adr",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "direct_doc_read:docs/adr/ADR-030-resource-management-plan-standard.md sections 4.2-4.5 and 5; plan-specific note keeps department logits unblended",
+          "support": 0.85,
+          "confidence": 0.83
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "adr_030_section_6_two_alternatives",
+          "support": 0.82,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "adr_030_section_7_capacity_evidence_burden",
+          "support": 0.82,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "adr_030_section_8_cost_link_resolved; section_4.5_team_charter_still_open",
+          "support": 0.82,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_adr",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "no fundamental flaw found in direct_doc_read of ADR-030",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "section_6 of ADR-030",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "section_7 of ADR-030",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "section_8 of ADR-030",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "residual: team charter is a guide output this ADR does not adopt, and section 4.5 leaves it open rather than deciding it",
+          "support": 0.16,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "adr_030_section_6 has two alternatives, both real",
+          "support": 0.14,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "adr_030_section_7",
+          "support": 0.12,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "adr_030_section_4.5 team charter and section 8 domain re-basing remain open",
+          "support": 0.18,
+          "confidence": 0.75
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

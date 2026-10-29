@@ -1,8 +1,8 @@
 # FDD-027: Cost Management Plan Standard and Baseline Contract
 
-**Source ADR:** [ADR-027](../../adr/ADR-027-cost-management-plan-standard-and-baseline-contract.md) — Proposed (2026-10-26)  
+**Source ADR:** [ADR-027](../../adr/ADR-027-cost-management-plan-standard-and-baseline-contract.md) — Accepted (2026-10-29, Menno), episode `0ae724ad-5309-4eb2-a333-749cde39c0c0`  
 **Source BRD:** [BRD-027](../Business-Requirements/BRD-027-cost-management-plan-standard-and-baseline-contract.md)  
-**Status:** Draft (2026-10-29) — derived from Proposed ADR-027 and BRD-027; not yet adjudicated via `approve-fdd`. §5 interpretations are not confirmed. Adjudication waits until ADR-027 is accepted.
+**Status:** Draft (2026-10-29) — derived from Accepted ADR-027 and BRD-027; not yet adjudicated via `approve-fdd`. §5 interpretations are not confirmed.
 
 ---
 

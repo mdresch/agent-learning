@@ -1,8 +1,8 @@
 # FDD-032: Communications Management Plan Standard
 
-**Source ADR:** [ADR-032](../../adr/ADR-032-communications-management-plan-standard.md) — Proposed (2026-10-26)  
+**Source ADR:** [ADR-032](../../adr/ADR-032-communications-management-plan-standard.md) — Accepted (2026-10-29, Menno), episode `5ee60bbe-b680-4c14-887c-aae515e1379c`  
 **Source BRD:** [BRD-032](../Business-Requirements/BRD-032-communications-management-plan-standard.md)  
-**Status:** Draft (2026-10-29) — derived from Proposed ADR-032 and BRD-032; not yet adjudicated via `approve-fdd`. §5 interpretations are not confirmed. Adjudication waits until ADR-032 is accepted.
+**Status:** Draft (2026-10-29) — derived from Accepted ADR-032 and BRD-032; not yet adjudicated via `approve-fdd`. §5 interpretations are not confirmed.
 
 ---
 

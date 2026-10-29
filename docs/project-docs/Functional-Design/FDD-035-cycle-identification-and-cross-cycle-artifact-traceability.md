@@ -1,8 +1,8 @@
 # FDD-035: Cycle Identification and Cross-Cycle Artifact Traceability
 
-**Source ADR:** [ADR-035](../../adr/ADR-035-cycle-identification-and-cross-cycle-artifact-traceability.md) — Proposed (2026-10-26)  
+**Source ADR:** [ADR-035](../../adr/ADR-035-cycle-identification-and-cross-cycle-artifact-traceability.md) — Accepted (2026-10-29, Menno), episode `76a4003b-a725-4405-b3c1-d2f8122671c6`  
 **Source BRD:** [BRD-035](../Business-Requirements/BRD-035-cycle-identification-and-cross-cycle-artifact-traceability.md)  
-**Status:** Draft (2026-10-29) — derived from Proposed ADR-035 and BRD-035; not yet adjudicated via `approve-fdd`. §5 interpretations are not confirmed. Adjudication waits until ADR-035 is accepted.
+**Status:** Draft (2026-10-29) — derived from Accepted ADR-035 and BRD-035; not yet adjudicated via `approve-fdd`. §5 interpretations are not confirmed.
 
 ---
 

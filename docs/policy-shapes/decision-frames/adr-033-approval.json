@@ -1,0 +1,133 @@
+{
+  "task": "ADR-033 (Procurement Management Plan Standard): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "architectural_soundness",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Tier 3 procurement contract depending on Scope and Cost, not on Resource: make-or-buy criteria, a dependency intake record, supplier selection, contract and licence checks, and an exit path. One shared logit map; the deciding role (procurement or project manager) is recorded with each pair. Floors and caps stay at the ADR-012 defaults. Acquisitions that exceed the Cost envelope go through change control."
+    },
+    {
+      "id": "alternatives_considered",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Three alternatives rejected: ad hoc library choices, treating procurement as a section of Cost, and banning all external services."
+    },
+    {
+      "id": "consequences_honest",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Names justified, costed dependencies with exit paths, and the cost: the intake record adds friction to adopting a library."
+    },
+    {
+      "id": "gap_disclosure_quality",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Section 8 clarifies the authorization threshold by example (10 percent of stage contingency), defers the pyproject.toml audit, and resolves the DAG as scope plus cost. Domain re-basing stays open."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_adr",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "direct_doc_read:docs/adr/ADR-033-procurement-management-plan-standard.md sections 4.2-4.5 and 5; PLAN_DAG edges are scope-management and cost-management",
+          "support": 0.85,
+          "confidence": 0.83
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "adr_033_section_6_three_alternatives",
+          "support": 0.86,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "adr_033_section_7_intake_friction",
+          "support": 0.82,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "adr_033_section_8_threshold_is_an_example_not_a_fixed_repository_default",
+          "support": 0.8,
+          "confidence": 0.78
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_adr",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "no fundamental flaw found in direct_doc_read of ADR-033",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "section_6 of ADR-033",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "section_7 of ADR-033",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "section_8 of ADR-033",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "residual: the 10 percent figure is an example inside a clarification, not a measured default",
+          "support": 0.14,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "adr_033_section_6",
+          "support": 0.1,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "adr_033_section_7",
+          "support": 0.12,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "adr_033_section_8 item 1 still points at the Cost envelope for the number, and the dependency audit is deferred",
+          "support": 0.18,
+          "confidence": 0.75
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

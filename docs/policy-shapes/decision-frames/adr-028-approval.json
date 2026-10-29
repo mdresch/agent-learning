@@ -1,0 +1,133 @@
+{
+  "task": "ADR-028 (Risk Management Plan Standard): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "architectural_soundness",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Tier 2 risk contract downstream of Scope, Schedule and Cost: taxonomy, reproducible probability-impact scale, register as a markdown artifact, response strategies, and escalation that reaches a human. Floors 160/650; caps stay 800/5000. Nothing in PLAN_DAG depends on Risk. The advisory learner never accepts a risk; approve-subsidiary-plan stays human."
+    },
+    {
+      "id": "alternatives_considered",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Three alternatives rejected: a free-text qualitative list, mandatory Monte Carlo, and folding risk into the Cost contingency section."
+    },
+    {
+      "id": "consequences_honest",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Names repeatable ratings tied to escalation, and the costs: scales must exist before risks are recorded, and a poor scale yields consistently poor ratings."
+    },
+    {
+      "id": "gap_disclosure_quality",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Section 8 marks the learner and the markdown register as resolved, and leaves PMBOK 8 domain re-basing open. Section 4.5 says Risk may read other plans without a staleness edge."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_adr",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "direct_doc_read:docs/adr/ADR-028-risk-management-plan-standard.md sections 4.2-4.5 and 5; high-band acceptance is a recorded human decision",
+          "support": 0.86,
+          "confidence": 0.84
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "adr_028_section_6_three_alternatives",
+          "support": 0.86,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "adr_028_section_7_scale_judgement",
+          "support": 0.82,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "adr_028_section_8_register_resolved_domain_rebasing_open",
+          "support": 0.84,
+          "confidence": 0.82
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_adr",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "no fundamental flaw found in direct_doc_read of ADR-028",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "section_6 of ADR-028",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "section_7 of ADR-028",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "section_8 of ADR-028",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "residual: four recommendation kinds in section 4.4.1 still await confirmation; the risk contract itself is decided",
+          "support": 0.12,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "adr_028_section_6",
+          "support": 0.1,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "adr_028_section_7 is short",
+          "support": 0.12,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "adr_028_section_8 domain re-basing remains open and is shared with the other plan standards",
+          "support": 0.14,
+          "confidence": 0.75
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

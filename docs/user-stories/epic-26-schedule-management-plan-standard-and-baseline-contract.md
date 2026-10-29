@@ -1,8 +1,8 @@
 # Epic 26: Schedule Management Plan Standard and Baseline Contract
 
-**Source ADR:** [ADR-026](../adr/ADR-026-schedule-management-plan-standard-and-baseline-contract.md) — Proposed (2026-10-26)  
+**Source ADR:** [ADR-026](../adr/ADR-026-schedule-management-plan-standard-and-baseline-contract.md) — Accepted (2026-10-29, Menno), episode `8be53179-eb4e-4f1c-b71d-0efa79e0876d`  
 **Source BRD/FDD:** [BRD-026](../project-docs/Business-Requirements/BRD-026-schedule-management-plan-standard-and-baseline-contract.md) / [FDD-026](../project-docs/Functional-Design/FDD-026-schedule-management-plan-standard-and-baseline-contract.md)  
-**Status:** Draft (2026-10-29) — derived from Proposed ADR-026, BRD-026 and FDD-026; not yet adjudicated via `approve-user-stories`. Implementation waits until ADR-026 is accepted.
+**Status:** Draft (2026-10-29) — derived from Accepted ADR-026, BRD-026 and FDD-026; not yet adjudicated via `approve-user-stories`.
 
 Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_schedule_measure.py` (26.1), `tests/test_schedule_sections.py` (26.2), `tests/test_schedule_advice_policy.py` (26.3), `tests/test_schedule_advice_reward.py` (26.4). Story 26.1 waits on the shared lint arguments in FDD-026 §3.2. Stories 26.3 and 26.4 wait until FDD-026 §5 item 1 is confirmed. BRU-026-07 has no story: it is the text the plan author writes and the approver reads.
 

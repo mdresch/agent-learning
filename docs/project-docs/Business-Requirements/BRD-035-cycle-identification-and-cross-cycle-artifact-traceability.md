@@ -1,8 +1,8 @@
 # BRD-035: Cycle Identification and Cross-Cycle Artifact Traceability
 
-**Source ADR:** [ADR-035](../../adr/ADR-035-cycle-identification-and-cross-cycle-artifact-traceability.md) — Proposed (2026-10-26); ready for `approve-adr`  
+**Source ADR:** [ADR-035](../../adr/ADR-035-cycle-identification-and-cross-cycle-artifact-traceability.md) — Accepted (2026-10-29, Menno), episode `76a4003b-a725-4405-b3c1-d2f8122671c6`  
 **Governing Baseline:** none approved yet; the bootstrap pass is `CYC-001` (ADR-035 §4.9)  
-**Status:** Draft (2026-10-29) — derived from Proposed ADR-035; not yet adjudicated via `approve-brd`. Adjudication waits until ADR-035 is accepted.  
+**Status:** Draft (2026-10-29) — derived from Accepted ADR-035; not yet adjudicated via `approve-brd`.  
 **Stakeholders:** Menno (Sponsor, Project Manager, maintainer)
 
 ## Business Need

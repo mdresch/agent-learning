@@ -1,7 +1,7 @@
 # BRD-037: Design-Time Baseline Feedback Loop
 
 **Source ADR:** [ADR-037](../../adr/ADR-037-design-time-baseline-feedback-loop.md) — Accepted (2026-10-27, Menno); Episode `0eb8f52a-dea7-4ef6-8ac5-0e0e21def933`  
-**Governing Baseline:** none approved yet; cycle `CYC-001` (ADR-035, Proposed). The unapproved candidate is `PMP-BL-v1.0.0`.  
+**Governing Baseline:** none approved yet; cycle `CYC-001` (ADR-035, Accepted). The unapproved candidate is `PMP-BL-v1.0.0`.  
 **Status:** Draft (2026-10-29) — derived from Accepted ADR-037; not yet adjudicated via `approve-brd`.  
 **Stakeholders:** Menno (Sponsor, Project Manager, maintainer)
 

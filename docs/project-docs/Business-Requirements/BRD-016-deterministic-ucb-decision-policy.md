@@ -1,7 +1,7 @@
 # BRD-016: Deterministic Upper Confidence Bound (UCB) Decision Policy
 
 **Source ADR:** [ADR-016](../../adr/ADR-016-deterministic-ucb-decision-policy.md) — Accepted (2026-10-28)  
-**Governing Baseline:** none approved yet; cycle `CYC-001` (ADR-035, Proposed)  
+**Governing Baseline:** none approved yet; cycle `CYC-001` (ADR-035, Accepted)  
 **Status:** Approved (2026-10-29, Menno) — derived from Accepted ADR-016; adjudicated via `approve-brd` (robust utility 0.741, episode `fac58260-2fff-4b3d-9709-ab56c2774e6c`).  
 **Stakeholders:** Menno (Sponsor/PM/maintainer); SDK adopters who run low-authority policies; auditors who must replay a decision and get the same action  
 

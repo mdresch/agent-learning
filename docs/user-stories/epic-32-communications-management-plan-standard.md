@@ -1,8 +1,8 @@
 # Epic 32: Communications Management Plan Standard
 
-**Source ADR:** [ADR-032](../adr/ADR-032-communications-management-plan-standard.md) — Proposed (2026-10-26)  
+**Source ADR:** [ADR-032](../adr/ADR-032-communications-management-plan-standard.md) — Accepted (2026-10-29, Menno), episode `5ee60bbe-b680-4c14-887c-aae515e1379c`  
 **Source BRD/FDD:** [BRD-032](../project-docs/Business-Requirements/BRD-032-communications-management-plan-standard.md) / [FDD-032](../project-docs/Functional-Design/FDD-032-communications-management-plan-standard.md)  
-**Status:** Draft (2026-10-29) — derived from Proposed ADR-032, BRD-032 and FDD-032; not yet adjudicated via `approve-user-stories`. Implementation waits until ADR-032 is accepted.
+**Status:** Draft (2026-10-29) — derived from Accepted ADR-032, BRD-032 and FDD-032; not yet adjudicated via `approve-user-stories`.
 
 Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_communications_measure.py` (32.1), `tests/test_communications_sections.py` (32.2), `tests/test_communications_advice_policy.py` (32.3), `tests/test_communications_advice_reward.py` (32.4). Stories 32.3 and 32.4 wait until FDD-032 §5 items 1 and 2 are confirmed. BRU-032-07 has no story: it is the text the plan author writes and the approver reads.
 

@@ -1,0 +1,133 @@
+{
+  "task": "ADR-027 (Cost Management Plan Standard and Baseline Contract): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "architectural_soundness",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Tier 1 cost contract after Scope and Schedule: management envelope, categories and estimating basis, staged funding, contingency versus reserve, burn-rate control, variance at plus or minus 10 percent, floors 180/700 and caps 750/4500, and STALE_DEPENDENCY to Risk and Procurement. Cost does not depend on Resource. Advisory learner advise-cost-plan-decision stays idle."
+    },
+    {
+      "id": "alternatives_considered",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Three alternatives rejected: a single upfront budget, effort-only cost that ignores compute and API spend, and merging Cost into Schedule."
+    },
+    {
+      "id": "consequences_honest",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Names escalated overruns and risk-traced contingency, and the costs: early category and release rules, and a generic plus or minus 10 percent default."
+    },
+    {
+      "id": "gap_disclosure_quality",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Section 8 defers usage-based measurement, resolves the effort unit in practice, and leaves domain re-basing open. Section 4.5 leaves an unnamed question: whether contingency sized before the Risk plan needs an explicit re-approval when Risk is later approved."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_adr",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "direct_doc_read:docs/adr/ADR-027-cost-management-plan-standard-and-baseline-contract.md sections 4.1-4.5 and 5; keeps cost-management before risk-management because PLAN_DAG must not cycle",
+          "support": 0.84,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "adr_027_section_6_three_alternatives",
+          "support": 0.86,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "adr_027_section_7_envelope_and_generic_ten_percent",
+          "support": 0.84,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "adr_027_section_8_three_questions; section_4.5_reconciliation_reapproval_is_named_but_not_listed_in_section_8",
+          "support": 0.78,
+          "confidence": 0.78
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_adr",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "no fundamental flaw found in direct_doc_read of ADR-027",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "section_6 of ADR-027",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "section_7 of ADR-027",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "section_8 of ADR-027",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "residual: contingency is set before an approved Risk plan and reconciled later; the ADR states this and does not hide the order",
+          "support": 0.18,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "adr_027_section_6",
+          "support": 0.1,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "adr_027_section_7",
+          "support": 0.14,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "the re-approval question for contingency reconciliation sits in section 4.5 and is not copied into the numbered open questions",
+          "support": 0.2,
+          "confidence": 0.75
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

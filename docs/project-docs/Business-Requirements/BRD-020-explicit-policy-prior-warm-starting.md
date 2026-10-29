@@ -1,7 +1,7 @@
 # BRD-020: Explicit Policy Prior Warm-Starting
 
 **Source ADR:** [ADR-020](../../adr/ADR-020-explicit-policy-prior-warm-starting.md) — Accepted (2026-10-28)  
-**Governing Baseline:** none approved yet; cycle `CYC-001` (ADR-035, Proposed)  
+**Governing Baseline:** none approved yet; cycle `CYC-001` (ADR-035, Accepted)  
 **Status:** Approved (2026-10-29, Menno) — derived from Accepted ADR-020; adjudicated via `approve-brd` (robust utility 0.732, episode `a16c1f37-1c53-4b19-af1d-219e8bdc1b75`).  
 **Stakeholders:** Menno (Sponsor/PM/maintainer); SDK adopters who start a new low-authority policy next to similar ones; auditors who must see which policy a starting point was copied from  
 

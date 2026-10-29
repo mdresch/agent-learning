@@ -1,8 +1,8 @@
 # BRD-029: Quality Management Plan Standard
 
-**Source ADR:** [ADR-029](../../adr/ADR-029-quality-management-plan-standard.md) — Proposed (2026-10-26); ready for `approve-adr`  
-**Governing Baseline:** none approved yet; cycle `CYC-001` (ADR-035, Proposed)  
-**Status:** Draft (2026-10-29) — derived from Proposed ADR-029; not yet adjudicated via `approve-brd`. Adjudication waits until ADR-029 is accepted.  
+**Source ADR:** [ADR-029](../../adr/ADR-029-quality-management-plan-standard.md) — Accepted (2026-10-29, Menno), episode `736036f7-40a1-441f-afc0-062501c46d57`  
+**Governing Baseline:** none approved yet; cycle `CYC-001` (ADR-035, Accepted)  
+**Status:** Draft (2026-10-29) — derived from Accepted ADR-029; not yet adjudicated via `approve-brd`.  
 **Stakeholders:** Menno (Sponsor, Project Manager, maintainer); the Quality Assurance Lead named as plan owner
 
 ## Business Need

@@ -1,7 +1,7 @@
 # BRD-014: Lightweight Critique-to-Evidence Ingestion
 
 **Source ADR:** [ADR-014](../../adr/ADR-014-critique-to-evidence-ingestion.md) — Accepted (2026-10-28)  
-**Governing Baseline:** none approved yet; cycle `CYC-001` (ADR-035, Proposed)  
+**Governing Baseline:** none approved yet; cycle `CYC-001` (ADR-035, Accepted)  
 **Status:** Draft (2026-10-28) — derived from Accepted ADR-014; not yet adjudicated through `approve-brd`.  
 **Stakeholders:** Menno (Sponsor/PM/maintainer); reviewers, human or automated, whose findings should change a decision; SDK adopters who run full-authority decisions  
 

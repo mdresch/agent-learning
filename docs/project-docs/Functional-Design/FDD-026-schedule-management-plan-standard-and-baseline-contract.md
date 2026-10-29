@@ -1,8 +1,8 @@
 # FDD-026: Schedule Management Plan Standard and Baseline Contract
 
-**Source ADR:** [ADR-026](../../adr/ADR-026-schedule-management-plan-standard-and-baseline-contract.md) — Proposed (2026-10-26)  
+**Source ADR:** [ADR-026](../../adr/ADR-026-schedule-management-plan-standard-and-baseline-contract.md) — Accepted (2026-10-29, Menno), episode `8be53179-eb4e-4f1c-b71d-0efa79e0876d`  
 **Source BRD:** [BRD-026](../Business-Requirements/BRD-026-schedule-management-plan-standard-and-baseline-contract.md)  
-**Status:** Draft (2026-10-29) — derived from Proposed ADR-026 and BRD-026; not yet adjudicated via `approve-fdd`. §5 interpretations are not confirmed. Adjudication waits until ADR-026 is accepted.
+**Status:** Draft (2026-10-29) — derived from Accepted ADR-026 and BRD-026; not yet adjudicated via `approve-fdd`. §5 interpretations are not confirmed.
 
 ---
 

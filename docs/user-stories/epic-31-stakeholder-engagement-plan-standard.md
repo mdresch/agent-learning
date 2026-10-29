@@ -1,8 +1,8 @@
 # Epic 31: Stakeholder Engagement Plan Standard
 
-**Source ADR:** [ADR-031](../adr/ADR-031-stakeholder-engagement-plan-standard.md) — Proposed (2026-10-26)  
+**Source ADR:** [ADR-031](../adr/ADR-031-stakeholder-engagement-plan-standard.md) — Accepted (2026-10-29, Menno), episode `c6564adb-72de-4262-8309-4949e0745f51`  
 **Source BRD/FDD:** [BRD-031](../project-docs/Business-Requirements/BRD-031-stakeholder-engagement-plan-standard.md) / [FDD-031](../project-docs/Functional-Design/FDD-031-stakeholder-engagement-plan-standard.md)  
-**Status:** Draft (2026-10-29) — derived from Proposed ADR-031, BRD-031 and FDD-031; not yet adjudicated via `approve-user-stories`. Implementation waits until ADR-031 is accepted.
+**Status:** Draft (2026-10-29) — derived from Accepted ADR-031, BRD-031 and FDD-031; not yet adjudicated via `approve-user-stories`.
 
 Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_stakeholder_measure.py` (31.1), `tests/test_stakeholder_sections.py` (31.2), `tests/test_stakeholder_advice_policy.py` (31.3), `tests/test_stakeholder_advice_reward.py` (31.4). Stories 31.3 and 31.4 wait until FDD-031 §5 item 1 is confirmed. BRU-031-07 has no story: it is the text the plan author writes and the approver reads.
 

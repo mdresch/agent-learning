@@ -1,8 +1,8 @@
 # FDD-029: Quality Management Plan Standard
 
-**Source ADR:** [ADR-029](../../adr/ADR-029-quality-management-plan-standard.md) — Proposed (2026-10-26)  
+**Source ADR:** [ADR-029](../../adr/ADR-029-quality-management-plan-standard.md) — Accepted (2026-10-29, Menno), episode `736036f7-40a1-441f-afc0-062501c46d57`  
 **Source BRD:** [BRD-029](../Business-Requirements/BRD-029-quality-management-plan-standard.md)  
-**Status:** Draft (2026-10-29) — derived from Proposed ADR-029 and BRD-029; not yet adjudicated via `approve-fdd`. §5 interpretations are not confirmed. Adjudication waits until ADR-029 is accepted.
+**Status:** Draft (2026-10-29) — derived from Accepted ADR-029 and BRD-029; not yet adjudicated via `approve-fdd`. §5 interpretations are not confirmed.
 
 ---
 

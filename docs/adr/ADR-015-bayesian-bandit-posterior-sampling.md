@@ -19,7 +19,7 @@ This ADR introduces **Bayesian Bandit Posterior Sampling (Thompson Sampling)** (
 For binary or unit-scaled rewards $r \in [0, 1]$, each action $a \in A$ maintains a conjugate Beta prior:
 $$\theta_a \sim \text{Beta}(\alpha_a, \beta_a)$$
 - Prior initialization: $\alpha_a = 1.0, \beta_a = 1.0$ (uniform prior).
-- Update rule upon observing reward $r \in [0, 1]$. For binary $r$ this is the exact conjugate Beta-Bernoulli update; for fractional $r$ it is a pseudo-count approximation, not an exact posterior, and is documented as such:
+- Update rule upon observing reward $r \in [0, 1]$. The SDK's `Reward.value` lies in $[-1, 1]$, so it is mapped by $r = (\text{value} + 1) / 2$ first. For binary $r$ this is the exact conjugate Beta-Bernoulli update; for fractional $r$ it is a pseudo-count approximation, not an exact posterior, and is documented as such:
   $$\alpha_a \leftarrow \alpha_a + r, \quad \beta_a \leftarrow \beta_a + (1 - r)$$
 - **Effective Sample Size (ESS) Cap & Discounting:** To prevent parameter lock-in under non-stationary conditions, total pseudo-counts are capped at $N_{\max} = 5000$:
   $$\text{If } (\alpha_a + \beta_a) > N_{\max}, \quad \alpha_a \leftarrow \alpha_a \cdot \frac{N_{\max}}{\alpha_a + \beta_a}, \quad \beta_a \leftarrow \beta_a \cdot \frac{N_{\max}}{\alpha_a + \beta_a}$$
@@ -37,11 +37,13 @@ To satisfy repository auditability without compromising the mathematical propert
 - The pseudo-random number generator (PRNG) is seeded via an HMAC-SHA256 hash of the immutable request context:
   $$\text{seed} = \text{int}(\text{HMAC-SHA256}(\text{key}=\text{policy\_id}, \text{msg}=\text{request\_id} \,\|\, \text{timestamp}).\text{hexdigest}()[:16], 16)$$
   (the first 16 hex digits, a 64-bit seed; the example below is a value of that width). It is stored as a decimal string, because a 64-bit integer above $2^{53} - 1$ loses its low bits in the double-precision JSON parsers used by Cosmos DB and common dashboards.
-- The resulting seed and the sampled vector $\hat{\boldsymbol{\theta}}$ are saved in `Episode.metadata["thompson_sampling"]`:
+- The request id, the timestamp, the posterior used, the resulting seed and the sampled vector $\hat{\boldsymbol{\theta}}$ are saved in `Episode.metadata["thompson_sampling"]` (the request id and timestamp are needed to re-derive the seed). Posterior parameters are mappings keyed by action id, not lists:
   ```json
   {
+    "request_id": "req-001",
+    "timestamp": "2026-10-29T08:00:00+00:00",
     "prng_seed": "8472910384719203841",
-    "posterior_parameters": {"alpha": [14.0, 3.0], "beta": [2.0, 8.0]},
+    "posterior_parameters": {"alpha": {"action_1": 14.0, "action_2": 3.0}, "beta": {"action_1": 2.0, "action_2": 8.0}},
     "sampled_payoffs": {"action_1": 0.842, "action_2": 0.315}
   }
   ```
@@ -56,12 +58,12 @@ def seed_for(policy_id: str, request_id: str, timestamp: str) -> int: ...   # §
 class ThompsonPolicy(Policy):
     @classmethod
     def from_snapshot(cls, snapshot: PolicySnapshot) -> ThompsonPolicy: ...  # reads metadata["posterior_parameters"]
-    def choose(self, state=None, *, request_id: str, timestamp: str) -> Decision: ...
+    def choose(self, state=None, *, request_id: str | None = None, timestamp: str | None = None) -> Decision: ...  # absent values are supplied and recorded
 class ThompsonLearner(Learner):
     def update(self, policy, episodes, rewards) -> LearnerResult: ...      # alpha += r, beta += 1 - r, ESS cap
 ```
 
-`Policy.choose` returns a `Decision` with a log-probability, which probability matching does not define. The policy therefore records the seed and sampled vector in `Episode.metadata["thompson_sampling"]` and sets `selection_basis="thompson"`. `ReinforceLearner` today consumes any episode with a matching `action_id` (ADR-001 §4.5), so the FDD must add a guard that it skips these episodes.
+`Policy.choose` returns a `Decision` with a log-probability, which probability matching does not define. `Decision.logprob` therefore becomes `Optional[float]` and is `None` for this policy, and the policy records the seed and sampled vector in `Episode.metadata["thompson_sampling"]` and sets `selection_basis="thompson_sampling"`. No guard is added to `ReinforceLearner`: it already skips an episode whose `action_logprob` is `None`, and a test locks that in (FDD-015 D6). `ThompsonPolicy.apply_update` raises, because a posterior has no logits.
 
 Tests (`tests/test_thompson.py`): same seed gives the same draw, the replay in §4.3 reproduces a recorded episode, the update on Beta(1,1) with r=1 gives (2,1), the ESS cap holds at 5000, `ReinforceLearner` skips Thompson episodes, and an all-ones reward history keeps posteriors wide where REINFORCE's update goes to zero (the HYP-AL-002 check).
 
@@ -109,4 +111,4 @@ Tests (`tests/test_thompson.py`): same seed gives the same draw, the replay in �
 | 2026-10-28 | Review fix | Seed formula took 8 hex digits (32 bits) while the example showed a larger value; it now takes 16 (64 bits). Stated that the fractional-reward update is an approximation, not an exact conjugate posterior. |
 | 2026-10-28 | Code design | Added §4.4: module layout, signatures, tests, and which real data exists and which is missing. |
 | 2026-10-28 | Accepted | Approved by Menno through `approve-adr`: robust utility 0.680, expected utility 0.759; Episode `5a8c1d42-34d3-4d4e-8642-cd61091349b3`. Design only. |
-
+| 2026-10-29 | FDD alignment | Menno confirmed FDD-015 D1 to D6: reward mapped from [-1, 1] to [0, 1]; `choose` arguments optional and `Decision.logprob` optional; posterior and record keyed by action id with `request_id` and `timestamp` added; no REINFORCE guard needed. §4.1, §4.3 and §4.4 amended to match. Re-approved 2026-10-29 under `approve-adr` (adjudicated accept, robust utility 0.729 vs. 0.044 reject and 0.110 revise, episode `4fd48886-3c8c-485e-8cb2-15bde70cdfe4`). |

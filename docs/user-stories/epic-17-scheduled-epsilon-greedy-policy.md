@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-017](../adr/ADR-017-scheduled-epsilon-greedy-policy.md) — Accepted (2026-10-28)  
 **Source BRD/FDD:** [BRD-017](../project-docs/Business-Requirements/BRD-017-scheduled-epsilon-greedy-policy.md) / [FDD-017](../project-docs/Functional-Design/FDD-017-scheduled-epsilon-greedy-policy.md)  
-**Status:** Approved (2026-10-29, Menno) — stories derived from Accepted ADR-017, BRD-017 and FDD-017; adjudicated via `approve-user-stories` (robust utility 0.735, episode `4e6a04e1-48a0-4cee-be3c-d89c4df493a6`). The epic number follows the source ADR number, as Epic 16 follows ADR-016.  
+**Status:** Approved (2026-10-29, Menno) — stories derived from Accepted ADR-017, BRD-017 and FDD-017; adjudicated via `approve-user-stories` (robust utility 0.735, episode `4e6a04e1-48a0-4cee-be3c-d89c4df493a6`). The source-comparison criterion of Story 17.5 AC2 ("reinforce.py is unchanged") was made behavioural on 2026-10-29 and the stories were re-approved via `approve-user-stories` (robust utility 0.739, episode `1e0762b1-4c41-4440-af96-15b628946de3`; comparison with the previous approval: flat, within tolerance, no criterion lower). The epic number follows the source ADR number, as Epic 16 follows ADR-016.  
 
 Six stories build `src/agent_learning/policy/epsilon_greedy.py`, `src/agent_learning/learners/epsilon_greedy.py` and `src/agent_learning/policy/action_statistics.py`. Each rule sits in exactly one story's criteria (LL-012). Contract tests are `tests/test_epsilon_schedule.py` (17.1), `tests/test_epsilon_safety_mask.py` (17.2), `tests/test_epsilon_policy.py` (17.3), `tests/test_epsilon_learner.py` (17.4), `tests/test_epsilon_reinforce_guard.py` (17.5) and `tests/test_epsilon_positive_only.py` (17.6). The benchmark against the other policies is not a story (BRD-017 Out of Scope).
 
@@ -79,7 +79,7 @@ Fixture used by the criteria below ("the base policy"): three actions `a`, `b` a
 ### Acceptance Criteria:
 - **$AC_0$ (Skipped):** an episode made through `choose` and the capture path has `action_logprob` of `None`; `ReinforceLearner.update` over only such episodes returns `episodes_used` of 0 and leaves the logits unchanged.
 - **$AC_1$ (Mixed Set):** over 3 softmax episodes and 3 epsilon-greedy episodes with rewards, `ReinforceLearner` uses exactly the 3 softmax episodes, and the logits equal those from the 3 softmax episodes alone within 1e-12.
-- **$AC_2$ (No Change To REINFORCE):** `learners/reinforce.py` is unchanged by this epic; the test fails if the module's source differs from the one recorded when the story starts.
+- **$AC_2$ (Guard Is Existing Behaviour):** the skip of $AC_0$ and $AC_1$ is provided by the existing check on `action_logprob is None` in `ReinforceLearner`; this epic adds no condition to `learners/reinforce.py`. The test asserts behaviour only and does not compare the module's source, so a later epic may add a condition to that file without breaking it.
 
 ---
 

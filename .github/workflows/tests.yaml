@@ -38,4 +38,5 @@ jobs:
         run: uv sync --frozen --extra dev --extra spark
 
       - name: Run tests
-        run: uv run pytest
+        # tests/pmbok is excluded until ADR-034 decommissions pmbok/ (its sqlalchemy and tenacity dependencies are rejected; LL-013)
+        run: uv run pytest --ignore=tests/pmbok

@@ -47,7 +47,8 @@ python -m pip install --upgrade pip
 
 if [[ "${SKIP_TESTS}" -eq 0 ]]; then
     python -m pip install -e ".[dev]" pyinstaller
-    python -m pytest -q
+    # tests/pmbok is excluded until ADR-034 decommissions pmbok/ (LL-013)
+    python -m pytest -q --ignore=tests/pmbok
 else
     python -m pip install pyinstaller
 fi

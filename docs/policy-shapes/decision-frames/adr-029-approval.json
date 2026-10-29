@@ -1,0 +1,133 @@
+{
+  "task": "ADR-029 (Quality Management Plan Standard): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "architectural_soundness",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Tier 2 quality contract depending only on Scope: gates with pass criteria, verification and coverage, recorded waivers, and metrics. It references Scope acceptance criteria and does not redefine them. Floors 160/650; caps stay 800/5000. A Quality change does not stale Resource, Cost or Procurement."
+    },
+    {
+      "id": "alternatives_considered",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Three alternatives rejected: quality criteria only inside Scope, one global coverage number, and an external audit on every project."
+    },
+    {
+      "id": "consequences_honest",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Names auditable gates and visible waivers, and the costs: criteria stated up front, and overlap with Scope's definition of done."
+    },
+    {
+      "id": "gap_disclosure_quality",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Section 8 resolves gate episodes via PlanApprovalRecord, clarifies waiver authority as the Charter's Project Manager or Sponsor, and leaves domain re-basing open."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_adr",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "direct_doc_read:docs/adr/ADR-029-quality-management-plan-standard.md sections 4.2-4.5 and 5; invariant 1 keeps acceptance criteria in the Scope baseline",
+          "support": 0.86,
+          "confidence": 0.84
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "adr_029_section_6_three_alternatives",
+          "support": 0.86,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "adr_029_section_7_gate_audit_and_dod_overlap",
+          "support": 0.84,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "adr_029_section_8_waiver_authority_clarified",
+          "support": 0.84,
+          "confidence": 0.82
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_adr",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "no fundamental flaw found in direct_doc_read of ADR-029",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "section_6 of ADR-029",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "section_7 of ADR-029",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "section_8 of ADR-029",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "residual: section 4.4.1 recommendation kinds await confirmation",
+          "support": 0.12,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "adr_029_section_6",
+          "support": 0.1,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "adr_029_section_7 names the Scope overlap and does not specify a tie-break beyond the invariant",
+          "support": 0.14,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "adr_029_section_8 domain re-basing remains open",
+          "support": 0.14,
+          "confidence": 0.75
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

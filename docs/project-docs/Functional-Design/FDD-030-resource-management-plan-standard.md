@@ -1,8 +1,8 @@
 # FDD-030: Resource Management Plan Standard
 
-**Source ADR:** [ADR-030](../../adr/ADR-030-resource-management-plan-standard.md) — Proposed (2026-10-26)  
+**Source ADR:** [ADR-030](../../adr/ADR-030-resource-management-plan-standard.md) — Accepted (2026-10-29, Menno), episode `de095357-d927-4408-8311-181e158a2abf`  
 **Source BRD:** [BRD-030](../Business-Requirements/BRD-030-resource-management-plan-standard.md)  
-**Status:** Draft (2026-10-29) — derived from Proposed ADR-030 and BRD-030; not yet adjudicated via `approve-fdd`. §5 interpretations are not confirmed. Adjudication waits until ADR-030 is accepted.
+**Status:** Draft (2026-10-29) — derived from Accepted ADR-030 and BRD-030; not yet adjudicated via `approve-fdd`. §5 interpretations are not confirmed.
 
 ---
 

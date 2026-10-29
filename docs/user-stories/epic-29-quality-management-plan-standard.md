@@ -1,8 +1,8 @@
 # Epic 29: Quality Management Plan Standard
 
-**Source ADR:** [ADR-029](../adr/ADR-029-quality-management-plan-standard.md) — Proposed (2026-10-26)  
+**Source ADR:** [ADR-029](../adr/ADR-029-quality-management-plan-standard.md) — Accepted (2026-10-29, Menno), episode `736036f7-40a1-441f-afc0-062501c46d57`  
 **Source BRD/FDD:** [BRD-029](../project-docs/Business-Requirements/BRD-029-quality-management-plan-standard.md) / [FDD-029](../project-docs/Functional-Design/FDD-029-quality-management-plan-standard.md)  
-**Status:** Draft (2026-10-29) — derived from Proposed ADR-029, BRD-029 and FDD-029; not yet adjudicated via `approve-user-stories`. Implementation waits until ADR-029 is accepted.
+**Status:** Draft (2026-10-29) — derived from Accepted ADR-029, BRD-029 and FDD-029; not yet adjudicated via `approve-user-stories`.
 
 Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_quality_measure.py` (29.1), `tests/test_quality_sections.py` (29.2), `tests/test_quality_advice_policy.py` (29.3), `tests/test_quality_advice_reward.py` (29.4). Stories 29.3 and 29.4 wait until FDD-029 §5 item 1 is confirmed. BRU-029-07 has no story: it is the text the plan author writes and the approver reads.
 

@@ -10,7 +10,7 @@ It inherits the ADR-012 universal contract and specifies only what is Cost-speci
 ---
 
 ## 2. Status
-**Proposed (2026-10-26)** — Plan Tier 1 standard, inheriting ADR-012, ADR-025 and ADR-026. Ready for evaluation under `approve-adr`.
+**Accepted (2026-10-29, Menno)** — Plan Tier 1 standard, inheriting ADR-012, ADR-025 and ADR-026. Episode: `0ae724ad-5309-4eb2-a333-749cde39c0c0`.
 
 ---
 
@@ -183,3 +183,4 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 | 2026-10-28 | PMBOK 8 Edition Review | Added §4.5 comparing this standard with the guide's planning process: inputs, tools and techniques, outputs, and each difference with a decision. No change to `depends_on`, `PLAN_DAG`, thresholds or the plan files. Proposed, for maintainer confirmation. |
 | 2026-10-28 | Learner Decision | Added §4.4.1 deciding to build the `advise-cost-plan-decision` advisory learner on #2 softmax bandit with REINFORCE at `low` authority, fed by #5 and #6. Advisory only; no episodes created. |
 | 2026-10-28 | Learner Safeguards and Re-basing Gap | Added to §4.4.1 the anchoring and thin-data safeguard, and to §8 the open question on regrouping learners by PMBOK 8 domain. |
+| 2026-10-29 | **Accepted by Menno** | Formally adjudicated and accepted through `approve-adr`; robust utility 0.712, expected utility 0.786; Episode `0ae724ad-5309-4eb2-a333-749cde39c0c0`. |

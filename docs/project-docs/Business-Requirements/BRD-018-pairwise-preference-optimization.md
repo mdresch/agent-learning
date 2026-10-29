@@ -1,7 +1,7 @@
 # BRD-018: Pairwise Preference Optimization for Discrete Action Logits
 
 **Source ADR:** [ADR-018](../../adr/ADR-018-pairwise-preference-optimization.md) — Accepted (2026-10-28)  
-**Governing Baseline:** none approved yet; cycle `CYC-001` (ADR-035, Proposed)  
+**Governing Baseline:** none approved yet; cycle `CYC-001` (ADR-035, Accepted)  
 **Status:** Approved (2026-10-29, Menno) — derived from Accepted ADR-018; adjudicated via `approve-brd` (robust utility 0.732, episode `1a8a82dc-d63e-4f5b-a651-1fa4299c1107`).  
 **Stakeholders:** Menno (Sponsor/PM/maintainer); SDK adopters whose reviewers override a low-authority policy's proposal; auditors who must see why a logit moved  
 

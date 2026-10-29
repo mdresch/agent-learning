@@ -1,8 +1,8 @@
 # FDD-031: Stakeholder Engagement Plan Standard
 
-**Source ADR:** [ADR-031](../../adr/ADR-031-stakeholder-engagement-plan-standard.md) — Proposed (2026-10-26)  
+**Source ADR:** [ADR-031](../../adr/ADR-031-stakeholder-engagement-plan-standard.md) — Accepted (2026-10-29, Menno), episode `c6564adb-72de-4262-8309-4949e0745f51`  
 **Source BRD:** [BRD-031](../Business-Requirements/BRD-031-stakeholder-engagement-plan-standard.md)  
-**Status:** Draft (2026-10-29) — derived from Proposed ADR-031 and BRD-031; not yet adjudicated via `approve-fdd`. §5 interpretations are not confirmed. Adjudication waits until ADR-031 is accepted.
+**Status:** Draft (2026-10-29) — derived from Accepted ADR-031 and BRD-031; not yet adjudicated via `approve-fdd`. §5 interpretations are not confirmed.
 
 ---
 

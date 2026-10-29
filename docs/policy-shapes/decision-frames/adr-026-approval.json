@@ -1,0 +1,133 @@
+{
+  "task": "ADR-026 (Schedule Management Plan Standard and Baseline Contract): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "architectural_soundness",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Tier 1 schedule contract downstream of Scope: milestone register traced to the WBS, timebox and sequencing, estimation basis, baseline and buffers, variance tolerances, floors 180/700 and caps 750/4500, and STALE_DEPENDENCY to Cost, Resource and Risk. Inherits ADR-012. Advisory learner advise-schedule-plan-decision stays idle at low authority and does not share a task id with approve-subsidiary-plan."
+    },
+    {
+      "id": "alternatives_considered",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Three alternatives rejected with reasons: a fixed dated Gantt, a velocity-only schedule with no milestones, and merging Schedule into Scope or Cost."
+    },
+    {
+      "id": "consequences_honest",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Names measured slippage and milestone-to-WBS traceability, and the costs: early estimation basis, and a generic 2-working-day tolerance that the Charter may tighten."
+    },
+    {
+      "id": "gap_disclosure_quality",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Section 8 records tolerance authority as resolved in practice, velocity evidence as deferred, and PMBOK 8 domain re-basing as open. Section 4.5 leaves the Charter development-approach sentence for maintainer confirmation. Section 4.4.1 leaves the four recommendation kinds unconfirmed."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_adr",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "direct_doc_read:docs/adr/ADR-026-schedule-management-plan-standard-and-baseline-contract.md sections 4.1-4.5 and 5; floors and DAG match the stated Tier 1 contract; no unfixed contradiction with ADR-012 or ADR-013",
+          "support": 0.86,
+          "confidence": 0.84
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "adr_026_section_6_three_alternatives",
+          "support": 0.86,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "adr_026_section_7_slippage_and_generic_tolerance",
+          "support": 0.84,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "adr_026_section_8_and_section_4.5_development_approach_confirmation; section_4.4_says_credit_assignment_unblocked_when_epic_13_parent_hashes_exist_and_epic_13_is_already_merged",
+          "support": 0.8,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_adr",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "no fundamental flaw found in direct_doc_read of ADR-026",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "section_6 of ADR-026",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "section_7 of ADR-026",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "section_8 of ADR-026",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "residual: section 4.4 still says multi-stage credit assignment is unblocked when Epic 13 parent hashes exist, and Epic 13 is already merged; the sentence is stale, not a contradiction in the schedule contract",
+          "support": 0.16,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "adr_026_section_6",
+          "support": 0.1,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "adr_026_section_7",
+          "support": 0.12,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "adr_026_section_4.5 development approach and section 4.4.1 four decision kinds still await confirmation; both are named",
+          "support": 0.18,
+          "confidence": 0.75
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

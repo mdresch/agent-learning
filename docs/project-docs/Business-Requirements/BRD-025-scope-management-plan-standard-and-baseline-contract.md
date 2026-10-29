@@ -1,7 +1,7 @@
 # BRD-025: Scope Management Plan Standard and Baseline Contract
 
 **Source ADR:** [ADR-025](../../adr/ADR-025-scope-management-plan-standard-and-baseline-contract.md) — Accepted (2026-10-26, Menno); re-approved 2026-10-29, episode `983c2b87-8309-4414-98fe-93337989b9b5`  
-**Governing Baseline:** none approved yet; cycle `CYC-001` (ADR-035, Proposed)  
+**Governing Baseline:** none approved yet; cycle `CYC-001` (ADR-035, Accepted)  
 **Status:** Draft (2026-10-29) — derived from Accepted ADR-025; not yet adjudicated via `approve-brd`  
 **Stakeholders:** Menno (Sponsor, Project Manager, maintainer); the Product Owner named in the Stakeholder Register as deliverable-acceptance authority
 

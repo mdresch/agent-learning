@@ -1,8 +1,8 @@
 # Epic 30: Resource Management Plan Standard
 
-**Source ADR:** [ADR-030](../adr/ADR-030-resource-management-plan-standard.md) — Proposed (2026-10-26)  
+**Source ADR:** [ADR-030](../adr/ADR-030-resource-management-plan-standard.md) — Accepted (2026-10-29, Menno), episode `de095357-d927-4408-8311-181e158a2abf`  
 **Source BRD/FDD:** [BRD-030](../project-docs/Business-Requirements/BRD-030-resource-management-plan-standard.md) / [FDD-030](../project-docs/Functional-Design/FDD-030-resource-management-plan-standard.md)  
-**Status:** Draft (2026-10-29) — derived from Proposed ADR-030, BRD-030 and FDD-030; not yet adjudicated via `approve-user-stories`. Implementation waits until ADR-030 is accepted.
+**Status:** Draft (2026-10-29) — derived from Accepted ADR-030, BRD-030 and FDD-030; not yet adjudicated via `approve-user-stories`.
 
 Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_resource_measure.py` (30.1), `tests/test_resource_sections.py` (30.2), `tests/test_resource_advice_policy.py` (30.3), `tests/test_resource_advice_reward.py` (30.4). Stories 30.3 and 30.4 wait until FDD-030 §5 items 1 and 2 are confirmed. BRU-030-07 has no story: it is the text the plan author writes and the approver reads.
 

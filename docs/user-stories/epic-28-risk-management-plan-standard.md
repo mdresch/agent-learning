@@ -1,8 +1,8 @@
 # Epic 28: Risk Management Plan Standard
 
-**Source ADR:** [ADR-028](../adr/ADR-028-risk-management-plan-standard.md) — Proposed (2026-10-26)  
+**Source ADR:** [ADR-028](../adr/ADR-028-risk-management-plan-standard.md) — Accepted (2026-10-29, Menno), episode `8bad2024-ef80-4cbf-8497-8ffb92c8b564`  
 **Source BRD/FDD:** [BRD-028](../project-docs/Business-Requirements/BRD-028-risk-management-plan-standard.md) / [FDD-028](../project-docs/Functional-Design/FDD-028-risk-management-plan-standard.md)  
-**Status:** Draft (2026-10-29) — derived from Proposed ADR-028, BRD-028 and FDD-028; not yet adjudicated via `approve-user-stories`. Implementation waits until ADR-028 is accepted.
+**Status:** Draft (2026-10-29) — derived from Accepted ADR-028, BRD-028 and FDD-028; not yet adjudicated via `approve-user-stories`.
 
 Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_risk_measure.py` (28.1), `tests/test_risk_sections.py` (28.2), `tests/test_risk_advice_policy.py` (28.3), `tests/test_risk_advice_reward.py` (28.4). Stories 28.3 and 28.4 wait until FDD-028 §5 item 1 is confirmed. BRU-028-07 has no story: it is the text the plan author writes and the approver reads.
 

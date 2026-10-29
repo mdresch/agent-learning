@@ -1,7 +1,7 @@
 # BRD-017: Scheduled Epsilon-Greedy Policy Baseline
 
 **Source ADR:** [ADR-017](../../adr/ADR-017-scheduled-epsilon-greedy-policy.md) — Accepted (2026-10-28)  
-**Governing Baseline:** none approved yet; cycle `CYC-001` (ADR-035, Proposed)  
+**Governing Baseline:** none approved yet; cycle `CYC-001` (ADR-035, Accepted)  
 **Status:** Approved (2026-10-29, Menno) — derived from Accepted ADR-017; adjudicated via `approve-brd` (robust utility 0.732, episode `63a9fc4d-26c7-48ed-a084-6d641e01df98`).  
 **Stakeholders:** Menno (Sponsor/PM/maintainer); SDK adopters who need a plain reference policy; auditors who must tell a deliberate exploration probe from a failed exploitation  
 

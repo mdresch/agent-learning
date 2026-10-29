@@ -1,8 +1,8 @@
 # FDD-028: Risk Management Plan Standard
 
-**Source ADR:** [ADR-028](../../adr/ADR-028-risk-management-plan-standard.md) — Proposed (2026-10-26)  
+**Source ADR:** [ADR-028](../../adr/ADR-028-risk-management-plan-standard.md) — Accepted (2026-10-29, Menno), episode `8bad2024-ef80-4cbf-8497-8ffb92c8b564`  
 **Source BRD:** [BRD-028](../Business-Requirements/BRD-028-risk-management-plan-standard.md)  
-**Status:** Draft (2026-10-29) — derived from Proposed ADR-028 and BRD-028; not yet adjudicated via `approve-fdd`. §5 interpretations are not confirmed. Adjudication waits until ADR-028 is accepted.
+**Status:** Draft (2026-10-29) — derived from Accepted ADR-028 and BRD-028; not yet adjudicated via `approve-fdd`. §5 interpretations are not confirmed.
 
 ---
 

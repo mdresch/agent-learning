@@ -1,8 +1,8 @@
 # Epic 33: Procurement Management Plan Standard
 
-**Source ADR:** [ADR-033](../adr/ADR-033-procurement-management-plan-standard.md) — Proposed (2026-10-26)  
+**Source ADR:** [ADR-033](../adr/ADR-033-procurement-management-plan-standard.md) — Accepted (2026-10-29, Menno), episode `7362459e-b596-4f85-8872-5b7063eef015`  
 **Source BRD/FDD:** [BRD-033](../project-docs/Business-Requirements/BRD-033-procurement-management-plan-standard.md) / [FDD-033](../project-docs/Functional-Design/FDD-033-procurement-management-plan-standard.md)  
-**Status:** Draft (2026-10-29) — derived from Proposed ADR-033, BRD-033 and FDD-033; not yet adjudicated via `approve-user-stories`. Implementation waits until ADR-033 is accepted.
+**Status:** Draft (2026-10-29) — derived from Accepted ADR-033, BRD-033 and FDD-033; not yet adjudicated via `approve-user-stories`.
 
 Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_procurement_measure.py` (33.1), `tests/test_procurement_sections.py` (33.2), `tests/test_procurement_advice_policy.py` (33.3), `tests/test_procurement_advice_reward.py` (33.4). Stories 33.3 and 33.4 wait until FDD-033 §5 items 1 and 2 are confirmed. BRU-033-07 has no story: it is the text the plan author writes and the approver reads.
 

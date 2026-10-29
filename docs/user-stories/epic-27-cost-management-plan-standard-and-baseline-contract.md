@@ -1,8 +1,8 @@
 # Epic 27: Cost Management Plan Standard and Baseline Contract
 
-**Source ADR:** [ADR-027](../adr/ADR-027-cost-management-plan-standard-and-baseline-contract.md) — Proposed (2026-10-26)  
+**Source ADR:** [ADR-027](../adr/ADR-027-cost-management-plan-standard-and-baseline-contract.md) — Accepted (2026-10-29, Menno), episode `0ae724ad-5309-4eb2-a333-749cde39c0c0`  
 **Source BRD/FDD:** [BRD-027](../project-docs/Business-Requirements/BRD-027-cost-management-plan-standard-and-baseline-contract.md) / [FDD-027](../project-docs/Functional-Design/FDD-027-cost-management-plan-standard-and-baseline-contract.md)  
-**Status:** Draft (2026-10-29) — derived from Proposed ADR-027, BRD-027 and FDD-027; not yet adjudicated via `approve-user-stories`. Implementation waits until ADR-027 is accepted.
+**Status:** Draft (2026-10-29) — derived from Accepted ADR-027, BRD-027 and FDD-027; not yet adjudicated via `approve-user-stories`.
 
 Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_cost_measure.py` (27.1), `tests/test_cost_sections.py` (27.2), `tests/test_cost_advice_policy.py` (27.3), `tests/test_cost_advice_reward.py` (27.4). Story 27.1 waits on the shared lint arguments in FDD-027 §3.2. Stories 27.3 and 27.4 wait until FDD-027 §5 item 1 is confirmed. BRU-027-07 has no story: it is the text the plan author writes and the approver reads.
 

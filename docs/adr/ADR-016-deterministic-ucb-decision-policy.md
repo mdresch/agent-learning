@@ -70,7 +70,7 @@ The Wilson upper bound reuses the existing code through symmetry: $\text{WilsonU
 
 `Decision.logprob` becomes `Optional[float]` and is `None` for this policy (delivered by Story 15.3 of Epic 15). A log-probability of 0.0 is a probability of 1, and the callers copy it into `Episode.action_logprob`, so `ReinforceLearner` would train on a UCB pick as a certain softmax sample; with `None` it already skips the episode. `UCBPolicy.apply_update` raises, because there are no logits to move.
 
-Tests (`tests/test_ucb.py`): round-robin on $N_a = 0$, tie-break by pull count then action id (§4.2), two `choose` calls on one snapshot return the same action, no `random` import (static check), the symmetry identity against `wilson_lower_bound`, scores match the UCB1 formula on hand-computed cases.
+Tests (`tests/test_ucb_scores.py`, `tests/test_ucb_policy.py`, `tests/test_ucb_learner.py`, `tests/test_ucb_reinforce_guard.py`, `tests/test_ucb_positive_only.py`, split by story in Epic 16): round-robin on $N_a = 0$, tie-break by pull count then action id (§4.2), two `choose` calls on one snapshot return the same action, no `random` import (static check), the symmetry identity against `wilson_lower_bound`, scores match the UCB1 formula on hand-computed cases.
 
 **Test data.** *Real:* the same 41-episode positive-only replay as ADR-015; it shows how a deterministic bound behaves when every reward is 1.0. *Gap:* as ADR-015; no real data can show UCB beats REINFORCE (HYP-AL-009) until a low-authority policy with failures exists. *Oracle tests:* published UCB1 worked examples, labeled as arithmetic checks.
 

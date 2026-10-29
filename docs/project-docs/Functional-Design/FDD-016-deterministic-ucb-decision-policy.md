@@ -105,7 +105,7 @@ A study of decision quality against REINFORCE or Thompson sampling (data gap, BR
 1. **E1 to E6: decided (2026-10-29).** Menno confirmed them and ADR-016 is amended to match.
 2. **Open: the size of `consumed_episode_ids`.** It grows by one id per counted episode and is stored in the snapshot, so it is read and written with every update. It has no late-reward loss, which a `created_at` watermark would have. If the list becomes large, pruning ids older than the runner's `episode_limit` window is the next step; it is not built or decided here.
 3. **Open: the same gap in ADR-015.** The Thompson learner of FDD-015 adds to a posterior on each pass and has the same repeat problem. FDD-015 and Epic 15 have not been amended.
-4. **Open: the walkthrough.** The sketch in `examples/methodologies/10-ucb/sketch.py` breaks ties toward the lower pull count and the larger id, the opposite of ADR-016 §4.2. It is a sketch, not evidence (ADR-036), and is rewritten against the real module once built.
+4. **Walkthrough sketch aligned (2026-10-29).** `examples/methodologies/10-ucb/sketch.py` broke ties toward the lower pull count and the larger id, the opposite of ADR-016 §4.2; it now breaks them as the ADR does (higher pull count, then smaller id). It is still a sketch, not evidence (ADR-036), and is rewritten against the real module once built.
 5. **`WILSON_Z = 1.96` and `C_DEFAULT = sqrt(2)`:** taken from ADR-016 §4.1. There is no data behind either.
 
 ---

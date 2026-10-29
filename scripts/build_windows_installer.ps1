@@ -20,7 +20,8 @@ try {
 
     if (-not $SkipTests) {
         python -m pip install -e ".[dev]"
-        python -m pytest -q
+        # tests/pmbok is excluded until ADR-034 decommissions pmbok/ (LL-013)
+        python -m pytest -q --ignore=tests/pmbok
     }
 
     python -m pip install pyinstaller

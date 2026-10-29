@@ -1,0 +1,133 @@
+{
+  "task": "ADR-012 (Subsidiary Management Plan Standards and Content Contracts): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "architectural_soundness",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "architectural soundness of the amended ADR-012. Re-approval after a clarification of open question 8.2 (learner decisions per plan in ADR-025..033; scoring rubrics remain open) and an amendment-log row; no decision changed."
+    },
+    {
+      "id": "alternatives_considered",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "alternatives considered of the amended ADR-012. Re-approval after a clarification of open question 8.2 (learner decisions per plan in ADR-025..033; scoring rubrics remain open) and an amendment-log row; no decision changed."
+    },
+    {
+      "id": "consequences_honest",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "consequences honest of the amended ADR-012. Re-approval after a clarification of open question 8.2 (learner decisions per plan in ADR-025..033; scoring rubrics remain open) and an amendment-log row; no decision changed."
+    },
+    {
+      "id": "gap_disclosure_quality",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "gap disclosure quality of the amended ADR-012. Re-approval after a clarification of open question 8.2 (learner decisions per plan in ADR-025..033; scoring rubrics remain open) and an amendment-log row; no decision changed."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_adr",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "direct_doc_read:docs/adr/ADR-012-subsidiary-management-plan-standards-and-content-contracts.md; git diff of the 2026-10-28 amendment",
+          "support": 0.86,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "direct_doc_read:docs/adr/ADR-012-subsidiary-management-plan-standards-and-content-contracts.md; git diff of the 2026-10-28 amendment",
+          "support": 0.84,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "direct_doc_read:docs/adr/ADR-012-subsidiary-management-plan-standards-and-content-contracts.md; git diff of the 2026-10-28 amendment",
+          "support": 0.84,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "direct_doc_read:docs/adr/ADR-012-subsidiary-management-plan-standards-and-content-contracts.md; git diff of the 2026-10-28 amendment",
+          "support": 0.86,
+          "confidence": 0.84
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_adr",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "direct_doc_read:docs/adr/ADR-012-subsidiary-management-plan-standards-and-content-contracts.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "direct_doc_read:docs/adr/ADR-012-subsidiary-management-plan-standards-and-content-contracts.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "direct_doc_read:docs/adr/ADR-012-subsidiary-management-plan-standards-and-content-contracts.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "direct_doc_read:docs/adr/ADR-012-subsidiary-management-plan-standards-and-content-contracts.md",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "residual risk: learner not built, thresholds and rubrics deliberately open",
+          "support": 0.12,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "residual risk: learner not built, thresholds and rubrics deliberately open",
+          "support": 0.1,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "residual risk: learner not built, thresholds and rubrics deliberately open",
+          "support": 0.1,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "residual risk: learner not built, thresholds and rubrics deliberately open",
+          "support": 0.14,
+          "confidence": 0.75
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

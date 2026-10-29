@@ -19,6 +19,7 @@ It inherits the ADR-012 universal contract and specifies only what is Risk-speci
 * **Risk without thresholds:** A register that never triggers escalation is a list, not a control. Thresholds must say when a risk moves a decision to a human.
 * **Link to baselines:** Contingency in the Cost plan (ADR-027) and buffers in the Schedule plan (ADR-026) should be justified by identified risks.
 * **Omission is allowed but recorded:** Tier 2 plans may be `not_applicable` with an approved tailoring rationale (ADR-011); it is not a Tier 1 `OMISSION_OF_BASE_PLAN` case.
+* **Zero Upfront Deliverable or Breakout Prerequisite:** Designing and baselining the Risk Management Plan requires only the Project Charter and upstream Scope, Schedule, and Cost baselines. It does **not** require an exhaustive pre-populated risk register, quantified exposure models, or human breakout sessions in advance; the plan establishes the taxonomy, scales, and register contract under which risks are progressively identified.
 
 ---
 
@@ -60,6 +61,10 @@ governance_policy: "approve-subsidiary-plan" # "approve-subsidiary-plan" (if ful
 ### 4.2 Required Content
 
 #### Under `## 1. Intent, Alignment & Boundaries`
+* **PMBOK Input, Process & Output (IPO) Specification:**
+  * **Inputs:** `Project-Charter.md` (risk appetite), approved `Scope-Management-Plan.md`, `Schedule-Management-Plan.md`, `Cost-Management-Plan.md` (baseline exposures). Zero populated risk registers or breakout sessions required prior to planning.
+  * **Processes:** Risk taxonomy classification, reproducible probability-impact banded scoring, response strategy selection (avoid, mitigate, transfer, accept, escalate), contingency linking, escalation threshold enforcement.
+  * **Outputs:** `Risk-Management-Plan.md` (or `.staging/pmp-sections/Risk-Management-Plan.md`), Risk Register schema contract, escalation criteria reaching human authority, and contingency drawdown triggers.
 * **Charter and Baseline Traceability:** Maps risk objectives to Charter objectives and states which Scope, Schedule and Cost baseline elements are in the assessed exposure.
 * **Risk Appetite:** A short statement per objective area (scope, schedule, cost, quality, governance integrity) of what level of exposure is acceptable.
 * **Out-of-Scope Risk Boundaries:** Risk categories explicitly not managed by this plan (for example, risks owned by an external party). The ADR-012 §4.1 `None: [rationale]` form applies when there are none.
@@ -92,13 +97,47 @@ Measurement follows ADR-012 §4.3.1. Tier 2 raises the floor above the ADR-012 b
 
 ### 4.4 Learning Methodology
 
-**Now (implemented):** #3 reasoned resolution under `full` authority with permanent `requires_human_approval: true` through `approve-subsidiary-plan` (ADR-013 §4.2), and #6 durable human override. Methodology choice never grants autonomy, and no selection Episode exists yet (ADR-024 is Proposed).
+**Now (implemented):** #3 reasoned resolution under `full` authority with permanent `requires_human_approval: true` through `approve-subsidiary-plan` (ADR-013 §4.2), and #6 durable human override. Methodology choice never grants autonomy, and no selection Episode exists yet (ADR-024 is Accepted).
 
 **Possible later (only if its constraint is lifted):** #31 safe bandits with action masking, for choosing a risk response while masking responses the escalation thresholds forbid (HYP-AL-022). *Unblocked when:* The method is built, risk responses recur with scored outcomes, and the tier's evidence gate in `autonomy-complexity.md` is met.
+
+### 4.4.1 Learner Decision
+
+**Decision:** Build one advisory learner for the Risk Management Plan, as the policy `advise-risk-plan-decision`. The shape is declared with this standard and stays idle, with zero episodes and baseline logits, until real recommendation-versus-decision pairs exist. Synthetic episodes are not used. Building goes through BRD, FDD and a story; this ADR only decides that it is built and on which methodology. The methodology was chosen by hand from the `learning-methodology-selection` skill; when the policy is declared, the selection is recorded as an ADR-024 selection Episode with a human-declared profile. None exists yet and none is invented here.
+
+**What it trains:** The decisions made in this area: the route (full plan, PMP section or N/A with reason), paragraph sufficiency against §4.3, graduation of an over-cap PMP section, and acceptance of a flagged deviation. These four decision types are the maintainer's working list and await confirmation.
+
+**Selected methodology:** #2 softmax bandit with REINFORCE at `low` authority, over a small discrete recommendation set. It fits `learning-methodology-selection` step 3: the decision recurs, the action set is small, and outcomes are contrastive because the human either follows or overrides the recommendation. The reward comes from #5 reward shaping applied to the human decision recorded through #6 durable human override (followed is positive, overridden is negative). The learner trains on the recommendation, not on the approval decision itself.
+
+**Boundaries:**
+* Advisory only. The learner recommends and never approves; `approve-subsidiary-plan` stays `full` authority with permanent `requires_human_approval: true`, and its episodes are meant to stay outside REINFORCE (ADR-013 §4.2, ADR-001 §4.2). ADR-001 §4.5 records that this exclusion is not yet enforced in code, so the learner uses its own task id and never shares one with a gate policy.
+* The recommendation and the human decision are both recorded; the gap between them is evidence.
+* Methodology choice grants no autonomy. The complexity tier is declared by a human in the policy profile and its evidence gate in `autonomy-complexity.md` applies.
+* No warm start is assumed. A shared prior across the nine learners (#15, ADR-020) is an untested hypothesis (HYP-AL-008) and is not built; each learner starts cold.
+* Positive-only history would plateau REINFORCE (HYP-AL-002). Overrides must therefore be recorded as faithfully as agreements, or the learner is not trained.
+* Anchoring and thin data: the learner's recommendation is persisted with a timestamp before the human sees it, so it cannot be altered after the decision. A minimum number of recorded decisions for this area is declared by the maintainer in the policy profile, above the tier minimum, and until it is reached the recommendation is stored but not shown. The number is not set here because no data exists to justify one.
+
+**Plan-specific note:** Accepted deviations here include risk acceptances at or above the escalation threshold, which always reach a human (Invariant 2); the learner may recommend, never accept. The later candidate stays #31 safe bandits with action masking (HYP-AL-022), where the escalation thresholds supply the mask.
 
 Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 
 ---
+
+### 4.5 PMBOK 8 Alignment
+
+**Source:** *A Guide to the Project Management Body of Knowledge*, Eighth Edition, Plan Risk Management (Figure 2-48). The figure lists end with "Etc.", so the rows below are what the figure names, not an exhaustive set. This subsection records how the ADR relates to the guide; it does not change `depends_on`, `PLAN_DAG` or any threshold.
+
+| | PMBOK 8 | This ADR |
+|---|---|---|
+| Inputs | Project charter; project management plan (all components); project documents (stakeholder register); enterprise environmental factors; organizational process assets. | Charter and approved Scope, Schedule and Cost plans in; Risk Management Plan out, with the scoring bands and escalation rules (§4.2). |
+| Tools and techniques | Expert judgment; data gathering (interviews); data analysis (stakeholder analysis); meetings. | Not prescribed; the standard sets structure and measured thresholds and leaves method to the generator and the human reviewer. |
+| Outputs | Project management plan updates: risk management plan. | See §4.1 `outputs` and §4.2. |
+
+**Differences and decisions:**
+
+* **"All components" against three.** The guide reads every plan component. `PLAN_DAG` gives Risk three dependencies: Scope, Schedule and Cost. Quality, Resource, Communications, Procurement and Stakeholder Engagement are not gating inputs. Decision: Risk may read them if they exist, without a staleness edge. Nothing in `PLAN_DAG` depends on Risk, so no plan goes stale when it changes.
+* **Stakeholder register** is a guide input and Stakeholder Engagement (ADR-031) owns the register schema. Decision: Risk reads it when it exists; not gating.
+* **Stakeholder analysis** (the guide's technique) is not required here; the stakeholder inputs to risk appetite come from the Charter.
 
 ## 5. Architectural Invariants
 1. **Ratings Are Reproducible:** Every rating can be recomputed from the declared scale; unanchored qualitative ratings raise `FLAG: MISSING_REQUIRED_SECTION`.
@@ -127,8 +166,9 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 ---
 
 ## 8. Open Questions & Future Extensions
-1. **Risk and Learning Evidence:** Whether recorded risk outcomes should feed an advisory learner (deferred to learner ADRs).
-2. **Register Format:** Whether the register should be a Markdown table or structured data with a parser (deferred to tooling).
+1. **Risk and Learning Evidence:** Whether recorded risk outcomes should feed an advisory learner (*Resolved:* decided in §4.4.1).
+2. **Register Format:** Whether the register should be a Markdown table or structured data with a parser (deferred to tooling). *Resolved in practice:* Per ADR-002 Invariant #2 and ADR-034 anti-sprawl, the register is formatted as a standardized Markdown table within `Risk-Management-Plan.md`, parsed and checked by text linter rules rather than requiring a dedicated database entity.
+3. **PMBOK 8 Domain Re-basing:** PMBOK 8 has seven performance domains, while the repo uses nine plan areas and one learner per area. The nine are kept; whether learners are regrouped by domain is decided in the plan standards ADR.
 
 ---
 
@@ -138,3 +178,7 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 |---|---|---|
 | 2026-10-26 | Proposed | Initial drafting of ADR-028 under the ADR-012 framework, using ADR-025 as the structural template. |
 | 2026-10-26 | Learning Methodology Note | Added §4.4 recording the methodology that applies now and the candidates that apply only if their constraints are lifted. |
+| 2026-10-28 | Daughter ADR Review & Alignment Draft | Resolved register format open question confirming Markdown table format under ADR-002/034, verified DAG dependencies (`scope-management`, `schedule-management`, `cost-management`), and prepared for review. |
+| 2026-10-28 | PMBOK 8 Edition Review | Added §4.5 comparing this standard with the guide's planning process: inputs, tools and techniques, outputs, and each difference with a decision. No change to `depends_on`, `PLAN_DAG`, thresholds or the plan files. Proposed, for maintainer confirmation. |
+| 2026-10-28 | Learner Decision | Added §4.4.1 deciding to build the `advise-risk-plan-decision` advisory learner on #2 softmax bandit with REINFORCE at `low` authority, fed by #5 and #6. Advisory only; no episodes created. |
+| 2026-10-28 | Learner Safeguards and Re-basing Gap | Added to §4.4.1 the anchoring and thin-data safeguard, and to §8 the open question on regrouping learners by PMBOK 8 domain. |

@@ -32,7 +32,7 @@ governance_policy: "approve-subsidiary-plan"
 
 ---
 
-## 1. Intent, Alignment & Stakeholder Boundaries
+## 1. Intent, Alignment & Boundaries
 
 ### 1.1 Core Mandate & Sovereign Agency Principles
 This Stakeholder Engagement Plan establishes the strategies, interaction mechanisms, and governance protocols for engaging all project stakeholders throughout **Phase 1: Warm-Start & Confidence-Interval Bandits**. 
@@ -43,11 +43,32 @@ In strict alignment with [Project-Charter.md](../Project-Charter.md) §5 and **P
 
 ### 1.2 Boundary Definitions
 * **In-Scope Stakeholders:** Project Sponsor & Principal Researcher; Project Maintainers / Developers; Downstream SDK Consumers; AI Coding Assistants (Antigravity).
-* **Out-of-Scope Communities:** Unrelated external end-users; commercial marketing audiences; enterprise corporate steering committees outside the open-source governance chain.
+* **Out-of-Scope Communities:** The following stakeholder groups are strictly excluded:
+  - Unrelated external end-users beyond the research sample.
+  - Commercial marketing audiences and public press.
+  - Enterprise corporate steering committees outside the project governance chain.
 
 ---
 
-## 2. Domain Mechanics & Engagement Standards
+### 1.4 PMBOK Input, Process & Output (IPO) Specification
+In accordance with PMBOK® Guide 8th Edition (Stakeholders Performance Domain §2.5):
+* **Inputs (PMBOK 8 §2.5.2.1, §2.5.2.2 & §4):**
+  - **Project Charter:** Sponsor identity, decision authority, and project success criteria ([Project-Charter.md](../Project-Charter.md)).
+  - **Project Management Plan:** Scope baseline ([Scope-Management-Plan.md](Scope-Management-Plan.md)) and communications plan ([Communications-Management-Plan.md](Communications-Management-Plan.md)).
+  - **Enterprise Environmental Factors (EEFs):** Organizational culture, communication channels, remote work norms.
+  - **Organizational Process Assets (OPAs):** ADR standards ([ADR-012](../../adr/ADR-012-subsidiary-management-plan-standards-and-content-contracts.md), [ADR-031](../../adr/ADR-031-stakeholder-engagement-plan-standard.md)) and stakeholder engagement templates.
+* **Processes (PMBOK 8 §2.5.2 & §5):**
+  - **Identify Stakeholders:** Categorizing internal and external stakeholders, determining interest and influence.
+  - **Plan Stakeholder Engagement:** Assessing engagement levels (unaware, resistant, neutral, supportive, leading) and defining gap-closing actions.
+  - **Manage & Monitor Engagement:** Facilitating decision reviews, maintaining trust, and enforcing data minimization.
+* **Outputs (PMBOK 8 §2.5.2 & §4):**
+  - **Stakeholder Engagement Plan:** `docs/project-docs/management-plans/Stakeholder-Engagement-Plan.md`.
+  - **Stakeholder Register Contract:** Master registry of project roles (the role source for `owner_role` across all plans).
+  - **Stakeholder Decision Matrix:** Documented approval authority vs. consultation rights for change control.
+
+---
+
+## 2. Domain Mechanics & Standards
 
 ### 2.1 Stakeholder Power / Interest Classification Matrix
 Stakeholders are classified across a $2 \times 2$ Power vs. Interest matrix to tailor engagement intensity:

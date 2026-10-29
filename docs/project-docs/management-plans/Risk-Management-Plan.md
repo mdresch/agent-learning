@@ -6,6 +6,7 @@ pmbok_focus_area: "Planning"
 primary_pmbok_domain: "Risk"
 secondary_pmbok_domains:
   - "Governance"
+  - "Finance"
 legacy_process: "11.1 Plan Risk Management"
 route: "full_plan"
 generator: "llm"
@@ -35,7 +36,7 @@ governance_policy: "approve-subsidiary-plan"
 
 ---
 
-## 1. Intent, Alignment & Risk Boundaries
+## 1. Intent, Alignment & Boundaries
 
 ### 1.1 Core Mandate & Risk Strategy
 This Risk Management Plan establishes the framework for proactively identifying, analyzing, mitigating, and monitoring technical, epistemic, and governance risks for **Phase 1: Warm-Start & Confidence-Interval Bandits**. 
@@ -46,11 +47,33 @@ In strict alignment with [Project-Charter.md](../Project-Charter.md) §6 and [Bu
 
 ### 1.2 Boundary Definitions
 * **In-Scope Risk Domains:** Algorithmic failure modes (negative transfer, reward collapse); unverified architectural dependencies (Softmax internal state); research scope creep; feedback instability.
-* **Out-of-Scope Risk Domains:** Physical datacenter outages; external third-party cloud billing risks (mitigated by zero-cost open-source boundary); Phase 2 DPO alignment hazards (deferred).
+* **Out-of-Scope Risk Domains:** The following risk areas are strictly excluded:
+  - Physical datacenter outages and hardware breakdowns.
+  - External third-party cloud billing risks (mitigated by zero-cost open-source boundary).
+  - Phase 2 DPO alignment hazards (deferred to Phase 2).
 
 ---
 
-## 2. Domain Mechanics & Risk Standards
+### 1.4 PMBOK Input, Process & Output (IPO) Specification
+In accordance with PMBOK® Guide 8th Edition (Risk Performance Domain §2.7):
+* **Inputs (PMBOK 8 §2.7.2.1 & §4):**
+  - **Project Charter:** Risk appetite, high-level constraints, and success criteria ([Project-Charter.md](../Project-Charter.md)).
+  - **Project Management Plan:** Scope baseline ([Scope-Management-Plan.md](Scope-Management-Plan.md)), schedule baseline ([Schedule-Management-Plan.md](Schedule-Management-Plan.md)), and cost baseline ([Cost-Management-Plan.md](Cost-Management-Plan.md)).
+  - **Enterprise Environmental Factors (EEFs):** Industry benchmarks, algorithmic uncertainty, runtime constraints.
+  - **Organizational Process Assets (OPAs):** ADR standards ([ADR-012](../../adr/ADR-012-subsidiary-management-plan-standards-and-content-contracts.md), [ADR-028](../../adr/ADR-028-risk-management-plan-standard.md)) and risk breakdown structure (RBS).
+* **Processes (PMBOK 8 §2.7.2 & §5):**
+  - **Plan Risk Management:** Defining taxonomy, reproducible probability-impact scales, and register contracts.
+  - **Identify & Analyze Risks:** Iterative threat/opportunity identification and qualitative/quantitative analysis.
+  - **Plan & Implement Risk Responses:** Selecting strategies (avoid, mitigate, transfer, accept, escalate) and linking to contingency.
+  - **Monitor Risks:** Tracking risk triggers, reassessing ratings, and managing human escalation.
+* **Outputs (PMBOK 8 §2.7.2 & §4):**
+  - **Risk Management Plan:** `docs/project-docs/management-plans/Risk-Management-Plan.md`.
+  - **Risk Register Contract:** Standard schema for recording and monitoring project risks.
+  - **Contingency Drawdown Protocols:** Documented criteria for consuming cost contingency and schedule buffers.
+
+---
+
+## 2. Domain Mechanics & Standards
 
 ### 2.1 Primary Risk Register & Severity Scoring
 Risks are evaluated on a $5 \times 5$ Probability ($P$) and Impact ($I$) grid ($Score = P \times I \in [1, 25]$):

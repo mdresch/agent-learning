@@ -14,9 +14,9 @@ It adds no `TaskPolicy`, no `LearningStore` record type (ADR-002 Invariant #2) a
 ---
 
 ## 2. Status
-**Proposed (2026-10-27)** — awaiting Menno's `approve-adr` run and explicit sign-off. The gate's recommendation is an input to that decision, not a substitute for it.
+**Accepted (2026-10-27, Menno)** — Cross-cutting. Episode: `0eb8f52a-dea7-4ef6-8ac5-0e0e21def933`.
 
-The loop was adopted on 2026-10-27 in the sibling project Kairos Bay (its PROP-001) and the SIDPA template was updated to match (sidpa-template branch `feat/baseline-feedback-loop`, commit `9264e16`, not pushed). That adoption is the maintainer's report; it is not independently verified in this repository.
+The loop was adopted on 2026-10-27 in the sibling project Kayros Bay (its PROP-001) and the SIDPA template was updated to match (sidpa-template branch `feat/baseline-feedback-loop`, commit `9264e16`, not pushed). That adoption is the maintainer's report; it is not independently verified in this repository.
 
 ---
 
@@ -24,7 +24,7 @@ The loop was adopted on 2026-10-27 in the sibling project Kairos Bay (its PROP-0
 - **One route back (verified).** ADR-008 §4.4 draws the feedback cycle as Stage 16 → Stage 17 → subsidiary plans → Stage 6 → Stage 7. ADR-007 §4.5 ends Stage 16 at "a formally validated, immutable governance baseline" and leaves everything after it to Stage 17. Nothing connects Stage 7 or 8 to Stage 6 directly.
 - **The Adaptation Plan is built from accepted Stage 16 amendments (verified).** ADR-008 §4.5 defines the Governance Change Impact Matrix that an Adaptation Plan fills, and §4.4 places the lessons-learned stages (14-15) as what feeds Stage 16. Nothing in either lets a finding that precedes Stage 9 take that path honestly.
 - **Baseline versioning has no row for it (verified).** ADR-008 §4.6.1 defines `PMP-BL-v1.0.0` (initial), `PMP-BL-v1.1.0` (adaptive iteration, "minor for scope/quality/risk tailoring") and `PMP-BL-v2.0.0` (charter restructuring). A design-time fix is none of these.
-- **The case that surfaced it (reported, not verified here).** In Kairos Bay, writing Stage 7 requirements and checking Stage 8 readiness found: an approved critical path that contradicted the directive that the Blueprint comes first, a circular PoC gate and a lapsed milestone (AMD-001); accepted ADRs that implied plan updates the plans lacked (AMD-002); ADRs that conflicted with each other and with the Brand Manual (AMD-003). With no design-time route they went into the Adaptation Plan. AMD-001 claimed Stage 17 status with no Stage 9-15 evidence and skipped the Stage 16 classification its own gate required; attached a new 99-day critical path to a logic fix (a schedule with no real duration data); left Phase 1 stories blocked on an adaptation that could not yet exist; and would have asked the Steering Committee to approve an amendment instead of a revised baseline.
+- **The case that surfaced it (reported, not verified here).** In Kayros Bay, writing Stage 7 requirements and checking Stage 8 readiness found: an approved critical path that contradicted the directive that the Blueprint comes first, a circular PoC gate and a lapsed milestone (AMD-001); accepted ADRs that implied plan updates the plans lacked (AMD-002); ADRs that conflicted with each other and with the Brand Manual (AMD-003). With no design-time route they went into the Adaptation Plan. AMD-001 claimed Stage 17 status with no Stage 9-15 evidence and skipped the Stage 16 classification its own gate required; attached a new 99-day critical path to a logic fix (a schedule with no real duration data); left Phase 1 stories blocked on an adaptation that could not yet exist; and would have asked the Steering Committee to approve an amendment instead of a revised baseline.
 - **The pieces to reuse exist.** `classify-diff-type` (7 classes, `full` authority) and `escalate-diff-response` (3 actions, `low` authority) are built (ADR-007; `agent_learning.governance.evaluate_governance_diff`). Plan re-approval after a change and bounded staleness are specified (ADR-013 §4.5, §4.7). `Episode.metadata` is free-form.
 
 ---
@@ -141,4 +141,5 @@ Change-control episodes carry `evidence_basis: design_time | execution`. `evalua
 ## 9. Amendment Log
 | Date | Change | Why |
 |---|---|---|
-| 2026-10-27 | Proposed | The maintainer adopted a design-time baseline feedback loop in Kairos Bay (PROP-001) after Stage 7-8 findings were forced into an Adaptation Plan, and asked for the governance model and the SIDPA template to carry it. Drafted against ADR-007, ADR-008, ADR-013 and the code. |
+| 2026-10-27 | Proposed | The maintainer adopted a design-time baseline feedback loop in Kayros Bay (PROP-001) after Stage 7-8 findings were forced into an Adaptation Plan, and asked for the governance model and the SIDPA template to carry it. Drafted against ADR-007, ADR-008, ADR-013 and the code. |
+| 2026-10-27 | **Accepted by Menno** | Formally adjudicated and accepted through `approve-adr`; robust utility 0.749, expected utility 0.818; Episode `0eb8f52a-dea7-4ef6-8ac5-0e0e21def933`. |

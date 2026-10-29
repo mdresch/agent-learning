@@ -19,6 +19,7 @@ It inherits the ADR-012 universal contract and specifies only what is Communicat
 * **Decisions lost in channels:** In a governance-driven project, approvals and rationales must land in the record (`Episode.metadata`, version-controlled artifacts), not only in chat or meetings.
 * **Audience mismatch:** The same status text rarely suits a sponsor and a developer.
 * **Bounded invalidation:** A Communications change does not invalidate other plans (ADR-013 §4.5); a Scope change makes it stale.
+* **Zero Upfront Deliverable or Breakout Prerequisite:** Designing and baselining the Communications Management Plan requires only the Project Charter and Scope baseline. It does **not** require historical meeting minutes, communications logs, or human breakout sessions in advance; it establishes the flow matrix, cadence, and decision-recording rules.
 
 ---
 
@@ -55,6 +56,10 @@ governance_policy: "approve-subsidiary-plan" # "approve-subsidiary-plan" (if ful
 ### 4.2 Required Content
 
 #### Under `## 1. Intent, Alignment & Boundaries`
+* **PMBOK Input, Process & Output (IPO) Specification:**
+  * **Inputs:** `Project-Charter.md` (governance reporting obligations), approved `Scope-Management-Plan.md` (deliverable triggers and boundaries). Zero historical communications logs or breakout sessions required prior to planning.
+  * **Processes:** Communication requirements analysis, communication technology selection, channel and audience matrix mapping, decision-recording protocol ("the record is not the channel"), urgent escalation sequencing.
+  * **Outputs:** `Communications-Management-Plan.md` (or `.staging/pmp-sections/Communications-Management-Plan.md`), Communication Matrix, standard status report templates, and issue escalation paths.
 * **Charter and Scope Traceability:** Links communication needs to Charter reporting obligations and to Scope deliverables that trigger notices.
 * **Audience List:** Audiences by role, referencing the Stakeholder Register (ADR-031).
 * **Out-of-Scope Communication Boundaries:** Communications explicitly not covered (for example public marketing, external press). The ADR-012 §4.1 `None: [rationale]` form applies when there are none.
@@ -87,13 +92,47 @@ Measurement follows ADR-012 §4.3.1. Tier 3 keeps the ADR-012 baseline defaults.
 
 ### 4.4 Learning Methodology
 
-**Now (implemented):** #3 reasoned resolution under `full` authority with permanent `requires_human_approval: true` through `approve-subsidiary-plan` (ADR-013 §4.2), and #6 durable human override. Methodology choice never grants autonomy, and no selection Episode exists yet (ADR-024 is Proposed).
+**Now (implemented):** #3 reasoned resolution under `full` authority with permanent `requires_human_approval: true` through `approve-subsidiary-plan` (ADR-013 §4.2), and #6 durable human override. Methodology choice never grants autonomy, and no selection Episode exists yet (ADR-024 is Accepted).
 
 **Possible later:** none identified for this plan. A candidate is reconsidered if decisions about this plan recur with scored outcomes.
+
+### 4.4.1 Learner Decision
+
+**Decision:** Build one advisory learner for the Communications Management Plan, as the policy `advise-communications-plan-decision`. The shape is declared with this standard and stays idle, with zero episodes and baseline logits, until real recommendation-versus-decision pairs exist. Synthetic episodes are not used. Building goes through BRD, FDD and a story; this ADR only decides that it is built and on which methodology. The methodology was chosen by hand from the `learning-methodology-selection` skill; when the policy is declared, the selection is recorded as an ADR-024 selection Episode with a human-declared profile. None exists yet and none is invented here.
+
+**What it trains:** The decisions made in this area: the route (full plan, PMP section or N/A with reason), paragraph sufficiency against §4.3, graduation of an over-cap PMP section, and acceptance of a flagged deviation. These four decision types are the maintainer's working list and await confirmation.
+
+**Selected methodology:** #2 softmax bandit with REINFORCE at `low` authority, over a small discrete recommendation set. It fits `learning-methodology-selection` step 3: the decision recurs, the action set is small, and outcomes are contrastive because the human either follows or overrides the recommendation. The reward comes from #5 reward shaping applied to the human decision recorded through #6 durable human override (followed is positive, overridden is negative). The learner trains on the recommendation, not on the approval decision itself.
+
+**Boundaries:**
+* Advisory only. The learner recommends and never approves; `approve-subsidiary-plan` stays `full` authority with permanent `requires_human_approval: true`, and its episodes are meant to stay outside REINFORCE (ADR-013 §4.2, ADR-001 §4.2). ADR-001 §4.5 records that this exclusion is not yet enforced in code, so the learner uses its own task id and never shares one with a gate policy.
+* The recommendation and the human decision are both recorded; the gap between them is evidence.
+* Methodology choice grants no autonomy. The complexity tier is declared by a human in the policy profile and its evidence gate in `autonomy-complexity.md` applies.
+* No warm start is assumed. A shared prior across the nine learners (#15, ADR-020) is an untested hypothesis (HYP-AL-008) and is not built; each learner starts cold.
+* Positive-only history would plateau REINFORCE (HYP-AL-002). Overrides must therefore be recorded as faithfully as agreements, or the learner is not trained.
+* Anchoring and thin data: the learner's recommendation is persisted with a timestamp before the human sees it, so it cannot be altered after the decision. A minimum number of recorded decisions for this area is declared by the maintainer in the policy profile, above the tier minimum, and until it is reached the recommendation is stored but not shown. The number is not set here because no data exists to justify one.
+
+**Plan-specific note:** The owner is organization-dependent (internal communications or marketing, by company size), so the deciding role is recorded with each pair. No plan-specific later candidate is identified.
 
 Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 
 ---
+
+### 4.5 PMBOK 8 Alignment
+
+**Source:** *A Guide to the Project Management Body of Knowledge*, Eighth Edition, Plan Communications Management (Figure 2-35). The figure lists end with "Etc.", so the rows below are what the figure names, not an exhaustive set. This subsection records how the ADR relates to the guide; it does not change `depends_on`, `PLAN_DAG` or any threshold.
+
+| | PMBOK 8 | This ADR |
+|---|---|---|
+| Inputs | Project charter; project management plan (resource management plan, stakeholder engagement plan); project documents (requirements documentation, stakeholder register); enterprise environmental factors; organizational process assets. | Charter and approved Scope plan in; Communications Management Plan out, with the communication matrix and escalation paths (§4.2). |
+| Tools and techniques | Expert judgment; communication requirements analysis; communication technology; communication models; communication methods; interpersonal and team skills (communication styles assessment, political awareness, cultural awareness); data representation (stakeholder engagement assessment matrix); meetings. | Not prescribed; the standard sets structure and measured thresholds and leaves method to the generator and the human reviewer. |
+| Outputs | Project management plan updates: communications management plan, stakeholder engagement plan; project document updates (project schedule, stakeholder register). | See §4.1 `outputs` and §4.2. |
+
+**Differences and decisions:**
+
+* **Communications and Stakeholder Engagement read each other in the guide.** Each takes the other's plan as an input (Figures 2-34 and 2-35), and the guide describes the two as closely aligned. In `PLAN_DAG` both depend only on Scope, with no edge between them, so there is no cycle and no cascade. Decision: keep. Consequence: a change to one does not make the other stale. The human reviewer must check the pair for consistency, and this is stated here so the reviewer knows it is theirs to do.
+* **Guide outputs include updates to the stakeholder engagement plan and the project schedule.** Under ADR-013 each plan is owned and approved by itself. Decision: this plan does not write into another plan; an update needed elsewhere is a change request to that plan's owner.
+* **Resource management plan** is a guide input; not a dependency here. Decision: may be read, without a staleness edge.
 
 ## 5. Architectural Invariants
 1. **Every Flow Has an Owner and a Cadence:** A flow without owner or cadence/trigger raises `FLAG: MISSING_REQUIRED_SECTION`.
@@ -120,8 +159,9 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 ---
 
 ## 8. Open Questions & Future Extensions
-1. **Dependency on Stakeholder Engagement:** The baseline DAG makes Communications depend only on Scope. Whether it should also depend on `stakeholder-engagement` (audiences come from its register) is a DAG decision for a later ADR-013 amendment.
+1. **Dependency on Stakeholder Engagement:** The baseline DAG makes Communications depend only on Scope. Whether it should also depend on `stakeholder-engagement` (audiences come from its register) is a DAG decision for a later ADR-013 amendment. *Resolved in PLAN_DAG:* In accordance with FDD-013 §2.1 and `standards.py`, `communications-management` depends solely on `('scope-management',)`. Decoupling communication logistics (channels, cadence, reports) from stakeholder engagement strategies prevents cascading invalidation churn across Tier 3 execution plans. Role names resolve to the register without imposing a DAG edge.
 2. **Automated Status Reports:** Generating the status report from episodes and baselines (deferred to tooling).
+3. **PMBOK 8 Domain Re-basing:** PMBOK 8 has seven performance domains, while the repo uses nine plan areas and one learner per area. The nine are kept; whether learners are regrouped by domain is decided in the plan standards ADR.
 
 ---
 
@@ -131,3 +171,7 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 |---|---|---|
 | 2026-10-26 | Proposed | Initial drafting of ADR-032 under the ADR-012 framework, using ADR-025 as the structural template. |
 | 2026-10-26 | Learning Methodology Note | Added §4.4 recording the methodology that applies now and the candidates that apply only if their constraints are lifted. |
+| 2026-10-28 | Daughter ADR Review & Alignment Draft | Resolved Stakeholder Engagement dependency open question confirming Communications depends solely on `scope-management` in `PLAN_DAG` to prevent cascading churn, verified `depends_on`, and prepared for review. |
+| 2026-10-28 | PMBOK 8 Edition Review | Added §4.5 comparing this standard with the guide's planning process: inputs, tools and techniques, outputs, and each difference with a decision. No change to `depends_on`, `PLAN_DAG`, thresholds or the plan files. Proposed, for maintainer confirmation. |
+| 2026-10-28 | Learner Decision | Added §4.4.1 deciding to build the `advise-communications-plan-decision` advisory learner on #2 softmax bandit with REINFORCE at `low` authority, fed by #5 and #6. Advisory only; no episodes created. |
+| 2026-10-28 | Learner Safeguards and Re-basing Gap | Added to §4.4.1 the anchoring and thin-data safeguard, and to §8 the open question on regrouping learners by PMBOK 8 domain. |

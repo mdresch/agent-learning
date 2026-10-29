@@ -47,3 +47,6 @@ data/agent-learning/
 animiations/.venv/
 animiations/__pycache__/
 
+
+# PMBOK Guide PDF (copyrighted, local reference only)
+pmbokguide_eighthed_eng.pdf

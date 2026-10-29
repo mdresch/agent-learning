@@ -19,6 +19,7 @@ It inherits the ADR-012 universal contract and specifies only what is Stakeholde
 * **Engagement drift:** A stakeholder who is unsupportive or unaware of a baseline change becomes a late change request.
 * **Personal data:** Registers can hold personal information; the plan must limit what is recorded.
 * **Bounded invalidation:** A Stakeholder change does not invalidate other plans (ADR-013 §4.5); a Scope change makes it stale.
+* **Zero Upfront Deliverable or Breakout Prerequisite:** Designing and baselining the Stakeholder Engagement Plan requires only the Project Charter and Scope baseline. It does **not** require pre-conducted stakeholder interview breakout sessions in advance; it establishes the stakeholder register contract and engagement mechanisms for the lifecycle.
 
 ---
 
@@ -55,6 +56,10 @@ governance_policy: "approve-subsidiary-plan" # "approve-subsidiary-plan" (if ful
 ### 4.2 Required Content
 
 #### Under `## 1. Intent, Alignment & Boundaries`
+* **PMBOK Input, Process & Output (IPO) Specification:**
+  * **Inputs:** `Project-Charter.md` (sponsor and approver roles), approved `Scope-Management-Plan.md` (affected deliverables). Zero stakeholder interviews or breakout sessions required prior to planning.
+  * **Processes:** Stakeholder identification, influence/interest grid mapping, engagement level gap assessment, targeted engagement action planning, decision rights matrix formulation.
+  * **Outputs:** `Stakeholder-Engagement-Plan.md` (or `.staging/pmp-sections/Stakeholder-Engagement-Plan.md`), Stakeholder Register schema contract, role source registry for `owner_role` values, and decision consultation protocols.
 * **Charter and Scope Traceability:** Maps stakeholders to the Charter's sponsor and approver roles and to Scope deliverables they accept or are affected by.
 * **Stakeholder Register Contract:** Location of the register and minimum fields: identifier, name or role, organization or team, project role, interest, influence, current engagement level, desired engagement level, and contact channel reference.
 * **Out-of-Scope Engagement Boundaries:** Groups explicitly not engaged (for example end users outside the pilot). The ADR-012 §4.1 `None: [rationale]` form applies when there are none.
@@ -87,13 +92,47 @@ Measurement follows ADR-012 §4.3.1. Tier 3 keeps the ADR-012 baseline defaults.
 
 ### 4.4 Learning Methodology
 
-**Now (implemented):** #3 reasoned resolution under `full` authority with permanent `requires_human_approval: true` through `approve-subsidiary-plan` (ADR-013 §4.2), and #6 durable human override. Methodology choice never grants autonomy, and no selection Episode exists yet (ADR-024 is Proposed).
+**Now (implemented):** #3 reasoned resolution under `full` authority with permanent `requires_human_approval: true` through `approve-subsidiary-plan` (ADR-013 §4.2), and #6 durable human override. Methodology choice never grants autonomy, and no selection Episode exists yet (ADR-024 is Accepted).
 
 **Possible later:** none identified for this plan. A candidate is reconsidered if decisions about this plan recur with scored outcomes.
+
+### 4.4.1 Learner Decision
+
+**Decision:** Build one advisory learner for the Stakeholder Engagement Management Plan, as the policy `advise-stakeholder-plan-decision`. The shape is declared with this standard and stays idle, with zero episodes and baseline logits, until real recommendation-versus-decision pairs exist. Synthetic episodes are not used. Building goes through BRD, FDD and a story; this ADR only decides that it is built and on which methodology. The methodology was chosen by hand from the `learning-methodology-selection` skill; when the policy is declared, the selection is recorded as an ADR-024 selection Episode with a human-declared profile. None exists yet and none is invented here.
+
+**What it trains:** The decisions made in this area: the route (full plan, PMP section or N/A with reason), paragraph sufficiency against §4.3, graduation of an over-cap PMP section, and acceptance of a flagged deviation. These four decision types are the maintainer's working list and await confirmation.
+
+**Selected methodology:** #2 softmax bandit with REINFORCE at `low` authority, over a small discrete recommendation set. It fits `learning-methodology-selection` step 3: the decision recurs, the action set is small, and outcomes are contrastive because the human either follows or overrides the recommendation. The reward comes from #5 reward shaping applied to the human decision recorded through #6 durable human override (followed is positive, overridden is negative). The learner trains on the recommendation, not on the approval decision itself.
+
+**Boundaries:**
+* Advisory only. The learner recommends and never approves; `approve-subsidiary-plan` stays `full` authority with permanent `requires_human_approval: true`, and its episodes are meant to stay outside REINFORCE (ADR-013 §4.2, ADR-001 §4.2). ADR-001 §4.5 records that this exclusion is not yet enforced in code, so the learner uses its own task id and never shares one with a gate policy.
+* The recommendation and the human decision are both recorded; the gap between them is evidence.
+* Methodology choice grants no autonomy. The complexity tier is declared by a human in the policy profile and its evidence gate in `autonomy-complexity.md` applies.
+* No warm start is assumed. A shared prior across the nine learners (#15, ADR-020) is an untested hypothesis (HYP-AL-008) and is not built; each learner starts cold.
+* Positive-only history would plateau REINFORCE (HYP-AL-002). Overrides must therefore be recorded as faithfully as agreements, or the learner is not trained.
+* Anchoring and thin data: the learner's recommendation is persisted with a timestamp before the human sees it, so it cannot be altered after the decision. A minimum number of recorded decisions for this area is declared by the maintainer in the policy profile, above the tier minimum, and until it is reached the recommendation is stored but not shown. The number is not set here because no data exists to justify one.
+
+**Plan-specific note:** No plan-specific later candidate is identified. The owner role is declared per knowledge area and defaults to the Project Manager.
 
 Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 
 ---
+
+### 4.5 PMBOK 8 Alignment
+
+**Source:** *A Guide to the Project Management Body of Knowledge*, Eighth Edition, Plan Stakeholder Engagement (Figure 2-34). The figure lists end with "Etc.", so the rows below are what the figure names, not an exhaustive set. This subsection records how the ADR relates to the guide; it does not change `depends_on`, `PLAN_DAG` or any threshold.
+
+| | PMBOK 8 | This ADR |
+|---|---|---|
+| Inputs | Project charter; project management plan (resource, communications and risk management plans); project documents (assumption log, change log, issue log, project schedule, risk register, stakeholder register); agreements; enterprise environmental factors; organizational process assets. | Charter and approved Scope plan in; Stakeholder Engagement Plan out, with the register schema and consultation protocols (§4.2). |
+| Tools and techniques | Expert judgment; data gathering (benchmarking); data analysis (assumption and constraint analysis, root cause analysis); decision-making (prioritization and ranking); data representation (mind mapping, stakeholder engagement assessment matrix); meetings. | Not prescribed; the standard sets structure and measured thresholds and leaves method to the generator and the human reviewer. |
+| Outputs | Project management plan updates: stakeholder engagement plan. | See §4.1 `outputs` and §4.2. |
+
+**Differences and decisions:**
+
+* **Three plan inputs in the guide, one here.** The guide reads the resource, communications and risk plans. `PLAN_DAG` gives Stakeholder Engagement only `scope-management`. The earlier alignment review verified `depends_on: [scope-management]`, and keeping it avoids cascading re-approval (the reason ADR-032's review gave for its own). Decision: keep. Resource, Communications and Risk are optional reading with no staleness edge; the human reviewer checks consistency at approval.
+* **Engagement assessment matrix** is a guide technique. The engagement-level gap assessment in §4.2 is the equivalent.
+* **Agreements** are a guide input. They are created through Procurement (ADR-033); this ADR does not require them.
 
 ## 5. Architectural Invariants
 1. **Register Is the Role Source:** `owner_role` values across plans must exist as roles in the register.
@@ -120,8 +159,9 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 ---
 
 ## 8. Open Questions & Future Extensions
-1. **Register Location:** Whether the register is a Markdown artifact or structured data with a validator (deferred to tooling).
-2. **Role Cross-Check:** A linter check that every `owner_role` in plan frontmatter exists in the register (deferred to tooling).
+1. **Register Location:** Whether the register is a Markdown artifact or structured data with a validator (deferred to tooling). *Resolved in practice:* In accordance with ADR-002 Invariant #2 and ADR-034 anti-sprawl, the register is maintained as a Markdown table within `Stakeholder-Engagement-Plan.md` (or companion `Stakeholder-Register.md`), validated by text linting rather than custom database entities.
+2. **Role Cross-Check:** A linter check that every `owner_role` in plan frontmatter exists in the register (deferred to tooling). *Clarified:* Story 12.2 / FDD-012 enforces non-empty string format for `owner_role`; semantic consistency between frontmatter `owner_role` and register entries is verified during `approve-subsidiary-plan` human review.
+3. **PMBOK 8 Domain Re-basing:** PMBOK 8 has seven performance domains, while the repo uses nine plan areas and one learner per area. The nine are kept; whether learners are regrouped by domain is decided in the plan standards ADR.
 
 ---
 
@@ -131,3 +171,7 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 |---|---|---|
 | 2026-10-26 | Proposed | Initial drafting of ADR-031 under the ADR-012 framework, using ADR-025 as the structural template. |
 | 2026-10-26 | Learning Methodology Note | Added §4.4 recording the methodology that applies now and the candidates that apply only if their constraints are lifted. |
+| 2026-10-28 | Daughter ADR Review & Alignment Draft | Resolved register location and role cross-check questions under ADR-002/034, verified `depends_on: [scope-management]`, and prepared for review. |
+| 2026-10-28 | PMBOK 8 Edition Review | Added §4.5 comparing this standard with the guide's planning process: inputs, tools and techniques, outputs, and each difference with a decision. No change to `depends_on`, `PLAN_DAG`, thresholds or the plan files. Proposed, for maintainer confirmation. |
+| 2026-10-28 | Learner Decision | Added §4.4.1 deciding to build the `advise-stakeholder-plan-decision` advisory learner on #2 softmax bandit with REINFORCE at `low` authority, fed by #5 and #6. Advisory only; no episodes created. |
+| 2026-10-28 | Learner Safeguards and Re-basing Gap | Added to §4.4.1 the anchoring and thin-data safeguard, and to §8 the open question on regrouping learners by PMBOK 8 domain. |

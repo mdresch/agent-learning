@@ -1,0 +1,133 @@
+{
+  "task": "ADR-037 (Design-Time Baseline Feedback Loop: Stage 7-8 -> Stage 16 -> Stage 6): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "architectural_soundness",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Decides a second, design-time feedback loop alongside the execution loop, capturing defects as BFI-NNN, reusing existing Stage 16 policies (classify-diff-type, escalate-diff-response) with evidence_basis: design_time, producing a Baseline Revision Package (patch increment PMP-BL-v1.0.x), keeping zero storage sprawl (ADR-002), no new TaskPolicy, and human approval throughout (ADR-001, ADR-007 Invariant 4)."
+    },
+    {
+      "id": "alternatives_considered",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Five alternatives evaluated and rejected with real reasons: keeping Stage 7-8 findings in Adaptation Plan, adding a new TaskPolicy, recording them as lessons learned, allowing Stage 17 with evidence_basis flag, and adding rows to ADR-007/008 without dedicated ADR."
+    },
+    {
+      "id": "consequences_honest",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Discloses benefits (defined home for design defects, approver sees full baseline, separable evidence, zero storage sprawl) and costs/risks (bookkeeping overhead, potential mislabeling of execution evidence, Steering Committee ceremony in small teams, deferred PMP generation until ADR-034 port)."
+    },
+    {
+      "id": "gap_disclosure_quality",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Discloses open questions in Section 8 (BFI id scoping across cycles, ADR-013 patch increment threshold, repository approval limits, retro-logging, and downstream code story for evidence_basis in evaluate_governance_diff) and clarifies what is not decided."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_adr",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "direct_doc_read:docs/adr/ADR-037-design-time-baseline-feedback-loop.md; cross-checked against ADR-001, ADR-002, ADR-007, ADR-008, ADR-013; tested in Kayros Bay PROP-001",
+          "support": 0.88,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "adr_037_section_6_five_alternatives",
+          "support": 0.86,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "adr_037_section_7_consequences",
+          "support": 0.85,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "adr_037_section_8_open_questions; section 4.12 explicit exclusions",
+          "support": 0.84,
+          "confidence": 0.82
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_adr",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "direct_doc_read:docs/adr/ADR-037-design-time-baseline-feedback-loop.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "adr_037_section_6_five_alternatives",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "adr_037_section_7_consequences",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "adr_037_section_8_open_questions",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "residual risk: evaluate_governance_diff code story not yet implemented (gated on ADR-037 acceptance)",
+          "support": 0.12,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "adr_037_section_6_five_alternatives",
+          "support": 0.1,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "adr_037_section_7_consequences",
+          "support": 0.1,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "adr_037_section_8_open_questions",
+          "support": 0.14,
+          "confidence": 0.75
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

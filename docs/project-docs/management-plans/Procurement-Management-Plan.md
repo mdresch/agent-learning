@@ -5,6 +5,7 @@ pmbok_edition: "PMBOK 8"
 pmbok_focus_area: "Planning"
 primary_pmbok_domain: "Finance"
 secondary_pmbok_domains:
+  - "Resources"
   - "Governance"
 legacy_process: "12.1 Plan Procurement Management"
 route: "full_plan"
@@ -34,7 +35,7 @@ governance_policy: "approve-subsidiary-plan"
 
 ---
 
-## 1. Intent, Alignment & Procurement Boundaries
+## 1. Intent, Alignment & Boundaries
 
 ### 1.1 Core Mandate & Zero External Procurement Strategy
 This Procurement Management Plan establishes the vendor, licensing, and supply chain governance for **Phase 1: Warm-Start & Confidence-Interval Bandits**. 
@@ -46,11 +47,33 @@ In strict alignment with [Project-Charter.md](../Project-Charter.md) §4 and [Co
 
 ### 1.2 Boundary Definitions
 * **In-Scope Governance:** Open-source dependency vetting; supply chain security analysis; software license compatibility; cloud free-tier quota monitoring.
-* **Out-of-Scope Procurement Activities:** Requests for Proposals (RFPs); vendor bidding competitions; commercial procurement contracts; software leasing agreements.
+* **Out-of-Scope Procurement Activities:** The following procurement processes are strictly excluded:
+  - Requests for Proposals (RFPs) and formal bidding tenders.
+  - Vendor bidding competitions and procurement evaluations.
+  - Commercial procurement contracts and enterprise software leasing agreements.
 
 ---
 
-## 2. Domain Mechanics & Procurement Standards
+### 1.4 PMBOK Input, Process & Output (IPO) Specification
+In accordance with PMBOK® Guide 8th Edition (Appendix X4 Procurement & Governance §2.1.6.3):
+* **Inputs (PMBOK 8 Appendix X4 & §4):**
+  - **Project Charter:** Strategic sourcing direction and budget constraints ([Project-Charter.md](../Project-Charter.md)).
+  - **Project Management Plan:** Scope baseline ([Scope-Management-Plan.md](Scope-Management-Plan.md)) and cost envelope ([Cost-Management-Plan.md](Cost-Management-Plan.md)).
+  - **Enterprise Environmental Factors (EEFs):** Open-source licensing ecosystem (MIT, Apache, GPL), cloud API pricing, vendor terms.
+  - **Organizational Process Assets (OPAs):** ADR standards ([ADR-012](../../adr/ADR-012-subsidiary-management-plan-standards-and-content-contracts.md), [ADR-033](../../adr/ADR-033-procurement-management-plan-standard.md), [ADR-034](../../adr/ADR-034-pmbok-tooling-decommissioning-and-lightweight-learningstore-convergence.md) anti-sprawl).
+* **Processes (PMBOK 8 Appendix X4 & §5):**
+  - **Plan Sourcing Strategy:** Conducting make-or-buy analysis and establishing third-party dependency intake rules.
+  - **Source Selection Analysis:** Evaluating candidate packages and services against capability, cost, and maintenance criteria.
+  - **Contract & Licence Review:** Verifying copyleft/commercial licence compatibility and vendor data privacy terms.
+  - **Monitor & Control Procurements:** Overseeing dependency health, API quotas, and supplier exit readiness.
+* **Outputs (PMBOK 8 Appendix X4 & §4):**
+  - **Procurement Management Plan:** `docs/project-docs/management-plans/Procurement-Management-Plan.md`.
+  - **Dependency Intake Register:** Recorded justifications and exit paths for third-party runtime dependencies.
+  - **Licence Compliance Checklists:** Verified terms for open-source libraries and cloud model subscriptions.
+
+---
+
+## 2. Domain Mechanics & Standards
 
 ### 2.1 Open-Source Licensing & Compatibility Governance
 To protect the intellectual property and MIT licensing of the `agent-learning` SDK, all third-party software libraries must undergo licensing evaluation prior to inclusion in `pyproject.toml`:

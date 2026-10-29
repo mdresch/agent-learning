@@ -32,7 +32,7 @@ governance_policy: "approve-subsidiary-plan"
 
 ---
 
-## 1. Intent, Alignment & Communication Boundaries
+## 1. Intent, Alignment & Boundaries
 
 ### 1.1 Core Mandate & Transparency Principles
 This Communications Management Plan defines the information dissemination channels, decision-recording protocols, review cadences, and artifact transparency requirements for **Phase 1: Warm-Start & Confidence-Interval Bandits**. 
@@ -44,11 +44,32 @@ In alignment with **Pillar II (Democratic Epistemics)** and [Project-Charter.md]
 
 ### 1.2 Boundary Definitions
 * **In-Scope Channels:** GitHub pull requests and commit comments; interactive AI `/q` review protocols; markdown architecture documents (`docs/`); structured `implementation-log.md` entries; post-epic breakout recaps.
-* **Out-of-Scope Channels:** Ephemeral unrecorded chat conversations; informal slide decks; private offline decision notes.
+* **Out-of-Scope Channels:** The following communication channels are strictly excluded:
+  - Ephemeral unrecorded chat conversations.
+  - Informal slide decks and unmanaged presentations.
+  - Private offline decision notes outside repository version control.
 
 ---
 
-## 2. Domain Mechanics & Communication Standards
+### 1.4 PMBOK Input, Process & Output (IPO) Specification
+In accordance with PMBOK® Guide 8th Edition (Stakeholders Performance Domain §2.5):
+* **Inputs (PMBOK 8 §2.5.2.3 & §4):**
+  - **Project Charter:** Stakeholder reporting obligations and governance channels ([Project-Charter.md](../Project-Charter.md)).
+  - **Project Management Plan:** Scope baseline ([Scope-Management-Plan.md](Scope-Management-Plan.md)) and stakeholder engagement plan ([Stakeholder-Engagement-Plan.md](Stakeholder-Engagement-Plan.md)).
+  - **Enterprise Environmental Factors (EEFs):** Collaboration platforms, code repositories (GitHub), documentation formats.
+  - **Organizational Process Assets (OPAs):** ADR standards ([ADR-012](../../adr/ADR-012-subsidiary-management-plan-standards-and-content-contracts.md), [ADR-032](../../adr/ADR-032-communications-management-plan-standard.md)) and communication templates.
+* **Processes (PMBOK 8 §2.5.2 & §5):**
+  - **Plan Communications Management:** Analyzing audience information needs, channels, cadence, and owners.
+  - **Manage Communications:** Creating, publishing, and archiving status reports and milestone announcements.
+  - **Monitor Communications:** Ensuring information reaches decision-makers and enforcing the "record is not the channel" rule.
+* **Outputs (PMBOK 8 §2.5.2 & §4):**
+  - **Communications Management Plan:** `docs/project-docs/management-plans/Communications-Management-Plan.md`.
+  - **Project Communication Matrix:** Flow definitions, triggers, distribution lists, and confidentiality classes.
+  - **Status Reports & Escalation Protocols:** Standardized progress formats and emergency issue paths.
+
+---
+
+## 2. Domain Mechanics & Standards
 
 ### 2.1 Communications Matrix
 Project communication flows are structured across defined stakeholder touchpoints:

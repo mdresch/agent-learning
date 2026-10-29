@@ -34,7 +34,7 @@ governance_policy: "approve-subsidiary-plan"
 
 ---
 
-## 1. Intent, Alignment & Resource Boundaries
+## 1. Intent, Alignment & Boundaries
 
 ### 1.1 Core Mandate & Team Architecture
 This Resource Management Plan establishes the resource identification, team roles, physical and virtual infrastructure, and allocation protocols for **Phase 1: Warm-Start & Confidence-Interval Bandits**. 
@@ -45,11 +45,34 @@ In strict alignment with [Project-Charter.md](../Project-Charter.md) §4 and §5
 
 ### 1.2 Boundary Definitions
 * **In-Scope Resources:** Developer workstations; local Python 3.10–3.12 virtual environments managed via `uv`; GitHub repository infrastructure; Azure Cosmos DB emulator and development subscription.
-* **Out-of-Scope Resources (Zero Sprawl):** External contractor hiring; dedicated physical servers; cloud GPU cluster provisioning; multi-team organizational scaffolding.
+* **Out-of-Scope Resources (Zero Sprawl):** The following resources are strictly excluded:
+  - External contractor hiring during Phase 1.
+  - Dedicated physical server provisioning.
+  - Cloud GPU cluster procurement.
+  - Multi-team organizational management scaffolding.
 
 ---
 
-## 2. Domain Mechanics & Resource Standards
+### 1.4 PMBOK Input, Process & Output (IPO) Specification
+In accordance with PMBOK® Guide 8th Edition (Resources Performance Domain §2.6):
+* **Inputs (PMBOK 8 §2.6.2.1, §2.6.2.2 & §4):**
+  - **Project Charter:** Key roles, core sponsor limits, and project governance structure ([Project-Charter.md](../Project-Charter.md)).
+  - **Project Management Plan:** Scope baseline ([Scope-Management-Plan.md](Scope-Management-Plan.md)) and schedule timeboxes ([Schedule-Management-Plan.md](Schedule-Management-Plan.md)).
+  - **Enterprise Environmental Factors (EEFs):** Computational capacity, developer workstations, local emulators.
+  - **Organizational Process Assets (OPAs):** ADR standards ([ADR-012](../../adr/ADR-012-subsidiary-management-plan-standards-and-content-contracts.md), [ADR-030](../../adr/ADR-030-resource-management-plan-standard.md)) and team charter norms.
+* **Processes (PMBOK 8 §2.6.2 & §5):**
+  - **Plan Resource Management:** Formulating the role catalogue and human accountability structure.
+  - **Estimate Resources:** Estimating required human effort and agent/tooling quotas per timebox.
+  - **Acquire Resources:** Staffing roles and provisioning tooling assets with lead times.
+  - **Lead the Team & Control Resourcing:** Managing autonomous agent boundaries, team collaboration, and resolving capacity conflicts.
+* **Outputs (PMBOK 8 §2.6.2 & §4):**
+  - **Resource Management Plan:** `docs/project-docs/management-plans/Resource-Management-Plan.md`.
+  - **Project Role Catalogue & RACI Matrix:** Clear accountabilities ensuring every autonomous agent has a named responsible human.
+  - **Agent Work Boundaries & Quotas:** Token budgets, execution limits, and tooling environment allocations.
+
+---
+
+## 2. Domain Mechanics & Standards
 
 ### 2.1 RACI Assignment Matrix
 Organizational accountabilities are mapped across the 18-stage lifecycle:

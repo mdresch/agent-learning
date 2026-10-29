@@ -9,7 +9,7 @@ Critique tags of the form `- [criterion: id] -0.20: rationale` are parsed into e
 ```
 python examples/methodologies/08-critique-to-evidence/sketch.py
 ```
-Standard library only: no network, no credentials, no files written. All data in it is SYNTHETIC (invented for the demonstration). It is a sketch of the formulas in ADR-014 (Proposed); the methodology is not implemented in the SDK.
+Standard library only: no network, no credentials, no files written. All data in it is SYNTHETIC (invented for the demonstration). It is a sketch of the formulas in ADR-014 (Accepted); the methodology is not implemented in the SDK.
 
 ## What it does not show
 That reflection converges faster than REINFORCE on real episodes; no REINFORCE comparison is run.

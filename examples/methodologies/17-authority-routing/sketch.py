@@ -4,7 +4,7 @@ STATUS: proof_of_concept
 CODE: sketch
 DATA: SYNTHETIC
 IDEATION ROW: #17 Contextual authority-ensemble routing
-ADR: ADR-021 (Proposed)
+ADR: ADR-021 (Accepted)
 HYPOTHESIS: none registered (a criterion is proposed in the README)
 NOT EVIDENCE: this run does not validate or invalidate the methodology
 

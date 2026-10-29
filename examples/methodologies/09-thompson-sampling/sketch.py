@@ -4,7 +4,7 @@ STATUS: proof_of_concept
 CODE: sketch
 DATA: SYNTHETIC
 IDEATION ROW: #9 Thompson sampling
-ADR: ADR-015 (Proposed)
+ADR: ADR-015 (Accepted)
 HYPOTHESIS: HYP-AL-002, see also HYP-AL-009
 NOT EVIDENCE: this run does not validate or invalidate the methodology
 

@@ -9,7 +9,7 @@ A regularised Bradley-Terry fit and an active query rule that asks about the pai
 ```
 python examples/methodologies/23-dueling-bandit/sketch.py
 ```
-Standard library only: no network, no credentials, no files written. All data in it is SYNTHETIC (invented for the demonstration). It is a sketch of the formulas in ADR-023 (Proposed); the methodology is not implemented in the SDK.
+Standard library only: no network, no credentials, no files written. All data in it is SYNTHETIC (invented for the demonstration). It is a sketch of the formulas in ADR-023 (Accepted); the methodology is not implemented in the SDK.
 
 ## What it does not show
 That adaptive pair selection needs fewer comparisons than the exhaustive approach on real judgments; the ranking here is invented.

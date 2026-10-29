@@ -9,7 +9,7 @@ A decaying exploration rate `max(floor, e0 / (1 + d t))` with a safe-action mask
 ```
 python examples/methodologies/11-epsilon-greedy/sketch.py
 ```
-Standard library only: no network, no credentials, no files written. All data in it is SYNTHETIC (invented for the demonstration). It is a sketch of the formulas in ADR-017 (Proposed); the methodology is not implemented in the SDK.
+Standard library only: no network, no credentials, no files written. All data in it is SYNTHETIC (invented for the demonstration). It is a sketch of the formulas in ADR-017 (Accepted); the methodology is not implemented in the SDK.
 
 ## What it does not show
 That decayed exploration beats a fixed policy on real data.

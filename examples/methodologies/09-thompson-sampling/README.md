@@ -9,7 +9,7 @@ A Beta posterior per action (alpha += r, beta += 1 - r) and probability matching
 ```
 python examples/methodologies/09-thompson-sampling/sketch.py
 ```
-Standard library only: no network, no credentials, no files written. All data in it is SYNTHETIC (invented for the demonstration). It is a sketch of the formulas in ADR-015 (Proposed); the methodology is not implemented in the SDK.
+Standard library only: no network, no credentials, no files written. All data in it is SYNTHETIC (invented for the demonstration). It is a sketch of the formulas in ADR-015 (Accepted); the methodology is not implemented in the SDK.
 
 ## What it does not show
 That Thompson sampling crosses an autonomy gate under positive-only evidence; no gate is evaluated.

@@ -4,7 +4,7 @@ STATUS: proof_of_concept
 CODE: sketch
 DATA: SYNTHETIC
 IDEATION ROW: #10 UCB
-ADR: ADR-016 (Proposed)
+ADR: ADR-016 (Accepted)
 HYPOTHESIS: HYP-AL-009
 NOT EVIDENCE: this run does not validate or invalidate the methodology
 

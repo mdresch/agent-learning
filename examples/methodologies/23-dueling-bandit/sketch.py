@@ -4,7 +4,7 @@ STATUS: proof_of_concept
 CODE: sketch
 DATA: SYNTHETIC
 IDEATION ROW: #23 Active dueling-bandit ranking
-ADR: ADR-023 (Proposed)
+ADR: ADR-023 (Accepted)
 HYPOTHESIS: HYP-AL-015
 NOT EVIDENCE: this run does not validate or invalidate the methodology
 

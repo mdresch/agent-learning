@@ -9,7 +9,7 @@ Empirical-Bayes mean and variance (with a floor) across a family of converged po
 ```
 python examples/methodologies/14-meta-learning/sketch.py
 ```
-Standard library only: no network, no credentials, no files written. All data in it is SYNTHETIC (invented for the demonstration). It is a sketch of the formulas in ADR-019 (Proposed); the methodology is not implemented in the SDK.
+Standard library only: no network, no credentials, no files written. All data in it is SYNTHETIC (invented for the demonstration). It is a sketch of the formulas in ADR-019 (Accepted); the methodology is not implemented in the SDK.
 
 ## What it does not show
 That a family-level prior speeds up a new policy; no learning on the new policy is run.

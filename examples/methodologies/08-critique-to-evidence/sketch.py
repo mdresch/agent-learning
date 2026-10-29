@@ -4,7 +4,7 @@ STATUS: proof_of_concept
 CODE: sketch
 DATA: SYNTHETIC
 IDEATION ROW: #8 Critique-to-evidence
-ADR: ADR-014 (Proposed)
+ADR: ADR-014 (Accepted)
 HYPOTHESIS: HYP-AL-005 (reflection-style update converges faster than REINFORCE)
 NOT EVIDENCE: this run does not validate or invalidate the methodology
 

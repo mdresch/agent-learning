@@ -1,0 +1,109 @@
+{
+  "task": "Epic 18 (Pairwise Preference Optimization, Stories 18.1 to 18.6): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "code_shaped_testable",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "code shaped testable: Six code-shaped stories with contract-testable criteria implementing FDD-018 and BRD-018; each rule sits in one story; 18.6 is a labelled real-data check showing that zero preference pairs exist, no story depends on another epic, and the effectiveness study and audit replay are named as out of scope rather than forced into stories."
+    },
+    {
+      "id": "traceable_to_fdd_brd_adr",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "traceable to fdd brd adr: Six code-shaped stories with contract-testable criteria implementing FDD-018 and BRD-018; each rule sits in one story; 18.6 is a labelled real-data check showing that zero preference pairs exist, no story depends on another epic, and the effectiveness study and audit replay are named as out of scope rather than forced into stories."
+    },
+    {
+      "id": "scope_correctly_bounded",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "scope correctly bounded: Six code-shaped stories with contract-testable criteria implementing FDD-018 and BRD-018; each rule sits in one story; 18.6 is a labelled real-data check showing that zero preference pairs exist, no story depends on another epic, and the effectiveness study and audit replay are named as out of scope rather than forced into stories."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_user_stories",
+      "evidence": [
+        {
+          "criterion_id": "code_shaped_testable",
+          "source": "direct_doc_read:docs/user-stories/epic-18-pairwise-preference-optimization.md; checked against src/agent_learning (policy/base.py, learners/base.py, learners/reinforce.py, types.py, decision.py)",
+          "support": 0.85,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "traceable_to_fdd_brd_adr",
+          "source": "direct_doc_read:docs/user-stories/epic-18-pairwise-preference-optimization.md; checked against src/agent_learning (policy/base.py, learners/base.py, learners/reinforce.py, types.py, decision.py)",
+          "support": 0.85,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "scope_correctly_bounded",
+          "source": "direct_doc_read:docs/user-stories/epic-18-pairwise-preference-optimization.md; checked against src/agent_learning (policy/base.py, learners/base.py, learners/reinforce.py, types.py, decision.py)",
+          "support": 0.85,
+          "confidence": 0.82
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_user_stories",
+      "evidence": [
+        {
+          "criterion_id": "code_shaped_testable",
+          "source": "direct_doc_read:docs/user-stories/epic-18-pairwise-preference-optimization.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "traceable_to_fdd_brd_adr",
+          "source": "direct_doc_read:docs/user-stories/epic-18-pairwise-preference-optimization.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "scope_correctly_bounded",
+          "source": "direct_doc_read:docs/user-stories/epic-18-pairwise-preference-optimization.md",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "code_shaped_testable",
+          "source": "direct_doc_read:docs/user-stories/epic-18-pairwise-preference-optimization.md",
+          "support": 0.12,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "traceable_to_fdd_brd_adr",
+          "source": "direct_doc_read:docs/user-stories/epic-18-pairwise-preference-optimization.md",
+          "support": 0.1,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "scope_correctly_bounded",
+          "source": "direct_doc_read:docs/user-stories/epic-18-pairwise-preference-optimization.md",
+          "support": 0.1,
+          "confidence": 0.75
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

@@ -9,7 +9,7 @@ Hard pinning of lifecycle gates to full authority, entropy-based routing for ope
 ```
 python examples/methodologies/17-authority-routing/sketch.py
 ```
-Standard library only: no network, no credentials, no files written. All data in it is SYNTHETIC (invented for the demonstration). It is a sketch of the formulas in ADR-021 (Proposed); the methodology is not implemented in the SDK.
+Standard library only: no network, no credentials, no files written. All data in it is SYNTHETIC (invented for the demonstration). It is a sketch of the formulas in ADR-021 (Accepted); the methodology is not implemented in the SDK.
 
 ## What it does not show
 That routing improves outcomes; it routes invented inputs. Lifecycle gates stay human-approved (ADR-003 Invariant 6).

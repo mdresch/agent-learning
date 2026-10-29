@@ -9,7 +9,7 @@ Coordinate ascent over criteria weights on the simplex (steps of 0.05, renormali
 ```
 python examples/methodologies/22-scored-search/sketch.py
 ```
-Standard library only: no network, no credentials, no files written. All data in it is SYNTHETIC (invented for the demonstration). It is a sketch of the formulas in ADR-022 (Proposed); the methodology is not implemented in the SDK.
+Standard library only: no network, no credentials, no files written. All data in it is SYNTHETIC (invented for the demonstration). It is a sketch of the formulas in ADR-022 (Accepted); the methodology is not implemented in the SDK.
 
 ## What it does not show
 That search beats hand-set weights on real decisions; the labels here come from hidden weights and prove nothing.

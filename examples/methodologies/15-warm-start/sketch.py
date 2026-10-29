@@ -4,7 +4,7 @@ STATUS: proof_of_concept
 CODE: sketch
 DATA: SYNTHETIC
 IDEATION ROW: #15 Warm-start / prior transfer
-ADR: ADR-020 (Proposed)
+ADR: ADR-020 (Accepted)
 HYPOTHESIS: HYP-AL-008
 NOT EVIDENCE: this run does not validate or invalidate the methodology
 

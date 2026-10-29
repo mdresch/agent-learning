@@ -4,7 +4,7 @@ STATUS: proof_of_concept
 CODE: sketch
 DATA: SYNTHETIC
 IDEATION ROW: #22 Scored-search decision compilation
-ADR: ADR-022 (Proposed)
+ADR: ADR-022 (Accepted)
 HYPOTHESIS: HYP-AL-010
 NOT EVIDENCE: this run does not validate or invalidate the methodology
 

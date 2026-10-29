@@ -9,7 +9,7 @@ Donor logits are mapped to a recipient through an explicit action mapping and da
 ```
 python examples/methodologies/15-warm-start/sketch.py
 ```
-Standard library only: no network, no credentials, no files written. All data in it is SYNTHETIC (invented for the demonstration). It is a sketch of the formulas in ADR-020 (Proposed); the methodology is not implemented in the SDK.
+Standard library only: no network, no credentials, no files written. All data in it is SYNTHETIC (invented for the demonstration). It is a sketch of the formulas in ADR-020 (Accepted); the methodology is not implemented in the SDK.
 
 ## What it does not show
 That a warm-started policy reaches the gate in fewer episodes than a cold start; no training is run.

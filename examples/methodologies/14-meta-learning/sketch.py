@@ -4,7 +4,7 @@ STATUS: proof_of_concept
 CODE: sketch
 DATA: SYNTHETIC
 IDEATION ROW: #14 Hierarchical meta-prior
-ADR: ADR-019 (Proposed)
+ADR: ADR-019 (Accepted)
 HYPOTHESIS: none registered (a criterion is proposed in the README)
 NOT EVIDENCE: this run does not validate or invalidate the methodology
 

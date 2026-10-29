@@ -21,13 +21,13 @@ For each action $a \in A$, maintain:
 - $\bar{X}_a$: running empirical mean reward.
 
 #### Action Selection:
-An action with $N_a = 0$ has $\bar{X}_a = 0.0$. Ties in $\arg\max_{a \in A} \bar{X}_a$ are broken deterministically as in ADR-016 §4.2: higher pull count first, then the lexicographically smaller `action.id`; the exploitation branch never draws a random number. The means are over the shaped reward in $[-1, 1]$; a comparison with ADR-015 and ADR-016, which assume $[0, 1]$, maps it explicitly as $(r + 1)/2$.
+Ties in $\arg\max_{a \in A} \bar{X}_a$ are broken deterministically as in ADR-016 §4.2: higher pull count first, then the lexicographically smaller `action.id`; the greedy pick itself draws no random number. The SDK's `Reward.value` lies in $[-1, 1]$. The statistics are kept on $[0, 1]$, mapped by $r = (\text{value} + 1)/2$, in the record ADR-016 uses (FDD-017 F1, F6), so the greedy argmax is unchanged. An action with $N_a = 0$ counts as the neutral mean $0.5$ when choosing, which is the $0.0$ of the $[-1, 1]$ scale.
 With probability $1 - \epsilon_t$ (Exploitation):
 $$a^* = \arg\max_{a \in A} \bar{X}_a$$
 With probability $\epsilon_t$ (Exploration):
 $$a^* \sim \text{UniformRandom}(A_{\text{safe}})$$
 Where $A_{\text{safe}} \subseteq A$ is the safety-masked subset of benign/reversible actions: those whose action definition declares `"reversible": true`. The flag is declared by a human in the action definition, so setting or changing it is a reviewed change to that definition; an action without the flag is treated as not safe.
-The uniform draw is made with a PRNG seeded exactly as in ADR-015 §4.3 (HMAC-SHA256 over `request_id || timestamp`, keyed by `policy_id`, 64-bit seed), so an exploration step is replayable. If $A_{\text{safe}} = \emptyset$ (all candidate actions carry destructive or irreversible impact), $\epsilon_t$ is forced to $0.0$, disabling random exploration entirely. With no safe action the policy is purely greedy and can stay on whichever action it pulled first; that is the stated price of the safety mask, not a defect to be fixed by exploring unflagged actions.
+The branch itself is decided by a seeded draw $u$, the first number of the generator on every decision, with exploration when $u < \epsilon_t$ (FDD-017 F4). The uniform draw is made with a PRNG seeded exactly as in ADR-015 §4.3 (HMAC-SHA256 over `request_id || timestamp`, keyed by `policy_id`, 64-bit seed), so an exploration step is replayable. If $A_{\text{safe}} = \emptyset$ (all candidate actions carry destructive or irreversible impact), $\epsilon_t$ is forced to $0.0$, disabling random exploration entirely. With no safe action the policy is purely greedy and can stay on whichever action it pulled first; that is the stated price of the safety mask, not a defect to be fixed by exploring unflagged actions.
 
 #### Decay Schedule:
 The exploration rate $\epsilon_t$ follows a harmonic decay schedule parameterized by initial rate $\epsilon_0$, decay constant $\delta$, and floor $\epsilon_{\text{floor}}$:
@@ -50,7 +50,7 @@ To maintain audit integrity, every generated `DecisionResult` and `Episode` reco
   }
 }
 ```
-`branch_taken` is `"exploitation"` or `"exploration"`. The action ids above are generic placeholders, not those of any real policy. `prng_seed` is a decimal **string**: a 64-bit integer above $2^{53} - 1$ loses its low bits in the double-precision JSON parsers used by Cosmos DB and common dashboards, which would break replay.
+`branch_taken` is `"exploitation"` or `"exploration"`. `empirical_means` is on $[0, 1]$ and shows $0.5$ for an action with no pulls. The record also holds `request_id`, `timestamp`, `total_pulls` and `chosen`, so the seed can be re-derived and the decision replayed. The action ids above are generic placeholders, not those of any real policy. `prng_seed` is a decimal **string**: a 64-bit integer above $2^{53} - 1$ loses its low bits in the double-precision JSON parsers used by Cosmos DB and common dashboards, which would break replay.
 
 ### 4.3 Code design and test data
 Design only: nothing below is built, and the signatures are the contract an FDD must confirm or change.
@@ -60,13 +60,15 @@ Module `src/agent_learning/policy/epsilon_greedy.py`, implementing `Policy`, plu
 def epsilon_at(t: int, eps0: float, delta: float, floor: float) -> float: ...   # harmonic, §4.1
 # raises ValueError unless 0 <= floor <= eps0 <= 1, delta >= 0 and t >= 0
 class EpsilonGreedyPolicy(Policy):
-    def choose(self, state=None, *, request_id: str, timestamp: str) -> Decision: ...
+    def choose(self, state=None, *, request_id: str | None = None, timestamp: str | None = None) -> Decision: ...   # absent values are supplied and recorded
     # metadata: branch_taken, exploration_rate_applied, prng_seed, empirical_means
 ```
 
+`Decision.logprob` is `None` and `Decision.probabilities` hold the real selection probabilities; `EpsilonGreedyPolicy.apply_update` raises, because there are no logits. `eps0`, `delta` and `floor` are required arguments with no default, because the ADR names no values. The check of `reversible` runs when the policy is built and when a snapshot is read, as well as in `choose`. The learner and the UCB learner share one statistics record and one update function (`policy/action_statistics.py`), including the counted-once rule of ADR-016 (`consumed_episode_ids`).
+
 `A_safe` is read from `Action.parameters["reversible"] is True`. The value must be a JSON boolean: any other type (for example the string `"true"`) raises `ValueError` rather than being read as "not safe", so a serialisation mistake is reported instead of silently forcing $\epsilon_t = 0$. Existing action definitions (for example `approve-adr.actions.json`) carry empty `parameters`, so no action is safe today and $\epsilon_t$ is forced to 0 until a human declares the flag.
 
-Tests (`tests/test_epsilon_greedy.py`): `epsilon_at` rejects `delta < 0`, `eps0 < floor` and values outside [0, 1], exploitation ties resolve by pull count then action id, an unpulled action has mean 0.0, a stored `prng_seed` round-trips through JSON as a string without loss, the schedule is non-increasing and never below the floor, an empty $A_{\text{safe}}$ forces $\epsilon = 0$, exploration never selects an unflagged action, the recorded seed reproduces the draw, `branch_taken` is always present.
+Tests (`tests/test_epsilon_schedule.py`, `tests/test_epsilon_safety_mask.py`, `tests/test_epsilon_policy.py`, `tests/test_epsilon_learner.py`, `tests/test_epsilon_reinforce_guard.py`, `tests/test_epsilon_positive_only.py`, split by story in Epic 17): an unpulled action counts as the neutral mean, offering the same episodes twice counts them once, `epsilon_at` rejects `delta < 0`, `eps0 < floor` and values outside [0, 1], exploitation ties resolve by pull count then action id, an unpulled action has mean 0.0, a stored `prng_seed` round-trips through JSON as a string without loss, the schedule is non-increasing and never below the floor, an empty $A_{\text{safe}}$ forces $\epsilon = 0$, exploration never selects an unflagged action, the recorded seed reproduces the draw, `branch_taken` is always present.
 
 **Test data.** *Real:* none specific; its role is the baseline run on the same replay as ADR-015 and ADR-016, so the three can be compared on identical history. *Gap:* the `reversible` flag has never been declared on a real action; that human decision is needed first. *Oracle tests:* the schedule values, checked by hand.
 
@@ -115,4 +117,4 @@ Tests (`tests/test_epsilon_greedy.py`): `epsilon_at` rejects `delta < 0`, `eps0 
 | 2026-10-28 | External review triage | Cold start ($\bar{X}_a = 0$ when unpulled) and the exploitation tie-break (pull count, then action id, as ADR-016) specified; `epsilon_at` bounds; `prng_seed` stored as a string because 64-bit integers lose precision in Cosmos DB and browser JSON parsers; placeholder action ids and no comment inside the JSON; reward scale stated; "zero-hyperparameter" reworded. Declined: benchmark metrics and report templates (the benchmark is designed separately), an invented owner and cadence for the `reversible` flag, and a claimed missing minus sign (the formula is correct). |
 | 2026-10-28 | Amazon Q review, round 2 | `reversible` must be a JSON boolean; any other type raises instead of silently reading as not safe. |
 | 2026-10-28 | Accepted | Approved by Menno through `approve-adr`: robust utility 0.667, expected utility 0.747; Episode `dea2df98-8adb-49e2-9b7f-f690262756a7`. Design only. |
-
+| 2026-10-29 | FDD alignment | Menno confirmed FDD-017 F1 to F7: statistics on [0, 1] shared with ADR-016 with an unpulled action at the neutral 0.5; `choose` arguments optional; `Decision.logprob` `None` with real selection probabilities in `probabilities`; the branch decided by a seeded draw (the greedy pick still draws none); schedule arguments required with no default; one shared statistics module with the counted-once rule; `reversible` validated at construction. §4.1, §4.2 and §4.3 amended to match. Re-approved 2026-10-29 under `approve-adr` (adjudicated accept, robust utility 0.678 vs. 0.044 reject and 0.110 revise, episode `a8a28c10-84e3-48cf-8067-70625688334a`). The ADR-005 comparison with the original approval (0.667) classifies as **progression**: margin 0.494 to 0.568, expected utility 0.747 to 0.757, uncertainty 0.803 to 0.785, no criterion lower (soundness +0.010, consequences +0.010, gap disclosure +0.019, alternatives 0.000; this ADR still lists two alternatives, so that criterion did not move). The inputs are the same reader's scoring both times, so this is not independent evidence. Result: `docs/policy-shapes/results/adr-017-reapproval-comparison.json`. |

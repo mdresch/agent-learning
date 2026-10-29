@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-015](../adr/ADR-015-bayesian-bandit-posterior-sampling.md) — Accepted (2026-10-28)  
 **Source BRD/FDD:** [BRD-015](../project-docs/Business-Requirements/BRD-015-bayesian-bandit-posterior-sampling.md) / [FDD-015](../project-docs/Functional-Design/FDD-015-bayesian-bandit-posterior-sampling.md)  
-**Status:** Approved (2026-10-29, Menno); amended 2026-10-29 with the counted-once criteria (FDD-015 D7) and re-approved via `approve-user-stories` (robust utility 0.747, episode `8080a56f-03b3-44ac-9bb7-becd1dc93da6`; comparison with the previous approval: flat, within tolerance, no criterion lower) — stories derived from Accepted ADR-015, BRD-015 and FDD-015; adjudicated via `approve-user-stories` (robust utility 0.739, episode `8447f932-4002-43f5-9410-be732b8d5474`). The epic number follows the source ADR number, as Epic 14 follows ADR-014.  
+**Status:** Approved (2026-10-29, Menno); amended 2026-10-29 with the counted-once criteria (FDD-015 D7) and re-approved via `approve-user-stories` (robust utility 0.747, episode `8080a56f-03b3-44ac-9bb7-becd1dc93da6`; comparison with the previous approval: flat, within tolerance, no criterion lower) — stories derived from Accepted ADR-015, BRD-015 and FDD-015; adjudicated via `approve-user-stories` (robust utility 0.739, episode `8447f932-4002-43f5-9410-be732b8d5474`). The source-comparison criterion of Story 15.5 AC2 ("reinforce.py is unchanged") was made behavioural on 2026-10-29 and the stories were re-approved via `approve-user-stories` (robust utility 0.751, episode `51092d9f-8cd7-4c8c-aafd-0cb42096d2bf`; comparison with the previous approval: flat, within tolerance, no criterion lower). The epic number follows the source ADR number, as Epic 14 follows ADR-014.  
 
 Six stories build `src/agent_learning/policy/thompson.py` and `src/agent_learning/learners/thompson.py`. Each rule sits in exactly one story's criteria (LL-012). Contract tests are `tests/test_thompson_seed.py` (15.1), `tests/test_thompson_policy.py` (15.2 and 15.3), `tests/test_thompson_learner.py` (15.4), `tests/test_thompson_reinforce_guard.py` (15.5) and `tests/test_thompson_positive_only.py` (15.6). A study of decision quality against REINFORCE is a data gap, not a story (BRD-015 Out of Scope).
 
@@ -80,7 +80,7 @@ Fixture used by the criteria below ("the base policy"): two actions, `a` and `b`
 ### Acceptance Criteria:
 - **$AC_0$ (Skipped):** a Thompson episode made through `choose` and the capture path has `action_logprob` of `None`; `ReinforceLearner.update` over a set of only such episodes returns `episodes_used` of 0 and leaves the logits unchanged.
 - **$AC_1$ (Mixed Set):** over a set of 3 softmax episodes and 3 Thompson episodes with rewards, `ReinforceLearner` uses exactly the 3 softmax episodes, and the logits equal those from the 3 softmax episodes alone within 1e-12.
-- **$AC_2$ (No Change To REINFORCE):** `learners/reinforce.py` is unchanged by this epic (FDD-015 D6); the test fails if the module's source differs from the one recorded when the story starts.
+- **$AC_2$ (Guard Is Existing Behaviour):** the skip of $AC_0$ and $AC_1$ is provided by the existing check on `action_logprob is None` in `ReinforceLearner`; this epic adds no condition to `learners/reinforce.py` (FDD-015 D6). The test asserts behaviour only and does not compare the module's source, so a later epic may add a condition to that file without breaking it.
 
 ---
 

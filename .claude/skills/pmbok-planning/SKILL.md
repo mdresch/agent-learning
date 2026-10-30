@@ -7,6 +7,19 @@ description: Orchestrates PMBOK 8 subsidiary management plans and synthesizes th
 
 This skill orchestrates the generation, synthesis, and adaptation of the 9 PMBOK 8 subsidiary management plans and the overarching Project Management Plan (PMP) for projects initialized from `sidpa-template`.
 
+## Lightweight Runtime Migration (ADR-034)
+
+The replacement for the legacy PMBOK stack is being delivered by Epic 34. The pure process
+catalogue is `agent_learning.pmbok.legacy_registry.legacy_processes()`; its contract is
+`tests/test_legacy_registry.py` (Story 34.1). Keep its 49 process IDs and prerequisite tuples
+aligned with FDD-034 §2 and the legacy `PROCESS_DEPENDENCY_MAP` until Story 34.5 removes the old
+tree. The returned mapping is immutable.
+
+`agent_learning.pmbok` remains pure: do not add `LearningStore`, `pydantic`, the top-level
+`pmbok` package, file I/O, or network I/O to the registry. Runtime storage and external calls
+belong in `agent_learning.pmbok_runtime`. Until Story 34.4 delivers the unified CLI, the legacy
+orchestration commands below remain transitional; do not extend their implementation.
+
 ## Supported Workflows
 
 ### 1. Full Planning Orchestration
@@ -81,4 +94,3 @@ python scripts/orchestrate_pmbok.py --mode decommission --refinement-proposal do
 ```
 
 This generates `docs/archive/decommission_{timestamp}/DECOMMISSION-SUMMARY.md`, archives final baselines, and logs administrative teardown in full compliance with PMBOK 8 Phase Close guidelines.
-

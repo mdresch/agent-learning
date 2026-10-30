@@ -987,6 +987,33 @@ This log records completed user stories in accordance with the SIDPA `implement-
 
 ---
 
+## Story 34.1 — The 49-process registry is pure data
+- **Commit:** `b13f1bb`
+- **Date:** 2026-10-30
+- **Branch:** `feat/story-34.1`
+- **Source ADR / BRD / FDD:** ADR-034 (Invariant 4), BRD-034 (BRU-034-04), FDD-034 (§2, §3.1)
+- **Files Modified/Created:**
+  - `src/agent_learning/pmbok/legacy_registry.py` (immutable mapping of the 49 legacy process IDs to prerequisite tuples)
+  - `tests/test_legacy_registry.py` (contracts for $AC_0$ through $AC_3$)
+  - `.claude/skills/pmbok-planning/SKILL.md` (registry contract and migration boundary)
+  - `docs/user-stories/epic-34-pmbok-tooling-decommissioning-and-lightweight-learningstore-convergence.md` (Story 34.1 moved from Draft to Ready)
+- **Validation:**
+  - RED: all four new contracts failed before implementation because `legacy_registry.py` did not exist.
+  - GREEN: 4 passed in `tests/test_legacy_registry.py`; Ruff passed for both new Python files.
+  - Exact 49-entry prerequisite map compared against `pmbok/process_registry.py`.
+  - Full collection attempt with `uv run --extra dev pytest --ignore=tests/test_spark.py`: 15 collection errors in `tests/pmbok/` due absent `tenacity`, `sqlalchemy`, `fastapi`, `yaml`, and `hypothesis`; 1,582 other items collected and 1 skipped.
+  - With `tests/pmbok/` excluded for those missing legacy optional dependencies and `tests/test_spark.py` excluded per the optional-JVM convention: 1,500 passed, 2 skipped. This is not the entire suite.
+- **Post-main revalidation:** after merging current `main` (including PR #77), `tests/test_legacy_registry.py` passed (4 tests), Ruff passed for the new module and contract, and the available suite passed 1,507 tests with 2 skipped using the same exclusions.
+- **Amazon Q review:** Round 1 findings fixed in `0fc1059`.
+  - Q-78-1 | logic error | verified: yes | decision: accepted | Dotted storage imports were normalized to `agent_learning`, so the prior forbidden-import check could miss them | fix: `0fc1059`
+  - Q-78-2 | crash risk | verified: yes | decision: accepted | Missing module source produced an unhelpful `FileNotFoundError`; the contract now asserts the file exists with its path | fix: `0fc1059`
+  - Q-78-3 | logic error | verified: no | decision: declined | Duplicate inline claim refers to the original split-based check; the current helper matches full dotted module names and pins storage paths in assertions | fix: none (addressed in `0fc1059`)
+  - Q-78-4 | logic error | verified: no | decision: declined | Duplicate inline claim repeats Q-78-3 and quotes code that is absent from the current head | fix: none (addressed in `0fc1059`)
+  - Q-78-5 | crash risk | verified: no | decision: declined | Duplicate inline claim predates the explicit `MODULE.is_file()` assertion with the missing path | fix: none (addressed in `0fc1059`)
+- **Amazon Q round 2:** Review of `7273105` reported no merge-blocking defects; the repeated inline comments were answered and resolved. Final explicit confirmation is requested on the updated head after merging `main`.
+
+---
+
 ## Story 26.1 — Schedule floors, caps, and exclusions
 - **Commit:** `8065dfa`
 - **Date:** 2026-10-30

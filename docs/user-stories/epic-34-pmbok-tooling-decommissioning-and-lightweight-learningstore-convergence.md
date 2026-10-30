@@ -12,7 +12,7 @@ ADR-034 §6 says "Epic 12". That label means this epic. Epics 12 and 13 stay as 
 
 ## Story 34.1 — The 49-process registry is pure data
 
-**Status:** Draft  
+**Status:** Ready
 **As** a maintainer,  
 **I want** the legacy process codes and their prerequisites available without the legacy package,  
 **so that** a plan's `legacy_process` still names a real code after `pmbok/` is deleted.

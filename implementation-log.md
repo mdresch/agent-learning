@@ -1058,7 +1058,7 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `uv run --extra dev pytest --ignore=tests/test_spark.py` stopped at collection with 15 errors in `tests/pmbok/` from missing optional legacy modules (`tenacity`, `sqlalchemy`, `fastapi`, `yaml`, and `hypothesis`); 1,594 other items were collected and 1 skipped.
   - With `tests/pmbok/` excluded due to those dependencies and `tests/test_spark.py` excluded because Spark requires an optional JVM: 1,512 passed, 2 skipped. This is not the entire suite.
 - **Interpretations:** I1: `latest_run_for` makes at most three attempts to observe a stable append-only episode count, then raises `RuntimeError`; recorded in the test docstring and FDD §5. I2: `created_at` accepts timezone-aware ISO-8601 values and ordering compares instants normalized to UTC while preserving the original string; confirmed by the user for Story 34.2 and recorded in FDD §5.
-- **Review-fix commits:** `16a6354` (`fix: harden PMBOK run episode reads`), `c80a287` (`fix: bound and validate PMBOK run reads`), and `78c6e1a` (`docs: confirm run timestamp ordering interpretation`).
+- **Review-fix commits:** `16a6354` (`fix: harden PMBOK run episode reads`), `c80a287` (`fix: bound and validate PMBOK run reads`), `78c6e1a` (`docs: confirm run timestamp ordering interpretation`), and `13559d7` (`fix: stabilize empty-store run reads`).
 - **Review validation:** 5 passed in `tests/test_pmbok_run_state.py`; Ruff and mypy passed for changed Python files; available suite passed with 1,512 passed and 2 skipped, excluding `tests/pmbok/` (15 known legacy optional-dependency collection errors) and `tests/test_spark.py` (optional JVM).
 - **Amazon Q triage (rounds 1–2 on `47ddc00`):**
   - `Q-79-1 | logic error | verified: no | decision: declined | Python max returns the first maximal item on equal keys, confirmed by the contract test and FDD §3.2; repeated again in round 3 with no new evidence | fix: none`
@@ -1074,4 +1074,7 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-79-10 | logic error | verified: no | decision: declined | phase is not an ordering key and FDD-034 does not require a non-empty phase | fix: none`
   - `Q-79-11 | logic error | verified: yes | decision: accepted | Compare timezone-aware created_at instants in UTC and preserve their original stored strings; timestamp policy confirmed by user | fix: c80a287`
   - `Q-79-12 | logic error | verified: yes | decision: accepted | Reject bool sequence numbers in both snapshot construction and episode deserialization | fix: c80a287`
-- **Review follow-up:** Round 3 findings are triaged and fixes are committed, but the new head is not yet re-reviewed; obtain the explicit final verdict on the current PR head before merge.
+- **Amazon Q triage (round 4 on `130ec25`):**
+  - `Q-79-13 | logic error | verified: yes | decision: accepted | A write observed during the second zero-count check now proceeds to query in the same attempt; regression test verifies the race does not exhaust retries before querying | fix: 13559d7`
+  - `Q-79-14 | logic error | verified: yes | decision: accepted | Added explicit runtime type validation for phase and a regression assertion; updated FDD-034 error handling | fix: 13559d7`
+- **Review follow-up:** Round 4 findings are triaged and fixes are committed, but the new head is not yet re-reviewed; obtain the explicit final verdict on the current PR head before merge.

@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-014](../../adr/ADR-014-critique-to-evidence-ingestion.md) — Accepted (2026-10-28)  
 **Source BRD:** [BRD-014](../Business-Requirements/BRD-014-critique-to-evidence-ingestion.md)  
-**Status:** Draft (2026-10-28) — derived from Accepted ADR-014; not yet adjudicated through `approve-fdd`. Section 4 lists where this design departs from ADR-014 §4.4. Menno confirmed all five departures (D1 to D5) on 2026-10-28, and ADR-014 §4.1, §4.4 and Invariant 5 were amended to match.  
+**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-014; adjudicated via `approve-fdd` (robust utility 0.710, episode `d3157763-7368-4cc3-8937-737a36a1daba`). Section 4 lists where this design departs from ADR-014 §4.4. Menno confirmed all five departures (D1 to D5) on 2026-10-28, and ADR-014 §4.1, §4.4 and Invariant 5 were amended to match.  
 
 ---
 

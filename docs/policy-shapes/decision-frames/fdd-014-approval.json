@@ -1,0 +1,133 @@
+{
+  "task": "FDD-014 (Lightweight Critique-to-Evidence Ingestion): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "traceable_to_brd_adr",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "traceable to brd adr: Sections 2 and 3 implement BRU-014-01 to BRU-014-08; a pure critique_evidence.py module imports decision dataclasses and nothing from storage, the resolver is unchanged, and the caller stores Episode.metadata; D1 to D5 were confirmed by Menno on 2026-10-28 and ADR-014 was amended; the worked check names values run against DecisionResolver; the learned rubric is out of scope."
+    },
+    {
+      "id": "placement_and_purity",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "placement and purity: Sections 2 and 3 implement BRU-014-01 to BRU-014-08; a pure critique_evidence.py module imports decision dataclasses and nothing from storage, the resolver is unchanged, and the caller stores Episode.metadata; D1 to D5 were confirmed by Menno on 2026-10-28 and ADR-014 was amended; the worked check names values run against DecisionResolver; the learned rubric is out of scope."
+    },
+    {
+      "id": "no_invented_implementation",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "no invented implementation: Sections 2 and 3 implement BRU-014-01 to BRU-014-08. The rubric's five defect claim types match review_triage.CLAIM_TYPES; confirmation is an extra positive type the FDD states and section 7 calls ungrounded. D1 to D5 were confirmed and the resolver-pooling departure is the one measured against DecisionResolver."
+    },
+    {
+      "id": "compatibility_preserved",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "compatibility preserved: the resolver and its pooling are unchanged; critique points are appended evidence the existing resolver accepts; storage stays inside Episode.metadata with no new record type."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_fdd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_brd_adr",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-014-critique-to-evidence-ingestion.md; checked against src/agent_learning/decision.py and src/agent_learning/review_triage.py",
+          "support": 0.85,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "placement_and_purity",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-014-critique-to-evidence-ingestion.md; checked against src/agent_learning/decision.py and src/agent_learning/review_triage.py",
+          "support": 0.85,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "no_invented_implementation",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-014-critique-to-evidence-ingestion.md; checked against src/agent_learning/review_triage.py CLAIM_TYPES, which has no confirmation type",
+          "support": 0.78,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "compatibility_preserved",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-014-critique-to-evidence-ingestion.md; checked against src/agent_learning/decision.py DecisionResolver.resolve, which pools the frame it is given",
+          "support": 0.84,
+          "confidence": 0.82
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_fdd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_brd_adr",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-014-critique-to-evidence-ingestion.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "placement_and_purity",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-014-critique-to-evidence-ingestion.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "no_invented_implementation",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-014-critique-to-evidence-ingestion.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "compatibility_preserved",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-014-critique-to-evidence-ingestion.md",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_brd_adr",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-014-critique-to-evidence-ingestion.md",
+          "support": 0.12,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "placement_and_purity",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-014-critique-to-evidence-ingestion.md",
+          "support": 0.1,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "no_invented_implementation",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-014-critique-to-evidence-ingestion.md",
+          "support": 0.2,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "compatibility_preserved",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-014-critique-to-evidence-ingestion.md",
+          "support": 0.1,
+          "confidence": 0.75
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

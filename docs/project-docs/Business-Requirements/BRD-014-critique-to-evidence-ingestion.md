@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-014](../../adr/ADR-014-critique-to-evidence-ingestion.md) — Accepted (2026-10-28)  
 **Governing Baseline:** none approved yet; cycle `CYC-001` (ADR-035, Accepted)  
-**Status:** Draft (2026-10-28) — derived from Accepted ADR-014; not yet adjudicated through `approve-brd`.  
+**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-014; adjudicated via `approve-brd` (robust utility 0.724, episode `821c7e52-5858-41f4-8cef-f17fb7964b91`).  
 **Stakeholders:** Menno (Sponsor/PM/maintainer); reviewers, human or automated, whose findings should change a decision; SDK adopters who run full-authority decisions  
 
 ## Business Need

@@ -1,0 +1,133 @@
+{
+  "task": "BRD-022 (Scored-Search Decision Configuration Compilation): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "traceable_to_adr",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "traceable to adr: BRU-022-01 to BRU-022-12 trace to ADR-022 sections 4.1, 4.3 and 4.4 and its invariants; metrics are checkable resolver scoring, valid weights, untouched constraints, hold-out, label timing, strict improvement, determinism, human adoption and storage; the document states the recorded history cannot show an improvement."
+    },
+    {
+      "id": "honest_metrics",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "honest metrics: the success table asks for properties a test can count, and BRU-022-12 refuses a claim of better weights on labels that already agree with the resolver. DecisionResolver.resolve reads criterion weights from the frame, not from snapshot metadata."
+    },
+    {
+      "id": "out_of_scope_accurate",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "out of scope accurate: searching the uncertainty penalty and the minimum margin, Nelder-Mead, k-fold, resolver and constraint changes, a shown improvement on real data, and prompt compilation are named out of scope."
+    },
+    {
+      "id": "rules_actionable",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "rules actionable: each rule names an observable refusal or a stored proposal. FDD-022 L1 and L6 are design choices still open; they do not contradict a business rule in this BRD, which already says the resolver is not changed and adoption is a recorded human decision."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_brd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_adr",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-022-scored-search-decision-configuration-compilation.md; checked against src/agent_learning/decision.py DecisionResolver.resolve",
+          "support": 0.85,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "honest_metrics",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-022-scored-search-decision-configuration-compilation.md; checked against src/agent_learning/decision.py",
+          "support": 0.85,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "out_of_scope_accurate",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-022-scored-search-decision-configuration-compilation.md",
+          "support": 0.85,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "rules_actionable",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-022-scored-search-decision-configuration-compilation.md",
+          "support": 0.84,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_brd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_adr",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-022-scored-search-decision-configuration-compilation.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "honest_metrics",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-022-scored-search-decision-configuration-compilation.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "out_of_scope_accurate",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-022-scored-search-decision-configuration-compilation.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "rules_actionable",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-022-scored-search-decision-configuration-compilation.md",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_adr",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-022-scored-search-decision-configuration-compilation.md",
+          "support": 0.12,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "honest_metrics",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-022-scored-search-decision-configuration-compilation.md",
+          "support": 0.1,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "out_of_scope_accurate",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-022-scored-search-decision-configuration-compilation.md",
+          "support": 0.1,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "rules_actionable",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-022-scored-search-decision-configuration-compilation.md",
+          "support": 0.14,
+          "confidence": 0.75
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

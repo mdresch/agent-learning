@@ -1,0 +1,133 @@
+{
+  "task": "FDD-022 (Scored-Search Decision Configuration Compilation): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "traceable_to_brd_adr",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "traceable to brd adr: sections 2 and 3 implement BRU-022-01 to BRU-022-12. L1 to L8 were confirmed by Menno on 2026-10-30 as the options this FDD states, including L1 (resolver unchanged) and L6 (proposal file plus an adjudicated adopt command). ADR-022's body is not amended in this approval; section 4 names each departure."
+    },
+    {
+      "id": "placement_and_purity",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "placement and purity: weight_compiler.py is pure, imports decision types and PolicySnapshot, and does no storage or file I/O. The two commands do the file and store work. evaluate calls DecisionResolver.resolve(snapshot, with_weights(...)); the snapshot is the action space the resolver requires and is not read for criteria_weights."
+    },
+    {
+      "id": "no_invented_implementation",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "no invented implementation: CompiledWeights.weights is stored as a MappingProxyType over a copy. A dataset item with a bad label or a missing field makes policy-compile-weights exit non-zero; the pure module does not open the file. The worked checks name values from DecisionResolver."
+    },
+    {
+      "id": "compatibility_preserved",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "compatibility preserved: DecisionResolver is not changed. Online decisions apply frozen weights and run no search. Constraints, options and evidence are not changed by with_weights."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_fdd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_brd_adr",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-022-scored-search-decision-configuration-compilation.md; checked against src/agent_learning/decision.py DecisionResolver.resolve and BRD-022",
+          "support": 0.84,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "placement_and_purity",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-022-scored-search-decision-configuration-compilation.md; checked against src/agent_learning/decision.py _validate, which requires the frame action space to match snapshot.actions",
+          "support": 0.85,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "no_invented_implementation",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-022-scored-search-decision-configuration-compilation.md; MappingProxyType is the type already used in agent_learning.pmbok",
+          "support": 0.84,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "compatibility_preserved",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-022-scored-search-decision-configuration-compilation.md; DecisionResolver.resolve reads criterion weights from the frame",
+          "support": 0.85,
+          "confidence": 0.82
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_fdd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_brd_adr",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-022-scored-search-decision-configuration-compilation.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "placement_and_purity",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-022-scored-search-decision-configuration-compilation.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "no_invented_implementation",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-022-scored-search-decision-configuration-compilation.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "compatibility_preserved",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-022-scored-search-decision-configuration-compilation.md",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_brd_adr",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-022-scored-search-decision-configuration-compilation.md",
+          "support": 0.16,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "placement_and_purity",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-022-scored-search-decision-configuration-compilation.md",
+          "support": 0.1,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "no_invented_implementation",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-022-scored-search-decision-configuration-compilation.md",
+          "support": 0.12,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "compatibility_preserved",
+          "source": "direct_doc_read:docs/project-docs/Functional-Design/FDD-022-scored-search-decision-configuration-compilation.md",
+          "support": 0.1,
+          "confidence": 0.75
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

@@ -11,8 +11,6 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
-import pytest
-
 from agent_learning.pmbok import check_content, lint_plan
 from agent_learning.pmbok.scope import SCOPE_MEASURES, scope_measure
 from agent_learning.pmbok.standards import CAPS, FLOORS
@@ -101,9 +99,9 @@ class TestScopeLengths:
     def test_full_plan_length_thresholds(self):
         route = "full_plan"
         s2 = section2_wbs_dod_full()
-        under = scope_doc(make_body(699, section1=section1_two_real(), h2=s2), route)
+        under = scope_doc(make_body(699, section1=section1_four_items(), h2=s2), route)
         assert "BELOW_STANDARD_FLOOR" in codes(lint_plan(under).flags)
-        at700 = scope_doc(make_body(700, section1=section1_two_real(), h2=s2), route)
+        at700 = scope_doc(make_body(700, section1=section1_four_items(), h2=s2), route)
         assert "BELOW_STANDARD_FLOOR" not in codes(lint_plan(at700).flags)
         at4500 = scope_doc(make_body(4500, section1=section1_four_items(), h2=s2), route)
         assert not [c for c in codes(lint_plan(at4500).flags) if c.startswith("EXCEEDS")]

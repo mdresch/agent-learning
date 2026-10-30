@@ -13,9 +13,6 @@ from agent_learning.pmbok.scope import check_scope_sections
 from tests.test_plan_content import H1, H2, H3, codes, make_body
 from tests.test_scope_measure import SCOPE_FM, scope_doc, section1_four_items, section1_two_real
 
-H2_ONLY = "## 2. Domain Mechanics & Standards"
-H3_ONLY = "## 3. Governance, Control & Decision Rights"
-
 
 def s2(text: str) -> str:
     return f"{H2}\n\n{text}\n\n{H3}\n\nGovernance.\n"
@@ -59,6 +56,11 @@ class TestEmbeddedHierarchy:
 
     def test_arrow_link_passes_with_one_term(self):
         s2text = "Work breakdown structure: phase → story.\nDefinition of Done listed.\n"
+        doc = scope_doc(make_body(750, section1=section1_two_real(), h2=H2 + "\n\n" + s2text, h3=H3), "pmp_section")
+        assert not any(f.message == "WBS hierarchy is missing" for f in lint_plan(doc).flags)
+
+    def test_work_package_counts_without_commit_word(self):
+        s2text = "WBS covers phase and work package layers.\nDefinition of Done is documented.\n"
         doc = scope_doc(make_body(750, section1=section1_two_real(), h2=H2 + "\n\n" + s2text, h3=H3), "pmp_section")
         assert not any(f.message == "WBS hierarchy is missing" for f in lint_plan(doc).flags)
 

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 import hashlib
 import random
 from collections.abc import Mapping
@@ -92,7 +93,7 @@ def _kind_actions(snapshot: PolicySnapshot, decision_kind: str) -> tuple[Action,
 def _kind_snapshot(snapshot: PolicySnapshot, decision_kind: str) -> PolicySnapshot:
     actions = _kind_actions(snapshot, decision_kind)
     logits = {a.id: float(snapshot.logits.get(a.id, 0.0)) for a in actions}
-    data = snapshot.to_dict()
+    data = copy.deepcopy(snapshot.to_dict())
     data["actions"] = [a.to_dict() for a in actions]
     data["logits"] = logits
     return PolicySnapshot.from_dict(data)

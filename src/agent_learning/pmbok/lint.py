@@ -9,7 +9,9 @@ from enum import Enum
 from typing import Any
 
 from ..tailoring import compute_flags
+from .body_visible import visible_for_measurement
 from .parser import ParsedPlan, parse_frontmatter
+from .scope import check_scope_sections, scope_measure
 from .standards import (
     CAPS,
     DOMAINS,
@@ -159,7 +161,6 @@ def validate_metadata(metadata: Mapping[str, Any], routes: Sequence[Any] | None 
 # Content contract (Story 12.3): word count, headings, floors, caps, boundaries
 
 
-_COMMENT = re.compile(r"<!--.*?(?:-->|\Z)", re.DOTALL)
 _NONE_LINE = re.compile(r"^\s*[-*]?\s*None:\s+(.+)$")
 _BULLET = re.compile(r"^\s*[-*]\s+(\S.*)$")
 _PLACEHOLDER_BULLET = re.compile(
@@ -186,14 +187,7 @@ class LintResult:
 
 def _visible(text: str) -> str:
     """The text with fenced code and then HTML comments removed (an unclosed fence or comment runs to the end)."""
-    kept: list[str] = []
-    in_fence = False
-    for line in text.replace("\r\n", "\n").split("\n"):
-        if line.lstrip().startswith("```"):
-            in_fence = not in_fence
-        elif not in_fence:
-            kept.append(line)
-    return _COMMENT.sub(" ", "\n".join(kept))
+    return visible_for_measurement(text)
 
 
 def count_words(body: str) -> int:
@@ -351,8 +345,6 @@ def lint_plan(
         plan_id = plan.metadata.get("plan_id")
         measure = None
         if isinstance(plan_id, str):
-            from .scope import check_scope_sections, scope_measure
-
             measure = scope_measure(plan_id, route)
         if measure is not None:
             floor_option = _option("min_floor_words", min_floor_words)

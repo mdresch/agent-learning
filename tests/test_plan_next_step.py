@@ -320,7 +320,7 @@ class TestNoStorageNoNewDependency:
             if level == 0:
                 assert module.split(".")[0] in sys.stdlib_module_names, (name, module)
             elif level == 1:
-                assert module in ("standards", "parser", "lint", "scope"), (name, module)
+                assert module in ("standards", "parser", "lint", "scope", "body_visible"), (name, module)
             else:
                 assert module == "tailoring", (name, module)
                 assert name == "lint.py"

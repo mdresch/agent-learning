@@ -7,15 +7,10 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from types import MappingProxyType
 
-from .lint import _visible
+from .body_visible import visible_for_measurement
 from .standards import HEADINGS, LintFlag
 
 SCOPE_PLAN_ID = "scope-management"
-
-_PLACEHOLDER_BULLET = re.compile(
-    r"^(?:\[)?(?:TBD|TBC|FIXME|N/A)(?:\])?[.!]?\s*$",
-    re.IGNORECASE,
-)
 _WBS = re.compile(r"work breakdown structure|\bWBS\b", re.IGNORECASE)
 _DOD = re.compile(r"definition of done|\bDoD\b", re.IGNORECASE)
 _ARROW_LINK = re.compile(r"→|->")
@@ -70,11 +65,11 @@ def _hierarchy_terms(section: str) -> set[str]:
         found.add("phase")
     if _EPIC.search(section):
         found.add("epic")
-    if re.search(r"\bstory\b", section, re.IGNORECASE) or re.search(r"\buser story\b", section, re.IGNORECASE):
+    if _STORY.search(section):
         found.add("story")
     if re.search(r"\bcommit\b", section, re.IGNORECASE):
         found.add("commit")
-    if re.search(r"work package", section, re.IGNORECASE):
+    elif re.search(r"work package", section, re.IGNORECASE):
         found.add("work package")
     return found
 
@@ -84,7 +79,7 @@ def check_scope_sections(body: str, route: str) -> list[LintFlag]:
     if route == "not_applicable":
         return []
 
-    visible = _visible(body)
+    visible = visible_for_measurement(body)
     section = _section_two(visible)
     if section is None:
         return []

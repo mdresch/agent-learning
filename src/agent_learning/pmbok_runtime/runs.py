@@ -122,9 +122,9 @@ def latest_run_for(store: RunStore, run_id: str) -> RunSnapshot | None:
     for _ in range(MAX_STABLE_READ_ATTEMPTS):
         count = store.count_episodes(agent_id=RUN_AGENT_ID, task_id=RUN_TASK_ID)
         if count == 0:
-            if store.count_episodes(agent_id=RUN_AGENT_ID, task_id=RUN_TASK_ID) == 0:
+            count = store.count_episodes(agent_id=RUN_AGENT_ID, task_id=RUN_TASK_ID)
+            if count == 0:
                 return None
-            continue
         episodes = store.query_episodes(
             agent_id=RUN_AGENT_ID,
             task_id=RUN_TASK_ID,

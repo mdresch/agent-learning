@@ -84,6 +84,8 @@ def _validate_snapshot(snapshot: RunSnapshot, result_summary: str) -> None:
         raise ValueError("sequence_number must be non-negative")
     if not isinstance(snapshot.processes, Mapping):
         raise TypeError("processes must be a mapping")
+    if not isinstance(snapshot.phase, str):
+        raise TypeError("phase must be a string")
     if not isinstance(snapshot.created_at, str):
         raise TypeError("created_at must be a string")
     _validate_string_lengths(snapshot.created_at, "created_at")

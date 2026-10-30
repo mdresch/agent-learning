@@ -109,6 +109,7 @@ After Stories 34.1 to 34.4, delete `pmbok/`, `scripts/orchestrate_pmbok.py`, and
 | Empty `run_id`, negative `sequence_number`, invalid `created_at`, or a string over 256 characters | `ValueError` naming the field |
 | Non-string `created_at` | `TypeError` naming the field |
 | Boolean `sequence_number` | `TypeError` naming the field; booleans are not sequence integers |
+| Non-string `phase` | `TypeError` naming the field |
 | Episode count changes during `latest_run_for` | Retry up to three times, then raise `RuntimeError` rather than return a potentially stale snapshot |
 | Same `(sequence_number, created_at)` twice | The earlier input snapshot is kept |
 | HTTP 429 or 500–599, delays remaining | Sleep the next delay and retry |

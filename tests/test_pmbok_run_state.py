@@ -116,6 +116,8 @@ def test_ac2_invalid_run_fields_raise_value_error_naming_field() -> None:
         with pytest.raises(ValueError, match=field):
             build_run_fields(snapshot, "result")
 
+    with pytest.raises(TypeError, match="phase"):
+        build_run_fields(_snapshot(phase=1), "result")
     with pytest.raises(TypeError, match="sequence_number"):
         build_run_fields(_snapshot(sequence_number=True), "result")
     with pytest.raises(ValueError, match="result_summary"):
@@ -155,6 +157,9 @@ def test_ac4_runtime_appends_an_episode_without_creating_a_database_file(
             self.episodes: list[Episode] = []
             self.append_after_query: Episode | None = None
             self.append_on_query: Episode | None = None
+            self.append_on_count: Episode | None = None
+            self.append_on_count_call: int | None = None
+            self.count_call_count = 0
             self.query_count = 0
 
         def store_episode(self, episode: Episode) -> str:
@@ -170,6 +175,13 @@ def test_ac4_runtime_appends_an_episode_without_creating_a_database_file(
             start_date: str | None = None,
             end_date: str | None = None,
         ) -> int:
+            self.count_call_count += 1
+            if (
+                self.append_on_count is not None
+                and self.count_call_count == self.append_on_count_call
+            ):
+                self.episodes.append(self.append_on_count)
+                self.append_on_count = None
             return len(self.episodes)
 
         def query_episodes(
@@ -244,6 +256,21 @@ def test_ac4_runtime_appends_an_episode_without_creating_a_database_file(
         processes={"removed-process": "completed"},
     )
     assert latest_run_for(store, snapshot.run_id) == expected_snapshot
+
+    racing_snapshot = _snapshot()
+    racing_fields = build_run_fields(racing_snapshot, "run appended during empty read")
+    empty_race_store = StoreDouble()
+    empty_race_store.append_on_count = Episode(
+        agent_id=racing_fields.agent_id,
+        task_id=racing_fields.task_id,
+        action_type=racing_fields.action_type,
+        action_logprob=racing_fields.action_logprob,
+        metadata=dict(racing_fields.metadata),
+        result_summary=racing_fields.result_summary,
+        created_at=racing_snapshot.created_at,
+    )
+    empty_race_store.append_on_count_call = 2
+    assert latest_run_for(empty_race_store, racing_snapshot.run_id) == racing_snapshot
 
     malformed_metadata = dict(store.episodes[-1].metadata)
     malformed_metadata["sequence_number"] = True

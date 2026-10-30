@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-025](../../adr/ADR-025-scope-management-plan-standard-and-baseline-contract.md) — Accepted (2026-10-26, Menno); re-approved 2026-10-29, episode `983c2b87-8309-4414-98fe-93337989b9b5`  
 **Source BRD:** [BRD-025](../Business-Requirements/BRD-025-scope-management-plan-standard-and-baseline-contract.md)  
-**Status:** Draft (2026-10-29) — derived from Accepted ADR-025 and BRD-025; not yet adjudicated via `approve-fdd`. §5 interpretations are not confirmed.
+**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-025 and BRD-025; FDD-025 §5 item 1 confirmed 2026-10-30 (maintainer). Items 2–6 remain as documented interpretations (2–4 exercised by Stories 25.1–25.2; 5–6 for Stories 25.3–25.4).
 
 ---
 
@@ -129,9 +129,9 @@ If `recommendation_id` was returned before, return that same record, including `
 
 ## 5. Interpretations to Confirm
 
-These are not verbatim in ADR-025. Stories 25.3 and 25.4 wait on item 1.
+These are not verbatim in ADR-025. Record confirmations here (LL-011).
 
-1. **One policy, four kinds.** The action set is the table in §2. A call passes one kind and the bandit chooses only inside that kind. This keeps a single task id and a small discrete set without a contextual feature model. The four kinds are the working list in ADR-025 §4.4.1: route, paragraph sufficiency, graduation of an over-cap section, and acceptance of a flagged deviation.
+1. **One policy, four kinds.** **Confirmed (2026-10-30, Menno):** one task id (`advise-scope-plan-decision`), four decision kinds in §2 `DECISION_KINDS`; each `recommend` call passes one kind and the bandit draws only among that kind's actions. The kinds are route, paragraph sufficiency, graduation of an over-cap section, and acceptance of a flagged deviation (ADR-025 §4.4.1). Stories 25.3 and 25.4 may proceed on this basis.
 2. **Placeholder exclusion is Scope-only.** Other plans keep today's bullet count, so Epic 12 tests stay valid. The switch is `exclude_placeholders`, default `False`.
 3. **A tighter cap is a profile, not a universal lowering.** `max_cap_words` can tighten one call. It cannot raise a cap above ADR-012, and the default call is unchanged.
 4. **Section 2 presence is the whole structural check.** Charter traceability, in-scope exhaustiveness, testable wording, and the traceability matrix produce no flag.

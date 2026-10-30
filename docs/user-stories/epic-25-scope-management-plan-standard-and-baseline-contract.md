@@ -4,7 +4,7 @@
 **Source BRD/FDD:** [BRD-025](../project-docs/Business-Requirements/BRD-025-scope-management-plan-standard-and-baseline-contract.md) / [FDD-025](../project-docs/Functional-Design/FDD-025-scope-management-plan-standard-and-baseline-contract.md)  
 **Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-025, BRD-025 and FDD-025 (Approved 2026-10-30); adjudicated via `approve-user-stories` (robust utility 0.735, episode `d33834f1-6ff5-4100-a08f-d2c2db66b0fb`).
 
-Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_scope_measure.py` (25.1), `tests/test_scope_sections.py` (25.2), `tests/test_scope_advice_policy.py` (25.3), `tests/test_scope_advice_reward.py` (25.4). Stories 25.1 and 25.2 can proceed against the Accepted ADR. Stories 25.3 and 25.4 wait until FDD-025 §5 item 1 is confirmed. BRU-025-07 has no story: it is the text the plan author writes and the approver reads.
+Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_scope_measure.py` (25.1), `tests/test_scope_sections.py` (25.2), `tests/test_scope_advice_policy.py` (25.3), `tests/test_scope_advice_reward.py` (25.4). FDD-025 §5 item 1 confirmed 2026-10-30 (one task id, four kinds, bandit scoped to the kind on each call). **Operating model (2026-10-30):** mandatory human `approve-subsidiary-plan` for baseline binding; `advise-scope-plan-decision` may recommend first (BRU-025-05–06, Scope plan §3.3). BRU-025-07 has no story: it is the text the plan author writes and the approver reads.
 
 ---
 
@@ -45,7 +45,7 @@ Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_
 
 ## Story 25.3 — The idle Scope advisory policy
 
-**Status:** Draft — blocked on confirmation of FDD-025 §5 item 1  
+**Status:** Ready  
 **As** a maintainer,  
 **I want** `advise-scope-plan-decision` declared as its own low-authority policy with equal logits and no episodes,  
 **so that** a later recommendation has a fixed task id and cannot be trained as if it were the approval gate.
@@ -62,7 +62,7 @@ Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_
 
 ## Story 25.4 — Record the recommendation, then show it
 
-**Status:** Draft — blocked on Story 25.3  
+**Status:** Ready — depends on Story 25.3  
 **As** a maintainer reviewing a Scope recommendation,  
 **I want** the recommendation stored with its time before I see it, and left unchanged after I follow or override it,  
 **so that** the learner's evidence is the gap between its advice and my decision.

@@ -949,5 +949,38 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Validation:**
   - $AC_0$–$AC_4$: WBS and DoD phrases; embedded hierarchy for `pmp_section`; full-plan dictionary labels and fields; no double finding without Section 2; stable `lint_plan` ordering.
   - Combined with 25.1 contracts: 116 passed in `tests/test_scope_measure.py`, `tests/test_scope_sections.py`, and `tests/test_plan_content.py`; full agent-learning suite count as above.
-- **Out of scope (Epic 25):** Stories 25.3–25.4 blocked on FDD-025 §5 item 1 (`scope_advice.py`).
-- **Breakout recap (ADR-010 section 4.1):** not due; Epic 25 has four stories; 25.3–25.4 remain open.
+- **Breakout recap (ADR-010 section 4.1):** held after Stories 25.3–25.4 (see below).
+
+---
+
+## Story 25.3 — The idle Scope advisory policy
+- **Commit:** `890cd03`
+- **Date:** 2026-10-30
+- **Branch:** `feat/story-25.1-25.2`
+- **Source ADR / BRD / FDD:** ADR-025, BRD-025 (BRU-025-05), FDD-025 (§3.5; §5 item 1 confirmed 2026-10-30)
+- **Files Modified/Created:**
+  - `src/agent_learning/policy/scope_advice.py` (`baseline_snapshot`, `DECISION_KINDS`, `ADVICE_TASK_ID`)
+  - `src/agent_learning/policy/__init__.py` (exports)
+  - `tests/test_scope_advice_policy.py` ($AC_0$–$AC_4$)
+  - `docs/policy-shapes/advise-scope-plan-decision.actions.json` (conformance test reads this file)
+  - `.claude/skills/plan-lint/SKILL.md`, epic-25 story status Done
+- **Validation:**
+  - Idle snapshot: task id `advise-scope-plan-decision`, low authority, equal 0.0 logits for nine actions, no store I/O, no `Episode` construction.
+  - Task id differs from `approve-subsidiary-plan`.
+  - 11 passed in `tests/test_scope_advice_policy.py`.
+
+---
+
+## Story 25.4 — Record the recommendation, then show it
+- **Commit:** `890cd03`
+- **Date:** 2026-10-30
+- **Branch:** `feat/story-25.1-25.2`
+- **Source ADR / BRD / FDD:** ADR-025, BRD-025 (BRU-025-06), FDD-025 (§3.6–3.7)
+- **Files Modified/Created:**
+  - `src/agent_learning/policy/scope_advice.py` (`ScopeRecommendation`, `recommend`, `advice_reward`, in-process memo by `recommendation_id`)
+  - `tests/test_scope_advice_reward.py` ($AC_0$–$AC_4$)
+- **Validation:**
+  - Kind-scoped draw; immutable repeat by `recommendation_id`; visibility gate on `min_shown_decisions`; `advice_reward(±1)` with no gate-action parameters; no storage imports.
+  - **Interpretation (LL-011):** first draw uses `SoftmaxPolicy` with RNG seeded from `sha256(recommendation_id)` for deterministic contracts; not spelled in FDD-025.
+  - 11 passed in `tests/test_scope_advice_reward.py`; full suite 1489 passed, 2 skipped (`--ignore=tests/test_spark.py --ignore=tests/pmbok`).
+- **Breakout recap (ADR-010 section 4.1):** Epic 25 is complete in code; recap and `LL-###` entries pending human acceptance after PR merge.

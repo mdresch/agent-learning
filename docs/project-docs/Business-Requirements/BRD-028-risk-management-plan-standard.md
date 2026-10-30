@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-028](../../adr/ADR-028-risk-management-plan-standard.md) — Accepted (2026-10-29, Menno), episode `8bad2024-ef80-4cbf-8497-8ffb92c8b564`  
 **Governing Baseline:** none approved yet; cycle `CYC-001` (ADR-035, Accepted)  
-**Status:** Draft (2026-10-29) — derived from Accepted ADR-028; not yet adjudicated via `approve-brd`.  
+**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-028; adjudicated via `approve-brd` (robust utility 0.735, episode `fcb319f9-e4eb-4a05-80aa-6b61723dfd07`).  
 **Stakeholders:** Menno (Sponsor, Project Manager, maintainer); the Risk Lead named as plan owner
 
 ## Business Need

@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-033](../../adr/ADR-033-procurement-management-plan-standard.md) — Accepted (2026-10-29, Menno), episode `7362459e-b596-4f85-8872-5b7063eef015`  
 **Source BRD:** [BRD-033](../Business-Requirements/BRD-033-procurement-management-plan-standard.md)  
-**Status:** Draft (2026-10-29) — derived from Accepted ADR-033 and BRD-033; not yet adjudicated via `approve-fdd`. §5 interpretations are not confirmed.
+**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-033 and BRD-033; adjudicated via `approve-fdd` (robust utility 0.735, episode `c9fab544-aaec-47ed-9529-c11980ce6768`). §5 interpretations are not confirmed; sections 2–3 implement the approved BRU rules.
 
 ---
 

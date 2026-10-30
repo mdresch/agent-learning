@@ -1,0 +1,133 @@
+{
+  "task": "Project-Pillars.md (topic pillars and primary ADR assignment): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "grounded_in_initiating_sources",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Each pillar statement cites Spark, Ideation, Business Case, or Benefits; no pillar is taken from docs/adr/README.md manifesto alone."
+    },
+    {
+      "id": "nine_pillars_with_checks",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Nine topic pillars each have a statement, sources, and an 'ADR addresses this pillar when' check."
+    },
+    {
+      "id": "primary_adr_table_complete",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Primary assignment table covers ADR-001 through ADR-038 with exactly one pillar name per row; hosted-layer pillar may have no ADR."
+    },
+    {
+      "id": "layers_not_pillars",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Document states BRD/ADR/FDD/User Stories are document layers, not topic pillars."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_project_pillars",
+      "evidence": [
+        {
+          "criterion_id": "grounded_in_initiating_sources",
+          "source": "direct_doc_read:docs/project-docs/Project-Pillars.md",
+          "support": 0.88,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "nine_pillars_with_checks",
+          "source": "direct_doc_read:docs/project-docs/Project-Pillars.md",
+          "support": 0.9,
+          "confidence": 0.86
+        },
+        {
+          "criterion_id": "primary_adr_table_complete",
+          "source": "direct_doc_read:docs/project-docs/Project-Pillars.md#Primary assignment",
+          "support": 0.88,
+          "confidence": 0.84
+        },
+        {
+          "criterion_id": "layers_not_pillars",
+          "source": "direct_doc_read:docs/project-docs/Project-Pillars.md#Not a pillar",
+          "support": 0.92,
+          "confidence": 0.88
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_project_pillars",
+      "evidence": [
+        {
+          "criterion_id": "grounded_in_initiating_sources",
+          "source": "direct_doc_read:docs/project-docs/Project-Pillars.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "nine_pillars_with_checks",
+          "source": "direct_doc_read:docs/project-docs/Project-Pillars.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "primary_adr_table_complete",
+          "source": "direct_doc_read:docs/project-docs/Project-Pillars.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "layers_not_pillars",
+          "source": "direct_doc_read:docs/project-docs/Project-Pillars.md",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "grounded_in_initiating_sources",
+          "source": "direct_doc_read:docs/project-docs/Project-Pillars.md",
+          "support": 0.15,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "nine_pillars_with_checks",
+          "source": "direct_doc_read:docs/project-docs/Project-Pillars.md",
+          "support": 0.12,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "primary_adr_table_complete",
+          "source": "direct_doc_read:docs/project-docs/Project-Pillars.md",
+          "support": 0.12,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "layers_not_pillars",
+          "source": "direct_doc_read:docs/project-docs/Project-Pillars.md",
+          "support": 0.1,
+          "confidence": 0.75
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

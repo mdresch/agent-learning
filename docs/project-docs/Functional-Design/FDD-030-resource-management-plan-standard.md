@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-030](../../adr/ADR-030-resource-management-plan-standard.md) — Accepted (2026-10-29, Menno), episode `de095357-d927-4408-8311-181e158a2abf`  
 **Source BRD:** [BRD-030](../Business-Requirements/BRD-030-resource-management-plan-standard.md)  
-**Status:** Draft (2026-10-29) — derived from Accepted ADR-030 and BRD-030; not yet adjudicated via `approve-fdd`. §5 interpretations are not confirmed.
+**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-030 and BRD-030; adjudicated via `approve-fdd` (robust utility 0.735, episode `9f9ec26b-d823-4492-b12c-34c4969ac9ed`). §5 interpretations are not confirmed; sections 2–3 implement the approved BRU rules.
 
 ---
 

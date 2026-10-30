@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-027](../../adr/ADR-027-cost-management-plan-standard-and-baseline-contract.md) — Accepted (2026-10-29, Menno), episode `0ae724ad-5309-4eb2-a333-749cde39c0c0`  
 **Source BRD:** [BRD-027](../Business-Requirements/BRD-027-cost-management-plan-standard-and-baseline-contract.md)  
-**Status:** Draft (2026-10-29) — derived from Accepted ADR-027 and BRD-027; not yet adjudicated via `approve-fdd`. §5 interpretations are not confirmed.
+**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-027 and BRD-027; adjudicated via `approve-fdd` (robust utility 0.735, episode `85195db2-130d-437a-8434-059a1c603f91`). §5 interpretations are not confirmed; sections 2–3 implement the approved BRU rules.
 
 ---
 

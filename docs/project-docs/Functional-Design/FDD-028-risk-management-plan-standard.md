@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-028](../../adr/ADR-028-risk-management-plan-standard.md) — Accepted (2026-10-29, Menno), episode `8bad2024-ef80-4cbf-8497-8ffb92c8b564`  
 **Source BRD:** [BRD-028](../Business-Requirements/BRD-028-risk-management-plan-standard.md)  
-**Status:** Draft (2026-10-29) — derived from Accepted ADR-028 and BRD-028; not yet adjudicated via `approve-fdd`. §5 interpretations are not confirmed.
+**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-028 and BRD-028; adjudicated via `approve-fdd` (robust utility 0.735, episode `ce184e87-ff41-4d5d-ba13-4ff1fd1759ff`). §5 interpretations are not confirmed; sections 2–3 implement the approved BRU rules.
 
 ---
 

@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-032](../adr/ADR-032-communications-management-plan-standard.md) — Accepted (2026-10-29, Menno), episode `5ee60bbe-b680-4c14-887c-aae515e1379c`  
 **Source BRD/FDD:** [BRD-032](../project-docs/Business-Requirements/BRD-032-communications-management-plan-standard.md) / [FDD-032](../project-docs/Functional-Design/FDD-032-communications-management-plan-standard.md)  
-**Status:** Draft (2026-10-29) — derived from Accepted ADR-032, BRD-032 and FDD-032; not yet adjudicated via `approve-user-stories`.
+**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-032, BRD-032 and FDD-032 (Approved 2026-10-30); adjudicated via `approve-user-stories` (robust utility 0.735, episode `3ed0f25e-cba5-4383-8516-37e74f092689`).
 
 Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_communications_measure.py` (32.1), `tests/test_communications_sections.py` (32.2), `tests/test_communications_advice_policy.py` (32.3), `tests/test_communications_advice_reward.py` (32.4). Stories 32.3 and 32.4 wait until FDD-032 §5 items 1 and 2 are confirmed. BRU-032-07 has no story: it is the text the plan author writes and the approver reads.
 
@@ -10,7 +10,7 @@ Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_
 
 ## Story 32.1 — Communications lengths and the full-plan exclusion minimum
 
-**Status:** Draft — blocked on acceptance of ADR-032  
+**Status:** Ready
 **As** a governance reviewer,  
 **I want** a Communications plan measured at the ADR-012 floors and caps, with two out-of-scope items on a full plan,  
 **so that** Tier 3 does not inherit a higher floor, and a full plan still states more than one exclusion.
@@ -29,7 +29,7 @@ Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_
 
 ## Story 32.2 — Matrix, decision-recording rule, and escalation path
 
-**Status:** Draft — blocked on acceptance of ADR-032  
+**Status:** Ready
 **As** a governance reviewer,  
 **I want** a Communications plan to name each flow's audience, cadence, and owner, to state where a decision is recorded, and to name who an urgent issue reaches,  
 **so that** a plan cannot pass on word count alone while leaving the flows, the record, or the escalation unnamed.
@@ -48,7 +48,7 @@ Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_
 
 ## Story 32.3 — The idle Communications advisory policy
 
-**Status:** Draft — blocked on confirmation of FDD-032 §5 items 1 and 2, and on acceptance of ADR-032  
+**Status:** Draft — blocked on confirmation of FDD-032 §5 items 1 and 2  
 **As** a maintainer,  
 **I want** `advise-communications-plan-decision` declared as its own low-authority policy with one logit map,  
 **so that** a later recommendation has a fixed task id and a recorded deciding role, and cannot be trained as the approval gate or another plan advisor.

@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-029](../../adr/ADR-029-quality-management-plan-standard.md) — Accepted (2026-10-29, Menno), episode `736036f7-40a1-441f-afc0-062501c46d57`  
 **Governing Baseline:** none approved yet; cycle `CYC-001` (ADR-035, Accepted)  
-**Status:** Draft (2026-10-29) — derived from Accepted ADR-029; not yet adjudicated via `approve-brd`.  
+**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-029; adjudicated via `approve-brd` (robust utility 0.735, episode `009851b2-d860-4f06-b553-460e9f42fae8`).  
 **Stakeholders:** Menno (Sponsor, Project Manager, maintainer); the Quality Assurance Lead named as plan owner
 
 ## Business Need

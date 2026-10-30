@@ -132,7 +132,7 @@ These are not verbatim in ADR-034. Stories 34.3 and 34.4 wait on items 3 and 4.
 7. **Learner exclusion stays Story 1.1.** This epic sets `action_type` and `action_logprob` and does not change the trainer.
 8. **Spark stays ignored.** Only the `tests/pmbok` ignore is removed.
 9. **Latest-run read retries are bounded.** `latest_run_for` makes at most three attempts to observe a stable append-only episode count, then raises `RuntimeError`.
-10. **Run timestamps are offset-aware.** `created_at` accepts timezone-aware ISO-8601 values; ordering compares the represented instants in UTC and stores the original string.
+10. **Run timestamps are offset-aware (confirmed for Story 34.2).** `created_at` accepts timezone-aware ISO-8601 values; ordering compares the represented instants in UTC and stores the original string.
 
 ## 6. Out of Scope
 

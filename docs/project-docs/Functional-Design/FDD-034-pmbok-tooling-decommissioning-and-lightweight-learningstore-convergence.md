@@ -74,7 +74,7 @@ Returns the frozen map. A caller cannot mutate it. Looking up an id that is not 
 
 ### 3.2 `latest_run(snapshots) -> RunSnapshot | None` (BRU-034-02)
 
-Returns `None` for an empty sequence. Otherwise returns the snapshot with the greatest `(sequence_number, created_at)`. The input sequence is not reordered. Ties on both fields keep the earlier input item.
+Returns `None` for an empty sequence. Otherwise returns the snapshot with the greatest `(sequence_number, created_at)`. `created_at` must be a timezone-aware ISO-8601 timestamp; comparisons normalize it to UTC while preserving the original string in stored data. The input sequence is not reordered. Ties on sequence and normalized timestamp keep the earlier input item.
 
 ### 3.3 `build_run_fields(snapshot, result_summary) -> RunEpisodeFields` (BRU-034-02, BRU-034-06, BRU-034-08)
 
@@ -106,7 +106,10 @@ After Stories 34.1 to 34.4, delete `pmbok/`, `scripts/orchestrate_pmbok.py`, and
 | Situation | Behavior |
 |---|---|
 | Unknown process id or status | `ValueError` naming the field |
-| Empty `run_id`, negative `sequence_number`, or a string over 256 characters | `ValueError` naming the field |
+| Empty `run_id`, negative `sequence_number`, invalid `created_at`, or a string over 256 characters | `ValueError` naming the field |
+| Non-string `created_at` | `TypeError` naming the field |
+| Boolean `sequence_number` | `TypeError` naming the field; booleans are not sequence integers |
+| Episode count changes during `latest_run_for` | Retry up to three times, then raise `RuntimeError` rather than return a potentially stale snapshot |
 | Same `(sequence_number, created_at)` twice | The earlier input snapshot is kept |
 | HTTP 429 or 500–599, delays remaining | Sleep the next delay and retry |
 | Any other HTTP status | Raise immediately, with no credential in the message |
@@ -128,6 +131,8 @@ These are not verbatim in ADR-034. Stories 34.3 and 34.4 wait on items 3 and 4.
 6. **Deleting `policy_loader.py` closes ERR-034-05.** Files that are deleted are not converted to JSON.
 7. **Learner exclusion stays Story 1.1.** This epic sets `action_type` and `action_logprob` and does not change the trainer.
 8. **Spark stays ignored.** Only the `tests/pmbok` ignore is removed.
+9. **Latest-run read retries are bounded.** `latest_run_for` makes at most three attempts to observe a stable append-only episode count, then raises `RuntimeError`.
+10. **Run timestamps are offset-aware.** `created_at` accepts timezone-aware ISO-8601 values; ordering compares the represented instants in UTC and stores the original string.
 
 ## 6. Out of Scope
 

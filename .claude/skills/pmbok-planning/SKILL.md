@@ -21,6 +21,10 @@ function. Its contract is `tests/test_pmbok_run_state.py` (Story 34.2). Persist 
 new `Episode` through `agent_learning.pmbok_runtime.runs`; use the standard `LearningStore`
 interface and keep the seven-field run metadata contract exact. Run episodes use
 `action_type="governance"` and `action_logprob=None`, and must never create a database file.
+`latest_run_for` retries an unstable append-only read at most three times, then raises
+`RuntimeError`; malformed matching records must surface explicit validation errors rather
+than being silently skipped. Run `created_at` values are timezone-aware ISO-8601 strings;
+latest-run selection compares their instants in UTC without rewriting persisted values.
 
 `agent_learning.pmbok` remains pure: do not add `LearningStore`, `pydantic`, the top-level
 `pmbok` package, file I/O, or network I/O to the registry. Runtime storage and external calls

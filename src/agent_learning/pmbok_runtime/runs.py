@@ -14,6 +14,8 @@ from agent_learning.pmbok.run_state import (
 )
 from agent_learning.types import Episode
 
+MAX_STABLE_READ_ATTEMPTS = 3
+
 
 class RunStore(Protocol):
     """The LearningStore operations required by the PMBOK run adapter."""
@@ -85,7 +87,7 @@ def _snapshot_from_episode(episode: Episode) -> RunSnapshot:
     baseline_hash = metadata.get("baseline_hash")
     if not isinstance(run_id, str) or not isinstance(phase, str):
         raise TypeError(f"Episode {episode.id} has invalid run identity metadata")
-    if not isinstance(sequence_number, int):
+    if isinstance(sequence_number, bool) or not isinstance(sequence_number, int):
         raise TypeError(f"Episode {episode.id} has invalid sequence_number metadata")
     if baseline_hash is not None and not isinstance(baseline_hash, str):
         raise TypeError(f"Episode {episode.id} has invalid baseline_hash metadata")
@@ -117,7 +119,7 @@ def _snapshot_from_episode(episode: Episode) -> RunSnapshot:
 
 def latest_run_for(store: RunStore, run_id: str) -> RunSnapshot | None:
     """Read the latest snapshot for one run from standard LearningStore episodes."""
-    while True:
+    for _ in range(MAX_STABLE_READ_ATTEMPTS):
         count = store.count_episodes(agent_id=RUN_AGENT_ID, task_id=RUN_TASK_ID)
         if count == 0:
             if store.count_episodes(agent_id=RUN_AGENT_ID, task_id=RUN_TASK_ID) == 0:
@@ -133,6 +135,11 @@ def latest_run_for(store: RunStore, run_id: str) -> RunSnapshot | None:
             and len(episodes) == count
         ):
             break
+    else:
+        raise RuntimeError(
+            "Could not read a stable PMBOK run snapshot after "
+            f"{MAX_STABLE_READ_ATTEMPTS} attempts"
+        )
 
     snapshots = [
         _snapshot_from_episode(episode)

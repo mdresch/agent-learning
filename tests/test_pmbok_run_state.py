@@ -2,11 +2,20 @@
 
 ADR-034 Invariants 2, 4, and 6; BRD-034 BRU-034-02, BRU-034-06, BRU-034-08;
 FDD-034 sections 2, 3.2, and 3.3.
+
+Interpretation I1 (FDD-034 §4): `latest_run_for` retries a changing append-only
+store three times, then raises `RuntimeError` rather than return stale state or
+wait indefinitely.
+
+Interpretation I2 (FDD-034 §§3.2–3.3): `created_at` is timezone-aware ISO-8601;
+ordering compares instants normalized to UTC while persistence retains the
+original timestamp string.
 """
 
 from __future__ import annotations
 
 import ast
+from dataclasses import replace
 from pathlib import Path
 from uuid import uuid4
 
@@ -67,6 +76,11 @@ def test_ac1_latest_run_orders_by_sequence_then_created_at_without_reordering() 
     assert latest_run(snapshots) is newer_sequence
     assert snapshots == [newer_sequence, oldest, newer_time]
     assert latest_run([oldest, newer_time]) is newer_time
+    later_instant = _snapshot(sequence_number=1, created_at="2026-10-30T01:00:00Z")
+    earlier_offset = _snapshot(sequence_number=1, created_at="2026-10-30T02:00:00+02:00")
+    equal_instant = _snapshot(sequence_number=1, created_at="2026-10-30T03:00:00+02:00")
+    assert latest_run([later_instant, earlier_offset]) is later_instant
+    assert latest_run([later_instant, equal_instant]) is later_instant
     assert latest_run([oldest, _snapshot(
         run_id=oldest.run_id,
         sequence_number=oldest.sequence_number,
@@ -86,6 +100,9 @@ def test_ac2_invalid_run_fields_raise_value_error_naming_field() -> None:
         (_snapshot(processes={"unknown": "completed"}), "processes"),
         (_snapshot(processes={"4.1": "unknown"}), "processes"),
         (_snapshot(created_at="t" * 257), "created_at"),
+        (_snapshot(created_at=""), "created_at"),
+        (_snapshot(created_at="2026-10-30T00:00:00"), "created_at"),
+        (_snapshot(created_at="not-a-timestamp"), "created_at"),
         (_snapshot(phase="p" * 257), "phase"),
         (_snapshot(processes={"4.1": "s" * 257}), "processes"),
         (_snapshot(processes={"p" * 257: "completed"}), "processes"),
@@ -99,6 +116,8 @@ def test_ac2_invalid_run_fields_raise_value_error_naming_field() -> None:
         with pytest.raises(ValueError, match=field):
             build_run_fields(snapshot, "result")
 
+    with pytest.raises(TypeError, match="sequence_number"):
+        build_run_fields(_snapshot(sequence_number=True), "result")
     with pytest.raises(ValueError, match="result_summary"):
         build_run_fields(_snapshot(), "r" * 257)
 
@@ -135,6 +154,8 @@ def test_ac4_runtime_appends_an_episode_without_creating_a_database_file(
         def __init__(self) -> None:
             self.episodes: list[Episode] = []
             self.append_after_query: Episode | None = None
+            self.append_on_query: Episode | None = None
+            self.query_count = 0
 
         def store_episode(self, episode: Episode) -> str:
             self.episodes.append(episode)
@@ -162,10 +183,13 @@ def test_ac4_runtime_appends_an_episode_without_creating_a_database_file(
             task_id: str | None = None,
             full_only: bool = False,
         ) -> list[Episode]:
+            self.query_count += 1
             episodes = self.episodes[:limit]
             if self.append_after_query is not None:
                 self.episodes.append(self.append_after_query)
                 self.append_after_query = None
+            if self.append_on_query is not None:
+                self.episodes.append(replace(self.append_on_query, id=str(uuid4())))
             return episodes
 
     monkeypatch.chdir(tmp_path)
@@ -220,4 +244,22 @@ def test_ac4_runtime_appends_an_episode_without_creating_a_database_file(
         processes={"removed-process": "completed"},
     )
     assert latest_run_for(store, snapshot.run_id) == expected_snapshot
+
+    malformed_metadata = dict(store.episodes[-1].metadata)
+    malformed_metadata["sequence_number"] = True
+    malformed_episode = replace(
+        store.episodes[-1],
+        id=str(uuid4()),
+        metadata=malformed_metadata,
+    )
+    store.episodes.append(malformed_episode)
+    with pytest.raises(TypeError, match="sequence_number"):
+        latest_run_for(store, snapshot.run_id)
+    store.episodes.pop()
+
+    store.append_on_query = store.episodes[-1]
+    query_count = store.query_count
+    with pytest.raises(RuntimeError, match="stable"):
+        latest_run_for(store, snapshot.run_id)
+    assert store.query_count - query_count == 3
     assert list(tmp_path.rglob("*.db")) == []

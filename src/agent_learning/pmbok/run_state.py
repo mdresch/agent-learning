@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from uuid import UUID
 
 from .legacy_registry import LEGACY_PROCESSES
@@ -53,6 +54,19 @@ def _validate_string_lengths(value: object, field: str) -> None:
             _validate_string_lengths(item, field)
 
 
+def _created_at_instant(created_at: str) -> datetime:
+    if not isinstance(created_at, str):
+        raise TypeError("created_at must be a string")
+    value = f"{created_at[:-1]}+00:00" if created_at.endswith("Z") else created_at
+    try:
+        timestamp = datetime.fromisoformat(value)
+    except ValueError as exc:
+        raise ValueError("created_at must be a timezone-aware ISO-8601 timestamp") from exc
+    if timestamp.tzinfo is None or timestamp.utcoffset() is None:
+        raise ValueError("created_at must be a timezone-aware ISO-8601 timestamp")
+    return timestamp.astimezone(timezone.utc)
+
+
 def _validate_snapshot(snapshot: RunSnapshot, result_summary: str) -> None:
     if not isinstance(result_summary, str):
         raise TypeError("result_summary must be a string")
@@ -64,11 +78,16 @@ def _validate_snapshot(snapshot: RunSnapshot, result_summary: str) -> None:
     except (AttributeError, ValueError) as exc:
         raise ValueError("run_id must be a UUID") from exc
 
+    if isinstance(snapshot.sequence_number, bool) or not isinstance(snapshot.sequence_number, int):
+        raise TypeError("sequence_number must be an integer")
     if snapshot.sequence_number < 0:
         raise ValueError("sequence_number must be non-negative")
     if not isinstance(snapshot.processes, Mapping):
         raise TypeError("processes must be a mapping")
+    if not isinstance(snapshot.created_at, str):
+        raise TypeError("created_at must be a string")
     _validate_string_lengths(snapshot.created_at, "created_at")
+    _created_at_instant(snapshot.created_at)
     _validate_string_lengths(snapshot.phase, "phase")
     _validate_string_lengths(snapshot.processes, "processes")
     _validate_string_lengths(snapshot.baseline_hash, "baseline_hash")
@@ -111,4 +130,11 @@ def build_run_fields(snapshot: RunSnapshot, result_summary: str) -> RunEpisodeFi
 
 def latest_run(snapshots: Sequence[RunSnapshot]) -> RunSnapshot | None:
     """Return the greatest sequence/time snapshot, keeping the first exact tie."""
-    return max(snapshots, key=lambda snapshot: (snapshot.sequence_number, snapshot.created_at), default=None)
+    return max(
+        snapshots,
+        key=lambda snapshot: (
+            snapshot.sequence_number,
+            _created_at_instant(snapshot.created_at),
+        ),
+        default=None,
+    )

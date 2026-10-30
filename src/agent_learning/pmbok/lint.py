@@ -9,7 +9,9 @@ from enum import Enum
 from typing import Any
 
 from ..tailoring import compute_flags
+from .body_visible import visible_for_measurement
 from .parser import ParsedPlan, parse_frontmatter
+from .scope import check_scope_sections, scope_measure
 from .standards import (
     CAPS,
     DOMAINS,
@@ -159,9 +161,12 @@ def validate_metadata(metadata: Mapping[str, Any], routes: Sequence[Any] | None 
 # Content contract (Story 12.3): word count, headings, floors, caps, boundaries
 
 
-_COMMENT = re.compile(r"<!--.*?(?:-->|\Z)", re.DOTALL)
 _NONE_LINE = re.compile(r"^\s*[-*]?\s*None:\s+(.+)$")
 _BULLET = re.compile(r"^\s*[-*]\s+(\S.*)$")
+_PLACEHOLDER_BULLET = re.compile(
+    r"^(?:\[(?:TBD|TBC|FIXME|N/A)\]|(?:TBD|TBC|FIXME|N/A))[.!]?\s*$",
+    re.IGNORECASE,
+)
 _MD_HEADING = re.compile(r"^\s{0,3}#{1,6}\s")
 _MARKERS = ("out-of-scope", "out of scope")
 _SECTION_NAMES = (
@@ -182,14 +187,7 @@ class LintResult:
 
 def _visible(text: str) -> str:
     """The text with fenced code and then HTML comments removed (an unclosed fence or comment runs to the end)."""
-    kept: list[str] = []
-    in_fence = False
-    for line in text.replace("\r\n", "\n").split("\n"):
-        if line.lstrip().startswith("```"):
-            in_fence = not in_fence
-        elif not in_fence:
-            kept.append(line)
-    return _COMMENT.sub(" ", "\n".join(kept))
+    return visible_for_measurement(text)
 
 
 def count_words(body: str) -> int:
@@ -221,7 +219,14 @@ def _section_one(visible: str) -> str | None:
     return visible[start : second.start() if second else len(visible)]
 
 
-def _boundary_problem(section: str, needed: int) -> str | None:
+def _counts_as_boundary_item(text: str, *, exclude_placeholders: bool) -> bool:
+    stripped = text.strip()
+    if exclude_placeholders and _PLACEHOLDER_BULLET.fullmatch(stripped):
+        return False
+    return True
+
+
+def _boundary_problem(section: str, needed: int, *, exclude_placeholders: bool = False) -> str | None:
     """None when Section 1 states its boundaries; otherwise the reason it does not."""
     lines = section.split("\n")
     reasons: list[str] = []
@@ -243,7 +248,9 @@ def _boundary_problem(section: str, needed: int) -> str | None:
                 break
             bullet = _BULLET.match(after)
             if bullet is not None:
-                seen.add(bullet.group(1).strip().lower())
+                item = bullet.group(1).strip()
+                if _counts_as_boundary_item(item, exclude_placeholders=exclude_placeholders):
+                    seen.add(item.lower())
             elif seen and after.strip():
                 break
         if len(seen) >= needed:
@@ -264,6 +271,8 @@ def check_content(
     *,
     min_floor_words: int | None = None,
     min_out_of_scope_items: int | None = 1,
+    max_cap_words: int | None = None,
+    exclude_placeholders: bool = False,
 ) -> list[LintFlag]:
     """Check a plan body against the content contract (FDD-012 section 3.4).
 
@@ -276,6 +285,9 @@ def check_content(
         raise ValueError(f"route must be one of {', '.join(ROUTES)}")
     floor_option = _option("min_floor_words", min_floor_words)
     items_option = _option("min_out_of_scope_items", min_out_of_scope_items)
+    if max_cap_words is not None:
+        if isinstance(max_cap_words, bool) or not isinstance(max_cap_words, int):
+            raise TypeError("max_cap_words must be an int or None")
     if route == "not_applicable":
         return []
 
@@ -287,15 +299,20 @@ def check_content(
 
     count = len(TOKEN.findall(visible))
     floor = max(FLOORS[route], floor_option)
+    cap = CAPS[route] if max_cap_words is None else min(CAPS[route], max_cap_words)
     if count < floor:
         flags.append(_content_flag("BELOW_STANDARD_FLOOR", "C", f"{count} words is below the floor of {floor} for a {route}"))
-    if count > CAPS[route]:
+    if count > cap:
         code = "EXCEEDS_SECTION_CAP" if route == "pmp_section" else "EXCEEDS_PLAN_CAP"
-        flags.append(_content_flag(code, "C", f"{count} words exceeds the cap of {CAPS[route]} for a {route}"))
+        flags.append(_content_flag(code, "C", f"{count} words exceeds the cap of {cap} for a {route}"))
 
     section = _section_one(visible)
     if section is not None:
-        problem = _boundary_problem(section, max(MIN_OUT_OF_SCOPE_ITEMS, items_option))
+        problem = _boundary_problem(
+            section,
+            max(MIN_OUT_OF_SCOPE_ITEMS, items_option),
+            exclude_placeholders=exclude_placeholders,
+        )
         if problem is not None:
             flags.append(_content_flag("MISSING_BOUNDARY_DEF", "C", f"Section 1 does not state its boundaries: {problem}"))
     return flags
@@ -325,9 +342,26 @@ def lint_plan(
     word_count: int | None = None
     if isinstance(route, str) and route in ROUTES and route != "not_applicable":
         word_count = count_words(plan.body)
-        flags += check_content(
-            plan.body, route, min_floor_words=min_floor_words, min_out_of_scope_items=min_out_of_scope_items
-        )
+        plan_id = plan.metadata.get("plan_id")
+        measure = None
+        if isinstance(plan_id, str):
+            measure = scope_measure(plan_id, route)
+        if measure is not None:
+            floor_option = _option("min_floor_words", min_floor_words)
+            items_option = _option("min_out_of_scope_items", min_out_of_scope_items)
+            flags += check_content(
+                plan.body,
+                route,
+                min_floor_words=max(measure.floor, floor_option),
+                min_out_of_scope_items=max(measure.min_out_of_scope_items, items_option),
+                max_cap_words=measure.cap,
+                exclude_placeholders=True,
+            )
+            flags += check_scope_sections(plan.body, route)
+        else:
+            flags += check_content(
+                plan.body, route, min_floor_words=min_floor_words, min_out_of_scope_items=min_out_of_scope_items
+            )
     return LintResult(plan=plan, flags=tuple(flags), word_count=word_count)
 
 

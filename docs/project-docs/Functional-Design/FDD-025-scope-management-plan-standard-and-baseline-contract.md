@@ -68,7 +68,7 @@ Add `max_cap_words: int | None = None` and `exclude_placeholders: bool = False`.
 
 The effective cap is `CAPS[route]` when `max_cap_words` is `None`. When it is an int, the effective cap is `min(CAPS[route], max_cap_words)`. A value above the universal cap leaves the universal cap in force. A bool or a non-int raises `TypeError`. A count equal to the effective cap is not a finding. The floor option already uses `max(FLOORS[route], min_floor_words or 0)` and is unchanged.
 
-When `exclude_placeholders` is `False`, every distinct bullet counts, as today. When it is `True`, a bullet is dropped before the distinct count if, after strip, it matches `^(?:\[)?(?:TBD|TBC|FIXME|N/A)(?:\])?[.!]?\s*$` with case ignored. `N/A for mobile clients` still counts. The default call keeps today's count.
+When `exclude_placeholders` is `False`, every distinct bullet counts, as today. When it is `True`, a bullet is dropped before the distinct count if, after strip, it matches `^(?:\[(?:TBD|TBC|FIXME|N/A)\]|(?:TBD|TBC|FIXME|N/A))[.!]?\s*$` with case ignored. The brackets are balanced: `[TBD]` and `TBD` are placeholders, while `[TBD` and `TBD]` count as real content. `N/A for mobile clients` still counts. The default call keeps today's count.
 
 ### 3.3 `lint_plan` applies the profile (BRU-025-01, BRU-025-02, BRU-025-04)
 
@@ -129,9 +129,9 @@ If `recommendation_id` was returned before, return that same record, including `
 
 ## 5. Interpretations to Confirm
 
-These are not verbatim in ADR-025. Stories 25.3 and 25.4 wait on item 1.
+These are not verbatim in ADR-025. Record confirmations here (LL-011).
 
-1. **One policy, four kinds.** The action set is the table in §2. A call passes one kind and the bandit chooses only inside that kind. This keeps a single task id and a small discrete set without a contextual feature model. The four kinds are the working list in ADR-025 §4.4.1: route, paragraph sufficiency, graduation of an over-cap section, and acceptance of a flagged deviation.
+1. **One policy, four kinds.** **Confirmed (2026-10-30, Menno):** one task id (`advise-scope-plan-decision`), four decision kinds in §2 `DECISION_KINDS`; each `recommend` call passes one kind and the bandit draws only among that kind's actions. The kinds are route, paragraph sufficiency, graduation of an over-cap section, and acceptance of a flagged deviation (ADR-025 §4.4.1). Stories 25.3 and 25.4 may proceed on this basis.
 2. **Placeholder exclusion is Scope-only.** Other plans keep today's bullet count, so Epic 12 tests stay valid. The switch is `exclude_placeholders`, default `False`.
 3. **A tighter cap is a profile, not a universal lowering.** `max_cap_words` can tighten one call. It cannot raise a cap above ADR-012, and the default call is unchanged.
 4. **Section 2 presence is the whole structural check.** Charter traceability, in-scope exhaustiveness, testable wording, and the traceability matrix produce no flag.

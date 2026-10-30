@@ -1,0 +1,47 @@
+[
+  {
+    "id": "recommend_full_plan",
+    "description": "Advisory (kind: route): the Scope plan should stay or move to a standalone full_plan subsidiary baseline",
+    "parameters": {}
+  },
+  {
+    "id": "recommend_pmp_section",
+    "description": "Advisory (kind: route): the Scope content should remain a PMP section only, not a full subsidiary plan file",
+    "parameters": {}
+  },
+  {
+    "id": "recommend_not_applicable",
+    "description": "Advisory (kind: route): Scope tailoring should mark this plan not_applicable with a recorded rationale (omission gate still applies)",
+    "parameters": {}
+  },
+  {
+    "id": "recommend_sufficient",
+    "description": "Advisory (kind: paragraph_sufficiency): measured paragraphs meet the Scope profile for the chosen route",
+    "parameters": {}
+  },
+  {
+    "id": "recommend_insufficient",
+    "description": "Advisory (kind: paragraph_sufficiency): measured paragraphs or boundaries still fall short of the Scope profile",
+    "parameters": {}
+  },
+  {
+    "id": "recommend_keep_section",
+    "description": "Advisory (kind: graduation): keep the over-cap material in the PMP section rather than graduating to a full_plan",
+    "parameters": {}
+  },
+  {
+    "id": "recommend_graduate",
+    "description": "Advisory (kind: graduation): graduate the over-cap PMP section to a full_plan subsidiary document",
+    "parameters": {}
+  },
+  {
+    "id": "recommend_accept_deviation",
+    "description": "Advisory (kind: flagged_deviation): accept carrying a Tier C Scope flag into subsidiary approval with recorded rationale",
+    "parameters": {}
+  },
+  {
+    "id": "recommend_refuse_deviation",
+    "description": "Advisory (kind: flagged_deviation): refuse approval until the flagged deviation is remediated or re-tailored",
+    "parameters": {}
+  }
+]

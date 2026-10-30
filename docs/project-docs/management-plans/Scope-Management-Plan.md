@@ -200,6 +200,18 @@ Any Level 2 or Level 3 change to this Scope Management Plan automatically marks:
 
 Re-validation of downstream plans must occur before composite formalization under `approve-pmp` is permitted.
 
+### 3.3 Subsidiary approval with scope advisory recommendations (ADR-025 §4.4.1, BRU-025-05–06)
+
+Scope baseline authorization uses **two task ids**. They are sequential in intent but **not** merged into one policy.
+
+| Step | Task id | Authority | Outcome |
+| --- | --- | --- | --- |
+| 1 — Measure | *(lint only)* | — | `lint_plan` on this file applies ADR-012 plus the Scope profile (ADR-025 / Epic 25). Findings are evidence for the human; they do not approve the plan. |
+| 2 — Advise *(optional, when implemented)* | `advise-scope-plan-decision` | **Low** — advisory only | For each maintainer question, the caller passes **one** decision kind (`route`, `paragraph_sufficiency`, `graduation`, `flagged_deviation`). The bandit draws **only** among that kind's actions ([FDD-025](../../project-docs/Functional-Design/FDD-025-scope-management-plan-standard-and-baseline-contract.md) §2 `DECISION_KINDS`, confirmed 2026-10-30). The recommendation and `recommended_at` are **stored before display**; follow or override is recorded for later REINFORCE on the **recommendation action**, not on gate actions. |
+| 3 — Decide | `approve-subsidiary-plan` | **Full** — human required | The Project Manager / Sponsor adjudicates `approve_plan`, `reject_plan`, or `request_revision_before_decision`. **Only this step** binds the integrated Scope baseline (manifest **6.A-7**, BFI-002). |
+
+**Operating rule (2026-10-30, Menno):** Human approval is mandatory for subsidiary scope baseline; **`advise-scope-plan-decision` may recommend** route, sufficiency, graduation, or deviation handling **before** that decision. Recommendations never substitute for `approve_plan`. Idle policy shape: [advise-scope-plan-decision.actions.json](../../policy-shapes/advise-scope-plan-decision.actions.json). Implementation: Epic 25 Stories 25.3–25.4; methodology selection episode (ADR-024) is recorded separately when the policy is declared.
+
 ---
 
 ## Baseline Feedback (Stage 7-8 → 6)

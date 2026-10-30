@@ -1035,3 +1035,26 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - Ruff passed for the new module, new contract, updated purity test, and PMBOK exports. `lint.py` retains two pre-existing Ruff findings (SIM103 at line 225 and SIM102 at line 289), outside this change. `git diff --check` passed.
 - **Interpretation confirmed (LL-011):** Schedule reuses the Scope `max_cap_words` and `exclude_placeholders` signature and behavior; no Schedule-specific option or placeholder rule is introduced.
 - **Review (Step 8):** Amazon Q round 1 reviewed head `9fa2166` (two review responses on this commit); both reported no blocking defect or new finding, and there are no inline comments. The explicit final verdict is pending after the review-log commit is pushed.
+
+---
+
+## Story 34.2 — A project run is an Episode, and the latest one wins
+- **Commit:** `6cce8f5`
+- **Date:** 2026-10-30
+- **Branch:** `feat/story-34.2`
+- **Source ADR / BRD / FDD:** ADR-034 (Invariants 2, 4, 6), BRD-034 (BRU-034-02, BRU-034-06, BRU-034-08), FDD-034 (§2, §§3.2–3.3)
+- **Files Modified/Created:**
+  - `src/agent_learning/pmbok/run_state.py` (pure `RunSnapshot`, `RunEpisodeFields`, validation, Episode field builder, and latest-wins ordering)
+  - `src/agent_learning/pmbok_runtime/runs.py` (append and latest-read adapters using the caller-provided LearningStore interface)
+  - `src/agent_learning/pmbok_runtime/__init__.py` (runtime exports)
+  - `tests/test_pmbok_run_state.py` (contracts for $AC_0$ through $AC_4$)
+  - `.claude/skills/pmbok-planning/SKILL.md` (run-state boundary and contract callout)
+  - `docs/user-stories/epic-34-pmbok-tooling-decommissioning-and-lightweight-learningstore-convergence.md` (Story 34.2 moved from Draft to Ready)
+- **Validation:**
+  - RED: all five contracts failed before implementation because the run-state and runtime modules did not exist.
+  - GREEN: 5 passed in `tests/test_pmbok_run_state.py`; Ruff passed for the new modules and contract; mypy passed for both source modules.
+  - Run ordering covers empty input, sequence then `created_at`, unchanged input, and stable first-item ties. Snapshot validation covers UUID identity, negative sequence, unknown process/status, and >256-character strings across metadata and summary fields.
+  - A runtime store double verified append-only Episode records, latest-run readback, unchanged earlier events, and no `*.db` files.
+  - `uv run --extra dev pytest --ignore=tests/test_spark.py` stopped at collection with 15 errors in `tests/pmbok/` from missing optional legacy modules (`tenacity`, `sqlalchemy`, `fastapi`, `yaml`, and `hypothesis`); 1,594 other items were collected and 1 skipped.
+  - With `tests/pmbok/` excluded due to those dependencies and `tests/test_spark.py` excluded because Spark requires an optional JVM: 1,512 passed, 2 skipped. This is not the entire suite.
+- **Interpretations:** None; behavior and metadata keys follow the approved FDD contract.

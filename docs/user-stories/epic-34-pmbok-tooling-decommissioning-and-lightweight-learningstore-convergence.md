@@ -28,7 +28,7 @@ ADR-034 §6 says "Epic 12". That label means this epic. Epics 12 and 13 stay as 
 
 ## Story 34.2 — A project run is an Episode, and the latest one wins
 
-**Status:** Draft  
+**Status:** Ready
 **As** a governance reviewer,  
 **I want** each orchestration run stored as one more Episode, with the newest sequence winning,  
 **so that** project state lives in `LearningStore` and a later event does not rewrite an earlier one.

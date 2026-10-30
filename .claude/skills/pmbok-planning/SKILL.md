@@ -15,6 +15,13 @@ catalogue is `agent_learning.pmbok.legacy_registry.legacy_processes()`; its cont
 aligned with FDD-034 §2 and the legacy `PROCESS_DEPENDENCY_MAP` until Story 34.5 removes the old
 tree. The returned mapping is immutable.
 
+Project run state follows the same boundary: `agent_learning.pmbok.run_state` defines
+`RunSnapshot`, `RunEpisodeFields`, `build_run_fields`, and the pure `latest_run` ordering
+function. Its contract is `tests/test_pmbok_run_state.py` (Story 34.2). Persist each event as a
+new `Episode` through `agent_learning.pmbok_runtime.runs`; use the standard `LearningStore`
+interface and keep the seven-field run metadata contract exact. Run episodes use
+`action_type="governance"` and `action_logprob=None`, and must never create a database file.
+
 `agent_learning.pmbok` remains pure: do not add `LearningStore`, `pydantic`, the top-level
 `pmbok` package, file I/O, or network I/O to the registry. Runtime storage and external calls
 belong in `agent_learning.pmbok_runtime`. Until Story 34.4 delivers the unified CLI, the legacy

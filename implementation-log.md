@@ -1003,3 +1003,6 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - Exact 49-entry prerequisite map compared against `pmbok/process_registry.py`.
   - Full collection attempt with `uv run --extra dev pytest --ignore=tests/test_spark.py`: 15 collection errors in `tests/pmbok/` due absent `tenacity`, `sqlalchemy`, `fastapi`, `yaml`, and `hypothesis`; 1,582 other items collected and 1 skipped.
   - With `tests/pmbok/` excluded for those missing legacy optional dependencies and `tests/test_spark.py` excluded per the optional-JVM convention: 1,500 passed, 2 skipped. This is not the entire suite.
+- **Amazon Q review:** Round 1 findings fixed in `0fc1059`.
+  - Q-78-1 | logic error | verified: yes | decision: accepted | Dotted storage imports were normalized to `agent_learning`, so the prior forbidden-import check could miss them | fix: `0fc1059`
+  - Q-78-2 | crash risk | verified: yes | decision: accepted | Missing module source produced an unhelpful `FileNotFoundError`; the contract now asserts the file exists with its path | fix: `0fc1059`

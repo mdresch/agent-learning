@@ -80,6 +80,8 @@ Returns `None` for an empty sequence. Otherwise returns the snapshot with the gr
 
 Fills the identity fields in §2. `action_logprob` is `None`. `metadata` is the seven keys in §2 and nothing else. `run_id` is a non-empty UUID string. An empty `run_id`, a negative `sequence_number`, an unknown process id, an unknown status, or a string above 256 characters raises `ValueError` naming the field. The function does not write a store.
 
+`latest_run_for` applies this validation to each matching persisted Episode after validating its stored field shapes. The process registry and status set are frozen by this FDD; a persisted run with an unknown process id or status is malformed and raises an error naming the Episode id. Historical Episodes remain readable across changes to unrelated runtime code, not across changes to this frozen contract.
+
 ### 3.4 Client (BRU-034-01, BRU-034-04, BRU-034-06)
 
 `urllib_client.complete` sends the prompt with `urllib.request`. On a failure that is an `URLError` or an HTTP status of 429 or 500 through 599, it sleeps the next delay and tries again, until the delays are exhausted, then raises the last error. Any other status raises immediately. The `Authorization` header, when the caller supplies one, is taken from the environment variable the caller names (`AZURE_OPENAI_KEY` or `OPENAI_API_KEY`). The header value is not included in the exception text. `mock_client.complete` returns the canned body, sleeps zero times, and opens no socket.
@@ -97,7 +99,7 @@ There is no `--mode full` flag.
 
 ### 3.6 Decommission (BRU-034-03, BRU-034-07)
 
-After Stories 34.1 to 34.4, delete `pmbok/`, `scripts/orchestrate_pmbok.py`, and `tests/pmbok/`. Remove `--ignore=tests/pmbok` from `.github/workflows/tests.yaml` and from `scripts/build_linux_installer.sh`. `pyproject.toml` does not list `sqlalchemy`, `fastapi`, `typer`, `tenacity`, `pytesseract`, `pdf2image`, `pillow`, or `pyyaml`. ERR-034-05 is satisfied by deleting `pmbok/audit/policy_loader.py` with the tree. No YAML file is converted.
+In Story 34.5, delete `pmbok/`, `scripts/orchestrate_pmbok.py`, and `tests/pmbok/`. Remove `--ignore=tests/pmbok` from `.github/workflows/tests.yaml` and from `scripts/build_linux_installer.sh`. `pyproject.toml` does not list `sqlalchemy`, `fastapi`, `typer`, `tenacity`, `pytesseract`, `pdf2image`, `pillow`, or `pyyaml`. ERR-034-05 is satisfied by deleting `pmbok/audit/policy_loader.py` with the tree. No YAML file is converted. Until then, the CI workflow explicitly excludes `tests/pmbok/`; the exclusion is removed by Story 34.5.
 
 ---
 
@@ -111,6 +113,7 @@ After Stories 34.1 to 34.4, delete `pmbok/`, `scripts/orchestrate_pmbok.py`, and
 | Non-string `created_at` | `TypeError` naming the field |
 | Boolean `sequence_number` | `TypeError` naming the field; booleans are not sequence integers |
 | Non-string `phase` | `TypeError` naming the field |
+| `latest_run_for` observes zero Episodes | Return `None`; the read is linearized at the count observation |
 | Episode count changes during `latest_run_for` | Compare the task-wide count before and after the query. Because run Episodes are append-only, a write between those calls changes the count and invalidates the read; retry up to three read attempts, then raise `RuntimeError` rather than return a potentially stale snapshot |
 | Stored Episode has invalid `created_at` | Raise `TypeError` or `ValueError` naming the Episode id and `created_at` |
 | `latest_run` receives an invalid timestamp | Raise `TypeError` or `ValueError` naming `created_at` |
@@ -135,7 +138,7 @@ These are not verbatim in ADR-034. Stories 34.3 and 34.4 wait on items 3 and 4.
 6. **Deleting `policy_loader.py` closes ERR-034-05.** Files that are deleted are not converted to JSON.
 7. **Learner exclusion stays Story 1.1.** This epic sets `action_type` and `action_logprob` and does not change the trainer.
 8. **Spark stays ignored.** Only the `tests/pmbok` ignore is removed.
-9. **Latest-run read retries are bounded and task-scoped.** `latest_run_for` makes at most three attempts to observe a stable append-only count for the orchestration task. Any concurrent write for that task may invalidate the read, even if it belongs to another run; after three unstable attempts it raises `RuntimeError` rather than return a potentially stale snapshot.
+9. **Latest-run read retries are bounded and task-scoped.** `latest_run_for` returns `None` at a zero-count observation; otherwise it makes at most three attempts to observe a stable append-only count for the orchestration task. Any concurrent write for that task may invalidate the read, even if it belongs to another run; after three unstable attempts it raises `RuntimeError` rather than return a potentially stale snapshot.
 10. **Run timestamps are offset-aware (confirmed for Story 34.2).** `created_at` accepts timezone-aware ISO-8601 values; ordering compares the represented instants in UTC and stores the original string.
 
 ## 6. Out of Scope

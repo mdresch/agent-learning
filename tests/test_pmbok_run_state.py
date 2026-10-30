@@ -164,8 +164,6 @@ def test_ac4_runtime_appends_an_episode_without_creating_a_database_file(
             self.episodes: list[Episode] = []
             self.append_after_query: Episode | None = None
             self.append_on_query: Episode | None = None
-            self.append_on_count: Episode | None = None
-            self.append_on_count_call: int | None = None
             self.count_call_count = 0
             self.query_count = 0
             self.persisted_id: str | None = None
@@ -189,12 +187,6 @@ def test_ac4_runtime_appends_an_episode_without_creating_a_database_file(
             end_date: str | None = None,
         ) -> int:
             self.count_call_count += 1
-            if (
-                self.append_on_count is not None
-                and self.count_call_count == self.append_on_count_call
-            ):
-                self.episodes.append(self.append_on_count)
-                self.append_on_count = None
             return len(self.episodes)
 
         def query_episodes(
@@ -221,7 +213,7 @@ def test_ac4_runtime_appends_an_episode_without_creating_a_database_file(
     store = StoreDouble()
     snapshot = _snapshot()
     assert latest_run_for(store, snapshot.run_id) is None
-    assert store.count_call_count == 2
+    assert store.count_call_count == 1
 
     episode = append_run(store, snapshot, "run completed")
 
@@ -252,39 +244,17 @@ def test_ac4_runtime_appends_an_episode_without_creating_a_database_file(
         created_at="2026-10-30T00:02:00Z",
     )
     fields = build_run_fields(racing_snapshot, "run appended during query")
-    historical_metadata = dict(fields.metadata)
-    historical_metadata["processes"] = {"removed-process": "completed"}
     store.append_after_query = Episode(
         agent_id=fields.agent_id,
         task_id=fields.task_id,
         action_type=fields.action_type,
         action_logprob=fields.action_logprob,
-        metadata=historical_metadata,
+        metadata=dict(fields.metadata),
         result_summary=fields.result_summary,
         created_at=racing_snapshot.created_at,
     )
-    expected_snapshot = _snapshot(
-        run_id=snapshot.run_id,
-        sequence_number=3,
-        created_at="2026-10-30T00:02:00Z",
-        processes={"removed-process": "completed"},
-    )
+    expected_snapshot = _snapshot(run_id=snapshot.run_id, sequence_number=3, created_at="2026-10-30T00:02:00Z")
     assert latest_run_for(store, snapshot.run_id) == expected_snapshot
-
-    racing_snapshot = _snapshot()
-    racing_fields = build_run_fields(racing_snapshot, "run appended during empty read")
-    empty_race_store = StoreDouble()
-    empty_race_store.append_on_count = Episode(
-        agent_id=racing_fields.agent_id,
-        task_id=racing_fields.task_id,
-        action_type=racing_fields.action_type,
-        action_logprob=racing_fields.action_logprob,
-        metadata=dict(racing_fields.metadata),
-        result_summary=racing_fields.result_summary,
-        created_at=racing_snapshot.created_at,
-    )
-    empty_race_store.append_on_count_call = 2
-    assert latest_run_for(empty_race_store, racing_snapshot.run_id) == racing_snapshot
 
     malformed_metadata = dict(store.episodes[-1].metadata)
     malformed_metadata["sequence_number"] = True
@@ -295,6 +265,30 @@ def test_ac4_runtime_appends_an_episode_without_creating_a_database_file(
     )
     store.episodes.append(malformed_episode)
     with pytest.raises(TypeError, match="sequence_number"):
+        latest_run_for(store, snapshot.run_id)
+    store.episodes.pop()
+
+    invalid_process_metadata = dict(store.episodes[-1].metadata)
+    invalid_process_metadata["processes"] = {"removed-process": "completed"}
+    invalid_process_episode = replace(
+        store.episodes[-1],
+        id="invalid-process-episode",
+        metadata=invalid_process_metadata,
+    )
+    store.episodes.append(invalid_process_episode)
+    with pytest.raises(ValueError, match="Episode invalid-process-episode has invalid run fields"):
+        latest_run_for(store, snapshot.run_id)
+    store.episodes.pop()
+
+    invalid_status_metadata = dict(store.episodes[-1].metadata)
+    invalid_status_metadata["processes"] = {"4.1": "unknown"}
+    invalid_status_episode = replace(
+        store.episodes[-1],
+        id="invalid-status-episode",
+        metadata=invalid_status_metadata,
+    )
+    store.episodes.append(invalid_status_episode)
+    with pytest.raises(ValueError, match="Episode invalid-status-episode has invalid run fields"):
         latest_run_for(store, snapshot.run_id)
     store.episodes.pop()
 

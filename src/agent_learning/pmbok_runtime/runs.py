@@ -125,6 +125,12 @@ def _snapshot_from_episode(episode: Episode) -> RunSnapshot:
         gate_episode_ids=normalized_gates,
         route_episode_ids=dict(route_episode_ids),
     )
+    try:
+        build_run_fields(snapshot, episode.result_summary)
+    except TypeError as exc:
+        raise TypeError(f"Episode {episode.id} has invalid run fields: {exc}") from exc
+    except ValueError as exc:
+        raise ValueError(f"Episode {episode.id} has invalid run fields: {exc}") from exc
     return snapshot
 
 
@@ -133,9 +139,7 @@ def latest_run_for(store: RunStore, run_id: str) -> RunSnapshot | None:
     for _ in range(MAX_STABLE_READ_ATTEMPTS):
         count = store.count_episodes(agent_id=RUN_AGENT_ID, task_id=RUN_TASK_ID)
         if count == 0:
-            count = store.count_episodes(agent_id=RUN_AGENT_ID, task_id=RUN_TASK_ID)
-            if count == 0:
-                return None
+            return None
         episodes = store.query_episodes(
             agent_id=RUN_AGENT_ID,
             task_id=RUN_TASK_ID,

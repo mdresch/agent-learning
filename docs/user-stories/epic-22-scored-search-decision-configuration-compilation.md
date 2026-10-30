@@ -8,7 +8,7 @@ Seven stories build `src/agent_learning/weight_compiler.py`, the commands `polic
 
 **Stories 22.1 to 22.7 are blocked on one thing:** Menno's confirmation of FDD-022 §4 (L1 to L8, with a choice needed on L1 and L6). Until then ADR-022 and the FDD disagree, and the criteria below follow the FDD. No story depends on another epic.
 
-Fixtures used by the criteria below. "The toy frame": criteria `c1`, `c2`, options `A` (supports 0.9 and 0.3) and `B` (0.4 and 0.8), one source per criterion at confidence 1.0, `uncertainty_penalty` 0. "The synthetic suite": 40 frames over criteria `c1`, `c2`, `c3` with supports drawn from `random.Random(20261026)`, each labelled by the real resolver under the hidden weights `(0.6, 0.3, 0.1)`, with `labeled_at` earlier than the proposal time. All are built in the tests and labelled synthetic.
+Fixtures used by the criteria below. "The toy frame": criteria `c1`, `c2`, options `A` (supports 0.9 and 0.3) and `B` (0.4 and 0.8), one source per criterion at confidence 1.0, `uncertainty_penalty` 0. "The synthetic suite": 40 frames over criteria `c1`, `c2`, `c3` with supports drawn from `random.Random(20261026)`, each labelled by the real resolver under the hidden weights `(0.6, 0.3, 0.1)`, with `labeled_at` earlier than the proposal time. All are built in the tests and labelled synthetic. `evaluate`, `objective`, `coordinate_ascent` and `propose` take a snapshot whose actions are exactly the frame's options. The resolver rejects any other action space, and those functions do not read `criteria_weights` from the snapshot.
 
 ---
 
@@ -23,7 +23,7 @@ Fixtures used by the criteria below. "The toy frame": criteria `c1`, `c2`, optio
 - **$AC_2$ (Predicted And Margin):** `evaluate` on the toy frame gives `predicted` `A` and margin 0.20 within 1e-9 for `(0.7, 0.3)`; `None` and margin 0.0 for `(0.5, 0.5)` (a tie that needs a person); `B` and margin 0.20 for `(0.3, 0.7)`.
 - **$AC_3$ (Objective):** with label `A` and `beta` 0.1 the objective of the toy frame is 1.02 for `(0.7, 0.3)`, 0.0 for `(0.5, 0.5)` and 0.02 for `(0.3, 0.7)` within 1e-9; the objective of a set is the sum over its items.
 - **$AC_4$ (Constraints Hold):** for a frame where option `B` is ruled out by a constraint, `evaluate` never returns `B` over a grid of weight vectors, and the margin ignores the ruled-out option.
-- **$AC_5$ (Through The Resolver):** the test replaces `DecisionResolver.resolve` with a counting wrapper and finds one call per `evaluate`; the module has no other scoring path.
+- **$AC_5$ (Through The Resolver):** the test replaces `DecisionResolver.resolve` with a counting wrapper and finds one call per `evaluate`, as `resolve(snapshot, with_weights(...))`, where `snapshot` is the one passed to `evaluate`; the module has no other scoring path.
 - **$AC_6$ (Pure):** `weight_compiler.py` imports nothing from `agent_learning.storage` and performs no file I/O.
 
 ---
@@ -68,7 +68,8 @@ Fixtures used by the criteria below. "The toy frame": criteria `c1`, `c2`, optio
 - **$AC_2$ (Worse):** when the compiled weights score lower on the held-out part than the baseline, the result is `NoImprovement`.
 - **$AC_3$ (Baseline Is As Stored):** the baseline uses each frame's own authored weights, unchanged, on the same held-out items.
 - **$AC_4$ (Proposal File):** `policy-compile-weights` writes the proposal object of FDD-022 §2.3 for both outcomes, holds the policy id and version it compiled against, and writes nothing to the store.
-- **$AC_5$ (Dataset Checks):** a dataset item whose label is not an action of the policy, or with a missing field, exits non-zero naming it.
+- **$AC_5$ (Dataset Checks):** a dataset item whose label is not an action id of the active policy, or that lacks `frame`, `label` or `labeled_at`, makes `policy-compile-weights` exit non-zero and name the item. `weight_compiler.py` does not open the dataset file.
+- **$AC_6$ (Frozen Weights):** `CompiledWeights.weights` is a `MappingProxyType`. Writing into it raises, and mutating the dict passed to the constructor leaves the stored weights unchanged.
 
 ---
 

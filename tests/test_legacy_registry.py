@@ -115,8 +115,9 @@ def test_ac2_catalogue_is_immutable_and_repeatable() -> None:
 
 
 def test_ac3_module_has_no_forbidden_dependencies_or_io() -> None:
+    assert MODULE.is_file(), f"Missing legacy registry module: {MODULE}"
     tree = ast.parse(MODULE.read_text(encoding="utf-8"))
-    forbidden_imports = {
+    forbidden_import_prefixes = {
         "agent_learning.storage",
         "io",
         "pathlib",
@@ -138,13 +139,23 @@ def test_ac3_module_has_no_forbidden_dependencies_or_io() -> None:
     }
     forbidden_names = {"LearningStore"}
 
+    def is_forbidden_import(module: str) -> bool:
+        return any(
+            module == prefix or module.startswith(f"{prefix}.")
+            for prefix in forbidden_import_prefixes
+        )
+
+    assert is_forbidden_import("agent_learning.storage")
+    assert is_forbidden_import("agent_learning.storage.local")
+    assert not is_forbidden_import("agent_learning")
+
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
             for alias in node.names:
-                assert alias.name.split(".")[0] not in forbidden_imports
+                assert not is_forbidden_import(alias.name)
                 assert alias.asname not in forbidden_names
         elif isinstance(node, ast.ImportFrom):
-            assert (node.module or "").split(".")[0] not in forbidden_imports
+            assert not is_forbidden_import(node.module or "")
             assert all(alias.name not in forbidden_names for alias in node.names)
         elif isinstance(node, ast.Call):
             called_name = node.func.id if isinstance(node.func, ast.Name) else (

@@ -113,6 +113,26 @@ class TestImmutableRecommendation:
                 min_shown_decisions=0,
             )
 
+    def test_reusing_an_id_for_another_kind_is_refused(self):
+        snap = baseline_snapshot()
+        recommend(
+            snap,
+            "route",
+            recommendation_id="rec-kind-clash",
+            recommended_at=ISO,
+            recorded_decisions=0,
+            min_shown_decisions=None,
+        )
+        with pytest.raises(ValueError, match="rec-kind-clash"):
+            recommend(
+                snap,
+                "graduation",
+                recommendation_id="rec-kind-clash",
+                recommended_at=ISO,
+                recorded_decisions=0,
+                min_shown_decisions=None,
+            )
+
 
 class TestWithholdVisibility:
     """AC_2"""

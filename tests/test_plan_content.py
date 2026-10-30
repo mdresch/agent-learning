@@ -437,7 +437,13 @@ class TestLintPlan:
         text = adr_frontmatter().replace('route: "full_plan"', 'route: "pmp_section"').replace(
             'governance_policy: "approve-subsidiary-plan"', 'governance_policy: "approve-pmp"'
         ) + make_body(900, section1="Prose only.")
-        assert codes(lint_plan(text).flags)[:2] == ["EXCEEDS_SECTION_CAP", "MISSING_BOUNDARY_DEF"]
+        assert codes(lint_plan(text).flags) == [
+            "EXCEEDS_SECTION_CAP",
+            "MISSING_BOUNDARY_DEF",
+            "MISSING_REQUIRED_SECTION",  # WBS rules, Definition of Done, WBS hierarchy (Section 2 scope checks)
+            "MISSING_REQUIRED_SECTION",
+            "MISSING_REQUIRED_SECTION",
+        ]
 
     def test_a_parse_failure_returns_only_the_grammar_findings(self):
         result = lint_plan("---\nplan_id: two words\n---\n" + make_body())

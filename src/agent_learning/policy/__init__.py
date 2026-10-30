@@ -5,6 +5,7 @@ from .contextual_softmax import ContextualSoftmaxPolicy
 from .scope_advice import (
     ADVICE_TASK_ID,
     DECISION_KINDS,
+    GATE_TASK_ID,
     ScopeRecommendation,
     advice_reward,
     baseline_snapshot,
@@ -16,6 +17,7 @@ __all__ = [
     "ADVICE_TASK_ID",
     "ContextualSoftmaxPolicy",
     "DECISION_KINDS",
+    "GATE_TASK_ID",
     "Policy",
     "ScopeRecommendation",
     "SoftmaxPolicy",

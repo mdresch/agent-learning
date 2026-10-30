@@ -14,7 +14,7 @@ from pathlib import Path
 from agent_learning.pmbok import check_content, lint_plan
 from agent_learning.pmbok.scope import scope_measure
 from agent_learning.pmbok.standards import CAPS
-from tests.test_plan_content import DECL, H1, H2, H3, codes, make_body, words
+from tests.test_plan_content import DECL, H1, H2, H3, codes, make_body
 
 SCOPE_FM = (
     "---\n"

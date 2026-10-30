@@ -11,7 +11,8 @@ from typing import Any
 from ..tailoring import compute_flags
 from .body_visible import visible_for_measurement
 from .parser import ParsedPlan, parse_frontmatter
-from .scope import check_scope_sections, scope_measure
+from .schedule import schedule_measure
+from .scope import SCOPE_PLAN_ID, check_scope_sections, scope_measure
 from .standards import (
     CAPS,
     DOMAINS,
@@ -346,6 +347,8 @@ def lint_plan(
         measure = None
         if isinstance(plan_id, str):
             measure = scope_measure(plan_id, route)
+            if measure is None:
+                measure = schedule_measure(plan_id, route)
         if measure is not None:
             floor_option = _option("min_floor_words", min_floor_words)
             items_option = _option("min_out_of_scope_items", min_out_of_scope_items)
@@ -357,7 +360,8 @@ def lint_plan(
                 max_cap_words=measure.cap,
                 exclude_placeholders=True,
             )
-            flags += check_scope_sections(plan.body, route)
+            if plan_id == SCOPE_PLAN_ID:
+                flags += check_scope_sections(plan.body, route)
         else:
             flags += check_content(
                 plan.body, route, min_floor_words=min_floor_words, min_out_of_scope_items=min_out_of_scope_items

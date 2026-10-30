@@ -5,7 +5,7 @@ description: Pure lint for subsidiary management plans (ADR-012): the stdlib fro
 
 # Plan lint (agent_learning.pmbok)
 
-**Governing:** ADR-012 (grammar text: ADR-034 section 4.3.1), BRD-012, FDD-012, Epic 12; Scope profile ADR-025 / FDD-025, Epic 25 (Stories 25.1–25.2). Contract files: `tests/test_plan_parser.py` (Story 12.1), `tests/test_plan_metadata.py` (Story 12.2), `tests/test_plan_content.py` (Story 12.3), `tests/test_plan_next_step.py` (Story 12.4), `tests/test_scope_measure.py` (Story 25.1), `tests/test_scope_sections.py` (Story 25.2).
+**Governing:** ADR-012 (grammar text: ADR-034 section 4.3.1), BRD-012, FDD-012, Epic 12; Scope profile ADR-025 / FDD-025, Epic 25 (Stories 25.1–25.2); Schedule profile ADR-026 / FDD-026, Epic 26 (Story 26.1). Contract files: `tests/test_plan_parser.py` (Story 12.1), `tests/test_plan_metadata.py` (Story 12.2), `tests/test_plan_content.py` (Story 12.3), `tests/test_plan_next_step.py` (Story 12.4), `tests/test_scope_measure.py` (Story 25.1), `tests/test_scope_sections.py` (Story 25.2), `tests/test_schedule_measure.py` (Story 26.1).
 
 ## What it is
 A pure package (standard library only, no I/O, no storage) that reads a plan's text and returns plain data. It is the new `agent_learning.pmbok` package named in ADR-034 section 4.3; it is not the legacy top-level `pmbok/` directory, which is never imported here.
@@ -34,9 +34,15 @@ A pure package (standard library only, no I/O, no storage) that reads a plan's t
 - `check_scope_sections(body, route)`: Tier B Section 2 checks for WBS phrasing, Definition of Done, embedded hierarchy (`pmp_section`: two of phase/epic/story/commit/work package or an arrow link), and full-plan dictionary fields (phase, epic, story, commit or work package; acceptance criteria, owner, parent). Returns `[]` when Section 2 heading is absent (heading finding only). `lint.py` may import `scope`; purity tests allow that sibling.
 - **Advisory policy (Stories 25.3–25.4):** `agent_learning.policy.scope_advice` — `baseline_snapshot()`, `recommend(...)` (one `decision_kind` per call, in-process memo by `recommendation_id`), `advice_reward(followed)`. Task id `advise-scope-plan-decision`; separate from `approve-subsidiary-plan`. Contracts: `tests/test_scope_advice_policy.py`, `tests/test_scope_advice_reward.py`. Idle shape: `docs/policy-shapes/advise-scope-plan-decision.actions.json`.
 
+## Schedule profile (Epic 26)
+- `schedule.py`: `schedule_measure(plan_id, route)` returns Schedule-only floors, caps, and out-of-scope minimums (`pmp_section`: 180 / 750 / 2; `full_plan`: 700 / 4500 / 4); all other plans and `not_applicable` return `None`.
+- `lint_plan` applies the Schedule profile only to `schedule-management`, using the shared `max_cap_words` and `exclude_placeholders` arguments. It does not apply Scope Section 2 checks to a Schedule plan.
+- `schedule.py` is pure: no storage imports, I/O, network access, or new package dependencies.
+
 ## Out of scope (see FDD-012 section 5)
 Tier A detection, the content hash, the dependency graph, staleness and the approval gate (ADR-013; built in Epic 13, see the `plan-approval-gate` skill); orchestration and the legacy removal (ADR-034); remaining per-plan domain rules (ADR-026 to ADR-033); wiring advisory `recommend` into a CLI (Epic 34).
 
 ## Call sites
+- `agent_learning.pmbok.__init__` re-exports `ScheduleMeasure` and `schedule_measure` alongside the Scope profile symbols.
 - `agent_learning/__init__.py` re-exports `LintFlag`, `ParsedPlan`, `parse_frontmatter`, `validate_metadata`, `PLAN_STANDARDS`, `PlanStandard`, `LintResult`, `check_content`, `count_words`, `lint_plan`, `omission_flags`, `NextStep`, `NextStepDecision` and `next_step`.
 - No orchestrator or CLI call site yet.

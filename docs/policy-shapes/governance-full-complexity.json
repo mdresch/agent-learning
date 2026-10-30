@@ -1,0 +1,9 @@
+{
+  "intent_ambiguity": "low",
+  "context_variability": "variable",
+  "outcome_observability": "direct",
+  "decision_impact": "high",
+  "reversibility": "reversible",
+  "requires_human_approval": true,
+  "rationale": "Baseline governance gates (approve-charter, approve-adr, approve-project-pillars, etc.) require explicit human sign-off per ADR-021."
+}

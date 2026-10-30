@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-035](../../adr/ADR-035-cycle-identification-and-cross-cycle-artifact-traceability.md) — Accepted (2026-10-29, Menno), episode `76a4003b-a725-4405-b3c1-d2f8122671c6`  
 **Governing Baseline:** none approved yet; the bootstrap pass is `CYC-001` (ADR-035 §4.9)  
-**Status:** Draft (2026-10-29) — derived from Accepted ADR-035; not yet adjudicated via `approve-brd`.  
+**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-035; adjudicated via `approve-brd` (robust utility 0.717, episode `572c3556-8c15-4571-ac01-47a72ca510a2`). Out-of-scope wording corrected the same day: ADR-035 is already Accepted. Not re-scored.  
 **Stakeholders:** Menno (Sponsor, Project Manager, maintainer)
 
 ## Business Need
@@ -37,7 +37,7 @@ ADR-035 names a cycle `CYC-NNN`, keeps an append-only Cycle Register with a prov
 
 ## Out of Scope
 
-- Editing ADR-008 §4.6, ADR-012 §4.2 and §4.3.4, or ADR-013 §4.3 in place. Those amendments apply when ADR-035 is accepted (ADR-035 §8 item 1). This draft names the volatile-key change the code will make.
+- Editing ADR-008 §4.6, ADR-012 §4.2 and §4.3.4, or ADR-013 §4.3 in place. ADR-035 is Accepted, and §8.1 authorizes those amendments. This requirement names the volatile-key change the code will make.
 - Reconstructing `CYC-001` pins from git, and writing `docs/project-docs/Cycle-Register.md` with recovered hashes (ADR-035 §4.9). The checker accepts the row shape. The reconstruction is a later human pass.
 - Git tags `cycle/CYC-NNN` (ADR-035 §8 item 2).
 - Adding `trace_id` to `Episode` (ADR-035 §8 item 3).

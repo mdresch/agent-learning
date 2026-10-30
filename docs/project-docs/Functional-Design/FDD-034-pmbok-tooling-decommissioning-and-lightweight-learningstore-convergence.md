@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-034](../../adr/ADR-034-pmbok-tooling-decommissioning-and-lightweight-learningstore-convergence.md) — Accepted (2026-10-26)  
 **Source BRD:** [BRD-034](../Business-Requirements/BRD-034-pmbok-tooling-decommissioning-and-lightweight-learningstore-convergence.md)  
-**Status:** Draft (2026-10-29) — derived from Accepted ADR-034 and BRD-034; not yet adjudicated via `approve-fdd`. §5 interpretations are not confirmed.
+**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-034 and BRD-034; adjudicated via `approve-fdd` (robust utility 0.736, episode `1b234e07-d329-4d7e-8df2-ed460511aee1`). §5 interpretations are not confirmed; sections 2–3 implement the approved BRU rules.
 
 ---
 

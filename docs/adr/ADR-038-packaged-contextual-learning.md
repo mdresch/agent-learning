@@ -93,8 +93,13 @@ Tests, not written yet: `tests/test_contextual_learner.py`. A hand-computed one-
 |---|---|---|
 | 2026-10-30 | Proposed | Draft for the topic pillar "Packaged contextual learning". Not accepted. |
 | 2026-10-30 | **Accepted by Menno** | Formally adjudicated and accepted through `approve-adr`; robust utility 0.744, expected utility 0.813; Episode `f745c77b-0a2c-4e97-82d4-6f6936b2acd9`. |
+| 2026-10-30 | Open questions answered | Menno confirmed Q1–Q3 as deferrals. The decision text is unchanged. |
+| 2026-10-30 | Re-approved | Adjudicated accept under `approve-adr`; robust utility 0.751, expected utility 0.819; Episode `88df0481-ee2e-42a5-8ea4-76edbaf1fc2a`. The ADR-005 comparison with the original approval (robust utility 0.744) classifies as **progression**, not a regression: margin 0.633 to 0.647 (+0.014); leader stays `approve_adr`; soundness, alternatives, and consequences are unchanged; gap disclosure on approve rises by 0.026. Result: `docs/policy-shapes/results/adr-038-reapproval-comparison.json`. |
 
 ## Open questions
-- Who names the coordinates of \(\phi\)? This ADR fixes the length, not the meaning.
-- Should ADR-020 grow a weight-row donor map? Not decided here.
-- HYP-AL-018 (LinUCB / LinTS) stays a separate candidate.
+
+Menno confirmed each answer on 2026-10-30. The answers keep the work out of this ADR.
+
+- **Who names the coordinates of \(\phi\)?** The caller. This ADR fixes the length, not the meaning.
+- **Should ADR-020 grow a weight-row donor map?** Not in this decision. A new contextual policy starts at zero rows. A later ADR can add the map.
+- **Where does HYP-AL-018 (LinUCB / LinTS) belong?** A separate ADR, after this learner and these CLI flags exist.

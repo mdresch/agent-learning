@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-029](../adr/ADR-029-quality-management-plan-standard.md) — Accepted (2026-10-29, Menno), episode `736036f7-40a1-441f-afc0-062501c46d57`  
 **Source BRD/FDD:** [BRD-029](../project-docs/Business-Requirements/BRD-029-quality-management-plan-standard.md) / [FDD-029](../project-docs/Functional-Design/FDD-029-quality-management-plan-standard.md)  
-**Status:** Draft (2026-10-29) — derived from Accepted ADR-029, BRD-029 and FDD-029; not yet adjudicated via `approve-user-stories`.
+**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-029, BRD-029 and FDD-029 (Approved 2026-10-30); adjudicated via `approve-user-stories` (robust utility 0.735, episode `cf56f558-e31f-4f6d-8ca0-b94925d97e63`).
 
 Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_quality_measure.py` (29.1), `tests/test_quality_sections.py` (29.2), `tests/test_quality_advice_policy.py` (29.3), `tests/test_quality_advice_reward.py` (29.4). Stories 29.3 and 29.4 wait until FDD-029 §5 item 1 is confirmed. BRU-029-07 has no story: it is the text the plan author writes and the approver reads.
 
@@ -10,7 +10,7 @@ Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_
 
 ## Story 29.1 — Quality floors, caps, and exclusions
 
-**Status:** Draft — blocked on acceptance of ADR-029  
+**Status:** Ready
 **As** a governance reviewer,  
 **I want** a Quality plan measured with the Tier 2 floors and the universal caps,  
 **so that** a short Quality plan is flagged and a plan inside the universal cap is not pushed over a tighter cap that this standard does not set.
@@ -29,7 +29,7 @@ Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_
 
 ## Story 29.2 — Gates, verification, and nonconformance
 
-**Status:** Draft — blocked on acceptance of ADR-029  
+**Status:** Ready
 **As** a governance reviewer,  
 **I want** a Quality plan to state how a gate is passed, what verification must show, and what happens when a gate fails,  
 **so that** a plan cannot pass on word count alone while leaving the gate, the check, or the failure path unnamed.
@@ -47,7 +47,7 @@ Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_
 
 ## Story 29.3 — The idle Quality advisory policy
 
-**Status:** Draft — blocked on confirmation of FDD-029 §5 item 1, and on acceptance of ADR-029  
+**Status:** Draft — blocked on confirmation of FDD-029 §5 item 1  
 **As** a maintainer,  
 **I want** `advise-quality-plan-decision` declared as its own low-authority policy with equal logits and no episodes,  
 **so that** a later recommendation has a fixed task id and cannot waive a gate or be trained as the approval gate.

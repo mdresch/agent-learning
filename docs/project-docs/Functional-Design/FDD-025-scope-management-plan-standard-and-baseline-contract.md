@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-025](../../adr/ADR-025-scope-management-plan-standard-and-baseline-contract.md) — Accepted (2026-10-26, Menno); re-approved 2026-10-29, episode `983c2b87-8309-4414-98fe-93337989b9b5`  
 **Source BRD:** [BRD-025](../Business-Requirements/BRD-025-scope-management-plan-standard-and-baseline-contract.md)  
-**Status:** Draft (2026-10-29) — derived from Accepted ADR-025 and BRD-025; not yet adjudicated via `approve-fdd`. §5 interpretations are not confirmed.
+**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-025 and BRD-025; adjudicated via `approve-fdd` (robust utility 0.735, episode `c59be18e-5b2c-4c4b-903a-cd8fa98848bd`). §5 interpretations are not confirmed; sections 2–3 implement the approved BRU rules.
 
 ---
 

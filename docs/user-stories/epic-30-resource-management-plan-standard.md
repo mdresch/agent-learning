@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-030](../adr/ADR-030-resource-management-plan-standard.md) — Accepted (2026-10-29, Menno), episode `de095357-d927-4408-8311-181e158a2abf`  
 **Source BRD/FDD:** [BRD-030](../project-docs/Business-Requirements/BRD-030-resource-management-plan-standard.md) / [FDD-030](../project-docs/Functional-Design/FDD-030-resource-management-plan-standard.md)  
-**Status:** Draft (2026-10-29) — derived from Accepted ADR-030, BRD-030 and FDD-030; not yet adjudicated via `approve-user-stories`.
+**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-030, BRD-030 and FDD-030 (Approved 2026-10-30); adjudicated via `approve-user-stories` (robust utility 0.735, episode `742976ba-7bd5-497f-9cc7-a3ba35bc4dc1`).
 
 Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_resource_measure.py` (30.1), `tests/test_resource_sections.py` (30.2), `tests/test_resource_advice_policy.py` (30.3), `tests/test_resource_advice_reward.py` (30.4). Stories 30.3 and 30.4 wait until FDD-030 §5 items 1 and 2 are confirmed. BRU-030-07 has no story: it is the text the plan author writes and the approver reads.
 
@@ -10,7 +10,7 @@ Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_
 
 ## Story 30.1 — Resource lengths and the full-plan exclusion minimum
 
-**Status:** Draft — blocked on acceptance of ADR-030  
+**Status:** Ready
 **As** a governance reviewer,  
 **I want** a Resource plan measured at the ADR-012 floors and caps, with two out-of-scope items on a full plan,  
 **so that** Tier 3 does not inherit a higher floor, and a full plan still states more than one exclusion.
@@ -29,7 +29,7 @@ Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_
 
 ## Story 30.2 — Catalogue, allocation, and tooling
 
-**Status:** Draft — blocked on acceptance of ADR-030  
+**Status:** Ready
 **As** a governance reviewer,  
 **I want** a Resource plan to name who is accountable, how capacity is allocated, and which tools the work needs,  
 **so that** a plan cannot pass on word count alone while leaving the roles, the capacity, or the assets unnamed.
@@ -48,7 +48,7 @@ Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_
 
 ## Story 30.3 — The idle Resource advisory policy
 
-**Status:** Draft — blocked on confirmation of FDD-030 §5 items 1 and 2, and on acceptance of ADR-030  
+**Status:** Draft — blocked on confirmation of FDD-030 §5 items 1 and 2  
 **As** a maintainer,  
 **I want** `advise-resource-plan-decision` declared as its own low-authority policy with a separate logit map for Procurement and for HR,  
 **so that** a later recommendation has a fixed task id and a materials decision cannot train a human-resources decision.

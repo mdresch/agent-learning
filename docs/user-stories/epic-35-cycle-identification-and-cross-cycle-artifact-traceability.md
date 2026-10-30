@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-035](../adr/ADR-035-cycle-identification-and-cross-cycle-artifact-traceability.md) — Accepted (2026-10-29, Menno), episode `76a4003b-a725-4405-b3c1-d2f8122671c6`  
 **Source BRD/FDD:** [BRD-035](../project-docs/Business-Requirements/BRD-035-cycle-identification-and-cross-cycle-artifact-traceability.md) / [FDD-035](../project-docs/Functional-Design/FDD-035-cycle-identification-and-cross-cycle-artifact-traceability.md)  
-**Status:** Draft (2026-10-29) — derived from Accepted ADR-035, BRD-035 and FDD-035; not yet adjudicated via `approve-user-stories`.
+**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-035, BRD-035 and FDD-035 (Approved 2026-10-30); adjudicated via `approve-user-stories` (robust utility 0.735, episode `16bb54c2-f13a-4475-8a9a-4fa9ca59adee`).
 
 Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_cycle_ids.py` (35.1), `tests/test_cycle_register.py` (35.2), `tests/test_cycle_lookup.py` (35.3), `tests/test_cycle_flags.py` (35.4). Stories 35.2 and 35.3 also wait until FDD-035 §5 item 1 is confirmed. BRU-035-07 has no story: cycle and generation stay different words, and no counter is code.
 
@@ -10,7 +10,7 @@ Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_
 
 ## Story 35.1 — Cycle and baseline ids, and a hash that ignores them
 
-**Status:** Draft — blocked on acceptance of ADR-035  
+**Status:** Ready
 **As** a governance reviewer,  
 **I want** `cycle_id` and `baseline_id` recognized, and left out of the canonical hash,  
 **so that** re-pointing an unchanged artifact at a new cycle does not void the approval.
@@ -27,7 +27,7 @@ Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_
 
 ## Story 35.2 — The register is an event log with one open cycle
 
-**Status:** Draft — blocked on confirmation of FDD-035 §5 item 1, and on acceptance of ADR-035  
+**Status:** Draft — blocked on confirmation of FDD-035 §5 item 1  
 **As** a governance reviewer,  
 **I want** the Cycle Register rejected when it reopens a cycle, skips a number, or leaves two cycles open,  
 **so that** the latest row is a trustworthy current state.

@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-035](../../adr/ADR-035-cycle-identification-and-cross-cycle-artifact-traceability.md) — Accepted (2026-10-29, Menno), episode `76a4003b-a725-4405-b3c1-d2f8122671c6`  
 **Source BRD:** [BRD-035](../Business-Requirements/BRD-035-cycle-identification-and-cross-cycle-artifact-traceability.md)  
-**Status:** Draft (2026-10-29) — derived from Accepted ADR-035 and BRD-035; not yet adjudicated via `approve-fdd`. §5 interpretations are not confirmed.
+**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-035 and BRD-035; adjudicated via `approve-fdd` (robust utility 0.735, episode `27bfc646-0c06-435c-8120-a131f991f79f`). §5 interpretations are not confirmed; sections 2–3 implement the approved BRU rules.
 
 ---
 

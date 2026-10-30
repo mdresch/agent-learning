@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-037](../../adr/ADR-037-design-time-baseline-feedback-loop.md) — Accepted (2026-10-27, Menno); Episode `0eb8f52a-dea7-4ef6-8ac5-0e0e21def933`  
 **Governing Baseline:** none approved yet; cycle `CYC-001` (ADR-035, Accepted). The unapproved candidate is `PMP-BL-v1.0.0`.  
-**Status:** Draft (2026-10-29) — derived from Accepted ADR-037; not yet adjudicated via `approve-brd`.  
+**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-037; adjudicated via `approve-brd` (robust utility 0.721, episode `edee6d79-b683-4fe9-bf14-a398e6b538ae`).  
 **Stakeholders:** Menno (Sponsor, Project Manager, maintainer)
 
 ## Business Need

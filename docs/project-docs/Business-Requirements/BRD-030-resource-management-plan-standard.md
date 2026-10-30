@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-030](../../adr/ADR-030-resource-management-plan-standard.md) — Accepted (2026-10-29, Menno), episode `de095357-d927-4408-8311-181e158a2abf`  
 **Governing Baseline:** none approved yet; cycle `CYC-001` (ADR-035, Accepted)  
-**Status:** Draft (2026-10-29) — derived from Accepted ADR-030; not yet adjudicated via `approve-brd`.  
+**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-030; adjudicated via `approve-brd` (robust utility 0.735, episode `6da696cf-7c13-4ea1-bb03-3805dfde7dd2`).  
 **Stakeholders:** Menno (Sponsor, Project Manager, maintainer)
 
 ## Business Need

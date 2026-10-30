@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-027](../adr/ADR-027-cost-management-plan-standard-and-baseline-contract.md) — Accepted (2026-10-29, Menno), episode `0ae724ad-5309-4eb2-a333-749cde39c0c0`  
 **Source BRD/FDD:** [BRD-027](../project-docs/Business-Requirements/BRD-027-cost-management-plan-standard-and-baseline-contract.md) / [FDD-027](../project-docs/Functional-Design/FDD-027-cost-management-plan-standard-and-baseline-contract.md)  
-**Status:** Draft (2026-10-29) — derived from Accepted ADR-027, BRD-027 and FDD-027; not yet adjudicated via `approve-user-stories`.
+**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-027, BRD-027 and FDD-027 (Approved 2026-10-30); adjudicated via `approve-user-stories` (robust utility 0.735, episode `a487f349-c691-4ad0-a418-28a4870592c6`).
 
 Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_cost_measure.py` (27.1), `tests/test_cost_sections.py` (27.2), `tests/test_cost_advice_policy.py` (27.3), `tests/test_cost_advice_reward.py` (27.4). Story 27.1 waits on the shared lint arguments in FDD-027 §3.2. Stories 27.3 and 27.4 wait until FDD-027 §5 item 1 is confirmed. BRU-027-07 has no story: it is the text the plan author writes and the approver reads.
 
@@ -10,7 +10,7 @@ Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_
 
 ## Story 27.1 — Cost floors, caps, and exclusions
 
-**Status:** Draft — blocked on the `max_cap_words` and `exclude_placeholders` arguments of FDD-027 §3.2, and on acceptance of ADR-027  
+**Status:** Draft — blocked on the `max_cap_words` and `exclude_placeholders` arguments of FDD-027 §3.2  
 **As** a governance reviewer,  
 **I want** a Cost plan measured with the Cost floors, caps, and out-of-scope minimum,  
 **so that** a plan that would pass the universal lint still shows a Cost gap, and every other plan keeps its own numbers.
@@ -28,7 +28,7 @@ Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_
 
 ## Story 27.2 — Envelope, categories, and contingency
 
-**Status:** Draft — blocked on acceptance of ADR-027  
+**Status:** Ready
 **As** a governance reviewer,  
 **I want** a Cost plan to state its spending ceiling, the categories it tracks, and who may release contingency,  
 **so that** a plan cannot pass on word count alone while leaving the envelope, the spend types, or the reserve unnamed.
@@ -46,7 +46,7 @@ Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_
 
 ## Story 27.3 — The idle Cost advisory policy
 
-**Status:** Draft — blocked on confirmation of FDD-027 §5 item 1, and on acceptance of ADR-027  
+**Status:** Draft — blocked on confirmation of FDD-027 §5 item 1  
 **As** a maintainer,  
 **I want** `advise-cost-plan-decision` declared as its own low-authority policy with equal logits and no episodes,  
 **so that** a later recommendation has a fixed task id and cannot be trained as if it were the approval gate or another plan advisor.

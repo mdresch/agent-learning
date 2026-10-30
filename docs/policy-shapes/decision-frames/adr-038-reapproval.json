@@ -1,0 +1,133 @@
+{
+  "task": "ADR-038 (Packaged Contextual Learning), re-approval after the 2026-10-30 open-question answers",
+  "criteria": [
+    {
+      "id": "architectural_soundness",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Packages ContextualReinforceLearner for the already-exported ContextualSoftmaxPolicy, records the choose-time vector as metadata feature_vector, and adds task-policy-init --feature-dim and task-policy-decide --features for low authority only. No new LearningStore record type (ADR-002). The ADR-003 gate is unchanged. Design only. The 2026-10-30 answers do not change section 4 or section 7."
+    },
+    {
+      "id": "alternatives_considered",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Four alternatives named and rejected: leave the learner in the example, teach ReinforceLearner both policy classes, package LinUCB or LinTS instead, and train on context_features. The 2026-10-30 answers do not add or remove an alternative."
+    },
+    {
+      "id": "consequences_honest",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "States the exported training path and the costs: prior episodes have no training vector, features stay caller-defined, HYP-AL-004 stays open, and warm-start leaves weight rows at zero. Q2 confirms the zero-row start."
+    },
+    {
+      "id": "gap_disclosure_quality",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Names the unbuilt learner, the catalog remaining example_only, and missing real feature vectors. The caller names the coordinates of phi. A weight-row donor map waits for a later ADR. LinUCB/LinTS waits for a separate ADR under HYP-AL-018."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_adr",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "adr_038_section_4_and_section_7_unchanged_by_2026-10-30_answers",
+          "support": 0.86,
+          "confidence": 0.84
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "adr_038_section_5_four_alternatives_unchanged",
+          "support": 0.86,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "adr_038_section_6_unchanged; Q2 confirms zero-row start",
+          "support": 0.85,
+          "confidence": 0.84
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "open_questions_answered_2026-10-30: caller names coordinates; donor map deferred; HYP-AL-018 stays a separate ADR; learner still unbuilt; catalog stays example_only",
+          "support": 0.86,
+          "confidence": 0.84
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_adr",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "no fundamental flaw introduced by the open-question answers",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "adr_038_section_5_four_alternatives",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "adr_038_section_6",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "answered deferrals are not a flaw",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "reviewer suggestions on baseline timing and a constant feature coordinate; verdict remained approve_adr",
+          "support": 0.12,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "adr_038_section_5_four_alternatives",
+          "support": 0.1,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "adr_038_section_6",
+          "support": 0.1,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "learner still unbuilt; the unnamed-coordinates reason is closed because the caller names them",
+          "support": 0.11,
+          "confidence": 0.75
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

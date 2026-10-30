@@ -1,0 +1,133 @@
+{
+  "task": "BRD-037 (Design-Time Baseline Feedback Loop): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "traceable_to_adr",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Each BRU cites the source ADR section or invariant it implements, and does not add a rule the ADR refused."
+    },
+    {
+      "id": "honest_metrics",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Success metrics are checkable counts, exact equalities, or zero-occurrence targets. None invents an effectiveness rate for an idle learner."
+    },
+    {
+      "id": "out_of_scope_accurate",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "The out-of-scope list names the neighboring ADRs and the deferred items, and it does not hide a rule the BRU already requires."
+    },
+    {
+      "id": "rules_actionable",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "A later story can test each BRU as a pass or fail without inventing a threshold the ADR left unset."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_brd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_adr",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-037-design-time-baseline-feedback-loop.md",
+          "support": 0.85,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "honest_metrics",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-037-design-time-baseline-feedback-loop.md",
+          "support": 0.85,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "out_of_scope_accurate",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-037-design-time-baseline-feedback-loop.md",
+          "support": 0.84,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "rules_actionable",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-037-design-time-baseline-feedback-loop.md",
+          "support": 0.82,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_brd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_adr",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-037-design-time-baseline-feedback-loop.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "honest_metrics",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-037-design-time-baseline-feedback-loop.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "out_of_scope_accurate",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-037-design-time-baseline-feedback-loop.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "rules_actionable",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-037-design-time-baseline-feedback-loop.md",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_adr",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-037-design-time-baseline-feedback-loop.md; no unfixed critical flaw on a full read",
+          "support": 0.11,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "honest_metrics",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-037-design-time-baseline-feedback-loop.md; no unfixed critical flaw on a full read",
+          "support": 0.11,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "out_of_scope_accurate",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-037-design-time-baseline-feedback-loop.md; no unfixed critical flaw on a full read",
+          "support": 0.11,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "rules_actionable",
+          "source": "BRU-037-07 leaves open whether a within-PM-authority plan change records a patch. The formatter is not required to answer it, and the out-of-scope list names the same item.",
+          "support": 0.16,
+          "confidence": 0.75
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

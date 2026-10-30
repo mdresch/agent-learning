@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-029](../../adr/ADR-029-quality-management-plan-standard.md) — Accepted (2026-10-29, Menno), episode `736036f7-40a1-441f-afc0-062501c46d57`  
 **Source BRD:** [BRD-029](../Business-Requirements/BRD-029-quality-management-plan-standard.md)  
-**Status:** Draft (2026-10-29) — derived from Accepted ADR-029 and BRD-029; not yet adjudicated via `approve-fdd`. §5 interpretations are not confirmed.
+**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-029 and BRD-029; adjudicated via `approve-fdd` (robust utility 0.735, episode `d191d9d0-5cb0-40fc-b2c7-34130e246ebf`). §5 interpretations are not confirmed; sections 2–3 implement the approved BRU rules.
 
 ---
 

@@ -20,10 +20,26 @@ class RunStore(Protocol):
 
     def store_episode(self, episode: Episode) -> str: ...
 
-    def count_episodes(self, agent_id: str, *, task_id: str | None = None) -> int: ...
+    def count_episodes(
+        self,
+        agent_id: str,
+        *,
+        task_id: str | None = None,
+        full_only: bool = False,
+        start_date: str | None = None,
+        end_date: str | None = None,
+    ) -> int: ...
 
     def query_episodes(
-        self, agent_id: str, *, limit: int = 100, task_id: str | None = None
+        self,
+        agent_id: str,
+        *,
+        limit: int = 100,
+        start_date: str | None = None,
+        end_date: str | None = None,
+        policy_id: str | None = None,
+        task_id: str | None = None,
+        full_only: bool = False,
     ) -> list[Episode]: ...
 
 
@@ -83,6 +99,8 @@ def _snapshot_from_episode(episode: Episode) -> RunSnapshot:
         for plan_id, route_id in route_episode_ids.items()
     ):
         raise TypeError(f"Episode {episode.id} has invalid route_episode_ids metadata")
+    if not isinstance(episode.result_summary, str):
+        raise TypeError(f"Episode {episode.id} has invalid result_summary")
 
     snapshot = RunSnapshot(
         run_id=run_id,
@@ -94,22 +112,28 @@ def _snapshot_from_episode(episode: Episode) -> RunSnapshot:
         gate_episode_ids=normalized_gates,
         route_episode_ids=dict(route_episode_ids),
     )
-    if not isinstance(episode.result_summary, str):
-        raise TypeError(f"Episode {episode.id} has invalid result_summary")
-    build_run_fields(snapshot, episode.result_summary)
     return snapshot
 
 
 def latest_run_for(store: RunStore, run_id: str) -> RunSnapshot | None:
     """Read the latest snapshot for one run from standard LearningStore episodes."""
-    count = store.count_episodes(agent_id=RUN_AGENT_ID, task_id=RUN_TASK_ID)
-    if count == 0:
-        return None
-    episodes = store.query_episodes(
-        agent_id=RUN_AGENT_ID,
-        task_id=RUN_TASK_ID,
-        limit=count,
-    )
+    while True:
+        count = store.count_episodes(agent_id=RUN_AGENT_ID, task_id=RUN_TASK_ID)
+        if count == 0:
+            if store.count_episodes(agent_id=RUN_AGENT_ID, task_id=RUN_TASK_ID) == 0:
+                return None
+            continue
+        episodes = store.query_episodes(
+            agent_id=RUN_AGENT_ID,
+            task_id=RUN_TASK_ID,
+            limit=count,
+        )
+        if (
+            store.count_episodes(agent_id=RUN_AGENT_ID, task_id=RUN_TASK_ID) == count
+            and len(episodes) == count
+        ):
+            break
+
     snapshots = [
         _snapshot_from_episode(episode)
         for episode in episodes

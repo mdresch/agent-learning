@@ -128,11 +128,13 @@ def test_ac3_domain_run_state_is_storage_free_and_pure() -> None:
 def test_ac4_runtime_appends_an_episode_without_creating_a_database_file(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    from agent_learning.pmbok.run_state import build_run_fields
     from agent_learning.pmbok_runtime.runs import append_run, latest_run_for
 
     class StoreDouble:
         def __init__(self) -> None:
             self.episodes: list[Episode] = []
+            self.append_after_query: Episode | None = None
 
         def store_episode(self, episode: Episode) -> str:
             self.episodes.append(episode)
@@ -160,7 +162,11 @@ def test_ac4_runtime_appends_an_episode_without_creating_a_database_file(
             task_id: str | None = None,
             full_only: bool = False,
         ) -> list[Episode]:
-            return self.episodes[:limit]
+            episodes = self.episodes[:limit]
+            if self.append_after_query is not None:
+                self.episodes.append(self.append_after_query)
+                self.append_after_query = None
+            return episodes
 
     monkeypatch.chdir(tmp_path)
     store = StoreDouble()
@@ -189,4 +195,29 @@ def test_ac4_runtime_appends_an_episode_without_creating_a_database_file(
     assert store.episodes[2] is later_episode
     assert episode.metadata["sequence_number"] == 1
     assert latest_run_for(store, snapshot.run_id) == later_snapshot
+
+    racing_snapshot = _snapshot(
+        run_id=snapshot.run_id,
+        sequence_number=3,
+        created_at="2026-10-30T00:02:00Z",
+    )
+    fields = build_run_fields(racing_snapshot, "run appended during query")
+    historical_metadata = dict(fields.metadata)
+    historical_metadata["processes"] = {"removed-process": "completed"}
+    store.append_after_query = Episode(
+        agent_id=fields.agent_id,
+        task_id=fields.task_id,
+        action_type=fields.action_type,
+        action_logprob=fields.action_logprob,
+        metadata=historical_metadata,
+        result_summary=fields.result_summary,
+        created_at=racing_snapshot.created_at,
+    )
+    expected_snapshot = _snapshot(
+        run_id=snapshot.run_id,
+        sequence_number=3,
+        created_at="2026-10-30T00:02:00Z",
+        processes={"removed-process": "completed"},
+    )
+    assert latest_run_for(store, snapshot.run_id) == expected_snapshot
     assert list(tmp_path.rglob("*.db")) == []

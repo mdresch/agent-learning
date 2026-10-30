@@ -54,6 +54,8 @@ def _validate_string_lengths(value: object, field: str) -> None:
 
 
 def _validate_snapshot(snapshot: RunSnapshot, result_summary: str) -> None:
+    if not isinstance(result_summary, str):
+        raise TypeError("result_summary must be a string")
     _validate_string_lengths(snapshot.run_id, "run_id")
     if not snapshot.run_id:
         raise ValueError("run_id must not be empty")
@@ -85,10 +87,6 @@ def _validate_snapshot(snapshot: RunSnapshot, result_summary: str) -> None:
             raise ValueError(f"gate_episode_ids[{plan_id!r}] must contain three strings")
         if not all(isinstance(value, str) for value in episode_ids):
             raise ValueError(f"gate_episode_ids[{plan_id!r}] must contain three strings")
-
-    if not isinstance(result_summary, str):
-        raise TypeError("result_summary must be a string")
-
 
 def build_run_fields(snapshot: RunSnapshot, result_summary: str) -> RunEpisodeFields:
     """Validate a snapshot and build its stable Episode identity and metadata."""

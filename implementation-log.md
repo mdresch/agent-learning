@@ -1006,3 +1006,6 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Amazon Q review:** Round 1 findings fixed in `0fc1059`.
   - Q-78-1 | logic error | verified: yes | decision: accepted | Dotted storage imports were normalized to `agent_learning`, so the prior forbidden-import check could miss them | fix: `0fc1059`
   - Q-78-2 | crash risk | verified: yes | decision: accepted | Missing module source produced an unhelpful `FileNotFoundError`; the contract now asserts the file exists with its path | fix: `0fc1059`
+  - Q-78-3 | logic error | verified: no | decision: declined | Duplicate inline claim refers to the original split-based check; the current helper matches full dotted module names and pins storage paths in assertions | fix: none (addressed in `0fc1059`)
+  - Q-78-4 | logic error | verified: no | decision: declined | Duplicate inline claim repeats Q-78-3 and quotes code that is absent from the current head | fix: none (addressed in `0fc1059`)
+  - Q-78-5 | crash risk | verified: no | decision: declined | Duplicate inline claim predates the explicit `MODULE.is_file()` assertion with the missing path | fix: none (addressed in `0fc1059`)

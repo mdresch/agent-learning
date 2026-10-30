@@ -164,7 +164,7 @@ def validate_metadata(metadata: Mapping[str, Any], routes: Sequence[Any] | None 
 _NONE_LINE = re.compile(r"^\s*[-*]?\s*None:\s+(.+)$")
 _BULLET = re.compile(r"^\s*[-*]\s+(\S.*)$")
 _PLACEHOLDER_BULLET = re.compile(
-    r"^(?:\[)?(?:TBD|TBC|FIXME|N/A)(?:\])?[.!]?\s*$",
+    r"^(?:\[(?:TBD|TBC|FIXME|N/A)\]|(?:TBD|TBC|FIXME|N/A))[.!]?\s*$",
     re.IGNORECASE,
 )
 _MD_HEADING = re.compile(r"^\s{0,3}#{1,6}\s")

@@ -12,8 +12,8 @@ import ast
 from pathlib import Path
 
 from agent_learning.pmbok import check_content, lint_plan
-from agent_learning.pmbok.scope import SCOPE_MEASURES, scope_measure
-from agent_learning.pmbok.standards import CAPS, FLOORS
+from agent_learning.pmbok.scope import scope_measure
+from agent_learning.pmbok.standards import CAPS
 from tests.test_plan_content import DECL, H1, H2, H3, codes, make_body, words
 
 SCOPE_FM = (
@@ -149,6 +149,16 @@ class TestScopeBoundaries:
         s1 = "Out-of-scope boundaries:\n- N/A for mobile clients\n- Another real line here.\n"
         body = scope_doc(make_body(750, section1=s1, h2=section2_wbs_dod_full()), "pmp_section")
         assert "MISSING_BOUNDARY_DEF" not in codes(lint_plan(body).flags)
+
+    def test_unbalanced_bracket_placeholder_counts_as_real(self):
+        s1 = "Out-of-scope boundaries:\n- [TBD but scoped to clients\n- TBD]\n"
+        body = scope_doc(make_body(750, section1=s1, h2=section2_wbs_dod_full()), "pmp_section")
+        assert "MISSING_BOUNDARY_DEF" not in codes(lint_plan(body).flags)
+
+    def test_bracketed_tbd_is_placeholder(self):
+        s1 = "Out-of-scope boundaries:\n- Real exclusion for clients.\n- [TBD]\n"
+        body = scope_doc(make_body(750, section1=s1, h2=section2_wbs_dod_full()), "pmp_section")
+        assert "MISSING_BOUNDARY_DEF" in codes(lint_plan(body).flags)
 
     def test_none_line_satisfies_without_bullets(self):
         s1 = "None: " + " ".join(["reason"] * 10) + "\n"

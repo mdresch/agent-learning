@@ -115,11 +115,11 @@ def recommend(
     min_shown_decisions: int | None,
 ) -> ScopeRecommendation:
     """Draw or return a cached Scope recommendation (FDD-025 §3.6)."""
-    if recommendation_id in _RECOMMENDATIONS:
-        return _RECOMMENDATIONS[recommendation_id]
-
     if min_shown_decisions is not None and min_shown_decisions <= 0:
         raise ValueError("min_shown_decisions must be a positive integer or None")
+
+    if recommendation_id in _RECOMMENDATIONS:
+        return _RECOMMENDATIONS[recommendation_id]
 
     kind_snap = _kind_snapshot(snapshot, decision_kind)
     policy = SoftmaxPolicy.from_snapshot(kind_snap, rng=_rng_for(recommendation_id))

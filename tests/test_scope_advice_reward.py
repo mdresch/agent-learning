@@ -93,6 +93,27 @@ class TestImmutableRecommendation:
         assert second.visible == first.visible
 
 
+    def test_invalid_minimum_raises_even_when_cached(self):
+        snap = baseline_snapshot()
+        recommend(
+            snap,
+            "route",
+            recommendation_id="rec-cached-invalid",
+            recommended_at=ISO,
+            recorded_decisions=0,
+            min_shown_decisions=None,
+        )
+        with pytest.raises(ValueError, match="min_shown_decisions"):
+            recommend(
+                snap,
+                "route",
+                recommendation_id="rec-cached-invalid",
+                recommended_at=ISO,
+                recorded_decisions=0,
+                min_shown_decisions=0,
+            )
+
+
 class TestWithholdVisibility:
     """AC_2"""
 

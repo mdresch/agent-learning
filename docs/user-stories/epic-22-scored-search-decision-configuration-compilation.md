@@ -2,11 +2,11 @@
 
 **Source ADR:** [ADR-022](../adr/ADR-022-scored-search-decision-configuration-compilation.md) — Accepted (2026-10-28)  
 **Source BRD/FDD:** [BRD-022](../project-docs/Business-Requirements/BRD-022-scored-search-decision-configuration-compilation.md) / [FDD-022](../project-docs/Functional-Design/FDD-022-scored-search-decision-configuration-compilation.md)  
-**Status:** Draft (2026-10-29) — stories derived from Accepted ADR-022, BRD-022 and FDD-022; not yet adjudicated through `approve-user-stories`. The epic number follows the source ADR number, as Epic 21 follows ADR-021.  
+**Status:** Approved (2026-10-30, Menno) — stories derived from Accepted ADR-022, BRD-022 and FDD-022; adjudicated via `approve-user-stories` (robust utility 0.731, episode `cc1804ea-6d96-4b82-8ce5-a3825680a03f`). Menno confirmed FDD-022 §4 (L1 to L8) on 2026-10-30. The epic number follows the source ADR number, as Epic 21 follows ADR-021.  
 
 Seven stories build `src/agent_learning/weight_compiler.py`, the commands `policy-compile-weights` and `task-policy-weights-adopt`, the shape `approve-compiled-weights`, and the call in `task-policy-decide`. Each rule sits in exactly one story's criteria (LL-012). Contract tests are `tests/test_weight_objective.py` (22.1), `tests/test_weight_split.py` (22.2), `tests/test_weight_search.py` (22.3), `tests/test_weight_propose.py` (22.4), `tests/test_weight_apply.py` (22.5), `tests/test_weight_adopt.py` (22.6) and `tests/test_weight_real_data.py` (22.7). Searching the uncertainty penalty, the Nelder-Mead surrogate and k-fold validation are not stories (BRD-022 Out of Scope).
 
-**Stories 22.1 to 22.7 are blocked on one thing:** Menno's confirmation of FDD-022 §4 (L1 to L8, with a choice needed on L1 and L6). Until then ADR-022 and the FDD disagree, and the criteria below follow the FDD. No story depends on another epic.
+**Stories 22.1 to 22.7 follow the confirmed FDD.** Menno confirmed FDD-022 §4 (L1 to L8) on 2026-10-30, with L1 and L6 as the options that FDD states. ADR-022's body is not amended in this approval; FDD-022 §4 records the departures. No story depends on another epic.
 
 Fixtures used by the criteria below. "The toy frame": criteria `c1`, `c2`, options `A` (supports 0.9 and 0.3) and `B` (0.4 and 0.8), one source per criterion at confidence 1.0, `uncertainty_penalty` 0. "The synthetic suite": 40 frames over criteria `c1`, `c2`, `c3` with supports drawn from `random.Random(20261026)`, each labelled by the real resolver under the hidden weights `(0.6, 0.3, 0.1)`, with `labeled_at` earlier than the proposal time. All are built in the tests and labelled synthetic. `evaluate`, `objective`, `coordinate_ascent` and `propose` take a snapshot whose actions are exactly the frame's options. The resolver rejects any other action space, and those functions do not read `criteria_weights` from the snapshot.
 
@@ -14,7 +14,7 @@ Fixtures used by the criteria below. "The toy frame": criteria `c1`, `c2`, optio
 
 ## Story 22.1 — Scoring a Weight Vector With the Real Resolver
 
-**Status:** Draft  
+**Status:** Ready  
 **As** an auditor, **I want** a candidate scored by the real resolver and nothing else, **so that** a compiled weight is judged by the rule that will use it.
 
 ### Acceptance Criteria:
@@ -30,7 +30,7 @@ Fixtures used by the criteria below. "The toy frame": criteria `c1`, `c2`, optio
 
 ## Story 22.2 — The Split and the Label Rule
 
-**Status:** Draft  
+**Status:** Ready  
 **As** a maintainer, **I want** a reproducible hold-out and labels that predate the proposal, **so that** reported accuracy is honest.
 
 ### Acceptance Criteria:
@@ -44,7 +44,7 @@ Fixtures used by the criteria below. "The toy frame": criteria `c1`, `c2`, optio
 
 ## Story 22.3 — The Coordinate Ascent
 
-**Status:** Draft  
+**Status:** Ready  
 **As** a maintainer, **I want** a deterministic search that keeps the weights valid, **so that** a result can be reproduced and trusted.
 
 ### Acceptance Criteria:
@@ -59,7 +59,7 @@ Fixtures used by the criteria below. "The toy frame": criteria `c1`, `c2`, optio
 
 ## Story 22.4 — Proposing Only a Real Improvement
 
-**Status:** Draft  
+**Status:** Ready  
 **As** an approver, **I want** a proposal only when the held-out accuracy truly beats the weights in force, **so that** a frozen configuration is never changed for no gain.
 
 ### Acceptance Criteria:
@@ -75,7 +75,7 @@ Fixtures used by the criteria below. "The toy frame": criteria `c1`, `c2`, optio
 
 ## Story 22.5 — Applying Frozen Weights
 
-**Status:** Draft  
+**Status:** Ready  
 **As** an operator, **I want** an online decision to use the adopted weights and run no search, **so that** a production decision stays deterministic and fast.
 
 ### Acceptance Criteria:
@@ -89,7 +89,7 @@ Fixtures used by the criteria below. "The toy frame": criteria `c1`, `c2`, optio
 
 ## Story 22.6 — Adopting a Proposal by a Human Decision
 
-**Status:** Draft — depends on the confirmation of FDD-022 L1 and L6.  
+**Status:** Ready  
 **As** a maintainer, **I want** compiled weights to take effect only through a recorded human decision, **so that** a frozen configuration is never changed silently.
 
 ### Acceptance Criteria:
@@ -103,7 +103,7 @@ Fixtures used by the criteria below. "The toy frame": criteria `c1`, `c2`, optio
 
 ## Story 22.7 — The Real-Data Regression Check
 
-**Status:** Draft  
+**Status:** Ready  
 **As** a maintainer, **I want** the compiler run over the recorded decisions, **so that** the absence of any real disagreement is shown, not assumed.
 
 ### Acceptance Criteria:

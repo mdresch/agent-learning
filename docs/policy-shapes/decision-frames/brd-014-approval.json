@@ -1,0 +1,133 @@
+{
+  "task": "BRD-014 (Lightweight Critique-to-Evidence Ingestion): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "traceable_to_adr",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "traceable to adr: BRU-014-01 to BRU-014-08 trace to ADR-014 Invariants 1 to 5 and sections 4.1 and 4.3, including the amended direction rule; metrics are checkable direction, exactness, bounds, no-guessing, traceability, rubric and storage properties with no invented effectiveness target; out of scope names inferred tags, a learned rubric, the Amazon Q export, resolver pooling changes, and fine-tuning."
+    },
+    {
+      "id": "honest_metrics",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "honest metrics: BRU-014-01 to BRU-014-08 trace to ADR-014 Invariants 1 to 5 and sections 4.1 and 4.3, including the amended direction rule; metrics are checkable direction, exactness, bounds, no-guessing, traceability, rubric and storage properties with no invented effectiveness target; out of scope names inferred tags, a learned rubric, the Amazon Q export, resolver pooling changes, and fine-tuning."
+    },
+    {
+      "id": "out_of_scope_accurate",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "out of scope accurate: BRU-014-01 to BRU-014-08 trace to ADR-014 Invariants 1 to 5 and sections 4.1 and 4.3, including the amended direction rule; metrics are checkable direction, exactness, bounds, no-guessing, traceability, rubric and storage properties with no invented effectiveness target; out of scope names inferred tags, a learned rubric, the Amazon Q export, resolver pooling changes, and fine-tuning."
+    },
+    {
+      "id": "rules_actionable",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "rules actionable: BRU-014-01 to BRU-014-08 trace to ADR-014 Invariants 1 to 5 and sections 4.1 and 4.3, including the amended direction rule; metrics are checkable direction, exactness, bounds, no-guessing, traceability, rubric and storage properties with no invented effectiveness target; out of scope names inferred tags, a learned rubric, the Amazon Q export, resolver pooling changes, and fine-tuning. BRU-014-03 says the pool is clipped to [0, 1] while BRU-014-02 and the metrics use [1e-6, 1-1e-6]; the epsilon clamp is the one the metrics and FDD-014 enforce."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_brd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_adr",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-014-critique-to-evidence-ingestion.md; checked against src/agent_learning/decision.py (DecisionResolver pools frame evidence and does not import storage)",
+          "support": 0.85,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "honest_metrics",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-014-critique-to-evidence-ingestion.md; checked against src/agent_learning/decision.py (DecisionResolver pools frame evidence and does not import storage)",
+          "support": 0.85,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "out_of_scope_accurate",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-014-critique-to-evidence-ingestion.md; checked against src/agent_learning/decision.py (DecisionResolver pools frame evidence and does not import storage)",
+          "support": 0.85,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "rules_actionable",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-014-critique-to-evidence-ingestion.md; checked against src/agent_learning/decision.py (DecisionResolver pools frame evidence and does not import storage)",
+          "support": 0.82,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_brd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_adr",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-014-critique-to-evidence-ingestion.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "honest_metrics",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-014-critique-to-evidence-ingestion.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "out_of_scope_accurate",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-014-critique-to-evidence-ingestion.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "rules_actionable",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-014-critique-to-evidence-ingestion.md",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_adr",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-014-critique-to-evidence-ingestion.md",
+          "support": 0.12,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "honest_metrics",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-014-critique-to-evidence-ingestion.md",
+          "support": 0.1,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "out_of_scope_accurate",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-014-critique-to-evidence-ingestion.md",
+          "support": 0.1,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "rules_actionable",
+          "source": "direct_doc_read:docs/project-docs/Business-Requirements/BRD-014-critique-to-evidence-ingestion.md",
+          "support": 0.16,
+          "confidence": 0.75
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

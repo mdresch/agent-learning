@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-022](../../adr/ADR-022-scored-search-decision-configuration-compilation.md) — Accepted (2026-10-28)  
 **Governing Baseline:** none approved yet; cycle `CYC-001` (ADR-035, Proposed)  
-**Status:** Draft (2026-10-29) — derived from Accepted ADR-022; not yet adjudicated through `approve-brd`.  
+**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-022; adjudicated via `approve-brd` (robust utility 0.730, episode `29259b94-4ae2-4a97-950d-7e8f075404de`).  
 **Stakeholders:** Menno (Sponsor/PM/maintainer); authors of decision frames who set criteria weights by hand; reviewers who adjudicate full-authority decisions; auditors who must see why a weight is what it is  
 
 ## Business Need

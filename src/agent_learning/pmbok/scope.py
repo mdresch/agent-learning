@@ -74,6 +74,11 @@ def _hierarchy_terms(section: str) -> set[str]:
     return found
 
 
+def _has_linked_hierarchy(section: str) -> bool:
+    """True when one line links two hierarchy terms with an arrow (FDD-025 §3.4)."""
+    return any(_ARROW_LINK.search(line) and len(_hierarchy_terms(line)) >= 2 for line in section.splitlines())
+
+
 def check_scope_sections(body: str, route: str) -> list[LintFlag]:
     """Tier B Section 2 Scope findings (FDD-025 §3.4). Returns [] when Section 2 heading is absent."""
     if route == "not_applicable":
@@ -92,7 +97,7 @@ def check_scope_sections(body: str, route: str) -> list[LintFlag]:
 
     if route == "pmp_section":
         terms = _hierarchy_terms(section)
-        if len(terms) < 2 and _ARROW_LINK.search(section) is None:
+        if len(terms) < 2 and not _has_linked_hierarchy(section):
             flags.append(_content_flag("WBS hierarchy is missing"))
     elif route == "full_plan":
         missing_h: list[str] = []

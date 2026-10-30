@@ -59,6 +59,11 @@ class TestEmbeddedHierarchy:
         doc = scope_doc(make_body(750, section1=section1_two_real(), h2=H2 + "\n\n" + s2text, h3=H3), "pmp_section")
         assert not any(f.message == "WBS hierarchy is missing" for f in lint_plan(doc).flags)
 
+    def test_stray_arrow_does_not_satisfy_hierarchy(self):
+        s2text = "Work breakdown structure: epic only. Review -> approve.\nDefinition of Done listed.\n"
+        doc = scope_doc(make_body(750, section1=section1_two_real(), h2=H2 + "\n\n" + s2text, h3=H3), "pmp_section")
+        assert any(f.message == "WBS hierarchy is missing" for f in lint_plan(doc).flags)
+
     def test_work_package_counts_without_commit_word(self):
         s2text = "WBS covers phase and work package layers.\nDefinition of Done is documented.\n"
         doc = scope_doc(make_body(750, section1=section1_two_real(), h2=H2 + "\n\n" + s2text, h3=H3), "pmp_section")

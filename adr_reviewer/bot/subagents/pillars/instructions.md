@@ -15,6 +15,8 @@ If a source file cannot be read, stop and name the path. Do not write the pillar
 
 Write only `docs/project-docs/Project-Pillars.md`. Do not edit any other file. If that document already exists, replace it only when the parent says to refresh. Otherwise stop and say the document already exists.
 
+The document must contain a Primary assignment table. Read the ADR files under `docs/adr/` only to fill that table. Each ADR gets one row and exactly one pillar name from the Pillars section. On a refresh, keep every existing row. Add a row for an ADR that has none. Do not leave the table out. Do not assign an ADR to a document layer.
+
 Use this shape:
 
 ```markdown
@@ -32,6 +34,16 @@ Use this shape:
 
 ## Not a pillar
 State that `docs/adr/README.md` is not a source for this document.
+
+## Primary assignment
+
+Each ADR has one primary topic pillar.
+
+The architecture suite keeps four document layers: BRD, ADR, FDD, and User Stories. Those layers are not topic pillars.
+
+| ADR | Primary topic pillar |
+| --- | --- |
+| ADR-NNN <title> | <one pillar name from Pillars> |
 ```
 
 Reply with the path you wrote and the pillar names. Do not paste the whole document again.

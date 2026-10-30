@@ -1057,14 +1057,21 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - A runtime store double verified append-only Episode records, latest-run readback, unchanged earlier events, and no `*.db` files.
   - `uv run --extra dev pytest --ignore=tests/test_spark.py` stopped at collection with 15 errors in `tests/pmbok/` from missing optional legacy modules (`tenacity`, `sqlalchemy`, `fastapi`, `yaml`, and `hypothesis`); 1,594 other items were collected and 1 skipped.
   - With `tests/pmbok/` excluded due to those dependencies and `tests/test_spark.py` excluded because Spark requires an optional JVM: 1,512 passed, 2 skipped. This is not the entire suite.
-- **Interpretations:** None; behavior and metadata keys follow the approved FDD contract.
-- **Review-fix commit:** `16a6354` (`fix: harden PMBOK run episode reads`).
-- **Review validation:** 5 passed in `tests/test_pmbok_run_state.py`; Ruff and mypy passed for the changed source/test files; available suite passed with 1,512 passed and 2 skipped, excluding `tests/pmbok/` (15 known legacy optional-dependency collection errors) and `tests/test_spark.py` (optional JVM).
+- **Interpretations:** I1: `latest_run_for` makes at most three attempts to observe a stable append-only episode count, then raises `RuntimeError`; recorded in the test docstring and FDD §5. I2: `created_at` accepts timezone-aware ISO-8601 values and ordering compares instants normalized to UTC while preserving the original string; confirmed by the user for Story 34.2 and recorded in FDD §5.
+- **Review-fix commits:** `16a6354` (`fix: harden PMBOK run episode reads`), `c80a287` (`fix: bound and validate PMBOK run reads`), and `78c6e1a` (`docs: confirm run timestamp ordering interpretation`).
+- **Review validation:** 5 passed in `tests/test_pmbok_run_state.py`; Ruff and mypy passed for changed Python files; available suite passed with 1,512 passed and 2 skipped, excluding `tests/pmbok/` (15 known legacy optional-dependency collection errors) and `tests/test_spark.py` (optional JVM).
 - **Amazon Q triage (rounds 1–2 on `47ddc00`):**
-  - `Q-79-1 | logic error | verified: no | decision: declined | Python max returns the first maximal item on equal keys, confirmed by the contract test and FDD §3.2; duplicate tie claims are the same finding | fix: none`
+  - `Q-79-1 | logic error | verified: no | decision: declined | Python max returns the first maximal item on equal keys, confirmed by the contract test and FDD §3.2; repeated again in round 3 with no new evidence | fix: none`
   - `Q-79-2 | logic error | verified: partial | decision: accepted | The old result_summary guard preceded build_run_fields but followed snapshot construction and length traversal; moved the type guard to the start of validation | fix: 16a6354`
   - `Q-79-3 | logic error | verified: yes | decision: accepted | Added count/query/count stability checks and retry; the contract injects an append between count and query | fix: 16a6354`
   - `Q-79-4 | logic error | verified: partial | decision: accepted | Expanded RunStore signatures to match LearningStore; the reported structural mypy failure was not reproduced by the earlier InMemoryStore compatibility check | fix: 16a6354`
   - `Q-79-5 | logic error | verified: yes | decision: accepted | Removed current-registry revalidation when reading historical episodes while retaining stored-field shape/type checks | fix: 16a6354`
   - `Q-79-6 | logic error | verified: no | decision: declined | The run_id filter executes before _snapshot_from_episode; LearningStore has no run_id metadata filter, so the task-level query is required | fix: none`
-- **Review follow-up:** The review-fix commit is not yet re-reviewed; request the explicit final verdict on the current PR head before merge.
+- **Amazon Q triage (round 3 on `666786b`):**
+  - `Q-79-7 | logic error | verified: yes | decision: accepted | Bound stable-read retries to three and raise RuntimeError instead of spinning indefinitely; a continuously appending store is covered | fix: c80a287`
+  - `Q-79-8 | logic error | verified: partial | decision: declined | Malformed matching episodes still raise explicit TypeError; silently skipping them could return stale data, while historical unknown process IDs remain readable | fix: none`
+  - `Q-79-9 | logic error | verified: yes | decision: accepted | Empty, naive, and malformed created_at values now fail ISO-8601 timezone-aware parsing | fix: c80a287`
+  - `Q-79-10 | logic error | verified: no | decision: declined | phase is not an ordering key and FDD-034 does not require a non-empty phase | fix: none`
+  - `Q-79-11 | logic error | verified: yes | decision: accepted | Compare timezone-aware created_at instants in UTC and preserve their original stored strings; timestamp policy confirmed by user | fix: c80a287`
+  - `Q-79-12 | logic error | verified: yes | decision: accepted | Reject bool sequence numbers in both snapshot construction and episode deserialization | fix: c80a287`
+- **Review follow-up:** Round 3 findings are triaged and fixes are committed, but the new head is not yet re-reviewed; obtain the explicit final verdict on the current PR head before merge.

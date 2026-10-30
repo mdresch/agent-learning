@@ -914,3 +914,40 @@ This log records completed user stories in accordance with the SIDPA `implement-
     - `Q-42-1 | logic error | verified: yes | decision: accepted | derive_plan_state read a hand-built record with an unrecognised action id as DRAFTED on both hash paths; it now raises ValueError, with a test seen failing first (1441 passed, 2 skipped on the same exclusions) | fix: aa8889a`
   - Amazon Q, later rounds (head `21285eb`): Q confirmed no unresolved finding. Two items in its confirmation were noise, not findings: `Q-28-1` (belongs to an older PR) and a claim that ruff had not run (stale; ruff ran, see above).
   - Breakout recap (accepted 2026-10-28): LL-027 to LL-032 in `docs/project-docs/Lessons-Learned-Register.md`.
+
+---
+
+## Story 25.1 — Scope floors, caps, and exclusions
+- **Commit:** `4ff93c8`
+- **Date:** 2026-10-30
+- **Branch:** `feat/story-25.1-25.2`
+- **Source ADR / BRD / FDD:** ADR-025, BRD-025 (BRU-025-01, BRU-025-02), FDD-025 (sections 3.1–3.3)
+- **Files Modified/Created:**
+  - `src/agent_learning/pmbok/scope.py` (`ScopeMeasure`, `SCOPE_MEASURES`, `scope_measure`)
+  - `src/agent_learning/pmbok/lint.py` (Scope profile in `check_content` / `lint_plan`; placeholder exclusion for out-of-scope bullets)
+  - `src/agent_learning/pmbok/__init__.py` (exports)
+  - `tests/test_scope_measure.py` (contract tests for $AC_0$ through $AC_5$)
+  - `tests/test_plan_content.py`, `tests/test_plan_next_step.py` (conformant Scope fixtures; allow `lint` → `scope` import)
+  - `.claude/skills/plan-lint/SKILL.md`, `docs/user-stories/epic-25-scope-management-plan-standard-and-baseline-contract.md` (Story 25.1 Done)
+- **Validation:**
+  - $AC_0$–$AC_5$: Scope-only floors/caps/min items; universal numbers unchanged for other `plan_id`s; boundary rules with placeholder exclusion; caller cannot relax below profile.
+  - `lint_plan` on `Scope-Management-Plan.md` v1.2.0 (on `main`): zero content flags after governance §2.2 alignment (separate docs commit).
+  - Test suite: 1467 passed, 2 skipped with `--ignore=tests/test_spark.py --ignore=tests/pmbok` (LL-013).
+
+---
+
+## Story 25.2 — WBS and Definition of Done
+- **Commit:** `4ff93c8`
+- **Date:** 2026-10-30
+- **Branch:** `feat/story-25.1-25.2`
+- **Source ADR / BRD / FDD:** ADR-025, BRD-025 (BRU-025-03), FDD-025 (section 3.4)
+- **Files Modified/Created:**
+  - `src/agent_learning/pmbok/scope.py` (`check_scope_sections`)
+  - `src/agent_learning/pmbok/lint.py` (append Section 2 Scope findings for `scope-management`)
+  - `tests/test_scope_sections.py` (contract tests for $AC_0$ through $AC_4$)
+  - Same supporting files as Story 25.1 (shared commit)
+- **Validation:**
+  - $AC_0$–$AC_4$: WBS and DoD phrases; embedded hierarchy for `pmp_section`; full-plan dictionary labels and fields; no double finding without Section 2; stable `lint_plan` ordering.
+  - Combined with 25.1 contracts: 116 passed in `tests/test_scope_measure.py`, `tests/test_scope_sections.py`, and `tests/test_plan_content.py`; full agent-learning suite count as above.
+- **Out of scope (Epic 25):** Stories 25.3–25.4 blocked on FDD-025 §5 item 1 (`scope_advice.py`).
+- **Breakout recap (ADR-010 section 4.1):** not due; Epic 25 has four stories; 25.3–25.4 remain open.

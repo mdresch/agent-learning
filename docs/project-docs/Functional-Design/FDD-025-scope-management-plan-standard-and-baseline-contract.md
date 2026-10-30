@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-025](../../adr/ADR-025-scope-management-plan-standard-and-baseline-contract.md) — Accepted (2026-10-26, Menno); re-approved 2026-10-29, episode `983c2b87-8309-4414-98fe-93337989b9b5`  
 **Source BRD:** [BRD-025](../Business-Requirements/BRD-025-scope-management-plan-standard-and-baseline-contract.md)  
-**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-025 and BRD-025; FDD-025 §5 item 1 confirmed 2026-10-30 (maintainer). Items 2–6 remain as documented interpretations (2–4 exercised by Stories 25.1–25.2; 5–6 for Stories 25.3–25.4).
+**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-025 and BRD-025; FDD-025 §5 item 1 confirmed 2026-10-30 (maintainer). §3.2 placeholder pattern tightened to balanced brackets 2026-10-30 (Amazon Q review of PR 74). Items 2–6 remain as documented interpretations (2–4 exercised by Stories 25.1–25.2; 5–6 for Stories 25.3–25.4).
 
 ---
 
@@ -68,7 +68,7 @@ Add `max_cap_words: int | None = None` and `exclude_placeholders: bool = False`.
 
 The effective cap is `CAPS[route]` when `max_cap_words` is `None`. When it is an int, the effective cap is `min(CAPS[route], max_cap_words)`. A value above the universal cap leaves the universal cap in force. A bool or a non-int raises `TypeError`. A count equal to the effective cap is not a finding. The floor option already uses `max(FLOORS[route], min_floor_words or 0)` and is unchanged.
 
-When `exclude_placeholders` is `False`, every distinct bullet counts, as today. When it is `True`, a bullet is dropped before the distinct count if, after strip, it matches `^(?:\[)?(?:TBD|TBC|FIXME|N/A)(?:\])?[.!]?\s*$` with case ignored. `N/A for mobile clients` still counts. The default call keeps today's count.
+When `exclude_placeholders` is `False`, every distinct bullet counts, as today. When it is `True`, a bullet is dropped before the distinct count if, after strip, it matches `^(?:\[(?:TBD|TBC|FIXME|N/A)\]|(?:TBD|TBC|FIXME|N/A))[.!]?\s*$` with case ignored. The brackets are balanced: `[TBD]` and `TBD` are placeholders, while `[TBD` and `TBD]` count as real content. `N/A for mobile clients` still counts. The default call keeps today's count.
 
 ### 3.3 `lint_plan` applies the profile (BRU-025-01, BRU-025-02, BRU-025-04)
 

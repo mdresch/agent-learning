@@ -45,7 +45,7 @@ Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_
 
 ## Story 25.3 — The idle Scope advisory policy
 
-**Status:** Ready  
+**Status:** Done (2026-10-30) — contract `tests/test_scope_advice_policy.py` green  
 **As** a maintainer,  
 **I want** `advise-scope-plan-decision` declared as its own low-authority policy with equal logits and no episodes,  
 **so that** a later recommendation has a fixed task id and cannot be trained as if it were the approval gate.
@@ -62,7 +62,7 @@ Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_
 
 ## Story 25.4 — Record the recommendation, then show it
 
-**Status:** Ready — depends on Story 25.3  
+**Status:** Done (2026-10-30) — contract `tests/test_scope_advice_reward.py` green  
 **As** a maintainer reviewing a Scope recommendation,  
 **I want** the recommendation stored with its time before I see it, and left unchanged after I follow or override it,  
 **so that** the learner's evidence is the gap between its advice and my decision.

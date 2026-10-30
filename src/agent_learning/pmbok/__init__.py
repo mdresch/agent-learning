@@ -38,8 +38,9 @@ from .lint import (
     validate_dependencies,
     validate_metadata,
 )
-from .scope import ScopeMeasure, check_scope_sections, scope_measure
 from .parser import ParsedPlan, parse_frontmatter
+from .schedule import ScheduleMeasure, schedule_measure
+from .scope import ScopeMeasure, check_scope_sections, scope_measure
 from .standards import (
     APPROVAL_ACTIONS,
     DISPOSITIONS,
@@ -78,6 +79,7 @@ __all__ = [
     "PlanApprovalRecord",
     "PlanStandard",
     "PlanState",
+    "ScheduleMeasure",
     "ScopeMeasure",
     "approval_record",
     "build_approval_metadata",
@@ -99,6 +101,7 @@ __all__ = [
     "parse_frontmatter",
     "plan_hash",
     "raw_change_hash",
+    "schedule_measure",
     "scope_measure",
     "topological_order",
     "validate_dependencies",

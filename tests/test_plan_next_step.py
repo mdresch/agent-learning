@@ -320,12 +320,12 @@ class TestNoStorageNoNewDependency:
             if level == 0:
                 assert module.split(".")[0] in sys.stdlib_module_names, (name, module)
             elif level == 1:
-                assert module in ("standards", "parser", "lint", "scope", "body_visible"), (name, module)
+                assert module in ("standards", "parser", "lint", "scope", "schedule", "body_visible"), (name, module)
             else:
                 assert module == "tailoring", (name, module)
                 assert name == "lint.py"
 
-    @pytest.mark.parametrize("name", ["lint.py", "standards.py", "parser.py"])
+    @pytest.mark.parametrize("name", ["lint.py", "standards.py", "parser.py", "schedule.py"])
     def test_nothing_reaches_storage_or_the_legacy_package(self, name):
         source = (PKG / name).read_text(encoding="utf-8")
         for needle in ("LearningStore", "agent_learning.storage", "import pmbok", "from pmbok", "import yaml"):

@@ -1009,3 +1009,27 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - Q-78-3 | logic error | verified: no | decision: declined | Duplicate inline claim refers to the original split-based check; the current helper matches full dotted module names and pins storage paths in assertions | fix: none (addressed in `0fc1059`)
   - Q-78-4 | logic error | verified: no | decision: declined | Duplicate inline claim repeats Q-78-3 and quotes code that is absent from the current head | fix: none (addressed in `0fc1059`)
   - Q-78-5 | crash risk | verified: no | decision: declined | Duplicate inline claim predates the explicit `MODULE.is_file()` assertion with the missing path | fix: none (addressed in `0fc1059`)
+
+---
+
+## Story 26.1 — Schedule floors, caps, and exclusions
+- **Commit:** `8065dfa`
+- **Date:** 2026-10-30
+- **Branch:** `feat/story-26.1`
+- **Source ADR / BRD / FDD:** ADR-026 (§4.3), BRD-026 (BRU-026-01, BRU-026-02), FDD-026 (§§2, 3.1–3.3; §5 item 2 confirmed by Menno 2026-10-30)
+- **Files Modified/Created:**
+  - `src/agent_learning/pmbok/schedule.py` (`ScheduleMeasure`, `SCHEDULE_MEASURES`, `schedule_measure`)
+  - `src/agent_learning/pmbok/lint.py` (apply Schedule profile without applying Scope section checks)
+  - `src/agent_learning/pmbok/__init__.py` (export Schedule profile symbols)
+  - `tests/test_schedule_measure.py` (contracts for $AC_0$ through $AC_5$)
+  - `tests/test_plan_next_step.py` (allow and check the new pure sibling module)
+  - `.claude/skills/plan-lint/SKILL.md`, FDD-026 interpretation confirmation, Epic 26 readiness updates
+- **Validation:**
+  - Observed RED: Story contract failed collection because `agent_learning.pmbok.schedule` did not exist.
+  - Story contract: 6 passed. Schedule, Scope, and shared lint contracts: 373 passed.
+  - Available suite: 1,584 passed, 2 skipped, 67 warnings after excluding `tests/test_spark.py` and the 15 collection-blocked paths below. This is not the entire suite.
+  - The unexcluded `uv run pytest --ignore=tests/test_spark.py -q` run stopped at collection with 15 errors caused by unavailable optional modules (`tenacity`, `sqlalchemy`, `fastapi`, `yaml`, and `hypothesis`).
+  - Excluded due to those missing optional dependencies: `tests/pmbok/registry/test_babok_decomposition.py`, `tests/pmbok/registry/test_repository.py`, `tests/pmbok/test_api.py`, `tests/pmbok/test_approval_gate.py`, `tests/pmbok/test_audit_system.py`, `tests/pmbok/test_babok_decomposition.py`, `tests/pmbok/test_business_case_generator.py`, `tests/pmbok/test_ideation_engine.py`, `tests/pmbok/test_intent_refinement.py`, `tests/pmbok/test_models.py`, `tests/pmbok/test_orchestrator.py`, `tests/pmbok/test_process_agent.py`, `tests/pmbok/test_progress_tracker.py`, `tests/pmbok/test_repository.py`, and `tests/pmbok/test_storage.py`. `tests/test_spark.py` was excluded because Spark is optional and requires a local JVM.
+  - Ruff passed for the new module, new contract, updated purity test, and PMBOK exports. `lint.py` retains two pre-existing Ruff findings (SIM103 at line 225 and SIM102 at line 289), outside this change. `git diff --check` passed.
+- **Interpretation confirmed (LL-011):** Schedule reuses the Scope `max_cap_words` and `exclude_placeholders` signature and behavior; no Schedule-specific option or placeholder rule is introduced.
+- **Review (Step 8):** Amazon Q round 1 reviewed head `9fa2166` (two review responses on this commit); both reported no blocking defect or new finding, and there are no inline comments. The explicit final verdict is pending after the review-log commit is pushed.

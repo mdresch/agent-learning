@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-026](../../adr/ADR-026-schedule-management-plan-standard-and-baseline-contract.md) — Accepted (2026-10-29, Menno), episode `8be53179-eb4e-4f1c-b71d-0efa79e0876d`  
 **Source BRD:** [BRD-026](../Business-Requirements/BRD-026-schedule-management-plan-standard-and-baseline-contract.md)  
-**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-026 and BRD-026; adjudicated via `approve-fdd` (robust utility 0.735, episode `50155fa8-54cf-4f5a-b4be-4b6cfee726d5`). §5 interpretations are not confirmed; sections 2–3 implement the approved BRU rules.
+**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-026 and BRD-026; adjudicated via `approve-fdd` (robust utility 0.735, episode `50155fa8-54cf-4f5a-b4be-4b6cfee726d5`). Menno confirmed §5 interpretations 1, 2, and 4–7 on 2026-10-30. Interpretation 3 is clarified below; the corresponding ADR amendment must be recorded before Story 26.2.
 
 ---
 
@@ -11,7 +11,7 @@
 1. **Profile and section checks** live in `src/agent_learning/pmbok/schedule.py`. `lint_plan` in `src/agent_learning/pmbok/lint.py` consults that profile when `plan_id` is `schedule-management`. The universal constants in `standards.py` stay the ADR-012 baseline.
 2. **Advisory policy** lives in `src/agent_learning/policy/schedule_advice.py`. It builds a `PolicySnapshot` for the existing `SoftmaxPolicy` and a recommendation record. It does not import `LearningStore`. The caller writes any `Episode`.
 3. **Purity:** standard library plus existing `agent_learning` types (`PolicySnapshot`, `SoftmaxPolicy`). No file I/O, no network, no sleep, no new record type. The checks do not open the Scope plan.
-4. **Reuse:** `count_words`, `check_content`, `TOKEN`, `HEADINGS`, `next_step`, and `PLAN_DAG` stay as they are. Schedule passes a tighter floor, a tighter cap, and a higher item minimum into the content check. The optional arguments are the ones the Scope profile also needs: `max_cap_words: int | None = None` and `exclude_placeholders: bool = False`. Schedule does not add a second pair. Story 26.1 is blocked until those arguments exist with this signature. A Schedule call does not change the findings of any other `plan_id`.
+4. **Reuse:** `count_words`, `check_content`, `TOKEN`, `HEADINGS`, `next_step`, and `PLAN_DAG` stay as they are. Schedule passes a tighter floor, a tighter cap, and a higher item minimum into the content check. The optional arguments are the ones the Scope profile also needs: `max_cap_words: int | None = None` and `exclude_placeholders: bool = False`. Schedule does not add a second pair. These arguments already exist from Epic 25; Story 26.1 reuses them. A Schedule call does not change the findings of any other `plan_id`.
 5. **Already satisfied elsewhere:** `PLAN_DAG["schedule-management"]` is `("scope-management",)`. Cost, Resource, and Risk list Schedule as a direct ancestor. Procurement lists Cost and reaches Schedule through it. `DRAFT_ORDER` places Schedule after Scope and before Cost. Epic 13 owns staleness. This design adds no second graph.
 
 ---
@@ -138,13 +138,13 @@ The withhold and immutability rules match the Scope advisory policy. The records
 
 These are not verbatim in ADR-026. Stories 26.3 and 26.4 wait on item 1. Story 26.1 waits on item 2.
 
-1. **One policy, four kinds.** The action set is the table in §2. A call passes one kind and the bandit chooses only inside that kind. The four kinds are the working list in ADR-026 §4.4.1: route, paragraph sufficiency, graduation of an over-cap section, and acceptance of a flagged deviation. Confirming this set for Schedule confirms the same ids for the Scope advisory policy, and the reverse.
-2. **One lint signature for the tighter cap and the placeholder filter.** `max_cap_words` and `exclude_placeholders` are shared with the Scope profile. Schedule does not define a different regex or a different cap rule.
-3. **Section 2 presence is the structural check.** The lint looks for the phrases in §3.4. It does not parse each milestone row, and it does not open the Scope plan to prove the parent epic exists. Charter traceability, the planning horizon, buffers, the baseline sentence, and the variance numbers are review text (BRU-026-07).
-4. **`M0.5` to `M5` are an example, not a required register.** Any wording that meets §3.4 satisfies the structure check.
-5. **Development approach stays a writing rule.** ADR-026 §4.5 says Section 1 states it when the Charter does not, and asks the maintainer to confirm. The lint does not read the Charter, so there is no flag.
-6. **An unset show-minimum withholds every recommendation.** The ADR leaves the number unset on purpose.
-7. **Follow is +1 and override is −1** on the recommendation action. That matches the existing reward interval of −1 to 1.
+1. **One policy, four kinds — confirmed by Menno (2026-10-30).** The action set is the table in §2. A call passes one kind and the bandit chooses only inside that kind. The four kinds are the working list in ADR-026 §4.4.1: route, paragraph sufficiency, graduation of an over-cap section, and acceptance of a flagged deviation. This set applies to both Schedule and Scope advisory policies.
+2. **One lint signature for the tighter cap and the placeholder filter — confirmed by Menno (2026-10-30).** `max_cap_words` and `exclude_placeholders` are shared with the Scope profile. Schedule does not define a different regex or a different cap rule.
+3. **Section 2 checks presence; verifying a named epic is human review — clarification approved by Menno (2026-10-30).** The lint looks for the phrases in §3.4. It does not parse each milestone row or open the Scope plan to prove the named parent epic exists. A milestone that does not name a parent epic is flagged; the reviewer verifies that the named epic exists in the approved Scope baseline. Charter traceability, the planning horizon, buffers, the baseline sentence, and the variance numbers are review text (BRU-026-07). ADR-026 invariant 2 must be amended to state this distinction before Story 26.2.
+4. **`M0.5` to `M5` are an example, not a required register — confirmed by Menno (2026-10-30).** Any wording that meets §3.4 satisfies the structure check.
+5. **Development approach stays a writing rule — confirmed by Menno (2026-10-30).** ADR-026 §4.5 says Section 1 states it when the Charter does not. The lint does not read the Charter, so there is no flag.
+6. **An unset show-minimum withholds every recommendation — confirmed by Menno (2026-10-30).** The ADR leaves the number unset on purpose.
+7. **Follow is +1 and override is −1 on the recommendation action — confirmed by Menno (2026-10-30).** That matches the existing reward interval of −1 to 1.
 
 ## 6. Out of Scope
 

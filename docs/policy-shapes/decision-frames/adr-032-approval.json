@@ -1,0 +1,133 @@
+{
+  "task": "ADR-032 (Communications Management Plan Standard): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "architectural_soundness",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Tier 3 communications contract depending only on Scope: a matrix with audience, cadence, channel and owner, a rule that the record is not the channel, escalation, and confidentiality. One shared logit map on advise-communications-plan-decision; the deciding role (internal communications or marketing) is recorded with each pair and is not a second bandit. Floors and caps stay at the ADR-012 defaults."
+    },
+    {
+      "id": "alternatives_considered",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Two alternatives rejected: ad hoc communication with no plan, and one organization-wide communication plan."
+    },
+    {
+      "id": "consequences_honest",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Names predictable reporting and a durable decision record, and the cost: authoring burden on small projects, with the lean pmp_section form as the mitigation."
+    },
+    {
+      "id": "gap_disclosure_quality",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Section 8 resolves the missing edge to stakeholder-engagement and defers generated status reports. Section 4.5 states that a change to Communications does not stale Stakeholder Engagement, and that the reviewer checks the pair."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_adr",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "direct_doc_read:docs/adr/ADR-032-communications-management-plan-standard.md sections 4.2-4.5 and 5; plan-specific note records the deciding role on one map",
+          "support": 0.85,
+          "confidence": 0.83
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "adr_032_section_6_two_alternatives",
+          "support": 0.82,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "adr_032_section_7_authoring_burden",
+          "support": 0.82,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "adr_032_section_8_dag_resolved_to_scope_only",
+          "support": 0.84,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_adr",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "no fundamental flaw found in direct_doc_read of ADR-032",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "section_6 of ADR-032",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "section_7 of ADR-032",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "section_8 of ADR-032",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "residual: audiences come from the stakeholder register without a DAG edge; the ADR states the reviewer owns the consistency check",
+          "support": 0.12,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "adr_032_section_6 has two alternatives, both real",
+          "support": 0.12,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "adr_032_section_7",
+          "support": 0.12,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "adr_032_section_8 domain re-basing remains open",
+          "support": 0.14,
+          "confidence": 0.75
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

@@ -1,0 +1,134 @@
+# FDD-034: PMBOK Tooling Decommissioning and Lightweight LearningStore Convergence
+
+**Source ADR:** [ADR-034](../../adr/ADR-034-pmbok-tooling-decommissioning-and-lightweight-learningstore-convergence.md) — Accepted (2026-10-26)  
+**Source BRD:** [BRD-034](../Business-Requirements/BRD-034-pmbok-tooling-decommissioning-and-lightweight-learningstore-convergence.md)  
+**Status:** Draft (2026-10-29) — derived from Accepted ADR-034 and BRD-034; not yet adjudicated via `approve-fdd`. §5 interpretations are not confirmed.
+
+---
+
+## 1. Architecture and Component Placement
+
+1. **Already delivered.** Epic 12 owns `parser.py` and the plan lint. Epic 13 owns `hashing.py`, `integrity.py`, `governance.py`, and formalization. This design does not change their contracts. ADR-034 §4.2.2 remains the illustrative sketch those epics specified.
+2. **Registry** lives in `src/agent_learning/pmbok/legacy_registry.py`. It is data. It does not import `pmbok`, `LearningStore`, or `pydantic`.
+3. **Run ordering** lives in `src/agent_learning/pmbok/run_state.py`. It takes plain records and returns the latest one. It does not import the store.
+4. **Runtime** lives in `src/agent_learning/pmbok_runtime/`. `runs.py` reads and appends episodes through a store the caller passes. `client.py` performs HTTP and sleep. `orchestrator.py` calls the pure Epic 13 functions and the registry. `src/agent_learning/cli.py` only parses arguments and calls the runtime.
+5. **Purity line.** `agent_learning.pmbok` gains no network, no sleep, and no store import. `pmbok_runtime` may import `LearningStore` and may sleep inside `client.py`.
+
+---
+
+## 2. Data Contract
+
+```python
+# legacy_registry.py — frozen copy of pmbok/process_registry.py PROCESS_DEPENDENCY_MAP
+LEGACY_PROCESSES: Mapping[str, tuple[str, ...]]  # process_id -> prerequisite ids, sorted as in the legacy map
+
+RUN_AGENT_ID = "pmbok-orchestration"
+RUN_TASK_ID = "pmbok-lifecycle-run"
+PROCESS_STATUSES = ("not_started", "in_progress", "completed", "failed")
+
+@dataclass(frozen=True)
+class RunSnapshot:
+    run_id: str
+    sequence_number: int
+    created_at: str
+    phase: str
+    processes: Mapping[str, str]          # process_id -> one of PROCESS_STATUSES
+    baseline_hash: str | None
+    gate_episode_ids: Mapping[str, tuple[str, str, str]]   # plan_id -> (episode_id, canonical_hash, verdict)
+    route_episode_ids: Mapping[str, str]  # plan_id -> route episode_id
+
+@dataclass(frozen=True)
+class RunEpisodeFields:
+    agent_id: str            # RUN_AGENT_ID
+    task_id: str             # RUN_TASK_ID
+    action_type: str         # "governance"
+    action_logprob: None
+    metadata: Mapping[str, object]
+    result_summary: str
+```
+
+The forty-nine process ids are `4.1`–`4.7`, `5.1`–`5.6`, `6.1`–`6.6`, `7.1`–`7.4`, `8.1`–`8.3`, `9.1`–`9.6`, `10.1`–`10.3`, `11.1`–`11.7`, `12.1`–`12.3`, and `13.1`–`13.4`. Prerequisite lists match the legacy map, including `5.1 -> (4.1,)` and `4.2` depending on `4.1`, `5.1`, `6.1`, `7.1`, `8.1`, `9.1`, `10.1`, `11.1`, `12.1`, and `13.2`.
+
+`metadata` keys for a run are `run_id`, `phase`, `processes`, `sequence_number`, `baseline_hash`, `gate_episode_ids`, and `route_episode_ids`. No other key is added. A string value longer than 256 characters is refused, the same ceiling Story 13.3 uses. `result_summary` uses that same ceiling.
+
+```python
+# client.py
+def backoff_delays(attempts: int, base_seconds: float, factor: float, jitter: Callable[[], float]) -> list[float]: ...
+
+class LlmClient(Protocol):
+    def complete(self, prompt: str) -> str: ...
+
+def urllib_client(url: str, sleeper: Callable[[float], None], delays: Sequence[float]) -> LlmClient: ...
+def mock_client(body: str) -> LlmClient: ...
+```
+
+`attempts`, `base_seconds`, and `factor` are arguments. This design sets no hidden default. `mock_client` returns `body` and does not call the sleeper.
+
+---
+
+## 3. Behavior
+
+### 3.1 `legacy_processes() -> Mapping[str, tuple[str, ...]]` (BRU-034-04)
+
+Returns the frozen map. A caller cannot mutate it. Looking up an id that is not one of the forty-nine raises `KeyError`. Every `PlanStandard.legacy` value in `PLAN_STANDARDS` is a key.
+
+### 3.2 `latest_run(snapshots) -> RunSnapshot | None` (BRU-034-02)
+
+Returns `None` for an empty sequence. Otherwise returns the snapshot with the greatest `(sequence_number, created_at)`. The input sequence is not reordered. Ties on both fields keep the earlier input item.
+
+### 3.3 `build_run_fields(snapshot, result_summary) -> RunEpisodeFields` (BRU-034-02, BRU-034-06, BRU-034-08)
+
+Fills the identity fields in §2. `action_logprob` is `None`. `metadata` is the seven keys in §2 and nothing else. `run_id` is a non-empty UUID string. An empty `run_id`, a negative `sequence_number`, an unknown process id, an unknown status, or a string above 256 characters raises `ValueError` naming the field. The function does not write a store.
+
+### 3.4 Client (BRU-034-01, BRU-034-04, BRU-034-06)
+
+`urllib_client.complete` sends the prompt with `urllib.request`. On a failure that is an `URLError` or an HTTP status of 429 or 500 through 599, it sleeps the next delay and tries again, until the delays are exhausted, then raises the last error. Any other status raises immediately. The `Authorization` header, when the caller supplies one, is taken from the environment variable the caller names (`AZURE_OPENAI_KEY` or `OPENAI_API_KEY`). The header value is not included in the exception text. `mock_client.complete` returns the canned body, sleeps zero times, and opens no socket.
+
+### 3.5 Commands (BRU-034-05)
+
+`agent-learn pmbok --help` exits 0 and lists `draft`, `approve`, `formalize`, and `adapt`.
+
+- `draft --charter <path> [--plan <id>] [--mock]` with `--mock` asks `mock_client` for a body and does not open a socket. Without `--mock` it uses `urllib_client`. The generated file is written by the runtime, not by `agent_learning.pmbok`.
+- `approve --plan <id>` builds one `approve-subsidiary-plan` episode through the Epic 13 producer. `approve --all --interactive` iterates `full_plan` routes only, in `DRAFT_ORDER`. A plan whose lint findings are empty may have an empty rationale. A plan with one or more findings and a blank or whitespace rationale is skipped, and no episode is written for it. Each accepted plan is one episode. The rationale is `result_summary` and is not an eighth metadata key.
+- `formalize --baseline-id <id>` runs the Epic 13 formalization check. When it is ready, the command prints `agent-learn task-policy-decide --agent-id agent-learning-governance --task-id approve-pmp` and does not execute it. When it is not ready, it prints the blockers and exits non-zero.
+- `adapt --adaptation-plan <path>` records one run episode whose `phase` is `adaptation`. It does not approve the adaptation plan.
+
+There is no `--mode full` flag.
+
+### 3.6 Decommission (BRU-034-03, BRU-034-07)
+
+After Stories 34.1 to 34.4, delete `pmbok/`, `scripts/orchestrate_pmbok.py`, and `tests/pmbok/`. Remove `--ignore=tests/pmbok` from `.github/workflows/tests.yaml` and from `scripts/build_linux_installer.sh`. `pyproject.toml` does not list `sqlalchemy`, `fastapi`, `typer`, `tenacity`, `pytesseract`, `pdf2image`, `pillow`, or `pyyaml`. ERR-034-05 is satisfied by deleting `pmbok/audit/policy_loader.py` with the tree. No YAML file is converted.
+
+---
+
+## 4. Error Handling
+
+| Situation | Behavior |
+|---|---|
+| Unknown process id or status | `ValueError` naming the field |
+| Empty `run_id`, negative `sequence_number`, or a string over 256 characters | `ValueError` naming the field |
+| Same `(sequence_number, created_at)` twice | The earlier input snapshot is kept |
+| HTTP 429 or 500–599, delays remaining | Sleep the next delay and retry |
+| Any other HTTP status | Raise immediately, with no credential in the message |
+| Flagged plan, blank rationale | That plan is skipped; other plans in the batch still proceed |
+| Formalization blockers | Exit non-zero and print each blocker; do not print the `approve-pmp` command |
+| `mock` client | No sleep and no socket |
+
+---
+
+## 5. Interpretations to Confirm
+
+These are not verbatim in ADR-034. Stories 34.3 and 34.4 wait on items 3 and 4.
+
+1. **Epic 34 starts where Epics 12 and 13 stop.** The parser, hash, integrity, graph, freshness, lifecycle, and formalization functions are called, not rewritten. ADR-034's "Epic 12" labels are Epic 34.
+2. **The registry is the legacy map, frozen.** Forty-nine ids, prerequisite lists copied from `PROCESS_DEPENDENCY_MAP`, without the legacy pydantic models.
+3. **Backoff numbers are arguments.** The ADR names exponential backoff and jitter and sets no base, factor, or attempt count. Tests pass those values and a fake sleeper.
+4. **A batch rationale is `result_summary`, capped at 256 characters.** It is not a new key on the Epic 13 approval metadata. A flagged plan with a blank rationale is skipped. An unflagged plan may omit it. The batch listing is text on stdout. There is no web UI.
+5. **`formalize` does not run `approve-pmp`.** It prints the command when the Epic 13 check is ready.
+6. **Deleting `policy_loader.py` closes ERR-034-05.** Files that are deleted are not converted to JSON.
+7. **Learner exclusion stays Story 1.1.** This epic sets `action_type` and `action_logprob` and does not change the trainer.
+8. **Spark stays ignored.** Only the `tests/pmbok` ignore is removed.
+
+## 6. Out of Scope
+
+Same boundary as BRD-034. `legacy_registry.py` and `run_state.py` do not import the store. The runtime does not create a SQLite file and does not add a `LearningStore` record type.

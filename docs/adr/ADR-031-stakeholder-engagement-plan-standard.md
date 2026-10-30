@@ -10,7 +10,7 @@ It inherits the ADR-012 universal contract and specifies only what is Stakeholde
 ---
 
 ## 2. Status
-**Proposed (2026-10-26)** — Plan Tier 3 standard, inheriting ADR-012. Ready for evaluation under `approve-adr`.
+**Accepted (2026-10-29, Menno)** — Plan Tier 3 standard, inheriting ADR-012. Episode: `c6564adb-72de-4262-8309-4949e0745f51`.
 
 ---
 
@@ -175,3 +175,4 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 | 2026-10-28 | PMBOK 8 Edition Review | Added §4.5 comparing this standard with the guide's planning process: inputs, tools and techniques, outputs, and each difference with a decision. No change to `depends_on`, `PLAN_DAG`, thresholds or the plan files. Proposed, for maintainer confirmation. |
 | 2026-10-28 | Learner Decision | Added §4.4.1 deciding to build the `advise-stakeholder-plan-decision` advisory learner on #2 softmax bandit with REINFORCE at `low` authority, fed by #5 and #6. Advisory only; no episodes created. |
 | 2026-10-28 | Learner Safeguards and Re-basing Gap | Added to §4.4.1 the anchoring and thin-data safeguard, and to §8 the open question on regrouping learners by PMBOK 8 domain. |
+| 2026-10-29 | **Accepted by Menno** | Formally adjudicated and accepted through `approve-adr`; robust utility 0.712, expected utility 0.786; Episode `c6564adb-72de-4262-8309-4949e0745f51`. |

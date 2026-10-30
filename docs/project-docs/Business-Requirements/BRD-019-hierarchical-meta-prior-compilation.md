@@ -1,7 +1,7 @@
 # BRD-019: Hierarchical Meta-Prior Compilation Across Task Families
 
 **Source ADR:** [ADR-019](../../adr/ADR-019-hierarchical-meta-prior-compilation.md) — Accepted (2026-10-28)  
-**Governing Baseline:** none approved yet; cycle `CYC-001` (ADR-035, Proposed)  
+**Governing Baseline:** none approved yet; cycle `CYC-001` (ADR-035, Accepted)  
 **Status:** Approved (2026-10-29, Menno) — derived from Accepted ADR-019; adjudicated via `approve-brd` (robust utility 0.732, episode `7c750fae-af86-41db-a5dd-ae299cb25438`); corrected 2026-10-29 (BRU-019-08 and BRU-019-11, FDD-019 H8) and re-approved via `approve-brd` (robust utility 0.735, episode `d65f2549-c709-4476-93ad-efee969f3777`; comparison with the previous approval: flat, within tolerance, no criterion lower).  
 **Stakeholders:** Menno (Sponsor/PM/maintainer); SDK adopters who run a cluster of similar low-authority policies and want a new member to start from the family's experience; auditors who must see which policies a starting point came from  
 

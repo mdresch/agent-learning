@@ -14,7 +14,7 @@ It adds no `LearningStore` record type (ADR-002 Invariant #2) and no hash inside
 ---
 
 ## 2. Status
-**Proposed (2026-10-26)** — Cross-cutting traceability standard. Proposes amendments to ADR-008 §4.6 (field naming), ADR-012 §4.2 and §4.3.4 (one frontmatter key, two flags) and ADR-013 §4.3 (volatile keys); they apply on acceptance (§8.1). Ready for evaluation under `approve-adr`.
+**Accepted (2026-10-29, Menno)** — Cross-cutting traceability standard. Episode: `76a4003b-a725-4405-b3c1-d2f8122671c6`. The §8.1 amendments to ADR-008, ADR-012 and ADR-013 are now authorized and are not edited in this adjudication.
 
 ---
 
@@ -191,3 +191,4 @@ Its `opening_pin_set` is **reconstructed** from git history at the commit that c
 |---|---|---|
 | 2026-10-26 | Proposed | Initial drafting: cycle definition, Cycle Register, Provenance Pin Set, frontmatter and episode fields, authority rule, lookup rule and migration. |
 | 2026-10-26 | Round 2 Review | Event-log register rows (latest wins) with `episode_ref`; transition authority table and single-OPEN enforcement; opening and closing pin sets; tailoring-matrix host document and Adaptation Plan pinned; `cycle_id`/`baseline_id` made hash-neutral (ADR-013 §4.3 amendment); lookup order pin set, then episode, then validated frontmatter; `CYC-001` recorded as `OPEN` bootstrap, not `CLOSED_BASELINED`; register-vs-episode conflict blocks closure; status wording and amendment list corrected. |
+| 2026-10-29 | **Accepted by Menno** | Formally adjudicated and accepted through `approve-adr`; robust utility 0.762, expected utility 0.828; Episode `76a4003b-a725-4405-b3c1-d2f8122671c6`. §8.1 now authorizes the named amendments to ADR-008, ADR-012 and ADR-013; those files are not edited in this adjudication. |

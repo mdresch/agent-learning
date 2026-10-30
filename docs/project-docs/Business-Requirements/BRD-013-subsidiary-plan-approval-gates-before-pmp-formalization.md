@@ -43,4 +43,4 @@ This requirement covers the **decision logic that needs no storage and no networ
 - The human review itself: scoring the four criteria for a real plan is evidence supplied at decision time.
 - Adaptation mode (`--mode adapt`) and the `Adaptation-Plan.md` checklist (ADR-034 `pmbok adapt`).
 - Porting the 49-process registry, the test-suite port and removing the legacy `pmbok/` directory (ADR-034).
-- Cycle identity and cross-cycle traceability (ADR-035, Proposed).
+- Cycle identity and cross-cycle traceability (ADR-035, Accepted).

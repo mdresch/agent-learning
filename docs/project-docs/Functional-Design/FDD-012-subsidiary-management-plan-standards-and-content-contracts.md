@@ -179,7 +179,7 @@ Wraps `tailoring.compute_flags`: each `baseline_plan_omitted` flag becomes a Tie
 These readings are not stated verbatim in ADR-012 and are decided here, to be tested and recorded in the test header and the implementation log, as LL-011 requires (LL-012 is the separate rule that each rule sits in one story's criteria):
 1. **Flag codes** are stored without the "FLAG: " prefix and printed with it.
 2. **Fail closed:** unparseable frontmatter returns an empty metadata mapping and body.
-3. **Extra keys are allowed;** `cycle_id` (ADR-035, Proposed) is not required.
+3. **Extra keys are allowed;** `cycle_id` (ADR-035, Accepted) is not required.
 4. **Table agreement** (check 7 of §3.2) is a Tier B finding when a known plan's domains or legacy number differ from the §4.4 table.
 5. **`governance_policy`** is required to match the route only for `full_plan` and `pmp_section`.
 6. **Out-of-scope detection** is by the "out-of-scope" marker line plus bullets, with a baseline minimum of one item; the standalone minimum of two in some daughter ADRs is passed in as `min_out_of_scope_items`.

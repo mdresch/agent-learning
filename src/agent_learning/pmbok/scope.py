@@ -69,7 +69,7 @@ def _hierarchy_terms(section: str) -> set[str]:
         found.add("story")
     if re.search(r"\bcommit\b", section, re.IGNORECASE):
         found.add("commit")
-    elif re.search(r"work package", section, re.IGNORECASE):
+    if re.search(r"work package", section, re.IGNORECASE):
         found.add("work package")
     return found
 

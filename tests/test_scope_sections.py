@@ -64,6 +64,11 @@ class TestEmbeddedHierarchy:
         doc = scope_doc(make_body(750, section1=section1_two_real(), h2=H2 + "\n\n" + s2text, h3=H3), "pmp_section")
         assert any(f.message == "WBS hierarchy is missing" for f in lint_plan(doc).flags)
 
+    def test_commit_and_work_package_count_as_two_terms(self):
+        s2text = "WBS covers commit and work package layers.\nDefinition of Done is documented.\n"
+        doc = scope_doc(make_body(750, section1=section1_two_real(), h2=H2 + "\n\n" + s2text, h3=H3), "pmp_section")
+        assert not any(f.message == "WBS hierarchy is missing" for f in lint_plan(doc).flags)
+
     def test_work_package_counts_without_commit_word(self):
         s2text = "WBS covers phase and work package layers.\nDefinition of Done is documented.\n"
         doc = scope_doc(make_body(750, section1=section1_two_real(), h2=H2 + "\n\n" + s2text, h3=H3), "pmp_section")

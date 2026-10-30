@@ -113,7 +113,7 @@ class TestScopeLengths:
             "---\nplan_id: schedule-management\nplan_name: x\npmbok_edition: PMBOK 8\n"
             "pmbok_focus_area: Planning\nprimary_pmbok_domain: Schedule\nlegacy_process: 6.1 Plan Schedule Management\n"
             'route: pmp_section\ngenerator: human\nversion: 1.0.0\nbaseline_id: PMP-BL-v1.0.0\n'
-            'owner_role: PM\ndepends_on: [scope-management]\ninputs: []\noutputs: []\n'
+            'owner_role: PM\ndepends_on: [scope-management]\ninputs: [Project-Charter.md]\noutputs: [Schedule-Management-Plan.md]\n'
             'governance_policy: approve-pmp\n---\n'
             + make_body(751)
         )

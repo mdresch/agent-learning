@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-031](../../adr/ADR-031-stakeholder-engagement-plan-standard.md) — Accepted (2026-10-29, Menno), episode `c6564adb-72de-4262-8309-4949e0745f51`  
 **Source BRD:** [BRD-031](../Business-Requirements/BRD-031-stakeholder-engagement-plan-standard.md)  
-**Status:** Draft (2026-10-29) — derived from Accepted ADR-031 and BRD-031; not yet adjudicated via `approve-fdd`. §5 interpretations are not confirmed.
+**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-031 and BRD-031; adjudicated via `approve-fdd` (robust utility 0.735, episode `77093bb8-b1b9-494e-989b-6b915d61ba19`). §5 interpretations are not confirmed; sections 2–3 implement the approved BRU rules.
 
 ---
 

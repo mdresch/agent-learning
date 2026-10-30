@@ -1,0 +1,17 @@
+[
+  {
+    "id": "approve_project_pillars",
+    "description": "Project-Pillars.md defines nine topic pillars grounded in Spark, Ideation, Business Case, and Benefits sources, with a complete primary ADR assignment table — approve it as the strategic scope rollup for baseline PMP-BL-v1.0.0",
+    "parameters": {}
+  },
+  {
+    "id": "reject_project_pillars",
+    "description": "Project-Pillars.md invents pillars, misassigns ADRs, or contradicts initiating documents — reject it outright",
+    "parameters": {}
+  },
+  {
+    "id": "request_revision_before_decision",
+    "description": "Project-Pillars.md needs corrected sources, missing ADR rows, or clearer pillar checks before a final decision",
+    "parameters": {}
+  }
+]

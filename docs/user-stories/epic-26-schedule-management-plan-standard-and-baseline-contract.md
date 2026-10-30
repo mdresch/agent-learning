@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-026](../adr/ADR-026-schedule-management-plan-standard-and-baseline-contract.md) — Accepted (2026-10-29, Menno), episode `8be53179-eb4e-4f1c-b71d-0efa79e0876d`  
 **Source BRD/FDD:** [BRD-026](../project-docs/Business-Requirements/BRD-026-schedule-management-plan-standard-and-baseline-contract.md) / [FDD-026](../project-docs/Functional-Design/FDD-026-schedule-management-plan-standard-and-baseline-contract.md)  
-**Status:** Draft (2026-10-29) — derived from Accepted ADR-026, BRD-026 and FDD-026; not yet adjudicated via `approve-user-stories`.
+**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-026, BRD-026 and FDD-026 (Approved 2026-10-30); adjudicated via `approve-user-stories` (robust utility 0.735, episode `d95c487e-8fc2-40fe-96ce-daf338389be3`).
 
 Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_schedule_measure.py` (26.1), `tests/test_schedule_sections.py` (26.2), `tests/test_schedule_advice_policy.py` (26.3), `tests/test_schedule_advice_reward.py` (26.4). Story 26.1 waits on the shared lint arguments in FDD-026 §3.2. Stories 26.3 and 26.4 wait until FDD-026 §5 item 1 is confirmed. BRU-026-07 has no story: it is the text the plan author writes and the approver reads.
 
@@ -10,7 +10,7 @@ Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_
 
 ## Story 26.1 — Schedule floors, caps, and exclusions
 
-**Status:** Draft — blocked on the `max_cap_words` and `exclude_placeholders` arguments of FDD-026 §3.2, and on acceptance of ADR-026  
+**Status:** Draft — blocked on the `max_cap_words` and `exclude_placeholders` arguments of FDD-026 §3.2  
 **As** a governance reviewer,  
 **I want** a Schedule plan measured with the Schedule floors, caps, and out-of-scope minimum,  
 **so that** a plan that would pass the universal lint still shows a Schedule gap, and every other plan keeps its own numbers.
@@ -28,7 +28,7 @@ Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_
 
 ## Story 26.2 — Milestone register, timebox, and estimation basis
 
-**Status:** Draft — blocked on acceptance of ADR-026  
+**Status:** Ready
 **As** a governance reviewer,  
 **I want** Section 2 of a Schedule plan to state the milestone register, the timebox model, and the estimation basis,  
 **so that** a plan cannot pass on word count alone while saying nothing about what finishes, in what order, or how duration was estimated.
@@ -46,7 +46,7 @@ Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_
 
 ## Story 26.3 — The idle Schedule advisory policy
 
-**Status:** Draft — blocked on confirmation of FDD-026 §5 item 1, and on acceptance of ADR-026  
+**Status:** Draft — blocked on confirmation of FDD-026 §5 item 1  
 **As** a maintainer,  
 **I want** `advise-schedule-plan-decision` declared as its own low-authority policy with equal logits and no episodes,  
 **so that** a later recommendation has a fixed task id and cannot be trained as if it were the approval gate or the Scope advisor.

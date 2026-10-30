@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-037](../adr/ADR-037-design-time-baseline-feedback-loop.md) — Accepted (2026-10-27)  
 **Source BRD/FDD:** [BRD-037](../project-docs/Business-Requirements/BRD-037-design-time-baseline-feedback-loop.md) / [FDD-037](../project-docs/Functional-Design/FDD-037-design-time-baseline-feedback-loop.md)  
-**Status:** Draft (2026-10-29) — derived from Accepted ADR-037, BRD-037 and FDD-037; not yet adjudicated via `approve-user-stories`.
+**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-037, BRD-037 and FDD-037 (Approved 2026-10-30); adjudicated via `approve-user-stories` (robust utility 0.717, episode `40cca3f4-61ba-438f-910a-464a83424848`).
 
 Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_evidence_basis.py` (37.1), `tests/test_baseline_feedback_item.py` (37.2), `tests/test_baseline_increment.py` (37.3), `tests/test_baseline_feedback_section.py` (37.4). Story 37.1 waits on FDD-037 §5 item 2. Stories 37.2 and 37.4 wait on item 1. BRU-037-03, BRU-037-04, and BRU-037-08 have no story: the existing pair is not wrapped in a new map, the revision package is assembled by a person, and lessons, Stage 17, and Stage 18 are not entered.
 

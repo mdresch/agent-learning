@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-034](../../adr/ADR-034-pmbok-tooling-decommissioning-and-lightweight-learningstore-convergence.md) — Accepted (2026-10-26, Menno); Episode `3512706e-d5ea-4f5c-9c54-642653fd5fcf`  
 **Governing Baseline:** none approved yet; cycle `CYC-001` (ADR-035, Accepted)  
-**Status:** Draft (2026-10-29) — derived from Accepted ADR-034; not yet adjudicated via `approve-brd`.  
+**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-034; adjudicated via `approve-brd` (robust utility 0.739, episode `aaedbb4e-ad84-4d0f-9a36-2004cc660888`).  
 **Stakeholders:** Menno (Sponsor, Project Manager, maintainer)
 
 ## Business Need

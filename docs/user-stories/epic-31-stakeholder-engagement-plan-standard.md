@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-031](../adr/ADR-031-stakeholder-engagement-plan-standard.md) — Accepted (2026-10-29, Menno), episode `c6564adb-72de-4262-8309-4949e0745f51`  
 **Source BRD/FDD:** [BRD-031](../project-docs/Business-Requirements/BRD-031-stakeholder-engagement-plan-standard.md) / [FDD-031](../project-docs/Functional-Design/FDD-031-stakeholder-engagement-plan-standard.md)  
-**Status:** Draft (2026-10-29) — derived from Accepted ADR-031, BRD-031 and FDD-031; not yet adjudicated via `approve-user-stories`.
+**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-031, BRD-031 and FDD-031 (Approved 2026-10-30); adjudicated via `approve-user-stories` (robust utility 0.735, episode `abe0a61f-5a45-4665-8d5b-a79e5bbbbf6b`).
 
 Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_stakeholder_measure.py` (31.1), `tests/test_stakeholder_sections.py` (31.2), `tests/test_stakeholder_advice_policy.py` (31.3), `tests/test_stakeholder_advice_reward.py` (31.4). Stories 31.3 and 31.4 wait until FDD-031 §5 item 1 is confirmed. BRU-031-07 has no story: it is the text the plan author writes and the approver reads.
 
@@ -10,7 +10,7 @@ Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_
 
 ## Story 31.1 — Stakeholder lengths and the full-plan exclusion minimum
 
-**Status:** Draft — blocked on acceptance of ADR-031  
+**Status:** Ready
 **As** a governance reviewer,  
 **I want** a Stakeholder plan measured at the ADR-012 floors and caps, with two out-of-scope items on a full plan,  
 **so that** Tier 3 does not inherit a higher floor, and a full plan still states more than one exclusion.
@@ -29,7 +29,7 @@ Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_
 
 ## Story 31.2 — Register, engagement levels, and actions
 
-**Status:** Draft — blocked on acceptance of ADR-031  
+**Status:** Ready
 **As** a governance reviewer,  
 **I want** a Stakeholder plan to state the register fields, the engagement scale, and the action that closes a gap,  
 **so that** a plan cannot pass on word count alone while leaving the role source, the levels, or the actions unnamed.
@@ -48,7 +48,7 @@ Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_
 
 ## Story 31.3 — The idle Stakeholder advisory policy
 
-**Status:** Draft — blocked on confirmation of FDD-031 §5 item 1, and on acceptance of ADR-031  
+**Status:** Draft — blocked on confirmation of FDD-031 §5 item 1  
 **As** a maintainer,  
 **I want** `advise-stakeholder-plan-decision` declared as its own low-authority policy with equal logits and no episodes,  
 **so that** a later recommendation has a fixed task id and cannot be trained as the approval gate or another plan advisor.

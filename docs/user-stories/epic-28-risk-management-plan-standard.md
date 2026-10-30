@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-028](../adr/ADR-028-risk-management-plan-standard.md) — Accepted (2026-10-29, Menno), episode `8bad2024-ef80-4cbf-8497-8ffb92c8b564`  
 **Source BRD/FDD:** [BRD-028](../project-docs/Business-Requirements/BRD-028-risk-management-plan-standard.md) / [FDD-028](../project-docs/Functional-Design/FDD-028-risk-management-plan-standard.md)  
-**Status:** Draft (2026-10-29) — derived from Accepted ADR-028, BRD-028 and FDD-028; not yet adjudicated via `approve-user-stories`.
+**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-028, BRD-028 and FDD-028 (Approved 2026-10-30); adjudicated via `approve-user-stories` (robust utility 0.735, episode `3ae2aa80-db44-442c-984f-506e8d7ad816`).
 
 Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_risk_measure.py` (28.1), `tests/test_risk_sections.py` (28.2), `tests/test_risk_advice_policy.py` (28.3), `tests/test_risk_advice_reward.py` (28.4). Stories 28.3 and 28.4 wait until FDD-028 §5 item 1 is confirmed. BRU-028-07 has no story: it is the text the plan author writes and the approver reads.
 
@@ -10,7 +10,7 @@ Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_
 
 ## Story 28.1 — Risk floors, caps, and exclusions
 
-**Status:** Draft — blocked on acceptance of ADR-028  
+**Status:** Ready
 **As** a governance reviewer,  
 **I want** a Risk plan measured with the Tier 2 floors and the universal caps,  
 **so that** a short Risk plan is flagged and a plan inside the universal cap is not pushed over a tighter cap that this standard does not set.
@@ -29,7 +29,7 @@ Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_
 
 ## Story 28.2 — Scale, register contract, and escalation
 
-**Status:** Draft — blocked on acceptance of ADR-028  
+**Status:** Ready
 **As** a governance reviewer,  
 **I want** a Risk plan to state how a rating is produced, which fields a register row carries, and when a risk reaches a person,  
 **so that** a plan cannot pass on word count alone while leaving the scale, the register, or the threshold unnamed.
@@ -47,7 +47,7 @@ Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_
 
 ## Story 28.3 — The idle Risk advisory policy
 
-**Status:** Draft — blocked on confirmation of FDD-028 §5 item 1, and on acceptance of ADR-028  
+**Status:** Draft — blocked on confirmation of FDD-028 §5 item 1  
 **As** a maintainer,  
 **I want** `advise-risk-plan-decision` declared as its own low-authority policy with equal logits and no episodes,  
 **so that** a later recommendation has a fixed task id and cannot accept a risk or be trained as the approval gate.

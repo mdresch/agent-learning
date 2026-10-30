@@ -1,0 +1,164 @@
+{
+  "agent_id": "agent-learning-governance",
+  "task_id": "approve-fdd",
+  "policy_id": "4241f11a-4af1-4261-9365-7c5a3c331c46",
+  "policy_version": 0,
+  "status": "needs_user_feedback",
+  "reason": "The policy requires human approval; accept or reject the reasoned recommendation.",
+  "selection_basis": "bayesian_decision",
+  "selected_action": null,
+  "proposed_action": {
+    "id": "approve_fdd",
+    "description": "The FDD's design is traceable to its source BRD/ADR, honestly distinguishes real code-shaped deliverables from documentation-only items, and does not invent implementation detail beyond what is grounded in real code -- approve it",
+    "parameters": {}
+  },
+  "candidate_actions": [
+    {
+      "id": "approve_fdd",
+      "description": "The FDD's design is traceable to its source BRD/ADR, honestly distinguishes real code-shaped deliverables from documentation-only items, and does not invent implementation detail beyond what is grounded in real code -- approve it",
+      "parameters": {}
+    }
+  ],
+  "assessments": [
+    {
+      "action": {
+        "id": "approve_fdd",
+        "description": "The FDD's design is traceable to its source BRD/ADR, honestly distinguishes real code-shaped deliverables from documentation-only items, and does not invent implementation detail beyond what is grounded in real code -- approve it",
+        "parameters": {}
+      },
+      "feasible": true,
+      "criteria": [
+        {
+          "criterion_id": "traceable_to_brd_adr",
+          "support": 0.8057101373493151,
+          "entropy_bits": 0.7103597543323168,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "placement_and_purity",
+          "support": 0.8057101373493151,
+          "entropy_bits": 0.7103597543323168,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "no_invented_implementation",
+          "support": 0.7957185792187359,
+          "entropy_bits": 0.7304087317484977,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "compatibility_preserved",
+          "support": 0.7831907054625505,
+          "entropy_bits": 0.7542984230940013,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        }
+      ],
+      "expected_utility": 0.7975823898449792,
+      "uncertainty": 0.7263566658767832,
+      "robust_utility": 0.7249467232573009,
+      "ruled_out_by": []
+    },
+    {
+      "action": {
+        "id": "reject_fdd",
+        "description": "The FDD has a fundamental, unfixed flaw in its own design or traceability -- reject it outright",
+        "parameters": {}
+      },
+      "feasible": true,
+      "criteria": [
+        {
+          "criterion_id": "traceable_to_brd_adr",
+          "support": 0.0866255450880921,
+          "entropy_bits": 0.42510488271276886,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "placement_and_purity",
+          "support": 0.0866255450880921,
+          "entropy_bits": 0.42510488271276886,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "no_invented_implementation",
+          "support": 0.0866255450880921,
+          "entropy_bits": 0.42510488271276886,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "compatibility_preserved",
+          "support": 0.0866255450880921,
+          "entropy_bits": 0.42510488271276886,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        }
+      ],
+      "expected_utility": 0.0866255450880921,
+      "uncertainty": 0.42510488271276886,
+      "robust_utility": 0.04411505681681521,
+      "ruled_out_by": [
+        "pareto_dominated_by:approve_fdd"
+      ]
+    },
+    {
+      "action": {
+        "id": "request_revision_before_decision",
+        "description": "The FDD's own design or scope needs a real change before it can be judged -- distinct from a named, deliberately out-of-scope follow-on item the FDD itself already scoped correctly",
+        "parameters": {}
+      },
+      "feasible": true,
+      "criteria": [
+        {
+          "criterion_id": "traceable_to_brd_adr",
+          "support": 0.17249372622835202,
+          "entropy_bits": 0.6633776993548324,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "placement_and_purity",
+          "support": 0.17249372622835202,
+          "entropy_bits": 0.6633776993548324,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "no_invented_implementation",
+          "support": 0.17249372622835202,
+          "entropy_bits": 0.6633776993548324,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "compatibility_preserved",
+          "support": 0.2140050437859059,
+          "entropy_bits": 0.7490688114630351,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        }
+      ],
+      "expected_utility": 0.1828715556177405,
+      "uncertainty": 0.684800477381883,
+      "robust_utility": 0.11439150787955218,
+      "ruled_out_by": [
+        "pareto_dominated_by:approve_fdd"
+      ]
+    }
+  ],
+  "information_needs": [],
+  "rejected_action_ids": [],
+  "authorization_basis": null,
+  "action_probabilities": {
+    "approve_fdd": 0.3333333333333333,
+    "reject_fdd": 0.3333333333333333,
+    "request_revision_before_decision": 0.3333333333333333
+  },
+  "action_logprob": null,
+  "audit_evidence": null
+}

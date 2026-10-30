@@ -1,6 +1,8 @@
 # Project Pillars
 
-**Status:** Draft
+**Status:** Approved (2026-10-30, Menno Drescher) — adjudicated via `approve-project-pillars` (robust utility 0.805, episode `8fe9fea9-6ef1-44be-82a9-e09677e47a4a`).  
+**Baseline:** `PMP-BL-v1.0.0`  
+**Governance gate:** `agent-learning-governance` / `approve-project-pillars`  
 **Sources:** Spark-Capture; Ideation-Document §1.2 and §2.1; Business-Case value proposition, §1, and the gap matrix; Benefits-Management-Plan §1
 
 ## Pillars
@@ -124,3 +126,12 @@ A hosted layer someone would pay for has no ADR.
 
 ## Not a pillar
 `docs/adr/README.md` is not a source for this document. Its four-pillar manifesto is not a project pillar here.
+
+---
+
+## Amendment log
+
+| Date | Author | Description |
+| --- | --- | --- |
+| 2026-10-30 | Menno Drescher | **Approved** — nine topic pillars, primary ADR assignment table (ADR-001–038). |
+| 2026-10-30 | Menno Drescher / Cursor | **Governance episode** `8fe9fea9-6ef1-44be-82a9-e09677e47a4a` via `approve-project-pillars`; fixture `docs/policy-shapes/episodes/project-pillars-approval-episode.json`. |

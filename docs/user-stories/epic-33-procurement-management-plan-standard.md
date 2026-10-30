@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-033](../adr/ADR-033-procurement-management-plan-standard.md) — Accepted (2026-10-29, Menno), episode `7362459e-b596-4f85-8872-5b7063eef015`  
 **Source BRD/FDD:** [BRD-033](../project-docs/Business-Requirements/BRD-033-procurement-management-plan-standard.md) / [FDD-033](../project-docs/Functional-Design/FDD-033-procurement-management-plan-standard.md)  
-**Status:** Draft (2026-10-29) — derived from Accepted ADR-033, BRD-033 and FDD-033; not yet adjudicated via `approve-user-stories`.
+**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-033, BRD-033 and FDD-033 (Approved 2026-10-30); adjudicated via `approve-user-stories` (robust utility 0.735, episode `cb743658-ee2d-4e96-b796-434cfd466a06`).
 
 Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_procurement_measure.py` (33.1), `tests/test_procurement_sections.py` (33.2), `tests/test_procurement_advice_policy.py` (33.3), `tests/test_procurement_advice_reward.py` (33.4). Stories 33.3 and 33.4 wait until FDD-033 §5 items 1 and 2 are confirmed. BRU-033-07 has no story: it is the text the plan author writes and the approver reads.
 
@@ -10,7 +10,7 @@ Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_
 
 ## Story 33.1 — Procurement lengths and the full-plan exclusion minimum
 
-**Status:** Draft — blocked on acceptance of ADR-033  
+**Status:** Ready
 **As** a governance reviewer,  
 **I want** a Procurement plan measured at the ADR-012 floors and caps, with two out-of-scope items on a full plan,  
 **so that** Tier 3 does not inherit Cost's tighter floor, and a full plan still states more than one exclusion.
@@ -29,7 +29,7 @@ Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_
 
 ## Story 33.2 — Make-or-buy criteria, intake rule, and licence checks
 
-**Status:** Draft — blocked on acceptance of ADR-033  
+**Status:** Ready
 **As** a governance reviewer,  
 **I want** a Procurement plan to name the make-or-buy factors, the intake justification, and the licence checks,  
 **so that** a plan cannot pass on word count alone while leaving the buy decision, the dependency record, or the licence terms unnamed.
@@ -47,7 +47,7 @@ Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_
 
 ## Story 33.3 — The idle Procurement advisory policy
 
-**Status:** Draft — blocked on confirmation of FDD-033 §5 items 1 and 2, and on acceptance of ADR-033  
+**Status:** Draft — blocked on confirmation of FDD-033 §5 items 1 and 2  
 **As** a maintainer,  
 **I want** `advise-procurement-plan-decision` declared as its own low-authority policy with one logit map,  
 **so that** a later recommendation has a fixed task id and a recorded deciding role, and cannot be trained as the approval gate, the Resource department split, or another plan advisor.

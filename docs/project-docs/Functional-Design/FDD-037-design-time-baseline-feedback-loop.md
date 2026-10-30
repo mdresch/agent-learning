@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-037](../../adr/ADR-037-design-time-baseline-feedback-loop.md) — Accepted (2026-10-27)  
 **Source BRD:** [BRD-037](../Business-Requirements/BRD-037-design-time-baseline-feedback-loop.md)  
-**Status:** Draft (2026-10-29) — derived from Accepted ADR-037 and BRD-037; not yet adjudicated via `approve-fdd`. §5 interpretations are not confirmed.
+**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-037 and BRD-037; adjudicated via `approve-fdd` (robust utility 0.725, episode `df57a4c8-1832-459e-988b-3d2e075a0c21`). §5 interpretations are not confirmed; sections 2–3 implement the approved BRU rules.
 
 ---
 

@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-027](../../adr/ADR-027-cost-management-plan-standard-and-baseline-contract.md) — Accepted (2026-10-29, Menno), episode `0ae724ad-5309-4eb2-a333-749cde39c0c0`  
 **Governing Baseline:** none approved yet; cycle `CYC-001` (ADR-035, Accepted)  
-**Status:** Draft (2026-10-29) — derived from Accepted ADR-027; not yet adjudicated via `approve-brd`.  
+**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-027; adjudicated via `approve-brd` (robust utility 0.722, episode `e870c2c1-a214-4d9f-9c88-b33b637c1cf3`).  
 **Stakeholders:** Menno (Sponsor, Project Manager, maintainer)
 
 ## Business Need

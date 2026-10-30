@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-026](../../adr/ADR-026-schedule-management-plan-standard-and-baseline-contract.md) — Accepted (2026-10-29, Menno), episode `8be53179-eb4e-4f1c-b71d-0efa79e0876d`  
 **Source BRD:** [BRD-026](../Business-Requirements/BRD-026-schedule-management-plan-standard-and-baseline-contract.md)  
-**Status:** Draft (2026-10-29) — derived from Accepted ADR-026 and BRD-026; not yet adjudicated via `approve-fdd`. §5 interpretations are not confirmed.
+**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-026 and BRD-026; adjudicated via `approve-fdd` (robust utility 0.735, episode `50155fa8-54cf-4f5a-b4be-4b6cfee726d5`). §5 interpretations are not confirmed; sections 2–3 implement the approved BRU rules.
 
 ---
 

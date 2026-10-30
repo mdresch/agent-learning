@@ -1,0 +1,165 @@
+{
+  "agent_id": "agent-learning-governance",
+  "task_id": "approve-project-pillars",
+  "policy_id": "9082c4cb-356d-4cb0-9ed0-4d9f80adafdf",
+  "policy_version": 0,
+  "status": "resolved",
+  "reason": "The user accepted the proposed option to resolve the tie.",
+  "selection_basis": "bayesian_decision",
+  "selected_action": {
+    "id": "approve_project_pillars",
+    "description": "Project-Pillars.md defines nine topic pillars grounded in Spark, Ideation, Business Case, and Benefits sources, with a complete primary ADR assignment table \u2014 approve it as the strategic scope rollup for baseline PMP-BL-v1.0.0",
+    "parameters": {}
+  },
+  "proposed_action": null,
+  "candidate_actions": [
+    {
+      "id": "approve_project_pillars",
+      "description": "Project-Pillars.md defines nine topic pillars grounded in Spark, Ideation, Business Case, and Benefits sources, with a complete primary ADR assignment table \u2014 approve it as the strategic scope rollup for baseline PMP-BL-v1.0.0",
+      "parameters": {}
+    }
+  ],
+  "assessments": [
+    {
+      "action": {
+        "id": "approve_project_pillars",
+        "description": "Project-Pillars.md defines nine topic pillars grounded in Spark, Ideation, Business Case, and Benefits sources, with a complete primary ADR assignment table \u2014 approve it as the strategic scope rollup for baseline PMP-BL-v1.0.0",
+        "parameters": {}
+      },
+      "feasible": true,
+      "criteria": [
+        {
+          "criterion_id": "grounded_in_initiating_sources",
+          "support": 0.8446925008918542,
+          "entropy_bits": 0.6229644703988779,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "nine_pillars_with_checks",
+          "support": 0.8687114143413691,
+          "entropy_bits": 0.5609615753703133,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "primary_adr_table_complete",
+          "support": 0.8420607024512674,
+          "entropy_bits": 0.6293568288619031,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "layers_not_pillars",
+          "support": 0.8956001105035711,
+          "entropy_bits": 0.48278973007462356,
+          "disagreement_bits": 4.440892098500626e-16,
+          "source_count": 1
+        }
+      ],
+      "expected_utility": 0.8627661820470155,
+      "uncertainty": 0.5740181511764295,
+      "robust_utility": 0.8053643669293725,
+      "ruled_out_by": []
+    },
+    {
+      "action": {
+        "id": "reject_project_pillars",
+        "description": "Project-Pillars.md invents pillars, misassigns ADRs, or contradicts initiating documents \u2014 reject it outright",
+        "parameters": {}
+      },
+      "feasible": true,
+      "criteria": [
+        {
+          "criterion_id": "grounded_in_initiating_sources",
+          "support": 0.0866255450880921,
+          "entropy_bits": 0.42510488271276886,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "nine_pillars_with_checks",
+          "support": 0.0866255450880921,
+          "entropy_bits": 0.42510488271276886,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "primary_adr_table_complete",
+          "support": 0.0866255450880921,
+          "entropy_bits": 0.42510488271276886,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "layers_not_pillars",
+          "support": 0.0866255450880921,
+          "entropy_bits": 0.42510488271276886,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        }
+      ],
+      "expected_utility": 0.0866255450880921,
+      "uncertainty": 0.42510488271276886,
+      "robust_utility": 0.04411505681681521,
+      "ruled_out_by": [
+        "pareto_dominated_by:approve_project_pillars"
+      ]
+    },
+    {
+      "action": {
+        "id": "request_revision_before_decision",
+        "description": "Project-Pillars.md needs corrected sources, missing ADR rows, or clearer pillar checks before a final decision",
+        "parameters": {}
+      },
+      "feasible": true,
+      "criteria": [
+        {
+          "criterion_id": "grounded_in_initiating_sources",
+          "support": 0.2140050437859059,
+          "entropy_bits": 0.7490688114630351,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "nine_pillars_with_checks",
+          "support": 0.18327381154141018,
+          "entropy_bits": 0.6871867897383348,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "primary_adr_table_complete",
+          "support": 0.18327381154141018,
+          "entropy_bits": 0.6871867897383348,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "layers_not_pillars",
+          "support": 0.16139047779640894,
+          "entropy_bits": 0.6376256660860624,
+          "disagreement_bits": 5.551115123125783e-17,
+          "source_count": 1
+        }
+      ],
+      "expected_utility": 0.1854857861662838,
+      "uncertainty": 0.6902670142564418,
+      "robust_utility": 0.11645908474063962,
+      "ruled_out_by": [
+        "pareto_dominated_by:approve_project_pillars"
+      ]
+    }
+  ],
+  "information_needs": [],
+  "rejected_action_ids": [],
+  "authorization_basis": "user_acceptance",
+  "action_probabilities": {
+    "approve_project_pillars": 0.3333333333333333,
+    "reject_project_pillars": 0.3333333333333333,
+    "request_revision_before_decision": 0.3333333333333333
+  },
+  "action_logprob": null,
+  "audit_evidence": null,
+  "decision_authority": "full"
+}

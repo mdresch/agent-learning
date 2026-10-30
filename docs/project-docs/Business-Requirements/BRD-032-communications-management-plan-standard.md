@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-032](../../adr/ADR-032-communications-management-plan-standard.md) — Accepted (2026-10-29, Menno), episode `5ee60bbe-b680-4c14-887c-aae515e1379c`  
 **Governing Baseline:** none approved yet; cycle `CYC-001` (ADR-035, Accepted)  
-**Status:** Draft (2026-10-29) — derived from Accepted ADR-032; not yet adjudicated via `approve-brd`.  
+**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-032; adjudicated via `approve-brd` (robust utility 0.735, episode `75af2055-b8d5-4f98-9c3e-fdf4e6d0fa9c`).  
 **Stakeholders:** Menno (Sponsor, Project Manager, maintainer)
 
 ## Business Need

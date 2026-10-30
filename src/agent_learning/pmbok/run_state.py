@@ -54,7 +54,8 @@ def _validate_string_lengths(value: object, field: str) -> None:
             _validate_string_lengths(item, field)
 
 
-def _created_at_instant(created_at: str) -> datetime:
+def created_at_instant(created_at: str) -> datetime:
+    """Parse a timezone-aware ISO-8601 timestamp and normalize it to UTC."""
     if not isinstance(created_at, str):
         raise TypeError("created_at must be a string")
     value = f"{created_at[:-1]}+00:00" if created_at.endswith("Z") else created_at
@@ -91,7 +92,7 @@ def _validate_snapshot(snapshot: RunSnapshot, result_summary: str) -> None:
     if not isinstance(snapshot.created_at, str):
         raise TypeError("created_at must be a string")
     _validate_string_lengths(snapshot.created_at, "created_at")
-    _created_at_instant(snapshot.created_at)
+    created_at_instant(snapshot.created_at)
     _validate_string_lengths(snapshot.phase, "phase")
     _validate_string_lengths(snapshot.processes, "processes")
     _validate_string_lengths(snapshot.baseline_hash, "baseline_hash")
@@ -138,7 +139,7 @@ def latest_run(snapshots: Sequence[RunSnapshot]) -> RunSnapshot | None:
         snapshots,
         key=lambda snapshot: (
             snapshot.sequence_number,
-            _created_at_instant(snapshot.created_at),
+            created_at_instant(snapshot.created_at),
         ),
         default=None,
     )

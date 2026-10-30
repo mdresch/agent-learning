@@ -111,7 +111,9 @@ After Stories 34.1 to 34.4, delete `pmbok/`, `scripts/orchestrate_pmbok.py`, and
 | Non-string `created_at` | `TypeError` naming the field |
 | Boolean `sequence_number` | `TypeError` naming the field; booleans are not sequence integers |
 | Non-string `phase` | `TypeError` naming the field |
-| Episode count changes during `latest_run_for` | A change to any Episode for the orchestration task invalidates the read; retry up to three times, then raise `RuntimeError` rather than return a potentially stale snapshot |
+| Episode count changes during `latest_run_for` | Compare the task-wide count before and after the query. Because run Episodes are append-only, a write between those calls changes the count and invalidates the read; retry up to three read attempts, then raise `RuntimeError` rather than return a potentially stale snapshot |
+| Stored Episode has invalid `created_at` | Raise `TypeError` or `ValueError` naming the Episode id and `created_at` |
+| `latest_run` receives an invalid timestamp | Raise `TypeError` or `ValueError` naming `created_at` |
 | Same `(sequence_number, created_at)` twice | The earlier input snapshot is kept |
 | HTTP 429 or 500–599, delays remaining | Sleep the next delay and retry |
 | Any other HTTP status | Raise immediately, with no credential in the message |

@@ -11,6 +11,7 @@ from agent_learning.pmbok.run_state import (
     RUN_TASK_ID,
     RunSnapshot,
     build_run_fields,
+    created_at_instant,
     latest_run,
 )
 from agent_learning.types import Episode
@@ -65,6 +66,13 @@ def append_run(store: RunStore, snapshot: RunSnapshot, result_summary: str) -> E
 
 
 def _snapshot_from_episode(episode: Episode) -> RunSnapshot:
+    try:
+        created_at_instant(episode.created_at)
+    except TypeError as exc:
+        raise TypeError(f"Episode {episode.id} has invalid created_at") from exc
+    except ValueError as exc:
+        raise ValueError(f"Episode {episode.id} has invalid created_at") from exc
+
     metadata = episode.metadata
     processes = metadata.get("processes")
     gate_episode_ids = metadata.get("gate_episode_ids")

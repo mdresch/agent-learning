@@ -125,6 +125,11 @@ def test_ac2_invalid_run_fields_raise_value_error_naming_field() -> None:
     with pytest.raises(ValueError, match="result_summary"):
         build_run_fields(_snapshot(), "r" * 257)
 
+    from agent_learning.pmbok.run_state import latest_run
+
+    with pytest.raises(ValueError, match="timezone-aware"):
+        latest_run([_snapshot(created_at="not-a-timestamp")])
+
 
 def test_ac3_domain_run_state_is_storage_free_and_pure() -> None:
     assert RUN_STATE.is_file(), f"Missing run-state module: {RUN_STATE}"
@@ -290,6 +295,16 @@ def test_ac4_runtime_appends_an_episode_without_creating_a_database_file(
     )
     store.episodes.append(malformed_episode)
     with pytest.raises(TypeError, match="sequence_number"):
+        latest_run_for(store, snapshot.run_id)
+    store.episodes.pop()
+
+    invalid_timestamp_episode = replace(
+        store.episodes[-1],
+        id="invalid-timestamp-episode",
+        created_at="not-a-timestamp",
+    )
+    store.episodes.append(invalid_timestamp_episode)
+    with pytest.raises(ValueError, match="Episode invalid-timestamp-episode has invalid created_at"):
         latest_run_for(store, snapshot.run_id)
     store.episodes.pop()
 

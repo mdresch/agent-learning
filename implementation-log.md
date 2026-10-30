@@ -1049,6 +1049,7 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `src/agent_learning/pmbok_runtime/__init__.py` (runtime exports)
   - `tests/test_pmbok_run_state.py` (contracts for $AC_0$ through $AC_4$)
   - `.claude/skills/pmbok-planning/SKILL.md` (run-state boundary and contract callout)
+  - `docs/project-docs/Functional-Design/FDD-034-pmbok-tooling-decommissioning-and-lightweight-learningstore-convergence.md` (runtime read retry boundary, timestamp ordering, and store-returned Episode identity)
   - `docs/user-stories/epic-34-pmbok-tooling-decommissioning-and-lightweight-learningstore-convergence.md` (Story 34.2 moved from Draft to Ready)
 - **Validation:**
   - RED: all five contracts failed before implementation because the run-state and runtime modules did not exist.
@@ -1057,8 +1058,8 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - A runtime store double verified append-only Episode records, latest-run readback, unchanged earlier events, and no `*.db` files.
   - `uv run --extra dev pytest --ignore=tests/test_spark.py` stopped at collection with 15 errors in `tests/pmbok/` from missing optional legacy modules (`tenacity`, `sqlalchemy`, `fastapi`, `yaml`, and `hypothesis`); 1,594 other items were collected and 1 skipped.
   - With `tests/pmbok/` excluded due to those dependencies and `tests/test_spark.py` excluded because Spark requires an optional JVM: 1,512 passed, 2 skipped. This is not the entire suite.
-- **Interpretations:** I1: `latest_run_for` makes at most three attempts to observe a stable append-only episode count, then raises `RuntimeError`; recorded in the test docstring and FDD §5. I2: `created_at` accepts timezone-aware ISO-8601 values and ordering compares instants normalized to UTC while preserving the original string; confirmed by the user for Story 34.2 and recorded in FDD §5.
-- **Review-fix commits:** `16a6354` (`fix: harden PMBOK run episode reads`), `c80a287` (`fix: bound and validate PMBOK run reads`), `78c6e1a` (`docs: confirm run timestamp ordering interpretation`), and `13559d7` (`fix: stabilize empty-store run reads`).
+- **Interpretations:** I1: `latest_run_for` makes at most three attempts to observe a stable append-only episode count, then raises `RuntimeError`; recorded in the test docstring and FDD §5. I2: `created_at` accepts timezone-aware ISO-8601 values and ordering compares instants normalized to UTC while preserving the original string; confirmed by the user for Story 34.2 and recorded in FDD §5. I3: stability is task-wide because LearningStore has no run-id metadata filter; a write for another run can cause bounded retries and `RuntimeError`, documented in FDD §4–5.
+- **Review-fix commits:** `16a6354` (`fix: harden PMBOK run episode reads`), `c80a287` (`fix: bound and validate PMBOK run reads`), `78c6e1a` (`docs: confirm run timestamp ordering interpretation`), `13559d7` (`fix: stabilize empty-store run reads`), and `30cc7aa` (`fix: align PMBOK run adapters with store contract`).
 - **Review validation:** 5 passed in `tests/test_pmbok_run_state.py`; Ruff and mypy passed for changed Python files; available suite passed with 1,512 passed and 2 skipped, excluding `tests/pmbok/` (15 known legacy optional-dependency collection errors) and `tests/test_spark.py` (optional JVM).
 - **Amazon Q triage (rounds 1–2 on `47ddc00`):**
   - `Q-79-1 | logic error | verified: no | decision: declined | Python max returns the first maximal item on equal keys, confirmed by the contract test and FDD §3.2; repeated again in round 3 with no new evidence | fix: none`
@@ -1077,4 +1078,10 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Amazon Q triage (round 4 on `130ec25`):**
   - `Q-79-13 | logic error | verified: yes | decision: accepted | A write observed during the second zero-count check now proceeds to query in the same attempt; regression test verifies the race does not exhaust retries before querying | fix: 13559d7`
   - `Q-79-14 | logic error | verified: yes | decision: accepted | Added explicit runtime type validation for phase and a regression assertion; updated FDD-034 error handling | fix: 13559d7`
-- **Review follow-up:** Round 4 findings are triaged and fixes are committed, but the new head is not yet re-reviewed; obtain the explicit final verdict on the current PR head before merge.
+- **Amazon Q triage (round 5 on `d419886`):**
+  - `Q-79-15 | logic error | verified: no | decision: declined | Python max returns the first encountered maximum on equal keys; reproduced directly and covered by the exact-tie contract/FDD §3.2 | fix: none`
+  - `Q-79-16 | logic error | verified: yes | decision: accepted | The count check is task-wide and unrelated run writes can invalidate a read; retained bounded fail-closed behavior because LearningStore cannot filter by metadata run_id, and amended FDD §§4–5 to state this limitation | fix: 30cc7aa`
+  - `Q-79-17 | logic error | verified: yes | decision: accepted | Reject non-string run_id as ValueError before UUID parsing; regression contract added | fix: 30cc7aa`
+  - `Q-79-18 | logic error | verified: partial | decision: accepted | Return an Episode copy whose id matches store_episode's returned canonical id; current built-in stores return the original id, and a store double covers differing canonical IDs | fix: 30cc7aa`
+  - `Q-79-19 | logic error | verified: no | decision: declined | A confirmed zero count returns immediately; if the confirming count becomes non-zero, the function queries in that same attempt. Test asserts exactly two count calls for empty state | fix: none`
+- **Review follow-up:** Round 5 findings are triaged and fixes are committed. The updated head must be pushed and reviewed; merge only after the explicit final Q verdict and all checks are clean.

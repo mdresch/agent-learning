@@ -43,7 +43,10 @@ export default defineTool({
     const pull = parsePrUrl(prUrl);
     const octokit = await ctx.host.github.getOctokit();
     const { data: pr } = await octokit.rest.pulls.get(pull);
-    const { data: files } = await octokit.rest.pulls.listFiles({ ...pull, per_page: 100 });
+    const files = await octokit.paginate(octokit.rest.pulls.listFiles, {
+      ...pull,
+      per_page: 100,
+    });
     const complexity = rateComplexity(pr.additions + pr.deletions, pr.changed_files);
 
     return {

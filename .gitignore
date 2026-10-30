@@ -19,6 +19,7 @@ dist-installer/
 .venv/
 .env
 .env.*
+.agent-serve/traces/
 
 # Editor
 .idea/

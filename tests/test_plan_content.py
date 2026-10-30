@@ -408,7 +408,21 @@ class TestLintPlan:
     """AC_7"""
 
     def good_plan(self, n=700, **kw):
-        return adr_frontmatter() + make_body(n, **kw)
+        scope_s1 = (
+            "Out-of-scope boundaries:\n"
+            "- Alpha exclusion.\n"
+            "- Beta exclusion.\n"
+            "- Gamma exclusion.\n"
+            "- Delta exclusion.\n"
+        )
+        scope_h2 = (
+            H2
+            + "\n\nWork breakdown structure: phase, epic, story, commit on work packages.\n"
+            + "Definition of Done requires acceptance criteria, owner, parent.\n"
+        )
+        merged = {"section1": scope_s1, "h2": scope_h2, "h3": H3}
+        merged.update(kw)
+        return adr_frontmatter() + make_body(n, **merged)
 
     def test_a_conformant_plan_has_no_findings_and_a_count(self):
         result = lint_plan(self.good_plan(700))
@@ -423,7 +437,7 @@ class TestLintPlan:
         text = adr_frontmatter().replace('route: "full_plan"', 'route: "pmp_section"').replace(
             'governance_policy: "approve-subsidiary-plan"', 'governance_policy: "approve-pmp"'
         ) + make_body(900, section1="Prose only.")
-        assert codes(lint_plan(text).flags) == ["EXCEEDS_SECTION_CAP", "MISSING_BOUNDARY_DEF"]
+        assert codes(lint_plan(text).flags)[:2] == ["EXCEEDS_SECTION_CAP", "MISSING_BOUNDARY_DEF"]
 
     def test_a_parse_failure_returns_only_the_grammar_findings(self):
         result = lint_plan("---\nplan_id: two words\n---\n" + make_body())

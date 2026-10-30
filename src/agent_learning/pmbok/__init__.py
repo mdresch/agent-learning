@@ -38,6 +38,7 @@ from .lint import (
     validate_dependencies,
     validate_metadata,
 )
+from .scope import ScopeMeasure, check_scope_sections, scope_measure
 from .parser import ParsedPlan, parse_frontmatter
 from .standards import (
     APPROVAL_ACTIONS,
@@ -77,11 +78,13 @@ __all__ = [
     "PlanApprovalRecord",
     "PlanStandard",
     "PlanState",
+    "ScopeMeasure",
     "approval_record",
     "build_approval_metadata",
     "check_content",
     "check_formalization",
     "check_plan_freshness",
+    "check_scope_sections",
     "compute_canonical_plan_hash",
     "count_words",
     "derive_plan_state",
@@ -96,6 +99,7 @@ __all__ = [
     "parse_frontmatter",
     "plan_hash",
     "raw_change_hash",
+    "scope_measure",
     "topological_order",
     "validate_dependencies",
     "validate_metadata",

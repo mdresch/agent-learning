@@ -5,7 +5,7 @@ description: Pure lint for subsidiary management plans (ADR-012): the stdlib fro
 
 # Plan lint (agent_learning.pmbok)
 
-**Governing:** ADR-012 (grammar text: ADR-034 section 4.3.1), BRD-012, FDD-012, Epic 12. Contract files: `tests/test_plan_parser.py` (Story 12.1), `tests/test_plan_metadata.py` (Story 12.2), `tests/test_plan_content.py` (Story 12.3), `tests/test_plan_next_step.py` (Story 12.4).
+**Governing:** ADR-012 (grammar text: ADR-034 section 4.3.1), BRD-012, FDD-012, Epic 12; Scope profile ADR-025 / FDD-025, Epic 25 (Stories 25.1–25.2). Contract files: `tests/test_plan_parser.py` (Story 12.1), `tests/test_plan_metadata.py` (Story 12.2), `tests/test_plan_content.py` (Story 12.3), `tests/test_plan_next_step.py` (Story 12.4), `tests/test_scope_measure.py` (Story 25.1), `tests/test_scope_sections.py` (Story 25.2).
 
 ## What it is
 A pure package (standard library only, no I/O, no storage) that reads a plan's text and returns plain data. It is the new `agent_learning.pmbok` package named in ADR-034 section 4.3; it is not the legacy top-level `pmbok/` directory, which is never imported here.
@@ -28,8 +28,13 @@ A pure package (standard library only, no I/O, no storage) that reads a plan's t
 - **The next step is fixed.** `next_step(flags, *, generator, retries=0) -> NextStepDecision(step, reason, flags)` applies seven rules, first match wins: a Tier A flag, or a generator that is `stub`, `mock`, `None` or unknown, escalates immediately; Tier B with a `human` generator keeps the human text (never regenerated over); Tier B with an `llm` generator is auto-remediated for `retries` 0 and 1 (`MAX_AUTO_RETRIES = 2`) and escalated from 2; an `EXCEEDS_SECTION_CAP` asks for a keep-or-graduate review; any other Tier C flag (including `EXCEEDS_PLAN_CAP` and `OMISSION_OF_BASE_PLAN`) is carried to approval; no flags is ready for formalization. `reason` names the deciding condition and lists every flag code; `flags` holds every flag passed in. Tier B and C flags are evidence for a human and never produce the immediate-escalation step. A bad `retries` (bool, non-int, negative) or a non-`LintFlag` item is a call error, not content.
 - **Grammar is not YAML.** Do not widen it to "make a file parse": a plan that breaks the subset goes to a human (ADR-012 section 4.2.1 rule 8).
 
+## Scope profile (Epic 25, Stories 25.1–25.2)
+- `scope.py`: `scope_measure(plan_id, route)` returns Scope-only floors, caps, and out-of-scope minimums (`pmp_section`: 180 / 750 / 2; `full_plan`: 700 / 4500 / 4). Other plans keep universal `FLOORS` / `CAPS` / `MIN_OUT_OF_SCOPE_ITEMS`.
+- `lint_plan` applies the Scope profile when `plan_id` is `scope-management`: caller `min_floor_words` / `min_out_of_scope_items` cannot relax below the profile; they may raise the bar. `check_content(..., exclude_placeholders=True)` drops placeholder bullets (`TBD`, `TBC`, `FIXME`, `N/A`) from the out-of-scope count.
+- `check_scope_sections(body, route)`: Tier B Section 2 checks for WBS phrasing, Definition of Done, embedded hierarchy (`pmp_section`: two of phase/epic/story/commit/work package or an arrow link), and full-plan dictionary fields (phase, epic, story, commit or work package; acceptance criteria, owner, parent). Returns `[]` when Section 2 heading is absent (heading finding only). `lint.py` may import `scope`; purity tests allow that sibling.
+
 ## Out of scope (see FDD-012 section 5)
-Tier A detection, the content hash, the dependency graph, staleness and the approval gate (ADR-013; built in Epic 13, see the `plan-approval-gate` skill); orchestration and the legacy removal (ADR-034); per-plan domain rules (ADR-025 to ADR-033).
+Tier A detection, the content hash, the dependency graph, staleness and the approval gate (ADR-013; built in Epic 13, see the `plan-approval-gate` skill); orchestration and the legacy removal (ADR-034); remaining per-plan domain rules (ADR-026 to ADR-033); Scope advisory policy (Epic 25 Stories 25.3–25.4).
 
 ## Call sites
 - `agent_learning/__init__.py` re-exports `LintFlag`, `ParsedPlan`, `parse_frontmatter`, `validate_metadata`, `PLAN_STANDARDS`, `PlanStandard`, `LintResult`, `check_content`, `count_words`, `lint_plan`, `omission_flags`, `NextStep`, `NextStepDecision` and `next_step`.

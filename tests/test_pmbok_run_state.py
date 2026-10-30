@@ -118,6 +118,8 @@ def test_ac2_invalid_run_fields_raise_value_error_naming_field() -> None:
 
     with pytest.raises(TypeError, match="phase"):
         build_run_fields(_snapshot(phase=1), "result")
+    with pytest.raises(ValueError, match="run_id"):
+        build_run_fields(_snapshot(run_id=123), "result")
     with pytest.raises(TypeError, match="sequence_number"):
         build_run_fields(_snapshot(sequence_number=True), "result")
     with pytest.raises(ValueError, match="result_summary"):
@@ -161,10 +163,16 @@ def test_ac4_runtime_appends_an_episode_without_creating_a_database_file(
             self.append_on_count_call: int | None = None
             self.count_call_count = 0
             self.query_count = 0
+            self.persisted_id: str | None = None
 
         def store_episode(self, episode: Episode) -> str:
-            self.episodes.append(episode)
-            return episode.id
+            stored_episode = (
+                replace(episode, id=self.persisted_id)
+                if self.persisted_id is not None
+                else episode
+            )
+            self.episodes.append(stored_episode)
+            return stored_episode.id
 
         def count_episodes(
             self,
@@ -208,6 +216,7 @@ def test_ac4_runtime_appends_an_episode_without_creating_a_database_file(
     store = StoreDouble()
     snapshot = _snapshot()
     assert latest_run_for(store, snapshot.run_id) is None
+    assert store.count_call_count == 2
 
     episode = append_run(store, snapshot, "run completed")
 
@@ -289,4 +298,9 @@ def test_ac4_runtime_appends_an_episode_without_creating_a_database_file(
     with pytest.raises(RuntimeError, match="stable"):
         latest_run_for(store, snapshot.run_id)
     assert store.query_count - query_count == 3
+
+    canonical_store = StoreDouble()
+    canonical_store.persisted_id = "canonical-episode-id"
+    canonical_episode = append_run(canonical_store, _snapshot(), "canonical id")
+    assert canonical_episode.id == canonical_store.episodes[0].id == canonical_store.persisted_id
     assert list(tmp_path.rglob("*.db")) == []

@@ -70,6 +70,8 @@ def _created_at_instant(created_at: str) -> datetime:
 def _validate_snapshot(snapshot: RunSnapshot, result_summary: str) -> None:
     if not isinstance(result_summary, str):
         raise TypeError("result_summary must be a string")
+    if not isinstance(snapshot.run_id, str):
+        raise ValueError("run_id must be a UUID")  # noqa: TRY004
     _validate_string_lengths(snapshot.run_id, "run_id")
     if not snapshot.run_id:
         raise ValueError("run_id must not be empty")

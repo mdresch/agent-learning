@@ -49,7 +49,7 @@ class RunEpisodeFields:
 
 The forty-nine process ids are `4.1`–`4.7`, `5.1`–`5.6`, `6.1`–`6.6`, `7.1`–`7.4`, `8.1`–`8.3`, `9.1`–`9.6`, `10.1`–`10.3`, `11.1`–`11.7`, `12.1`–`12.3`, and `13.1`–`13.4`. Prerequisite lists match the legacy map, including `5.1 -> (4.1,)` and `4.2` depending on `4.1`, `5.1`, `6.1`, `7.1`, `8.1`, `9.1`, `10.1`, `11.1`, `12.1`, and `13.2`.
 
-`metadata` keys for a run are `run_id`, `phase`, `processes`, `sequence_number`, `baseline_hash`, `gate_episode_ids`, and `route_episode_ids`. No other key is added. A string value longer than 256 characters is refused, the same ceiling Story 13.3 uses. `result_summary` uses that same ceiling.
+`metadata` keys for a run are `run_id`, `phase`, `processes`, `sequence_number`, `baseline_hash`, `gate_episode_ids`, and `route_episode_ids`. No other key is added. A string value longer than 256 characters is refused, the same ceiling Story 13.3 uses. `result_summary` uses that same ceiling. The runtime `append_run` adapter returns an Episode whose id matches the id returned by `LearningStore.store_episode`.
 
 ```python
 # client.py
@@ -107,10 +107,11 @@ After Stories 34.1 to 34.4, delete `pmbok/`, `scripts/orchestrate_pmbok.py`, and
 |---|---|
 | Unknown process id or status | `ValueError` naming the field |
 | Empty `run_id`, negative `sequence_number`, invalid `created_at`, or a string over 256 characters | `ValueError` naming the field |
+| Non-string `run_id` | `ValueError` naming the field |
 | Non-string `created_at` | `TypeError` naming the field |
 | Boolean `sequence_number` | `TypeError` naming the field; booleans are not sequence integers |
 | Non-string `phase` | `TypeError` naming the field |
-| Episode count changes during `latest_run_for` | Retry up to three times, then raise `RuntimeError` rather than return a potentially stale snapshot |
+| Episode count changes during `latest_run_for` | A change to any Episode for the orchestration task invalidates the read; retry up to three times, then raise `RuntimeError` rather than return a potentially stale snapshot |
 | Same `(sequence_number, created_at)` twice | The earlier input snapshot is kept |
 | HTTP 429 or 500–599, delays remaining | Sleep the next delay and retry |
 | Any other HTTP status | Raise immediately, with no credential in the message |
@@ -132,7 +133,7 @@ These are not verbatim in ADR-034. Stories 34.3 and 34.4 wait on items 3 and 4.
 6. **Deleting `policy_loader.py` closes ERR-034-05.** Files that are deleted are not converted to JSON.
 7. **Learner exclusion stays Story 1.1.** This epic sets `action_type` and `action_logprob` and does not change the trainer.
 8. **Spark stays ignored.** Only the `tests/pmbok` ignore is removed.
-9. **Latest-run read retries are bounded.** `latest_run_for` makes at most three attempts to observe a stable append-only episode count, then raises `RuntimeError`.
+9. **Latest-run read retries are bounded and task-scoped.** `latest_run_for` makes at most three attempts to observe a stable append-only count for the orchestration task. Any concurrent write for that task may invalidate the read, even if it belongs to another run; after three unstable attempts it raises `RuntimeError` rather than return a potentially stale snapshot.
 10. **Run timestamps are offset-aware (confirmed for Story 34.2).** `created_at` accepts timezone-aware ISO-8601 values; ordering compares the represented instants in UTC and stores the original string.
 
 ## 6. Out of Scope

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
+from dataclasses import replace
 from typing import Protocol
 
 from agent_learning.pmbok.run_state import (
@@ -57,7 +58,9 @@ def append_run(store: RunStore, snapshot: RunSnapshot, result_summary: str) -> E
         result_summary=fields.result_summary,
         created_at=snapshot.created_at,
     )
-    store.store_episode(episode)
+    persisted_id = store.store_episode(episode)
+    if persisted_id != episode.id:
+        return replace(episode, id=persisted_id)
     return episode
 
 

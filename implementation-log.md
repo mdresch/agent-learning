@@ -984,3 +984,22 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - **Interpretation (LL-011):** first draw uses `SoftmaxPolicy` with RNG seeded from `sha256(recommendation_id)` for deterministic contracts; not spelled in FDD-025.
   - 11 passed in `tests/test_scope_advice_reward.py`; full suite 1489 passed, 2 skipped (`--ignore=tests/test_spark.py --ignore=tests/pmbok`).
 - **Breakout recap (ADR-010 section 4.1):** Epic 25 is complete in code; recap and `LL-###` entries pending human acceptance after PR merge.
+
+---
+
+## Story 34.1 — The 49-process registry is pure data
+- **Commit:** `b13f1bb`
+- **Date:** 2026-10-30
+- **Branch:** `feat/story-34.1`
+- **Source ADR / BRD / FDD:** ADR-034 (Invariant 4), BRD-034 (BRU-034-04), FDD-034 (§2, §3.1)
+- **Files Modified/Created:**
+  - `src/agent_learning/pmbok/legacy_registry.py` (immutable mapping of the 49 legacy process IDs to prerequisite tuples)
+  - `tests/test_legacy_registry.py` (contracts for $AC_0$ through $AC_3$)
+  - `.claude/skills/pmbok-planning/SKILL.md` (registry contract and migration boundary)
+  - `docs/user-stories/epic-34-pmbok-tooling-decommissioning-and-lightweight-learningstore-convergence.md` (Story 34.1 moved from Draft to Ready)
+- **Validation:**
+  - RED: all four new contracts failed before implementation because `legacy_registry.py` did not exist.
+  - GREEN: 4 passed in `tests/test_legacy_registry.py`; Ruff passed for both new Python files.
+  - Exact 49-entry prerequisite map compared against `pmbok/process_registry.py`.
+  - Full collection attempt with `uv run --extra dev pytest --ignore=tests/test_spark.py`: 15 collection errors in `tests/pmbok/` due absent `tenacity`, `sqlalchemy`, `fastapi`, `yaml`, and `hypothesis`; 1,582 other items collected and 1 skipped.
+  - With `tests/pmbok/` excluded for those missing legacy optional dependencies and `tests/test_spark.py` excluded per the optional-JVM convention: 1,500 passed, 2 skipped. This is not the entire suite.

@@ -1131,4 +1131,8 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - Full collection excluding Spark reported `1,599 tests collected, 15 errors` under `tests/pmbok/` from missing legacy optional dependencies (`tenacity`, `sqlalchemy`, `fastapi`, `yaml`, and `hypothesis`). Story 34.5 owns removal of those tests and the CI exclusion.
   - Ruff passed for the new client and contract; mypy passed for `client.py` and `runs.py`; `git diff --check` passed.
 - **Interpretations:** I1: retry count/base/factor are caller-supplied (FDD-034 §5 item 3, confirmed by Menno on 2026-10-31). I2: the jitter callback returns additive seconds, called once per delay (confirmed by Menno on 2026-10-31). I3: the generic URL client sends raw UTF-8 prompt bytes and returns the UTF-8 response body; an optional `credential_env_var` is read at call time and supplied as a Bearer authorization header; documented in FDD-034 because no API-specific envelope is defined.
-- **Review:** Pending PR and Amazon Q review.
+- **Review-fix commit:** `19987cb` (`fix: rebuild PMBOK request for each retry`).
+- **Review validation:** After the retry fix, the Story 34.3 contract passed (5 tests), Ruff passed, mypy passed, and the available suite passed with 1,517 passed and 2 skipped, excluding `tests/pmbok/` (15 legacy optional-dependency collection errors) and `tests/test_spark.py` (optional JVM).
+- **Amazon Q triage (round 1 on `1bf8df4`):**
+  - `Q-80-1 | logic error | verified: partial | decision: accepted | Reconstruct the urllib Request for each attempt to avoid retaining handler-mutated state; the bytes payload itself is reusable, but a fresh request is the safer retry boundary | fix: 19987cb`
+- **Review follow-up:** The accepted round-one finding is fixed and recorded. Push the corrected head and request an explicit final verdict; keep PR #80 open until Q reports no remaining blockers/findings and CI is clean.

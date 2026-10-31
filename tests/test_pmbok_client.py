@@ -28,6 +28,33 @@ CLIENT_SOURCE = ROOT / "src" / "agent_learning" / "pmbok_runtime" / "client.py"
 PMBOK_PACKAGE = ROOT / "src" / "agent_learning" / "pmbok"
 
 
+def _is_pmbok_runtime_module(module: str) -> bool:
+    return any(
+        module == prefix or module.startswith(f"{prefix}.")
+        for prefix in ("agent_learning.pmbok_runtime", "pmbok_runtime")
+    )
+
+
+@pytest.mark.parametrize(
+    "source",
+    [
+        "from agent_learning.pmbok_runtime import urllib_client",
+        "from agent_learning.pmbok_runtime.runs import append_run",
+        "import pmbok_runtime.client",
+    ],
+)
+def test_ac4_boundary_detects_runtime_import_forms(source: str) -> None:
+    node = ast.parse(source).body[0]
+    if isinstance(node, ast.Import):
+        modules = [alias.name for alias in node.names]
+    else:
+        assert isinstance(node, ast.ImportFrom)
+        assert node.module is not None
+        modules = [node.module]
+
+    assert any(_is_pmbok_runtime_module(module) for module in modules)
+
+
 def test_ac0_backoff_delays_are_exponential_with_additive_jitter(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -213,13 +240,10 @@ def test_ac4_client_uses_only_stdlib_and_stays_out_of_pure_domain() -> None:
         package_tree = ast.parse(path.read_text(encoding="utf-8"))
         for node in ast.walk(package_tree):
             if isinstance(node, ast.Import):
-                assert all(
-                    alias.name != "agent_learning.pmbok_runtime.client"
-                    and not alias.name.startswith("agent_learning.pmbok_runtime.client.")
-                    for alias in node.names
-                )
+                assert not any(
+                    _is_pmbok_runtime_module(alias.name) for alias in node.names
+                ), f"{path} imports a PMBOK runtime module"
             elif isinstance(node, ast.ImportFrom) and node.module is not None:
-                assert node.module != "agent_learning.pmbok_runtime.client"
-                assert not node.module.startswith("agent_learning.pmbok_runtime.client.")
-                if node.module in {"agent_learning.pmbok_runtime", "pmbok_runtime"}:
-                    assert all(alias.name != "client" and alias.name != "*" for alias in node.names)
+                assert not _is_pmbok_runtime_module(
+                    node.module
+                ), f"{path} imports from a PMBOK runtime module"

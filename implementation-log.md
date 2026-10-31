@@ -1135,4 +1135,8 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Review validation:** After the retry fix, the Story 34.3 contract passed (5 tests), Ruff passed, mypy passed, and the available suite passed with 1,517 passed and 2 skipped, excluding `tests/pmbok/` (15 legacy optional-dependency collection errors) and `tests/test_spark.py` (optional JVM).
 - **Amazon Q triage (round 1 on `1bf8df4`):**
   - `Q-80-1 | logic error | verified: partial | decision: accepted | Reconstruct the urllib Request for each attempt to avoid retaining handler-mutated state; the bytes payload itself is reusable, but a fresh request is the safer retry boundary | fix: 19987cb`
-- **Review follow-up:** The accepted round-one finding is fixed and recorded. Push the corrected head and request an explicit final verdict; keep PR #80 open until Q reports no remaining blockers/findings and CI is clean.
+- **Review-fix commit:** `0927d46` (`test: enforce PMBOK runtime import boundary`).
+- **Review validation:** After the boundary-contract fix, the Story 34.3 contract passed (8 tests), Ruff passed, and the available suite passed with 1,520 passed and 2 skipped, excluding `tests/pmbok/` and `tests/test_spark.py` for the reasons above.
+- **Amazon Q triage (round 2 on `e4b1aa1`):**
+  - `Q-80-2 | logic error | verified: yes | decision: accepted | The domain import guard missed client re-exports through the runtime package; reject all runtime-package and submodule imports to preserve the FDD purity boundary, and cover re-export, submodule, and short-package forms | fix: 0927d46`
+- **Review follow-up:** Both accepted findings are fixed and recorded. Push the corrected head and request an explicit final verdict; keep PR #80 open until Q reports no remaining blockers/findings and CI is clean.

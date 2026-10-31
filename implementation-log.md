@@ -1035,3 +1035,76 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - Ruff passed for the new module, new contract, updated purity test, and PMBOK exports. `lint.py` retains two pre-existing Ruff findings (SIM103 at line 225 and SIM102 at line 289), outside this change. `git diff --check` passed.
 - **Interpretation confirmed (LL-011):** Schedule reuses the Scope `max_cap_words` and `exclude_placeholders` signature and behavior; no Schedule-specific option or placeholder rule is introduced.
 - **Review (Step 8):** Amazon Q round 1 reviewed head `9fa2166` (two review responses on this commit); both reported no blocking defect or new finding, and there are no inline comments. The explicit final verdict is pending after the review-log commit is pushed.
+
+---
+
+## Story 34.2 — A project run is an Episode, and the latest one wins
+- **Commit:** `6cce8f5`
+- **Date:** 2026-10-30
+- **Branch:** `feat/story-34.2`
+- **Source ADR / BRD / FDD:** ADR-034 (Invariants 2, 4, 6), BRD-034 (BRU-034-02, BRU-034-06, BRU-034-08), FDD-034 (§2, §§3.2–3.3)
+- **Files Modified/Created:**
+  - `src/agent_learning/pmbok/run_state.py` (pure `RunSnapshot`, `RunEpisodeFields`, validation, Episode field builder, and latest-wins ordering)
+  - `src/agent_learning/pmbok_runtime/runs.py` (append and latest-read adapters using the caller-provided LearningStore interface)
+  - `src/agent_learning/pmbok_runtime/__init__.py` (runtime exports)
+  - `tests/test_pmbok_run_state.py` (contracts for $AC_0$ through $AC_4$)
+  - `.claude/skills/pmbok-planning/SKILL.md` (run-state boundary and contract callout)
+  - `docs/project-docs/Functional-Design/FDD-034-pmbok-tooling-decommissioning-and-lightweight-learningstore-convergence.md` (runtime read retry boundary, timestamp ordering, and store-returned Episode identity)
+  - `docs/user-stories/epic-34-pmbok-tooling-decommissioning-and-lightweight-learningstore-convergence.md` (Story 34.2 moved from Draft to Ready)
+- **Validation:**
+  - RED: all five contracts failed before implementation because the run-state and runtime modules did not exist.
+  - GREEN: 5 passed in `tests/test_pmbok_run_state.py`; Ruff passed for the new modules and contract; mypy passed for both source modules.
+  - Run ordering covers empty input, sequence then `created_at`, unchanged input, and stable first-item ties. Snapshot validation covers UUID identity, negative sequence, unknown process/status, and >256-character strings across metadata and summary fields.
+  - A runtime store double verified append-only Episode records, latest-run readback, unchanged earlier events, and no `*.db` files.
+  - `uv run --extra dev pytest --ignore=tests/test_spark.py` stopped at collection with 15 errors in `tests/pmbok/` from missing optional legacy modules (`tenacity`, `sqlalchemy`, `fastapi`, `yaml`, and `hypothesis`); 1,594 other items were collected and 1 skipped.
+  - With `tests/pmbok/` excluded due to those dependencies and `tests/test_spark.py` excluded because Spark requires an optional JVM: 1,512 passed, 2 skipped. This is not the entire suite.
+- **Interpretations:** I1: `latest_run_for` makes at most three attempts to observe a stable append-only episode count, then raises `RuntimeError`; recorded in the test docstring and FDD §5. I2: `created_at` accepts timezone-aware ISO-8601 values and ordering compares instants normalized to UTC while preserving the original string; confirmed by the user for Story 34.2 and recorded in FDD §5. I3: stability is task-wide because LearningStore has no run-id metadata filter; a write for another run can cause bounded retries and `RuntimeError`, documented in FDD §4–5.
+- **Review-fix commits:** `16a6354` (`fix: harden PMBOK run episode reads`), `c80a287` (`fix: bound and validate PMBOK run reads`), `78c6e1a` (`docs: confirm run timestamp ordering interpretation`), `13559d7` (`fix: stabilize empty-store run reads`), `30cc7aa` (`fix: align PMBOK run adapters with store contract`), `1de8b62` (`fix: report invalid PMBOK run timestamps clearly`), and `81778c7` (`fix: validate persisted PMBOK run state`).
+- **Review validation:** 5 passed in `tests/test_pmbok_run_state.py`; Ruff and mypy passed for changed Python files; available suite passed with 1,512 passed and 2 skipped, excluding `tests/pmbok/` (15 known legacy optional-dependency collection errors) and `tests/test_spark.py` (optional JVM).
+- **Amazon Q triage (rounds 1–2 on `47ddc00`):**
+  - `Q-79-1 | logic error | verified: no | decision: declined | Python max returns the first maximal item on equal keys, confirmed by the contract test and FDD §3.2; repeated again in round 3 with no new evidence | fix: none`
+  - `Q-79-2 | logic error | verified: partial | decision: accepted | The old result_summary guard preceded build_run_fields but followed snapshot construction and length traversal; moved the type guard to the start of validation | fix: 16a6354`
+  - `Q-79-3 | logic error | verified: yes | decision: accepted | Added count/query/count stability checks and retry; the contract injects an append between count and query | fix: 16a6354`
+  - `Q-79-4 | logic error | verified: partial | decision: accepted | Expanded RunStore signatures to match LearningStore; the reported structural mypy failure was not reproduced by the earlier InMemoryStore compatibility check | fix: 16a6354`
+  - `Q-79-5 | logic error | verified: yes | decision: accepted | Removed current-registry revalidation when reading historical episodes while retaining stored-field shape/type checks | fix: 16a6354`
+  - `Q-79-6 | logic error | verified: no | decision: declined | The run_id filter executes before _snapshot_from_episode; LearningStore has no run_id metadata filter, so the task-level query is required | fix: none`
+- **Amazon Q triage (round 3 on `666786b`):**
+  - `Q-79-7 | logic error | verified: yes | decision: accepted | Bound stable-read retries to three and raise RuntimeError instead of spinning indefinitely; a continuously appending store is covered | fix: c80a287`
+  - `Q-79-8 | logic error | verified: partial | decision: declined | Malformed matching episodes still raise explicit TypeError; silently skipping them could return stale data, while historical unknown process IDs remain readable | fix: none`
+  - `Q-79-9 | logic error | verified: yes | decision: accepted | Empty, naive, and malformed created_at values now fail ISO-8601 timezone-aware parsing | fix: c80a287`
+  - `Q-79-10 | logic error | verified: no | decision: declined | phase is not an ordering key and FDD-034 does not require a non-empty phase | fix: none`
+  - `Q-79-11 | logic error | verified: yes | decision: accepted | Compare timezone-aware created_at instants in UTC and preserve their original stored strings; timestamp policy confirmed by user | fix: c80a287`
+  - `Q-79-12 | logic error | verified: yes | decision: accepted | Reject bool sequence numbers in both snapshot construction and episode deserialization | fix: c80a287`
+- **Amazon Q triage (round 4 on `130ec25`):**
+  - `Q-79-13 | logic error | verified: yes | decision: accepted | A write observed during the second zero-count check now proceeds to query in the same attempt; regression test verifies the race does not exhaust retries before querying | fix: 13559d7`
+  - `Q-79-14 | logic error | verified: yes | decision: accepted | Added explicit runtime type validation for phase and a regression assertion; updated FDD-034 error handling | fix: 13559d7`
+- **Amazon Q triage (round 5 on `d419886`):**
+  - `Q-79-15 | logic error | verified: no | decision: declined | Python max returns the first encountered maximum on equal keys; reproduced directly and covered by the exact-tie contract/FDD §3.2 | fix: none`
+  - `Q-79-16 | logic error | verified: yes | decision: accepted | The count check is task-wide and unrelated run writes can invalidate a read; retained bounded fail-closed behavior because LearningStore cannot filter by metadata run_id, and amended FDD §§4–5 to state this limitation | fix: 30cc7aa`
+  - `Q-79-17 | logic error | verified: yes | decision: accepted | Reject non-string run_id as ValueError before UUID parsing; regression contract added | fix: 30cc7aa`
+  - `Q-79-18 | logic error | verified: partial | decision: accepted | Return an Episode copy whose id matches store_episode's returned canonical id; current built-in stores return the original id, and a store double covers differing canonical IDs | fix: 30cc7aa`
+  - `Q-79-19 | logic error | verified: no | decision: declined | A confirmed zero count returns immediately; if the confirming count becomes non-zero, the function queries in that same attempt. Test asserts exactly two count calls for empty state | fix: none`
+- **Amazon Q triage (round 6 on `75ff23f`):**
+  - `Q-79-20 | logic error | verified: no | decision: declined | On an append-only store, post-query count equal to pre-query count proves no append occurred between the count and query; an injected append is covered. Three attempts count read attempts, not count() invocations | fix: none`
+  - `Q-79-21 | logic error | verified: yes | decision: accepted | Validate stored created_at values at deserialization and raise a timestamp error naming the Episode id | fix: 1de8b62`
+  - `Q-79-22 | logic error | verified: partial | decision: accepted | latest_run intentionally rejects malformed snapshots; added a direct invalid-timestamp contract and documented explicit TypeError/ValueError behavior | fix: 1de8b62`
+- **Amazon Q triage (round 7 on `95a328f`):**
+  - `Q-79-23 | logic error | verified: no | decision: declined | On first count zero, a confirming zero returns None; a confirming positive count replaces count and proceeds through query plus post-query equality check in the same attempt, so the append race is not bypassed | fix: none`
+- **Amazon Q triage (round 8 on `f20ff6d`):**
+  - `Q-79-24 | logic error | verified: yes | decision: accepted | A zero count now returns None immediately; this is linearized at the count observation and avoids a redundant second count. The FDD and contract now state/test this behavior | fix: 81778c7`
+  - `Q-79-25 | logic error | verified: yes | decision: accepted | Revalidate persisted run fields against the frozen registry/status contract and include Episode id in validation failures; FDD amendment records that history is not forward-compatible across changes to this frozen contract | fix: 81778c7`
+  - `Q-79-26 | test gap | verified: no | decision: declined | Legacy collection errors are explicitly deferred to Story 34.5, whose acceptance criteria remove tests/pmbok and its CI ignore; current .github/workflows/tests.yaml excludes that tree until then | fix: none`
+- **Amazon Q triage (round 9 on `3d1e301`):**
+  - `Q-79-27 | logic error | verified: no | decision: declined | latest_run intentionally raises TypeError or ValueError for an invalid timestamp; FDD-034 §4 names this behavior and test_ac1 asserts it | fix: none`
+  - `Q-79-28 | logic error | verified: partial | decision: declined | An append after the zero-count observation may be ordered after this read; FDD-034 §4 explicitly linearizes the None result at that observation | fix: none`
+  - `Q-79-29 | logic error | verified: yes | decision: declined | Non-string run_id raises ValueError as explicitly required by FDD-034 §4; preserving this published error type takes precedence over generic exception convention | fix: none`
+  - `Q-79-30 | logic error | verified: no | decision: declined | The contract accepts any valid UUID string, including the nil UUID; no FDD or story rule excludes sentinel UUID values | fix: none`
+  - `Q-79-31 | logic error | verified: no | decision: declined | query_episodes is limited to the pre-query count, and the post-query count equality plus len(episodes) == count detects an append during the read; the store contract does not return advisory-limit subsets | fix: none`
+- **Amazon Q triage (round 10 on `2addd99`):**
+  - `Q-79-32 | test gap | verified: yes | decision: deferred | The PR description identifies the 15 legacy collection errors and excluded paths; Story 34.5 removes the tests and CI exclusion, and the reported available-suite count is not presented as the entire suite | fix: none`
+  - `Q-79-33 | logic error | verified: partial | decision: deferred | The adapter queries task-wide episodes because LearningStore has no run_id metadata filter, so read work grows with that task's history; pagination or server-side metadata filtering is a future storage-design concern, outside Story 34.2 | fix: none`
+- **Amazon Q triage (round 11 on `0d83c13`):**
+  - `Q-79-34 | logic error | verified: partial | decision: deferred | Current Memory, LocalFile, and Cosmos stores honor the requested query limit; if a future store caps results below the requested count, this adapter fails closed after bounded retries and will need a pagination-capable contract | fix: none`
+  - `Q-79-35 | test gap | verified: no | decision: declined | The source is parsed from valid Python; grammar-generated ast.Import and ast.ImportFrom nodes have non-empty alias lists, so the all() empty-iterable case cannot occur here | fix: none`
+  - `Q-79-36 | test gap | verified: yes | decision: deferred | Repeats Q-79-32: the PR description names the 15 legacy collection errors and exclusions, and Story 34.5 owns removing tests/pmbok and its CI exclusion | fix: none`
+- **Review follow-up:** On 2026-10-31, the user confirmed Story 34.2 approval, directed that the amended FDD contract remain unchanged, and authorized continuing the existing PR. Round 9 correctness findings are declined against that contract. Amazon Q reports no security or data-integrity regressions; its remaining collection and future-store pagination concerns are deferred, and the AST concern is declined based on Python syntax constraints. The final confirmation must be on the current head; merge only if no blocking or unaddressed findings remain, CI is clean, and mergeStateStatus is CLEAN.

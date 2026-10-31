@@ -49,7 +49,7 @@ class RunEpisodeFields:
 
 The forty-nine process ids are `4.1`–`4.7`, `5.1`–`5.6`, `6.1`–`6.6`, `7.1`–`7.4`, `8.1`–`8.3`, `9.1`–`9.6`, `10.1`–`10.3`, `11.1`–`11.7`, `12.1`–`12.3`, and `13.1`–`13.4`. Prerequisite lists match the legacy map, including `5.1 -> (4.1,)` and `4.2` depending on `4.1`, `5.1`, `6.1`, `7.1`, `8.1`, `9.1`, `10.1`, `11.1`, `12.1`, and `13.2`.
 
-`metadata` keys for a run are `run_id`, `phase`, `processes`, `sequence_number`, `baseline_hash`, `gate_episode_ids`, and `route_episode_ids`. No other key is added. A string value longer than 256 characters is refused, the same ceiling Story 13.3 uses. `result_summary` uses that same ceiling.
+`metadata` keys for a run are `run_id`, `phase`, `processes`, `sequence_number`, `baseline_hash`, `gate_episode_ids`, and `route_episode_ids`. No other key is added. A string value longer than 256 characters is refused, the same ceiling Story 13.3 uses. `result_summary` uses that same ceiling. The runtime `append_run` adapter returns an Episode whose id matches the id returned by `LearningStore.store_episode`.
 
 ```python
 # client.py
@@ -74,11 +74,13 @@ Returns the frozen map. A caller cannot mutate it. Looking up an id that is not 
 
 ### 3.2 `latest_run(snapshots) -> RunSnapshot | None` (BRU-034-02)
 
-Returns `None` for an empty sequence. Otherwise returns the snapshot with the greatest `(sequence_number, created_at)`. The input sequence is not reordered. Ties on both fields keep the earlier input item.
+Returns `None` for an empty sequence. Otherwise returns the snapshot with the greatest `(sequence_number, created_at)`. `created_at` must be a timezone-aware ISO-8601 timestamp; comparisons normalize it to UTC while preserving the original string in stored data. The input sequence is not reordered. Ties on sequence and normalized timestamp keep the earlier input item.
 
 ### 3.3 `build_run_fields(snapshot, result_summary) -> RunEpisodeFields` (BRU-034-02, BRU-034-06, BRU-034-08)
 
 Fills the identity fields in §2. `action_logprob` is `None`. `metadata` is the seven keys in §2 and nothing else. `run_id` is a non-empty UUID string. An empty `run_id`, a negative `sequence_number`, an unknown process id, an unknown status, or a string above 256 characters raises `ValueError` naming the field. The function does not write a store.
+
+`latest_run_for` applies this validation to each matching persisted Episode after validating its stored field shapes. The process registry and status set are frozen by this FDD; a persisted run with an unknown process id or status is malformed and raises an error naming the Episode id. Historical Episodes remain readable across changes to unrelated runtime code, not across changes to this frozen contract.
 
 ### 3.4 Client (BRU-034-01, BRU-034-04, BRU-034-06)
 
@@ -97,7 +99,7 @@ There is no `--mode full` flag.
 
 ### 3.6 Decommission (BRU-034-03, BRU-034-07)
 
-After Stories 34.1 to 34.4, delete `pmbok/`, `scripts/orchestrate_pmbok.py`, and `tests/pmbok/`. Remove `--ignore=tests/pmbok` from `.github/workflows/tests.yaml` and from `scripts/build_linux_installer.sh`. `pyproject.toml` does not list `sqlalchemy`, `fastapi`, `typer`, `tenacity`, `pytesseract`, `pdf2image`, `pillow`, or `pyyaml`. ERR-034-05 is satisfied by deleting `pmbok/audit/policy_loader.py` with the tree. No YAML file is converted.
+In Story 34.5, delete `pmbok/`, `scripts/orchestrate_pmbok.py`, and `tests/pmbok/`. Remove `--ignore=tests/pmbok` from `.github/workflows/tests.yaml` and from `scripts/build_linux_installer.sh`. `pyproject.toml` does not list `sqlalchemy`, `fastapi`, `typer`, `tenacity`, `pytesseract`, `pdf2image`, `pillow`, or `pyyaml`. ERR-034-05 is satisfied by deleting `pmbok/audit/policy_loader.py` with the tree. No YAML file is converted. Until then, the CI workflow explicitly excludes `tests/pmbok/`; the exclusion is removed by Story 34.5.
 
 ---
 
@@ -106,7 +108,15 @@ After Stories 34.1 to 34.4, delete `pmbok/`, `scripts/orchestrate_pmbok.py`, and
 | Situation | Behavior |
 |---|---|
 | Unknown process id or status | `ValueError` naming the field |
-| Empty `run_id`, negative `sequence_number`, or a string over 256 characters | `ValueError` naming the field |
+| Empty `run_id`, negative `sequence_number`, invalid `created_at`, or a string over 256 characters | `ValueError` naming the field |
+| Non-string `run_id` | `ValueError` naming the field |
+| Non-string `created_at` | `TypeError` naming the field |
+| Boolean `sequence_number` | `TypeError` naming the field; booleans are not sequence integers |
+| Non-string `phase` | `TypeError` naming the field |
+| `latest_run_for` observes zero Episodes | Return `None`; the read is linearized at the count observation |
+| Episode count changes during `latest_run_for` | Compare the task-wide count before and after the query. Because run Episodes are append-only, a write between those calls changes the count and invalidates the read; retry up to three read attempts, then raise `RuntimeError` rather than return a potentially stale snapshot |
+| Stored Episode has invalid `created_at` | Raise `TypeError` or `ValueError` naming the Episode id and `created_at` |
+| `latest_run` receives an invalid timestamp | Raise `TypeError` or `ValueError` naming `created_at` |
 | Same `(sequence_number, created_at)` twice | The earlier input snapshot is kept |
 | HTTP 429 or 500–599, delays remaining | Sleep the next delay and retry |
 | Any other HTTP status | Raise immediately, with no credential in the message |
@@ -128,6 +138,8 @@ These are not verbatim in ADR-034. Stories 34.3 and 34.4 wait on items 3 and 4.
 6. **Deleting `policy_loader.py` closes ERR-034-05.** Files that are deleted are not converted to JSON.
 7. **Learner exclusion stays Story 1.1.** This epic sets `action_type` and `action_logprob` and does not change the trainer.
 8. **Spark stays ignored.** Only the `tests/pmbok` ignore is removed.
+9. **Latest-run read retries are bounded and task-scoped.** `latest_run_for` returns `None` at a zero-count observation; otherwise it makes at most three attempts to observe a stable append-only count for the orchestration task. Any concurrent write for that task may invalidate the read, even if it belongs to another run; after three unstable attempts it raises `RuntimeError` rather than return a potentially stale snapshot.
+10. **Run timestamps are offset-aware (confirmed for Story 34.2).** `created_at` accepts timezone-aware ISO-8601 values; ordering compares the represented instants in UTC and stores the original string.
 
 ## 6. Out of Scope
 

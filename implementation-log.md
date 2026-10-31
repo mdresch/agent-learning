@@ -1108,3 +1108,27 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-79-35 | test gap | verified: no | decision: declined | The source is parsed from valid Python; grammar-generated ast.Import and ast.ImportFrom nodes have non-empty alias lists, so the all() empty-iterable case cannot occur here | fix: none`
   - `Q-79-36 | test gap | verified: yes | decision: deferred | Repeats Q-79-32: the PR description names the 15 legacy collection errors and exclusions, and Story 34.5 owns removing tests/pmbok and its CI exclusion | fix: none`
 - **Review follow-up:** On 2026-10-31, the user confirmed Story 34.2 approval, directed that the amended FDD contract remain unchanged, and authorized continuing the existing PR. Round 9 correctness findings are declined against that contract. Amazon Q reports no security or data-integrity regressions; its remaining collection and future-store pagination concerns are deferred, and the AST concern is declined based on Python syntax constraints. The final confirmation must be on the current head; merge only if no blocking or unaddressed findings remain, CI is clean, and mergeStateStatus is CLEAN.
+
+---
+
+## Story 34.3 — The client is the standard library, and secrets stay out of the record
+- **Commit:** `cc0a53d`
+- **Date:** 2026-10-31
+- **Branch:** `feat/story-34.3`
+- **Source ADR / BRD / FDD:** ADR-034 (Invariants 1, 4, 6), BRD-034 (BRU-034-01, BRU-034-04, BRU-034-06), FDD-034 (§2, §3.4; §5 item 3 confirmed)
+- **Files Modified/Created:**
+  - `src/agent_learning/pmbok_runtime/client.py` (parameterized exponential delays, stdlib HTTP client with transient retries, explicit environment credential, and offline mock)
+  - `src/agent_learning/pmbok_runtime/__init__.py` (public client exports)
+  - `tests/test_pmbok_client.py` (contracts for AC_0 through AC_4)
+  - `.claude/skills/pmbok-planning/SKILL.md` (client retry, credential, and mock constraints)
+  - `docs/project-docs/Functional-Design/FDD-034-pmbok-tooling-decommissioning-and-lightweight-learningstore-convergence.md` (confirmed retry/jitter interpretation and transport/authentication behavior)
+  - `docs/user-stories/epic-34-pmbok-tooling-decommissioning-and-lightweight-learningstore-convergence.md` (Story 34.3 marked Ready; Story 34.4 dependency updated)
+- **Validation:**
+  - RED: all five contracts failed before implementation because `agent_learning.pmbok_runtime.client` did not exist.
+  - GREEN: `uv run --extra dev pytest tests/test_pmbok_client.py -q` — 5 passed; contracts exercise delay shape and no sleep, HTTP 429/URLError retry, non-retryable 400, exhausted 5xx retry, call-time credentials and secret absence, offline mock, and import boundaries.
+  - Related regression contracts: `uv run --extra dev pytest tests/test_legacy_registry.py tests/test_pmbok_run_state.py tests/test_pmbok_client.py -q` — 14 passed.
+  - Available suite: `uv run --extra dev pytest --ignore=tests/pmbok --ignore=tests/test_spark.py -q` — 1,517 passed, 2 skipped. This is not the entire suite.
+  - Full collection excluding Spark reported `1,599 tests collected, 15 errors` under `tests/pmbok/` from missing legacy optional dependencies (`tenacity`, `sqlalchemy`, `fastapi`, `yaml`, and `hypothesis`). Story 34.5 owns removal of those tests and the CI exclusion.
+  - Ruff passed for the new client and contract; mypy passed for `client.py` and `runs.py`; `git diff --check` passed.
+- **Interpretations:** I1: retry count/base/factor are caller-supplied (FDD-034 §5 item 3, confirmed by Menno on 2026-10-31). I2: the jitter callback returns additive seconds, called once per delay (confirmed by Menno on 2026-10-31). I3: the generic URL client sends raw UTF-8 prompt bytes and returns the UTF-8 response body; an optional `credential_env_var` is read at call time and supplied as a Bearer authorization header; documented in FDD-034 because no API-specific envelope is defined.
+- **Review:** Pending PR and Amazon Q review.

@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-034](../../adr/ADR-034-pmbok-tooling-decommissioning-and-lightweight-learningstore-convergence.md) — Accepted (2026-10-26)  
 **Source BRD:** [BRD-034](../Business-Requirements/BRD-034-pmbok-tooling-decommissioning-and-lightweight-learningstore-convergence.md)  
-**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-034 and BRD-034; adjudicated via `approve-fdd` (robust utility 0.736, episode `1b234e07-d329-4d7e-8df2-ed460511aee1`). §5 interpretations are not confirmed; sections 2–3 implement the approved BRU rules.
+**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-034 and BRD-034; adjudicated via `approve-fdd` (robust utility 0.736, episode `1b234e07-d329-4d7e-8df2-ed460511aee1`). §5 item 3 is confirmed for Story 34.3 (2026-10-31); item 4 remains unconfirmed.
 
 ---
 
@@ -58,11 +58,17 @@ def backoff_delays(attempts: int, base_seconds: float, factor: float, jitter: Ca
 class LlmClient(Protocol):
     def complete(self, prompt: str) -> str: ...
 
-def urllib_client(url: str, sleeper: Callable[[float], None], delays: Sequence[float]) -> LlmClient: ...
+def urllib_client(
+    url: str,
+    sleeper: Callable[[float], None],
+    delays: Sequence[float],
+    *,
+    credential_env_var: str | None = None,
+) -> LlmClient: ...
 def mock_client(body: str) -> LlmClient: ...
 ```
 
-`attempts`, `base_seconds`, and `factor` are arguments. This design sets no hidden default. `mock_client` returns `body` and does not call the sleeper.
+`attempts`, `base_seconds`, and `factor` are arguments. This design sets no hidden default. Jitter is additive seconds: `backoff_delays` calls the supplied jitter function once per delay and adds its return value to `base_seconds * factor**index`. Menno confirmed this parameterized interpretation for Story 34.3 on 2026-10-31. The client sends the prompt as UTF-8 request data and returns the UTF-8 response body. When `credential_env_var` is supplied, `urllib_client.complete` reads that environment variable at call time and sends its value as a Bearer `Authorization` header; if the named variable is unset, it raises `ValueError` without revealing the variable's value. `mock_client` returns `body` and does not call the sleeper.
 
 ---
 
@@ -84,7 +90,7 @@ Fills the identity fields in §2. `action_logprob` is `None`. `metadata` is the 
 
 ### 3.4 Client (BRU-034-01, BRU-034-04, BRU-034-06)
 
-`urllib_client.complete` sends the prompt with `urllib.request`. On a failure that is an `URLError` or an HTTP status of 429 or 500 through 599, it sleeps the next delay and tries again, until the delays are exhausted, then raises the last error. Any other status raises immediately. The `Authorization` header, when the caller supplies one, is taken from the environment variable the caller names (`AZURE_OPENAI_KEY` or `OPENAI_API_KEY`). The header value is not included in the exception text. `mock_client.complete` returns the canned body, sleeps zero times, and opens no socket.
+`urllib_client.complete` sends the UTF-8 prompt with `urllib.request` and returns the UTF-8 response body. On a failure that is an `URLError` or an HTTP status of 429 or 500 through 599, it sleeps the next delay and tries again, until the delays are exhausted, then raises the last error. Any other status raises immediately. The `Authorization` header, when the caller supplies a credential environment-variable name, is read from that variable at call time (`AZURE_OPENAI_KEY` or `OPENAI_API_KEY`) and sent as a Bearer token. An unset named variable raises `ValueError`; the header value is not included in exception text or logs. `mock_client.complete` returns the canned body, sleeps zero times, and opens no socket.
 
 ### 3.5 Commands (BRU-034-05)
 
@@ -128,11 +134,11 @@ In Story 34.5, delete `pmbok/`, `scripts/orchestrate_pmbok.py`, and `tests/pmbok
 
 ## 5. Interpretations to Confirm
 
-These are not verbatim in ADR-034. Stories 34.3 and 34.4 wait on items 3 and 4.
+These are not verbatim in ADR-034. Story 34.3's item 3 is confirmed; Story 34.4 still waits on item 4.
 
 1. **Epic 34 starts where Epics 12 and 13 stop.** The parser, hash, integrity, graph, freshness, lifecycle, and formalization functions are called, not rewritten. ADR-034's "Epic 12" labels are Epic 34.
 2. **The registry is the legacy map, frozen.** Forty-nine ids, prerequisite lists copied from `PROCESS_DEPENDENCY_MAP`, without the legacy pydantic models.
-3. **Backoff numbers are arguments.** The ADR names exponential backoff and jitter and sets no base, factor, or attempt count. Tests pass those values and a fake sleeper.
+3. **Backoff numbers are arguments (confirmed for Story 34.3 by Menno, 2026-10-31).** The ADR names exponential backoff and jitter and sets no base, factor, or attempt count. Tests pass those values and a fake sleeper. The confirmed jitter interpretation is additive seconds, called once per delay and added to the exponential delay.
 4. **A batch rationale is `result_summary`, capped at 256 characters.** It is not a new key on the Epic 13 approval metadata. A flagged plan with a blank rationale is skipped. An unflagged plan may omit it. The batch listing is text on stdout. There is no web UI.
 5. **`formalize` does not run `approve-pmp`.** It prints the command when the Epic 13 check is ready.
 6. **Deleting `policy_loader.py` closes ERR-034-05.** Files that are deleted are not converted to JSON.

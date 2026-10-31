@@ -26,6 +26,13 @@ interface and keep the seven-field run metadata contract exact. Run episodes use
 than being silently skipped. Run `created_at` values are timezone-aware ISO-8601 strings;
 latest-run selection compares their instants in UTC without rewriting persisted values.
 
+The standard-library LLM client is `agent_learning.pmbok_runtime.client`, covered by
+`tests/test_pmbok_client.py` (Story 34.3). Retry delays and the sleeper are caller-supplied;
+the confirmed backoff uses additive jitter in seconds. Retry only `URLError` and HTTP 429/5xx,
+raise the last transient error after the supplied delays are exhausted, and do not include
+credential values in errors or logs. Read credentials from the explicitly named environment
+variable at call time. `mock_client` returns its canned body without sleeping or opening a socket.
+
 `agent_learning.pmbok` remains pure: do not add `LearningStore`, `pydantic`, the top-level
 `pmbok` package, file I/O, or network I/O to the registry. Runtime storage and external calls
 belong in `agent_learning.pmbok_runtime`. Until Story 34.4 delivers the unified CLI, the legacy

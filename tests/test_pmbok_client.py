@@ -56,6 +56,7 @@ def test_ac1_retries_transient_http_errors_and_raises_last_error(
     from agent_learning.pmbok_runtime import client
 
     sleeps: list[float] = []
+    requests: list[Request] = []
     request_data: list[bytes | None] = []
     responses = iter(
         [
@@ -65,6 +66,7 @@ def test_ac1_retries_transient_http_errors_and_raises_last_error(
     )
 
     def open_after_rate_limit(request: Request) -> BytesIO:
+        requests.append(request)
         request_data.append(request.data)
         response = next(responses)
         if isinstance(response, BaseException):
@@ -76,6 +78,7 @@ def test_ac1_retries_transient_http_errors_and_raises_last_error(
     assert llm.complete("prompt") == "complete"
     assert sleeps == [0.5]
     assert request_data == [b"prompt", b"prompt"]
+    assert requests[0] is not requests[1]
 
     sleeps.clear()
     network_errors = iter([URLError("temporary network failure"), BytesIO(b"complete")])

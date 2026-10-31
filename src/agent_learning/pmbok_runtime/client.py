@@ -51,13 +51,14 @@ class _UrllibClient:
                 )
             headers["Authorization"] = f"Bearer {credential}"
 
-        request = Request(
-            self._url,
-            data=prompt.encode("utf-8"),
-            headers=headers,
-            method="POST",
-        )
+        data = prompt.encode("utf-8")
         for attempt in range(len(self._delays) + 1):
+            request = Request(
+                self._url,
+                data=data,
+                headers=headers,
+                method="POST",
+            )
             try:
                 with urlopen(request) as response:
                     return response.read().decode("utf-8")

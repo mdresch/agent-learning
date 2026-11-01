@@ -1108,3 +1108,21 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-79-35 | test gap | verified: no | decision: declined | The source is parsed from valid Python; grammar-generated ast.Import and ast.ImportFrom nodes have non-empty alias lists, so the all() empty-iterable case cannot occur here | fix: none`
   - `Q-79-36 | test gap | verified: yes | decision: deferred | Repeats Q-79-32: the PR description names the 15 legacy collection errors and exclusions, and Story 34.5 owns removing tests/pmbok and its CI exclusion | fix: none`
 - **Review follow-up:** On 2026-10-31, the user confirmed Story 34.2 approval, directed that the amended FDD contract remain unchanged, and authorized continuing the existing PR. Round 9 correctness findings are declined against that contract. Amazon Q reports no security or data-integrity regressions; its remaining collection and future-store pagination concerns are deferred, and the AST concern is declined based on Python syntax constraints. The final confirmation must be on the current head; merge only if no blocking or unaddressed findings remain, CI is clean, and mergeStateStatus is CLEAN.
+
+## Story 20.1 — The Damped Copy
+- **Commit:** `457eed6`
+- **Date:** 2026-11-01
+- **Branch:** `feat/story-20.1`
+- **Source ADR / BRD / FDD:** ADR-020 (§4.1), BRD-020 (BRU-020-01, BRU-020-02), FDD-020 (§1.1, §2.1, §3.1)
+- **Files Modified/Created:**
+  - `src/agent_learning/warm_start.py` (`warm_start_logits`, `DAMPING_DEFAULT`, `DAMPING_DEFAULT_META_PRIOR`)
+  - `src/agent_learning/__init__.py` (re-exports)
+  - `tests/test_warm_start_logits.py` (contract tests for AC_0 through AC_6)
+  - `.claude/skills/warm-start/SKILL.md` (component skill)
+- **Contracts:**
+  - `tests/test_warm_start_logits.py` (7 tests, all passing)
+  - Full suite: 1,519 passed, 3 skipped in 58.08s (excluding `tests/pmbok` due to optional dependencies, per LL-013)
+- **Notes:**
+  - Standard library pure implementation: zero numpy, zero random, zero storage imports.
+  - Implements exact mathematical formula: `target_logits[a] = donor_logits[action_map[a]] * damping`.
+  - Monotonicity of softmax entropy verified over a 100-point damping grid in `(0, 1]`.

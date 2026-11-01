@@ -39,6 +39,7 @@ def warm_start_logits(
     Raises:
         TypeError: If damping is a bool or not a numeric type.
         ValueError: If damping is non-finite or not in (0, 1.0].
+        ValueError: If target_actions contains duplicate action identifiers.
         ValueError: If action_map keys do not match target_actions exactly.
         ValueError: If multiple target actions map to the same donor action.
         ValueError: If a mapped donor action is missing from donor_logits.
@@ -52,6 +53,8 @@ def warm_start_logits(
         raise ValueError(f"damping must be in (0, 1], got {damping!r}")
 
     # 2. Validate action map completeness against target actions
+    if len(target_actions) != len(set(target_actions)):
+        raise ValueError("target_actions contains duplicate action identifiers.")
     target_set = set(target_actions)
     map_keys = set(action_map.keys())
     if target_set != map_keys:

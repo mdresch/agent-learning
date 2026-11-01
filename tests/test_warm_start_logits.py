@@ -164,6 +164,12 @@ def test_ac3_complete_map(
     with pytest.raises(ValueError):
         warm_start_logits(base_donor_logits, extra_map, base_target_actions)
 
+    # Duplicate target actions in sequence
+    dup_target_actions = ["accept", "decline", "ask", "accept"]
+    with pytest.raises(ValueError) as exc_info:
+        warm_start_logits(base_donor_logits, base_action_map, dup_target_actions)
+    assert "duplicate" in str(exc_info.value).lower() or "target_actions" in str(exc_info.value).lower()
+
 
 def test_ac4_one_to_one(
     base_donor_logits: dict[str, float],

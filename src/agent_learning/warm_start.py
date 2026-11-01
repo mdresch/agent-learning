@@ -125,12 +125,17 @@ def provenance(
     if not math.isfinite(damping) or damping <= 0.0 or damping > 1.0:
         raise ValueError(f"damping must be in (0, 1], got {damping!r}")
 
+    if not isinstance(now, str):
+        raise TypeError(f"now must be a string, got {type(now).__name__}")
+
     if gate_met is not None and not isinstance(gate_met, bool):
         raise TypeError(f"gate_met must be bool or None, got {type(gate_met).__name__}")
 
     donor_id = getattr(donor, "id", None)
     donor_task_id = getattr(donor, "task_id", None)
     donor_version = getattr(donor, "version", None)
+    if donor_id is None or donor_task_id is None or donor_version is None:
+        raise ValueError("donor must have non-null 'id', 'task_id', and 'version' attributes")
 
     return {
         "warm_start_donor_policy_id": donor_id,

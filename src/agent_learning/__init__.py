@@ -223,6 +223,7 @@ from .policy import ContextualSoftmaxPolicy, Policy, SoftmaxPolicy
 from .warm_start import (
     DAMPING_DEFAULT,
     DAMPING_DEFAULT_META_PRIOR,
+    VALID_DONOR_KINDS,
     provenance,
     warm_start_logits,
 )
@@ -425,6 +426,7 @@ __all__ = [
     "wilson_lower_bound",
     "DAMPING_DEFAULT",
     "DAMPING_DEFAULT_META_PRIOR",
+    "VALID_DONOR_KINDS",
     "provenance",
     "warm_start_logits",
 ]

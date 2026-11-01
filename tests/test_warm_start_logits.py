@@ -29,6 +29,7 @@ Acceptance Criteria:
 from __future__ import annotations
 
 import copy
+import importlib.util
 import inspect
 import math
 from pathlib import Path
@@ -230,8 +231,7 @@ def test_ac6_pure(
     # Purity check on warm_start.py source code using inspect.getfile for reliable resolution
     source_path = Path(inspect.getfile(agent_learning.warm_start))
     if source_path.suffix == ".pyc":
-        # Navigate from __pycache__/warm_start.cpython-XY.pyc back to warm_start.py
-        source_path = source_path.parent.parent / (source_path.stem.split(".")[0] + ".py")
+        source_path = Path(importlib.util.source_from_cache(str(source_path)))
     source_path = source_path.resolve()
     assert source_path.is_file() and source_path.suffix == ".py", (
         f"warm_start.py source not found (resolved: {source_path})"

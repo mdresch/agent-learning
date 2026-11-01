@@ -20,13 +20,14 @@ Acceptance Criteria:
 from __future__ import annotations
 
 import copy
+import importlib.util
 import inspect
 import json
 from pathlib import Path
-from unittest.mock import patch
 import pytest
 
 import agent_learning.warm_start
+from agent_learning import VALID_DONOR_KINDS
 from agent_learning.types import Action, PolicySnapshot
 from agent_learning.warm_start import provenance
 
@@ -96,6 +97,9 @@ def test_ac1_kind(
     """AC_1: kind defaults to 'policy'; 'meta_prior' accepted; invalid kind raises ValueError; gate_met=None is None."""
     now_str = "2026-10-29T08:00:00+00:00"
 
+    # Top-level export check
+    assert VALID_DONOR_KINDS == frozenset({"policy", "meta_prior"})
+
     # Default kind is "policy"
     rec_default = provenance(mock_donor_snapshot, 0.70, now_str, action_map=sample_action_map)
     assert rec_default["warm_start_donor_kind"] == "policy"
@@ -135,6 +139,18 @@ def test_ac1_kind(
         with pytest.raises((TypeError, ValueError)):
             provenance(mock_donor_snapshot, 0.70, now_str, action_map=sample_action_map, gate_met=bad_gate)
 
+    # Invalid now type raises TypeError
+    for bad_now in [123, True, None, object()]:
+        with pytest.raises(TypeError):
+            provenance(mock_donor_snapshot, 0.70, bad_now, action_map=sample_action_map)
+
+    # Invalid donor (missing identity attributes) raises ValueError
+    class IncompleteDonor:
+        pass
+
+    with pytest.raises(ValueError):
+        provenance(IncompleteDonor(), 0.70, now_str, action_map=sample_action_map)
+
 
 def test_ac2_no_clock(
     mock_donor_snapshot: PolicySnapshot,
@@ -142,14 +158,21 @@ def test_ac2_no_clock(
 ) -> None:
     """AC_2: the time is the now argument unchanged; the function reads no clock."""
     frozen_now = "2026-11-01T23:59:59.123456+00:00"
-
-    # Patch clock sources to verify they are never accessed
-    with patch("time.time", side_effect=AssertionError("time.time() was called")), \
-         patch("datetime.datetime", side_effect=AssertionError("datetime was called")):
-        record = provenance(mock_donor_snapshot, 0.70, frozen_now, action_map=sample_action_map)
-
+    record = provenance(mock_donor_snapshot, 0.70, frozen_now, action_map=sample_action_map)
     assert record["warm_started_at"] is frozen_now
     assert record["warm_started_at"] == frozen_now
+
+    # Module source must not import clock utilities
+    source_path = Path(inspect.getfile(agent_learning.warm_start))
+    if source_path.suffix == ".pyc":
+        source_path = Path(importlib.util.source_from_cache(str(source_path)))
+    source_path = source_path.resolve()
+    assert source_path.is_file() and source_path.suffix == ".py", f"Source not found: {source_path}"
+    source_text = source_path.read_text(encoding="utf-8")
+
+    clock_forbidden = ["import datetime", "from datetime", "import time", "from time"]
+    for pattern in clock_forbidden:
+        assert pattern not in source_text, f"warm_start.py violates clock-isolation invariant: contains '{pattern}'"
 
 
 def test_ac3_json_safe_and_pure(
@@ -180,10 +203,10 @@ def test_ac3_json_safe_and_pure(
     # Action map untouched
     assert sample_action_map == map_copy
 
-    # Purity check on warm_start.py source code
+    # Purity check on warm_start.py source code using standard importlib.util.source_from_cache
     source_path = Path(inspect.getfile(agent_learning.warm_start))
     if source_path.suffix == ".pyc":
-        source_path = source_path.parent.parent / (source_path.stem.split(".")[0] + ".py")
+        source_path = Path(importlib.util.source_from_cache(str(source_path)))
     source_path = source_path.resolve()
     assert source_path.is_file() and source_path.suffix == ".py", f"Source not found: {source_path}"
     source_text = source_path.read_text(encoding="utf-8")

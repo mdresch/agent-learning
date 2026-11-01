@@ -184,6 +184,27 @@ def test_ac1_kind(
     with pytest.raises(ValueError):
         provenance(donor_neg_ver, 0.70, now_str, action_map=sample_action_map)
 
+    # Invalid action_map raises TypeError or ValueError
+    for bad_map_type in [123, "not-a-map", ["a", "b"], None]:
+        with pytest.raises(TypeError):
+            provenance(mock_donor_snapshot, 0.70, now_str, action_map=bad_map_type)
+
+    for bad_key_map in [{1: "a"}, {(1, 2): "a"}]:
+        with pytest.raises(TypeError):
+            provenance(mock_donor_snapshot, 0.70, now_str, action_map=bad_key_map)
+
+    for empty_key_map in [{"": "a"}, {"   ": "a"}]:
+        with pytest.raises(ValueError):
+            provenance(mock_donor_snapshot, 0.70, now_str, action_map=empty_key_map)
+
+    for bad_val_map in [{"a": 123}, {"a": object()}]:
+        with pytest.raises(TypeError):
+            provenance(mock_donor_snapshot, 0.70, now_str, action_map=bad_val_map)
+
+    for empty_val_map in [{"a": ""}, {"a": "   "}]:
+        with pytest.raises(ValueError):
+            provenance(mock_donor_snapshot, 0.70, now_str, action_map=empty_val_map)
+
 
 def test_ac2_no_clock(
     mock_donor_snapshot: PolicySnapshot,

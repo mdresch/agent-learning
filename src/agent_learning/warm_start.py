@@ -114,8 +114,9 @@ def provenance(
         ValueError: If kind is not 'policy' or 'meta_prior'.
         TypeError: If damping is a bool or not a number, or gate_met is not a bool/None.
         ValueError: If damping is non-finite or not in (0, 1.0].
-        TypeError: If now is not a string, or donor id/task_id/version have invalid types.
-        ValueError: If now is empty/whitespace, donor attributes are missing/empty, or donor version is negative.
+        TypeError: If now is not a string, or donor id/task_id/version or action_map have invalid types.
+        ValueError: If now is empty/whitespace, donor attributes are missing/empty, donor version is negative,
+            or action_map keys/values are empty.
     """
     if kind not in VALID_DONOR_KINDS:
         raise ValueError(
@@ -156,13 +157,27 @@ def provenance(
     if donor_version < 0:
         raise ValueError(f"donor version must be a non-negative int, got {donor_version!r}")
 
+    if not isinstance(action_map, Mapping):
+        raise TypeError(f"action_map must be a Mapping, got {type(action_map).__name__}")
+    validated_map: dict[str, str] = {}
+    for k, v in action_map.items():
+        if not isinstance(k, str):
+            raise TypeError(f"action_map keys must be strings, got {type(k).__name__}")
+        if not k.strip():
+            raise ValueError("action_map keys must be non-empty strings")
+        if not isinstance(v, str):
+            raise TypeError(f"action_map values must be strings, got {type(v).__name__}")
+        if not v.strip():
+            raise ValueError("action_map values must be non-empty strings")
+        validated_map[k] = v
+
     return {
         "warm_start_donor_policy_id": donor_id,
         "warm_start_donor_task_id": donor_task_id,
         "warm_start_donor_version": donor_version,
         "warm_start_damping_factor": float(damping),
         "warm_started_at": now,
-        "warm_start_action_map": dict(action_map),
+        "warm_start_action_map": validated_map,
         "warm_start_donor_kind": kind,
         "warm_start_donor_gate_met": gate_met,
     }

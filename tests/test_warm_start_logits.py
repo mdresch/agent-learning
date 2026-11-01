@@ -29,10 +29,12 @@ Acceptance Criteria:
 from __future__ import annotations
 
 import copy
+import inspect
 import math
 from pathlib import Path
 import pytest
 
+import agent_learning.warm_start
 from agent_learning.warm_start import warm_start_logits
 
 
@@ -127,6 +129,12 @@ def test_ac2_damping_bounds(
             warm_start_logits(base_donor_logits, base_action_map, base_target_actions, damping=d)
         assert "damping" in str(exc_info.value).lower(), f"ValueError for {d} did not name damping"
 
+    # Reject bool instances (bool is a subclass of int in Python)
+    for bad_bool in [True, False]:
+        with pytest.raises(TypeError) as exc_info:
+            warm_start_logits(base_donor_logits, base_action_map, base_target_actions, damping=bad_bool)
+        assert "damping" in str(exc_info.value).lower(), f"TypeError for {bad_bool} did not name damping"
+
     # Valid boundary cases
     res_1 = warm_start_logits(base_donor_logits, base_action_map, base_target_actions, damping=1.0)
     assert len(res_1) == len(base_target_actions)
@@ -184,10 +192,15 @@ def test_ac5_donor_values(
     base_action_map: dict[str, str],
     base_target_actions: list[str],
 ) -> None:
-    """AC_5: Non-finite donor logit raises ValueError."""
+    """AC_5: Non-finite donor logit raises ValueError; bool logit raises TypeError."""
     for bad_val in [float("nan"), float("inf"), float("-inf")]:
         donor_with_bad = {"approve": 2.0, "reject": bad_val, "escalate": 0.0}
         with pytest.raises(ValueError):
+            warm_start_logits(donor_with_bad, base_action_map, base_target_actions)
+
+    for bad_bool in [True, False]:
+        donor_with_bad = {"approve": 2.0, "reject": bad_bool, "escalate": 0.0}
+        with pytest.raises(TypeError):
             warm_start_logits(donor_with_bad, base_action_map, base_target_actions)
 
 
@@ -207,8 +220,8 @@ def test_ac6_pure(
     assert base_action_map == map_copy
     assert base_target_actions == target_copy
 
-    # Purity check on warm_start.py source code
-    source_path = Path(__file__).resolve().parent.parent / "src" / "agent_learning" / "warm_start.py"
+    # Purity check on warm_start.py source code using inspect.getfile for reliable resolution
+    source_path = Path(inspect.getfile(agent_learning.warm_start)).resolve()
     assert source_path.is_file(), "warm_start.py does not exist"
     source_text = source_path.read_text(encoding="utf-8")
 

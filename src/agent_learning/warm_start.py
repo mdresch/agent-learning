@@ -11,7 +11,7 @@ Constraints:
 from __future__ import annotations
 
 import math
-from typing import Dict, Mapping, Sequence
+from typing import Mapping, Sequence
 
 DAMPING_DEFAULT: float = 0.70
 DAMPING_DEFAULT_META_PRIOR: float = 1.0
@@ -37,16 +37,18 @@ def warm_start_logits(
             target_logits[a] = donor_logits[action_map[a]] * damping
 
     Raises:
+        TypeError: If damping is a bool or not a numeric type.
         ValueError: If damping is non-finite or not in (0, 1.0].
         ValueError: If action_map keys do not match target_actions exactly.
         ValueError: If multiple target actions map to the same donor action.
         ValueError: If a mapped donor action is missing from donor_logits.
+        TypeError: If any donor logit is a bool or not a numeric type.
         ValueError: If any donor logit is non-finite.
     """
     # 1. Validate damping parameter
-    if not isinstance(damping, (int, float)) or math.isnan(damping) or math.isinf(damping):
-        raise ValueError(f"damping must be a finite float, got {damping!r}")
-    if damping <= 0.0 or damping > 1.0:
+    if isinstance(damping, bool) or not isinstance(damping, (int, float)):
+        raise TypeError(f"damping must be a float, got {type(damping).__name__}")
+    if not math.isfinite(damping) or damping <= 0.0 or damping > 1.0:
         raise ValueError(f"damping must be in (0, 1], got {damping!r}")
 
     # 2. Validate action map completeness against target actions
@@ -73,7 +75,9 @@ def warm_start_logits(
         if donor_act not in donor_logits:
             raise ValueError(f"Mapped donor action {donor_act!r} not found in donor_logits.")
         val = donor_logits[donor_act]
-        if not isinstance(val, (int, float)) or math.isnan(val) or math.isinf(val):
+        if isinstance(val, bool) or not isinstance(val, (int, float)):
+            raise TypeError(f"Donor logit for {donor_act!r} must be a float, got {type(val).__name__}")
+        if not math.isfinite(val):
             raise ValueError(f"Non-finite donor logit for {donor_act!r}: {val!r}")
         result[target_act] = float(val) * damp_float
 

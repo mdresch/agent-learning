@@ -1,0 +1,133 @@
+{
+  "task": "Procurement Management Plan (Stage 6.E): approve, reject, or request revision before PMP formalization",
+  "criteria": [
+    {
+      "id": "charter_alignment",
+      "weight": 0.3,
+      "minimum_sources": 1,
+      "description": "Charter alignment (zero external procurement, OSS exclusivity, self-sufficiency)"
+    },
+    {
+      "id": "substantive_content",
+      "weight": 0.3,
+      "minimum_sources": 1,
+      "description": "Substantive content and specificity (make-or-buy economic evaluation, contractor exclusion, license evaluation, dependency vetting)"
+    },
+    {
+      "id": "internal_completeness",
+      "weight": 0.25,
+      "minimum_sources": 1,
+      "description": "Internal completeness against PMBOK process outputs (PMBOK 8 Appendix X4, legacy 12.1 Plan Procurement)"
+    },
+    {
+      "id": "consistency_with_dependent_plans",
+      "weight": 0.15,
+      "minimum_sources": 1,
+      "description": "Consistency with dependent plans (Scope baseline v1.2+, Cost baseline v1.1+, management envelope, zero contractor expense)"
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_plan",
+      "evidence": [
+        {
+          "criterion_id": "charter_alignment",
+          "source": "direct_doc_read:docs/project-docs/management-plans/Procurement-Management-Plan.md#1.1",
+          "support": 0.95,
+          "confidence": 0.93
+        },
+        {
+          "criterion_id": "substantive_content",
+          "source": "direct_doc_read:docs/project-docs/management-plans/Procurement-Management-Plan.md#2.3",
+          "support": 0.96,
+          "confidence": 0.94
+        },
+        {
+          "criterion_id": "internal_completeness",
+          "source": "direct_doc_read:docs/project-docs/management-plans/Procurement-Management-Plan.md#1.4",
+          "support": 0.95,
+          "confidence": 0.92
+        },
+        {
+          "criterion_id": "consistency_with_dependent_plans",
+          "source": "direct_doc_read:docs/project-docs/management-plans/Cost-Management-Plan.md",
+          "support": 0.96,
+          "confidence": 0.95
+        }
+      ],
+      "constraint_results": {
+        "no_technical_integrity_block": true
+      }
+    },
+    {
+      "action_id": "reject_plan",
+      "evidence": [
+        {
+          "criterion_id": "charter_alignment",
+          "source": "direct_doc_read:docs/project-docs/management-plans/Procurement-Management-Plan.md#1.1",
+          "support": 0.03,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "substantive_content",
+          "source": "direct_doc_read:docs/project-docs/management-plans/Procurement-Management-Plan.md#2.3",
+          "support": 0.03,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "internal_completeness",
+          "source": "direct_doc_read:docs/project-docs/management-plans/Procurement-Management-Plan.md#1.4",
+          "support": 0.03,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "consistency_with_dependent_plans",
+          "source": "direct_doc_read:docs/project-docs/management-plans/Cost-Management-Plan.md",
+          "support": 0.03,
+          "confidence": 0.85
+        }
+      ],
+      "constraint_results": {
+        "no_technical_integrity_block": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "charter_alignment",
+          "source": "direct_doc_read:docs/project-docs/management-plans/Procurement-Management-Plan.md#1.1",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "substantive_content",
+          "source": "direct_doc_read:docs/project-docs/management-plans/Procurement-Management-Plan.md#2.3",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "internal_completeness",
+          "source": "direct_doc_read:docs/project-docs/management-plans/Procurement-Management-Plan.md#1.4",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "consistency_with_dependent_plans",
+          "source": "direct_doc_read:docs/project-docs/management-plans/Cost-Management-Plan.md",
+          "support": 0.04,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_technical_integrity_block": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_technical_integrity_block"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

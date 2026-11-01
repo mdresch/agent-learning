@@ -218,9 +218,9 @@ Scope baseline authorization uses **two task ids**. They are sequential in inten
 
 | bfi_id | stage | document | citation | classification | evidence_basis | status |
 | --- | ---: | --- | --- | --- | --- | --- |
-| BFI-002 | 7 | Scope Management Plan / foundation pack | [ADR-025](../../adr/ADR-025-scope-management-plan-standard-and-baseline-contract.md) §3; [Scope-Foundation-Pack-Manifest.md](scope-baseline/Scope-Foundation-Pack-Manifest.md) § Stage 6.A | *(empty — process interpretation)* | design_time | open |
+| BFI-002 | 7 | Scope Management Plan / foundation pack | [ADR-025](../../adr/ADR-025-scope-management-plan-standard-and-baseline-contract.md) §3; [Scope-Foundation-Pack-Manifest.md](scope-baseline/Scope-Foundation-Pack-Manifest.md) § Stage 6.A | *(empty — process interpretation)* | design_time | applied |
 
-**BFI-002 (open):** ADR-025 §3 states Scope baselining has no upfront breakout prerequisite. For this repository, **Tier-1 Scope foundation pack** artifacts under Stage **6.A** (PMBOK §2.2 Define / Develop Structure / Monitor & Control / Validate) are **normative** for the first `approve-subsidiary-plan` on `scope-management` v1.2+: integrated baseline = manifest + plan. Documented Path A without amending ADR-025. Close as `applied` when **6.A-7** completes.
+**BFI-002 (applied 2026-10-30):** ADR-025 §3 states Scope baselining has no upfront breakout prerequisite. For this repository, **Tier-1 Scope foundation pack** artifacts under Stage **6.A** (PMBOK §2.2 Define / Develop Structure / Monitor & Control / Validate) are **normative** for the first `approve-subsidiary-plan` on `scope-management` v1.2+: integrated baseline = manifest + plan. Documented Path A without amending ADR-025. Applied when **6.A-7** completed; sponsor approval is recorded in Episode `d68772b0-d831-4a86-90a9-a891747b9007`.
 
 ---
 
@@ -235,3 +235,4 @@ Scope baseline authorization uses **two task ids**. They are sequential in inten
 | 2026-10-30 | Menno Drescher / Cursor | **Pillar trace:** [Scope-Pillar-Overview-and-Trace.md](scope-baseline/foundation/Scope-Pillar-Overview-and-Trace.md) (6.A-0P) links scope to [Project-Pillars.md](../Project-Pillars.md). |
 | 2026-10-30 | Menno Drescher | [Project-Pillars.md](../Project-Pillars.md) **Approved** (2026-10-30); scope foundation upstream gate satisfied for pillar source. |
 | 2026-10-30 | Menno Drescher | Foundation pack **6.A-6** complete; §2.4 aligned to all six breakout artifacts + manifest; plan **ready** for **6.A-7** subsidiary gate. |
+| 2026-10-30 | Menno Drescher | **6.A-7 approved:** Scope Management Plan v1.2.0 approved under `approve-subsidiary-plan`; BFI-002 applied. Approval Episode `d68772b0-d831-4a86-90a9-a891747b9007`; canonical content hash recorded in the approval Episode. |

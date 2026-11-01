@@ -1,0 +1,164 @@
+{
+  "agent_id": "agent-learning-governance",
+  "task_id": "approve-pmp",
+  "policy_id": "approve-pmp-policy",
+  "policy_version": 0,
+  "status": "needs_user_feedback",
+  "reason": "The policy requires human approval; accept or reject the reasoned recommendation.",
+  "selection_basis": "bayesian_decision",
+  "selected_action": null,
+  "proposed_action": {
+    "id": "approve_pmp",
+    "description": "The Project Management Plan soundly integrates the subsidiary management plans (Scope, Risk, Quality, Communications, Resource, etc.), establishes valid baselines, and defines clear governance rules -- approve it to authorize drafting ADRs, BRDs, FDDs, and User Stories",
+    "parameters": {}
+  },
+  "candidate_actions": [
+    {
+      "id": "approve_pmp",
+      "description": "The Project Management Plan soundly integrates the subsidiary management plans (Scope, Risk, Quality, Communications, Resource, etc.), establishes valid baselines, and defines clear governance rules -- approve it to authorize drafting ADRs, BRDs, FDDs, and User Stories",
+      "parameters": {}
+    }
+  ],
+  "assessments": [
+    {
+      "action": {
+        "id": "approve_pmp",
+        "description": "The Project Management Plan soundly integrates the subsidiary management plans (Scope, Risk, Quality, Communications, Resource, etc.), establishes valid baselines, and defines clear governance rules -- approve it to authorize drafting ADRs, BRDs, FDDs, and User Stories",
+        "parameters": {}
+      },
+      "feasible": true,
+      "criteria": [
+        {
+          "criterion_id": "scope_boundary_clarity",
+          "support": 0.9534318509289861,
+          "entropy_bits": 0.2716358294773029,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "risk_and_quality_coverage",
+          "support": 0.9409092690826525,
+          "entropy_bits": 0.3238248359860972,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "unforced_schedule_cost_deferral",
+          "support": 0.9392507787648654,
+          "entropy_bits": 0.33041189595579024,
+          "disagreement_bits": 4.996003610813204e-16,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "charter_alignment",
+          "support": 0.9645074162505591,
+          "entropy_bits": 0.22122963120333708,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        }
+      ],
+      "expected_utility": 0.9485831212563871,
+      "uncertainty": 0.29115746198605913,
+      "robust_utility": 0.9194673750577812,
+      "ruled_out_by": []
+    },
+    {
+      "action": {
+        "id": "reject_pmp",
+        "description": "The Project Management Plan has critical gaps, conflicting subsidiary plans, or ungrounded baseline assumptions -- reject it outright",
+        "parameters": {}
+      },
+      "feasible": true,
+      "criteria": [
+        {
+          "criterion_id": "scope_boundary_clarity",
+          "support": 0.049515604310070974,
+          "entropy_bits": 0.284335705090213,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "risk_and_quality_coverage",
+          "support": 0.049515604310070974,
+          "entropy_bits": 0.284335705090213,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "unforced_schedule_cost_deferral",
+          "support": 0.049515604310070974,
+          "entropy_bits": 0.284335705090213,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "charter_alignment",
+          "support": 0.049515604310070974,
+          "entropy_bits": 0.284335705090213,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        }
+      ],
+      "expected_utility": 0.049515604310070974,
+      "uncertainty": 0.28433570509021294,
+      "robust_utility": 0.021082033801049678,
+      "ruled_out_by": [
+        "pareto_dominated_by:approve_pmp"
+      ]
+    },
+    {
+      "action": {
+        "id": "request_revision_before_decision",
+        "description": "The Project Management Plan requires reconciliation among subsidiary plans, clearer risk/quality thresholds, or unforced schedule/cost deferrals before authorization",
+        "parameters": {}
+      },
+      "feasible": true,
+      "criteria": [
+        {
+          "criterion_id": "scope_boundary_clarity",
+          "support": 0.0866255450880921,
+          "entropy_bits": 0.42510488271276897,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "risk_and_quality_coverage",
+          "support": 0.0866255450880921,
+          "entropy_bits": 0.42510488271276897,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "unforced_schedule_cost_deferral",
+          "support": 0.0866255450880921,
+          "entropy_bits": 0.42510488271276897,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "charter_alignment",
+          "support": 0.07293581030498282,
+          "entropy_bits": 0.3767852248970805,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        }
+      ],
+      "expected_utility": 0.0845720848706257,
+      "uncertainty": 0.4178569340404157,
+      "robust_utility": 0.04278639146658413,
+      "ruled_out_by": [
+        "pareto_dominated_by:approve_pmp"
+      ]
+    }
+  ],
+  "information_needs": [],
+  "rejected_action_ids": [],
+  "authorization_basis": null,
+  "action_probabilities": {
+    "approve_pmp": 0.3333333333333333,
+    "reject_pmp": 0.3333333333333333,
+    "request_revision_before_decision": 0.3333333333333333
+  },
+  "action_logprob": null,
+  "audit_evidence": null
+}

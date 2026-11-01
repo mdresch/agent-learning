@@ -206,9 +206,9 @@ Design-time findings use **BFI-NNN** rows (ADR-037); execution findings use Stag
 
 | bfi_id | stage | document | citation | classification | evidence_basis | status |
 | --- | ---: | --- | --- | --- | --- | --- |
-| BFI-001 | 7 | Schedule Management Plan / foundation pack | [ADR-026](../../adr/ADR-026-schedule-management-plan-standard-and-baseline-contract.md) §3; [Schedule-Foundation-Pack-Manifest.md](schedule-baseline/Schedule-Foundation-Pack-Manifest.md) § Stage 6.B | *(empty — process interpretation)* | design_time | open |
+| BFI-001 | 7 | Schedule Management Plan / foundation pack | [ADR-026](../../adr/ADR-026-schedule-management-plan-standard-and-baseline-contract.md) §3; [Schedule-Foundation-Pack-Manifest.md](schedule-baseline/Schedule-Foundation-Pack-Manifest.md) § Stage 6.B | *(empty — process interpretation)* | design_time | applied |
 
-**BFI-001 (open):** ADR-026 §3 states Schedule baselining has no upfront breakout prerequisite. For this repository, **Tier-1 Schedule foundation pack** artifacts under Stage **6.B** are **normative** for the first `approve-subsidiary-plan` on `schedule-management` v1.2+: integrated baseline = manifest + plan. This is documented governance (Path A) without amending ADR-026. Close **BFI-001** as `applied` when 6.B-7 completes or record Sponsor waiver in the manifest.
+**BFI-001 (applied 2026-11-01):** ADR-026 §3 states Schedule baselining has no upfront breakout prerequisite. For this repository, **Tier-1 Schedule foundation pack** artifacts under Stage **6.B** are **normative** for the first `approve-subsidiary-plan` on `schedule-management` v1.2+: integrated baseline = manifest + plan. This is documented governance (Path A) without amending ADR-026. Applied when **6.B-7** completed; sponsor approval is recorded in Episode `d8ee6350-a7ce-48c7-a566-d2e602c28c9a`.
 
 ---
 
@@ -224,3 +224,4 @@ Design-time findings use **BFI-NNN** rows (ADR-037); execution findings use Stag
 | 2026-10-30 | Menno Drescher / Cursor | **6.B-2B:** Phase 1 Gantt from CPM ([Schedule-Gantt-Phase1.md](schedule-baseline/foundation/Schedule-Gantt-Phase1.md)). |
 | 2026-10-30 | Menno Drescher / Cursor | **Schedule foundation pack manifest v1.3.0** — integrated baseline roll-up, PMBOK §2.3 evidence chain, eight-artifact registry ([Schedule-Foundation-Pack-Manifest.md](schedule-baseline/Schedule-Foundation-Pack-Manifest.md)). |
 | 2026-10-30 | Menno Drescher | Foundation pack **6.B-6** complete; §2.7 aligned to all eight breakout artifacts + manifest; plan **ready** for **6.B-7** after Scope **6.A-7**. |
+| 2026-11-01 | Menno Drescher | **6.B-7 approved:** Schedule Management Plan v1.2.0 approved under `approve-subsidiary-plan`; BFI-001 applied. Approval Episode `d8ee6350-a7ce-48c7-a566-d2e602c28c9a`; canonical content hash recorded in the approval Episode. |

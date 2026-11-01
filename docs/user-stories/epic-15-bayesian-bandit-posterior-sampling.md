@@ -1,6 +1,7 @@
 # Epic 15: Bayesian Bandit Posterior Sampling (Thompson Sampling)
 
 **Source ADR:** [ADR-015](../adr/ADR-015-bayesian-bandit-posterior-sampling.md) — Accepted (2026-10-28)  
+**Governing Baseline:** [PMP-BL-v1.0.0](../project-docs/Project-Management-Plan.md)  
 **Source BRD/FDD:** [BRD-015](../project-docs/Business-Requirements/BRD-015-bayesian-bandit-posterior-sampling.md) / [FDD-015](../project-docs/Functional-Design/FDD-015-bayesian-bandit-posterior-sampling.md)  
 **Status:** Approved (2026-10-29, Menno); amended 2026-10-29 with the counted-once criteria (FDD-015 D7) and re-approved via `approve-user-stories` (robust utility 0.747, episode `8080a56f-03b3-44ac-9bb7-becd1dc93da6`; comparison with the previous approval: flat, within tolerance, no criterion lower) — stories derived from Accepted ADR-015, BRD-015 and FDD-015; adjudicated via `approve-user-stories` (robust utility 0.739, episode `8447f932-4002-43f5-9410-be732b8d5474`). The source-comparison criterion of Story 15.5 AC2 ("reinforce.py is unchanged") was made behavioural on 2026-10-29 and the stories were re-approved via `approve-user-stories` (robust utility 0.751, episode `51092d9f-8cd7-4c8c-aafd-0cb42096d2bf`; comparison with the previous approval: flat, within tolerance, no criterion lower). The epic number follows the source ADR number, as Epic 14 follows ADR-014.  
 

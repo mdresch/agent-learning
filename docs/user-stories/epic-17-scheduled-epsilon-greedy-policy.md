@@ -1,6 +1,7 @@
 # Epic 17: Scheduled Epsilon-Greedy Policy Baseline
 
 **Source ADR:** [ADR-017](../adr/ADR-017-scheduled-epsilon-greedy-policy.md) — Accepted (2026-10-28)  
+**Governing Baseline:** [PMP-BL-v1.0.0](../project-docs/Project-Management-Plan.md)  
 **Source BRD/FDD:** [BRD-017](../project-docs/Business-Requirements/BRD-017-scheduled-epsilon-greedy-policy.md) / [FDD-017](../project-docs/Functional-Design/FDD-017-scheduled-epsilon-greedy-policy.md)  
 **Status:** Approved (2026-10-29, Menno) — stories derived from Accepted ADR-017, BRD-017 and FDD-017; adjudicated via `approve-user-stories` (robust utility 0.735, episode `4e6a04e1-48a0-4cee-be3c-d89c4df493a6`). The source-comparison criterion of Story 17.5 AC2 ("reinforce.py is unchanged") was made behavioural on 2026-10-29 and the stories were re-approved via `approve-user-stories` (robust utility 0.739, episode `1e0762b1-4c41-4440-af96-15b628946de3`; comparison with the previous approval: flat, within tolerance, no criterion lower). The epic number follows the source ADR number, as Epic 16 follows ADR-016.  
 

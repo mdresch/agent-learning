@@ -1,8 +1,8 @@
 ---
 artifact_type: "readiness_review"
-report_id: "REP-REQ-STAGE7-v1.0.0"
+report_id: "REP-REQ-STAGE6-v1.0.0"
 baseline_id: "PMP-BL-v1.0.0"
-lifecycle_stage: "Stage 7 (Technical Requirements Review)"
+lifecycle_stage: "Stage 6 (Technical Requirements Review)"
 date: "2026-11-01"
 author_role: "Project Manager"
 approving_sponsor: "Menno Drescher"
@@ -23,9 +23,9 @@ readiness_status: "READY_FOR_STAGE_8"
 confidentiality_class: "Project Internal"
 ---
 
-# Stage 7 Technical Requirements Review & Readiness Report
+# Stage 6 Technical Requirements Review & Readiness Report
 
-> **Baseline Identifier:** `PMP-BL-v1.0.0` | **Lifecycle Stage:** `Stage 7 (Technical Requirements)`  
+> **Baseline Identifier:** `PMP-BL-v1.0.0` | **Lifecycle Stage:** `Stage 6 (Requirements) → Stage 7 (PMP & Baselines)`  
 > **Report ID:** `REP-REQ-STAGE7-v1.0.0` | **Date:** `2026-11-01`  
 > **Accountable Author:** Project Manager | **Approving Sponsor:** Menno Drescher  
 > **Governing Standards:** [ADR-008](../../adr/ADR-008-pmbok-lifecycle-orchestration-and-pmp-adaptation-loop.md), [ADR-025](../../adr/ADR-025-scope-management-plan-standard-and-baseline-contract.md), [ADR-029](../../adr/ADR-029-quality-management-plan-standard.md), [ADR-037](../../adr/ADR-037-design-time-baseline-feedback-loop.md)  
@@ -35,10 +35,10 @@ confidentiality_class: "Project Internal"
 
 ## 1. Executive Summary & Stage 7 Purpose
 
-In accordance with [Project-Management-Plan.md](../Project-Management-Plan.md) and [Scope-Management-Plan.md](../management-plans/Scope-Management-Plan.md) §1.7, this report documents the formal completion of **Stage 7 (Technical Requirements Review & Traceability Alignment)**. 
+In accordance with [Project-Management-Plan.md](../Project-Management-Plan.md) and [Scope-Management-Plan.md](../management-plans/Scope-Management-Plan.md) §1.7, this report documents the formal completion of **Stage 6 (Technical Requirements Review & Traceability Alignment)**. 
 
 ### 1.1 The Operational Role of Stage 7
-Stage 7 establishes the formal contractual bridge between the approved **Project Management Plan Baseline (`PMP-BL-v1.0.0`)** and the executable code delivered in Stages 9–10:
+Stage 6 (Requirements) establishes the technical specification foundation for Stage 7 (PMP Baselines) and Stage 8 (Implementation Readiness Gate) between the approved **Project Management Plan Baseline (`PMP-BL-v1.0.0`)** and the executable code delivered in Stages 9–10:
 
 ```mermaid
 flowchart LR

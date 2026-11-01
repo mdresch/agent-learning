@@ -3,7 +3,7 @@ pmbok_edition: "PMBOK 8"
 pmbok_focus_area: "Planning"
 pmbok_process: "4.2 Develop Project Management Plan"
 pmp_baseline: "PMP-BL-v1.0.0"
-lifecycle_stage: "Stage 6 (Planning)"
+lifecycle_stage: "Stage 7 (Planning: Integrated PMP & Baselines)"
 governance_policy: "approve-pmp"
 baseline_status: "approved"
 inputs:
@@ -18,7 +18,7 @@ outputs:
 
 > **PMBOK 8 Process:** `4.2 Develop Project Management Plan` (Planning Focus Area)  
 > **Status:** **Approved (Baseline PMP-BL-v1.0.0 Formalized)**  
-> **Governance Policy:** `approve-pmp` | **Lifecycle Stage:** `Stage 6 (Planning)`  
+> **Governance Policy:** `approve-pmp` | **Lifecycle Stage:** `Stage 7 (Planning: Integrated PMP & Baselines)`  
 > **Baseline Identifier:** `PMP-BL-v1.0.0`  
 > **Inputs:** [Project-Charter.md](Project-Charter.md), [docs/project-docs/management-plans/](management-plans/)  
 > **Accountable Role:** Project Manager | **Approving Sponsor:** Menno Drescher  

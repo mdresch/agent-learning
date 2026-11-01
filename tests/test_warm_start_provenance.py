@@ -189,6 +189,11 @@ def test_ac1_kind(
         with pytest.raises(TypeError):
             provenance(mock_donor_snapshot, 0.70, now_str, action_map=bad_map_type)
 
+    # Empty action_map raises ValueError
+    with pytest.raises(ValueError) as exc_info:
+        provenance(mock_donor_snapshot, 0.70, now_str, action_map={})
+    assert "action_map" in str(exc_info.value).lower() or "empty" in str(exc_info.value).lower()
+
     for bad_key_map in [{1: "a"}, {(1, 2): "a"}]:
         with pytest.raises(TypeError):
             provenance(mock_donor_snapshot, 0.70, now_str, action_map=bad_key_map)

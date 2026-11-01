@@ -116,7 +116,7 @@ def provenance(
         ValueError: If damping is non-finite or not in (0, 1.0].
         TypeError: If now is not a string, or donor id/task_id/version or action_map have invalid types.
         ValueError: If now is empty/whitespace, donor attributes are missing/empty, donor version is negative,
-            or action_map keys/values are empty.
+            or action_map is empty or has empty keys/values.
     """
     if kind not in VALID_DONOR_KINDS:
         raise ValueError(
@@ -159,6 +159,8 @@ def provenance(
 
     if not isinstance(action_map, Mapping):
         raise TypeError(f"action_map must be a Mapping, got {type(action_map).__name__}")
+    if not action_map:
+        raise ValueError("action_map must be non-empty")
     validated_map: dict[str, str] = {}
     for k, v in action_map.items():
         if not isinstance(k, str):

@@ -1160,8 +1160,8 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - Generates durable snapshot metadata: `warm_start_donor_policy_id`, `warm_start_donor_task_id`, `warm_start_donor_version`, `warm_start_damping_factor`, `warm_started_at`, `warm_start_action_map`, `warm_start_donor_kind`, `warm_start_donor_gate_met`.
   - Clock isolation: `now` argument is preserved verbatim; reads no system clocks.
   - Strict serialization safety: round-trips losslessly through `json.dumps` and `json.loads`.
-- **Review-fix commits:** `ee6494f` (`fix(warm-start): address Amazon Q review findings on Story 20.2`) and `9cbeaa3` (`fix(warm-start): reject empty now string and remove fragile identity check`)
-- **Review validation:** 11 passed in `tests/test_warm_start_logits.py` and `tests/test_warm_start_provenance.py`.
+- **Review-fix commits:** `ee6494f` (`fix(warm-start): address Amazon Q review findings on Story 20.2`), `9cbeaa3` (`fix(warm-start): reject empty now string and remove fragile identity check`), and `c169f04` (`fix(warm-start): validate donor identity types and use AST purity checks`)
+- **Review validation:** 12 passed in `tests/test_warm_start_logits.py` and `tests/test_warm_start_provenance.py`; full regression suite passed with 1,524 passed, 3 skipped in 56.61s (excluding `tests/pmbok` due to optional dependencies, per LL-013).
 - **Amazon Q triage (round 1 on `2838ce7`):**
   - `Q-82-1 | logic error | verified: yes | decision: accepted | Add isinstance(now, str) type validation in provenance() to guarantee JSON serializability | fix: ee6494f`
   - `Q-82-2 | logic error | verified: yes | decision: accepted | Export VALID_DONOR_KINDS in agent_learning top-level package __init__.py | fix: ee6494f`
@@ -1171,3 +1171,6 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Amazon Q triage (round 2 on `3dadd80`):**
   - `Q-82-6 | logic error | verified: yes | decision: accepted | Reject empty/whitespace now strings with ValueError in provenance() | fix: 9cbeaa3`
   - `Q-82-7 | style | verified: yes | decision: accepted | Remove fragile is identity assertion in test_ac2_no_clock | fix: 9cbeaa3`
+- **Amazon Q triage (round 3 on `5fe3266`):**
+  - `Q-82-8 | logic error | verified: yes | decision: accepted | Validate donor id, task_id, and version types in provenance() to guarantee JSON serializability | fix: c169f04`
+  - `Q-82-9 | test gap | verified: yes | decision: accepted | Use AST-based import analysis in test_ac2_no_clock, test_ac3_json_safe_and_pure, and test_ac6_pure | fix: c169f04`

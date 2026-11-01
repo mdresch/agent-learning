@@ -1141,3 +1141,40 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-81-7 | documentation | verified: yes | decision: accepted | Update status to resolved and record selected_action in pmp-decision-result.json to match pmp-approval-episode.json | fix: 3dec130`
 - **Amazon Q triage (round 5 on `d91e6c0`):**
   - `Q-81-8 | test gap | verified: yes | decision: accepted | Add base_action_map fixture parameter to test_ac3_complete_map signature to avoid fixture shadowing | fix: 0ed7794`
+
+## Story 20.2 — The Provenance Record
+- **Commit:** `554ed90`
+- **Date:** 2026-11-01
+- **Branch:** `feat/story-20.2`
+- **Source ADR / BRD / FDD:** ADR-020 (§4.3), BRD-020 (BRU-020-07), FDD-020 (§1.1, §2.2, §3.2)
+- **Files Modified/Created:**
+  - `src/agent_learning/warm_start.py` (`provenance`, `VALID_DONOR_KINDS`)
+  - `src/agent_learning/__init__.py` (re-exports)
+  - `tests/test_warm_start_provenance.py` (contract tests for AC_0 through AC_3)
+  - `.claude/skills/warm-start/SKILL.md` (component skill updated with provenance contract)
+- **Contracts:**
+  - `tests/test_warm_start_provenance.py` (4 tests, all passing)
+  - Full suite: 1,523 passed, 3 skipped in 63.93s (excluding `tests/pmbok` due to optional dependencies, per LL-013)
+- **Notes:**
+  - Standard library pure implementation: zero numpy, zero random, zero storage layer imports.
+  - Generates durable snapshot metadata: `warm_start_donor_policy_id`, `warm_start_donor_task_id`, `warm_start_donor_version`, `warm_start_damping_factor`, `warm_started_at`, `warm_start_action_map`, `warm_start_donor_kind`, `warm_start_donor_gate_met`.
+  - Clock isolation: `now` argument is preserved verbatim; reads no system clocks.
+  - Strict serialization safety: round-trips losslessly through `json.dumps` and `json.loads`.
+- **Review-fix commits:** `ee6494f` (`fix(warm-start): address Amazon Q review findings on Story 20.2`), `9cbeaa3` (`fix(warm-start): reject empty now string and remove fragile identity check`), `c169f04` (`fix(warm-start): validate donor identity types and use AST purity checks`), `6ae2b79` (`fix(warm-start): validate action_map mapping and string contents in provenance`), and `a5c4bb4` (`fix(warm-start): reject empty action_map in provenance`)
+- **Review validation:** 12 passed in `tests/test_warm_start_logits.py` and `tests/test_warm_start_provenance.py`; full regression suite passed with 1,524 passed, 3 skipped in 56.61s (excluding `tests/pmbok` due to optional dependencies, per LL-013).
+- **Amazon Q triage (round 1 on `2838ce7`):**
+  - `Q-82-1 | logic error | verified: yes | decision: accepted | Add isinstance(now, str) type validation in provenance() to guarantee JSON serializability | fix: ee6494f`
+  - `Q-82-2 | logic error | verified: yes | decision: accepted | Export VALID_DONOR_KINDS in agent_learning top-level package __init__.py | fix: ee6494f`
+  - `Q-82-3 | logic error | verified: yes | decision: accepted | Guard against silent None identity fields when invalid donor object is passed | fix: ee6494f`
+  - `Q-82-4 | logic error | verified: yes | decision: accepted | Use standard importlib.util.source_from_cache for reliable .pyc to .py resolution | fix: ee6494f`
+  - `Q-82-5 | test gap | verified: yes | decision: accepted | Replace no-op datetime mock with source-text clock-isolation assertion in test_ac2 | fix: ee6494f`
+- **Amazon Q triage (round 2 on `3dadd80`):**
+  - `Q-82-6 | logic error | verified: yes | decision: accepted | Reject empty/whitespace now strings with ValueError in provenance() | fix: 9cbeaa3`
+  - `Q-82-7 | style | verified: yes | decision: accepted | Remove fragile is identity assertion in test_ac2_no_clock | fix: 9cbeaa3`
+- **Amazon Q triage (round 3 on `5fe3266`):**
+  - `Q-82-8 | logic error | verified: yes | decision: accepted | Validate donor id, task_id, and version types in provenance() to guarantee JSON serializability | fix: c169f04`
+  - `Q-82-9 | test gap | verified: yes | decision: accepted | Use AST-based import analysis in test_ac2_no_clock, test_ac3_json_safe_and_pure, and test_ac6_pure | fix: c169f04`
+- **Amazon Q triage (round 4 on `0ad70c1`):**
+  - `Q-82-10 | logic error | verified: yes | decision: accepted | Validate action_map mapping type and string keys/values in provenance() to guarantee JSON serializability | fix: 6ae2b79`
+- **Amazon Q triage (round 5 on `4dce823`):**
+  - `Q-82-11 | logic error | verified: yes | decision: accepted | Reject empty action_map with ValueError in provenance() | fix: a5c4bb4`

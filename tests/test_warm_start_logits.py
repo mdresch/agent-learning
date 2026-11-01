@@ -145,6 +145,7 @@ def test_ac2_damping_bounds(
 
 def test_ac3_complete_map(
     base_donor_logits: dict[str, float],
+    base_action_map: dict[str, str],
     base_target_actions: list[str],
 ) -> None:
     """AC_3: Action map keys differing from target actions (missing or extra) raises ValueError."""

@@ -1,0 +1,164 @@
+{
+  "agent_id": "agent-learning-governance",
+  "task_id": "approve-subsidiary-plan",
+  "policy_id": "approve-subsidiary-plan-policy",
+  "policy_version": 0,
+  "status": "needs_user_feedback",
+  "reason": "The policy requires human approval; accept or reject the reasoned recommendation.",
+  "selection_basis": "bayesian_decision",
+  "selected_action": null,
+  "proposed_action": {
+    "id": "approve_plan",
+    "description": "The subsidiary management plan establishes sound baseline definitions, meets technical integrity criteria, and is consistent with upstream plans -- approve it to authorize baseline formalization",
+    "parameters": {}
+  },
+  "candidate_actions": [
+    {
+      "id": "approve_plan",
+      "description": "The subsidiary management plan establishes sound baseline definitions, meets technical integrity criteria, and is consistent with upstream plans -- approve it to authorize baseline formalization",
+      "parameters": {}
+    }
+  ],
+  "assessments": [
+    {
+      "action": {
+        "id": "approve_plan",
+        "description": "The subsidiary management plan establishes sound baseline definitions, meets technical integrity criteria, and is consistent with upstream plans -- approve it to authorize baseline formalization",
+        "parameters": {}
+      },
+      "feasible": true,
+      "criteria": [
+        {
+          "criterion_id": "charter_alignment",
+          "support": 0.9392507787648654,
+          "entropy_bits": 0.33041189595579024,
+          "disagreement_bits": 4.996003610813204e-16,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "substantive_content",
+          "support": 0.9520003005254124,
+          "entropy_bits": 0.27783827873585343,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "internal_completeness",
+          "support": 0.9375488294376583,
+          "entropy_bits": 0.3370992659858165,
+          "disagreement_bits": 5.551115123125783e-17,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "consistency_with_dependent_plans",
+          "support": 0.9534318509289861,
+          "entropy_bits": 0.2716358294773029,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        }
+      ],
+      "expected_utility": 0.9447773087858458,
+      "uncertainty": 0.3074952433255427,
+      "robust_utility": 0.9140277844532915,
+      "ruled_out_by": []
+    },
+    {
+      "action": {
+        "id": "reject_plan",
+        "description": "The subsidiary management plan has critical deficiencies, ungrounded assumptions, or irreconcilable contradictions with upstream plans -- reject it outright",
+        "parameters": {}
+      },
+      "feasible": true,
+      "criteria": [
+        {
+          "criterion_id": "charter_alignment",
+          "support": 0.049515604310070974,
+          "entropy_bits": 0.284335705090213,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "substantive_content",
+          "support": 0.049515604310070974,
+          "entropy_bits": 0.284335705090213,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "internal_completeness",
+          "support": 0.049515604310070974,
+          "entropy_bits": 0.284335705090213,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "consistency_with_dependent_plans",
+          "support": 0.049515604310070974,
+          "entropy_bits": 0.284335705090213,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        }
+      ],
+      "expected_utility": 0.049515604310070974,
+      "uncertainty": 0.284335705090213,
+      "robust_utility": 0.02108203380104967,
+      "ruled_out_by": [
+        "pareto_dominated_by:approve_plan"
+      ]
+    },
+    {
+      "action": {
+        "id": "request_revision_before_decision",
+        "description": "The subsidiary management plan requires minor clarifications, boundary sharpening, or terminology reconciliation with upstream plans before authorization",
+        "parameters": {}
+      },
+      "feasible": true,
+      "criteria": [
+        {
+          "criterion_id": "charter_alignment",
+          "support": 0.0866255450880921,
+          "entropy_bits": 0.42510488271276897,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "substantive_content",
+          "support": 0.0866255450880921,
+          "entropy_bits": 0.42510488271276897,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "internal_completeness",
+          "support": 0.0866255450880921,
+          "entropy_bits": 0.42510488271276897,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "consistency_with_dependent_plans",
+          "support": 0.07293581030498282,
+          "entropy_bits": 0.3767852248970805,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        }
+      ],
+      "expected_utility": 0.0845720848706257,
+      "uncertainty": 0.4178569340404157,
+      "robust_utility": 0.04278639146658413,
+      "ruled_out_by": [
+        "pareto_dominated_by:approve_plan"
+      ]
+    }
+  ],
+  "information_needs": [],
+  "rejected_action_ids": [],
+  "authorization_basis": null,
+  "action_probabilities": {
+    "approve_plan": 0.3333333333333333,
+    "reject_plan": 0.3333333333333333,
+    "request_revision_before_decision": 0.3333333333333333
+  },
+  "action_logprob": null,
+  "audit_evidence": null
+}

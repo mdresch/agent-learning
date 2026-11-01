@@ -1,6 +1,7 @@
 # Epic 20: Explicit Policy Prior Warm-Starting
 
 **Source ADR:** [ADR-020](../adr/ADR-020-explicit-policy-prior-warm-starting.md) — Accepted (2026-10-28)  
+**Governing Baseline:** [PMP-BL-v1.0.0](../project-docs/Project-Management-Plan.md)  
 **Source BRD/FDD:** [BRD-020](../project-docs/Business-Requirements/BRD-020-explicit-policy-prior-warm-starting.md) / [FDD-020](../project-docs/Functional-Design/FDD-020-explicit-policy-prior-warm-starting.md)  
 **Status:** Approved (2026-10-29, Menno) — stories derived from Accepted ADR-020, BRD-020 and FDD-020; adjudicated via `approve-user-stories` (robust utility 0.735, episode `9d327883-440f-47cb-bf8e-b670f873ae53`). The epic number follows the source ADR number, as Epic 19 follows ADR-019.  
 

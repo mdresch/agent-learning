@@ -1108,3 +1108,36 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-79-35 | test gap | verified: no | decision: declined | The source is parsed from valid Python; grammar-generated ast.Import and ast.ImportFrom nodes have non-empty alias lists, so the all() empty-iterable case cannot occur here | fix: none`
   - `Q-79-36 | test gap | verified: yes | decision: deferred | Repeats Q-79-32: the PR description names the 15 legacy collection errors and exclusions, and Story 34.5 owns removing tests/pmbok and its CI exclusion | fix: none`
 - **Review follow-up:** On 2026-10-31, the user confirmed Story 34.2 approval, directed that the amended FDD contract remain unchanged, and authorized continuing the existing PR. Round 9 correctness findings are declined against that contract. Amazon Q reports no security or data-integrity regressions; its remaining collection and future-store pagination concerns are deferred, and the AST concern is declined based on Python syntax constraints. The final confirmation must be on the current head; merge only if no blocking or unaddressed findings remain, CI is clean, and mergeStateStatus is CLEAN.
+
+## Story 20.1 — The Damped Copy
+- **Commit:** `457eed6`
+- **Date:** 2026-11-01
+- **Branch:** `feat/story-20.1`
+- **Source ADR / BRD / FDD:** ADR-020 (§4.1), BRD-020 (BRU-020-01, BRU-020-02), FDD-020 (§1.1, §2.1, §3.1)
+- **Files Modified/Created:**
+  - `src/agent_learning/warm_start.py` (`warm_start_logits`, `DAMPING_DEFAULT`, `DAMPING_DEFAULT_META_PRIOR`)
+  - `src/agent_learning/__init__.py` (re-exports)
+  - `tests/test_warm_start_logits.py` (contract tests for AC_0 through AC_6)
+  - `.claude/skills/warm-start/SKILL.md` (component skill)
+- **Contracts:**
+  - `tests/test_warm_start_logits.py` (7 tests, all passing)
+  - Full suite: 1,519 passed, 3 skipped in 58.08s (excluding `tests/pmbok` due to optional dependencies, per LL-013)
+- **Notes:**
+  - Standard library pure implementation: zero numpy, zero random, zero storage imports.
+  - Implements exact mathematical formula: `target_logits[a] = donor_logits[action_map[a]] * damping`.
+  - Monotonicity of softmax entropy verified over a 100-point damping grid in `(0, 1]`.
+- **Review-fix commits:** `f856a47` (`fix(warm-start): address Amazon Q review findings on Story 20.1`), `2917bb2` (`fix(warm-start): reject duplicate target_actions to prevent silent logit loss`), `44a3066` (`test(warm-start): resolve .py source from .pyc in purity test`), `3dec130` (`fix(governance): align pmp-decision-result with full candidate actions and adjudicated status`), and `0ed7794` (`test(warm-start): inject base_action_map fixture in test_ac3_complete_map`)
+- **Review validation:** 7 passed in `tests/test_warm_start_logits.py`; full regression suite passed with 1,519 passed, 3 skipped in 57.49s (excluding `tests/pmbok` due to optional dependencies, per LL-013).
+- **Amazon Q triage (round 1 on `1397839`):**
+  - `Q-81-1 | logic error | verified: yes | decision: accepted | Explicitly reject bool instances for damping and donor logits (bool is a subclass of int in Python) by raising TypeError | fix: f856a47`
+  - `Q-81-2 | style | verified: yes | decision: accepted | Remove unused Dict import from typing in warm_start.py | fix: f856a47`
+  - `Q-81-3 | test gap | verified: yes | decision: accepted | Replace hardcoded relative path with inspect.getfile(agent_learning.warm_start) in purity contract test | fix: f856a47`
+- **Amazon Q triage (round 2 on `5119514`):**
+  - `Q-81-4 | logic error | verified: yes | decision: accepted | Reject duplicate entries in target_actions with ValueError before set conversion to prevent silent cardinality loss | fix: 2917bb2`
+- **Amazon Q triage (round 3 on `d99b04d`):**
+  - `Q-81-5 | logic error | verified: yes | decision: accepted | Handle .pyc paths from inspect.getfile to guarantee actual .py source is loaded and verified in purity contract | fix: 44a3066`
+- **Amazon Q triage (round 4 on `0deffb1`):**
+  - `Q-81-6 | documentation | verified: yes | decision: accepted | Populate candidate_actions with all three options in pmp-decision-result.json to match assessments | fix: 3dec130`
+  - `Q-81-7 | documentation | verified: yes | decision: accepted | Update status to resolved and record selected_action in pmp-decision-result.json to match pmp-approval-episode.json | fix: 3dec130`
+- **Amazon Q triage (round 5 on `d91e6c0`):**
+  - `Q-81-8 | test gap | verified: yes | decision: accepted | Add base_action_map fixture parameter to test_ac3_complete_map signature to avoid fixture shadowing | fix: 0ed7794`

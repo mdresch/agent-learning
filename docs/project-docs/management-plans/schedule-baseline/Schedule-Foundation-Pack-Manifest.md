@@ -15,7 +15,7 @@ pack_status: approved
 
 Roll-up for **Stage 6.B** (proactive schedule foundation breakouts) before the first `approve-subsidiary-plan` on [Schedule-Management-Plan.md](../Schedule-Management-Plan.md) **v1.2+**.
 
-**Pack state:** Foundation breakouts **6.B-0P … 6.B-5** **approved** (2026-10-30); registry hashes below. **6.B-6** roll-up complete (`pack_status: approved`). **Next:** **6.B-7** — `approve-subsidiary-plan` on [Schedule-Management-Plan.md](../Schedule-Management-Plan.md) **v1.2+** and close **BFI-001**. **6.B-0** (Scope **6.A-7**) must be satisfied before the Schedule **plan** subsidiary gate is valid under ADR-013 DAG.
+**Pack state:** Scope prerequisite **6.B-0** verified complete: Scope Management Plan **v1.2.0** was approved after **6.A-7**, and its current canonical hash matches approval Episode `d68772b0-d831-4a86-90a9-a891747b9007`. Foundation breakouts **6.B-0P … 6.B-5** **approved** (2026-10-30); registry hashes below. **6.B-6** roll-up complete (`pack_status: approved`). **6.B-7** — `approve-subsidiary-plan` on [Schedule-Management-Plan.md](../Schedule-Management-Plan.md) **v1.2.0** — approved by the Project Sponsor on **2026-11-01** (Episode `d8ee6350-a7ce-48c7-a566-d2e602c28c9a`); **BFI-001 applied**.
 
 **Normative standards:** [ADR-026](../../../adr/ADR-026-schedule-management-plan-standard-and-baseline-contract.md) (Schedule plan contract), [ADR-013](../../../adr/ADR-013-subsidiary-plan-approval-gates-before-pmp-formalization.md) (hashes, DAG), [ADR-012](../../../adr/ADR-012-subsidiary-management-plan-standards-and-content-contracts.md) (artifact frontmatter). **Path A:** Tier-1 foundation pack is normative for the first Schedule subsidiary approval (**BFI-001** on the Schedule plan)—no ADR-026 amendment.
 
@@ -124,7 +124,7 @@ Complete in order; each row maps to one foundation artifact approval (`approve-s
 
 | Substage | Process / gate | Artifact | Review focus | Done |
 | --- | --- | --- | --- | --- |
-| **6.B-0** | Upstream | Scope Management Plan **v1.2+** (**6.A-7**) | Integrated scope baseline + WBS in scope foundation | ☐ |
+| **6.B-0** | Upstream | Scope Management Plan **v1.2+** (**6.A-7**) | Integrated scope baseline + WBS in scope foundation; current approved hash verified | ☑ |
 | **6.B-0P** | Strategy trace | [Schedule-Pillar-Overview-and-Trace.md](foundation/Schedule-Pillar-Overview-and-Trace.md) | M0.5–M5 ↔ pillars ↔ Band B effort | ☑ |
 | **6.B-1** | Estimate basis | [Schedule-Basis-of-Estimates.md](foundation/Schedule-Basis-of-Estimates.md) | L/M/H, PERT, C1–C4; aligned with 6.B-0P | ☑ |
 | **6.B-2** | Sequence (macro) | [Schedule-Network-Phase1.md](foundation/Schedule-Network-Phase1.md) | Phase 1 FS, M4/Epic 34; links to 6.B-2A | ☑ |
@@ -134,11 +134,37 @@ Complete in order; each row maps to one foundation artifact approval (`approve-s
 | **6.B-4** | Durations | [Schedule-Baseline-WBS-Forecast.md](foundation/Schedule-Baseline-WBS-Forecast.md) | 143 rows; rollups match plan §2.5 | ☑ |
 | **6.B-5** | Domain outcomes | [Schedule-Domain-Checklist.md](foundation/Schedule-Domain-Checklist.md) | PMBOK §2.3.5 Table 2-7 | ☑ |
 | **6.B-6** | Roll-up | **This manifest** | All eight artifacts `approved`; registry hashes set | ☑ |
-| **6.B-7** | Plan gate | Schedule Management Plan **v1.2+** | Integrated baseline; **BFI-001** closed | ☐ |
+| **6.B-7** | Plan gate | Schedule Management Plan **v1.2+** | Integrated baseline; **BFI-001** closed | ☑ |
 
 Recommended breakout order after **6.B-0:** **0P → 1 → 2 → 2A → 2B → 3 → 4 → 5 → 6 → 7**. **6.B-4** may run in parallel with **6.B-2A** after **6.B-1** if reviewers confirm estimate basis unchanged.
 
 Epic **13.7** / **34.4** may later automate hash verification against this registry; Path A does not require code to execute **6.B**.
+
+---
+
+## Plan gate **6.B-7** (Schedule Management Plan)
+
+| | |
+| --- | --- |
+| **Target** | [Schedule-Management-Plan.md](../Schedule-Management-Plan.md) **v1.2.0** (`plan_id: schedule-management`) |
+| **Policy** | `approve-subsidiary-plan` |
+| **Upstream deps (ADR-013)** | `scope-management` (**6.A-7** approved, hash `3febf6edd1dbed564df2a8618176d32c42ec19a5d02dcf3ea45b594b70cb33a8`) |
+| **Pack evidence** | This manifest **6.B-6** ☑; all eight registry `content_hash` values set; artifact `approval_status: approved` |
+
+**Entry criteria (all required before 6.B-7):**
+
+1. **6.B-0** — Upstream Scope Management Plan **v1.2.0** approved at **6.A-7** (hash `3febf6edd1dbed564df2a8618176d32c42ec19a5d02dcf3ea45b594b70cb33a8`, episode `d68772b0-d831-4a86-90a9-a891747b9007`).
+2. **6.B-0P … 6.B-5** — Each foundation artifact breakout-approved; hashes in registry below.
+3. **6.B-6** — This manifest checklist ☑ for rows **6.B-0P** through **6.B-5**; `pack_status: approved`.
+
+**Exit criteria (6.B-7 complete):**
+
+1. Subsidiary approval recorded for **Schedule Management Plan v1.2+** (canonical content hash per ADR-013).
+2. **BFI-001** on the Schedule plan set to **`applied`** (Tier-1 foundation pack normative for first approval — Path A, no ADR-026 amendment).
+3. Tick **Done** for **6.B-7** in the checklist above.
+4. **Unblocks** [Cost-Foundation-Pack-Manifest.md](../cost-baseline/Cost-Foundation-Pack-Manifest.md) **6.D-0** and [Resource-Foundation-Pack-Manifest.md](../resource-baseline/Resource-Foundation-Pack-Manifest.md) **6.C-0**.
+
+**Approval record:** Episode `d8ee6350-a7ce-48c7-a566-d2e602c28c9a`; canonical Schedule Management Plan hash `3b6da5f529f68f90133aa17d6b5e8ef84ebf9d332b0279744dad50c5b4b49dba`. The decision covers `PMP-BL-v1.0.0`, manifest v1.4.0, and foundation pack path `schedule-baseline/Schedule-Foundation-Pack-Manifest.md`.
 
 ---
 
@@ -182,3 +208,5 @@ At each breakout: set artifact `approval_status: approved`, record **content_has
 | 2026-10-30 | Menno Drescher / Cursor | **v1.2.0 — 6.B-2B** Phase 1 Gantt from activity list CPM. |
 | 2026-10-30 | Menno Drescher / Cursor | **v1.3.0 — Pack complete:** integrated baseline definition, PMBOK §2.3 evidence chain, metrics snapshot, full registry (8 artifacts); ready for **6.B** breakouts. |
 | 2026-10-30 | Menno Drescher | **v1.4.0 — 6.B-6:** Foundation **6.B-0P … 6.B-5** approved; registry hashes recorded; `pack_status: approved`. |
+| 2026-10-30 | Menno Drescher / Copilot | **6.B-0 verified:** Scope Management Plan v1.2.0 approved at **6.A-7**; approval Episode `d68772b0-d831-4a86-90a9-a891747b9007` hash matches current Scope plan. |
+| 2026-11-01 | Menno Drescher | **6.B-7 complete:** Schedule Management Plan v1.2.0 approved by the Project Sponsor; BFI-001 applied; approval Episode `d8ee6350-a7ce-48c7-a566-d2e602c28c9a`. |

@@ -1,6 +1,7 @@
 # Epic 16: Deterministic Upper Confidence Bound (UCB) Decision Policy
 
 **Source ADR:** [ADR-016](../adr/ADR-016-deterministic-ucb-decision-policy.md) — Accepted (2026-10-28)  
+**Governing Baseline:** [PMP-BL-v1.0.0](../project-docs/Project-Management-Plan.md)  
 **Source BRD/FDD:** [BRD-016](../project-docs/Business-Requirements/BRD-016-deterministic-ucb-decision-policy.md) / [FDD-016](../project-docs/Functional-Design/FDD-016-deterministic-ucb-decision-policy.md)  
 **Status:** Approved (2026-10-29, Menno), amended 2026-10-29 for the shared statistics module (FDD-016 E7) and re-approved via `approve-user-stories` (robust utility 0.747, episode `7a3c966d-60e0-4fc7-ac2d-c203359f8c96`; comparison with the previous approval 0.739: flat, within tolerance, no criterion lower) — stories derived from Accepted ADR-016, BRD-016 and FDD-016; adjudicated via `approve-user-stories` (robust utility 0.739, episode `3d00424a-a01d-4bca-8623-a5953d3347d5`). The source-comparison criterion of Story 16.5 AC2 ("reinforce.py is unchanged") was made behavioural on 2026-10-29 and the stories were re-approved via `approve-user-stories` (robust utility 0.751, episode `86e5eb7c-6b0e-487a-83b7-a4054fff45a0`; comparison with the previous approval: flat, within tolerance, no criterion lower). The epic number follows the source ADR number, as Epic 15 follows ADR-015.  
 

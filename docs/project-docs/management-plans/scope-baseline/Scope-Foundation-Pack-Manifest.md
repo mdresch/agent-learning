@@ -14,9 +14,9 @@ pack_status: approved
 
 Roll-up for **Stage 6.A** (proactive scope foundation breakouts) before the first `approve-subsidiary-plan` on [Scope-Management-Plan.md](../Scope-Management-Plan.md) **v1.2+**.
 
-**Pack state:** Foundation breakouts **6.A-0P … 6.A-5** **approved** (2026-10-30); registry hashes below. **6.A-6** roll-up complete. **Next:** **6.A-7** — `approve-subsidiary-plan` on [Scope-Management-Plan.md](../Scope-Management-Plan.md) **v1.2.0** and close **BFI-002**.
+**Pack state:** Foundation breakouts **6.A-0P … 6.A-5** **approved** (2026-10-30); registry hashes below. **6.A-6** roll-up complete. **6.A-7** — `approve-subsidiary-plan` on [Scope-Management-Plan.md](../Scope-Management-Plan.md) **v1.2.0** — approved by the Project Sponsor on **2026-10-30** (Episode `d68772b0-d831-4a86-90a9-a891747b9007`); **BFI-002 applied**.
 
-**Integrated scope baseline (after 6.A-6 + 6.A-7):** approved **this manifest** (registry hashes current) + approved **Scope Management Plan v1.2+** + **six approved foundation artifacts**:
+**Integrated scope baseline:** approved **this manifest** (registry hashes current) + approved **Scope Management Plan v1.2.0** + **six approved foundation artifacts**:
 
 | Substage | Artifact |
 | --- | --- |
@@ -47,7 +47,7 @@ Governance and decomposition rules stay in the **Scope plan**; §2.2 evidence st
 | **6.A-4** | **Validate Scope** | [Scope-Validate-Scope.md](foundation/Scope-Validate-Scope.md) | DoD, RTM convention | ☑ |
 | **6.A-5** | Domain outcomes | [Scope-Domain-Checklist.md](foundation/Scope-Domain-Checklist.md) | Table 2-6 scope outcomes | ☑ |
 | **6.A-6** | Roll-up | This manifest | All artifacts approved; checklist ☑ | ☑ |
-| **6.A-7** | Plan gate | Scope Management Plan v1.2+ | Integrated baseline; BFI-002 applied or closed | ☐ |
+| **6.A-7** | Plan gate | Scope Management Plan v1.2+ | Integrated baseline; BFI-002 applied or closed | ☑ |
 
 Schedule foundation **6.B-0** requires Scope plan **v1.2+** approved after **6.A-7**.
 
@@ -77,7 +77,7 @@ Epic **13.7** / **34.4** may later automate manifest verification; Path A does n
 3. Tick **Done** for **6.A-7** in the checklist above.
 4. **Unblocks** [Schedule-Foundation-Pack-Manifest.md](../schedule-baseline/Schedule-Foundation-Pack-Manifest.md) **6.B-0**.
 
-**Approval notes should cite:** `PMP-BL-v1.0.0`, manifest version, and foundation pack path `scope-baseline/Scope-Foundation-Pack-Manifest.md`.
+**Approval record:** Episode `d68772b0-d831-4a86-90a9-a891747b9007`; canonical Scope Management Plan hash `3febf6edd1dbed564df2a8618176d32c42ec19a5d02dcf3ea45b594b70cb33a8`. The decision covers `PMP-BL-v1.0.0`, manifest v1.2.0, and foundation pack path `scope-baseline/Scope-Foundation-Pack-Manifest.md`.
 
 ---
 
@@ -116,3 +116,4 @@ Then proceed to Schedule foundation **6.B** (depends on approved Scope).
 | 2026-10-30 | Menno Drescher | [Project-Pillars.md](../../../Project-Pillars.md) marked **Approved**; upstream gate and 6.A-0 checklist updated. |
 | 2026-10-30 | Menno Drescher / Cursor | **v1.1.0** — Integrated baseline table; **§ Plan gate 6.A-7** (entry/exit, BFI-002, unblocks Schedule **6.B-0**). |
 | 2026-10-30 | Menno Drescher | **v1.2.0 — 6.A-6:** Foundation **6.A-0P … 6.A-5** approved; registry hashes recorded; `pack_status: approved`. |
+| 2026-10-30 | Menno Drescher | **6.A-7 complete:** Scope Management Plan v1.2.0 approved by the Project Sponsor; BFI-002 applied; approval Episode `d68772b0-d831-4a86-90a9-a891747b9007`. |

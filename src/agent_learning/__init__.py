@@ -220,6 +220,11 @@ from .metrics import (
     evaluate_all,
 )
 from .policy import ContextualSoftmaxPolicy, Policy, SoftmaxPolicy
+from .warm_start import (
+    DAMPING_DEFAULT,
+    DAMPING_DEFAULT_META_PRIOR,
+    warm_start_logits,
+)
 from .rewards import RewardShaper, RewardWriter, shape_episode_reward
 from .storage import (
     CosmosStore,
@@ -417,4 +422,7 @@ __all__ = [
     "next_step",
     "shape_episode_reward",
     "wilson_lower_bound",
+    "DAMPING_DEFAULT",
+    "DAMPING_DEFAULT_META_PRIOR",
+    "warm_start_logits",
 ]

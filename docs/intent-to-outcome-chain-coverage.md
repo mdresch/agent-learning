@@ -21,13 +21,11 @@ There is an important distinction between the abstract conceptual trace and the 
        ↓
 4. Project Charter (Objective — Initiating: 4.1 Develop Project Charter)
        ↓
-5. Subsidiary Management Plans (Planning: 5.1/6.1/7.1 via ADR-011 Tailoring & ADR-013 approve-subsidiary-plan)
-       ↓ (Causal DAG: Scope ADR-025 → Schedule → Cost)
-   Integrated Project Management Plan (Planning: 4.2 Develop PMP via approve-pmp)
+5. Technical Specifications: ADR → BRD → FDD → User Stories (Stage 6: Requirement — Planning: 5.2/5.3/5.4)
        ↓
-6. Technical Specifications: ADR → BRD → FDD → User Stories (Planning: 5.2/5.3/5.4)
+6. Subsidiary Management Plans & Integrated Project Management Plan (Stage 7: Project & Baselines — Planning: 4.2 Develop PMP via approve-pmp)
        ↓
-7. Foundation Validation Gate (Planning → Executing Entry Gate)
+7. Implementation Readiness Gate (Stage 8: Implementation Authorization — Planning → Executing Boundary Gate via validate-intent-foundation)
        ↓
 8. Implementation & Verification (Executing: 4.3 & Monitoring & Controlling: 8.3)
        ↓
@@ -51,9 +49,9 @@ There is an important distinction between the abstract conceptual trace and the 
 | 3 | **Hypothesis** | **Initiating** | Pre-Project: Design Assumption Formulation | `Ideation-Document.md`<br>(Hypothesis section / `HYP-*.md`) | `agent-learning-governance` / **`classify-hypothesis-status`** | `FULL`<br>(7 actions: advance to testing, mark validated, mark invalidated, etc.) | Inputs: Design assumptions & test logs. Process: Evaluate empirical evidence. Output: Validated / testing status. |
 | 4 | **Benefit** | **Initiating** | Business Documents: Benefits Realization Planning | `Business-Case.md`<br>`Benefits-Statement.md` | `template-governance` / **`approve-business-case`** | `FULL`<br>(3 actions: approve, reject, request revision) | Inputs: Hypotheses & ROI premise. Process: Validate economics. Output: Benefits Statement (Input to Charter). |
 | 5 | **Capability** | **Executing** | Capability Crystallization | Capability Matrix / Catalog | *Automated Synthesis* | Deterministic mapping | Inputs: Delivered code & modules. Process: Map skills & competencies. Output: Organizational Capabilities. |
-| 6 | **Project** | **Planning** | 4.2 Develop Project Management Plan | `Project-Management-Plan.md`<br>& Subsidiary Plans (`docs/project-docs/management-plans/` / `.staging/pmp-sections/`) | `agent-learning-governance` /<br>• **`approve-subsidiary-plan`** (ADR-013)<br>• **`approve-pmp`** | `FULL`<br>(3 actions each: approve, reject, request revision) | Inputs: Project Charter & tailored subsidiary plans (Scope ADR-025, Schedule, Cost, etc.). Process: Prerequisite subsidiary plan gate + integrated baseline formalization. Output: Approved PMP Baseline (`PMP-BL-vX.Y.Z`). |
-| 7 | **Requirement** | **Planning** | 5.2 Collect Requirements & 5.3 Define Scope | Architecture & Specs:<br>• `ADR-*.md`<br>• `BRD-*.md`<br>• `FDD-*.md`<br>• `user-stories/*.md` | `template-governance` /<br>• **`approve-adr`**<br>• **`approve-brd`**<br>• **`approve-fdd`**<br>• **`approve-user-stories`** | `FULL`<br>(3 actions each: approve, reject, request revision) | Inputs: PMP Scope & Hypotheses. Process: Architectural & functional specification. Output: Approved ADR/BRD/FDD/Stories. |
-| 8 | **Work Package** | **Planning → Executing** | 5.4 Create WBS & Sprint Gate | Epic / Sprint Backlog Entry | `template-governance` / **`validate-intent-foundation`** | `FULL`<br>(3 actions: accept, reject, flag) | Inputs: Approved requirements package. Process: Gate implementation entry. Output: Provisioned git worktree. |
+| 6 | **Requirement** | **Planning** | 5.2 Collect Requirements & 5.3 Define Scope | Architecture & Specs:<br>• `ADR-*.md`<br>• `BRD-*.md`<br>• `FDD-*.md`<br>• `user-stories/*.md` | `template-governance` /<br>• **`approve-adr`**<br>• **`approve-brd`**<br>• **`approve-fdd`**<br>• **`approve-user-stories`** | `FULL`<br>(3 actions each: approve, reject, request revision) | Inputs: Project Charter, Pillars & Hypotheses. Process: Architectural & functional specification. Output: Approved ADR/BRD/FDD/Stories (Feeds Scope Baseline & WBS). |
+| 7 | **Project (PMP & Baselines)** | **Planning** | 4.2 Develop Project Management Plan | `Project-Management-Plan.md`<br>& Subsidiary Plans (`docs/project-docs/management-plans/` / `.staging/pmp-sections/`) | `agent-learning-governance` /<br>• **`approve-subsidiary-plan`** (ADR-013)<br>• **`approve-pmp`** | `FULL`<br>(3 actions each: approve, reject, request revision) | Inputs: Stage 6 Requirements, WBS & tailored subsidiary plans (Scope ADR-025, Schedule, Cost, Quality, Risk, etc.). Process: Prerequisite subsidiary plan gate + integrated baseline formalization. Output: Approved PMP Baseline (`PMP-BL-vX.Y.Z`). |
+| 8 | **Implementation Readiness** | **Planning → Executing** | 5.4 WBS & Execution Authorization Gate | Story Implementation Authorization | `template-governance` / **`validate-intent-foundation`** | `FULL`<br>(3 actions: accept, reject, flag) | Certifies tests, environment, criteria readiness, and baseline reconciliation before developer begins execution. Output: Provisioned story worktree. |
 | 9 | **Deliverable** | **Executing** | 4.3 Direct & Manage Project Work | Source Code & Release Artifacts | `implement-story` & `heal-contract-failure` | Direct Execution & Review | Inputs: Approved stories & acceptance criteria. Process: TDD / contract-first build. Output: Executable code deliverable. |
 | 10 | **Verification Evidence** | **Monitoring & Controlling** | 8.3 Control Quality | Contract Tests & Execution Logs | Executable Test Suite | Input Evidence | Inputs: Code deliverable & contract tests. Process: Execute test suite. Output: Verification evidence report (pytest). |
 | 11 | **Audit Record** | **Monitoring & Controlling** | 8.2 Manage Quality Audits | `Audit-Register.md`<br>`Audit-Finding.md` | `template-governance` / **`approve-audit-record`** | `FULL`<br>(3 actions: approve, reject, request revision) | Inputs: Deliverables & verification logs. Process: Audit architectural conformance. Output: Approved Audit Register entries. |
@@ -69,17 +67,17 @@ There is an important distinction between the abstract conceptual trace and the 
 
 ## 3. The Continuous Adaptation & PMP Feedback Cycle
 
-The approved baseline (Stage 6) has two routes back, kept apart (ADR-037, Proposed). This section's cycle is the **execution loop**; section 3.1 is the **design-time loop**.
+The approved baseline (Stage 7) has two routes back, kept apart (ADR-037, Proposed). This section's cycle is the **execution loop**; section 3.1 is the **design-time loop**.
 
 When an operational gap, audit finding, or governance amendment occurs:
 
 ```mermaid
 flowchart TD
     G["Stage 16: Governance Change<br/>(4.6 Integrated Change Control)<br/>classify-diff-type & escalate-diff-response"] --> A["Stage 17: Adaptation Plan<br/>(4.6 Change Tailoring)<br/>approve-adaptation-plan"]
-    A -->|"Tailors subsidiary plans"| SUB["Stage 6a: Subsidiary Plans<br/>(ADR-013 approve-subsidiary-plan)<br/>Scope ADR-025 → Schedule → Cost"]
-    SUB -->|"Formalizes baseline"| PMP["Stage 6b: Project Management Plan<br/>(4.2 Develop PMP)<br/>approve-pmp"]
-    PMP -->|"Triggers refined technical specifications"| REQ["Stage 7: Requirements<br/>(5.2 / 5.3 / 5.4 Planning)<br/>approve-adr, approve-brd, approve-fdd, approve-user-stories"]
-    REQ -->|"Re-enters implementation pipeline"| WP["Stage 8: Work Package Entry<br/>validate-intent-foundation"]
+    A -->|"Cascades into technical specifications"| REQ["Stage 6: Requirements<br/>(5.2 / 5.3 / 5.4 Planning)<br/>approve-adr, approve-brd, approve-fdd, approve-user-stories"]
+    REQ -->|"Supplies scope & WBS"| SUB["Stage 7a: Subsidiary Plans<br/>(ADR-013 approve-subsidiary-plan)<br/>Scope ADR-025 → Schedule → Cost"]
+    SUB -->|"Formalizes baseline"| PMP["Stage 7b: Project Management Plan<br/>(4.2 Develop PMP)<br/>approve-pmp"]
+    PMP -->|"Authorizes work package entry"| WP["Stage 8: Implementation Readiness Gate<br/>(Implementation Authorization)<br/>validate-intent-foundation"]
     WP -->|"Builds & verifies"| DEL["Stage 9-10: Deliverables & Evidence<br/>(4.3 Executing & 8.3 Controlling Quality)<br/>implement-story & heal-contract-failure"]
     DEL -->|"Audits compliance"| AUD["Stage 11: Audit Record<br/>(8.2 Quality Audits)<br/>approve-audit-record"]
     AUD -->|"Synthesizes learnings"| KB["Stage 14-15: Insights & Lessons Learned<br/>(4.4 Manage Project Knowledge)<br/>resolve-kb-conflict"]
@@ -88,20 +86,20 @@ flowchart TD
     IR -->|"Updates Spark / Ideation"| SPARK["Stage 1: Intent<br/>(Pre-Project Initiating)<br/>approve-ideation"]
 ```
 
-### 3.1 The design-time loop (Stage 7-8 → Stage 16 → Stage 6) — Proposed in ADR-037
+### 3.1 The design-time loop (Stage 6-7 → Stage 16 → Stage 7) — Proposed in ADR-037
 
-The cycle above is the **execution loop**: its trigger is evidence from executed work (Stages 9-15). A defect in the approved baseline found while writing Stage 7 requirements or checking Stage 8 readiness has no such evidence yet, so it takes a second route, alongside the first and not replacing it. This route becomes active when ADR-037 is accepted.
+The cycle above is the **execution loop**: its trigger is evidence from executed work (Stages 9-15). A defect in the approved baseline found while writing Stage 6 requirements or checking Stage 7-8 baseline readiness has no such evidence yet, so it takes a second route, alongside the first and not replacing it. This route becomes active when ADR-037 is accepted.
 
 ```mermaid
 flowchart TD
-    R["Stage 7 review / Stage 8 readiness check"] -->|"finding cites the documents"| B["BFI-NNN logged<br/>(PMP Pending Baseline Feedback)"]
+    R["Stage 6 review / Stage 7-8 readiness check"] -->|"finding cites the documents"| B["BFI-NNN logged<br/>(PMP Pending Baseline Feedback)"]
     B --> C["Stage 16: classify-diff-type<br/>evidence_basis = design_time"]
     C --> E["escalate-diff-response<br/>(Charter approval-limit thresholds)"]
     E -->|"editorial"| ED["Apply and log"]
     E -->|"upstream ADR / BRD / FDD"| UP["Amend, re-confirm with its own policy"]
     E -->|"within PM authority"| PM["PM revises the plan; the plan's policy re-approves"]
     E -->|"Steering Committee"| BRP["Baseline Revision Package<br/>approve-pmp records PMP-BL-v1.0.x"]
-    ED --> X["Cascade check of downstream Stage 7 documents"]
+    ED --> X["Cascade check of downstream Stage 6 documents"]
     UP --> X
     PM --> X
     BRP --> X
@@ -142,12 +140,12 @@ This repository has no recorded `resolve-kb-conflict` decision, so no shape is d
 | **Hypothesis Classification** | `agent-learning-governance` / `classify-hypothesis-status` | `full` | Pre-Project Initiating | Evaluates experimental empirical evidence against formulated hypotheses (Stage 3 Hypothesis) |
 | **Business Case Approval** | `agent-learning-governance` / `approve-business-case` | `full` | Business Documents Initiating | Validates Business Case, Benefits Statement, and value premise (Stage 4 Benefit) |
 | **Subsidiary Plan Approval** | `agent-learning-governance` / `approve-subsidiary-plan` | `full` | 5.1/6.1/7.1 Subsidiary Planning | Evaluates individual subsidiary management plans (Scope ADR-025, Schedule, Cost, Risk, Quality) before PMP formalization (ADR-013 §4.2) |
-| **PMP Approval** | `agent-learning-governance` / `approve-pmp` | `full` | 4.2 Develop PMP | Formalizes integrated Project Management Plan and subsidiary management plans (Stage 6 Project) |
-| **ADR Approval** | `agent-learning-governance` / `approve-adr` | `full` | 5.3 Define Scope / Architecture | Evaluates architectural soundness, alternatives, and consequence honesty (Stage 7 Requirement) |
-| **BRD Approval** | `agent-learning-governance` / `approve-brd` | `full` | 5.2 Collect Requirements | Evaluates business rules, stakeholder alignment, and boundary definitions (Stage 7 Requirement) |
-| **FDD Approval** | `agent-learning-governance` / `approve-fdd` | `full` | 5.3 Detailed Interface Design | Evaluates technical interface design, storage footprint, and invariant enforcement (Stage 7 Requirement) |
-| **Story Approval** | `agent-learning-governance` / `approve-user-stories` | `full` | 5.4 Create WBS / Backlog | Evaluates testability of acceptance criteria and contract feasibility (Stage 7 Requirement) |
-| **Foundation Validation** | `agent-learning-governance` / `validate-intent-foundation` | `full` | Planning → Executing Gate | Pre-implementation gate ensuring requirement artifacts are fully grounded (Stage 8 Work Package) |
+| **PMP Approval** | `agent-learning-governance` / `approve-pmp` | `full` | 4.2 Develop PMP | Formalizes integrated Project Management Plan and subsidiary management plans (Stage 7 Project & Baselines) |
+| **ADR Approval** | `agent-learning-governance` / `approve-adr` | `full` | 5.3 Define Scope / Architecture | Evaluates architectural soundness, alternatives, and consequence honesty (Stage 6 Requirement) |
+| **BRD Approval** | `agent-learning-governance` / `approve-brd` | `full` | 5.2 Collect Requirements | Evaluates business rules, stakeholder alignment, and boundary definitions (Stage 6 Requirement) |
+| **FDD Approval** | `agent-learning-governance` / `approve-fdd` | `full` | 5.3 Detailed Interface Design | Evaluates technical interface design, storage footprint, and invariant enforcement (Stage 6 Requirement) |
+| **Story Approval** | `agent-learning-governance` / `approve-user-stories` | `full` | 5.4 Create WBS / Backlog | Evaluates testability of acceptance criteria and contract feasibility (Stage 6 Requirement) |
+| **Foundation Validation** | `agent-learning-governance` / `validate-intent-foundation` | `full` | Planning → Executing Gate | Pre-implementation gate ensuring requirement artifacts are fully grounded (Stage 8 Implementation Authorization: Start of Execution) |
 | **Audit Record Approval** | `agent-learning-governance` / `approve-audit-record` | `full` | 8.2 Manage Quality Audits | Validates audit findings, non-conformances, and corrective actions (Stage 11 Audit Record) |
 | **Semantic Diff Classification** | `agent-learning-governance` / `classify-diff-type` | `full` | 4.6 Integrated Change Control | Evaluates candidate textual diffs against frozen baseline to determine structural form of change (Stage 16 Governance Change) |
 | **Diff Response Escalation** | `agent-learning-governance` / `escalate-diff-response` | `low` | 4.6 Integrated Change Control | Learns operational escalation policy from aggregate outcomes via REINFORCE, gated by ADR-005 progression comparison (Stage 16 Governance Change) |

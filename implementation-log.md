@@ -1130,5 +1130,5 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Review validation:** 7 passed in `tests/test_warm_start_logits.py`; full regression suite passed with 1,519 passed, 3 skipped in 57.49s (excluding `tests/pmbok` due to optional dependencies, per LL-013).
 - **Amazon Q triage (round 1 on `1397839`):**
   - `Q-81-1 | logic error | verified: yes | decision: accepted | Explicitly reject bool instances for damping and donor logits (bool is a subclass of int in Python) by raising TypeError | fix: f856a47`
-  - `Q-81-2 | hygiene | verified: yes | decision: accepted | Remove unused Dict import from typing in warm_start.py | fix: f856a47`
+  - `Q-81-2 | style | verified: yes | decision: accepted | Remove unused Dict import from typing in warm_start.py | fix: f856a47`
   - `Q-81-3 | test gap | verified: yes | decision: accepted | Replace hardcoded relative path with inspect.getfile(agent_learning.warm_start) in purity contract test | fix: f856a47`

@@ -1141,3 +1141,22 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-81-7 | documentation | verified: yes | decision: accepted | Update status to resolved and record selected_action in pmp-decision-result.json to match pmp-approval-episode.json | fix: 3dec130`
 - **Amazon Q triage (round 5 on `d91e6c0`):**
   - `Q-81-8 | test gap | verified: yes | decision: accepted | Add base_action_map fixture parameter to test_ac3_complete_map signature to avoid fixture shadowing | fix: 0ed7794`
+
+## Story 20.2 — The Provenance Record
+- **Commit:** `554ed90`
+- **Date:** 2026-11-01
+- **Branch:** `feat/story-20.2`
+- **Source ADR / BRD / FDD:** ADR-020 (§4.3), BRD-020 (BRU-020-07), FDD-020 (§1.1, §2.2, §3.2)
+- **Files Modified/Created:**
+  - `src/agent_learning/warm_start.py` (`provenance`, `VALID_DONOR_KINDS`)
+  - `src/agent_learning/__init__.py` (re-exports)
+  - `tests/test_warm_start_provenance.py` (contract tests for AC_0 through AC_3)
+  - `.claude/skills/warm-start/SKILL.md` (component skill updated with provenance contract)
+- **Contracts:**
+  - `tests/test_warm_start_provenance.py` (4 tests, all passing)
+  - Full suite: 1,523 passed, 3 skipped in 63.93s (excluding `tests/pmbok` due to optional dependencies, per LL-013)
+- **Notes:**
+  - Standard library pure implementation: zero numpy, zero random, zero storage layer imports.
+  - Generates durable snapshot metadata: `warm_start_donor_policy_id`, `warm_start_donor_task_id`, `warm_start_donor_version`, `warm_start_damping_factor`, `warm_started_at`, `warm_start_action_map`, `warm_start_donor_kind`, `warm_start_donor_gate_met`.
+  - Clock isolation: `now` argument is preserved verbatim; reads no system clocks.
+  - Strict serialization safety: round-trips losslessly through `json.dumps` and `json.loads`.

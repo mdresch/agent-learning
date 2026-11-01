@@ -1126,3 +1126,9 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - Standard library pure implementation: zero numpy, zero random, zero storage imports.
   - Implements exact mathematical formula: `target_logits[a] = donor_logits[action_map[a]] * damping`.
   - Monotonicity of softmax entropy verified over a 100-point damping grid in `(0, 1]`.
+- **Review-fix commits:** `f856a47` (`fix(warm-start): address Amazon Q review findings on Story 20.1`)
+- **Review validation:** 7 passed in `tests/test_warm_start_logits.py`; full regression suite passed with 1,519 passed, 3 skipped in 57.49s (excluding `tests/pmbok` due to optional dependencies, per LL-013).
+- **Amazon Q triage (round 1 on `1397839`):**
+  - `Q-81-1 | logic error | verified: yes | decision: accepted | Explicitly reject bool instances for damping and donor logits (bool is a subclass of int in Python) by raising TypeError | fix: f856a47`
+  - `Q-81-2 | hygiene | verified: yes | decision: accepted | Remove unused Dict import from typing in warm_start.py | fix: f856a47`
+  - `Q-81-3 | test gap | verified: yes | decision: accepted | Replace hardcoded relative path with inspect.getfile(agent_learning.warm_start) in purity contract test | fix: f856a47`

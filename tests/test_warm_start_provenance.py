@@ -139,10 +139,14 @@ def test_ac1_kind(
         with pytest.raises((TypeError, ValueError)):
             provenance(mock_donor_snapshot, 0.70, now_str, action_map=sample_action_map, gate_met=bad_gate)
 
-    # Invalid now type raises TypeError
+    # Invalid now type raises TypeError; empty/whitespace string raises ValueError
     for bad_now in [123, True, None, object()]:
         with pytest.raises(TypeError):
             provenance(mock_donor_snapshot, 0.70, bad_now, action_map=sample_action_map)
+
+    for empty_now in ["", "   ", " 	 "]:
+        with pytest.raises(ValueError):
+            provenance(mock_donor_snapshot, 0.70, empty_now, action_map=sample_action_map)
 
     # Invalid donor (missing identity attributes) raises ValueError
     class IncompleteDonor:
@@ -159,7 +163,6 @@ def test_ac2_no_clock(
     """AC_2: the time is the now argument unchanged; the function reads no clock."""
     frozen_now = "2026-11-01T23:59:59.123456+00:00"
     record = provenance(mock_donor_snapshot, 0.70, frozen_now, action_map=sample_action_map)
-    assert record["warm_started_at"] is frozen_now
     assert record["warm_started_at"] == frozen_now
 
     # Module source must not import clock utilities

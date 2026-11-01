@@ -127,6 +127,8 @@ def provenance(
 
     if not isinstance(now, str):
         raise TypeError(f"now must be a string, got {type(now).__name__}")
+    if not now.strip():
+        raise ValueError("now must be a non-empty string")
 
     if gate_met is not None and not isinstance(gate_met, bool):
         raise TypeError(f"gate_met must be bool or None, got {type(gate_met).__name__}")

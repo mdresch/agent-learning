@@ -3,19 +3,29 @@
   "task_id": "approve-pmp",
   "policy_id": "approve-pmp-policy",
   "policy_version": 0,
-  "status": "needs_user_feedback",
-  "reason": "The policy requires human approval; accept or reject the reasoned recommendation.",
+  "status": "resolved",
+  "reason": "The user accepted the proposed recommendation to approve the Project Management Plan.",
   "selection_basis": "bayesian_decision",
-  "selected_action": null,
-  "proposed_action": {
+  "selected_action": {
     "id": "approve_pmp",
     "description": "The Project Management Plan soundly integrates the subsidiary management plans (Scope, Risk, Quality, Communications, Resource, etc.), establishes valid baselines, and defines clear governance rules -- approve it to authorize drafting ADRs, BRDs, FDDs, and User Stories",
     "parameters": {}
   },
+  "proposed_action": null,
   "candidate_actions": [
     {
       "id": "approve_pmp",
       "description": "The Project Management Plan soundly integrates the subsidiary management plans (Scope, Risk, Quality, Communications, Resource, etc.), establishes valid baselines, and defines clear governance rules -- approve it to authorize drafting ADRs, BRDs, FDDs, and User Stories",
+      "parameters": {}
+    },
+    {
+      "id": "reject_pmp",
+      "description": "The Project Management Plan has critical gaps, conflicting subsidiary plans, or ungrounded baseline assumptions -- reject it outright",
+      "parameters": {}
+    },
+    {
+      "id": "request_revision_before_decision",
+      "description": "The Project Management Plan requires reconciliation among subsidiary plans, clearer risk/quality thresholds, or unforced schedule/cost deferrals before authorization",
       "parameters": {}
     }
   ],

@@ -38,4 +38,15 @@ Explicit warm-starting accelerates Bayesian policy convergence by transferring c
    - Every mapped donor action must exist in `donor_logits`.
    - All donor logits must be finite floating-point numbers.
 5. **Autonomy Safety:** Target policy snapshot always starts cold (`version=0`, `episodes_seen=0`, `updates_applied=0`), ensuring the warm-started policy cannot bypass human adjudication gates until empirical evidence accumulates under the new task.
+6. **Provenance Contract (Story 20.2):**
+   - Records complete lineage in snapshot metadata:
+     - `warm_start_donor_policy_id`: Donor's snapshot UUID.
+     - `warm_start_donor_task_id`: Donor's task identifier.
+     - `warm_start_donor_version`: Donor's version integer.
+     - `warm_start_damping_factor`: Scale factor $\tau \in (0, 1.0]$.
+     - `warm_started_at`: Time string passed via `now` argument (no internal clock reads).
+     - `warm_start_action_map`: Dictionary mapping target action to donor action.
+     - `warm_start_donor_kind`: `"policy"` or `"meta_prior"` (default `"policy"`).
+     - `warm_start_donor_gate_met`: Boolean or `None` (`null` in JSON).
+   - JSON Safe: Must round-trip losslessly through `json.dumps` and `json.loads`.
 

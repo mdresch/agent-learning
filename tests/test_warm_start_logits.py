@@ -227,8 +227,14 @@ def test_ac6_pure(
     assert base_target_actions == target_copy
 
     # Purity check on warm_start.py source code using inspect.getfile for reliable resolution
-    source_path = Path(inspect.getfile(agent_learning.warm_start)).resolve()
-    assert source_path.is_file(), "warm_start.py does not exist"
+    source_path = Path(inspect.getfile(agent_learning.warm_start))
+    if source_path.suffix == ".pyc":
+        # Navigate from __pycache__/warm_start.cpython-XY.pyc back to warm_start.py
+        source_path = source_path.parent.parent / (source_path.stem.split(".")[0] + ".py")
+    source_path = source_path.resolve()
+    assert source_path.is_file() and source_path.suffix == ".py", (
+        f"warm_start.py source not found (resolved: {source_path})"
+    )
     source_text = source_path.read_text(encoding="utf-8")
 
     forbidden = ["agent_learning.storage", "import random", "from random", "import numpy", "from numpy"]

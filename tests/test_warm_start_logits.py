@@ -28,6 +28,7 @@ Acceptance Criteria:
 
 from __future__ import annotations
 
+import ast
 import copy
 import importlib.util
 import inspect
@@ -163,40 +164,56 @@ def test_ac3_complete_map(
         "ask": "escalate",
         "extra_target": "approve",
     }
-    with pytest.raises(ValueError):
-        warm_start_logits(base_donor_logits, extra_map, base_target_actions)
-
-    # Duplicate target actions in sequence
-    dup_target_actions = ["accept", "decline", "ask", "accept"]
     with pytest.raises(ValueError) as exc_info:
-        warm_start_logits(base_donor_logits, base_action_map, dup_target_actions)
-    assert "duplicate" in str(exc_info.value).lower() or "target_actions" in str(exc_info.value).lower()
+        warm_start_logits(base_donor_logits, extra_map, base_target_actions)
+    assert "map" in str(exc_info.value).lower() or "target" in str(exc_info.value).lower()
 
 
 def test_ac4_one_to_one(
     base_donor_logits: dict[str, float],
     base_target_actions: list[str],
 ) -> None:
-    """AC_4: One-to-one constraint and donor presence checks."""
-    # Two target actions mapped to same donor action
-    duplicate_map = {"accept": "approve", "decline": "approve", "ask": "escalate"}
-    with pytest.raises(ValueError):
-        warm_start_logits(base_donor_logits, duplicate_map, base_target_actions)
+    """AC_4: Injective map enforced, missing donor actions raise, unused donor actions ignored."""
+    # Duplicate mapped donor action raises ValueError
+    non_injective_map = {"accept": "approve", "decline": "approve", "ask": "escalate"}
+    with pytest.raises(ValueError) as exc_info:
+        warm_start_logits(base_donor_logits, non_injective_map, base_target_actions)
+    assert "multiple" in str(exc_info.value).lower() or "same" in str(exc_info.value).lower()
 
-    # Mapped donor action absent from donor logits
-    absent_donor_map = {"accept": "approve", "decline": "reject", "ask": "non_existent_donor_action"}
-    with pytest.raises(ValueError):
-        warm_start_logits(base_donor_logits, absent_donor_map, base_target_actions)
+    # Target mapped to non-existent donor action raises ValueError
+    missing_donor_map = {"accept": "approve", "decline": "reject", "ask": "non_existent_action"}
+    with pytest.raises(ValueError) as exc_info:
+        warm_start_logits(base_donor_logits, missing_donor_map, base_target_actions)
+    assert "non_existent_action" in str(exc_info.value)
 
-    # Donor actions that no target maps to are ignored
-    donor_with_extras = {"approve": 2.0, "reject": -1.0, "escalate": 0.0, "unused_action": 9.9}
-    valid_map = {"accept": "approve", "decline": "reject", "ask": "escalate"}
-    res = warm_start_logits(donor_with_extras, valid_map, base_target_actions)
-    assert set(res.keys()) == set(base_target_actions)
-    assert "unused_action" not in res
+    # Unmapped donor actions in donor_logits are ignored
+    wider_donor_logits = {
+        "approve": 2.0,
+        "reject": -1.0,
+        "escalate": 0.0,
+        "unmapped_1": 9.9,
+        "unmapped_2": -4.2,
+    }
+    normal_map = {"accept": "approve", "decline": "reject", "ask": "escalate"}
+    res = warm_start_logits(wider_donor_logits, normal_map, base_target_actions)
+    assert len(res) == len(base_target_actions)
+    assert "unmapped_1" not in res
+    assert "unmapped_2" not in res
+
+
+def test_duplicate_target_actions(
+    base_donor_logits: dict[str, float],
+    base_action_map: dict[str, str],
+) -> None:
+    """Duplicate target action identifiers raise ValueError."""
+    dup_targets = ["accept", "decline", "accept"]
+    with pytest.raises(ValueError) as exc_info:
+        warm_start_logits(base_donor_logits, base_action_map, dup_targets)
+    assert "duplicate" in str(exc_info.value).lower()
 
 
 def test_ac5_donor_values(
+    base_donor_logits: dict[str, float],
     base_action_map: dict[str, str],
     base_target_actions: list[str],
 ) -> None:
@@ -228,7 +245,7 @@ def test_ac6_pure(
     assert base_action_map == map_copy
     assert base_target_actions == target_copy
 
-    # Purity check on warm_start.py source code using inspect.getfile for reliable resolution
+    # Purity check on warm_start.py source code using AST
     source_path = Path(inspect.getfile(agent_learning.warm_start))
     if source_path.suffix == ".pyc":
         source_path = Path(importlib.util.source_from_cache(str(source_path)))
@@ -238,7 +255,23 @@ def test_ac6_pure(
     )
     source_text = source_path.read_text(encoding="utf-8")
 
-    forbidden = ["agent_learning.storage", "import random", "from random", "import numpy", "from numpy"]
-    for pattern in forbidden:
-        assert pattern not in source_text, f"warm_start.py violates purity invariant: contains '{pattern}'"
+    tree = ast.parse(source_text)
+    imported_modules: set[str] = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                imported_modules.add(alias.name)
+                imported_modules.add(alias.name.split(".")[0])
+        elif isinstance(node, ast.ImportFrom):
+            if node.module:
+                imported_modules.add(node.module)
+                imported_modules.add(node.module.split(".")[0])
+        elif isinstance(node, ast.Call):
+            if isinstance(node.func, ast.Name) and node.func.id == "__import__":
+                if node.args and isinstance(node.args[0], ast.Constant) and isinstance(node.args[0].value, str):
+                    imported_modules.add(node.args[0].value)
+                    imported_modules.add(node.args[0].value.split(".")[0])
 
+    for mod in imported_modules:
+        assert mod not in {"random", "numpy"}, f"warm_start.py violates purity: imports {mod}"
+        assert not mod.startswith("agent_learning.storage"), f"warm_start.py violates purity: imports {mod}"

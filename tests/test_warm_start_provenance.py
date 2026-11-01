@@ -19,11 +19,14 @@ Acceptance Criteria:
 
 from __future__ import annotations
 
+import ast
 import copy
 import importlib.util
 import inspect
 import json
 from pathlib import Path
+import types
+import uuid
 import pytest
 
 import agent_learning.warm_start
@@ -144,16 +147,42 @@ def test_ac1_kind(
         with pytest.raises(TypeError):
             provenance(mock_donor_snapshot, 0.70, bad_now, action_map=sample_action_map)
 
-    for empty_now in ["", "   ", " 	 "]:
+    for empty_now in ["", "   ", " \t "]:
         with pytest.raises(ValueError):
             provenance(mock_donor_snapshot, 0.70, empty_now, action_map=sample_action_map)
 
-    # Invalid donor (missing identity attributes) raises ValueError
+    # Invalid donor: missing identity attributes raises ValueError
     class IncompleteDonor:
         pass
 
     with pytest.raises(ValueError):
         provenance(IncompleteDonor(), 0.70, now_str, action_map=sample_action_map)
+
+    # Invalid donor identity attribute types raise TypeError or ValueError
+    donor_bad_id_type = types.SimpleNamespace(id=uuid.uuid4(), task_id="task-1", version=1)
+    with pytest.raises(TypeError):
+        provenance(donor_bad_id_type, 0.70, now_str, action_map=sample_action_map)
+
+    donor_empty_id = types.SimpleNamespace(id="   ", task_id="task-1", version=1)
+    with pytest.raises(ValueError):
+        provenance(donor_empty_id, 0.70, now_str, action_map=sample_action_map)
+
+    donor_bad_task_type = types.SimpleNamespace(id="id-1", task_id=123, version=1)
+    with pytest.raises(TypeError):
+        provenance(donor_bad_task_type, 0.70, now_str, action_map=sample_action_map)
+
+    donor_empty_task = types.SimpleNamespace(id="id-1", task_id="", version=1)
+    with pytest.raises(ValueError):
+        provenance(donor_empty_task, 0.70, now_str, action_map=sample_action_map)
+
+    for bad_version_type in [True, False, "1", 1.5, object()]:
+        donor_bad_ver = types.SimpleNamespace(id="id-1", task_id="task-1", version=bad_version_type)
+        with pytest.raises(TypeError):
+            provenance(donor_bad_ver, 0.70, now_str, action_map=sample_action_map)
+
+    donor_neg_ver = types.SimpleNamespace(id="id-1", task_id="task-1", version=-1)
+    with pytest.raises(ValueError):
+        provenance(donor_neg_ver, 0.70, now_str, action_map=sample_action_map)
 
 
 def test_ac2_no_clock(
@@ -165,7 +194,7 @@ def test_ac2_no_clock(
     record = provenance(mock_donor_snapshot, 0.70, frozen_now, action_map=sample_action_map)
     assert record["warm_started_at"] == frozen_now
 
-    # Module source must not import clock utilities
+    # Module source must not import clock utilities (AST-checked)
     source_path = Path(inspect.getfile(agent_learning.warm_start))
     if source_path.suffix == ".pyc":
         source_path = Path(importlib.util.source_from_cache(str(source_path)))
@@ -173,9 +202,26 @@ def test_ac2_no_clock(
     assert source_path.is_file() and source_path.suffix == ".py", f"Source not found: {source_path}"
     source_text = source_path.read_text(encoding="utf-8")
 
-    clock_forbidden = ["import datetime", "from datetime", "import time", "from time"]
-    for pattern in clock_forbidden:
-        assert pattern not in source_text, f"warm_start.py violates clock-isolation invariant: contains '{pattern}'"
+    tree = ast.parse(source_text)
+    imported_modules: set[str] = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                imported_modules.add(alias.name)
+                imported_modules.add(alias.name.split(".")[0])
+        elif isinstance(node, ast.ImportFrom):
+            if node.module:
+                imported_modules.add(node.module)
+                imported_modules.add(node.module.split(".")[0])
+        elif isinstance(node, ast.Call):
+            if isinstance(node.func, ast.Name) and node.func.id == "__import__":
+                if node.args and isinstance(node.args[0], ast.Constant) and isinstance(node.args[0].value, str):
+                    imported_modules.add(node.args[0].value)
+                    imported_modules.add(node.args[0].value.split(".")[0])
+
+    forbidden_clock = {"datetime", "time"}
+    found_clock = imported_modules & forbidden_clock
+    assert not found_clock, f"warm_start.py violates clock-isolation invariant: imports {found_clock}"
 
 
 def test_ac3_json_safe_and_pure(
@@ -206,7 +252,7 @@ def test_ac3_json_safe_and_pure(
     # Action map untouched
     assert sample_action_map == map_copy
 
-    # Purity check on warm_start.py source code using standard importlib.util.source_from_cache
+    # Purity check on warm_start.py source code using AST
     source_path = Path(inspect.getfile(agent_learning.warm_start))
     if source_path.suffix == ".pyc":
         source_path = Path(importlib.util.source_from_cache(str(source_path)))
@@ -214,6 +260,23 @@ def test_ac3_json_safe_and_pure(
     assert source_path.is_file() and source_path.suffix == ".py", f"Source not found: {source_path}"
     source_text = source_path.read_text(encoding="utf-8")
 
-    forbidden = ["agent_learning.storage", "import random", "from random", "import numpy", "from numpy"]
-    for pattern in forbidden:
-        assert pattern not in source_text, f"warm_start.py violates purity invariant: contains '{pattern}'"
+    tree = ast.parse(source_text)
+    imported_modules: set[str] = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                imported_modules.add(alias.name)
+                imported_modules.add(alias.name.split(".")[0])
+        elif isinstance(node, ast.ImportFrom):
+            if node.module:
+                imported_modules.add(node.module)
+                imported_modules.add(node.module.split(".")[0])
+        elif isinstance(node, ast.Call):
+            if isinstance(node.func, ast.Name) and node.func.id == "__import__":
+                if node.args and isinstance(node.args[0], ast.Constant) and isinstance(node.args[0].value, str):
+                    imported_modules.add(node.args[0].value)
+                    imported_modules.add(node.args[0].value.split(".")[0])
+
+    for mod in imported_modules:
+        assert mod not in {"random", "numpy"}, f"warm_start.py violates purity: imports {mod}"
+        assert not mod.startswith("agent_learning.storage"), f"warm_start.py violates purity: imports {mod}"

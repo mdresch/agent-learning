@@ -114,6 +114,8 @@ def provenance(
         ValueError: If kind is not 'policy' or 'meta_prior'.
         TypeError: If damping is a bool or not a number, or gate_met is not a bool/None.
         ValueError: If damping is non-finite or not in (0, 1.0].
+        TypeError: If now is not a string, or donor id/task_id/version have invalid types.
+        ValueError: If now is empty/whitespace, donor attributes are missing/empty, or donor version is negative.
     """
     if kind not in VALID_DONOR_KINDS:
         raise ValueError(
@@ -138,6 +140,21 @@ def provenance(
     donor_version = getattr(donor, "version", None)
     if donor_id is None or donor_task_id is None or donor_version is None:
         raise ValueError("donor must have non-null 'id', 'task_id', and 'version' attributes")
+
+    if not isinstance(donor_id, str):
+        raise TypeError(f"donor id must be a string, got {type(donor_id).__name__}")
+    if not donor_id.strip():
+        raise ValueError("donor id must be a non-empty string")
+
+    if not isinstance(donor_task_id, str):
+        raise TypeError(f"donor task_id must be a string, got {type(donor_task_id).__name__}")
+    if not donor_task_id.strip():
+        raise ValueError("donor task_id must be a non-empty string")
+
+    if isinstance(donor_version, bool) or not isinstance(donor_version, int):
+        raise TypeError(f"donor version must be an int, got {type(donor_version).__name__}")
+    if donor_version < 0:
+        raise ValueError(f"donor version must be a non-negative int, got {donor_version!r}")
 
     return {
         "warm_start_donor_policy_id": donor_id,

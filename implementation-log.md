@@ -1220,3 +1220,42 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Amazon Q triage (round 3 on `42146da`):**
   - `Q-83-12 | logic error | verified: no | decision: declined | AC_4 and FDD-020 1.2 require only 'at least one logit'; an all-zero donor is valid and leaves the target cold; Q has no access to the specs | fix: none`
   - `Q-83-13 | style | verified: partial | decision: accepted | Closure binds the right task id today; replaced by one helper outside the loop | fix: ce09e6d`
+
+---
+
+## Story 34.3 — The client is the standard library, and secrets stay out of the record
+- **Commit:** `cc0a53d`
+- **Date:** 2026-10-31
+- **Branch:** `feat/story-34.3`
+- **Source ADR / BRD / FDD:** ADR-034 (Invariants 1, 4, 6), BRD-034 (BRU-034-01, BRU-034-04, BRU-034-06), FDD-034 (§2, §3.4; §5 item 3 confirmed)
+- **Files Modified/Created:**
+  - `src/agent_learning/pmbok_runtime/client.py` (parameterized exponential delays, stdlib HTTP client with transient retries, explicit environment credential, and offline mock)
+  - `src/agent_learning/pmbok_runtime/__init__.py` (public client exports)
+  - `tests/test_pmbok_client.py` (contracts for AC_0 through AC_4)
+  - `.claude/skills/pmbok-planning/SKILL.md` (client retry, credential, and mock constraints)
+  - `docs/project-docs/Functional-Design/FDD-034-pmbok-tooling-decommissioning-and-lightweight-learningstore-convergence.md` (confirmed retry/jitter interpretation and transport/authentication behavior)
+  - `docs/user-stories/epic-34-pmbok-tooling-decommissioning-and-lightweight-learningstore-convergence.md` (Story 34.3 marked Ready; Story 34.4 dependency updated)
+- **Validation:**
+  - RED: all five contracts failed before implementation because `agent_learning.pmbok_runtime.client` did not exist.
+  - GREEN: `uv run --extra dev pytest tests/test_pmbok_client.py -q` — 5 passed; contracts exercise delay shape and no sleep, HTTP 429/URLError retry, non-retryable 400, exhausted 5xx retry, call-time credentials and secret absence, offline mock, and import boundaries.
+  - Related regression contracts: `uv run --extra dev pytest tests/test_legacy_registry.py tests/test_pmbok_run_state.py tests/test_pmbok_client.py -q` — 14 passed.
+  - Available suite: `uv run --extra dev pytest --ignore=tests/pmbok --ignore=tests/test_spark.py -q` — 1,517 passed, 2 skipped. This is not the entire suite.
+  - Full collection excluding Spark reported `1,599 tests collected, 15 errors` under `tests/pmbok/` from missing legacy optional dependencies (`tenacity`, `sqlalchemy`, `fastapi`, `yaml`, and `hypothesis`). Story 34.5 owns removal of those tests and the CI exclusion.
+  - Ruff passed for the new client and contract; mypy passed for `client.py` and `runs.py`; `git diff --check` passed.
+- **Interpretations:** I1: retry count/base/factor are caller-supplied (FDD-034 §5 item 3, confirmed by Menno on 2026-10-31). I2: the jitter callback returns additive seconds, called once per delay (confirmed by Menno on 2026-10-31). I3: the generic URL client sends raw UTF-8 prompt bytes and returns the UTF-8 response body; an optional `credential_env_var` is read at call time and supplied as a Bearer authorization header; documented in FDD-034 because no API-specific envelope is defined.
+- **Review-fix commit:** `19987cb` (`fix: rebuild PMBOK request for each retry`).
+- **Review validation:** After the retry fix, the Story 34.3 contract passed (5 tests), Ruff passed, mypy passed, and the available suite passed with 1,517 passed and 2 skipped, excluding `tests/pmbok/` (15 legacy optional-dependency collection errors) and `tests/test_spark.py` (optional JVM).
+- **Amazon Q triage (round 1 on `1bf8df4`):**
+  - `Q-80-1 | logic error | verified: partial | decision: accepted | Reconstruct the urllib Request for each attempt to avoid retaining handler-mutated state; the bytes payload itself is reusable, but a fresh request is the safer retry boundary | fix: 19987cb`
+- **Review-fix commit:** `0927d46` (`test: enforce PMBOK runtime import boundary`).
+- **Review validation:** After the boundary-contract fix, the Story 34.3 contract passed (8 tests), Ruff passed, and the available suite passed with 1,520 passed and 2 skipped, excluding `tests/pmbok/` and `tests/test_spark.py` for the reasons above.
+- **Amazon Q triage (round 2 on `e4b1aa1`):**
+  - `Q-80-2 | logic error | verified: yes | decision: accepted | The domain import guard missed client re-exports through the runtime package; reject all runtime-package and submodule imports to preserve the FDD purity boundary, and cover re-export, submodule, and short-package forms | fix: 0927d46`
+- **Review follow-up:** Both accepted findings are fixed and recorded. Push the corrected head and request an explicit final verdict; keep PR #80 open until Q reports no remaining blockers/findings and CI is clean.
+- **Review-fix commits:** `1d53fce`
+- **Review validation:** 18 passed in tests/test_pmbok_client.py (8 new I3 cases observed RED first); full suite 1,550 passed, 2 skipped (excluding tests/pmbok, per LL-013)
+- **Amazon Q triage (round 3 on `a60d9b2`):**
+  - `Q-80-3 | logic error | verified: yes | decision: accepted | urllib_client accepted any URL scheme (file:// worked silently); now rejects non-http(s) or hostless URLs at construction, recorded as interpretation I3 | fix: 1d53fce`
+- **Amazon Q triage (round 4 on `6625bcf`):**
+  - `Q-80-4 | test gap | verified: yes | decision: deferred | tests/pmbok collection errors come from missing optional dependencies, not this PR; owned by Story 34.5 (the suite collects); suite excludes tests/pmbok per LL-013 | fix: none`
+  - `Q-80-5 | crash risk | verified: no | decision: declined | last_error is assigned in every except branch before raise last_error; run with delays=[] raised HTTPError and URLError, never UnboundLocalError, and success returned the body | fix: none`

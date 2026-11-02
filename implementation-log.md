@@ -1256,3 +1256,6 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Review validation:** 18 passed in tests/test_pmbok_client.py (8 new I3 cases observed RED first); full suite 1,550 passed, 2 skipped (excluding tests/pmbok, per LL-013)
 - **Amazon Q triage (round 3 on `a60d9b2`):**
   - `Q-80-3 | logic error | verified: yes | decision: accepted | urllib_client accepted any URL scheme (file:// worked silently); now rejects non-http(s) or hostless URLs at construction, recorded as interpretation I3 | fix: 1d53fce`
+- **Amazon Q triage (round 4 on `6625bcf`):**
+  - `Q-80-4 | test gap | verified: yes | decision: deferred | tests/pmbok collection errors come from missing optional dependencies, not this PR; owned by Story 34.5 (the suite collects); suite excludes tests/pmbok per LL-013 | fix: none`
+  - `Q-80-5 | crash risk | verified: no | decision: declined | last_error is assigned in every except branch before raise last_error; run with delays=[] raised HTTPError and URLError, never UnboundLocalError, and success returned the body | fix: none`

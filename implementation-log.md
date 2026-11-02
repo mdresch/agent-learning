@@ -1178,3 +1178,45 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-82-10 | logic error | verified: yes | decision: accepted | Validate action_map mapping type and string keys/values in provenance() to guarantee JSON serializability | fix: 6ae2b79`
 - **Amazon Q triage (round 5 on `4dce823`):**
   - `Q-82-11 | logic error | verified: yes | decision: accepted | Reject empty action_map with ValueError in provenance() | fix: a5c4bb4`
+
+## Story 20.3 — The Command for a Policy Donor
+- **Commit:** `7ba7456`
+- **Date:** 2026-11-02
+- **Branch:** `feat/story-20.3`
+- **Source ADR / BRD / FDD:** ADR-020 (§4.1, §4.2, §4.3), BRD-020 (BRU-020-01, BRU-020-02, BRU-020-03, BRU-020-04, BRU-020-05, BRU-020-07, BRU-020-08, BRU-020-10), FDD-020 (§1.2, §1.4, §1.5, §2.1, §2.2, §3.3)
+- **Files Modified/Created:**
+  - `src/agent_learning/cli.py` (`task-policy-warm-start` subparser and `_cmd_warm_start_task_policy`)
+  - `tests/test_warm_start_cli.py` (contract tests for AC_0 through AC_6)
+  - `.claude/skills/warm-start/SKILL.md` (component skill updated with CLI rules and invariants)
+- **Contracts:**
+  - `tests/test_warm_start_cli.py` (7 tests, all passing)
+  - Full suite: 1,531 passed, 3 skipped in 58.54s (excluding `tests/pmbok` due to optional dependencies, per LL-013)
+- **Notes:**
+  - Complete CLI implementation for policy donor warm-starting.
+  - Enforces cold target validation (no updates, no episodes, all zero logits, no earlier warm-start, decision scope, low authority).
+  - Enforces donor validation (different task from target, low authority, at least one logit).
+  - Enforces action map rules (identity map for identical action ID sets, required for differing IDs, complete bijection).
+  - Strict isolation: donor snapshot and episodes are untouched; `store_policy` is never called for donor.
+  - Zero writes on refusal: on any validation failure or `ValueError` from Story 20.1, store state is preserved completely.
+- **Review-fix commits:** `0820d05` (`fix(warm-start): address Amazon Q review findings on Story 20.3`)
+- **Review validation:** 7 passed in `tests/test_warm_start_cli.py`; full regression suite passed with 1,531 passed, 3 skipped in 55.50s (excluding `tests/pmbok` due to optional dependencies, per LL-013).
+- **Amazon Q triage (round 1 on `8bb9cc6`):**
+  - `Q-83-1 | logic error | verified: yes | decision: accepted | Validate that parsed --action-map is a dict before passing to warm_start_logits | fix: 0820d05`
+  - `Q-83-2 | logic error | verified: no | decision: declined | PolicySnapshot.advance_version() already mints a new UUID via self.id = _new_id() on line 402 | fix: none`
+  - `Q-83-3 | test gap | verified: yes | decision: accepted | Isolate each non-cold test case by assigning distinct sub-task IDs | fix: 0820d05`
+  - `Q-83-4 | test gap | verified: yes | decision: accepted | Re-store base target snapshot immediately prior to step 3 invocation | fix: 0820d05`
+  - `Q-83-5 | test gap | verified: yes | decision: accepted | Remove unused MagicMock import and add explicit test for standalone --meta-prior flag | fix: 0820d05`
+  - `Q-83-6 | logic error | verified: yes | decision: accepted | Use _is_decision_policy(target) to align with all other CLI subcommands | fix: 0820d05`
+  - `Q-83-7 | logic error | verified: yes | decision: accepted | Log a warning with logger.warning on unexpected autonomy assessment exceptions | fix: 0820d05`
+- **Review-fix commits:** `4fa3241`
+- **Review validation:** 8 passed in tests/test_warm_start_cli.py; full suite 1,532 passed, 2 skipped (excluding tests/pmbok, per LL-013)
+- **Amazon Q triage (round 2 on `09686de`):**
+  - `Q-83-8 | logic error | verified: yes | decision: accepted | Reset updates_applied to 0 explicitly on the new snapshot; unobservable via CLI while the cold-target gate holds, so no RED test | fix: 4fa3241`
+  - `Q-83-9 | logic error | verified: yes | decision: accepted | File check before inline JSON; relative path starting with { was misparsed (RED observed) | fix: 4fa3241`
+  - `Q-83-10 | logic error | verified: yes | decision: accepted | Add _damping_factor argparse validator for (0, 1.0] | fix: 4fa3241`
+  - `Q-83-11 | test gap | verified: yes | decision: accepted | AC_5 immutability now covers AC_3 non-cold, AC_4 donor and AC_6 flag refusals | fix: 4fa3241`
+- **Review-fix commits:** `ce09e6d`
+- **Review validation:** 8 passed in tests/test_warm_start_cli.py; full suite 1,532 passed, 2 skipped (excluding tests/pmbok, per LL-013)
+- **Amazon Q triage (round 3 on `42146da`):**
+  - `Q-83-12 | logic error | verified: no | decision: declined | AC_4 and FDD-020 1.2 require only 'at least one logit'; an all-zero donor is valid and leaves the target cold; Q has no access to the specs | fix: none`
+  - `Q-83-13 | style | verified: partial | decision: accepted | Closure binds the right task id today; replaced by one helper outside the loop | fix: ce09e6d`

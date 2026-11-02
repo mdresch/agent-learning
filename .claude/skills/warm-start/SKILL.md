@@ -49,4 +49,12 @@ Explicit warm-starting accelerates Bayesian policy convergence by transferring c
      - `warm_start_donor_kind`: `"policy"` or `"meta_prior"` (default `"policy"`).
      - `warm_start_donor_gate_met`: Boolean or `None` (`null` in JSON).
    - JSON Safe: Must round-trip losslessly through `json.dumps` and `json.loads`.
-
+7. **CLI Wiring & Refusal Rules (Story 20.3):**
+   - Command: `task-policy-warm-start --agent-id <A> --target-task-id <T> (--donor-task-id <D> | --meta-prior <N>) [--damping <X>] [--action-map <JSON>]`
+   - Target must be a delegated decision policy with low authority (`decision_authority != "full"`), and strictly cold:
+     `updates_applied == 0`, `episodes_seen == 0`, all logits equal to `0.0`, and no prior `warm_start_donor_policy_id` in metadata.
+   - Donor must be a different task than target, low authority (`decision_authority != "full"`), and possess at least one logit.
+   - Action map: if omitted and action ID sets match identically, identity map is used; if action IDs differ, `--action-map` is mandatory; bad/incomplete maps exit non-zero.
+   - `--action-map` is an existing file path if `Path(value).is_file()`, otherwise inline JSON; never discriminate on a leading `{`. The parsed value must be a `dict` (Q-83-9).
+   - `--damping` is validated at parse time to `(0, 1.0]` by `_damping_factor`; the handler also sets `updates_applied = 0` on the new snapshot explicitly (Q-83-8, Q-83-10).
+   - Atomic storage & isolation: only the new target snapshot version is stored and made active (`store.store_policy(new_target)`). The donor is never touched and never stored (`store_policy` is never called for donor). On any error or refusal, zero writes are made.

@@ -1109,6 +1109,118 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-79-36 | test gap | verified: yes | decision: deferred | Repeats Q-79-32: the PR description names the 15 legacy collection errors and exclusions, and Story 34.5 owns removing tests/pmbok and its CI exclusion | fix: none`
 - **Review follow-up:** On 2026-10-31, the user confirmed Story 34.2 approval, directed that the amended FDD contract remain unchanged, and authorized continuing the existing PR. Round 9 correctness findings are declined against that contract. Amazon Q reports no security or data-integrity regressions; its remaining collection and future-store pagination concerns are deferred, and the AST concern is declined based on Python syntax constraints. The final confirmation must be on the current head; merge only if no blocking or unaddressed findings remain, CI is clean, and mergeStateStatus is CLEAN.
 
+## Story 20.1 — The Damped Copy
+- **Commit:** `457eed6`
+- **Date:** 2026-11-01
+- **Branch:** `feat/story-20.1`
+- **Source ADR / BRD / FDD:** ADR-020 (§4.1), BRD-020 (BRU-020-01, BRU-020-02), FDD-020 (§1.1, §2.1, §3.1)
+- **Files Modified/Created:**
+  - `src/agent_learning/warm_start.py` (`warm_start_logits`, `DAMPING_DEFAULT`, `DAMPING_DEFAULT_META_PRIOR`)
+  - `src/agent_learning/__init__.py` (re-exports)
+  - `tests/test_warm_start_logits.py` (contract tests for AC_0 through AC_6)
+  - `.claude/skills/warm-start/SKILL.md` (component skill)
+- **Contracts:**
+  - `tests/test_warm_start_logits.py` (7 tests, all passing)
+  - Full suite: 1,519 passed, 3 skipped in 58.08s (excluding `tests/pmbok` due to optional dependencies, per LL-013)
+- **Notes:**
+  - Standard library pure implementation: zero numpy, zero random, zero storage imports.
+  - Implements exact mathematical formula: `target_logits[a] = donor_logits[action_map[a]] * damping`.
+  - Monotonicity of softmax entropy verified over a 100-point damping grid in `(0, 1]`.
+- **Review-fix commits:** `f856a47` (`fix(warm-start): address Amazon Q review findings on Story 20.1`), `2917bb2` (`fix(warm-start): reject duplicate target_actions to prevent silent logit loss`), `44a3066` (`test(warm-start): resolve .py source from .pyc in purity test`), `3dec130` (`fix(governance): align pmp-decision-result with full candidate actions and adjudicated status`), and `0ed7794` (`test(warm-start): inject base_action_map fixture in test_ac3_complete_map`)
+- **Review validation:** 7 passed in `tests/test_warm_start_logits.py`; full regression suite passed with 1,519 passed, 3 skipped in 57.49s (excluding `tests/pmbok` due to optional dependencies, per LL-013).
+- **Amazon Q triage (round 1 on `1397839`):**
+  - `Q-81-1 | logic error | verified: yes | decision: accepted | Explicitly reject bool instances for damping and donor logits (bool is a subclass of int in Python) by raising TypeError | fix: f856a47`
+  - `Q-81-2 | style | verified: yes | decision: accepted | Remove unused Dict import from typing in warm_start.py | fix: f856a47`
+  - `Q-81-3 | test gap | verified: yes | decision: accepted | Replace hardcoded relative path with inspect.getfile(agent_learning.warm_start) in purity contract test | fix: f856a47`
+- **Amazon Q triage (round 2 on `5119514`):**
+  - `Q-81-4 | logic error | verified: yes | decision: accepted | Reject duplicate entries in target_actions with ValueError before set conversion to prevent silent cardinality loss | fix: 2917bb2`
+- **Amazon Q triage (round 3 on `d99b04d`):**
+  - `Q-81-5 | logic error | verified: yes | decision: accepted | Handle .pyc paths from inspect.getfile to guarantee actual .py source is loaded and verified in purity contract | fix: 44a3066`
+- **Amazon Q triage (round 4 on `0deffb1`):**
+  - `Q-81-6 | documentation | verified: yes | decision: accepted | Populate candidate_actions with all three options in pmp-decision-result.json to match assessments | fix: 3dec130`
+  - `Q-81-7 | documentation | verified: yes | decision: accepted | Update status to resolved and record selected_action in pmp-decision-result.json to match pmp-approval-episode.json | fix: 3dec130`
+- **Amazon Q triage (round 5 on `d91e6c0`):**
+  - `Q-81-8 | test gap | verified: yes | decision: accepted | Add base_action_map fixture parameter to test_ac3_complete_map signature to avoid fixture shadowing | fix: 0ed7794`
+
+## Story 20.2 — The Provenance Record
+- **Commit:** `554ed90`
+- **Date:** 2026-11-01
+- **Branch:** `feat/story-20.2`
+- **Source ADR / BRD / FDD:** ADR-020 (§4.3), BRD-020 (BRU-020-07), FDD-020 (§1.1, §2.2, §3.2)
+- **Files Modified/Created:**
+  - `src/agent_learning/warm_start.py` (`provenance`, `VALID_DONOR_KINDS`)
+  - `src/agent_learning/__init__.py` (re-exports)
+  - `tests/test_warm_start_provenance.py` (contract tests for AC_0 through AC_3)
+  - `.claude/skills/warm-start/SKILL.md` (component skill updated with provenance contract)
+- **Contracts:**
+  - `tests/test_warm_start_provenance.py` (4 tests, all passing)
+  - Full suite: 1,523 passed, 3 skipped in 63.93s (excluding `tests/pmbok` due to optional dependencies, per LL-013)
+- **Notes:**
+  - Standard library pure implementation: zero numpy, zero random, zero storage layer imports.
+  - Generates durable snapshot metadata: `warm_start_donor_policy_id`, `warm_start_donor_task_id`, `warm_start_donor_version`, `warm_start_damping_factor`, `warm_started_at`, `warm_start_action_map`, `warm_start_donor_kind`, `warm_start_donor_gate_met`.
+  - Clock isolation: `now` argument is preserved verbatim; reads no system clocks.
+  - Strict serialization safety: round-trips losslessly through `json.dumps` and `json.loads`.
+- **Review-fix commits:** `ee6494f` (`fix(warm-start): address Amazon Q review findings on Story 20.2`), `9cbeaa3` (`fix(warm-start): reject empty now string and remove fragile identity check`), `c169f04` (`fix(warm-start): validate donor identity types and use AST purity checks`), `6ae2b79` (`fix(warm-start): validate action_map mapping and string contents in provenance`), and `a5c4bb4` (`fix(warm-start): reject empty action_map in provenance`)
+- **Review validation:** 12 passed in `tests/test_warm_start_logits.py` and `tests/test_warm_start_provenance.py`; full regression suite passed with 1,524 passed, 3 skipped in 56.61s (excluding `tests/pmbok` due to optional dependencies, per LL-013).
+- **Amazon Q triage (round 1 on `2838ce7`):**
+  - `Q-82-1 | logic error | verified: yes | decision: accepted | Add isinstance(now, str) type validation in provenance() to guarantee JSON serializability | fix: ee6494f`
+  - `Q-82-2 | logic error | verified: yes | decision: accepted | Export VALID_DONOR_KINDS in agent_learning top-level package __init__.py | fix: ee6494f`
+  - `Q-82-3 | logic error | verified: yes | decision: accepted | Guard against silent None identity fields when invalid donor object is passed | fix: ee6494f`
+  - `Q-82-4 | logic error | verified: yes | decision: accepted | Use standard importlib.util.source_from_cache for reliable .pyc to .py resolution | fix: ee6494f`
+  - `Q-82-5 | test gap | verified: yes | decision: accepted | Replace no-op datetime mock with source-text clock-isolation assertion in test_ac2 | fix: ee6494f`
+- **Amazon Q triage (round 2 on `3dadd80`):**
+  - `Q-82-6 | logic error | verified: yes | decision: accepted | Reject empty/whitespace now strings with ValueError in provenance() | fix: 9cbeaa3`
+  - `Q-82-7 | style | verified: yes | decision: accepted | Remove fragile is identity assertion in test_ac2_no_clock | fix: 9cbeaa3`
+- **Amazon Q triage (round 3 on `5fe3266`):**
+  - `Q-82-8 | logic error | verified: yes | decision: accepted | Validate donor id, task_id, and version types in provenance() to guarantee JSON serializability | fix: c169f04`
+  - `Q-82-9 | test gap | verified: yes | decision: accepted | Use AST-based import analysis in test_ac2_no_clock, test_ac3_json_safe_and_pure, and test_ac6_pure | fix: c169f04`
+- **Amazon Q triage (round 4 on `0ad70c1`):**
+  - `Q-82-10 | logic error | verified: yes | decision: accepted | Validate action_map mapping type and string keys/values in provenance() to guarantee JSON serializability | fix: 6ae2b79`
+- **Amazon Q triage (round 5 on `4dce823`):**
+  - `Q-82-11 | logic error | verified: yes | decision: accepted | Reject empty action_map with ValueError in provenance() | fix: a5c4bb4`
+
+## Story 20.3 — The Command for a Policy Donor
+- **Commit:** `7ba7456`
+- **Date:** 2026-11-02
+- **Branch:** `feat/story-20.3`
+- **Source ADR / BRD / FDD:** ADR-020 (§4.1, §4.2, §4.3), BRD-020 (BRU-020-01, BRU-020-02, BRU-020-03, BRU-020-04, BRU-020-05, BRU-020-07, BRU-020-08, BRU-020-10), FDD-020 (§1.2, §1.4, §1.5, §2.1, §2.2, §3.3)
+- **Files Modified/Created:**
+  - `src/agent_learning/cli.py` (`task-policy-warm-start` subparser and `_cmd_warm_start_task_policy`)
+  - `tests/test_warm_start_cli.py` (contract tests for AC_0 through AC_6)
+  - `.claude/skills/warm-start/SKILL.md` (component skill updated with CLI rules and invariants)
+- **Contracts:**
+  - `tests/test_warm_start_cli.py` (7 tests, all passing)
+  - Full suite: 1,531 passed, 3 skipped in 58.54s (excluding `tests/pmbok` due to optional dependencies, per LL-013)
+- **Notes:**
+  - Complete CLI implementation for policy donor warm-starting.
+  - Enforces cold target validation (no updates, no episodes, all zero logits, no earlier warm-start, decision scope, low authority).
+  - Enforces donor validation (different task from target, low authority, at least one logit).
+  - Enforces action map rules (identity map for identical action ID sets, required for differing IDs, complete bijection).
+  - Strict isolation: donor snapshot and episodes are untouched; `store_policy` is never called for donor.
+  - Zero writes on refusal: on any validation failure or `ValueError` from Story 20.1, store state is preserved completely.
+- **Review-fix commits:** `0820d05` (`fix(warm-start): address Amazon Q review findings on Story 20.3`)
+- **Review validation:** 7 passed in `tests/test_warm_start_cli.py`; full regression suite passed with 1,531 passed, 3 skipped in 55.50s (excluding `tests/pmbok` due to optional dependencies, per LL-013).
+- **Amazon Q triage (round 1 on `8bb9cc6`):**
+  - `Q-83-1 | logic error | verified: yes | decision: accepted | Validate that parsed --action-map is a dict before passing to warm_start_logits | fix: 0820d05`
+  - `Q-83-2 | logic error | verified: no | decision: declined | PolicySnapshot.advance_version() already mints a new UUID via self.id = _new_id() on line 402 | fix: none`
+  - `Q-83-3 | test gap | verified: yes | decision: accepted | Isolate each non-cold test case by assigning distinct sub-task IDs | fix: 0820d05`
+  - `Q-83-4 | test gap | verified: yes | decision: accepted | Re-store base target snapshot immediately prior to step 3 invocation | fix: 0820d05`
+  - `Q-83-5 | test gap | verified: yes | decision: accepted | Remove unused MagicMock import and add explicit test for standalone --meta-prior flag | fix: 0820d05`
+  - `Q-83-6 | logic error | verified: yes | decision: accepted | Use _is_decision_policy(target) to align with all other CLI subcommands | fix: 0820d05`
+  - `Q-83-7 | logic error | verified: yes | decision: accepted | Log a warning with logger.warning on unexpected autonomy assessment exceptions | fix: 0820d05`
+- **Review-fix commits:** `4fa3241`
+- **Review validation:** 8 passed in tests/test_warm_start_cli.py; full suite 1,532 passed, 2 skipped (excluding tests/pmbok, per LL-013)
+- **Amazon Q triage (round 2 on `09686de`):**
+  - `Q-83-8 | logic error | verified: yes | decision: accepted | Reset updates_applied to 0 explicitly on the new snapshot; unobservable via CLI while the cold-target gate holds, so no RED test | fix: 4fa3241`
+  - `Q-83-9 | logic error | verified: yes | decision: accepted | File check before inline JSON; relative path starting with { was misparsed (RED observed) | fix: 4fa3241`
+  - `Q-83-10 | logic error | verified: yes | decision: accepted | Add _damping_factor argparse validator for (0, 1.0] | fix: 4fa3241`
+  - `Q-83-11 | test gap | verified: yes | decision: accepted | AC_5 immutability now covers AC_3 non-cold, AC_4 donor and AC_6 flag refusals | fix: 4fa3241`
+- **Review-fix commits:** `ce09e6d`
+- **Review validation:** 8 passed in tests/test_warm_start_cli.py; full suite 1,532 passed, 2 skipped (excluding tests/pmbok, per LL-013)
+- **Amazon Q triage (round 3 on `42146da`):**
+  - `Q-83-12 | logic error | verified: no | decision: declined | AC_4 and FDD-020 1.2 require only 'at least one logit'; an all-zero donor is valid and leaves the target cold; Q has no access to the specs | fix: none`
+  - `Q-83-13 | style | verified: partial | decision: accepted | Closure binds the right task id today; replaced by one helper outside the loop | fix: ce09e6d`
+
 ---
 
 ## Story 34.3 — The client is the standard library, and secrets stay out of the record

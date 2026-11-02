@@ -10,7 +10,7 @@ secondary_pmbok_domains:
 legacy_process: "11.1 Plan Risk Management"
 route: "full_plan"
 generator: "llm"
-version: "1.0.0"
+version: "1.1.0"
 baseline_id: "PMP-BL-v1.0.0"
 owner_role: "Risk Lead"
 depends_on:
@@ -19,8 +19,9 @@ depends_on:
   - "cost-management"
 inputs:
   - "Project-Charter.md"
-  - "docs/project-docs/Ideation-Document.md"
-  - "docs/project-docs/Business-Case.md"
+  - "docs/project-docs/management-plans/Scope-Management-Plan.md"
+  - "docs/project-docs/management-plans/Schedule-Management-Plan.md"
+  - "docs/project-docs/management-plans/Cost-Management-Plan.md"
 outputs:
   - "docs/project-docs/management-plans/Risk-Management-Plan.md"
 governance_policy: "approve-subsidiary-plan"
@@ -31,30 +32,51 @@ governance_policy: "approve-subsidiary-plan"
 > **PMBOK 8 Domain:** `Risk` (Planning Focus Area) | **Legacy Process:** `11.1 Plan Risk Management`  
 > **Governance Policy:** `approve-subsidiary-plan` | **Lifecycle Stage:** `Stage 6 (Planning)`  
 > **Route:** `full_plan` | **Baseline Identifier:** `PMP-BL-v1.0.0`  
-> **Accountable Role:** Risk Lead / Tech Lead | **Approving Sponsor:** Menno Drescher  
-> **Normative Standard:** [ADR-012](../../adr/ADR-012-subsidiary-management-plan-standards-and-content-contracts.md)
+> **Accountable Role:** Risk Lead | **Approving Sponsor:** Menno Drescher  
+> **Normative Standard:** [ADR-012](../../adr/ADR-012-subsidiary-management-plan-standards-and-content-contracts.md), [ADR-028](../../adr/ADR-028-risk-management-plan-standard.md)
 
 ---
 
 ## 1. Intent, Alignment & Boundaries
 
-### 1.1 Core Mandate & Risk Strategy
-This Risk Management Plan establishes the framework for proactively identifying, analyzing, mitigating, and monitoring technical, epistemic, and governance risks for **Phase 1: Warm-Start & Confidence-Interval Bandits**. 
+### 1.1 Core Mandate & Disciplined Epistemic Risk Strategy
+This Risk Management Plan establishes the framework for proactively identifying, analyzing, mitigating, and monitoring technical, epistemic, and governance risks throughout **Phase 1: Warm-Start & Confidence-Interval Bandits**. 
 
 In strict alignment with [Project-Charter.md](../Project-Charter.md) §6 and [Business-Case.md](../Business-Case.md) §10, the project embraces a **Disciplined Epistemic Risk** strategy:
-* We do not treat risk as merely schedule slippage; in advanced agentic learning, the primary risk is **epistemic failure** (e.g. self-reinforcing bias, false convergence, survivorship-biased autonomy).
-* Mathematical guardrails (Bayes factors, Wilson intervals, momentum damping) are deployed as architectural counterweights to prevent cognitive drift.
+* We do not treat risk merely as operational schedule slippage; in advanced agentic reinforcement learning, the paramount risk is **epistemic failure** (e.g. self-reinforcing bias, false convergence, survivorship-biased autonomy, defensive hypothesis drift).
+* Mathematical guardrails (Bayes factors, Wilson score intervals, low-pass momentum damping) are deployed as architectural counterweights to prevent cognitive drift.
+* Statistical confidence is strictly forbidden from usurping sovereign human authority over architecture, baseline formalization, or strategic direction (ADR-001, ADR-008 Invariant #4).
 
 ### 1.2 Boundary Definitions
-* **In-Scope Risk Domains:** Algorithmic failure modes (negative transfer, reward collapse); unverified architectural dependencies (Softmax internal state); research scope creep; feedback instability.
+* **In-Scope Risk Domains:** Algorithmic failure modes (negative transfer, reward collapse); unverified architectural dependencies (Softmax internal state); research scope creep; feedback instability; schedule buffer consumption; local emulator fidelity risks.
 * **Out-of-Scope Risk Domains:** The following risk areas are strictly excluded:
-  - Physical datacenter outages and hardware breakdowns.
-  - External third-party cloud billing risks (mitigated by zero-cost open-source boundary).
-  - Phase 2 DPO alignment hazards (deferred to Phase 2).
+  - Physical datacenter outages and server hardware breakdowns.
+  - External third-party cloud billing runaway risks (mitigated by strict 100% internal Make sourcing and ≤€100/mo API cap).
+  - Direct Preference Optimization (DPO) alignment hazards (deferred entirely to Phase 2).
+  - External commercial marketing and vendor contract default risks.
 
----
+### 1.3 Charter and Baseline Traceability & Exposure Matrix
+Risk exposures are assessed across the approved baseline elements:
+* **Charter §6 Alignment:** Ensures that high-uncertainty research milestones are bounded by clear stop/continue criteria.
+* **Scope Baseline Traceability:** Evaluates functional failure modes across WP-01 (PMBOK Baseline) through WP-07 (Governance Verification).
+* **Schedule Baseline Traceability:** Evaluates delivery risks against the 24.3-week buffer envelope and critical path milestones (M0.5 through M5).
+* **Cost Baseline Traceability:** Evaluates financial risk against the Band B labor valuation (€58,854.00) and the strict cash OpEx ceiling (≤€100/mo, €250.00 total envelope).
 
-### 1.4 PMBOK Input, Process & Output (IPO) Specification
+### 1.4 Risk Appetite Statement by Objective Area
+In accordance with ADR-028 §4.2, the project's risk appetite is explicitly declared across five operational dimensions:
+
+| Objective Area | Risk Appetite Level | Tolerance Boundary & Operating Guideline |
+|---|:---:|---|
+| **Mathematical / Epistemic Rigor** | **Zero Tolerance** | Hypotheses must resolve strictly by empirical data; no defensive mutations ($d_{\max}=2$ ceiling). |
+| **Governance & Integrity** | **Zero Tolerance** | No unrecorded approvals; zero silent waivers; all baseline changes must go through Stage 17 ICC. |
+| **Software Architecture Purity** | **Zero Tolerance** | Zero unauthorized third-party dependencies in `agent_learning.pmbok`; 100% test pass rate required. |
+| **Financial / Cash OpEx** | **Very Low** | Zero cash overruns permitted beyond €100/mo; 100% internal "Make" sourcing strictly enforced. |
+| **Research / Exploration Schedule** | **Moderate** | Exploration iterations tolerated within the 24.3-week schedule buffer; timebox slips trigger replanning. |
+
+### 1.5 Zero Upfront Deliverable Prerequisite
+In accordance with ADR-028 §3, designing and baselining the Risk Management Plan requires only the Project Charter and upstream Scope, Schedule, and Cost baselines. It does **not** require an exhaustive pre-populated risk register, quantified exposure models, or human breakout sessions in advance; the plan establishes the taxonomy, scales, and register contract under which risks are progressively identified and managed.
+
+### 1.6 PMBOK Input, Process & Output (IPO) Specification
 In accordance with PMBOK® Guide 8th Edition (Risk Performance Domain §2.7):
 * **Inputs (PMBOK 8 §2.7.2.1 & §4):**
   - **Project Charter:** Risk appetite, high-level constraints, and success criteria ([Project-Charter.md](../Project-Charter.md)).
@@ -75,40 +97,93 @@ In accordance with PMBOK® Guide 8th Edition (Risk Performance Domain §2.7):
 
 ## 2. Domain Mechanics & Standards
 
-### 2.1 Primary Risk Register & Severity Scoring
-Risks are evaluated on a $5 \times 5$ Probability ($P$) and Impact ($I$) grid ($Score = P \times I \in [1, 25]$):
+### 2.1 Risk Taxonomy
+Risks are classified across five standardized categories in the Risk Breakdown Structure (RBS):
+1. **Technical & Dependency (RBS-1):** Library incompatibility, API changes, state serialization limitations (`SoftmaxPolicy`).
+2. **Epistemic & Mathematical (RBS-2):** Negative transfer in warm-start priors, reward collapse, non-convergence in bandit policies.
+3. **Governance & Integrity (RBS-3):** Architectural drift, silent waivers, undocumented baseline amendments, DAG cycle formation.
+4. **Operational & Schedule (RBS-4):** Research rabbit-holes, maintainer capacity variance, schedule buffer exhaustion.
+5. **Commercial & Financial (RBS-5):** Cloud free-tier quota exhaustion, third-party API price spikes.
 
-| Risk ID | Risk Description | Category | Prob (1-5) | Impact (1-5) | Score | Mitigation Mechanism & Counterweight |
-|---|---|---|---|---|---|---|
-| **RSK-01** | `SoftmaxPolicy` does not expose internal state in reusable format | Technical Dependency | 3 | 4 | **12** | Dedicated M1 verification spike. If state is inaccessible, wrap policy with an adapter or expose parameters via pull request. |
-| **RSK-02** | Warm-start prior induces negative transfer (slower convergence) | Epistemic / Algorithmic | 3 | 4 | **12** | Bounded prior weighting; fallback to uniform prior if warm-start policy exhibits higher sample complexity (HYP-AL-008 benchmark). |
-| **RSK-03** | Confidence-interval bandit fails to cross autonomy gate on positive-only data | Epistemic / Mathematical | 3 | 5 | **15** | Implement both UCB-1 and Thompson sampling; evaluate optimism bounds against empirical 146-episode history; formal Bayes factor adjudication (HYP-AL-009). |
-| **RSK-04** | M0.5 qualitative research exceeds the 40-hour investment envelope | Operational / Cost | 4 | 3 | **12** | Hard timeboxing enforced in `Schedule-Management-Plan.md`. Analysis synthesized immediately upon hitting 40 hours. |
-| **RSK-05** | Double-loop feedback causes cognitive whiplash / policy instability | Cybernetics / Control | 2 | 4 | **8** | Low-pass momentum filtering ($\mathbf{\Theta}_{N+1} = \beta \mathbf{\Theta}_{N} + (1-\beta)\nabla\mathcal{L}$) with $\beta \in [0.6, 0.85]$ and bias-corrected warmup (ADR-009). |
+### 2.2 Probability-Impact Scoring Scale & Matrix
+Risks are scored on a reproducible $5 \times 5$ banded grid:
+$$\text{Risk Score} = P \times I \in [1, 25]$$
 
-### 2.2 Mathematical Risk Counterweights
-The architecture incorporates three structural counterweights against epistemic failure:
-1. **Bounded Recurrence Exhaustion ($d_{\max}=2$ Ceiling):** To eliminate the "REFINED moral hazard" (defensive hypothesis mutation), hypotheses are restricted to a maximum recurrence depth of 2. At $d=2$, hypotheses must decisively collapse to `VALIDATED` ($BF_{10} \ge 10$) or default to `REFUTED` ($BF_{10} < 10$).
-2. **Empirical Bayes Factor Thresholds:** Hypotheses are resolved by rigorous empirical evidence ($BF_{10} \ge 10$ decisive support, $BF_{10} \le 0.1$ decisive refutation).
-3. **Stateless Decision Comparison (ADR-005):** Algorithmic revisions must demonstrate mathematical progress ($\Delta \mathcal{U} > \epsilon$) without mutating state histories.
+* **Probability Scale ($P$):**
+  - $1 = \text{Rare}$ (<10% probability)
+  - $2 = \text{Unlikely}$ (10–30% probability)
+  - $3 = \text{Possible}$ (31–60% probability)
+  - $4 = \text{Likely}$ (61–85% probability)
+  - $5 = \text{Almost Certain}$ (>85% probability)
+* **Impact Scale ($I$):**
+  - $1 = \text{Insignificant}$ (minor code refactor, <1 person-day, 0 budget impact)
+  - $2 = \text{Minor}$ (isolated story delay, 1–3 person-days, absorbed within sprint buffer)
+  - $3 = \text{Moderate}$ (milestone delay ≤ 1 week, buffer drawdown, requires tech lead review)
+  - $4 = \text{Major}$ (milestone delay > 1 week, threatens baseline tolerances, requires PM escalation)
+  - $5 = \text{Critical}$ (architectural invalidation, hypothesis refutation, requires Sponsor adjudication)
+
+| Severity Band | Score Range | Action & Governance Cadence |
+|---|:---:|---|
+| **Low (Green)** | $1 - 6$ | Monitored by Developer; routine mitigation in sprint backlog. |
+| **Medium (Yellow)** | $8 - 12$ | Active mitigation logged; reviewed weekly by Tech Lead and PM. |
+| **High (Red)** | $15 - 25$ | Formal escalation to Project Sponsor; potential Stage 17 ICC replanning. |
+
+### 2.3 Master Risk Register Contract
+In accordance with ADR-028 §4.2, the Risk Register contract mandates the following schema fields: ID, Description, Category, Probability, Impact, Score, Owner Role, Strategy, Status, Trigger, and Contingency Link:
+
+| Risk ID | Risk Description | Category | P | I | Score | Owner Role | Strategy | Status | Trigger Condition | Contingency Link |
+|---|---|---|:---:|:---:|:---:|---|:---:|:---:|---|---|
+| **RSK-01** | `SoftmaxPolicy` does not expose internal state in reusable format | Technical Dependency | 3 | 4 | **12** | Tech Lead | Mitigate | Open | M1 inspection spike reveals inaccessible weights | Schedule Buffer SB-01 |
+| **RSK-02** | Warm-start prior induces negative transfer (slower convergence) | Epistemic / Algorithmic | 3 | 4 | **12** | Principal Researcher | Mitigate | Open | Benchmark sample complexity exceeds uniform baseline | Fallback to uniform prior |
+| **RSK-03** | Confidence-interval bandit fails to cross autonomy gate on positive data | Epistemic / Mathematical | 3 | 5 | **15** | Principal Researcher | Mitigate | Open | Wilson lower-bound $L_0.95 < \tau$ after 146 episodes | Escalate to Sponsor (M2) |
+| **RSK-04** | Qualitative research exceeds the 40-hour investment envelope | Operational / Schedule | 4 | 3 | **12** | Project Manager | Avoid | Open | Cumulative research effort reaches 36 hours | Hard Timebox Cap |
+| **RSK-05** | Double-loop feedback causes cognitive whiplash / policy instability | Cybernetics / Control | 2 | 4 | **8** | Tech Lead | Mitigate | Open | Parameter oscillations detected across successive episodes | Low-pass momentum filter |
+| **RSK-06** | Local Azure Cosmos DB emulator behaves differently than cloud API | Technical Dependency | 2 | 3 | **6** | Quality Engineer | Accept | Open | Audit telemetry serialization discrepancy in Ring 2 | Local emulator patch |
+
+### 2.4 Allowed Response Strategies
+Project responses adhere to five standard strategies:
+* **Avoid:** Eliminate the threat by altering project approach (e.g. strict 40-hour research timebox in RSK-04).
+* **Mitigate:** Reduce probability or impact via proactive engineering controls (e.g. low-pass filtering in RSK-05).
+* **Transfer:** Not used in Phase 1 due to zero-contractor sourcing decision.
+* **Accept:** Acknowledge residual risk when cost of mitigation exceeds potential impact (e.g. RSK-06).
+* **Escalate:** Pass risk to Project Sponsor when it exceeds project team authority or threatens baseline baselines.
+
+### 2.5 Contingency Reserves & Schedule Buffer Link
+Identified risks provide the explicit justification for baseline reserves:
+1. **Schedule Buffers:** The 24.3-week total project schedule buffer ([Schedule-Management-Plan.md](Schedule-Management-Plan.md) §2.3) directly accommodates epistemic exploration in RSK-02, RSK-03, and technical dependency spikes in RSK-01.
+2. **Buffer Consumption Index ($BCI$):** If $BCI > 0.80$ (buffer consumption outpaces critical path progress), the Risk Lead must trigger an immediate risk reassessment.
+3. **Cost Envelope Buffer:** The €100/mo API ceiling provides financial contingency against benchmark sample size expansions.
 
 ---
 
 ## 3. Governance, Control & Decision Rights
 
-### 3.1 Accountabilities & Escalation Thresholds
-* **Risk Lead / Tech Lead:** Continuously monitors algorithmic metrics, evaluates benchmark outputs, and updates risk register entries.
-* **Project Manager:** Tracks operational risks, enforces research timeboxes, and ensures risk mitigations are budgeted in sprint planning.
-* **Project Sponsor (Menno Drescher):** Holds sovereign authority to accept critical residual risks ($Score \ge 15$) or terminate research trajectories.
+### 3.1 Accountabilities & Authority Levels
+* **Risk Lead:** Accountable for maintaining the Risk Register, facilitating regular risk reviews, computing risk scores, and monitoring trigger conditions.
+* **Tech Lead / Core Maintainers:** Responsible for implementing technical mitigations (adapters, momentum filters) and testing contingency paths.
+* **Project Manager:** Monitors schedule buffer drawdown against active risks and coordinates escalation workflows.
+* **Project Sponsor (Menno Drescher):** Holds sovereign authority to accept High-severity risks ($Score \ge 15$), authorize contingency drawdowns exceeding 50% of available buffer, or terminate unviable research branches.
 
-| Severity Tier | Score Range | Review Cadence | Governance Action |
-|---|---|---|---|
-| **Low (Green)** | $1 - 6$ | Sprint review | Monitored by Developer; internal mitigation. |
-| **Medium (Yellow)** | $8 - 12$ | Weekly standup | Active mitigation plan logged in `implementation-log.md`. |
-| **High (Red)** | $15 - 25$ | Immediate | Formal escalation to Sponsor; potential Stage 17 Integrated Change (`approve-adaptation-plan`). |
+### 3.2 Escalation Thresholds & Decision Protocol
+An immediate escalation to the Project Sponsor is triggered whenever:
+1. Any newly identified or re-rated risk enters the **High (Red)** severity band ($Score \ge 15$).
+2. Realized risk impact threatens to exceed any baseline tolerance (schedule variance > 5%, cost variance > 0%).
+3. A research hypothesis encounters decisive empirical refutation ($BF_10 \le 0.1$) at recurrence depth $d=2$.
+4. Sponsor acceptance of any High risk requires an explicit, serialized governance `Episode` (`task-policy-adjudicate`).
 
-### 3.2 Transitive Downstream Invalidation (ADR-013 §4.5)
-If a realized risk triggers an architectural pivot (e.g. RSK-01 requiring an overhaul of policy serialization), the scope baseline must be amended via Stage 17. Under ADR-013 §4.5, this automatically invalidates downstream schedule and cost allocations, requiring comprehensive re-baselining.
+### 3.3 Position in the Planning DAG & Baseline Approval (Stage 6.J)
+In accordance with ADR-013 §4.1 and ADR-028 §4.5:
+$$\begin{pmatrix}\text{Scope Management (5.1)} \\ \text{Schedule Management (6.1)} \\ \text{Cost Management (7.1)}\end{pmatrix} \longrightarrow \text{Risk Management (11.1)}$$
+
+* **Upstream Baselines:**
+  - Scope Management Plan v1.2+ (approved at 6.A-7, hash `3febf6edd1dbed564df2a8618176d32c42ec19a5d02dcf3ea45b594b70cb33a8`)
+  - Schedule Management Plan v1.1+ (approved at 6.B-7, hash `3b6da5f529f68f90133aa17d6b5e8ef84ebf9d332b0279744dad50c5b4b49dba`)
+  - Cost Management Plan v1.1+ (approved at 6.D-7, hash `4abc8f43b5a49cd1b968df4138992ae3900fd77d4168354c5d63218f6e16489b`)
+* **Stage 6.J Approval (2026-11-01):** Approved under `approve-subsidiary-plan` by Project Sponsor Menno Drescher. Episode: `4c609b22-d7d7-419f-b2ee-4b98270e95db`.
+
+### 3.4 Review Cadence & Downstream Invalidation
+* **Review Cadence:** Risk ratings are formally reassessed at every sprint boundary, at each milestone transition (MS-01 through MS-03), and immediately upon any upstream baseline amendment.
+* **Downstream Invalidation:** In accordance with ADR-028 §3 and ADR-013 §4.5, Risk Management has no downstream dependent plans in `PLAN_DAG`. A change to Scope, Schedule, or Cost marks this plan `STALE_DEPENDENCY`.
 
 ---
 
@@ -117,3 +192,4 @@ If a realized risk triggers an architectural pivot (e.g. RSK-01 requiring an ove
 | Date | Author | Description |
 |---|---|---|
 | 2026-10-25 | Menno Drescher / Antigravity | Initial full baseline Risk Management Plan replacing stub mock content per ADR-012. |
+| 2026-11-01 | Menno Drescher / Antigravity | **v1.1.0 — 6.J approved:** Formalized 5-tier RBS taxonomy; defined reproducible 5x5 PxI scoring matrix and severity bands; established Master Risk Register contract linked to Schedule buffers and Cost envelope; incorporated epistemic risk counterweights; approved under `approve-subsidiary-plan` (Episode `4c609b22-d7d7-419f-b2ee-4b98270e95db`). |

@@ -1,6 +1,7 @@
 # Epic 10: Stage 15 Lessons Learned Crystallization and OPA Register
 
 **Source ADR:** [ADR-010](../adr/ADR-010-lessons-learned-crystallization-and-register.md) — Accepted (2026-10-25)  
+**Governing Baseline:** [PMP-BL-v1.0.0](../project-docs/Project-Management-Plan.md)  
 **Source BRD/FDD:** [BRD-010](../project-docs/Business-Requirements/BRD-010-lessons-learned-crystallization-and-register.md) / [FDD-010](../project-docs/Functional-Design/FDD-010-lessons-learned-crystallization-and-register.md)  
 
 ---

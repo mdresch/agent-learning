@@ -1,6 +1,7 @@
 # Epic 19: Hierarchical Meta-Prior Compilation Across Task Families
 
 **Source ADR:** [ADR-019](../adr/ADR-019-hierarchical-meta-prior-compilation.md) — Accepted (2026-10-28)  
+**Governing Baseline:** [PMP-BL-v1.0.0](../project-docs/Project-Management-Plan.md)  
 **Source BRD/FDD:** [BRD-019](../project-docs/Business-Requirements/BRD-019-hierarchical-meta-prior-compilation.md) / [FDD-019](../project-docs/Functional-Design/FDD-019-hierarchical-meta-prior-compilation.md)  
 **Status:** Approved (2026-10-29, Menno) — stories derived from Accepted ADR-019, BRD-019 and FDD-019; adjudicated via `approve-user-stories` (robust utility 0.735, episode `13fbf581-1222-49d1-8b5c-06eaf2843811`); corrected 2026-10-29 (Stories 19.5 and 19.6, FDD-019 H8) and re-approved via `approve-user-stories` (robust utility 0.739, episode `bf3c50c4-178f-4120-88be-e5029f054c75`; comparison with the previous approval: flat, within tolerance, no criterion lower). The epic number follows the source ADR number, as Epic 18 follows ADR-018.  
 

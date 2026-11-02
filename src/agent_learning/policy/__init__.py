@@ -12,6 +12,7 @@ from .scope_advice import (
     recommend,
 )
 from .softmax_bandit import SoftmaxPolicy
+from .thompson import ThompsonPolicy
 
 __all__ = [
     "ADVICE_TASK_ID",
@@ -21,6 +22,7 @@ __all__ = [
     "Policy",
     "ScopeRecommendation",
     "SoftmaxPolicy",
+    "ThompsonPolicy",
     "advice_reward",
     "baseline_snapshot",
     "recommend",

@@ -219,7 +219,7 @@ from .metrics import (
     default_metrics,
     evaluate_all,
 )
-from .policy import ContextualSoftmaxPolicy, Policy, SoftmaxPolicy
+from .policy import ContextualSoftmaxPolicy, Policy, SoftmaxPolicy, ThompsonPolicy
 from .warm_start import (
     DAMPING_DEFAULT,
     DAMPING_DEFAULT_META_PRIOR,
@@ -351,6 +351,7 @@ __all__ = [
     "SoftmaxPolicy",
     "SparkEpisodeScorer",
     "TaskAdherenceMetric",
+    "ThompsonPolicy",
     "TaskCompletionMetric",
     "TaskPolicy",
     "TieBreakDisposition",

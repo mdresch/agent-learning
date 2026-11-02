@@ -1,15 +1,23 @@
-"""Seeded, replayable draws for Thompson sampling (ADR-015, FDD-015).
+"""Thompson sampling policy state and seeded, replayable draws (ADR-015, FDD-015).
 
-Standard library only: nothing here reads the store or touches a file.
+The posterior lives in ``PolicySnapshot.metadata`` (no new record type, ADR-002). Nothing here
+reads the store or touches a file; the caller persists the snapshot.
 """
 
 from __future__ import annotations
 
 import hashlib
 import hmac
+import math
 import random
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from typing import Any
+
+from ..types import Action, PolicySnapshot
+from .base import Decision, Policy
+
+PRIOR_ALPHA = 1.0
+PRIOR_BETA = 1.0
 
 
 def seed_for(policy_id: str, request_id: str, timestamp: str) -> int:
@@ -61,4 +69,114 @@ def replay(record: Mapping[str, Any], policy_id: str) -> dict[str, float]:
     return redrawn
 
 
-__all__ = ["replay", "seed_for"]
+def _is_number(value: object) -> bool:
+    return isinstance(value, (int, float)) and not isinstance(value, bool)
+
+
+def _read_parameters(
+    raw: object, name: str, action_ids: Sequence[str], prior: float
+) -> dict[str, float]:
+    """Validate one of ``alpha`` or ``beta`` and return it with every action present."""
+    if not isinstance(raw, Mapping):
+        raise ValueError(f"posterior_parameters[{name!r}] must be a mapping keyed by action id")  # noqa: TRY004
+    unknown = [action_id for action_id in raw if action_id not in action_ids]
+    if unknown:
+        raise ValueError(f"posterior_parameters[{name!r}] names action {unknown[0]!r} outside the action space")
+    out: dict[str, float] = {}
+    for action_id in action_ids:
+        if action_id not in raw:
+            out[action_id] = prior
+            continue
+        value = raw[action_id]
+        if not _is_number(value) or not math.isfinite(value) or value <= 0:
+            raise ValueError(
+                f"posterior_parameters[{name!r}] for action {action_id!r} must be finite and positive, "
+                f"got {value!r}"
+            )
+        out[action_id] = float(value)
+    return out
+
+
+def _read_consumed(raw: object) -> list[str]:
+    if not isinstance(raw, list) or not all(isinstance(item, str) for item in raw):
+        raise ValueError("consumed_episode_ids must be a list of episode id strings")
+    seen: set[str] = set()
+    for item in raw:
+        if item in seen:
+            raise ValueError(f"consumed_episode_ids holds {item!r} more than once")
+        seen.add(item)
+    return list(raw)
+
+
+class ThompsonPolicy(Policy):
+    """Beta-Bernoulli posterior per action, kept in the policy snapshot (FDD-015 §1 item 3, §2.2).
+
+    ``metadata["posterior_parameters"]`` holds ``{"alpha": {action_id: x}, "beta": {...}}`` and
+    ``metadata["consumed_episode_ids"]`` the ids of the episodes already counted (D7). ``logits``
+    stays at zero: a posterior has no logits. Drawing is Story 15.3, learning Story 15.4.
+    """
+
+    def __init__(self, snapshot: PolicySnapshot) -> None:
+        if not snapshot.actions:
+            raise ValueError("ThompsonPolicy requires at least one action.")
+        action_ids = [action.id for action in snapshot.actions]
+        raw = snapshot.metadata.get("posterior_parameters", {})
+        if not isinstance(raw, Mapping):
+            raise ValueError("posterior_parameters must be a mapping with 'alpha' and 'beta'")  # noqa: TRY004
+        unexpected = [key for key in raw if key not in ("alpha", "beta")]
+        if unexpected:
+            raise ValueError(f"posterior_parameters has unexpected key {unexpected[0]!r}")
+        alpha = _read_parameters(raw.get("alpha", {}), "alpha", action_ids, PRIOR_ALPHA)
+        beta = _read_parameters(raw.get("beta", {}), "beta", action_ids, PRIOR_BETA)
+        consumed = _read_consumed(snapshot.metadata.get("consumed_episode_ids", []))
+
+        # Keep a copy so the caller's snapshot is never changed (I3).
+        self._snapshot = PolicySnapshot.from_dict(snapshot.to_dict())
+        self._snapshot.metadata = {
+            **{k: v for k, v in snapshot.metadata.items() if k not in ("posterior_parameters", "consumed_episode_ids")},
+            "posterior_parameters": {"alpha": alpha, "beta": beta},
+            "consumed_episode_ids": consumed,
+        }
+        for action_id in action_ids:
+            self._snapshot.logits.setdefault(action_id, 0.0)
+
+    @classmethod
+    def from_actions(
+        cls, actions: Sequence[Action], *, agent_id: str = "default", task_id: str = "default"
+    ) -> ThompsonPolicy:
+        snapshot = PolicySnapshot(
+            agent_id=agent_id,
+            task_id=task_id,
+            version=0,
+            actions=list(actions),
+            logits={action.id: 0.0 for action in actions},
+        )
+        return cls(snapshot)
+
+    @classmethod
+    def from_snapshot(cls, snapshot: PolicySnapshot) -> ThompsonPolicy:
+        return cls(snapshot)
+
+    def posterior(self) -> dict[str, dict[str, float]]:
+        """A copy of the posterior, with every action present."""
+        stored = self._snapshot.metadata["posterior_parameters"]
+        return {"alpha": dict(stored["alpha"]), "beta": dict(stored["beta"])}
+
+    def consumed_episode_ids(self) -> list[str]:
+        """A copy of the ids of the episodes already counted."""
+        return list(self._snapshot.metadata["consumed_episode_ids"])
+
+    def actions(self) -> Sequence[Action]:
+        return tuple(self._snapshot.actions)
+
+    def snapshot(self) -> PolicySnapshot:
+        return PolicySnapshot.from_dict(self._snapshot.to_dict())
+
+    def choose(self, state: Any = None) -> Decision:
+        raise NotImplementedError("ThompsonPolicy.choose arrives with Story 15.3")
+
+    def apply_update(self, deltas: dict, *, baseline: float, episodes_seen: int) -> None:
+        raise TypeError("use ThompsonLearner")
+
+
+__all__ = ["PRIOR_ALPHA", "PRIOR_BETA", "ThompsonPolicy", "replay", "seed_for"]

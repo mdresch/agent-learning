@@ -118,7 +118,8 @@ A study of decision quality against REINFORCE (data gap, BRD-015 Out of Scope); 
 3. **Open: the REINFORCE counter name.** Thompson episodes are counted under `full_authority_excluded`. Either the name widens to "no behaviour probability" or a second counter is added. A change touches `reinforce.py` and its tests, so it is a separate decision.
 4. **Open: replay across Python versions.** `random.Random.betavariate` is deterministic for one implementation, but CPython does not promise the same stream across versions. The recorded `sampled_payoffs` is the ground truth; `replay` checks the redraw against it and reports a mismatch as a version difference, not as tampering. Whether to record the interpreter version in the record is open.
 5. **Open: the size of `consumed_episode_ids`.** It grows by one id per counted episode and is stored in the snapshot, so it is read and written with every update. If the list becomes large, pruning ids older than the runner's `episode_limit` window is the next step; it is not built or decided here (the same open question as FDD-016 section 7 item 2).
-6. **`N_MAX = 5000`:** taken from ADR-015 Invariant 4. There is no data on non-stationarity behind it.
+6. **Open: the signature of `replay`.** Section 3 item 4 re-derives the seed from the record's `request_id` and `timestamp` "and the snapshot id", but the section 2.3 record holds no policy id, and Story 15.1 AC_3 writes `replay(record)`. Story 15.1 built `replay(record, policy_id)` (interpretation I2). The alternative is a `policy_id` field in the record; that changes the section 2.3 contract and is not done. The maintainer says which is wanted.
+7. **`N_MAX = 5000`:** taken from ADR-015 Invariant 4. There is no data on non-stationarity behind it.
 
 ---
 

@@ -588,6 +588,12 @@ def test_ac5_nothing_written_on_non_cold_target_refusal(
         "full-authority": {"metadata": {"decision_authority": "full"}},
     }
 
+    def store_state(task_id: str) -> list[list[dict[str, object]]]:
+        return [
+            [p.to_dict() for p in file_store.list_policies("test-agent", task_id)],
+            [p.to_dict() for p in file_store.list_policies("test-agent", "donor-task")],
+        ]
+
     for name, overrides in cases.items():
         snap = copy.deepcopy(base_target_snapshot)
         snap.task_id = f"non-cold-{name}"
@@ -598,13 +604,7 @@ def test_ac5_nothing_written_on_non_cold_target_refusal(
                 setattr(snap, key, value)
         file_store.store_policy(snap)
 
-        def state(task_id: str = snap.task_id) -> list[list[dict[str, object]]]:
-            return [
-                [p.to_dict() for p in file_store.list_policies("test-agent", task_id)],
-                [p.to_dict() for p in file_store.list_policies("test-agent", "donor-task")],
-            ]
-
-        before = state()
+        before = store_state(snap.task_id)
         code = cli.main(
             [
                 "task-policy-warm-start",
@@ -619,7 +619,7 @@ def test_ac5_nothing_written_on_non_cold_target_refusal(
             ]
         )
         assert code != 0, f"Expected refusal for {name}"
-        assert state() == before, f"Store changed after refusal for {name}"
+        assert store_state(snap.task_id) == before, f"Store changed after refusal for {name}"
 
 
 def test_ac6_flags(

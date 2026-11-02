@@ -1259,3 +1259,23 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Amazon Q triage (round 4 on `6625bcf`):**
   - `Q-80-4 | test gap | verified: yes | decision: deferred | tests/pmbok collection errors come from missing optional dependencies, not this PR; owned by Story 34.5 (the suite collects); suite excludes tests/pmbok per LL-013 | fix: none`
   - `Q-80-5 | crash risk | verified: no | decision: declined | last_error is assigned in every except branch before raise last_error; run with delays=[] raised HTTPError and URLError, never UnboundLocalError, and success returned the body | fix: none`
+
+## Story 15.1 — The Seed and the Replay
+- **Commit:** `4375921`
+- **Date:** 2026-11-02
+- **Branch:** `feat/story-15.1`
+- **Source ADR / BRD / FDD:** ADR-015, BRD-015, FDD-015
+- **Files Modified/Created:**
+  - `.claude/skills/thompson/SKILL.md`
+  - `docs/project-docs/Functional-Design/FDD-015-bayesian-bandit-posterior-sampling.md`
+  - `docs/user-stories/epic-15-bayesian-bandit-posterior-sampling.md`
+  - `src/agent_learning/policy/thompson.py`
+  - `tests/test_thompson_seed.py`
+- **Contracts:**
+  - `tests/test_thompson_seed.py`
+  - Contract run: 10 passed in 0.68s
+  - Full suite: 1580 passed, 1 skipped in 48.34s (excluding `tests/test_spark.py`, `tests/pmbok`, `tests/test_spark.py`, per LL-013)
+- **Notes:**
+  - Interpretation I1: choose is Story 15.3, so AC_3 builds the FDD-015 section 2.3 record in the test with the primitives choose will use; Story 15.3 AC_2 asserts that choose's own records replay.
+  - Interpretation I2: replay takes the policy id as a second argument because the section 2.3 record holds none; recorded as FDD-015 section 7 item 6 for the maintainer to confirm.
+  - Environment: uv sync --all-extras installed a real azure-cosmos 4.17.0 and broke 4 stub-based tests in tests/test_storage_cosmos.py (LL-003); main's environment has none. Removed it from the worktree venv; the suite then ran clean.

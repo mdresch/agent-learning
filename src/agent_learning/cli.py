@@ -15,6 +15,8 @@ from typing import Any
 
 from ._version import __version__
 from .autonomy import ComplexityProfile, assess_autonomy
+from .config import AutonomyConfig, AutonomyTier
+from .warm_start import DAMPING_DEFAULT, provenance, warm_start_logits
 from .comparison import (
     DEFAULT_EPSILON,
     ClassificationType,
@@ -279,6 +281,24 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         type=_retry_cap,
         default=3,
         help="Maximum consecutive regression attempts before human escalation (default: 3, minimum: 1).",
+    )
+
+    warm_start = sub.add_parser(
+        "task-policy-warm-start",
+        help="Explicitly warm-start a target decision policy from a donor policy or meta-prior.",
+    )
+    warm_start.add_argument("--agent-id", required=True, help="Agent identifier.")
+    warm_start.add_argument("--target-task-id", required=True, help="Target task identifier.")
+    warm_start.add_argument("--donor-task-id", help="Donor task identifier.")
+    warm_start.add_argument("--meta-prior", help="Family meta-prior name.")
+    warm_start.add_argument(
+        "--damping",
+        type=float,
+        help="Confidence damping factor in (0, 1.0]. Defaults to 0.70 for policy donor (1.0 for meta-prior).",
+    )
+    warm_start.add_argument(
+        "--action-map",
+        help="JSON mapping target action IDs to donor action IDs.",
     )
 
     return parser
@@ -1148,6 +1168,182 @@ def _cmd_compare_task_policy(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_warm_start_task_policy(args: argparse.Namespace) -> int:
+    has_donor = bool(args.donor_task_id)
+    has_meta = bool(args.meta_prior)
+    if (has_donor and has_meta) or (not has_donor and not has_meta):
+        print(
+            "Exactly one of --donor-task-id or --meta-prior must be provided.",
+            file=sys.stderr,
+        )
+        return 2
+
+    if has_meta and args.action_map is not None:
+        print("--action-map cannot be used with --meta-prior.", file=sys.stderr)
+        return 2
+
+    store = get_default_store()
+
+    target = store.get_active_policy(args.agent_id, args.target_task_id)
+    if target is None:
+        print(f"Target task {args.target_task_id!r} not found for agent {args.agent_id!r}.", file=sys.stderr)
+        return 2
+
+    policy_scope = target.metadata.get("policy_scope")
+    if policy_scope not in (_DECISION_POLICY_SCOPE, "decision"):
+        print(
+            f"Target policy must be a delegated decision policy, got policy_scope: {policy_scope!r}.",
+            file=sys.stderr,
+        )
+        return 2
+
+    target_authority = target.metadata.get("decision_authority", DecisionAuthority.LOW.value)
+    if target_authority == DecisionAuthority.FULL.value:
+        print(
+            "Target policy has full decision authority; warm-starting requires low authority.",
+            file=sys.stderr,
+        )
+        return 2
+
+    if target.updates_applied > 0:
+        print(
+            f"Target policy is not cold: updates_applied is {target.updates_applied} (expected 0).",
+            file=sys.stderr,
+        )
+        return 2
+
+    if target.episodes_seen > 0:
+        print(
+            f"Target policy is not cold: episodes_seen is {target.episodes_seen} (expected 0).",
+            file=sys.stderr,
+        )
+        return 2
+
+    if any(logit != 0.0 for logit in target.logits.values()):
+        print(
+            f"Target policy is not cold: non-zero logits present {target.logits}.",
+            file=sys.stderr,
+        )
+        return 2
+
+    if "warm_start_donor_policy_id" in target.metadata:
+        print(
+            f"Target policy is not cold: warm_start_donor_policy_id is already present ({target.metadata['warm_start_donor_policy_id']!r}).",
+            file=sys.stderr,
+        )
+        return 2
+
+    if has_donor:
+        donor_task_id = args.donor_task_id
+
+        if donor_task_id == args.target_task_id:
+            print(
+                f"Donor task cannot be the same as target task ({donor_task_id!r}).",
+                file=sys.stderr,
+            )
+            return 2
+
+        donor = store.get_active_policy(args.agent_id, donor_task_id)
+        if donor is None:
+            print(
+                f"Donor task {donor_task_id!r} not found for agent {args.agent_id!r}.",
+                file=sys.stderr,
+            )
+            return 2
+
+        donor_authority = donor.metadata.get("decision_authority", DecisionAuthority.LOW.value)
+        if donor_authority == DecisionAuthority.FULL.value:
+            print(
+                "Donor policy has full decision authority; warm-starting requires low authority.",
+                file=sys.stderr,
+            )
+            return 2
+
+        if not donor.logits:
+            print(
+                f"Donor policy {donor_task_id!r} has no logits.",
+                file=sys.stderr,
+            )
+            return 2
+
+        target_action_ids = [action.id for action in target.actions]
+        donor_action_ids = [action.id for action in donor.actions]
+
+        if args.action_map is None:
+            if set(target_action_ids) == set(donor_action_ids):
+                action_map = {act: act for act in target_action_ids}
+            else:
+                print(
+                    f"Action map omitted but target action IDs {sorted(target_action_ids)} "
+                    f"differ from donor action IDs {sorted(donor_action_ids)}.",
+                    file=sys.stderr,
+                )
+                return 2
+        else:
+            try:
+                raw_map = args.action_map.strip()
+                if raw_map.startswith("{"):
+                    action_map = json.loads(raw_map)
+                else:
+                    with open(raw_map, "r", encoding="utf-8") as f:
+                        action_map = json.load(f)
+            except Exception as exc:
+                print(f"Failed to parse --action-map: {exc}", file=sys.stderr)
+                return 2
+
+        damping = args.damping if args.damping is not None else DAMPING_DEFAULT
+
+        try:
+            new_logits = warm_start_logits(
+                donor.logits,
+                action_map,
+                target_action_ids,
+                damping=damping,
+            )
+        except (ValueError, TypeError) as exc:
+            print(f"Failed to compute warm start logits: {exc}", file=sys.stderr)
+            return 2
+
+        try:
+            donor_assessment = assess_autonomy(
+                store,
+                donor,
+                config=AutonomyConfig.for_tier(AutonomyTier.STANDARD),
+            )
+            gate_met = bool(donor_assessment.eligible)
+        except Exception:
+            gate_met = False
+
+        now_iso = datetime.now(timezone.utc).isoformat()
+
+        try:
+            prov = provenance(
+                donor,
+                damping,
+                now_iso,
+                action_map=action_map,
+                kind="policy",
+                gate_met=gate_met,
+            )
+        except (ValueError, TypeError) as exc:
+            print(f"Failed to generate provenance: {exc}", file=sys.stderr)
+            return 2
+
+        target_copy = PolicySnapshot.from_dict(target.to_dict())
+        target_copy.logits = new_logits
+        target_copy.episodes_seen = 0
+        target_copy.baseline = 0.0
+        target_copy.metadata.update(prov)
+        target_copy.advance_version()
+        store.store_policy(target_copy)
+
+        print(json.dumps(_policy_payload(target_copy), indent=2))
+        return 0
+
+    print("Meta-prior warm starting is not yet implemented.", file=sys.stderr)
+    return 2
+
+
 def main(argv: list[str] | None = None) -> int:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s - %(message)s")
     parser = _build_arg_parser()
@@ -1170,6 +1366,7 @@ def main(argv: list[str] | None = None) -> int:
         "task-policy-complexity-set": _cmd_set_task_policy_complexity,
         "task-episode-register": _cmd_register_task_episode,
         "task-policy-compare": _cmd_compare_task_policy,
+        "task-policy-warm-start": _cmd_warm_start_task_policy,
     }
     handler = dispatch[args.command]
     return handler(args)

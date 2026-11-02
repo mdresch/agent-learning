@@ -11,6 +11,7 @@ import sys
 import uuid
 from collections import Counter
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 
 from ._version import __version__
@@ -47,6 +48,16 @@ def _episode_limit(value: str) -> int:
     if limit < 1 or limit > _MAX_EPISODES:
         raise argparse.ArgumentTypeError(f"limit must be between 1 and {_MAX_EPISODES}")
     return limit
+
+
+def _damping_factor(value: str) -> float:
+    try:
+        damping = float(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError(f"damping must be a float, got {value!r}") from exc
+    if damping <= 0.0 or damping > 1.0:
+        raise argparse.ArgumentTypeError(f"damping must be in (0, 1.0], got {damping}")
+    return damping
 
 
 def _retry_cap(value: str) -> int:
@@ -293,7 +304,7 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     warm_start.add_argument("--meta-prior", help="Family meta-prior name.")
     warm_start.add_argument(
         "--damping",
-        type=float,
+        type=_damping_factor,
         help="Confidence damping factor in (0, 1.0]. Defaults to 0.70 for policy donor (1.0 for meta-prior).",
     )
     warm_start.add_argument(
@@ -1280,16 +1291,21 @@ def _cmd_warm_start_task_policy(args: argparse.Namespace) -> int:
                 )
                 return 2
         else:
-            try:
-                raw_map = args.action_map.strip()
-                if raw_map.startswith("{"):
-                    action_map = json.loads(raw_map)
-                else:
-                    with open(raw_map, "r", encoding="utf-8") as f:
+            raw_map = args.action_map.strip()
+            path_candidate = Path(raw_map)
+            if path_candidate.is_file():
+                try:
+                    with open(path_candidate, "r", encoding="utf-8") as f:
                         action_map = json.load(f)
-            except Exception as exc:
-                print(f"Failed to parse --action-map: {exc}", file=sys.stderr)
-                return 2
+                except Exception as exc:
+                    print(f"Failed to read --action-map file: {exc}", file=sys.stderr)
+                    return 2
+            else:
+                try:
+                    action_map = json.loads(raw_map)
+                except Exception as exc:
+                    print(f"Failed to parse --action-map: {exc}", file=sys.stderr)
+                    return 2
 
             if not isinstance(action_map, dict):
                 print(
@@ -1340,6 +1356,7 @@ def _cmd_warm_start_task_policy(args: argparse.Namespace) -> int:
         target_copy = PolicySnapshot.from_dict(target.to_dict())
         target_copy.logits = new_logits
         target_copy.episodes_seen = 0
+        target_copy.updates_applied = 0
         target_copy.baseline = 0.0
         target_copy.metadata.update(prov)
         target_copy.advance_version()

@@ -189,6 +189,8 @@ def test_ac2_map_rules(
     base_donor_snapshot: PolicySnapshot,
     base_target_snapshot: PolicySnapshot,
     capsys: pytest.CaptureFixture[str],
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """AC_2: Missing map with different IDs exits non-zero naming both sets; identical IDs uses identity map; bad map exits non-zero."""
     file_store.store_policy(base_donor_snapshot)
@@ -268,6 +270,34 @@ def test_ac2_map_rules(
             ]
         )
         assert code != 0
+
+    # 4. Map from a relative file path that begins with a brace (Q-83-9): it is a file, not inline JSON
+    monkeypatch.chdir(tmp_path)
+    map_file = tmp_path / "{custom}_map.json"
+    map_file.write_text(
+        json.dumps({"accept": "approve", "decline": "reject", "ask": "escalate"}),
+        encoding="utf-8",
+    )
+    target_file_snap = copy.deepcopy(base_target_snapshot)
+    target_file_snap.task_id = "target-task-file"
+    file_store.store_policy(target_file_snap)
+    code_file = cli.main(
+        [
+            "task-policy-warm-start",
+            "--agent-id",
+            "test-agent",
+            "--target-task-id",
+            "target-task-file",
+            "--donor-task-id",
+            "donor-task",
+            "--action-map",
+            map_file.name,
+        ]
+    )
+    assert code_file == 0
+    active_file = file_store.get_active_policy("test-agent", "target-task-file")
+    assert active_file is not None
+    assert active_file.logits == {"accept": 1.4, "decline": -0.7, "ask": 0.0}
 
 
 def test_ac3_cold_target_only(
@@ -406,9 +436,17 @@ def test_ac5_nothing_written_on_refusal(
     initial_state = get_store_state()
     action_map = json.dumps({"accept": "approve", "decline": "reject", "ask": "escalate"})
 
-    # Try invalid damping values (Story 20.1 ValueError)
-    for bad_damping in ["0.0", "-0.5", "1.5"]:
-        code = cli.main(
+    def run_refusal(argv: list[str]) -> None:
+        try:
+            code = cli.main(argv)
+            assert code != 0
+        except SystemExit as exc:
+            assert exc.code != 0
+        assert get_store_state() == initial_state
+
+    # 1. Invalid damping values (argparse validator / Story 20.1 ValueError)
+    for bad_damping in ["0.0", "-0.5", "1.5", "not-a-number"]:
+        run_refusal(
             [
                 "task-policy-warm-start",
                 "--agent-id",
@@ -423,12 +461,33 @@ def test_ac5_nothing_written_on_refusal(
                 action_map,
             ]
         )
-        assert code != 0
-        assert get_store_state() == initial_state
 
-    # Try bad map
-    bad_map = json.dumps({"accept": "approve", "decline": "approve", "ask": "escalate"})
-    code = cli.main(
+    # 2. Bad action maps
+    bad_maps = [
+        "not-json",
+        json.dumps(["accept", "approve"]),
+        json.dumps(123),
+        json.dumps({"accept": "approve"}),
+        json.dumps({"accept": "approve", "decline": "approve", "ask": "escalate"}),
+        json.dumps({"accept": "approve", "decline": "reject", "ask": "missing"}),
+    ]
+    for bm in bad_maps:
+        run_refusal(
+            [
+                "task-policy-warm-start",
+                "--agent-id",
+                "test-agent",
+                "--target-task-id",
+                "target-task",
+                "--donor-task-id",
+                "donor-task",
+                "--action-map",
+                bm,
+            ]
+        )
+
+    # 3. Missing action map when action IDs differ
+    run_refusal(
         [
             "task-policy-warm-start",
             "--agent-id",
@@ -437,12 +496,130 @@ def test_ac5_nothing_written_on_refusal(
             "target-task",
             "--donor-task-id",
             "donor-task",
-            "--action-map",
-            bad_map,
         ]
     )
-    assert code != 0
-    assert get_store_state() == initial_state
+
+    # 4. Target non-existent
+    run_refusal(
+        [
+            "task-policy-warm-start",
+            "--agent-id",
+            "test-agent",
+            "--target-task-id",
+            "nonexistent-target-task",
+            "--donor-task-id",
+            "donor-task",
+            "--action-map",
+            action_map,
+        ]
+    )
+
+    # 5. Donor refusal scenarios (AC_4)
+    donor_refusals = [
+        "target-task",  # donor is target
+        "nonexistent-donor",  # donor not found
+    ]
+    for d_task in donor_refusals:
+        run_refusal(
+            [
+                "task-policy-warm-start",
+                "--agent-id",
+                "test-agent",
+                "--target-task-id",
+                "target-task",
+                "--donor-task-id",
+                d_task,
+                "--action-map",
+                action_map,
+            ]
+        )
+
+    # 6. Flag combinations (AC_6)
+    run_refusal(
+        [
+            "task-policy-warm-start",
+            "--agent-id",
+            "test-agent",
+            "--target-task-id",
+            "target-task",
+        ]
+    )
+    run_refusal(
+        [
+            "task-policy-warm-start",
+            "--agent-id",
+            "test-agent",
+            "--target-task-id",
+            "target-task",
+            "--donor-task-id",
+            "donor-task",
+            "--meta-prior",
+            "family-meta-prior",
+        ]
+    )
+    run_refusal(
+        [
+            "task-policy-warm-start",
+            "--agent-id",
+            "test-agent",
+            "--target-task-id",
+            "target-task",
+            "--meta-prior",
+            "family-meta-prior",
+        ]
+    )
+
+
+def test_ac5_nothing_written_on_non_cold_target_refusal(
+    file_store: LocalFileStore,
+    base_donor_snapshot: PolicySnapshot,
+    base_target_snapshot: PolicySnapshot,
+) -> None:
+    """AC_5: After every AC_3 non-cold target refusal, the target and donor stores equal their earlier state."""
+    file_store.store_policy(base_donor_snapshot)
+    action_map = json.dumps({"accept": "approve", "decline": "reject", "ask": "escalate"})
+
+    cases = {
+        "updates": {"updates_applied": 1},
+        "episodes": {"episodes_seen": 5},
+        "logits": {"logits": {"accept": 0.5, "decline": 0.0, "ask": 0.0}},
+        "prior-warm-start": {"metadata": {"warm_start_donor_policy_id": "prev-donor-1"}},
+        "not-decision": {"metadata": {"policy_scope": "other"}},
+        "full-authority": {"metadata": {"decision_authority": "full"}},
+    }
+
+    for name, overrides in cases.items():
+        snap = copy.deepcopy(base_target_snapshot)
+        snap.task_id = f"non-cold-{name}"
+        for key, value in overrides.items():
+            if key == "metadata":
+                snap.metadata.update(value)  # type: ignore[arg-type]
+            else:
+                setattr(snap, key, value)
+        file_store.store_policy(snap)
+
+        def state(task_id: str = snap.task_id) -> list[list[dict[str, object]]]:
+            return [
+                [p.to_dict() for p in file_store.list_policies("test-agent", task_id)],
+                [p.to_dict() for p in file_store.list_policies("test-agent", "donor-task")],
+            ]
+
+        before = state()
+        code = cli.main(
+            [
+                "task-policy-warm-start",
+                "--agent-id",
+                "test-agent",
+                "--target-task-id",
+                snap.task_id,
+                "--donor-task-id",
+                "donor-task",
+                "--action-map",
+                action_map,
+            ]
+        )
+        assert code != 0, f"Expected refusal for {name}"
+        assert state() == before, f"Store changed after refusal for {name}"
 
 
 def test_ac6_flags(

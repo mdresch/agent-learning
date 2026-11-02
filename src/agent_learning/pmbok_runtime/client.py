@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 from collections.abc import Callable, Sequence
 from typing import Protocol
+from urllib.parse import urlsplit
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
@@ -80,6 +81,12 @@ def _is_retryable_status(status: int) -> bool:
     return status == 429 or 500 <= status <= 599
 
 
+def _require_http_url(url: str) -> None:
+    parts = urlsplit(url)
+    if parts.scheme.lower() not in ("http", "https") or not parts.netloc:
+        raise ValueError(f"url must be an http or https URL with a host, got {url!r}")
+
+
 def urllib_client(
     url: str,
     sleeper: Callable[[float], None],
@@ -87,7 +94,11 @@ def urllib_client(
     *,
     credential_env_var: str | None = None,
 ) -> LlmClient:
-    """Create an HTTP client using a caller-supplied retry schedule."""
+    """Create an HTTP client using a caller-supplied retry schedule.
+
+    Raises ``ValueError`` unless ``url`` is an ``http`` or ``https`` URL with a host.
+    """
+    _require_http_url(url)
     return _UrllibClient(url, sleeper, delays, credential_env_var)
 
 

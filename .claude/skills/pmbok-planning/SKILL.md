@@ -31,7 +31,7 @@ The standard-library LLM client is `agent_learning.pmbok_runtime.client`, covere
 the confirmed backoff uses additive jitter in seconds. Retry only `URLError` and HTTP 429/5xx,
 raise the last transient error after the supplied delays are exhausted, and do not include
 credential values in errors or logs. Read credentials from the explicitly named environment
-variable at call time. `mock_client` returns its canned body without sleeping or opening a socket.
+variable at call time. `urllib_client` rejects any URL that is not `http` or `https` with a host, with `ValueError` at construction (interpretation I3, Amazon Q on PR #80); never relax this to accept `file://` or other schemes. `mock_client` returns its canned body without sleeping or opening a socket.
 
 `agent_learning.pmbok` remains pure: do not add `LearningStore`, `pydantic`, the top-level
 `pmbok` package, file I/O, or network I/O to the registry. Runtime storage and external calls

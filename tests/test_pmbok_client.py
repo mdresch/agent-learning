@@ -11,6 +11,13 @@ value is added to the exponential delay.
 Interpretation I2: the standard-library client sends the prompt as UTF-8
 request data and returns the UTF-8 response body. The FDD specifies a URL and
 prompt but no API-specific request envelope or response parsing.
+
+Interpretation I3 (Amazon Q observation on PR #80): a live client accepts only
+``http`` and ``https`` URLs with a host. Anything else (``file://``, ``ftp://``,
+a bare path) raises ``ValueError`` when the client is built, before any
+credential is read, sleep is made or socket is opened. The stories and the FDD
+state no such rule; it is a hardening of the AC_2 secret boundary and the
+standard-library choice.
 """
 
 from __future__ import annotations
@@ -214,6 +221,39 @@ def test_ac3_mock_client_does_not_sleep_or_open_a_socket(
 
     assert client.mock_client("hello").complete("prompt") == "hello"
     assert calls == []
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        "file:///etc/passwd",
+        "ftp://example.test/complete",
+        "data:text/plain,hello",
+        "/local/path",
+        "example.test/complete",
+        "http://",
+        "https:///no-host",
+        "",
+    ],
+)
+def test_i3_url_scheme_guard_rejects_non_http_urls(
+    url: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from agent_learning.pmbok_runtime import client
+
+    calls: list[str] = []
+    monkeypatch.setattr(client, "urlopen", lambda _: calls.append("urlopen"))
+
+    with pytest.raises(ValueError, match="http"):
+        client.urllib_client(url, lambda _: calls.append("sleep"), [0.1])
+    assert calls == []
+
+
+@pytest.mark.parametrize("url", ["http://example.test/x", "HTTPS://example.test/x"])
+def test_i3_url_scheme_guard_accepts_http_and_https(url: str) -> None:
+    from agent_learning.pmbok_runtime import client
+
+    assert client.urllib_client(url, lambda _: None, []) is not None
 
 
 def test_ac4_client_uses_only_stdlib_and_stays_out_of_pure_domain() -> None:

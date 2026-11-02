@@ -1215,3 +1215,8 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-83-9 | logic error | verified: yes | decision: accepted | File check before inline JSON; relative path starting with { was misparsed (RED observed) | fix: 4fa3241`
   - `Q-83-10 | logic error | verified: yes | decision: accepted | Add _damping_factor argparse validator for (0, 1.0] | fix: 4fa3241`
   - `Q-83-11 | test gap | verified: yes | decision: accepted | AC_5 immutability now covers AC_3 non-cold, AC_4 donor and AC_6 flag refusals | fix: 4fa3241`
+- **Review-fix commits:** `ce09e6d`
+- **Review validation:** 8 passed in tests/test_warm_start_cli.py; full suite 1,532 passed, 2 skipped (excluding tests/pmbok, per LL-013)
+- **Amazon Q triage (round 3 on `42146da`):**
+  - `Q-83-12 | logic error | verified: no | decision: declined | AC_4 and FDD-020 1.2 require only 'at least one logit'; an all-zero donor is valid and leaves the target cold; Q has no access to the specs | fix: none`
+  - `Q-83-13 | style | verified: partial | decision: accepted | Closure binds the right task id today; replaced by one helper outside the loop | fix: ce09e6d`

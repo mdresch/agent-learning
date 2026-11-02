@@ -1308,3 +1308,5 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - I3: from_snapshot keeps a copy and fills missing actions with the prior; the caller's snapshot is unchanged
   - I4: bool, string and None values are treated as not finite and refused naming the action
   - Full suite excludes tests/test_spark.py (JVM) and tests/pmbok (Story 34.5), per LL-013
+- **Amazon Q triage (round 1 on `96c234f`):**
+  - `Q-85-0 | none | verified: n/a | decision: n/a | Q reported no findings and 'ready to merge' on the head commit | fix: none`

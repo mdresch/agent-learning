@@ -1189,8 +1189,8 @@ def _cmd_warm_start_task_policy(args: argparse.Namespace) -> int:
         print(f"Target task {args.target_task_id!r} not found for agent {args.agent_id!r}.", file=sys.stderr)
         return 2
 
-    policy_scope = target.metadata.get("policy_scope")
-    if policy_scope not in (_DECISION_POLICY_SCOPE, "decision"):
+    if not _is_decision_policy(target):
+        policy_scope = target.metadata.get("policy_scope")
         print(
             f"Target policy must be a delegated decision policy, got policy_scope: {policy_scope!r}.",
             file=sys.stderr,
@@ -1291,6 +1291,13 @@ def _cmd_warm_start_task_policy(args: argparse.Namespace) -> int:
                 print(f"Failed to parse --action-map: {exc}", file=sys.stderr)
                 return 2
 
+            if not isinstance(action_map, dict):
+                print(
+                    "--action-map must be a JSON object mapping target action IDs to donor action IDs.",
+                    file=sys.stderr,
+                )
+                return 2
+
         damping = args.damping if args.damping is not None else DAMPING_DEFAULT
 
         try:
@@ -1311,7 +1318,8 @@ def _cmd_warm_start_task_policy(args: argparse.Namespace) -> int:
                 config=AutonomyConfig.for_tier(AutonomyTier.STANDARD),
             )
             gate_met = bool(donor_assessment.eligible)
-        except Exception:
+        except Exception as exc:
+            logger.warning("Failed to evaluate donor autonomy gate: %s", exc)
             gate_met = False
 
         now_iso = datetime.now(timezone.utc).isoformat()

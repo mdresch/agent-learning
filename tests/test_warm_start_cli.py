@@ -29,7 +29,6 @@ from __future__ import annotations
 import copy
 import json
 from pathlib import Path
-from unittest.mock import MagicMock
 import pytest
 
 from agent_learning import cli
@@ -248,6 +247,8 @@ def test_ac2_map_rules(
     # 3. Bad maps exit non-zero
     bad_maps = [
         "not-json",
+        json.dumps(["accept", "approve"]),  # array instead of dict
+        json.dumps(123),  # scalar instead of dict
         json.dumps({"accept": "approve"}),  # incomplete
         json.dumps({"accept": "approve", "decline": "approve", "ask": "escalate"}),  # non-injective
         json.dumps({"accept": "approve", "decline": "reject", "ask": "missing_act"}),  # missing donor act
@@ -298,7 +299,9 @@ def test_ac3_cold_target_only(
         (make_target(metadata={"decision_authority": "full"}), "authority"),
     ]
 
-    for target_snap, reason_keyword in test_cases:
+    for idx, (target_snap, reason_keyword) in enumerate(test_cases):
+        sub_task_id = f"target-task-{idx}"
+        target_snap.task_id = sub_task_id
         file_store.store_policy(target_snap)
         code = cli.main(
             [
@@ -306,7 +309,7 @@ def test_ac3_cold_target_only(
                 "--agent-id",
                 "test-agent",
                 "--target-task-id",
-                "target-task",
+                sub_task_id,
                 "--donor-task-id",
                 "donor-task",
                 "--action-map",
@@ -446,6 +449,7 @@ def test_ac6_flags(
     file_store: LocalFileStore,
     base_donor_snapshot: PolicySnapshot,
     base_target_snapshot: PolicySnapshot,
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
     """AC_6: --donor-task-id and --meta-prior together, or neither, exit non-zero; damping defaults to 0.70."""
     file_store.store_policy(base_donor_snapshot)
@@ -479,7 +483,25 @@ def test_ac6_flags(
     )
     assert code_both != 0
 
-    # 3. Damping defaults to 0.70
+    # 3. Meta-prior flag alone (not yet implemented in Story 20.3)
+    capsys.readouterr()  # clear prior captured output
+    code_meta_only = cli.main(
+        [
+            "task-policy-warm-start",
+            "--agent-id",
+            "test-agent",
+            "--target-task-id",
+            "target-task",
+            "--meta-prior",
+            "family-meta-prior",
+        ]
+    )
+    assert code_meta_only != 0
+    captured_meta = capsys.readouterr()
+    assert "meta-prior warm starting is not yet implemented" in (captured_meta.err + captured_meta.out).lower()
+
+    # 4. Damping defaults to 0.70
+    file_store.store_policy(base_target_snapshot)
     action_map = json.dumps({"accept": "approve", "decline": "reject", "ask": "escalate"})
     code_default = cli.main(
         [

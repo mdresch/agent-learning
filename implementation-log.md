@@ -1252,3 +1252,7 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Amazon Q triage (round 2 on `e4b1aa1`):**
   - `Q-80-2 | logic error | verified: yes | decision: accepted | The domain import guard missed client re-exports through the runtime package; reject all runtime-package and submodule imports to preserve the FDD purity boundary, and cover re-export, submodule, and short-package forms | fix: 0927d46`
 - **Review follow-up:** Both accepted findings are fixed and recorded. Push the corrected head and request an explicit final verdict; keep PR #80 open until Q reports no remaining blockers/findings and CI is clean.
+- **Review-fix commits:** `1d53fce`
+- **Review validation:** 18 passed in tests/test_pmbok_client.py (8 new I3 cases observed RED first); full suite 1,550 passed, 2 skipped (excluding tests/pmbok, per LL-013)
+- **Amazon Q triage (round 3 on `a60d9b2`):**
+  - `Q-80-3 | logic error | verified: yes | decision: accepted | urllib_client accepted any URL scheme (file:// worked silently); now rejects non-http(s) or hostless URLs at construction, recorded as interpretation I3 | fix: 1d53fce`

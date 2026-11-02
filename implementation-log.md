@@ -1279,3 +1279,9 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - Interpretation I1: choose is Story 15.3, so AC_3 builds the FDD-015 section 2.3 record in the test with the primitives choose will use; Story 15.3 AC_2 asserts that choose's own records replay.
   - Interpretation I2: replay takes the policy id as a second argument because the section 2.3 record holds none; recorded as FDD-015 section 7 item 6 for the maintainer to confirm.
   - Environment: uv sync --all-extras installed a real azure-cosmos 4.17.0 and broke 4 stub-based tests in tests/test_storage_cosmos.py (LL-003); main's environment has none. Removed it from the worktree venv; the suite then ran clean.
+- **Amazon Q triage (round 1 on `427f3e8`):**
+  - `Q-84-1 | crash risk | verified: no | decision: declined | hmac.new exists and runs on Python 3.13 and 3.14 (checked); it is not removed, the docs list it as current | fix: none`
+  - `Q-84-2 | logic error | verified: no | decision: declined | FDD-015 §2.3 says prng_seed is a decimal string (BRU-015-02); int() comparison would also accept '+42', ' 42', '042' and so loosen the contract | fix: none`
+  - `Q-84-3 | logic error | verified: no | decision: declined | Python float repr round-trips exactly through JSON; 200000 betavariate draws gave 0 mismatches, and the JSON round-trip test passes | fix: none`
+  - `Q-84-4 | logic error | verified: partial | decision: declined | AC_2 and FDD say empty; whitespace-only is not specified, and a policy id such as ' ' is not refused by the design. Not widening the AC without the human | fix: none`
+  - `Q-84-5 | test gap | verified: no | decision: declined | Q's own comment says no defect; the two asserts are harmless | fix: none`

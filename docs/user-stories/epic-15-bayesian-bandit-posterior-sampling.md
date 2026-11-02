@@ -15,7 +15,7 @@ Fixture used by the criteria below ("the base policy"): two actions, `a` and `b`
 
 ## Story 15.1 — The Seed and the Replay
 
-**Status:** Ready  
+**Status:** Completed (see `implementation-log.md`)  
 **As** an auditor, **I want** every random draw to be re-derivable from the request that caused it, **so that** a stochastic decision can still be checked after the fact.
 
 ### Acceptance Criteria:

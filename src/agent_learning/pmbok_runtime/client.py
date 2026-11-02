@@ -5,8 +5,8 @@ from __future__ import annotations
 import os
 from collections.abc import Callable, Sequence
 from typing import Protocol
-from urllib.parse import urlsplit
 from urllib.error import HTTPError, URLError
+from urllib.parse import urlsplit
 from urllib.request import Request, urlopen
 
 

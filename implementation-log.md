@@ -1198,3 +1198,13 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - Enforces action map rules (identity map for identical action ID sets, required for differing IDs, complete bijection).
   - Strict isolation: donor snapshot and episodes are untouched; `store_policy` is never called for donor.
   - Zero writes on refusal: on any validation failure or `ValueError` from Story 20.1, store state is preserved completely.
+- **Review-fix commits:** `0820d05` (`fix(warm-start): address Amazon Q review findings on Story 20.3`)
+- **Review validation:** 7 passed in `tests/test_warm_start_cli.py`; full regression suite passed with 1,531 passed, 3 skipped in 55.50s (excluding `tests/pmbok` due to optional dependencies, per LL-013).
+- **Amazon Q triage (round 1 on `8bb9cc6`):**
+  - `Q-83-1 | logic error | verified: yes | decision: accepted | Validate that parsed --action-map is a dict before passing to warm_start_logits | fix: 0820d05`
+  - `Q-83-2 | logic error | verified: no | decision: declined | PolicySnapshot.advance_version() already mints a new UUID via self.id = _new_id() on line 402 | fix: none`
+  - `Q-83-3 | test gap | verified: yes | decision: accepted | Isolate each non-cold test case by assigning distinct sub-task IDs | fix: 0820d05`
+  - `Q-83-4 | test gap | verified: yes | decision: accepted | Re-store base target snapshot immediately prior to step 3 invocation | fix: 0820d05`
+  - `Q-83-5 | test gap | verified: yes | decision: accepted | Remove unused MagicMock import and add explicit test for standalone --meta-prior flag | fix: 0820d05`
+  - `Q-83-6 | logic error | verified: yes | decision: accepted | Use _is_decision_policy(target) to align with all other CLI subcommands | fix: 0820d05`
+  - `Q-83-7 | logic error | verified: yes | decision: accepted | Log a warning with logger.warning on unexpected autonomy assessment exceptions | fix: 0820d05`

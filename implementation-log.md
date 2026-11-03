@@ -1598,3 +1598,7 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - No seed_record (FDD-019 H8): the record of a seeding is the warm_start provenance of Story 20.2
   - seed_values exported from the package root (FDD-019 section 1 item 3)
   - Full suite excludes tests/test_spark.py (JVM) and tests/pmbok (Story 34.5), per LL-013
+- **Review-fix commits:** `d054fe5`
+- **Review validation:** 15 passed
+- **Amazon Q triage (round 1 on `c9f1e22`):**
+  - `Q-97-1 | test gap | verified: yes | decision: accepted | the logits dict was mutated but never stored, so AC_5 only checked the in-memory prior; the test now stores the seeded policy, stores a learned version with changed logits, and asserts the stored prior and its snapshot are equal to their copies | fix: d054fe5`

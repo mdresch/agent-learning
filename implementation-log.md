@@ -1516,3 +1516,30 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - Full suite excludes tests/test_spark.py (JVM) and tests/pmbok (Story 34.5), per LL-013
 - **Amazon Q triage (round 1 on `d59e903`):**
   - `Q-93-1 | crash risk | verified: no | decision: declined | ThompsonPolicy.posterior() returns alpha and beta with every action of the snapshot filled in (a missing action reads as the prior), so the comprehension over snapshot.actions cannot raise KeyError; test_ac4_thompson_members_are_read_as_pairs_keyed_by_action_id feeds a member with only one action in the mapping and gets the prior pairs | fix: none`
+
+## Story 19.8 — Reading a Posterior at the Gate
+- **Commit:** `22e6511`
+- **Date:** 2026-11-03
+- **Branch:** `feat/story-19.8`
+- **Source ADR / BRD / FDD:** ADR-019, BRD-019, FDD-019
+- **Files Modified/Created:**
+  - `.claude/skills/autonomy/SKILL.md`
+  - `.claude/skills/meta-prior/SKILL.md`
+  - `docs/user-stories/epic-19-hierarchical-meta-prior-compilation.md`
+  - `src/agent_learning/autonomy.py`
+  - `src/agent_learning/cli.py`
+  - `tests/test_autonomy_posterior.py`
+  - `tests/test_meta_prior_members.py`
+- **Contracts:**
+  - `tests/test_autonomy_posterior.py`
+  - `tests/test_meta_prior_members.py`
+  - Contract run: 44 passed in 1.74s
+  - Full suite: 1776 passed, 1 skipped in 55.28s (excluding `tests/test_spark.py`, `tests/pmbok`, per LL-013)
+- **Notes:**
+  - Implements ADR-003 section 4.6 and FDD-019 H9 (approved 2026-11-03). assess_autonomy reads a snapshot with posterior_parameters from alpha/(alpha+beta) per action, normalised; logits stay zero; thresholds, other criteria and softmax snapshots unchanged; the two criteria carry basis posterior_mean
+  - I1: the ADR's 'calculated logits' are the equivalent softmax over ln(mean); AC_0 checks the equivalence and the code computes probabilities directly
+  - I2: an action missing from the posterior reads as the prior, mean 0.5
+  - I3: _scan_family reads the posterior before the gate, so a malformed posterior is an exclusion with a reason
+  - Stacked on feat/story-19.4 (PR #93, unmerged): AC_8 needs cli._scan_family from Story 19.4
+  - Open on purpose (FDD-019 section 7 items 8 to 10): the reading is a proxy, not the probability of being the best action; thresholds are uncalibrated for it; several actions of similar payoff cannot reach 60%
+  - Full suite excludes tests/test_spark.py (JVM) and tests/pmbok (Story 34.5), per LL-013

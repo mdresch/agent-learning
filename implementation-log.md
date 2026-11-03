@@ -1514,3 +1514,5 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - I4: members are found among the agent's tasks in task-id order; a snapshot with is_family_meta_prior is never a candidate
   - ruff and mypy findings in cli.py are all pre-existing (same 4 ruff and 37 mypy at the base commit); none is in the code this story adds
   - Full suite excludes tests/test_spark.py (JVM) and tests/pmbok (Story 34.5), per LL-013
+- **Amazon Q triage (round 1 on `d59e903`):**
+  - `Q-93-1 | crash risk | verified: no | decision: declined | ThompsonPolicy.posterior() returns alpha and beta with every action of the snapshot filled in (a missing action reads as the prior), so the comprehension over snapshot.actions cannot raise KeyError; test_ac4_thompson_members_are_read_as_pairs_keyed_by_action_id feeds a member with only one action in the mapping and gets the prior pairs | fix: none`

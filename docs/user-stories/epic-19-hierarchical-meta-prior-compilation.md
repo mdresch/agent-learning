@@ -43,7 +43,7 @@ Fixture used by the criteria below ("the base family"): four low-authority softm
 
 ## Story 19.3 — Refusing a Bad Family
 
-**Status:** Ready  
+**Status:** Completed (see `implementation-log.md`)  
 **As** an auditor, **I want** a family that should not be pooled to be refused with its reason, **so that** a distorted prior is never stored.
 
 ### Acceptance Criteria:

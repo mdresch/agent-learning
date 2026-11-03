@@ -1,0 +1,133 @@
+{
+  "task": "ADR-003 (Evidence-Gated Autonomy), amended 2026-11-03 with section 4.6: a policy that keeps a posterior is gated on its posterior means (re-approval: approve, reject, or request revision)",
+  "criteria": [
+    {
+      "id": "architectural_soundness",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "architectural soundness: Re-approval after the 2026-11-03 amendment (section 4.6, three alternatives in section 5, a Positive and a Negative consequence in section 6, invariant 8): a policy that keeps a Beta posterior is gated on its posterior means read as ln(mean) logits that are never stored; thresholds, other criteria and softmax snapshots unchanged; the proxy and its limits are disclosed and tracked in FDD-019 section 7 items 8 to 10."
+    },
+    {
+      "id": "alternatives_considered",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "alternatives considered: Re-approval after the 2026-11-03 amendment (section 4.6, three alternatives in section 5, a Positive and a Negative consequence in section 6, invariant 8): a policy that keeps a Beta posterior is gated on its posterior means read as ln(mean) logits that are never stored; thresholds, other criteria and softmax snapshots unchanged; the proxy and its limits are disclosed and tracked in FDD-019 section 7 items 8 to 10."
+    },
+    {
+      "id": "consequences_honest",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "consequences honest: Re-approval after the 2026-11-03 amendment (section 4.6, three alternatives in section 5, a Positive and a Negative consequence in section 6, invariant 8): a policy that keeps a Beta posterior is gated on its posterior means read as ln(mean) logits that are never stored; thresholds, other criteria and softmax snapshots unchanged; the proxy and its limits are disclosed and tracked in FDD-019 section 7 items 8 to 10."
+    },
+    {
+      "id": "gap_disclosure_quality",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "gap disclosure quality: Re-approval after the 2026-11-03 amendment (section 4.6, three alternatives in section 5, a Positive and a Negative consequence in section 6, invariant 8): a policy that keeps a Beta posterior is gated on its posterior means read as ln(mean) logits that are never stored; thresholds, other criteria and softmax snapshots unchanged; the proxy and its limits are disclosed and tracked in FDD-019 section 7 items 8 to 10."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_adr",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "direct_doc_read:docs/adr/ADR-003-evidence-gated-autonomy-thresholds.md section 4.6; checked against src/agent_learning (autonomy.py _recommended_action and assess_autonomy, policy/thompson.py, policy/base.py Decision.probabilities)",
+          "support": 0.93,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "direct_doc_read:docs/adr/ADR-003-evidence-gated-autonomy-thresholds.md section 5 (nine rows incl. store logits, exempt criteria, Monte Carlo probability of being best)",
+          "support": 0.92,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "direct_doc_read:docs/adr/ADR-003-evidence-gated-autonomy-thresholds.md section 6 (new Positive and Negative bullets; many-action case 0.9/0.8/0.8/0.8/0.8 -> 0.22 checked by hand)",
+          "support": 0.94,
+          "confidence": 0.88
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "direct_doc_read:docs/adr/ADR-003-evidence-gated-autonomy-thresholds.md section 4.6 limits plus FDD-019 section 7 items 8 to 10 and FDD-015 section 7 item 8",
+          "support": 0.95,
+          "confidence": 0.9
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_adr",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "direct_doc_read:docs/adr/ADR-003-evidence-gated-autonomy-thresholds.md section 4.6; checked against src/agent_learning (autonomy.py _recommended_action and assess_autonomy, policy/thompson.py, policy/base.py Decision.probabilities)",
+          "support": 0.05,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "direct_doc_read:docs/adr/ADR-003-evidence-gated-autonomy-thresholds.md section 5 (nine rows incl. store logits, exempt criteria, Monte Carlo probability of being best)",
+          "support": 0.08,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "direct_doc_read:docs/adr/ADR-003-evidence-gated-autonomy-thresholds.md section 6 (new Positive and Negative bullets; many-action case 0.9/0.8/0.8/0.8/0.8 -> 0.22 checked by hand)",
+          "support": 0.06,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "direct_doc_read:docs/adr/ADR-003-evidence-gated-autonomy-thresholds.md section 4.6 limits plus FDD-019 section 7 items 8 to 10 and FDD-015 section 7 item 8",
+          "support": 0.04,
+          "confidence": 0.85
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "direct_doc_read:docs/adr/ADR-003-evidence-gated-autonomy-thresholds.md section 4.6; checked against src/agent_learning (autonomy.py _recommended_action and assess_autonomy, policy/thompson.py, policy/base.py Decision.probabilities)",
+          "support": 0.09,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "direct_doc_read:docs/adr/ADR-003-evidence-gated-autonomy-thresholds.md section 5 (nine rows incl. store logits, exempt criteria, Monte Carlo probability of being best)",
+          "support": 0.08,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "direct_doc_read:docs/adr/ADR-003-evidence-gated-autonomy-thresholds.md section 6 (new Positive and Negative bullets; many-action case 0.9/0.8/0.8/0.8/0.8 -> 0.22 checked by hand)",
+          "support": 0.07,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "direct_doc_read:docs/adr/ADR-003-evidence-gated-autonomy-thresholds.md section 4.6 limits plus FDD-019 section 7 items 8 to 10 and FDD-015 section 7 item 8",
+          "support": 0.05,
+          "confidence": 0.82
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

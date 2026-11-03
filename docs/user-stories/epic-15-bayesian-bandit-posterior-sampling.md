@@ -87,7 +87,7 @@ Fixture used by the criteria below ("the base policy"): two actions, `a` and `b`
 
 ## Story 15.6 — The Positive-Only Check (HYP-AL-002)
 
-**Status:** Ready  
+**Status:** Completed (see `implementation-log.md`)  
 **As** a maintainer, **I want** the recorded positive-only history replayed through both learners, **so that** I can see whether Thompson sampling keeps learning where REINFORCE stalls.
 
 ### Acceptance Criteria:

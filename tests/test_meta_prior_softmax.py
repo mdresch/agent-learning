@@ -9,7 +9,7 @@ the recorded store (FDD-019 §8). The numbers are arithmetic checks, not evidenc
 Interpretation I1: this story builds the softmax branch only. Refusing a bad family (size, gate,
 role maps, ``sigma_het`` values, unknown representation) is Story 19.3, and the Beta branch is
 Story 19.2, so the fixtures here are valid by construction and ``compile_meta_prior`` is not asked to
-refuse anything. A representation other than ``"softmax"`` or ``"thompson"`` raises ``NotImplementedError`` until then.
+refuse anything. A representation other than ``"softmax"`` or ``"thompson"`` is refused (Story 19.3).
 
 Interpretation I2: ``MetaPrior.values`` and ``role_spread`` are plain ``dict`` objects keyed by role;
 ``roles`` and ``compiled_from`` are tuples (FDD-019 §2.1).
@@ -190,7 +190,7 @@ def test_ac4_the_inputs_are_not_changed() -> None:
 
 
 def test_i1_a_representation_that_is_not_built_is_not_silently_pooled() -> None:
-    with pytest.raises(NotImplementedError):
+    with pytest.raises(ValueError, match="representation"):
         compile_meta_prior(_base_family(), representation="something-else", sigma_het=SIGMA)
 
 

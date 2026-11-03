@@ -1385,3 +1385,4 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - I1: tests assert behaviour only; they never read reinforce.py nor the full_authority_excluded counter name (FDD-015 §7 item 3 stays open)
   - I2: 'the capture path' is EpisodeCapture.start/end with action_logprob=decision.logprob
   - Full suite excludes tests/test_spark.py (JVM) and tests/pmbok (Story 34.5), per LL-013
+- **Amazon Q review (round 1 on `ebe2ac5`):** no findings; Q's verdict was "No findings requiring action before merge ... This PR is ready to merge." Nothing to triage, so no `Q-88-n` line is recorded (the triage parser accepts only the seven-field finding shape).

@@ -1568,3 +1568,10 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - Tests use an in-memory store, and a LocalFileStore only for the active-pointer and file-layout checks (10 s instead of 47 s)
   - cli.py ruff and mypy findings are the same 4 and 37 as at the base commit; none in the code this story adds
   - Full suite excludes tests/test_spark.py (JVM) and tests/pmbok (Story 34.5), per LL-013
+- **Review-fix commits:** `368df84`
+- **Review validation:** 21 passed in the contract; full suite 1,797 passed
+- **Amazon Q triage (round 1 on `55a54a1`):**
+  - `Q-96-1 | logic error | verified: yes | decision: accepted | the output-name guard ran after pooling, so a refused name paid for the pooling and a family error masked the name error; a test that failed first now pins that the name is checked first | fix: 368df84`
+  - `Q-96-2 | crash risk | verified: partial | decision: accepted | a Beta prior's values are (alpha, beta) tuples by construction (meta_prior._pool_thompson) and the Thompson test passes, so no crash; the type ignores are replaced by typed casts | fix: 368df84`
+  - `Q-96-3 | test gap | verified: yes | decision: accepted | the test read the pointer through the private LocalFileStore._path; the public get_active_policy assertion is the invariant, so the private read is removed | fix: 368df84`
+  - `Q-96-4 | test gap | verified: yes | decision: accepted | only two of the four required flags were exercised; all four are now parametrized | fix: 368df84`

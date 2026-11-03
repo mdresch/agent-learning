@@ -209,7 +209,7 @@ from .decision import (
     TieBreakDisposition,
     capture_decision_evidence_enabled,
 )
-from .learners import Learner, LearnerResult, ReinforceLearner
+from .learners import Learner, LearnerResult, ReinforceLearner, ThompsonLearner
 from .metrics import (
     IntentResolutionMetric,
     MetricEvaluator,
@@ -351,6 +351,7 @@ __all__ = [
     "SoftmaxPolicy",
     "SparkEpisodeScorer",
     "TaskAdherenceMetric",
+    "ThompsonLearner",
     "ThompsonPolicy",
     "TaskCompletionMetric",
     "TaskPolicy",

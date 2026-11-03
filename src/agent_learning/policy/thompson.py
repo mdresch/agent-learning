@@ -21,6 +21,8 @@ from .base import Decision, Policy
 
 PRIOR_ALPHA = 1.0
 PRIOR_BETA = 1.0
+N_MAX = 5000.0  # ceiling on alpha + beta per action (BRU-015-05)
+SELECTION_BASIS = "thompson_sampling"  # Episode.metadata["selection_basis"] for a Thompson decision
 
 
 def seed_for(policy_id: str, request_id: str, timestamp: str) -> int:
@@ -170,6 +172,29 @@ class ThompsonPolicy(Policy):
         """A copy of the ids of the episodes already counted."""
         return list(self._snapshot.metadata["consumed_episode_ids"])
 
+    def update_posterior(
+        self,
+        alpha: Mapping[str, float],
+        beta: Mapping[str, float],
+        consumed_episode_ids: Sequence[str],
+        *,
+        episodes_seen: int,
+    ) -> None:
+        """Replace the posterior and the consumed ids, as :class:`ThompsonLearner` does.
+
+        The new state is validated as ``from_snapshot`` validates it, before anything is written,
+        so a refused update leaves the policy as it was. ``logits`` stays at zero.
+        """
+        action_ids = [action.id for action in self._snapshot.actions]
+        new_alpha = _read_parameters(alpha, "alpha", action_ids, PRIOR_ALPHA)
+        new_beta = _read_parameters(beta, "beta", action_ids, PRIOR_BETA)
+        consumed = _read_consumed(list(consumed_episode_ids))
+        self._snapshot.metadata["posterior_parameters"] = {"alpha": new_alpha, "beta": new_beta}
+        self._snapshot.metadata["consumed_episode_ids"] = consumed
+        self._snapshot.episodes_seen = int(episodes_seen)
+        self._snapshot.updates_applied += 1
+        self._snapshot.advance_version()
+
     def actions(self) -> Sequence[Action]:
         return tuple(self._snapshot.actions)
 
@@ -238,4 +263,4 @@ class ThompsonPolicy(Policy):
         raise TypeError("use ThompsonLearner")
 
 
-__all__ = ["PRIOR_ALPHA", "PRIOR_BETA", "ThompsonPolicy", "replay", "seed_for"]
+__all__ = ["N_MAX", "PRIOR_ALPHA", "PRIOR_BETA", "SELECTION_BASIS", "ThompsonPolicy", "replay", "seed_for"]

@@ -6,7 +6,7 @@ description: Guidance for Thompson sampling (Beta-Bernoulli posterior, seeded an
 # Skill: thompson (agent-learning)
 
 ## Overview
-Thompson sampling picks an action by drawing one value per action from its Beta posterior and taking the highest draw. The posterior lives in `PolicySnapshot.metadata`; no new record type exists (ADR-002). This skill covers `src/agent_learning/policy/thompson.py` (and, as the stories land, `src/agent_learning/learners/thompson.py`).
+Thompson sampling picks an action by drawing one value per action from its Beta posterior and taking the highest draw. The posterior lives in `PolicySnapshot.metadata`; no new record type exists (ADR-002). This skill covers `src/agent_learning/policy/thompson.py` and `src/agent_learning/learners/thompson.py`.
 
 ## Governing Specifications & Contracts
 - **Architecture:** [`docs/adr/ADR-015-bayesian-bandit-posterior-sampling.md`](../../docs/adr/ADR-015-bayesian-bandit-posterior-sampling.md)
@@ -17,6 +17,7 @@ Thompson sampling picks an action by drawing one value per action from its Beta 
   - `tests/test_thompson_seed.py` (Story 15.1: seed and replay)
   - `tests/test_thompson_policy.py` (Story 15.2: posterior state in the snapshot)
   - `tests/test_thompson_choose.py` (Story 15.3: choosing by probability matching)
+  - `tests/test_thompson_learner.py` (Story 15.4: the conjugate update and the ceiling)
 
 ## Load-Bearing Constraints & Invariants
 1. **Seed:** `seed_for(policy_id, request_id, timestamp)` is `int(HMAC-SHA256(key=policy_id, msg=request_id + "|" + timestamp).hexdigest()[:16], 16)`. The `"|"` separator is fixed so `("ab", "c")` and `("a", "bc")` differ. An empty argument raises `ValueError` naming it.
@@ -30,3 +31,8 @@ Thompson sampling picks an action by drawing one value per action from its Beta 
 9. **`choose(state=None, *, request_id=None, timestamp=None)`** (Story 15.3): a missing id or timestamp is supplied (UUID4, current UTC ISO 8601) and recorded; an explicitly empty one is not "missing" and raises `ValueError` from `seed_for`. The seed is `seed_for(snapshot.id, request_id, timestamp)`; one `betavariate` per action in snapshot order; the highest draw wins and a tie goes to the earlier action. The missing-argument tests use `is None`, never truthiness.
 10. **`Decision.logprob` is `None`** for Thompson (`Optional[float]` in `policy/base.py`): there is no selection probability, and a made-up number would let `ReinforceLearner` treat the draw as a softmax sample (FDD-015 D3). `Decision.probabilities` is the normalised posterior mean, for display only, not the selection probability.
 11. **`last_sampling_record()`** is `None` before the first `choose`, then a deep copy of the FDD-015 §2.3 record (callers attach it to `Episode.metadata["thompson_sampling"]`); mutating it never reaches the policy. Replay with `replay(record, policy.snapshot().id)`.
+12. **Learner (Story 15.4):** `ThompsonLearner.update(policy, episodes, rewards)` needs a `ThompsonPolicy` (`TypeError` otherwise) and writes through `ThompsonPolicy.update_posterior(alpha, beta, consumed_episode_ids, *, episodes_seen)`, which validates before writing and advances the version. `apply_update` stays a `TypeError`.
+13. **Scale:** `r = reward_to_success(value) = (value + 1) / 2`; a value that is not finite or lies outside [-1, 1] raises `ValueError`. Every aggregate reward offered is validated, as `ReinforceLearner` does, even one for an episode that is then skipped. The newest aggregate reward per episode wins.
+14. **Counted once (D7):** an episode counts only if its `metadata["selection_basis"]` is `"thompson_sampling"`, its `action_id` is in the action space, it has an aggregate reward, and its id is not in `consumed_episode_ids`. The id is added as it is counted, so a repeat in the same call is skipped. An episode with no reward yet is *not* consumed, so a late reward is counted when it first arrives (AC_8). `TrainingRunner` needs no change: it re-offers the latest episodes every run, and the consumed ids make that safe (AC_7).
+15. **Ceiling:** after all episodes of a call, any action whose `alpha + beta` exceeds `N_MAX` (5000.0) has both parameters multiplied by `N_MAX / total`; a total at or below `N_MAX` is untouched. A call with no usable episode returns `episodes_used=0`, `consumed_inputs=[]` and does not change the policy, not even its version.
+16. **The seed's policy id changes on every update** (`advance_version` gives a new snapshot id, and `seed_for` keys on it). `replay` therefore needs the id the policy had when it drew; keep it with the record (FDD-015 §7 item 6).

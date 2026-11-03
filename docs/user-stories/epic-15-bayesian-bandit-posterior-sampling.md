@@ -57,7 +57,7 @@ Fixture used by the criteria below ("the base policy"): two actions, `a` and `b`
 
 ## Story 15.4 — The Conjugate Update and the Ceiling
 
-**Status:** Ready  
+**Status:** Completed (see `implementation-log.md`)  
 **As** a maintainer, **I want** each reward to move the chosen action's posterior by the Beta-Bernoulli rule, **so that** uncertainty shrinks only as evidence arrives.
 
 ### Acceptance Criteria:

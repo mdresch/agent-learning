@@ -1442,3 +1442,26 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-90-1 | crash risk | verified: yes | decision: deferred | an empty or one-member family does crash (IndexError, ZeroDivisionError), but refusing a family of fewer than 4 members is Story 19.3 AC_0 (LL-012: each rule in one story); the skill and PR say compile_meta_prior must not be used on real members before 19.3 | fix: none`
   - `Q-90-2 | logic error | verified: partial | decision: declined | the kappa_prior parameter and its 10.0 default are fixed by FDD-019 section 2.2 and 3 item 1; a softmax prior records kappa_prior as None by AC_4 and FDD section 2.1, so the argument is ignored by design (documented); Story 19.2 uses it and 19.3 validates it | fix: none`
   - `Q-90-3 | test gap | verified: yes | decision: accepted | the reordered-action test compared values only; AC_3 says the same prior, so role_spread is now compared too; the assertion catches reorder-specific regressions, not a formula change, which AC_0 covers | fix: 1f74a74`
+
+## Story 19.2 — Pooling Beta Counts
+- **Commit:** `60a3aee`
+- **Date:** 2026-11-03
+- **Branch:** `feat/story-19.2`
+- **Source ADR / BRD / FDD:** ADR-019, BRD-019, FDD-019
+- **Files Modified/Created:**
+  - `.claude/skills/meta-prior/SKILL.md`
+  - `docs/user-stories/epic-19-hierarchical-meta-prior-compilation.md`
+  - `src/agent_learning/meta_prior.py`
+  - `tests/test_meta_prior_softmax.py`
+  - `tests/test_meta_prior_thompson.py`
+- **Contracts:**
+  - `tests/test_meta_prior_softmax.py`
+  - `tests/test_meta_prior_thompson.py`
+  - Contract run: 23 passed in 0.66s
+  - Full suite: 1690 passed, 1 skipped in 53.51s (excluding `tests/test_spark.py`, `tests/pmbok`, per LL-013)
+- **Notes:**
+  - I1: the worked check is 'for one role', so the fixture is four members that each have the single role approve; a second test pools two roles, each on its own
+  - I2: values[role] is an (alpha, beta) tuple; role_spread is the K-1 standard deviation of the members' payoff rates (alpha-1)/(alpha+beta-2), not of the counts
+  - I3: refusing alpha+beta<=2, kappa_prior outside (0, 10] and families under 4 members is Story 19.3; until then such input divides by zero
+  - tests/test_meta_prior_softmax.py: the 19.1 test that expected NotImplementedError for 'thompson' now uses an unbuilt name, as thompson is built here
+  - Full suite excludes tests/test_spark.py (JVM) and tests/pmbok (Story 34.5), per LL-013

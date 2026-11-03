@@ -1466,3 +1466,27 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - tests/test_meta_prior_softmax.py: the 19.1 test that expected NotImplementedError for 'thompson' now uses an unbuilt name, as thompson is built here
   - Full suite excludes tests/test_spark.py (JVM) and tests/pmbok (Story 34.5), per LL-013
 - **Amazon Q review (round 1 on `22cc15b`):** no findings; Q's verdict was "No issues found that block merge." Nothing to triage, so no `Q-91-n` line is recorded (the triage parser accepts only the seven-field finding shape; LL-034).
+
+## Story 19.3 — Refusing a Bad Family
+- **Commit:** `b6cbb1f`
+- **Date:** 2026-11-03
+- **Branch:** `feat/story-19.3`
+- **Source ADR / BRD / FDD:** ADR-019, BRD-019, FDD-019
+- **Files Modified/Created:**
+  - `.claude/skills/meta-prior/SKILL.md`
+  - `docs/user-stories/epic-19-hierarchical-meta-prior-compilation.md`
+  - `src/agent_learning/meta_prior.py`
+  - `tests/test_meta_prior_refusals.py`
+  - `tests/test_meta_prior_softmax.py`
+- **Contracts:**
+  - `tests/test_meta_prior_refusals.py`
+  - `tests/test_meta_prior_softmax.py`
+  - Contract run: 56 passed in 0.72s
+  - Full suite: 1732 passed, 1 skipped in 53.90s (excluding `tests/test_spark.py`, `tests/pmbok`, per LL-013)
+- **Notes:**
+  - I1: a member's action ids are the keys of its params; role_map must have exactly those keys and map them to distinct roles. 'Misses an action' and 'names an action with no value' are separate messages; 'a role outside the member's roles' is read as the role-sets-differ refusal and names the roles
+  - I2: sigma_het defaults to None meaning 'missing' so that leaving it out is a ValueError (AC_3, FDD-019 section 5) rather than Python's TypeError; no tuning value is invented (H4)
+  - I3: the heterogeneity check refuses a largest spread strictly above sigma_het and applies to both representations; kappa_prior is validated for Beta counts only
+  - I4: the unbuilt-representation NotImplementedError of 19.1 and 19.2 is now a ValueError; the 19.1 test was updated
+  - Closes the Q-90-1 crash (empty or one-member family) deferred from Story 19.1 and the zero-division inputs deferred from Story 19.2
+  - Full suite excludes tests/test_spark.py (JVM) and tests/pmbok (Story 34.5), per LL-013

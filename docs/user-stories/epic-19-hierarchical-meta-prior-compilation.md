@@ -30,7 +30,7 @@ Fixture used by the criteria below ("the base family"): four low-authority softm
 
 ## Story 19.2 — Pooling Beta Counts
 
-**Status:** Ready  
+**Status:** Completed (see `implementation-log.md`)  
 **As** a maintainer, **I want** Beta-count members pooled in their own representation, **so that** logits and payoff rates are never confused.
 
 ### Acceptance Criteria:

@@ -59,6 +59,29 @@ def _pool_softmax(members: Sequence[FamilyMember]) -> tuple[tuple[str, ...], dic
     return roles, values, spread
 
 
+def _pool_thompson(
+    members: Sequence[FamilyMember], kappa_prior: float
+) -> tuple[tuple[str, ...], dict[str, tuple[float, float]], dict[str, float]]:
+    """Pool Beta counts through payoff rates: a pooled rate per role, then a prior of strength kappa."""
+    # a float among Beta parameters is refused by Story 19.3; here each value is a pair by construction
+    by_role = [
+        {member.role_map[action_id]: cast(tuple[float, float], pair) for action_id, pair in member.params.items()}
+        for member in members
+    ]
+    roles = tuple(sorted(by_role[0]))
+    count = len(by_role)
+    values: dict[str, tuple[float, float]] = {}
+    spread: dict[str, float] = {}
+    for role in roles:
+        pairs = [row[role] for row in by_role]
+        rates = [(alpha - 1.0) / (alpha + beta - 2.0) for alpha, beta in pairs]
+        pooled = sum(alpha - 1.0 for alpha, _ in pairs) / sum(alpha + beta - 2.0 for alpha, beta in pairs)
+        values[role] = (1.0 + kappa_prior * pooled, 1.0 + kappa_prior * (1.0 - pooled))
+        mean_rate = sum(rates) / count
+        spread[role] = math.sqrt(sum((rate - mean_rate) ** 2 for rate in rates) / (count - 1))
+    return roles, values, spread
+
+
 def compile_meta_prior(
     members: Sequence[FamilyMember],
     *,
@@ -71,10 +94,22 @@ def compile_meta_prior(
     Softmax logits are zero-centred per member, because softmax ignores a constant added to every logit,
     then averaged per role. ``kappa_prior`` is only for the Beta representation and is ``None`` on a
     softmax prior.
+
+    Beta counts (``"thompson"``) are pooled in their own representation (FDD-019 §3 item 3): per role the
+    payoff rate of a member is ``(alpha - 1) / (alpha + beta - 2)``, the pooled rate is the sum of the
+    ``alpha - 1`` over the sum of the ``alpha + beta - 2``, and the prior is
+    ``(1 + kappa * rate, 1 + kappa * (1 - rate))``. The spread is that of the members' payoff rates.
     """
-    if representation != "softmax":
-        raise NotImplementedError(f"representation {representation!r} is not built yet (Story 19.2)")
-    roles, values, spread = _pool_softmax(members)
+    values: Mapping[str, float | tuple[float, float]]
+    kappa: float | None
+    if representation == "softmax":
+        roles, values, spread = _pool_softmax(members)
+        kappa = None
+    elif representation == "thompson":
+        roles, values, spread = _pool_thompson(members, kappa_prior)
+        kappa = kappa_prior
+    else:
+        raise NotImplementedError(f"representation {representation!r} is not built yet")
     return MetaPrior(
         representation=representation,
         roles=roles,
@@ -82,7 +117,7 @@ def compile_meta_prior(
         member_count=len(members),
         role_spread=spread,
         sigma_het=sigma_het,
-        kappa_prior=None,
+        kappa_prior=kappa,
         compiled_from=tuple((member.task_id, member.version) for member in members),
     )
 

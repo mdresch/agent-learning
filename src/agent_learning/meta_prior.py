@@ -205,4 +205,45 @@ def compile_meta_prior(
     )
 
 
-__all__ = ["KAPPA_MAX", "MIN_FAMILY_SIZE", "FamilyMember", "MetaPrior", "compile_meta_prior"]
+def seed_values(
+    prior: MetaPrior,
+    role_map: Mapping[str, str],
+    action_ids: Sequence[str],
+) -> dict[str, float | tuple[float, float]]:
+    """The starting value of each action of a new policy, taken from ``prior`` through the policy's own roles.
+
+    Returns a new ``dict`` keyed by ``action_ids``, in that order: for each action the prior's value for the
+    role ``role_map`` gives it (FDD-019 §3 item 4). A softmax prior gives the zero-centred logit, a Thompson
+    prior the ``(alpha, beta)`` pair. The values carry no evidence (BRU-019-09): a policy seeded from them has
+    no scored outcomes and does not pass the autonomy gate. Neither ``prior``, ``role_map`` nor ``action_ids``
+    is changed, and no record of the seeding is made here; that is the ``warm_start_*`` provenance of ADR-020.
+
+    Raises:
+        ValueError: naming the cause, unless ``role_map`` is a bijection from ``action_ids`` onto
+            ``prior.roles``: a duplicate action id, an action the map misses, a map entry for an unknown
+            action, two actions on one role, a role outside the prior's roles, or a role left without an action.
+    """
+    seen: set[str] = set()
+    for action_id in action_ids:
+        if action_id in seen:
+            raise ValueError(f"action id {action_id!r} appears more than once")
+        seen.add(action_id)
+    for action_id in action_ids:
+        if action_id not in role_map:
+            raise ValueError(f"role_map misses action {action_id!r}")
+    for action_id in sorted(set(role_map) - seen):
+        raise ValueError(f"role_map names action {action_id!r}, which is not one of the policy's actions")
+
+    roles = [role_map[action_id] for action_id in action_ids]
+    for role in sorted({r for r in roles if roles.count(r) > 1}):
+        raise ValueError(f"role_map sends two actions to role {role!r}, so it is not a bijection")
+    for role in sorted(set(roles) - set(prior.roles)):
+        raise ValueError(f"role_map names role {role!r}, which is not one of the prior's roles {list(prior.roles)}")
+    for role in prior.roles:
+        if role not in roles:
+            raise ValueError(f"no action of the policy plays the prior's role {role!r}")
+
+    return {action_id: prior.values[role_map[action_id]] for action_id in action_ids}
+
+
+__all__ = ["KAPPA_MAX", "MIN_FAMILY_SIZE", "FamilyMember", "MetaPrior", "compile_meta_prior", "seed_values"]

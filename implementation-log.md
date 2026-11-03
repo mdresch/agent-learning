@@ -1491,3 +1491,26 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - Closes the Q-90-1 crash (empty or one-member family) deferred from Story 19.1 and the zero-division inputs deferred from Story 19.2
   - Full suite excludes tests/test_spark.py (JVM) and tests/pmbok (Story 34.5), per LL-013
 - **Amazon Q review (round 1 on `a6ebefd`):** no findings; Q's verdict was "No blocking defects found. The PR is ready to merge." Nothing to triage, so no `Q-92-n` line is recorded (the triage parser accepts only the seven-field finding shape; LL-034).
+
+## Story 19.4 — Declaring and Finding Members
+- **Commit:** `9a0dfcc`
+- **Date:** 2026-11-03
+- **Branch:** `feat/story-19.4`
+- **Source ADR / BRD / FDD:** ADR-019, BRD-019, FDD-019
+- **Files Modified/Created:**
+  - `.claude/skills/meta-prior/SKILL.md`
+  - `docs/user-stories/epic-19-hierarchical-meta-prior-compilation.md`
+  - `src/agent_learning/cli.py`
+  - `tests/test_meta_prior_members.py`
+- **Contracts:**
+  - `tests/test_meta_prior_members.py`
+  - Contract run: 24 passed in 1.68s
+  - Full suite: 1756 passed, 1 skipped in 64.82s (0:01:04) (excluding `tests/test_spark.py`, `tests/pmbok`, per LL-013)
+- **Notes:**
+  - I1: member discovery is cli._scan_family returning FamilyScan(members, excluded, representation); the command that calls it, task-policy-meta-compile, is Story 19.5, so AC_4's 'exits non-zero' for a mixed family is pinned as the ValueError the command will turn into an exit code
+  - I2: task-policy-family-set needs an active policy but not a decision policy; the role map must name exactly the policy's action ids and send them to distinct non-empty roles; an empty or blank family is refused
+  - I3: gate_passed is assess_autonomy(store, snapshot, AutonomyConfig.for_tier('standard')).eligible through cli._gate_passed (H1)
+  - FINDING: assess_autonomy reads logits and a Thompson snapshot keeps its logits at zero (FDD-015 section 1 item 3), so a Thompson member cannot pass the standard-tier action-probability criterion today; the Beta reading is tested with _gate_passed replaced. Widening the gate is a maintainer decision (FDD-019 section 7 item 5), not made here
+  - I4: members are found among the agent's tasks in task-id order; a snapshot with is_family_meta_prior is never a candidate
+  - ruff and mypy findings in cli.py are all pre-existing (same 4 ruff and 37 mypy at the base commit); none is in the code this story adds
+  - Full suite excludes tests/test_spark.py (JVM) and tests/pmbok (Story 34.5), per LL-013

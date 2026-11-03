@@ -137,7 +137,9 @@ def test_ac3_different_ids_and_order_of_actions_within_a_member() -> None:
             )
         )
     base = _compile(_base_family())
-    assert _compile(reordered).values == pytest.approx(base.values, abs=1e-12)
+    pooled = _compile(reordered)
+    assert pooled.values == pytest.approx(base.values, abs=1e-12)
+    assert pooled.role_spread == pytest.approx(base.role_spread, abs=1e-12)
 
 
 def test_ac3_the_order_of_members_changes_nothing_in_the_values() -> None:

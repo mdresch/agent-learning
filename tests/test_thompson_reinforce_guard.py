@@ -9,7 +9,8 @@ This story adds no production code. ``ReinforceLearner`` already skips an episod
 behaviour so a later change to either side cannot silently let a draw be trained on as a
 softmax sample.
 
-Interpretation I1: AC_2 asks for behaviour only. These tests never read ``learners/reinforce.py``
+Interpretation I1: AC_2 asks for behaviour only, so it has no test of its own: the two AC_0 and AC_1
+tests below are its evidence. These tests never read ``learners/reinforce.py``
 and never assert on how the skip is counted (``full_authority_excluded`` is a name FDD-015 §7 item 3
 leaves open), so a later epic may add a condition to that module or rename the counter.
 
@@ -148,9 +149,3 @@ def test_ac1_reinforce_uses_exactly_the_softmax_episodes_of_a_mixed_set() -> Non
     assert mixed.baseline_after == pytest.approx(alone.baseline_after, abs=1e-12)
     assert mixed.mean_reward == pytest.approx(alone.mean_reward, abs=1e-12)
 
-
-def test_ac2_the_guard_is_behaviour_not_source() -> None:
-    """AC_2: nothing here reads ``learners/reinforce.py``; the two tests above are the evidence."""
-    import agent_learning.learners.reinforce as reinforce
-
-    assert reinforce.ReinforceLearner is ReinforceLearner

@@ -6,7 +6,7 @@ description: Guidance for Thompson sampling (Beta-Bernoulli posterior, seeded an
 # Skill: thompson (agent-learning)
 
 ## Overview
-Thompson sampling picks an action by drawing one value per action from its Beta posterior and taking the highest draw. The posterior lives in `PolicySnapshot.metadata`; no new record type exists (ADR-002). This skill covers `src/agent_learning/policy/thompson.py` (and, as the stories land, `src/agent_learning/learners/thompson.py`).
+Thompson sampling picks an action by drawing one value per action from its Beta posterior and taking the highest draw. The posterior lives in `PolicySnapshot.metadata`; no new record type exists (ADR-002). This skill covers `src/agent_learning/policy/thompson.py` and `src/agent_learning/learners/thompson.py`.
 
 ## Governing Specifications & Contracts
 - **Architecture:** [`docs/adr/ADR-015-bayesian-bandit-posterior-sampling.md`](../../docs/adr/ADR-015-bayesian-bandit-posterior-sampling.md)

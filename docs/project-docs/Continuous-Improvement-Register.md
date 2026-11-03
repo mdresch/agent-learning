@@ -33,6 +33,9 @@ An entry records only what the epic's work actually surfaced. Do not seed this r
 
 | ID | Originating Epic | Idea Title | Category | Description & Technical Value | Target Benefit / Outcome | Disposition |
 |---|---|---|---|---|---|---|
+| IMP-001 | Epic 15 | Provision a story worktree and log a no-finding review with one command each | Developer experience | `scripts/complete_story.py` gains `worktree <story>` (git worktree add, `uv sync --all-extras`, remove the real `azure-cosmos`; LL-033) and `triage --none` (the prose line of LL-034), and appends the `Co-Authored-By` trailer to its commits. All three were repeated by hand in each of the six stories. | Fewer false REDs and CI failures per story | In-Flight Candidate |
+| IMP-002 | Epic 15 | Make the Thompson sampling record self-describing | Architectural simplification | Add the policy id (the snapshot id used as the HMAC key) to the FDD-015 §2.3 record, so `replay(record)` needs no second argument and a record stays replayable after a learner update gives the snapshot a new id (interpretations I2 and I5; FDD-015 §7 item 6). | An auditor can replay a draw from the record alone | In-Flight Candidate |
+| IMP-003 | Epic 15 | Find the failure history that HYP-AL-002 needs | Product opportunity | Story 15.6 could only show consistency on an all-accepted history. A low-authority policy with at least 100 scored episodes including failures would let the Thompson-versus-REINFORCE question be answered with data (BRD-015 BRU-015-10). | Evidence for or against adopting Thompson sampling in a decision | Rolled into Phase Next Intent Refinement |
 
 ---
 
@@ -46,6 +49,13 @@ One entry per epic recap, appended in the order held. Format:
 - **Defensive Review (LL-###):** <LL ids or no-new-lessons>
 - **Positive Improvement Harvest:** <IMP ids, or "Epic <N> Recap: No new improvement ideas identified.">
 ```
+
+---
+
+### Epic 15: Bayesian Bandit Posterior Sampling (Thompson Sampling)
+- **Cadence Date:** 2026-11-03
+- **Defensive Review (LL-###):** LL-033, LL-034, LL-035
+- **Positive Improvement Harvest:** IMP-001, IMP-002, IMP-003
 
 ---
 

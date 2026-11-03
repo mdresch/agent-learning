@@ -73,7 +73,7 @@ Fixture used by the criteria below ("the base family"): four low-authority softm
 
 ## Story 19.5 — Storing the Prior
 
-**Status:** Ready  
+**Status:** Completed (see `implementation-log.md`)  
 **As** an auditor, **I want** the compiled prior stored as an ordinary snapshot with its full provenance, **so that** I can see exactly which policies and versions it came from.
 
 ### Acceptance Criteria:

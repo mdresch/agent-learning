@@ -33,7 +33,7 @@ from .decision import (
     TieBreakDisposition,
     capture_decision_evidence_enabled,
 )
-from .meta_prior import FamilyMember
+from .meta_prior import FamilyMember, compile_meta_prior
 from .policy.softmax_bandit import SoftmaxPolicy
 from .policy.thompson import ThompsonPolicy
 from .storage.cosmos import get_default_store
@@ -268,6 +268,30 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         "--role-map",
         required=True,
         help="JSON object mapping every action id of the policy to the role it plays in the family.",
+    )
+
+    meta_compile = sub.add_parser(
+        "task-policy-meta-compile",
+        help="Pool the converged policies of a task family into a stored meta-prior snapshot.",
+    )
+    meta_compile.add_argument("--agent-id", required=True)
+    meta_compile.add_argument("--family", required=True, help="Family name declared with task-policy-family-set.")
+    meta_compile.add_argument(
+        "--output-prior-name",
+        required=True,
+        help="Name (pseudo task id) under which the prior is stored; compiling again under it stores the next version.",
+    )
+    meta_compile.add_argument(
+        "--sigma-het",
+        type=float,
+        required=True,
+        help="Largest per-role spread the family may have and still be pooled (no default).",
+    )
+    meta_compile.add_argument(
+        "--kappa-prior",
+        type=float,
+        default=10.0,
+        help="Prior strength for Beta-count families, above 0 and at most 10 (default: 10.0).",
     )
 
     register = sub.add_parser(
@@ -1158,6 +1182,82 @@ def _scan_family(store: Any, agent_id: str, family: str) -> FamilyScan:
     return FamilyScan(members=members, excluded=excluded, representation=representation)
 
 
+def _cmd_meta_compile_task_policy(args: argparse.Namespace) -> int:
+    """Compile a family's meta-prior and store it as an ordinary snapshot (FDD-019 §3 item 7, steps 3 and 4).
+
+    Nothing is stored when the family is refused; the reasons, with the excluded candidates, go to stderr.
+    The member snapshots are never written. The prior is the active policy of its own pseudo-task, named by
+    ``--output-prior-name``; compiling again under that name stores the next version and records
+    ``supersedes``, and the older snapshot is left as it was (H6, H8).
+    """
+    store = get_default_store()
+    scan: FamilyScan | None = None
+    try:
+        scan = _scan_family(store, args.agent_id, args.family)
+        prior = compile_meta_prior(
+            scan.members,
+            representation=scan.representation or "softmax",
+            sigma_het=args.sigma_het,
+            kappa_prior=args.kappa_prior,
+        )
+    except ValueError as exc:
+        print(f"Cannot compile a meta-prior for family {args.family!r}: {exc}", file=sys.stderr)
+        for item in scan.excluded if scan is not None else []:
+            print(f"  excluded {item['task_id']}: {item['reason']}", file=sys.stderr)
+        return 2
+
+    existing = store.get_active_policy(args.agent_id, args.output_prior_name)
+    if existing is not None and not existing.metadata.get("is_family_meta_prior"):
+        print(
+            f"--output-prior-name {args.output_prior_name!r} is the task id of an existing task policy, not a meta-prior.",
+            file=sys.stderr,
+        )
+        return 2
+
+    if prior.representation == "softmax":
+        logits = {role: float(prior.values[role]) for role in prior.roles}  # type: ignore[arg-type]
+        posterior: dict[str, Any] = {}
+    else:
+        logits = {role: 0.0 for role in prior.roles}
+        pairs = {role: prior.values[role] for role in prior.roles}
+        posterior = {
+            "posterior_parameters": {
+                "alpha": {role: pair[0] for role, pair in pairs.items()},  # type: ignore[index]
+                "beta": {role: pair[1] for role, pair in pairs.items()},  # type: ignore[index]
+            }
+        }
+
+    metadata: dict[str, Any] = {
+        "is_family_meta_prior": True,
+        "family": args.family,
+        "family_member_count": prior.member_count,
+        "compiled_from": [{"task_id": task_id, "version": version} for task_id, version in prior.compiled_from],
+        "compile_time": datetime.now(timezone.utc).isoformat(),
+        "sigma_het": prior.sigma_het,
+        "kappa_prior": prior.kappa_prior,
+        "representation": prior.representation,
+        "validation_report": {
+            "family_size": prior.member_count,
+            "excluded": scan.excluded if scan is not None else [],
+            "role_spread": dict(prior.role_spread),
+        },
+        **posterior,
+    }
+    if existing is not None:
+        metadata["supersedes"] = existing.id
+    snapshot = PolicySnapshot(
+        agent_id=args.agent_id,
+        task_id=args.output_prior_name,
+        version=existing.version + 1 if existing is not None else 0,
+        actions=[Action(id=role) for role in prior.roles],
+        logits=logits,
+        metadata=metadata,
+    )
+    store.store_policy(snapshot)
+    print(json.dumps(snapshot.to_dict(), indent=2))
+    return 0
+
+
 def _cmd_register_task_episode(args: argparse.Namespace) -> int:
     store = get_default_store()
     try:
@@ -1537,6 +1637,7 @@ def main(argv: list[str] | None = None) -> int:
         "task-policy-init": _cmd_init_task_policy,
         "task-policy-authority-set": _cmd_set_task_policy_authority,
         "task-policy-family-set": _cmd_set_task_policy_family,
+        "task-policy-meta-compile": _cmd_meta_compile_task_policy,
         "task-policy-complexity-set": _cmd_set_task_policy_complexity,
         "task-episode-register": _cmd_register_task_episode,
         "task-policy-compare": _cmd_compare_task_policy,

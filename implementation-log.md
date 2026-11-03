@@ -1408,3 +1408,8 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - Thompson: the action taken is Beta(1 + n, 1), every untaken action stays Beta(1, 1)
   - RED observed by temporarily zeroing the alpha increment in ThompsonLearner (the AC_2 test failed); the file was restored and is untouched in the commit
   - Full suite excludes tests/test_spark.py (JVM) and tests/pmbok (Story 34.5), per LL-013
+- **Review-fix commits:** `534b910`
+- **Review validation:** 5 passed; full suite 1,667 passed
+- **Amazon Q triage (round 1 on `f43132b`):**
+  - `Q-89-1 | crash risk | verified: partial | decision: accepted | a KeyError named the key but not the episode file; the data is committed and all 166 files have the field, so the gain is a failure message that names the file; encoded as a test that failed with KeyError first | fix: 534b910`
+  - `Q-89-2 | crash risk | verified: no | decision: declined | ReinforceLearner returns one logit delta per action, so the dict is never empty for a task with an action file (an empty action file makes SoftmaxPolicy raise first); default=0.0 would let a broken replay pass the stall assertion silently | fix: none`

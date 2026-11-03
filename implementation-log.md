@@ -1596,3 +1596,8 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - Two committed episode files carry no id; the file name is used. The episodes of approve-pmp and approve-subsidiary-plan name one policy id, so each task gets its own reconstructed policy
   - RED observed by temporarily disabling the full-authority exclusion in cli._scan_family (the AC_1 exclusion test failed); restored before the commit
   - Full suite excludes tests/test_spark.py (JVM) and tests/pmbok (Story 34.5), per LL-013
+- **Review-fix commits:** `5da0720`
+- **Review validation:** 6 passed
+- **Amazon Q triage (round 1 on `425c66f`):**
+  - `Q-98-1 | crash risk | verified: yes | decision: accepted | the actions file was read without the existence assertion that every other read in the helper has, so a missing file gave a bare FileNotFoundError; it now fails naming the task and path | fix: 5da0720`
+  - `Q-98-2 | test gap | verified: partial | decision: accepted | an unrecognised action would not be silently misclassified, since task-policy-family-set would exit non-zero and _declare_all asserts it; the map still fell back to revise for any name, so it now names the one revision action, raises for any other, and asserts the three roles | fix: 5da0720`

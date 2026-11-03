@@ -8,6 +8,7 @@ from typing import Any
 
 from .config import AutonomyConfig, AutonomyTier, validate_autonomy_monotonicity
 from .policy.softmax_bandit import SoftmaxPolicy
+from .policy.thompson import ThompsonPolicy
 from .storage.base import LearningStore
 from .types import Episode, PolicySnapshot, RewardSource
 
@@ -252,8 +253,31 @@ def _latest_aggregate(store: LearningStore, episode: Episode) -> float | None:
     return max(rewards, key=lambda reward: reward.created_at).value
 
 
+def _has_posterior(snapshot: PolicySnapshot) -> bool:
+    return "posterior_parameters" in snapshot.metadata
+
+
+def _action_probabilities(snapshot: PolicySnapshot) -> list[float]:
+    """The action probabilities the gate reads, in snapshot order (ADR-003 4.6).
+
+    A snapshot that holds ``posterior_parameters`` keeps its logits at zero, so its probabilities are
+    the posterior means ``alpha / (alpha + beta)`` normalised over the actions (an action missing from
+    the mapping reads as the prior, mean 0.5). That is a softmax over ``ln(mean)``; those logits are
+    never stored. Any other snapshot is read from its logits. A malformed posterior raises ``ValueError``.
+    """
+    if not _has_posterior(snapshot):
+        return SoftmaxPolicy.from_snapshot(snapshot).probabilities()
+    posterior = ThompsonPolicy.from_snapshot(snapshot).posterior()
+    means = [
+        posterior["alpha"][action.id] / (posterior["alpha"][action.id] + posterior["beta"][action.id])
+        for action in snapshot.actions
+    ]
+    total = sum(means)
+    return [mean / total for mean in means]
+
+
 def _recommended_action(snapshot: PolicySnapshot) -> tuple[str, float, float]:
-    probabilities = SoftmaxPolicy.from_snapshot(snapshot).probabilities()
+    probabilities = _action_probabilities(snapshot)
     winner_index = max(range(len(probabilities)), key=probabilities.__getitem__)
     winner_probability = probabilities[winner_index]
     runner_up = max(
@@ -270,7 +294,7 @@ def _recommended_action(snapshot: PolicySnapshot) -> tuple[str, float, float]:
 def _action_confidence(
     snapshot: PolicySnapshot, action_id: str
 ) -> tuple[float, float]:
-    probabilities = SoftmaxPolicy.from_snapshot(snapshot).probabilities()
+    probabilities = _action_probabilities(snapshot)
     action_index = next(
         index for index, action in enumerate(snapshot.actions) if action.id == action_id
     )
@@ -502,6 +526,10 @@ def assess_autonomy(
         _mark_probability_criteria_not_applicable(
             criteria, action_probability, probability_margin
         )
+    elif _has_posterior(snapshot):
+        # Say which reading produced the two numbers (ADR-003 4.6).
+        criteria["action_probability"]["basis"] = "posterior_mean"
+        criteria["probability_margin"]["basis"] = "posterior_mean"
     statistically_eligible = not full_authority and all(
         criterion["met"] for criterion in criteria.values()
     )

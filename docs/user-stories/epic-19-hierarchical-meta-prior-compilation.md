@@ -116,7 +116,7 @@ Fixture used by the criteria below ("the base family"): four low-authority softm
 
 ## Story 19.8 — Reading a Posterior at the Gate
 
-**Status:** Ready (ADR-003 §4.6, FDD-019 H9 and this epic were approved on 2026-11-03).
+**Status:** Completed (see `implementation-log.md`)
 **As** a maintainer, **I want** the autonomy gate to read a Thompson policy from its posterior means, **so that** a policy with zero logits can meet the gate without any logit being stored.
 
 ### Acceptance Criteria:

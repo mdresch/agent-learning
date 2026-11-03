@@ -1118,20 +1118,22 @@ def _scan_family(store: Any, agent_id: str, family: str) -> FamilyScan:
             reason = "full decision authority: there are no learned logits to pool"
         elif not isinstance(role_map, dict) or not role_map:
             reason = "no role_map declared"
-        elif not _gate_passed(store, snapshot):
-            reason = "the ADR-003 gate is not met under the standard tier"
-        elif "posterior_parameters" in snapshot.metadata:
-            try:
-                posterior = ThompsonPolicy.from_snapshot(snapshot).posterior()
-            except ValueError as exc:
-                reason = f"posterior_parameters unreadable: {exc}"
-            else:
-                params = {
-                    action.id: (posterior["alpha"][action.id], posterior["beta"][action.id])
-                    for action in snapshot.actions
-                }
         else:
-            params = {action.id: snapshot.logits.get(action.id, 0.0) for action in snapshot.actions}
+            if "posterior_parameters" in snapshot.metadata:
+                # Read the posterior before the gate (FDD-019 H9): a malformed one is an exclusion with a reason.
+                try:
+                    posterior = ThompsonPolicy.from_snapshot(snapshot).posterior()
+                except ValueError as exc:
+                    reason = f"posterior_parameters unreadable: {exc}"
+                else:
+                    params = {
+                        action.id: (posterior["alpha"][action.id], posterior["beta"][action.id])
+                        for action in snapshot.actions
+                    }
+            else:
+                params = {action.id: snapshot.logits.get(action.id, 0.0) for action in snapshot.actions}
+            if reason is None and not _gate_passed(store, snapshot):
+                reason = "the ADR-003 gate is not met under the standard tier"
 
         if reason is not None or not isinstance(role_map, dict):
             excluded.append({"task_id": task.id, "reason": reason or "no role_map declared"})

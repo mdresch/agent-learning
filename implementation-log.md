@@ -1413,3 +1413,32 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Amazon Q triage (round 1 on `f43132b`):**
   - `Q-89-1 | crash risk | verified: partial | decision: accepted | a KeyError named the key but not the episode file; the data is committed and all 166 files have the field, so the gain is a failure message that names the file; encoded as a test that failed with KeyError first | fix: 534b910`
   - `Q-89-2 | crash risk | verified: no | decision: declined | ReinforceLearner returns one logit delta per action, so the dict is never empty for a task with an action file (an empty action file makes SoftmaxPolicy raise first); default=0.0 would let a broken replay pass the stall assertion silently | fix: none`
+
+## Story 19.1 — Pooling Logits
+- **Commit:** `fac4602`
+- **Date:** 2026-11-03
+- **Branch:** `feat/story-19.1`
+- **Source ADR / BRD / FDD:** ADR-019, BRD-019, FDD-019
+- **Files Modified/Created:**
+  - `.claude/skills/meta-prior/SKILL.md`
+  - `docs/user-stories/epic-19-hierarchical-meta-prior-compilation.md`
+  - `src/agent_learning/__init__.py`
+  - `src/agent_learning/meta_prior.py`
+  - `tests/test_meta_prior_softmax.py`
+- **Contracts:**
+  - `tests/test_meta_prior_softmax.py`
+  - Contract run: 14 passed in 0.73s
+  - Full suite: 1681 passed, 1 skipped in 62.23s (0:01:02) (excluding `tests/test_spark.py`, `tests/pmbok`, per LL-013)
+- **Notes:**
+  - I1: softmax branch only; refusals are Story 19.3 and the Beta branch Story 19.2 (a representation other than softmax raises NotImplementedError until then; no family is checked until 19.3)
+  - I2: MetaPrior.values and role_spread are plain dicts keyed by role; roles and compiled_from are tuples
+  - I3: sigma_het is stored as given; whether the spread respects it is Story 19.3
+  - Members are synthetic; no converged same-family low-authority family exists in the recorded store (FDD-019 §8)
+  - FamilyMember, MetaPrior and compile_meta_prior exported from the package root (FDD-019 §1 item 3); new component skill .claude/skills/meta-prior
+  - Full suite excludes tests/test_spark.py (JVM) and tests/pmbok (Story 34.5), per LL-013
+- **Review-fix commits:** `1f74a74`
+- **Review validation:** 14 passed; full suite 1,681 passed
+- **Amazon Q triage (round 1 on `105d7b3`):**
+  - `Q-90-1 | crash risk | verified: yes | decision: deferred | an empty or one-member family does crash (IndexError, ZeroDivisionError), but refusing a family of fewer than 4 members is Story 19.3 AC_0 (LL-012: each rule in one story); the skill and PR say compile_meta_prior must not be used on real members before 19.3 | fix: none`
+  - `Q-90-2 | logic error | verified: partial | decision: declined | the kappa_prior parameter and its 10.0 default are fixed by FDD-019 section 2.2 and 3 item 1; a softmax prior records kappa_prior as None by AC_4 and FDD section 2.1, so the argument is ignored by design (documented); Story 19.2 uses it and 19.3 validates it | fix: none`
+  - `Q-90-3 | test gap | verified: yes | decision: accepted | the reordered-action test compared values only; AC_3 says the same prior, so role_spread is now compared too; the assertion catches reorder-specific regressions, not a formula change, which AC_0 covers | fix: 1f74a74`

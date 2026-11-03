@@ -1544,3 +1544,34 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - Open on purpose (FDD-019 section 7 items 8 to 10): the reading is a proxy, not the probability of being the best action; thresholds are uncalibrated for it; several actions of similar payoff cannot reach 60%
   - Full suite excludes tests/test_spark.py (JVM) and tests/pmbok (Story 34.5), per LL-013
 - **Amazon Q review (round 1 on `8cbb8cb`):** no findings; Q's verdict was "No blocking defects were found. The PR is ready to merge once the stacked dependency is merged." Nothing to triage, so no `Q-95-n` line is recorded (the triage parser accepts only the seven-field finding shape; LL-034).
+
+## Story 19.5 — Storing the Prior
+- **Commit:** `e266c40`
+- **Date:** 2026-11-04
+- **Branch:** `feat/story-19.5`
+- **Source ADR / BRD / FDD:** ADR-019, BRD-019, FDD-019
+- **Files Modified/Created:**
+  - `.claude/skills/meta-prior/SKILL.md`
+  - `docs/user-stories/epic-19-hierarchical-meta-prior-compilation.md`
+  - `src/agent_learning/cli.py`
+  - `tests/test_meta_prior_store.py`
+- **Contracts:**
+  - `tests/test_meta_prior_store.py`
+  - Contract run: 17 passed in 8.10s
+  - Full suite: 1793 passed, 1 skipped in 56.18s (excluding `tests/test_spark.py`, `tests/pmbok`, per LL-013)
+- **Notes:**
+  - I1: the story's base family logits give some members a winner probability below the standard tier's 60%, so the exact-number test replaces cli._gate_passed; every other test uses members that pass the real gate, and the Thompson family goes through the real gate (Story 19.8)
+  - I2: first compilation under a name is version 0, later ones previous + 1; supersedes is a metadata key (PolicySnapshot has no such field)
+  - I3: the prior has no policy_scope, so tasks-list --decision-only leaves it out and tasks-list shows it; logits are the pooled values (softmax) or zeros (Thompson, values in posterior_parameters)
+  - I4: an output name that is the task id of an existing non-prior policy is refused
+  - I5: a refusal prints its reasons and the excluded candidates to stderr and exits 2; also pins the exit code for the mixed-representation ValueError of Story 19.4 AC_4
+  - Tests use an in-memory store, and a LocalFileStore only for the active-pointer and file-layout checks (10 s instead of 47 s)
+  - cli.py ruff and mypy findings are the same 4 and 37 as at the base commit; none in the code this story adds
+  - Full suite excludes tests/test_spark.py (JVM) and tests/pmbok (Story 34.5), per LL-013
+- **Review-fix commits:** `368df84`
+- **Review validation:** 21 passed in the contract; full suite 1,797 passed
+- **Amazon Q triage (round 1 on `55a54a1`):**
+  - `Q-96-1 | logic error | verified: yes | decision: accepted | the output-name guard ran after pooling, so a refused name paid for the pooling and a family error masked the name error; a test that failed first now pins that the name is checked first | fix: 368df84`
+  - `Q-96-2 | crash risk | verified: partial | decision: accepted | a Beta prior's values are (alpha, beta) tuples by construction (meta_prior._pool_thompson) and the Thompson test passes, so no crash; the type ignores are replaced by typed casts | fix: 368df84`
+  - `Q-96-3 | test gap | verified: yes | decision: accepted | the test read the pointer through the private LocalFileStore._path; the public get_active_policy assertion is the invariant, so the private read is removed | fix: 368df84`
+  - `Q-96-4 | test gap | verified: yes | decision: accepted | only two of the four required flags were exercised; all four are now parametrized | fix: 368df84`

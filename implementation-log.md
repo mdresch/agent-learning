@@ -1309,3 +1309,30 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - I4: bool, string and None values are treated as not finite and refused naming the action
   - Full suite excludes tests/test_spark.py (JVM) and tests/pmbok (Story 34.5), per LL-013
 - **Amazon Q review (round 1 on `96c234f`):** no findings; Q's verdict was "No blocking defects were found — this PR is ready to merge." Nothing to triage, so no `Q-85-n` line is recorded (the triage parser accepts only the seven-field finding shape).
+
+## Story 15.3 — Choosing by Probability Matching
+- **Commit:** `17ea644`
+- **Date:** 2026-11-03
+- **Branch:** `feat/story-15.3`
+- **Source ADR / BRD / FDD:** ADR-015, BRD-015, FDD-015
+- **Files Modified/Created:**
+  - `.claude/skills/thompson/SKILL.md`
+  - `docs/user-stories/epic-15-bayesian-bandit-posterior-sampling.md`
+  - `src/agent_learning/policy/base.py`
+  - `src/agent_learning/policy/thompson.py`
+  - `tests/test_thompson_choose.py`
+- **Contracts:**
+  - `tests/test_thompson_choose.py`
+  - Contract run: 15 passed in 0.76s
+  - Full suite: 1630 passed, 1 skipped in 81.57s (0:01:21) (excluding `tests/test_spark.py`, `tests/pmbok`, per LL-013)
+- **Notes:**
+  - I1: missing request_id/timestamp supplied as UUID4 / current UTC ISO 8601 and recorded
+  - I2: last_sampling_record() is None before the first choose, a deep copy afterwards
+  - I3: Decision.probabilities is the normalised posterior mean, display only; pinned by a test
+  - I4: an explicitly empty request_id or timestamp is not 'missing' and raises ValueError naming it
+  - I5: the seed's policy id is snapshot.id, so a record made before a learner update replays against the id the policy had then
+  - Decision.logprob widened to Optional[float] in policy/base.py (D3); callers already copy it into the Optional Episode.action_logprob
+  - Full suite excludes tests/test_spark.py (JVM) and tests/pmbok (Story 34.5), per LL-013
+- **Amazon Q triage (round 1 on `6c39a1d`):**
+  - `Q-86-1 | logic error | verified: no | decision: declined | draws is a local variable that no other code holds; last_sampling_record() returns a deep copy, and a test mutates the returned record and checks the next one is unchanged | fix: none`
+  - `Q-86-2 | logic error | verified: no | decision: declined | extra keyword-only parameters with defaults are a compatible override: mypy reports no issues on thompson.py; FDD-015 section 1 item 5 says policy/base.py changes only in Decision.logprob, and widening choose would force the other policies to take the same parameters | fix: none`

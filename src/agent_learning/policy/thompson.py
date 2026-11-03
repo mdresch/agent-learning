@@ -6,11 +6,14 @@ reads the store or touches a file; the caller persists the snapshot.
 
 from __future__ import annotations
 
+import copy
 import hashlib
 import hmac
 import math
 import random
+import uuid
 from collections.abc import Mapping, Sequence
+from datetime import datetime, timezone
 from typing import Any
 
 from ..types import Action, PolicySnapshot
@@ -139,6 +142,7 @@ class ThompsonPolicy(Policy):
         }
         for action_id in action_ids:
             self._snapshot.logits.setdefault(action_id, 0.0)
+        self._last_record: dict[str, Any] | None = None
 
     @classmethod
     def from_actions(
@@ -172,8 +176,63 @@ class ThompsonPolicy(Policy):
     def snapshot(self) -> PolicySnapshot:
         return PolicySnapshot.from_dict(self._snapshot.to_dict())
 
-    def choose(self, state: Any = None) -> Decision:
-        raise NotImplementedError("ThompsonPolicy.choose arrives with Story 15.3")
+    def choose(
+        self,
+        state: Any = None,
+        *,
+        request_id: str | None = None,
+        timestamp: str | None = None,
+    ) -> Decision:
+        """Draw once per action from its Beta posterior and take the highest draw (FDD-015 §3 item 3).
+
+        ``state`` is ignored: the posterior is marginal. A missing ``request_id`` or ``timestamp``
+        is supplied (a new UUID, the current UTC time) and recorded. The draws are seeded by
+        ``seed_for(snapshot.id, request_id, timestamp)`` in snapshot order; a tie goes to the
+        earlier action. The record is available from :meth:`last_sampling_record`.
+
+        ``Decision.logprob`` is ``None``: probability matching has no selection probability.
+        ``Decision.probabilities`` is the draw-free posterior mean ``alpha / (alpha + beta)``
+        normalised over the actions, for display only. It is **not** the selection probability.
+        """
+        del state
+        if request_id is None:
+            request_id = str(uuid.uuid4())
+        if timestamp is None:
+            timestamp = datetime.now(timezone.utc).isoformat()
+        seed = seed_for(self._snapshot.id, request_id, timestamp)
+
+        posterior = self.posterior()
+        rng = random.Random(seed)
+        draws = {
+            action.id: rng.betavariate(posterior["alpha"][action.id], posterior["beta"][action.id])
+            for action in self._snapshot.actions
+        }
+        best = 0
+        for index, action in enumerate(self._snapshot.actions):
+            if draws[action.id] > draws[self._snapshot.actions[best].id]:
+                best = index
+
+        means = [
+            posterior["alpha"][a.id] / (posterior["alpha"][a.id] + posterior["beta"][a.id])
+            for a in self._snapshot.actions
+        ]
+        total = sum(means)
+        self._last_record = {
+            "request_id": request_id,
+            "timestamp": timestamp,
+            "prng_seed": str(seed),
+            "posterior_parameters": posterior,
+            "sampled_payoffs": draws,
+        }
+        return Decision(
+            action=self._snapshot.actions[best],
+            logprob=None,
+            probabilities=[mean / total for mean in means],
+        )
+
+    def last_sampling_record(self) -> dict[str, Any] | None:
+        """A deep copy of the FDD-015 §2.3 record of the latest ``choose``, or ``None`` before one."""
+        return copy.deepcopy(self._last_record)
 
     def apply_update(self, deltas: dict, *, baseline: float, episodes_seen: int) -> None:
         raise TypeError("use ThompsonLearner")

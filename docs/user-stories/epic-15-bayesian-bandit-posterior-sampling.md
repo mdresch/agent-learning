@@ -42,7 +42,7 @@ Fixture used by the criteria below ("the base policy"): two actions, `a` and `b`
 
 ## Story 15.3 — Choosing by Probability Matching
 
-**Status:** Ready  
+**Status:** Completed (see `implementation-log.md`)  
 **As** an adopter, **I want** the policy to pick the action with the highest posterior draw, **so that** an action with few observations is still tried.
 
 ### Acceptance Criteria:

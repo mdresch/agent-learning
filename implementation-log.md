@@ -1364,3 +1364,4 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - I7: AC_7 and AC_8 run through LearningRunner with the same ThompsonPolicy object; the runner is unchanged
   - N_MAX and SELECTION_BASIS added to policy/thompson.py (FDD-015 §2.1); ThompsonLearner exported from learners and the package root
   - Full suite excludes tests/test_spark.py (JVM) and tests/pmbok (Story 34.5), per LL-013
+- **Amazon Q review (round 1 on `c2d497d`):** no findings; Q's verdict was "No blocking defects found ... The implementation is ready to merge." Nothing to triage, so no `Q-87-n` line is recorded (the triage parser accepts only the seven-field finding shape).

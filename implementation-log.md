@@ -1543,3 +1543,4 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - Stacked on feat/story-19.4 (PR #93, unmerged): AC_8 needs cli._scan_family from Story 19.4
   - Open on purpose (FDD-019 section 7 items 8 to 10): the reading is a proxy, not the probability of being the best action; thresholds are uncalibrated for it; several actions of similar payoff cannot reach 60%
   - Full suite excludes tests/test_spark.py (JVM) and tests/pmbok (Story 34.5), per LL-013
+- **Amazon Q review (round 1 on `8cbb8cb`):** no findings; Q's verdict was "No blocking defects were found. The PR is ready to merge once the stacked dependency is merged." Nothing to triage, so no `Q-95-n` line is recorded (the triage parser accepts only the seven-field finding shape; LL-034).

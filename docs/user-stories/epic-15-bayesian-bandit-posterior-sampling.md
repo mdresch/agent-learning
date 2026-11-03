@@ -28,7 +28,7 @@ Fixture used by the criteria below ("the base policy"): two actions, `a` and `b`
 
 ## Story 15.2 — Posterior State in the Snapshot
 
-**Status:** Ready  
+**Status:** Completed (see `implementation-log.md`)  
 **As** a maintainer, **I want** the posterior kept in the policy snapshot, **so that** no new record type is needed.
 
 ### Acceptance Criteria:

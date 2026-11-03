@@ -1285,3 +1285,27 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-84-3 | logic error | verified: no | decision: declined | Python float repr round-trips exactly through JSON; 200000 betavariate draws gave 0 mismatches, and the JSON round-trip test passes | fix: none`
   - `Q-84-4 | logic error | verified: partial | decision: declined | AC_2 and FDD say empty; whitespace-only is not specified, and a policy id such as ' ' is not refused by the design. Not widening the AC without the human | fix: none`
   - `Q-84-5 | test gap | verified: no | decision: declined | Q's own comment says no defect; the two asserts are harmless | fix: none`
+
+## Story 15.2 — Posterior State in the Snapshot
+- **Commit:** `711f405`
+- **Date:** 2026-11-02
+- **Branch:** `feat/story-15.2`
+- **Source ADR / BRD / FDD:** ADR-015, BRD-015, FDD-015
+- **Files Modified/Created:**
+  - `.claude/skills/thompson/SKILL.md`
+  - `docs/user-stories/epic-15-bayesian-bandit-posterior-sampling.md`
+  - `src/agent_learning/__init__.py`
+  - `src/agent_learning/policy/__init__.py`
+  - `src/agent_learning/policy/thompson.py`
+  - `tests/test_thompson_policy.py`
+- **Contracts:**
+  - `tests/test_thompson_policy.py`
+  - Contract run: 35 passed in 0.66s
+  - Full suite: 1615 passed, 1 skipped in 95.65s (0:01:35) (excluding `tests/test_spark.py`, `tests/pmbok`, per LL-013)
+- **Notes:**
+  - I1: accessors posterior() and consumed_episode_ids() (copies); the story names none
+  - I2: choose raises NotImplementedError until Story 15.3; apply_update raises TypeError('use ThompsonLearner') per FDD-015 §3 item 5
+  - I3: from_snapshot keeps a copy and fills missing actions with the prior; the caller's snapshot is unchanged
+  - I4: bool, string and None values are treated as not finite and refused naming the action
+  - Full suite excludes tests/test_spark.py (JVM) and tests/pmbok (Story 34.5), per LL-013
+- **Amazon Q review (round 1 on `96c234f`):** no findings; Q's verdict was "No blocking defects were found — this PR is ready to merge." Nothing to triage, so no `Q-85-n` line is recorded (the triage parser accepts only the seven-field finding shape).

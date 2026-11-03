@@ -43,6 +43,9 @@
 | [LL-030](#ll-030--a-missing-tool-is-not-a-skipped-gate) | A Missing Tool Is Not a Skipped Gate | Epic 13 / Stories 13.1–13.7 | Universal Tooling | 2026-10-28 |
 | [LL-031](#ll-031--triage-a-reviewers-confirmation-too) | Triage a Reviewer's Confirmation Too | Epic 13 / Stories 13.1–13.7 | Universal Process | 2026-10-28 |
 | [LL-032](#ll-032--check-for-an-omission-without-a-filter) | Check for an Omission Without a Filter | Epic 13 / Stories 13.1–13.7 | Universal Process | 2026-10-28 |
+| [LL-033](#ll-033--a-new-worktrees-python-environment-needs-two-steps-and-a-check) | A New Worktree's Python Environment Needs Two Steps and a Check | Epic 15 / Stories 15.1–15.6 | Universal Tooling | 2026-11-03 |
+| [LL-034](#ll-034--a-review-with-no-findings-is-not-a-triage-line) | A Review With No Findings Is Not a Triage Line | Epic 15 / Story 15.2 (PR #85) | Universal Process | 2026-11-03 |
+| [LL-035](#ll-035--pin-existing-behaviour-by-breaking-it-once) | Pin Existing Behaviour by Breaking It Once | Epic 15 / Stories 15.5 and 15.6 | Universal Testing | 2026-11-03 |
 
 ---
 
@@ -479,3 +482,39 @@
 - **The Trap:** An audit said the log omitted acceptance criteria. The check had been run through a filter that hid them, so the claim was wrong and had to be retracted.
 - **The Root Cause:** A filtered view cannot prove that something is absent.
 - **Actionable Invariant:** To claim an omission, read the unfiltered source (for example `grep -c` on the whole entry, or the file itself) and quote what you saw. A filtered output only supports "not found in this view".
+
+---
+
+### LL-033 — A New Worktree's Python Environment Needs Two Steps and a Check
+- **Identifier:** `LL-033`
+- **Date:** 2026-11-03
+- **Epic / Story:** Epic 15 / Stories 15.1–15.6
+- **Scope:** Universal Tooling
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/implement-story/SKILL.md` (Step 0); Tier 3: `sidpa-template` implement-story skill (proposed, needs human approval before any cross-repo change)
+- **The Trap:** In the Story 15.1 worktree, plain `uv sync` left `agent_learning` not importable, so the first "RED" was an import error from the missing package, not from the missing code. `uv sync --all-extras` fixed that but also installed the real `azure-cosmos`, which broke four stub-based tests (LL-003) in the full suite.
+- **The Root Cause:** The default sync does not install the project's extras, and the extras include an SDK that the stub tests assume is absent.
+- **Actionable Invariant:** In a new worktree run `uv sync --all-extras`, then `uv pip uninstall --python .venv/Scripts/python.exe azure-cosmos`. Accept a RED only after reading its message: it must name the symbol the story adds, not a missing package.
+
+---
+
+### LL-034 — A Review With No Findings Is Not a Triage Line
+- **Identifier:** `LL-034`
+- **Date:** 2026-11-03
+- **Epic / Story:** Epic 15 / Story 15.2 (PR [#85](https://github.com/mdresch/agent-learning/pull/85))
+- **Scope:** Universal Process
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/implement-story/SKILL.md` (Step 8.7); Tier 3: `sidpa-template` implement-story skill (proposed, needs human approval before any cross-repo change)
+- **The Trap:** Amazon Q reviewed Story 15.2 with no findings. The result was logged as `Q-85-0 | none | ...` through the triage script, and CI failed: `test_review_triage` parses every triage line in the log and rejects the claim type `none`.
+- **The Root Cause:** The triage line has a fixed seven-field shape and five claim types, so a non-finding cannot be written in it. The failure showed only in CI because the log edit was pushed without running that test.
+- **Actionable Invariant:** Record a review with no findings as one prose bullet in the story's log entry (round, head commit, Q's verdict), never as a `Q-<PR>-<n>` line. Run `tests/test_review_triage.py` after any edit to `implementation-log.md` and before the push.
+
+---
+
+### LL-035 — Pin Existing Behaviour by Breaking It Once
+- **Identifier:** `LL-035`
+- **Date:** 2026-11-03
+- **Epic / Story:** Epic 15 / Stories 15.5 and 15.6
+- **Scope:** Universal Testing
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/implement-story/SKILL.md` (Step 3); Tier 3: `sidpa-template` implement-story skill (proposed, needs human approval before any cross-repo change)
+- **The Trap:** Stories 15.5 and 15.6 add tests for behaviour that already exists, so the new tests passed on their first run. A test that has never failed does not show that it can.
+- **The Root Cause:** Contract-first assumes new code to be missing. When the story only pins existing behaviour there is nothing missing to make the test fail.
+- **Actionable Invariant:** Observe RED by temporarily breaking the behaviour under test (remove the guard, zero the update), confirm the named tests fail, restore the file, and check that `git diff main -- src` is empty. Record how the RED was obtained in the log entry.

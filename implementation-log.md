@@ -1386,3 +1386,30 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - I2: 'the capture path' is EpisodeCapture.start/end with action_logprob=decision.logprob
   - Full suite excludes tests/test_spark.py (JVM) and tests/pmbok (Story 34.5), per LL-013
 - **Amazon Q review (round 1 on `ebe2ac5`):** no findings; Q's verdict was "No findings requiring action before merge ... This PR is ready to merge." Nothing to triage, so no `Q-88-n` line is recorded (the triage parser accepts only the seven-field finding shape).
+
+## Story 15.6 — The Positive-Only Check (HYP-AL-002)
+- **Commit:** `017922a`
+- **Date:** 2026-11-03
+- **Branch:** `feat/story-15.6`
+- **Source ADR / BRD / FDD:** ADR-015, BRD-015, FDD-015
+- **Files Modified/Created:**
+  - `.claude/skills/thompson/SKILL.md`
+  - `docs/user-stories/epic-15-bayesian-bandit-posterior-sampling.md`
+  - `tests/test_thompson_positive_only.py`
+- **Contracts:**
+  - `tests/test_thompson_positive_only.py`
+  - Contract run: 4 passed in 0.68s
+  - Full suite: 1666 passed, 1 skipped in 73.96s (0:01:13) (excluding `tests/test_spark.py`, `tests/pmbok`, per LL-013)
+- **Notes:**
+  - No production code. Consistency check on a real positive-only history (HYP-AL-002); it makes no claim that Thompson sampling decides better. That needs a low-authority policy with at least 100 scored episodes including failures (BRD-015 BRU-015-10), which does not exist
+  - History: the approve-* episodes of agent-learning-governance in docs/policy-shapes/episodes/ (166 files on 2026-11-03: approve-adr 48, approve-user-stories 38, approve-fdd 35, approve-brd 34, approve-subsidiary-plan 9, approve-pmp 1, approve-project-pillars 1); the test records the count and never asserts a fixed number
+  - REINFORCE (batch of one, repository default hyperparameters spelled out): final baseline 0.9936 (adr), 0.9722 (brd), 0.9818 (user-stories), 0.975 (fdd); largest final logit change 7.2e-05, 7.4e-04, 4.4e-04, 6.6e-04, all under 1e-3. Tasks with under about 30 episodes cannot show it (baseline is 1 - 0.9^n) and are recorded, not asserted
+  - REINFORCE log-probability is assigned from the SoftmaxPolicy being trained at each step (full authority episodes carry none); stated in the test docstring (I2)
+  - Thompson: the action taken is Beta(1 + n, 1), every untaken action stays Beta(1, 1)
+  - RED observed by temporarily zeroing the alpha increment in ThompsonLearner (the AC_2 test failed); the file was restored and is untouched in the commit
+  - Full suite excludes tests/test_spark.py (JVM) and tests/pmbok (Story 34.5), per LL-013
+- **Review-fix commits:** `534b910`
+- **Review validation:** 5 passed; full suite 1,667 passed
+- **Amazon Q triage (round 1 on `f43132b`):**
+  - `Q-89-1 | crash risk | verified: partial | decision: accepted | a KeyError named the key but not the episode file; the data is committed and all 166 files have the field, so the gain is a failure message that names the file; encoded as a test that failed with KeyError first | fix: 534b910`
+  - `Q-89-2 | crash risk | verified: no | decision: declined | ReinforceLearner returns one logit delta per action, so the dict is never empty for a task with an action file (an empty action file makes SoftmaxPolicy raise first); default=0.0 would let a broken replay pass the stall assertion silently | fix: none`

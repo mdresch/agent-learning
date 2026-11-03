@@ -239,10 +239,28 @@ def test_ac5_changing_the_seeded_logits_leaves_the_stored_prior_alone(monkeypatc
     prior_copy = copy.deepcopy(prior)
 
     seeded = seed_values(prior, NEW_MAP, NEW_IDS)
-    logits = {a: float(v) for a, v in seeded.items()}
-    logits["accept"] += 5.0  # the seeded policy learns on its own
-    seeded["decline"] = -9.0
+    policy = PolicySnapshot(
+        id="seeded-v0",
+        agent_id="agent",
+        task_id="new-task",
+        version=0,
+        actions=[Action(id=a) for a in NEW_IDS],
+        logits={a: float(v) for a, v in seeded.items()},
+        metadata={"policy_scope": "delegated_decision", "decision_authority": "low"},
+    )
+    store.store_policy(policy)
 
+    # the seeded policy learns on its own: its logits change and the new version is stored
+    learned = PolicySnapshot.from_dict(policy.to_dict())
+    learned.id, learned.version, learned.updates_applied = "seeded-v1", 1, 1
+    learned.logits["accept"] += 5.0
+    learned.logits["decline"] = -9.0
+    store.store_policy(learned)
+    seeded["accept"] = 99.0  # and so does the dict that was returned
+
+    assert store.get_active_policy("agent", "new-task").logits["accept"] == pytest.approx(
+        float(prior.values["approve"]) + 5.0, abs=1e-12
+    )
     assert store.get_active_policy("agent", "gates-prior").to_dict() == stored_copy
     assert store.get_policy(stored.id, "agent").to_dict() == stored_copy
     assert prior == prior_copy

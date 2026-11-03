@@ -1465,3 +1465,4 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - I3: refusing alpha+beta<=2, kappa_prior outside (0, 10] and families under 4 members is Story 19.3; until then such input divides by zero
   - tests/test_meta_prior_softmax.py: the 19.1 test that expected NotImplementedError for 'thompson' now uses an unbuilt name, as thompson is built here
   - Full suite excludes tests/test_spark.py (JVM) and tests/pmbok (Story 34.5), per LL-013
+- **Amazon Q review (round 1 on `22cc15b`):** no findings; Q's verdict was "No issues found that block merge." Nothing to triage, so no `Q-91-n` line is recorded (the triage parser accepts only the seven-field finding shape; LL-034).

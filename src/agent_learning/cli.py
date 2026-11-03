@@ -10,6 +10,7 @@ import random
 import sys
 import uuid
 from collections import Counter
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -32,7 +33,9 @@ from .decision import (
     TieBreakDisposition,
     capture_decision_evidence_enabled,
 )
+from .meta_prior import FamilyMember
 from .policy.softmax_bandit import SoftmaxPolicy
+from .policy.thompson import ThompsonPolicy
 from .storage.cosmos import get_default_store
 from .training.runner import LearningRunner
 from .types import Action, Episode, MetricName, PolicySnapshot, RewardSource
@@ -252,6 +255,19 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         "--authority",
         choices=[decision_authority.value for decision_authority in DecisionAuthority],
         required=True,
+    )
+
+    family_set = sub.add_parser(
+        "task-policy-family-set",
+        help="Declare the task family and role map of an existing task policy (meta-prior membership).",
+    )
+    family_set.add_argument("--agent-id", required=True)
+    family_set.add_argument("--task-id", required=True)
+    family_set.add_argument("--family", required=True, help="Family name; policies with the same name are pooled together.")
+    family_set.add_argument(
+        "--role-map",
+        required=True,
+        help="JSON object mapping every action id of the policy to the role it plays in the family.",
     )
 
     register = sub.add_parser(
@@ -1010,6 +1026,136 @@ def _cmd_set_task_policy_authority(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_set_task_policy_family(args: argparse.Namespace) -> int:
+    """Write ``family`` and ``role_map`` into the active snapshot's metadata (FDD-019 §3 item 6).
+
+    The snapshot keeps its id and version, as in ``task-policy-authority-set``. Nothing is written when
+    any check fails.
+    """
+    if not args.family.strip():
+        print("--family must not be empty.", file=sys.stderr)
+        return 2
+    try:
+        role_map = json.loads(args.role_map)
+    except json.JSONDecodeError as exc:
+        print(f"--role-map is not valid JSON: {exc}", file=sys.stderr)
+        return 2
+    if not isinstance(role_map, dict) or not all(
+        isinstance(action_id, str) and isinstance(role, str) and role.strip()
+        for action_id, role in role_map.items()
+    ):
+        print("--role-map must be a JSON object of action ids to non-empty role names.", file=sys.stderr)
+        return 2
+
+    store = get_default_store()
+    snapshot = store.get_active_policy(args.agent_id, args.task_id)
+    if snapshot is None:
+        print(f"No active policy for task {args.task_id!r}.", file=sys.stderr)
+        return 2
+    action_ids = {action.id for action in snapshot.actions}
+    outside = sorted(set(role_map) - action_ids)
+    if outside:
+        print(f"--role-map names actions outside the policy's actions: {outside}.", file=sys.stderr)
+        return 2
+    missing = sorted(action_ids - set(role_map))
+    if missing:
+        print(f"--role-map misses actions of the policy: {missing}.", file=sys.stderr)
+        return 2
+    if len(set(role_map.values())) != len(role_map):
+        print("--role-map sends two actions to one role; it must be a bijection onto roles.", file=sys.stderr)
+        return 2
+
+    snapshot.metadata["family"] = args.family
+    snapshot.metadata["role_map"] = role_map
+    store.store_policy(snapshot)
+    print(
+        json.dumps(
+            {"family": args.family, "role_map": role_map, "current_policy": _policy_payload(snapshot)},
+            indent=2,
+        )
+    )
+    return 0
+
+
+@dataclass
+class FamilyScan:
+    """What ``_scan_family`` found: the qualifying members, the excluded ones with reasons, the kind."""
+
+    members: list[FamilyMember]
+    excluded: list[dict[str, str]]
+    representation: str | None
+
+
+def _gate_passed(store: Any, snapshot: PolicySnapshot) -> bool:
+    """The ADR-003 gate for a member, computed with the ``standard`` tier thresholds (FDD-019 H1)."""
+    return assess_autonomy(store, snapshot, AutonomyConfig.for_tier("standard")).eligible
+
+
+def _scan_family(store: Any, agent_id: str, family: str) -> FamilyScan:
+    """Find the members of ``family`` among the agent's active policies; read only (FDD-019 §3 item 7).
+
+    A candidate declares ``family`` and is not itself a meta-prior. It is excluded, with a reason, when it
+    is full authority, has no ``role_map`` or does not meet the gate (H1, H5). Members are sorted by task
+    id. Members with ``posterior_parameters`` are read as ``(alpha, beta)`` pairs, the others as logits;
+    a mix raises ``ValueError`` naming the tasks.
+    """
+    members: list[FamilyMember] = []
+    excluded: list[dict[str, str]] = []
+    beta_tasks: list[str] = []
+    softmax_tasks: list[str] = []
+
+    for task in sorted(store.list_agent_tasks(agent_id), key=lambda item: item.id):
+        snapshot = store.get_active_policy(agent_id, task.id)
+        if snapshot is None or snapshot.metadata.get("is_family_meta_prior"):
+            continue
+        if snapshot.metadata.get("family") != family:
+            continue
+
+        role_map = snapshot.metadata.get("role_map")
+        reason: str | None = None
+        params: dict[str, Any] = {}
+        if TaskPolicy(snapshot).authority.value == "full":
+            reason = "full decision authority: there are no learned logits to pool"
+        elif not isinstance(role_map, dict) or not role_map:
+            reason = "no role_map declared"
+        elif not _gate_passed(store, snapshot):
+            reason = "the ADR-003 gate is not met under the standard tier"
+        elif "posterior_parameters" in snapshot.metadata:
+            try:
+                posterior = ThompsonPolicy.from_snapshot(snapshot).posterior()
+            except ValueError as exc:
+                reason = f"posterior_parameters unreadable: {exc}"
+            else:
+                params = {
+                    action.id: (posterior["alpha"][action.id], posterior["beta"][action.id])
+                    for action in snapshot.actions
+                }
+        else:
+            params = {action.id: snapshot.logits.get(action.id, 0.0) for action in snapshot.actions}
+
+        if reason is not None or not isinstance(role_map, dict):
+            excluded.append({"task_id": task.id, "reason": reason or "no role_map declared"})
+            continue
+        members.append(
+            FamilyMember(
+                task_id=task.id,
+                version=snapshot.version,
+                role_map=dict(role_map),
+                params=params,
+                gate_passed=True,
+            )
+        )
+        (beta_tasks if "posterior_parameters" in snapshot.metadata else softmax_tasks).append(task.id)
+
+    if beta_tasks and softmax_tasks:
+        raise ValueError(
+            f"family {family!r} mixes Beta-count members ({', '.join(beta_tasks)}) "
+            f"and logit members ({', '.join(softmax_tasks)})"
+        )
+    representation = "thompson" if beta_tasks else "softmax" if softmax_tasks else None
+    return FamilyScan(members=members, excluded=excluded, representation=representation)
+
+
 def _cmd_register_task_episode(args: argparse.Namespace) -> int:
     store = get_default_store()
     try:
@@ -1388,6 +1534,7 @@ def main(argv: list[str] | None = None) -> int:
         "task-policy-adjudicate": _cmd_adjudicate_task_policy,
         "task-policy-init": _cmd_init_task_policy,
         "task-policy-authority-set": _cmd_set_task_policy_authority,
+        "task-policy-family-set": _cmd_set_task_policy_family,
         "task-policy-complexity-set": _cmd_set_task_policy_complexity,
         "task-episode-register": _cmd_register_task_episode,
         "task-policy-compare": _cmd_compare_task_policy,

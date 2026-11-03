@@ -58,7 +58,7 @@ Fixture used by the criteria below ("the base family"): four low-authority softm
 
 ## Story 19.4 — Declaring and Finding Members
 
-**Status:** Ready — the Thompson criterion depends on Story 15.2 of Epic 15.  
+**Status:** Completed (see `implementation-log.md`)  
 **As** a maintainer, **I want** a human to declare a policy's family and role map and the compiler to find only qualifying members, **so that** membership and convergence are never guessed.
 
 ### Acceptance Criteria:

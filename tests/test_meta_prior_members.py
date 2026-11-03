@@ -20,10 +20,10 @@ exactly the policy's action ids and send them to distinct, non-empty roles. A fa
 only whitespace is empty.
 
 Interpretation I3: ``gate_passed`` is ``assess_autonomy(store, snapshot, AutonomyConfig.for_tier("standard"))
-.eligible`` (H1), computed through ``cli._gate_passed``. ``assess_autonomy`` reads logits, and a Thompson
-snapshot keeps its logits at zero (FDD-015 §1 item 3), so a Thompson member cannot pass the standard-tier
-action-probability criterion today. AC_4's Thompson reading is therefore tested with ``_gate_passed``
-replaced, and AC_3 uses the real gate on softmax members. That gap is reported in the PR, not hidden here.
+.eligible`` (H1), computed through ``cli._gate_passed``. Since Story 19.8 the gate reads a Thompson snapshot from its
+posterior means (ADR-003 §4.6), so a Thompson member can pass it; ``tests/test_autonomy_posterior.py`` AC_8 covers that
+through the real gate. The two Thompson tests here still replace ``_gate_passed`` so that they test only how the pairs
+are read, whatever the fixture's payoff rates.
 
 Interpretation I4: members are found among the agent's tasks in task-id order; a snapshot whose
 ``is_family_meta_prior`` is true is never a candidate, whatever its ``family``.

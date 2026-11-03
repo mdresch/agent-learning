@@ -10,7 +10,7 @@ description: Guidance and constraints for evidence-gated autonomy thresholds (ag
 - **BRD:** [BRD-003](../../../docs/project-docs/Business-Requirements/BRD-003-tier-specific-autonomy-overrides.md).
 - **FDD:** [FDD-003](../../../docs/project-docs/Functional-Design/FDD-003-tier-specific-autonomy-overrides.md).
 - **Story:** [Story 3.1](../../../docs/user-stories/epic-3-tier-specific-autonomy-overrides.md).
-- **Contract tests:** `tests/test_autonomy.py` (the Story 3.1 section at the end; interpretations I1 to I4 are listed in its header comment).
+- **Contract tests:** `tests/test_autonomy.py` (the Story 3.1 section at the end; interpretations I1 to I4 are listed in its header comment); `tests/test_autonomy_posterior.py` (Story 19.8, ADR-003 §4.6).
 
 ## 2. Load-Bearing Constraints
 - **Resolution order, per metric and per tier:** `AGENT_LEARNING_AUTONOMY_{METRIC}_{TIER}`, then `AGENT_LEARNING_AUTONOMY_{METRIC}`, then the tier default in `_AUTONOMY_TIER_DEFAULTS`. An unparseable value falls through to the next level, as `_env_int` and `_env_float` already do. `WILSON_Z` has no tier suffix.
@@ -28,6 +28,13 @@ description: Guidance and constraints for evidence-gated autonomy thresholds (ag
 - Tests: `tests/test_authority_migration.py`.
 
 - **Read a mutable global once (LL-020):** an override variable is read once into a local, and the local is tested and used. `_note_global_override` once read the global twice and raised `KeyError` when it was removed in between.
+
+### Posterior policies (Story 19.8, ADR-003 §4.6, Invariant 8)
+- A snapshot that holds `posterior_parameters` (Thompson sampling) keeps `logits` at zero. `_action_probabilities` reads it from `alpha / (alpha + beta)` per action, normalised over the actions (an absent action reads as 0.5): a softmax over `ln(mean)` that is computed for the check and never stored. The recommended action, winner probability, margin and the stable-snapshot count all use it; a tie goes to the earlier action.
+- The tier table, the thresholds, every other criterion and the override rules are unchanged, and a snapshot without `posterior_parameters` is assessed exactly as before.
+- For a low-authority posterior snapshot the `action_probability` and `probability_margin` criteria carry `"basis": "posterior_mean"`; a softmax snapshot and a full-authority one carry no `basis` key.
+- A malformed posterior raises `ValueError` naming the action (it is not scored silently). `assess_autonomy` never writes.
+- It is a proxy: not the probability of being the best action, thresholds not calibrated for it, and several actions of similar payoff rate cannot reach the winner-probability criterion. The limits are open items (FDD-019 §7 items 8 to 10); do not describe the reading as more than that.
 
 ## 3. Call Sites
 - `src/agent_learning/cli.py` calls `assess_autonomy()` unconditionally for both authorities; the branch on authority lives inside `assess_autonomy()`.

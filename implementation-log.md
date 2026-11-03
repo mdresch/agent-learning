@@ -1365,3 +1365,24 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - N_MAX and SELECTION_BASIS added to policy/thompson.py (FDD-015 §2.1); ThompsonLearner exported from learners and the package root
   - Full suite excludes tests/test_spark.py (JVM) and tests/pmbok (Story 34.5), per LL-013
 - **Amazon Q review (round 1 on `c2d497d`):** no findings; Q's verdict was "No blocking defects found ... The implementation is ready to merge." Nothing to triage, so no `Q-87-n` line is recorded (the triage parser accepts only the seven-field finding shape).
+
+## Story 15.5 — Staying Out of REINFORCE
+- **Commit:** `28b9f0d`
+- **Date:** 2026-11-03
+- **Branch:** `feat/story-15.5`
+- **Source ADR / BRD / FDD:** ADR-015, BRD-015, FDD-015
+- **Files Modified/Created:**
+  - `.claude/skills/thompson/SKILL.md`
+  - `docs/user-stories/epic-15-bayesian-bandit-posterior-sampling.md`
+  - `tests/test_thompson_reinforce_guard.py`
+- **Contracts:**
+  - `tests/test_thompson_reinforce_guard.py`
+  - Contract run: 4 passed in 0.69s
+  - Full suite: 1663 passed, 1 skipped in 53.69s (excluding `tests/test_spark.py`, `tests/pmbok`, per LL-013)
+- **Notes:**
+  - No production code: the skip is the existing action_logprob-is-None check in ReinforceLearner (FDD-015 D6, AC_2)
+  - RED observed by temporarily removing that check from reinforce.py (2 tests failed because the Thompson episodes were trained on); the file was restored before the commit and is untouched in it
+  - I1: tests assert behaviour only; they never read reinforce.py nor the full_authority_excluded counter name (FDD-015 §7 item 3 stays open)
+  - I2: 'the capture path' is EpisodeCapture.start/end with action_logprob=decision.logprob
+  - Full suite excludes tests/test_spark.py (JVM) and tests/pmbok (Story 34.5), per LL-013
+- **Amazon Q review (round 1 on `ebe2ac5`):** no findings; Q's verdict was "No findings requiring action before merge ... This PR is ready to merge." Nothing to triage, so no `Q-88-n` line is recorded (the triage parser accepts only the seven-field finding shape).

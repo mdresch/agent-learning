@@ -75,7 +75,7 @@ Fixture used by the criteria below ("the base policy"): two actions, `a` and `b`
 
 ## Story 15.5 — Staying Out of REINFORCE
 
-**Status:** Ready  
+**Status:** Completed (see `implementation-log.md`)  
 **As** a maintainer, **I want** Thompson episodes to be invisible to `ReinforceLearner`, **so that** a draw is never trained on as if it were a softmax sample.
 
 ### Acceptance Criteria:

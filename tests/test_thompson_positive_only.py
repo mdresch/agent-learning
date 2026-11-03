@@ -68,15 +68,16 @@ CONFIG = LearnerConfig(
 )
 
 
-def _history() -> dict[str, list[tuple[str, str]]]:
+def _history(episodes_dir: Path = SHAPES / "episodes") -> dict[str, list[tuple[str, str]]]:
     """``{task_id: [(file name, action_id), ...]}`` for the approve-* episodes, in file-name order."""
-    episodes_dir = SHAPES / "episodes"
     assert episodes_dir.is_dir(), f"missing {episodes_dir}"
     by_task: dict[str, list[tuple[str, str]]] = defaultdict(list)
     for path in sorted(episodes_dir.glob("*.json")):
         data = json.loads(path.read_text(encoding="utf-8"))
         if data.get("agent_id") == AGENT and str(data.get("task_id", "")).startswith("approve-"):
-            by_task[data["task_id"]].append((path.name, data["action_id"]))
+            action_id = data.get("action_id")
+            assert action_id, f"{path.name}: an approve-* episode without an action_id"
+            by_task[data["task_id"]].append((path.name, action_id))
     return dict(by_task)
 
 
@@ -183,3 +184,11 @@ def test_ac3_the_result_is_labelled_a_consistency_check(record_property: pytest.
     assert "no claim that Thompson sampling decides better" in LABEL
     docstring = " ".join((__doc__ or "").split())  # the docstring wraps lines
     assert "low-authority policy with at least 100 scored episodes including failures" in docstring
+
+
+def test_a_history_file_without_an_action_id_fails_naming_the_file(tmp_path: Path) -> None:
+    (tmp_path / "bad-episode.json").write_text(
+        json.dumps({"agent_id": AGENT, "task_id": "approve-adr"}), encoding="utf-8"
+    )
+    with pytest.raises(AssertionError, match="bad-episode.json"):
+        _history(tmp_path)

@@ -1575,3 +1575,24 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-96-2 | crash risk | verified: partial | decision: accepted | a Beta prior's values are (alpha, beta) tuples by construction (meta_prior._pool_thompson) and the Thompson test passes, so no crash; the type ignores are replaced by typed casts | fix: 368df84`
   - `Q-96-3 | test gap | verified: yes | decision: accepted | the test read the pointer through the private LocalFileStore._path; the public get_active_policy assertion is the invariant, so the private read is removed | fix: 368df84`
   - `Q-96-4 | test gap | verified: yes | decision: accepted | only two of the four required flags were exercised; all four are now parametrized | fix: 368df84`
+
+## Story 19.7 — The Real-Data Check (No Family)
+- **Commit:** `f56c59b`
+- **Date:** 2026-11-04
+- **Branch:** `feat/story-19.7`
+- **Source ADR / BRD / FDD:** ADR-019, BRD-019, FDD-019
+- **Files Modified/Created:**
+  - `.claude/skills/meta-prior/SKILL.md`
+  - `docs/user-stories/epic-19-hierarchical-meta-prior-compilation.md`
+  - `tests/test_meta_prior_real_data.py`
+- **Contracts:**
+  - `tests/test_meta_prior_real_data.py`
+  - Contract run: 6 passed in 5.35s
+  - Full suite: 1803 passed, 1 skipped in 66.99s (0:01:06) (excluding `tests/test_spark.py`, `tests/pmbok`, per LL-013)
+- **Notes:**
+  - No production code. A statement that no suitable family exists yet; no claim that a meta-prior speeds convergence (BRU-019-12). Missing data: four or more converged same-family low-authority policies with real episodes and a human-written role_map for each
+  - FINDING I1: the story's 'committed store under data/agent-learning/store' is not committed: data/agent-learning/ is git-ignored and the recorded governance store lives where AGENT_LEARNING_LOCAL_STORE_DIR points. The test rebuilds a temporary store from the committed episodes, action files and decision results (authority from the results, or ADR-021 Invariant 5 where none is recorded) and checks the recorded local store only when the machine has it. Recorded as FDD-019 section 7 item 11 for the maintainer
+  - Recorded tasks (episodes on 2026-11-04): approve-adr 49, approve-user-stories 39, approve-fdd 36, approve-brd 34, approve-subsidiary-plan 9, approve-pmp 1, approve-project-pillars 1; all full authority
+  - Two committed episode files carry no id; the file name is used. The episodes of approve-pmp and approve-subsidiary-plan name one policy id, so each task gets its own reconstructed policy
+  - RED observed by temporarily disabling the full-authority exclusion in cli._scan_family (the AC_1 exclusion test failed); restored before the commit
+  - Full suite excludes tests/test_spark.py (JVM) and tests/pmbok (Story 34.5), per LL-013

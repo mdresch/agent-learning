@@ -46,6 +46,11 @@
 | [LL-033](#ll-033--a-new-worktrees-python-environment-needs-two-steps-and-a-check) | A New Worktree's Python Environment Needs Two Steps and a Check | Epic 15 / Stories 15.1–15.6 | Universal Tooling | 2026-11-03 |
 | [LL-034](#ll-034--a-review-with-no-findings-is-not-a-triage-line) | A Review With No Findings Is Not a Triage Line | Epic 15 / Story 15.2 (PR #85) | Universal Process | 2026-11-03 |
 | [LL-035](#ll-035--pin-existing-behaviour-by-breaking-it-once) | Pin Existing Behaviour by Breaking It Once | Epic 15 / Stories 15.5 and 15.6 | Universal Testing | 2026-11-03 |
+| [LL-036](#ll-036--run-a-specs-worked-example-through-the-real-function) | Run a Spec's Worked Example Through the Real Function | Epic 19 / Stories 19.4, 19.5 | Universal Process | 2026-11-04 |
+| [LL-037](#ll-037--check-that-the-data-a-story-names-exists-in-a-clean-checkout) | Check That the Data a Story Names Exists in a Clean Checkout | Epic 19 / Story 19.7 | Universal Process | 2026-11-04 |
+| [LL-038](#ll-038--a-stacked-pr-gets-no-ci-until-it-targets-main) | A Stacked PR Gets No CI Until It Targets `main` | Epic 19 / Stories 19.4, 19.8 | Universal Process | 2026-11-04 |
+| [LL-039](#ll-039--do-not-pytestapprox-a-container-of-tuples) | Do Not `pytest.approx` a Container of Tuples | Epic 19 / Story 19.2 | Universal Testing | 2026-11-04 |
+| [LL-040](#ll-040--print-the-resolved-store-path-before-a-governance-command) | Print the Resolved Store Path Before a Governance Command | Epic 19 / ADR-003 amendment | Universal Tooling | 2026-11-04 |
 
 ---
 
@@ -518,3 +523,63 @@
 - **The Trap:** Stories 15.5 and 15.6 add tests for behaviour that already exists, so the new tests passed on their first run. A test that has never failed does not show that it can.
 - **The Root Cause:** Contract-first assumes new code to be missing. When the story only pins existing behaviour there is nothing missing to make the test fail.
 - **Actionable Invariant:** Observe RED by temporarily breaking the behaviour under test (remove the guard, zero the update), confirm the named tests fail, restore the file, and check that `git diff main -- src` is empty. Record how the RED was obtained in the log entry.
+
+---
+
+### LL-036 — Run a Spec's Worked Example Through the Real Function
+- **Identifier:** `LL-036`
+- **Date:** 2026-11-04
+- **Epic / Story:** Epic 19 / Stories 19.4 and 19.5 (ADR-003 amendment, PR [#94](https://github.com/mdresch/agent-learning/pull/94))
+- **Scope:** Universal Process
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/implement-story/SKILL.md` (Step 1, Ingest); Tier 3: `sidpa-template` implement-story skill (proposed, needs human approval before any cross-repo change)
+- **The Trap:** Two approved specs described an example that the real code could not produce. FDD-019 accepted Thompson members, but `assess_autonomy` reads logits and a Thompson snapshot keeps them at zero, so no Thompson member could pass the gate (found in Story 19.4). Story 19.5's "base family" says each member passed the gate, but some of its logits give a winner probability of 0.55, below the `standard` tier's 0.60. Each spec was checked against its own arithmetic, not against the function it relies on.
+- **The Root Cause:** The worked checks in the FDD recomputed the pooling formulas by hand. Nothing ran the example through `assess_autonomy`, so the interaction between ADR-003, ADR-015 and ADR-019 was never exercised before three documents were approved.
+- **Actionable Invariant:** When a spec says a constructed member, family or value meets a gate, run that example through the real gate function at Ingest (Step 1) and record the result in the spec. If it fails, amend the spec before writing the contract, as ADR-003 §4.6 did.
+
+---
+
+### LL-037 — Check That the Data a Story Names Exists in a Clean Checkout
+- **Identifier:** `LL-037`
+- **Date:** 2026-11-04
+- **Epic / Story:** Epic 19 / Story 19.7
+- **Scope:** Universal Process
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/implement-story/SKILL.md` (Step 1, Ingest); Tier 3: `sidpa-template` implement-story skill (proposed, needs human approval before any cross-repo change)
+- **The Trap:** Story 19.7 asks for a copy of "the committed store under `data/agent-learning/store`". That directory is git-ignored; the recorded store lives where `AGENT_LEARNING_LOCAL_STORE_DIR` points, so a CI checkout has no such store. It surfaced only when the last story of the epic was written, after the story file had been approved twice.
+- **The Root Cause:** The author looked at their own working tree, where the directory exists, and wrote "committed". Nobody ran `git ls-files` or `git check-ignore` on the named path.
+- **Actionable Invariant:** For every data source a story names as committed, run `git ls-files <path>` (and `git check-ignore <path>` if it is empty) before approval and at Ingest. If it is not tracked, say what is, and record the gap as an open question (FDD-019 §7 item 11).
+
+---
+
+### LL-038 — A Stacked PR Gets No CI Until It Targets `main`
+- **Identifier:** `LL-038`
+- **Date:** 2026-11-04
+- **Epic / Story:** Epic 19 / Stories 19.4 and 19.8 (PRs [#93](https://github.com/mdresch/agent-learning/pull/93), [#95](https://github.com/mdresch/agent-learning/pull/95))
+- **Scope:** Universal Process
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/implement-story/SKILL.md` (Step 8); Tier 3: `sidpa-template` implement-story skill (proposed, needs human approval before any cross-repo change)
+- **The Trap:** Story 19.8 needed code from Story 19.4, which was still unmerged, so its PR was based on the 19.4 branch. The PR read `CLEAN` but no check had run, because the workflow only runs for pull requests into `main`. After 19.4 merged and the base was changed to `main`, GitHub first reported a conflict and only then ran CI.
+- **The Root Cause:** `mergeStateStatus: CLEAN` means "no failing required checks", and with no checks it is also true. A stacked PR has no checks.
+- **Actionable Invariant:** Merge the base story first when you can. If a PR must be stacked, treat it as unverified: after the base merges, change the base to `main`, merge `main` into the branch, rerun the full suite and wait for the CI checks to pass before merging.
+
+---
+
+### LL-039 — Do Not `pytest.approx` a Container of Tuples
+- **Identifier:** `LL-039`
+- **Date:** 2026-11-04
+- **Epic / Story:** Epic 19 / Story 19.2 (PR [#91](https://github.com/mdresch/agent-learning/pull/91))
+- **Scope:** Universal Testing
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/implement-story/SKILL.md` (Step 3, test rules); Tier 3: `sidpa-template` implement-story skill (proposed, needs human approval before any cross-repo change)
+- **The Trap:** `assert renamed.values == pytest.approx(base.values)` passed locally and in the `test` job, and failed in the `build-installer` job with "pytest.approx() does not support nested dictionaries", because the values were `(alpha, beta)` tuples and that job installs an older pytest.
+- **The Root Cause:** `approx` support for nested containers differs between pytest versions, and two CI jobs install different ones.
+- **Actionable Invariant:** Compare a container of tuples one key at a time (`values["role"] == pytest.approx(other["role"])`), or flatten it to a list of floats. Treat `approx(<dict of tuples>)` as a finding in review.
+
+---
+
+### LL-040 — Print the Resolved Store Path Before a Governance Command
+- **Identifier:** `LL-040`
+- **Date:** 2026-11-04
+- **Epic / Story:** Epic 19 / ADR-003 amendment approvals (PR [#94](https://github.com/mdresch/agent-learning/pull/94))
+- **Scope:** Universal Tooling
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/governance/SKILL.md`; Tier 3: `sidpa-template` governance skill (proposed, needs human approval before any cross-repo change)
+- **The Trap:** After running `approve-adr` against the amended ADR-003, I reported that the local store (`data/agent-learning/store`, 14 files) was unchanged. The commands had actually used `AGENT_LEARNING_LOCAL_STORE_DIR`, which points at another repository's store. I had checked the wrong directory and corrected the claim a step later, after finding the registered episode there.
+- **The Root Cause:** The default store path is overridden by a user-level environment variable, and the command output does not name the path it used.
+- **Actionable Invariant:** Before a decision, adjudication or registration command, resolve and print the store path (`AGENT_LEARNING_LOCAL_STORE_DIR` if set, else `./data/agent-learning/store`) and check that directory, by file count or modification time, before and after.

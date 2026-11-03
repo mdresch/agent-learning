@@ -13,7 +13,7 @@ from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from ._version import __version__
 from .autonomy import ComplexityProfile, assess_autonomy
@@ -1191,6 +1191,14 @@ def _cmd_meta_compile_task_policy(args: argparse.Namespace) -> int:
     ``supersedes``, and the older snapshot is left as it was (H6, H8).
     """
     store = get_default_store()
+    existing = store.get_active_policy(args.agent_id, args.output_prior_name)
+    if existing is not None and not existing.metadata.get("is_family_meta_prior"):
+        # Checked first: a refused name needs no pooling (Q-96-1).
+        print(
+            f"--output-prior-name {args.output_prior_name!r} is the task id of an existing task policy, not a meta-prior.",
+            file=sys.stderr,
+        )
+        return 2
     scan: FamilyScan | None = None
     try:
         scan = _scan_family(store, args.agent_id, args.family)
@@ -1206,24 +1214,17 @@ def _cmd_meta_compile_task_policy(args: argparse.Namespace) -> int:
             print(f"  excluded {item['task_id']}: {item['reason']}", file=sys.stderr)
         return 2
 
-    existing = store.get_active_policy(args.agent_id, args.output_prior_name)
-    if existing is not None and not existing.metadata.get("is_family_meta_prior"):
-        print(
-            f"--output-prior-name {args.output_prior_name!r} is the task id of an existing task policy, not a meta-prior.",
-            file=sys.stderr,
-        )
-        return 2
-
     if prior.representation == "softmax":
-        logits = {role: float(prior.values[role]) for role in prior.roles}  # type: ignore[arg-type]
+        logits = {role: cast(float, prior.values[role]) for role in prior.roles}
         posterior: dict[str, Any] = {}
     else:
+        # A Beta prior's values are (alpha, beta) tuples by construction (meta_prior._pool_thompson).
         logits = {role: 0.0 for role in prior.roles}
-        pairs = {role: prior.values[role] for role in prior.roles}
+        pairs = {role: cast(tuple[float, float], prior.values[role]) for role in prior.roles}
         posterior = {
             "posterior_parameters": {
-                "alpha": {role: pair[0] for role, pair in pairs.items()},  # type: ignore[index]
-                "beta": {role: pair[1] for role, pair in pairs.items()},  # type: ignore[index]
+                "alpha": {role: pair[0] for role, pair in pairs.items()},
+                "beta": {role: pair[1] for role, pair in pairs.items()},
             }
         }
 

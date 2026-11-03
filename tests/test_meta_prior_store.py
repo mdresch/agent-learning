@@ -306,12 +306,24 @@ def test_ac2_an_output_name_that_is_a_task_policy_is_refused(store: AnyStore) ->
     assert _everything(store) == before
 
 
-def test_ac2_the_required_flags_are_required(store: AnyStore) -> None:
-    _softmax_family(store)
+def test_ac2_the_output_name_is_checked_before_the_family_is_pooled(
+    store: AnyStore, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Q-96-1: a refused name is reported at once, even when the family would also be refused."""
+    _softmax_family(store, STRONG_LOGITS[:3])  # too few members as well
+    assert _compile(name="member-0") == 2
+    err = capsys.readouterr().err
+    assert "--output-prior-name" in err
+    assert "at least" not in err
+
+
+@pytest.mark.parametrize("missing", ["--agent-id", "--family", "--output-prior-name", "--sigma-het"])
+def test_ac2_every_required_flag_is_required(store: AnyStore, missing: str) -> None:
+    flags = {"--agent-id": AGENT, "--family": FAMILY, "--output-prior-name": NAME, "--sigma-het": "0.5"}
+    del flags[missing]
+    argv = ["task-policy-meta-compile"] + [part for item in flags.items() for part in item]
     with pytest.raises(SystemExit):
-        cli.main(["task-policy-meta-compile", "--agent-id", AGENT, "--family", FAMILY, "--output-prior-name", NAME])
-    with pytest.raises(SystemExit):
-        cli.main(["task-policy-meta-compile", "--agent-id", AGENT, "--family", FAMILY, "--sigma-het", "0.5"])
+        cli.main(argv)
 
 
 # ---- AC_3: supersession --------------------------------------------------------------------------
@@ -350,10 +362,7 @@ def test_ac3_only_the_latest_version_is_the_active_one(local_store: LocalFileSto
     _softmax_family(store)
     assert _compile() == 0
     assert _compile() == 0
-    active_path = store._path("active-policies", AGENT, NAME)
-    pointer = json.loads(Path(active_path).read_text(encoding="utf-8"))
     newest = max(store.list_policies(AGENT, NAME), key=lambda p: p.version)
-    assert pointer["policy_id"] == newest.id
     assert store.get_active_policy(AGENT, NAME).id == newest.id
 
 

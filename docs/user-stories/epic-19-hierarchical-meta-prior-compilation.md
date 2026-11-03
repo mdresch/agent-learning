@@ -15,7 +15,7 @@ Fixture used by the criteria below ("the base family"): four low-authority softm
 
 ## Story 19.1 — Pooling Logits
 
-**Status:** Ready  
+**Status:** Completed (see `implementation-log.md`)  
 **As** a maintainer, **I want** member logits pooled per role after removing each member's arbitrary offset, **so that** the starting point does not depend on a constant softmax ignores.
 
 ### Acceptance Criteria:

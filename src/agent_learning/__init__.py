@@ -219,6 +219,7 @@ from .metrics import (
     default_metrics,
     evaluate_all,
 )
+from .meta_prior import FamilyMember, MetaPrior, compile_meta_prior
 from .policy import ContextualSoftmaxPolicy, Policy, SoftmaxPolicy, ThompsonPolicy
 from .warm_start import (
     DAMPING_DEFAULT,
@@ -329,10 +330,12 @@ __all__ = [
     "IntentScorer",
     "Learner",
     "LearnerConfig",
+    "FamilyMember",
     "LearnerResult",
     "LearningRunner",
     "LearningStore",
     "LocalFileStore",
+    "MetaPrior",
     "MetricEvaluator",
     "MetricName",
     "MetricRequest",
@@ -363,6 +366,7 @@ __all__ = [
     "assess_autonomy",
     "assess_complexity",
     "audit_run",
+    "compile_meta_prior",
     "default_metrics",
     "evaluate_all",
     "get_capture",

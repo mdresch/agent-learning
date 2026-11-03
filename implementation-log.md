@@ -1333,3 +1333,6 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - I5: the seed's policy id is snapshot.id, so a record made before a learner update replays against the id the policy had then
   - Decision.logprob widened to Optional[float] in policy/base.py (D3); callers already copy it into the Optional Episode.action_logprob
   - Full suite excludes tests/test_spark.py (JVM) and tests/pmbok (Story 34.5), per LL-013
+- **Amazon Q triage (round 1 on `6c39a1d`):**
+  - `Q-86-1 | logic error | verified: no | decision: declined | draws is a local variable that no other code holds; last_sampling_record() returns a deep copy, and a test mutates the returned record and checks the next one is unchanged | fix: none`
+  - `Q-86-2 | logic error | verified: no | decision: declined | extra keyword-only parameters with defaults are a compatible override: mypy reports no issues on thompson.py; FDD-015 section 1 item 5 says policy/base.py changes only in Decision.logprob, and widening choose would force the other policies to take the same parameters | fix: none`

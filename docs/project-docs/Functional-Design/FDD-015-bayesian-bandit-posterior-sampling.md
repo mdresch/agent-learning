@@ -120,6 +120,7 @@ A study of decision quality against REINFORCE (data gap, BRD-015 Out of Scope); 
 5. **Open: the size of `consumed_episode_ids`.** It grows by one id per counted episode and is stored in the snapshot, so it is read and written with every update. If the list becomes large, pruning ids older than the runner's `episode_limit` window is the next step; it is not built or decided here (the same open question as FDD-016 section 7 item 2).
 6. **Open: the signature of `replay`.** Section 3 item 4 re-derives the seed from the record's `request_id` and `timestamp` "and the snapshot id", but the section 2.3 record holds no policy id, and Story 15.1 AC_3 writes `replay(record)`. Story 15.1 built `replay(record, policy_id)` (interpretation I2). The alternative is a `policy_id` field in the record; that changes the section 2.3 contract and is not done. The maintainer says which is wanted.
 7. **`N_MAX = 5000`:** taken from ADR-015 Invariant 4. There is no data on non-stationarity behind it.
+8. **Open: the autonomy gate and the zero logits.** `assess_autonomy` reads logits, which a Thompson snapshot keeps at zero (section 1 item 3). ADR-003 §4.6 (2026-11-03, pending approval) has the gate read the posterior means instead, without storing any logit; FDD-019 H9 and Story 19.8 carry it. The limits of that reading are FDD-019 §7 items 8 to 10.
 
 ---
 

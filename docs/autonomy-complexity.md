@@ -115,6 +115,13 @@ more correctness labels than the scored-outcome minimum. Global environment
 variables can raise or lower numeric thresholds, but the resolved values are
 always returned in `autonomy.criteria` for audit.
 
+A policy that keeps a Beta posterior (Thompson sampling) has logits of zero by
+design. For such a snapshot the winner probability and the margin are read from
+the posterior means instead: each action's `alpha / (alpha + beta)`, normalised
+over the actions (the same as a softmax over `ln(mean)`; ADR-003 section 4.6).
+The two criteria then carry `"basis": "posterior_mean"`. The thresholds above
+are unchanged.
+
 ## Explicit user acceptance
 
 Explicit acceptance is authorization, not a statistical sample. A completed

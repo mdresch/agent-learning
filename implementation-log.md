@@ -1336,3 +1336,31 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Amazon Q triage (round 1 on `6c39a1d`):**
   - `Q-86-1 | logic error | verified: no | decision: declined | draws is a local variable that no other code holds; last_sampling_record() returns a deep copy, and a test mutates the returned record and checks the next one is unchanged | fix: none`
   - `Q-86-2 | logic error | verified: no | decision: declined | extra keyword-only parameters with defaults are a compatible override: mypy reports no issues on thompson.py; FDD-015 section 1 item 5 says policy/base.py changes only in Decision.logprob, and widening choose would force the other policies to take the same parameters | fix: none`
+
+## Story 15.4 — The Conjugate Update and the Ceiling
+- **Commit:** `5b62fba`
+- **Date:** 2026-11-03
+- **Branch:** `feat/story-15.4`
+- **Source ADR / BRD / FDD:** ADR-015, BRD-015, FDD-015
+- **Files Modified/Created:**
+  - `.claude/skills/thompson/SKILL.md`
+  - `docs/user-stories/epic-15-bayesian-bandit-posterior-sampling.md`
+  - `src/agent_learning/__init__.py`
+  - `src/agent_learning/learners/__init__.py`
+  - `src/agent_learning/learners/thompson.py`
+  - `src/agent_learning/policy/thompson.py`
+  - `tests/test_thompson_learner.py`
+- **Contracts:**
+  - `tests/test_thompson_learner.py`
+  - Contract run: 29 passed in 1.97s
+  - Full suite: 1659 passed, 1 skipped in 73.53s (0:01:13) (excluding `tests/test_spark.py`, `tests/pmbok`, per LL-013)
+- **Notes:**
+  - I1: scale function is reward_to_success in learners/thompson.py
+  - I2: ThompsonPolicy gains update_posterior (validates before writing); apply_update stays a TypeError
+  - I3: every aggregate reward offered is validated, as ReinforceLearner does
+  - I4: a no-op call returns mean_reward 0.0 and consumed_inputs [] and leaves the policy, including its version, untouched
+  - I5: baseline is unused (before == after == snapshot baseline); extra carries posterior_before and posterior_after
+  - I6: the ceiling runs once per call over all actions after all episodes
+  - I7: AC_7 and AC_8 run through LearningRunner with the same ThompsonPolicy object; the runner is unchanged
+  - N_MAX and SELECTION_BASIS added to policy/thompson.py (FDD-015 §2.1); ThompsonLearner exported from learners and the package root
+  - Full suite excludes tests/test_spark.py (JVM) and tests/pmbok (Story 34.5), per LL-013

@@ -1436,3 +1436,9 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - Members are synthetic; no converged same-family low-authority family exists in the recorded store (FDD-019 §8)
   - FamilyMember, MetaPrior and compile_meta_prior exported from the package root (FDD-019 §1 item 3); new component skill .claude/skills/meta-prior
   - Full suite excludes tests/test_spark.py (JVM) and tests/pmbok (Story 34.5), per LL-013
+- **Review-fix commits:** `1f74a74`
+- **Review validation:** 14 passed; full suite 1,681 passed
+- **Amazon Q triage (round 1 on `105d7b3`):**
+  - `Q-90-1 | crash risk | verified: yes | decision: deferred | an empty or one-member family does crash (IndexError, ZeroDivisionError), but refusing a family of fewer than 4 members is Story 19.3 AC_0 (LL-012: each rule in one story); the skill and PR say compile_meta_prior must not be used on real members before 19.3 | fix: none`
+  - `Q-90-2 | logic error | verified: partial | decision: declined | the kappa_prior parameter and its 10.0 default are fixed by FDD-019 section 2.2 and 3 item 1; a softmax prior records kappa_prior as None by AC_4 and FDD section 2.1, so the argument is ignored by design (documented); Story 19.2 uses it and 19.3 validates it | fix: none`
+  - `Q-90-3 | test gap | verified: yes | decision: accepted | the reordered-action test compared values only; AC_3 says the same prior, so role_spread is now compared too; the assertion catches reorder-specific regressions, not a formula change, which AC_0 covers | fix: 1f74a74`

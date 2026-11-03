@@ -101,7 +101,6 @@ A Thompson-sampling policy (ADR-015) keeps a Beta posterior per action in `Polic
 5. No higher-complexity tier may require weaker entry criteria than a lower-complexity tier, for any of the six gates — a future threshold change that violated this would be a regression, not a tuning choice (§4.3).
 6. `requires_human_approval: true` blocks every authorization path, statistical and explicit-acceptance alike — it is absolute, not one gate among several (§4.4).
 7. The statistical gate table's `action_probability`/`probability_margin` criteria are only meaningfully exercised for `low`-authority policies; `full`-authority execution is actually gated by per-instance adjudication (§4.5).
-
 8. A snapshot that holds `posterior_parameters` is gated on its posterior means, read as `ln(mean)` logits that are computed for the check and never stored; the thresholds, the other criteria and the assessment of a snapshot without a posterior are unchanged (§4.6).
 
 ## 8. References

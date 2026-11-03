@@ -80,8 +80,9 @@ def _recorded_tasks() -> dict[str, dict]:
             authority.setdefault(data["task_id"], set()).add(str(data["decision_authority"]))
 
     for task_id, task in tasks.items():
-        actions = json.loads((SHAPES / f"{task_id}.actions.json").read_text(encoding="utf-8"))
-        task["actions"] = [Action(id=a["id"]) for a in actions]
+        actions_path = SHAPES / f"{task_id}.actions.json"
+        assert actions_path.is_file(), f"missing actions file for task {task_id!r}: {actions_path}"
+        task["actions"] = [Action(id=a["id"]) for a in json.loads(actions_path.read_text(encoding="utf-8"))]
         recorded = authority.get(task_id)
         if recorded:
             assert len(recorded) == 1, f"{task_id}: committed results disagree on authority: {recorded}"
@@ -92,14 +93,18 @@ def _recorded_tasks() -> dict[str, dict]:
 
 
 def _role_map(actions: list[Action]) -> dict[str, str]:
+    """The human-written role map (I2): approve_* plays approve, reject_* reject, the revision action revise."""
     roles = {}
     for action in actions:
         if action.id.startswith("approve"):
             roles[action.id] = "approve"
         elif action.id.startswith("reject"):
             roles[action.id] = "reject"
-        else:
+        elif action.id == "request_revision_before_decision":
             roles[action.id] = "revise"
+        else:
+            raise AssertionError(f"no role is written for action {action.id!r}; extend the map in this test")
+    assert sorted(roles.values()) == ["approve", "reject", "revise"], f"not a bijection onto the three roles: {roles}"
     return roles
 
 

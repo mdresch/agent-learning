@@ -1649,3 +1649,29 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - I2: the donor that meets the gate has three stable snapshots and 40 scored outcomes (as `tests/test_meta_prior_store.py`); the one that does not has 5.
   - AC_0 and AC_2 already held; they are now pinned. Full suite excludes `tests/test_spark.py` (JVM) and `tests/pmbok` (Story 34.5), per LL-013
 - **Amazon Q review (round 1 on `e5f6949`):** no findings; Q's verdict was "No blocking defects found. The fix and tests are correct and complete for the stated acceptance criteria." Nothing to triage, so no `Q-99-n` line is recorded (the triage parser accepts only the seven-field finding shape; LL-034).
+
+## Story 20.5 — Seeding From a Family Meta-Prior
+- **Commit:** `7938a9a`
+- **Date:** 2026-11-04
+- **Branch:** `feat/story-20.5`
+- **Source ADR / BRD / FDD:** ADR-020, ADR-019, BRD-020, FDD-020, FDD-019
+- **Files Modified/Created:**
+  - `.claude/skills/meta-prior/SKILL.md`
+  - `.claude/skills/warm-start/SKILL.md`
+  - `docs/user-stories/epic-20-explicit-policy-prior-warm-starting.md`
+  - `src/agent_learning/cli.py`
+  - `tests/test_warm_start_cli.py`
+  - `tests/test_warm_start_meta_prior.py`
+- **Contracts:**
+  - `tests/test_warm_start_meta_prior.py`
+  - Contract run: 13 passed
+  - Full suite: 1835 passed, 1 skipped (excluding `tests/test_spark.py`, `tests/pmbok`, per LL-013)
+- **Notes:**
+  - I1: the prior used is the highest-version stored snapshot of the name; it is refused when another stored snapshot of the name names it in `supersedes` (replaced out of order). A lower version that a newer one supersedes is not used.
+  - I2: `warm_start_donor_gate_met` is null for a meta-prior (FDD-020 section 2.1).
+  - I3: the prior in the main tests is compiled through `task-policy-meta-compile` from four synthetic members; the Beta prior is built by hand.
+  - IMP-004 done: `cli._prior_from_snapshot` reads a stored softmax prior back into a `MetaPrior`; `_latest_meta_prior` picks the prior.
+  - RED observed: the four success-path tests failed with 'Meta-prior warm starting is not yet implemented'. The refusal tests pass in RED for the stub's reason, so they were checked after GREEN by their stderr cause.
+  - `tests/test_warm_start_cli.py` (Story 20.3) asserted the 'not yet implemented' stub message; it now asserts the prior is refused by name, with a dated comment.
+  - ruff and mypy findings on `cli.py` are the same as before (4 and 36), none new. Full suite excludes `tests/test_spark.py` (JVM) and `tests/pmbok` (Story 34.5), per LL-013
+

@@ -4,8 +4,8 @@
 - **Recorded:** 2026-11-04 (Stage 14, interpretation of the cited observations)
 - **Impact level:** High
 - **Applicable subsystems:** pmbok, Stage 17 and 18 tooling
-- **Derived from:** OBS-002, OBS-006
-- **Confidence:** Medium. The location of the modules and the CI exclusion are measured; whether the legacy code still passes its own tests was not run.
+- **Derived from:** OBS-002, OBS-006, OBS-009
+- **Confidence:** Medium. The location of the modules and the CI exclusion are measured; the legacy tests were run afterwards (OBS-009) and cannot be collected in the project environment because sqlalchemy is not installed, so the readiness code is untested here.
 
 ## Finding
 

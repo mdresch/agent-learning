@@ -1679,3 +1679,6 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Amazon Q triage (round 1 on `f3bd126`):**
   - `Q-100-1 | crash risk | verified: yes | decision: accepted | snapshot.logits[role] raised KeyError for a stored prior with an action but no logit (reproduced, RED); fixed as a ValueError naming the role rather than Q's .get(role, 0.0), which would seed an invented zero from a corrupt prior | fix: 971bf2a`
   - `Q-100-2 | crash risk | verified: no | decision: declined | seed_values returns a dict keyed by exactly the given action_ids or raises ValueError (a role_map that maps outside the prior is a ValueError, tested by the unknown-role case), so seeds[action_id] cannot raise KeyError | fix: none`
+- **Review validation:** no code change; full suite 1836 passed, 1 skipped
+- **Amazon Q triage (round 2 on `21072f0`):**
+  - `Q-100-3 | logic error | verified: no | decision: declined | list_policies sorts by (version, created_at) descending before applying limit (storage/local.py), and its contract says newest first, so the highest-version snapshot is always in the page and max() cannot pick a stale one; a prior with over 1000 versions still returns the newest 1000 | fix: none`

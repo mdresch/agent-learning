@@ -1713,3 +1713,21 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Why:** the Story 20.6 entry says RED was not observed. `feat/story-20.6` and its worktree already existed with uncommitted work from an earlier started `implement-story` run when this session began; `git worktree add` failed on the existing branch and the work was adopted instead of the run being stopped. The follow-up for a pre-existing branch is a `heal-contract-failure` run, not a second implementation, so this entry is that run.
 - **Heal walk:** (1) intent re-read against the four ACs of Story 20.6 as amended; (2) contract sensitivity shown by mutating production code, each reverted, nothing committed: M1 `warm_start_logits` tolerating a missing donor action fails `test_ac1_the_identity_map_is_refused_because_the_ids_differ`; M2 `cli` no longer refusing a full-authority donor fails `test_ac2_every_recorded_policy_as_donor_is_refused_as_full_authority_and_nothing_is_written`; M3 reading the recorded authority as low fails the AC_0 test and the AC_2 test; (3) `.claude/skills/warm-start/SKILL.md` item 10 is accurate; (4) no implementation change was needed; (5) `tests/test_warm_start_real_data.py` 7 passed after restoring.
 - **Result:** the contract is shown able to fail for AC_0, AC_1 and AC_2. AC_3 (the label) is a docstring assertion and was not mutated. Test and documentation only; no code change.
+
+## Tooling — Phase Carry-Over Roll-Up (scripts/phase_rollup.py)
+- **Commit:** `a44b977`
+- **Date:** 2026-11-04
+- **Branch:** `feat/phase-rollup-carry-over`
+- **Source:** maintainer request for the Phase 1 roll-up; IMP-011; LL-041 (not an epic story, so there is no `## Story` heading and the generator does not count it)
+- **Files Modified/Created:**
+  - `scripts/phase_rollup.py`
+  - `tests/test_phase_rollup.py`
+  - `tests/fixtures/phase_rollup/`
+  - `.claude/skills/phase-rollup/SKILL.md`
+- **Contracts:**
+  - `tests/test_phase_rollup.py`
+  - Contract run: 7 passed (RED observed first: the module did not exist)
+  - Full suite: 1850 passed, 1 skipped (excluding `tests/test_spark.py`, `tests/pmbok`, per LL-013)
+- **Notes:**
+  - On the committed stories it reports 144 stories: 58 implemented, 60 Ready and not implemented, 25 Draft or blocked, 1 superseded, and 15 status-drift rows (the first run of this entry said 23 and an earlier chat figure said 19; both were miscounts, corrected here) (`--check` exits 1; not wired into CI).
+  - Marked Completed or Done with no log entry (Stories 1.1 and 9.3 among them) counts as implemented and is listed as drift.

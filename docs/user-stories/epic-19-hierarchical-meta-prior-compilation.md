@@ -88,7 +88,7 @@ Fixture used by the criteria below ("the base family"): four low-authority softm
 
 ## Story 19.6 — Seeding a New Policy
 
-**Status:** Ready  
+**Status:** Completed (see `implementation-log.md`)  
 **As** a maintainer, **I want** a new policy's starting values taken from the prior through its own role map, **so that** it begins from the family's experience and then learns on its own.
 
 ### Acceptance Criteria:

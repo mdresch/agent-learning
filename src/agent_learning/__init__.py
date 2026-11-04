@@ -219,7 +219,7 @@ from .metrics import (
     default_metrics,
     evaluate_all,
 )
-from .meta_prior import FamilyMember, MetaPrior, compile_meta_prior
+from .meta_prior import FamilyMember, MetaPrior, compile_meta_prior, seed_values
 from .policy import ContextualSoftmaxPolicy, Policy, SoftmaxPolicy, ThompsonPolicy
 from .warm_start import (
     DAMPING_DEFAULT,
@@ -367,6 +367,7 @@ __all__ = [
     "assess_complexity",
     "audit_run",
     "compile_meta_prior",
+    "seed_values",
     "default_metrics",
     "evaluate_all",
     "get_capture",

@@ -51,6 +51,8 @@
 | [LL-038](#ll-038--a-stacked-pr-gets-no-ci-until-it-targets-main) | A Stacked PR Gets No CI Until It Targets `main` | Epic 19 / Stories 19.4, 19.8 | Universal Process | 2026-11-04 |
 | [LL-039](#ll-039--do-not-pytestapprox-a-container-of-tuples) | Do Not `pytest.approx` a Container of Tuples | Epic 19 / Story 19.2 | Universal Testing | 2026-11-04 |
 | [LL-040](#ll-040--print-the-resolved-store-path-before-a-governance-command) | Print the Resolved Store Path Before a Governance Command | Epic 19 / ADR-003 amendment | Universal Tooling | 2026-11-04 |
+| [LL-041](#ll-041--apply-a-lessons-tier-2-propagation-in-the-same-pr) | Apply a Lesson's Tier 2 Propagation in the Same PR | Epic 20 / Story 20.6 | Universal Process | 2026-11-04 |
+| [LL-042](#ll-042--an-existing-story-branch-means-a-run-was-already-started) | An Existing Story Branch Means a Run Was Already Started | Epic 20 / Story 20.6 | Universal Process | 2026-11-04 |
 
 ---
 
@@ -583,3 +585,27 @@
 - **The Trap:** After running `approve-adr` against the amended ADR-003, I reported that the local store (`data/agent-learning/store`, 14 files) was unchanged. The commands had actually used `AGENT_LEARNING_LOCAL_STORE_DIR`, which points at another repository's store. I had checked the wrong directory and corrected the claim a step later, after finding the registered episode there.
 - **The Root Cause:** The default store path is overridden by a user-level environment variable, and the command output does not name the path it used.
 - **Actionable Invariant:** Before a decision, adjudication or registration command, resolve and print the store path (`AGENT_LEARNING_LOCAL_STORE_DIR` if set, else `./data/agent-learning/store`) and check that directory, by file count or modification time, before and after.
+
+---
+
+### LL-041 — Apply a Lesson's Tier 2 Propagation in the Same PR
+- **Identifier:** `LL-041`
+- **Date:** 2026-11-04
+- **Epic / Story:** Epic 20 / Story 20.6
+- **Scope:** Universal Process
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/implement-story/SKILL.md` (Step 9, recap); Tier 3: `sidpa-template` implement-story skill (proposed, needs human approval before any cross-repo change)
+- **The Trap:** LL-037 (Epic 19) named `implement-story` Step 1 as its Tier 2 target and LL-013 (Epic 11) named Step 6, but neither step was edited. Epic 20 then hit both again: Story 20.6 named a git-ignored store as committed, and the full-suite command in Step 6 still failed collection on `tests/pmbok`.
+- **The Root Cause:** Tier 2 propagation is "considered, not mandatory" (ADR-010) and nothing checks that the file a lesson names actually carries its rule, so a lesson can sit in the register while the skill that should enforce it stays unchanged.
+- **Actionable Invariant:** When an `LL-###` entry names a Tier 2 file, edit that file in the same PR as the entry and cite the LL id in the changed step. At each epic's recap, check that every Tier 2 target named by the previous epic's entries contains its LL id (`grep -c "LL-0xx" <file>`); a missing id is a finding.
+
+---
+
+### LL-042 — An Existing Story Branch Means a Run Was Already Started
+- **Identifier:** `LL-042`
+- **Date:** 2026-11-04
+- **Epic / Story:** Epic 20 / Story 20.6
+- **Scope:** Universal Process
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/implement-story/SKILL.md` (Step 0) and `.claude/skills/heal-contract-failure/SKILL.md` (done in PR #105); Tier 3: `sidpa-template` implement-story and heal-contract-failure skills (proposed, needs human approval before any cross-repo change)
+- **The Trap:** `git worktree add -b feat/story-20.6` failed because the branch and a worktree with uncommitted tests, skill and FDD edits already existed from a cut-off run. The leftovers were adopted and committed as the new run's own, so RED was never observed and the log had to be corrected afterwards (PR #104).
+- **The Root Cause:** Step 0 described only the clean case. A failing `git worktree add` was read as a nuisance, not as the sign of a started run.
+- **Actionable Invariant:** If the story branch or worktree exists, stop `implement-story` at Step 0, inspect it read-only, tell the human, and continue with `heal-contract-failure` from Intent. Show the contract able to fail (RED, or by reverted mutation where the story has no code) before relying on it, and never adopt uncommitted leftovers without that walk.

@@ -76,6 +76,13 @@ One entry per epic recap, appended in the order held. Format:
 
 ---
 
+### Epic 20: Explicit Policy Prior Warm-Starting
+- **Cadence Date:** 2026-11-04
+- **Defensive Review (LL-###):** LL-041, LL-042
+- **Positive Improvement Harvest:** IMP-009, IMP-010, IMP-011, IMP-012, IMP-013
+
+---
+
 ## 4. Phase Close Link (Stage 18)
 
 All entries dispositioned `Rolled into Phase Next Intent Refinement` are harvested at Stage 18 into the next phase's Intent Refinement work.

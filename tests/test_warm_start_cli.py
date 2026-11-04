@@ -660,7 +660,8 @@ def test_ac6_flags(
     )
     assert code_both != 0
 
-    # 3. Meta-prior flag alone (not yet implemented in Story 20.3)
+    # 3. Meta-prior flag alone: Story 20.3 refused it as not yet implemented; since Story 20.5 (2026-11-04) it is
+    #    implemented, and a prior that does not exist is refused by name.
     capsys.readouterr()  # clear prior captured output
     code_meta_only = cli.main(
         [
@@ -675,7 +676,7 @@ def test_ac6_flags(
     )
     assert code_meta_only != 0
     captured_meta = capsys.readouterr()
-    assert "meta-prior warm starting is not yet implemented" in (captured_meta.err + captured_meta.out).lower()
+    assert "'family-meta-prior' not found" in (captured_meta.err + captured_meta.out)
 
     # 4. Damping defaults to 0.70
     file_store.store_policy(base_target_snapshot)

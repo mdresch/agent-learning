@@ -1451,6 +1451,10 @@ def _latest_meta_prior(store: Any, agent_id: str, name: str) -> PolicySnapshot:
 def _prior_from_snapshot(snapshot: PolicySnapshot) -> MetaPrior:
     """Read a stored softmax meta-prior back into a ``MetaPrior`` (the inverse of ``task-policy-meta-compile``)."""
     roles = tuple(sorted(action.id for action in snapshot.actions))
+    for role in roles:
+        if role not in snapshot.logits:
+            # A made-up zero would seed a policy from a corrupt prior, so refuse it by name.
+            raise ValueError(f"meta-prior {snapshot.task_id!r} has no logit for role {role!r}")
     report = snapshot.metadata.get("validation_report", {})
     return MetaPrior(
         representation="softmax",

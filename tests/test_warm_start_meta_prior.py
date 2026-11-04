@@ -276,3 +276,22 @@ def test_ac5_the_prior_is_left_equal(store: LocalFileStore) -> None:
     assert after is not None and after.to_dict() == before
     stored = store.get_policy(prior.id, AGENT)
     assert stored is not None and stored.to_dict() == before
+
+
+# ---- Q-100-1: a malformed stored prior is a clean refusal, not a crash ----------------------------
+
+
+def test_a_prior_with_an_action_that_has_no_logit_is_refused_cleanly(
+    store: LocalFileStore, capsys: pytest.CaptureFixture[str]
+) -> None:
+    store.store_policy(PolicySnapshot(
+        id="broken-prior-v0", agent_id=AGENT, task_id="broken-prior", version=0,
+        actions=[Action(id=r) for r in ROLES], logits={"approve": 0.5, "reject": -0.5},
+        metadata={"is_family_meta_prior": True, "family": FAMILY, "representation": "softmax"},
+    ))
+    _target(store)
+    assert _run(name="broken-prior") == 2
+    err = capsys.readouterr().err
+    assert "revise" in err and "no logit" in err
+    target = store.get_active_policy(AGENT, "target-task")
+    assert target is not None and target.version == 0

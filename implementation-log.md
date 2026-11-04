@@ -1674,4 +1674,8 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - RED observed: the four success-path tests failed with 'Meta-prior warm starting is not yet implemented'. The refusal tests pass in RED for the stub's reason, so they were checked after GREEN by their stderr cause.
   - `tests/test_warm_start_cli.py` (Story 20.3) asserted the 'not yet implemented' stub message; it now asserts the prior is refused by name, with a dated comment.
   - ruff and mypy findings on `cli.py` are the same as before (4 and 36), none new. Full suite excludes `tests/test_spark.py` (JVM) and `tests/pmbok` (Story 34.5), per LL-013
-
+- **Review-fix commits:** `971bf2a`
+- **Review validation:** 14 passed; full suite 1836 passed, 1 skipped
+- **Amazon Q triage (round 1 on `f3bd126`):**
+  - `Q-100-1 | crash risk | verified: yes | decision: accepted | snapshot.logits[role] raised KeyError for a stored prior with an action but no logit (reproduced, RED); fixed as a ValueError naming the role rather than Q's .get(role, 0.0), which would seed an invented zero from a corrupt prior | fix: 971bf2a`
+  - `Q-100-2 | crash risk | verified: no | decision: declined | seed_values returns a dict keyed by exactly the given action_ids or raises ValueError (a role_map that maps outside the prior is a ValueError, tested by the unknown-role case), so seeds[action_id] cannot raise KeyError | fix: none`

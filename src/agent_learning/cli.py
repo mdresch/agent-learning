@@ -17,7 +17,7 @@ from typing import Any, cast
 
 from ._version import __version__
 from .autonomy import ComplexityProfile, assess_autonomy
-from .config import AutonomyConfig, AutonomyTier
+from .config import AutonomyConfig
 from .warm_start import DAMPING_DEFAULT, provenance, warm_start_logits
 from .comparison import (
     DEFAULT_EPSILON,
@@ -1580,7 +1580,7 @@ def _cmd_warm_start_task_policy(args: argparse.Namespace) -> int:
             donor_assessment = assess_autonomy(
                 store,
                 donor,
-                config=AutonomyConfig.for_tier(AutonomyTier.STANDARD),
+                config=AutonomyConfig.for_tier("standard"),
             )
             gate_met = bool(donor_assessment.eligible)
         except Exception as exc:

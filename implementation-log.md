@@ -1703,3 +1703,7 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - Result: no converged low-authority donor exists yet; no claim that a warm start reduces supervision (BRU-020-11).
   - Stories 20.1 to 20.3 status updated to Completed (they were still marked Ready).
   - RED was not re-observed by this session: the test file was written by an earlier session before the implementation commit. Story has no production-code change.
+- **Amazon Q triage (round 1 on `9f600de`):**
+  - `Q-101-1 | crash risk | verified: partial | decision: accepted | `data["policy_id"]` would raise a bare KeyError on an episode file without the field; all 169 committed approve-* episodes have it, so no failure today, but a named assertion is a better failure | fix: a4c3fb6`
+  - `Q-101-2 | crash risk | verified: partial | decision: accepted | same line as Q-101-1; Q's suggestion to skip a missing field was not taken, because a fixture missing it is a defect to name, not hide (the field is recorded as metadata only) | fix: a4c3fb6`
+- **Review validation:** 7 passed; test-only change

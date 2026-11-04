@@ -1629,3 +1629,23 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Amazon Q triage (round 1 on `425c66f`):**
   - `Q-98-1 | crash risk | verified: yes | decision: accepted | the actions file was read without the existence assertion that every other read in the helper has, so a missing file gave a bare FileNotFoundError; it now fails naming the task and path | fix: 5da0720`
   - `Q-98-2 | test gap | verified: partial | decision: accepted | an unrecognised action would not be silently misclassified, since task-policy-family-set would exit non-zero and _declare_all asserts it; the map still fell back to revise for any name, so it now names the one revision action, raises for any other, and asserts the three roles | fix: 5da0720`
+
+## Story 20.4 — No Borrowed Evidence
+- **Commit:** `265ad59`
+- **Date:** 2026-11-04
+- **Branch:** `feat/story-20.4`
+- **Source ADR / BRD / FDD:** ADR-020, BRD-020, FDD-020
+- **Files Modified/Created:**
+  - `.claude/skills/warm-start/SKILL.md`
+  - `src/agent_learning/cli.py`
+  - `tests/test_warm_start_gate.py`
+- **Contracts:**
+  - `tests/test_warm_start_gate.py`
+  - Contract run: 4 passed
+  - Full suite: 1822 passed, 1 skipped (excluding `tests/test_spark.py`, `tests/pmbok`, per LL-013)
+- **Notes:**
+  - DEFECT FOUND BY AC_1 (Story 20.3 code): `cli._cmd_warm_start_task_policy` used `AutonomyConfig.for_tier(AutonomyTier.STANDARD)`, but `AutonomyTier` is a `Literal`, so the attribute raised and the broad `except Exception` recorded `warm_start_donor_gate_met = false` for every donor, whatever its evidence. RED observed (the donor that meets the gate was recorded false, log line 'Failed to evaluate donor autonomy gate: STANDARD'); fixed with the string `"standard"` and the unused import removed.
+  - I1: 'the thresholds of its own tier' is checked for all four tiers, since the target carries no tier.
+  - I2: the donor that meets the gate has three stable snapshots and 40 scored outcomes (as `tests/test_meta_prior_store.py`); the one that does not has 5.
+  - AC_0 and AC_2 already held; they are now pinned. Full suite excludes `tests/test_spark.py` (JVM) and `tests/pmbok` (Story 34.5), per LL-013
+- **Amazon Q review (round 1 on `e5f6949`):** no findings; Q's verdict was "No blocking defects found. The fix and tests are correct and complete for the stated acceptance criteria." Nothing to triage, so no `Q-99-n` line is recorded (the triage parser accepts only the seven-field finding shape; LL-034).

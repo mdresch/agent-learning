@@ -60,7 +60,7 @@ Fixture used by the criteria below ("the base donor"): a low-authority softmax p
 
 ## Story 20.4 — No Borrowed Evidence
 
-**Status:** Ready  
+**Status:** Completed (see `implementation-log.md`)  
 **As** an auditor, **I want** a warm-started policy to earn its autonomy itself, **so that** copied logits never stand in for outcomes.
 
 ### Acceptance Criteria:

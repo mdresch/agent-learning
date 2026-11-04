@@ -7,7 +7,7 @@
 | Document Title | Business Case — agent-learning SDK: Closing the Methodology Gap |
 | Version | 1.5 |
 | Date | 2026-10-25 |
-| Status | Draft |
+| Status | Approved (2026-11-04, Menno Drescher) together with `Benefits-Management-Plan.md`, as a governance catch-up approval (the Charter was approved first). Adjudicated via `approve-business-case` (robust utility 0.607, episode `50134905-b1c2-46d4-b0e5-82eb3190d2a5`), recorded at the time of approval and not backdated. Dated statements (ADR status, Option A dependency, document versions cited) are snapshots and are not rewritten by this approval. |
 | Author | This session, building directly on `docs/project-docs/Ideation-Document.md` v1.4 |
 | Approver(s) | Not yet assigned — open-source maintainer review model, per Ideation §3.3 |
 | Source | `Ideation-Document.md` §2.1/§2.1.1 (methodology landscape, 22 rows when this case was written, 32 as of 2026-10-25, cross-checked against 7 real external agent SDKs) and §2.2 (hypotheses), `docs/templates/business-case-template.md`, this session's own real `TaskPolicy` build history, one round of external review (applied selectively — see Provenance), and real cross-framework research closing the §9 competitive-positioning gap |

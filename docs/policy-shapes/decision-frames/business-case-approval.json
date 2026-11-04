@@ -1,0 +1,133 @@
+{
+  "task": "Business-Case.md v1.5 with Benefits-Management-Plan.md v1.1 (Stage 4 Benefit): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "value_premise_tied_to_hypotheses",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Problem statement, gap matrix and options trace to Ideation methodologies and HYP-AL-005/008/009, with sourced evidence and falsification criteria."
+    },
+    {
+      "id": "benefit_expectations_credible_and_measured",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Benefits have owners, timeframes and metrics that reuse hypothesis falsification criteria; any monetary ROI is sourced or its absence is named. Quantification deferred is a weakness, fabricated figures would be a failure."
+    },
+    {
+      "id": "risks_dependencies_alternatives_realistic",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Weighted alternatives incl. status quo, sensitivity analysis (A/C one-point tie), risk taxonomy, dependency matrix with the unverified item flagged, disbenefits identified."
+    },
+    {
+      "id": "snapshot_accuracy_and_sequencing",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Document statements are consistent with the repo at approval time and its lifecycle position is honest. Known issues: Charter was approved before this gate (retrofit, named in the plan); ADR statuses and the Option A dependency are dated snapshots now superseded; plan cites older document versions; Approver field still 'Not yet assigned'."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_business_case",
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      },
+      "evidence": [
+        {
+          "criterion_id": "value_premise_tied_to_hypotheses",
+          "source": "direct_doc_read:docs/project-docs/Business-Case.md@v1.5+Benefits-Management-Plan.md@v1.1",
+          "support": 0.88,
+          "confidence": 0.88
+        },
+        {
+          "criterion_id": "benefit_expectations_credible_and_measured",
+          "source": "direct_doc_read:docs/project-docs/Business-Case.md@v1.5+Benefits-Management-Plan.md@v1.1",
+          "support": 0.62,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "risks_dependencies_alternatives_realistic",
+          "source": "direct_doc_read:docs/project-docs/Business-Case.md@v1.5+Benefits-Management-Plan.md@v1.1",
+          "support": 0.8,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "snapshot_accuracy_and_sequencing",
+          "source": "direct_doc_read:docs/project-docs/Business-Case.md@v1.5+Benefits-Management-Plan.md@v1.1",
+          "support": 0.55,
+          "confidence": 0.85
+        }
+      ]
+    },
+    {
+      "action_id": "reject_business_case",
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      },
+      "evidence": [
+        {
+          "criterion_id": "value_premise_tied_to_hypotheses",
+          "source": "direct_doc_read:docs/project-docs/Business-Case.md@v1.5+Benefits-Management-Plan.md@v1.1",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "benefit_expectations_credible_and_measured",
+          "source": "direct_doc_read:docs/project-docs/Business-Case.md@v1.5+Benefits-Management-Plan.md@v1.1",
+          "support": 0.1,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "risks_dependencies_alternatives_realistic",
+          "source": "direct_doc_read:docs/project-docs/Business-Case.md@v1.5+Benefits-Management-Plan.md@v1.1",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "snapshot_accuracy_and_sequencing",
+          "source": "direct_doc_read:docs/project-docs/Business-Case.md@v1.5+Benefits-Management-Plan.md@v1.1",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ]
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      },
+      "evidence": [
+        {
+          "criterion_id": "value_premise_tied_to_hypotheses",
+          "source": "direct_doc_read:docs/project-docs/Business-Case.md@v1.5+Benefits-Management-Plan.md@v1.1",
+          "support": 0.12,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "benefit_expectations_credible_and_measured",
+          "source": "direct_doc_read:docs/project-docs/Business-Case.md@v1.5+Benefits-Management-Plan.md@v1.1",
+          "support": 0.38,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "risks_dependencies_alternatives_realistic",
+          "source": "direct_doc_read:docs/project-docs/Business-Case.md@v1.5+Benefits-Management-Plan.md@v1.1",
+          "support": 0.15,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "snapshot_accuracy_and_sequencing",
+          "source": "direct_doc_read:docs/project-docs/Business-Case.md@v1.5+Benefits-Management-Plan.md@v1.1",
+          "support": 0.45,
+          "confidence": 0.75
+        }
+      ]
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

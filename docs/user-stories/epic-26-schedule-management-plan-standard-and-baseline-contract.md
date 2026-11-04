@@ -10,7 +10,7 @@ Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_
 
 ## Story 26.1 — Schedule floors, caps, and exclusions
 
-**Status:** Ready
+**Status:** Completed (2026-10-30, commit `8065dfa`, per `implementation-log.md`); earlier status: Ready
 **As** a governance reviewer,  
 **I want** a Schedule plan measured with the Schedule floors, caps, and out-of-scope minimum,  
 **so that** a plan that would pass the universal lint still shows a Schedule gap, and every other plan keeps its own numbers.

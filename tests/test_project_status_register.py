@@ -85,12 +85,17 @@ def test_chain_coverage_uses_template_stage_names() -> None:
         assert row in text, f"chain-coverage doc is missing the template-aligned row {row!r}"
 
 
-def test_audit_register_exists_and_is_empty() -> None:
-    """Stage 11 record store exists (instantiated from the template) and holds no backfilled findings."""
+def test_audit_register_exists_and_has_no_unapproved_findings() -> None:
+    """Stage 11 record store exists; it is either still empty or its findings cite their approval episode (no backfill)."""
     audit = REGISTER.parents[1] / "registers" / "Audit-Register.md"
     assert audit.is_file(), f"missing audit register: {audit}"
     text = audit.read_text(encoding="utf-8")
-    assert "first real audit gets AUDIT-001" in text, "Audit-Register.md must stay empty until a real audit is run"
+    if "first real audit gets AUDIT-001" in text:
+        return
+    assert "| AUDIT-001 |" in text, "Audit-Register.md lost both the empty marker and its first finding"
+    assert re.search(r"approve-audit-record.*episode `[0-9a-f]{8}-[0-9a-f-]{27}`", text), (
+        "Audit-Register.md holds findings but names no approve-audit-record episode"
+    )
 
 
 def test_story_execution_register_exists_and_is_empty() -> None:

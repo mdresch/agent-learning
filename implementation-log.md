@@ -1749,3 +1749,13 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Notes:**
   - On the committed stories it reports 144 stories: 58 implemented, 60 Ready and not implemented, 25 Draft or blocked, 1 superseded, and 15 status-drift rows (the first run of this entry said 23 and an earlier chat figure said 19; both were miscounts, corrected here) (`--check` exits 1; not wired into CI).
   - Marked Completed or Done with no log entry (Stories 1.1 and 9.3 among them) counts as implemented and is listed as drift.
+
+## Governance change — Alignment to sidpa-template
+- **Commit:** `3567c96`
+- **Date:** 2026-11-04
+- **Branch:** `governance/align-sidpa-template`
+- **Source:** sidpa-template `docs/chain-coverage.md`, `docs/registers/Audit-Register.template.md`, `.claude/skills/pmbok-planning/SKILL.md`, `docs/sequence-and-lessons.md` rule 24.
+- **Changed:** `docs/intent-to-outcome-chain-coverage.md` (Stage 5 now Pillars & Architecture / Planning, realised by `Project-Pillars.md` and `approve-project-pillars`; Stage 17 "Adaptation Plan"; Stage 18 "Closing / Strategic Feedback"). `Project-Status-Register.md` (stage-numbering row now points at the template as source of truth). New empty `docs/registers/Audit-Register.md` and `docs/registers/Story-Execution-Register.md`, at the paths sidpa-template and mxc use (no audit or tracked story run exists; nothing backfilled). `pmbok-planning` skill: added the post-Charter Pillars sequence. `tests/test_project_status_register.py`: field renamed, two alignment tests.
+- **Verified:** full suite `uv run pytest --ignore=tests/test_spark.py --ignore=tests/pmbok`: 1857 passed, 1 skipped (`tests/pmbok` excluded per ADR-034, LL-013).
+- **Not done (open):** `implementation-log.md` is kept: the template and mxc also keep it beside the Story Execution Register, so no rename. ADR-009 still names the prospective path `docs/project-docs/Audit-Register.md` (needs a correction note). The vault canvas (`obsidian-second-brain/scripts/build-18-stage-canvas.mjs`) and the template's own `docs/second-brain-lifecycle-and-scripts.md` numbers stages differently from its `chain-coverage.md` (template PR needed); other projects (mxc, adpa, enterprise-work-hierarchy) not touched; gates `approve-ideation`, `approve-charter`, `approve-business-case` still have zero episodes (recorded gap).
+

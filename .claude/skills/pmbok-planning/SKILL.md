@@ -40,6 +40,13 @@ orchestration commands below remain transitional; do not extend their implementa
 
 ## Supported Workflows
 
+### 0. The Post-Charter Pillars Exercise & Architecture Sequence (sidpa-template rules 3-7)
+After `Project-Charter.md` is approved by `approve-charter`:
+1. Execute the Pillars Exercise to identify 4-6 foundational pillars (here: `docs/project-docs/Project-Pillars.md`, gate `approve-project-pillars`).
+2. Draft foundational high-level ADRs covering **100% of identified pillars** (no pillar left unaddressed).
+3. Draft the BRD citing the ADRs, then the FDD citing the BRD, then User Stories (Work Packages) with BDD acceptance criteria. Order is strict: ADR before BRD before FDD before Story.
+4. Only then synthesize the subsidiary plans and the PMP (below): User Stories are the Work Packages that give Schedule and Cost real inputs.
+
 ### 1. Full Planning Orchestration
 Executed after `Project-Charter.md` is approved by `approve-charter`. Generates all 9 subsidiary management plans and integrates them into `Project-Management-Plan.md`.
 

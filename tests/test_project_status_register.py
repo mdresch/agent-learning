@@ -34,7 +34,7 @@ FIELDS = [
     "Next Epic/unit of work to implement",
     "Last commit on the base branch",
     "Open side-thread outside the formal loop",
-    "Stage-label overload caveat",
+    "Stage numbering",
 ]
 
 
@@ -74,3 +74,20 @@ def test_ac4_skill_hook() -> None:
     skill = SKILL.read_text(encoding="utf-8")
     assert skill.count("Project-Status-Register.md") >= 3
     assert "Session-boundary note" in skill
+
+
+def test_chain_coverage_uses_template_stage_names() -> None:
+    """Governance alignment: stages 5, 17, 18 are named as in sidpa-template docs/chain-coverage.md."""
+    doc = REGISTER.parents[1] / "intent-to-outcome-chain-coverage.md"
+    assert doc.is_file(), f"missing chain-coverage doc: {doc}"
+    text = doc.read_text(encoding="utf-8")
+    for row in ("| 5 | **Pillars & Architecture** |", "| 17 | **Adaptation Plan** |", "| 18 | **Intent Refinement** | **Closing / Strategic Feedback** |"):
+        assert row in text, f"chain-coverage doc is missing the template-aligned row {row!r}"
+
+
+def test_audit_register_exists_and_is_empty() -> None:
+    """Stage 11 record store exists (instantiated from the template) and holds no backfilled findings."""
+    audit = REGISTER.parent / "Audit-Register.md"
+    assert audit.is_file(), f"missing audit register: {audit}"
+    text = audit.read_text(encoding="utf-8")
+    assert "first real audit gets AUDIT-001" in text, "Audit-Register.md must stay empty until a real audit is run"

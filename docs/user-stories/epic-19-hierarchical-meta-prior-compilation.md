@@ -107,9 +107,9 @@ Fixture used by the criteria below ("the base family"): four low-authority softm
 **As** a maintainer, **I want** the compiler run against the recorded store, **so that** the lack of a real family is shown, not assumed.
 
 ### Acceptance Criteria:
-- **$AC_0$ (Real Source):** the store is a temporary copy of the committed one under `data/agent-learning/store`; the tasks found and their authority are recorded in the test.
+- **$AC_0$ (Real Source):** the store is a temporary store rebuilt from the committed episodes (`docs/policy-shapes/episodes/`), action files and decision results, because `data/agent-learning/` is git-ignored (amended 2026-11-04, FDD-019 §7 item 11); the tasks found and their authority are recorded in the test.
 - **$AC_1$ (No Family):** compiling any family name over it exits non-zero with a reason (no member declares the family, or fewer than 4 qualify), and the `approve-*` tasks, if declared into a family in the test, are excluded as full authority with that reason.
-- **$AC_2$ (Nothing Stored):** the committed store under `data/agent-learning/store` is equal to its earlier state after the run.
+- **$AC_2$ (Nothing Stored):** the temporary store is equal to its earlier state after the run.
 - **$AC_3$ (Labelled):** the result is recorded as a statement that no suitable family exists yet. It makes no claim that a meta-prior speeds convergence (BRU-019-12), and the docstring names the missing data (four or more converged same-family low-authority policies with real episodes and a human-written `role_map` for each).
 
 ---

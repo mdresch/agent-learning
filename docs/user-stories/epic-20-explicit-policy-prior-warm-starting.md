@@ -72,7 +72,7 @@ Fixture used by the criteria below ("the base donor"): a low-authority softmax p
 
 ## Story 20.5 — Seeding From a Family Meta-Prior
 
-**Status:** Ready — depends on Epic 19 Stories 19.5 and 19.6 and on the correction of FDD-019 (FDD-020 §7 item 2).  
+**Status:** Completed (see `implementation-log.md`)  
 **As** a maintainer, **I want** the same command to start a new family member from the family's pooled prior, **so that** there is one way to seed a policy.
 
 ### Acceptance Criteria:

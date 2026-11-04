@@ -18,7 +18,7 @@ from typing import Any, cast
 from ._version import __version__
 from .autonomy import ComplexityProfile, assess_autonomy
 from .config import AutonomyConfig
-from .warm_start import DAMPING_DEFAULT, provenance, warm_start_logits
+from .warm_start import DAMPING_DEFAULT, DAMPING_DEFAULT_META_PRIOR, provenance, warm_start_logits
 from .comparison import (
     DEFAULT_EPSILON,
     ClassificationType,
@@ -33,7 +33,7 @@ from .decision import (
     TieBreakDisposition,
     capture_decision_evidence_enabled,
 )
-from .meta_prior import FamilyMember, compile_meta_prior
+from .meta_prior import FamilyMember, MetaPrior, compile_meta_prior, seed_values
 from .policy.softmax_bandit import SoftmaxPolicy
 from .policy.thompson import ThompsonPolicy
 from .storage.cosmos import get_default_store
@@ -1428,6 +1428,97 @@ def _cmd_compare_task_policy(args: argparse.Namespace) -> int:
     return 0
 
 
+def _latest_meta_prior(store: Any, agent_id: str, name: str) -> PolicySnapshot:
+    """The prior ``task-policy-warm-start --meta-prior`` seeds from (FDD-020 §2.1 item 3, J5).
+
+    The highest-version stored snapshot of ``name`` that is a meta-prior. It is refused when another stored
+    snapshot of the name names it in ``supersedes``, because it was then replaced out of order, and when it
+    is not in softmax logits (Thompson policies are not covered). Raises ``ValueError`` naming the cause.
+    """
+    snapshots = store.list_policies(agent_id, name, limit=1000)
+    if not snapshots:
+        raise ValueError(f"meta-prior {name!r} not found for agent {agent_id!r}")
+    latest = max(snapshots, key=lambda snapshot: snapshot.version)
+    if not latest.metadata.get("is_family_meta_prior"):
+        raise ValueError(f"task {name!r} is not a meta-prior")
+    if any(other.metadata.get("supersedes") == latest.id for other in snapshots):
+        raise ValueError(f"meta-prior {name!r} version {latest.version} is superseded")
+    if latest.metadata.get("representation", "softmax") != "softmax" or "posterior_parameters" in latest.metadata:
+        raise ValueError(f"meta-prior {name!r} is in Beta counts; only softmax priors can seed a warm start")
+    return latest
+
+
+def _prior_from_snapshot(snapshot: PolicySnapshot) -> MetaPrior:
+    """Read a stored softmax meta-prior back into a ``MetaPrior`` (the inverse of ``task-policy-meta-compile``)."""
+    roles = tuple(sorted(action.id for action in snapshot.actions))
+    for role in roles:
+        if role not in snapshot.logits:
+            # A made-up zero would seed a policy from a corrupt prior, so refuse it by name.
+            raise ValueError(f"meta-prior {snapshot.task_id!r} has no logit for role {role!r}")
+    report = snapshot.metadata.get("validation_report", {})
+    return MetaPrior(
+        representation="softmax",
+        roles=roles,
+        values={role: snapshot.logits[role] for role in roles},
+        member_count=int(snapshot.metadata.get("family_member_count", 0)),
+        role_spread=dict(report.get("role_spread", {})),
+        sigma_het=float(snapshot.metadata.get("sigma_het", 0.0)),
+        kappa_prior=None,
+        compiled_from=tuple((item["task_id"], item["version"]) for item in snapshot.metadata.get("compiled_from", [])),
+    )
+
+
+def _warm_start_from_meta_prior(store: Any, args: argparse.Namespace, target: PolicySnapshot) -> int:
+    """The ``--meta-prior`` branch of ``task-policy-warm-start`` (Story 20.5). Writes only on success."""
+    try:
+        prior_snapshot = _latest_meta_prior(store, args.agent_id, args.meta_prior)
+    except ValueError as exc:
+        print(f"Cannot warm start from meta-prior {args.meta_prior!r}: {exc}.", file=sys.stderr)
+        return 2
+
+    target_family = target.metadata.get("family")
+    role_map = target.metadata.get("role_map")
+    if not target_family or target_family != prior_snapshot.metadata.get("family"):
+        print(
+            f"Target family {target_family!r} does not match the meta-prior's family "
+            f"{prior_snapshot.metadata.get('family')!r}.",
+            file=sys.stderr,
+        )
+        return 2
+    if not isinstance(role_map, dict) or not role_map:
+        print("Target policy declares no role_map; declare one with task-policy-family-set.", file=sys.stderr)
+        return 2
+
+    damping = args.damping if args.damping is not None else DAMPING_DEFAULT_META_PRIOR
+    action_ids = [action.id for action in target.actions]
+    try:
+        seeds = seed_values(_prior_from_snapshot(prior_snapshot), role_map, action_ids)
+        new_logits = {action_id: float(cast(float, seeds[action_id])) * damping for action_id in action_ids}
+        prov = provenance(
+            prior_snapshot,
+            damping,
+            datetime.now(timezone.utc).isoformat(),
+            action_map=role_map,
+            kind="meta_prior",
+            gate_met=None,
+        )
+    except (ValueError, TypeError) as exc:
+        print(f"Failed to seed from meta-prior {args.meta_prior!r}: {exc}", file=sys.stderr)
+        return 2
+
+    target_copy = PolicySnapshot.from_dict(target.to_dict())
+    target_copy.logits = new_logits
+    target_copy.episodes_seen = 0
+    target_copy.updates_applied = 0
+    target_copy.baseline = 0.0
+    target_copy.metadata.update(prov)
+    target_copy.advance_version()
+    store.store_policy(target_copy)
+
+    print(json.dumps(_policy_payload(target_copy), indent=2))
+    return 0
+
+
 def _cmd_warm_start_task_policy(args: argparse.Namespace) -> int:
     has_donor = bool(args.donor_task_id)
     has_meta = bool(args.meta_prior)
@@ -1614,8 +1705,7 @@ def _cmd_warm_start_task_policy(args: argparse.Namespace) -> int:
         print(json.dumps(_policy_payload(target_copy), indent=2))
         return 0
 
-    print("Meta-prior warm starting is not yet implemented.", file=sys.stderr)
-    return 2
+    return _warm_start_from_meta_prior(store, args, target)
 
 
 def main(argv: list[str] | None = None) -> int:

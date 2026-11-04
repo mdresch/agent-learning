@@ -74,6 +74,7 @@ def _recorded_tasks() -> dict[str, dict]:
         data.setdefault("id", path.stem)  # some early episode files carry no id; the file name is theirs
         task = tasks.setdefault(data["task_id"], {"episodes": [], "policy_ids": set()})
         task["episodes"].append(data)
+        assert data.get("policy_id") is not None, f"episode file {path} is missing 'policy_id'"
         task["policy_ids"].add(data["policy_id"])
 
     authority: dict[str, set[str]] = {}

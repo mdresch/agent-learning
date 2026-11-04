@@ -103,7 +103,7 @@ Fixture used by the criteria below ("the base family"): four low-authority softm
 
 ## Story 19.7 — The Real-Data Check (No Family)
 
-**Status:** Ready  
+**Status:** Completed (see `implementation-log.md`)  
 **As** a maintainer, **I want** the compiler run against the recorded store, **so that** the lack of a real family is shown, not assumed.
 
 ### Acceptance Criteria:

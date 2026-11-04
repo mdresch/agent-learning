@@ -1749,3 +1749,11 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Notes:**
   - On the committed stories it reports 144 stories: 58 implemented, 60 Ready and not implemented, 25 Draft or blocked, 1 superseded, and 15 status-drift rows (the first run of this entry said 23 and an earlier chat figure said 19; both were miscounts, corrected here) (`--check` exits 1; not wired into CI).
   - Marked Completed or Done with no log entry (Stories 1.1 and 9.3 among them) counts as implemented and is listed as drift.
+
+## Governance gate — approve-ideation (Ideation-Document.md v1.13 with Spark-Capture.md)
+- **Date:** 2026-11-04 (prospective: recorded when approved, not backdated)
+- **Branch:** `governance/approve-ideation`
+- **Gate:** `agent-learning-governance` / `approve-ideation`. Recommendation `approve_ideation` (robust utility 0.684; request revision 0.174; reject 0.044). Human acceptance by Menno on 2026-11-04. Episode `c882fd98-427f-49e7-ae84-b985fa372230` in the store at `AGENT_LEARNING_LOCAL_STORE_DIR` (socialengage store, LL-040).
+- **Evidence:** both documents read in full at git `29b482c`; the assistant authored the frame scores from that read, so they are an AI assessment accepted by the human, not independent measurement. Frame, decision and adjudication results, and episode: `docs/policy-shapes/{decision-frames/ideation-approval.json, results/ideation-decision-result.json, results/ideation-adjudication-result.json, episodes/ideation-approval-episode.json}`.
+- **Known staleness carried, not hidden:** the `snapshot_accuracy_dated` criterion scored 0.60 because several 2026-10-25 statements are now superseded (§2.1.3 says ADR-014 to ADR-023 are Proposed with no code; Objective 4 "not yet true"; HYP-AL-008/009 still Formulated after Epics 15 and 20). Hypotheses stay open until Stage 18.
+- **Does not change:** `approve-charter` and `approve-business-case` still have zero episodes (recorded gap, not backfilled). `Project-Status-Register.md` still says `approve-ideation` has none; update it after PR #110 merges to avoid a conflict on the same row.

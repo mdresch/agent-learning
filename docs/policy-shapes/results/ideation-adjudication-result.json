@@ -1,0 +1,165 @@
+{
+  "agent_id": "agent-learning-governance",
+  "task_id": "approve-ideation",
+  "policy_id": "805d18f1-8b54-4c6f-9f8e-9e9fc6cd419b",
+  "policy_version": 0,
+  "status": "resolved",
+  "reason": "The user accepted the proposed option to resolve the tie.",
+  "selection_basis": "bayesian_decision",
+  "selected_action": {
+    "id": "approve_ideation",
+    "description": "The Ideation document defines clear strategic motivation, falsifiable hypotheses, and grounded scope -- approve it to proceed to Charter and Business Case",
+    "parameters": {}
+  },
+  "proposed_action": null,
+  "candidate_actions": [
+    {
+      "id": "approve_ideation",
+      "description": "The Ideation document defines clear strategic motivation, falsifiable hypotheses, and grounded scope -- approve it to proceed to Charter and Business Case",
+      "parameters": {}
+    }
+  ],
+  "assessments": [
+    {
+      "action": {
+        "id": "approve_ideation",
+        "description": "The Ideation document defines clear strategic motivation, falsifiable hypotheses, and grounded scope -- approve it to proceed to Charter and Business Case",
+        "parameters": {}
+      },
+      "feasible": true,
+      "criteria": [
+        {
+          "criterion_id": "strategic_motivation_clear",
+          "support": 0.873642672870144,
+          "entropy_bits": 0.5473628291480329,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "hypotheses_falsifiable",
+          "support": 0.8137268950694664,
+          "entropy_bits": 0.6936096520977755,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "scope_and_gaps_grounded",
+          "support": 0.7646510369310004,
+          "entropy_bits": 0.7872198354765074,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "snapshot_accuracy_dated",
+          "support": 0.5853184888511429,
+          "entropy_bits": 0.9788934078148921,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        }
+      ],
+      "expected_utility": 0.7593347734304384,
+      "uncertainty": 0.751771431134302,
+      "robust_utility": 0.6841576303170083,
+      "ruled_out_by": []
+    },
+    {
+      "action": {
+        "id": "reject_ideation",
+        "description": "The Ideation document lacks coherent intent, viable hypotheses, or strategic alignment -- reject it outright",
+        "parameters": {}
+      },
+      "feasible": true,
+      "criteria": [
+        {
+          "criterion_id": "strategic_motivation_clear",
+          "support": 0.0866255450880921,
+          "entropy_bits": 0.42510488271276886,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "hypotheses_falsifiable",
+          "support": 0.0866255450880921,
+          "entropy_bits": 0.42510488271276886,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "scope_and_gaps_grounded",
+          "support": 0.0866255450880921,
+          "entropy_bits": 0.42510488271276886,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "snapshot_accuracy_dated",
+          "support": 0.0866255450880921,
+          "entropy_bits": 0.42510488271276886,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        }
+      ],
+      "expected_utility": 0.0866255450880921,
+      "uncertainty": 0.42510488271276886,
+      "robust_utility": 0.04411505681681521,
+      "ruled_out_by": [
+        "pareto_dominated_by:approve_ideation"
+      ]
+    },
+    {
+      "action": {
+        "id": "request_revision_before_decision",
+        "description": "The Ideation document needs refinement of hypothesis formulation, problem definition, or scope boundaries before it can be judged",
+        "parameters": {}
+      },
+      "feasible": true,
+      "criteria": [
+        {
+          "criterion_id": "strategic_motivation_clear",
+          "support": 0.18327381154141018,
+          "entropy_bits": 0.6871867897383348,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "hypotheses_falsifiable",
+          "support": 0.18327381154141018,
+          "entropy_bits": 0.6871867897383348,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "scope_and_gaps_grounded",
+          "support": 0.2140050437859059,
+          "entropy_bits": 0.7490688114630351,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "snapshot_accuracy_dated",
+          "support": 0.42455579690657147,
+          "entropy_bits": 0.9835139635546846,
+          "disagreement_bits": 1.1102230246251565e-16,
+          "source_count": 1
+        }
+      ],
+      "expected_utility": 0.2512771159438244,
+      "uncertainty": 0.7767390886235973,
+      "robust_utility": 0.17360320708146465,
+      "ruled_out_by": [
+        "pareto_dominated_by:approve_ideation"
+      ]
+    }
+  ],
+  "information_needs": [],
+  "rejected_action_ids": [],
+  "authorization_basis": "user_acceptance",
+  "action_probabilities": {
+    "approve_ideation": 0.3333333333333333,
+    "reject_ideation": 0.3333333333333333,
+    "request_revision_before_decision": 0.3333333333333333
+  },
+  "action_logprob": null,
+  "audit_evidence": null,
+  "decision_authority": "full"
+}

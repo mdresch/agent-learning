@@ -1729,5 +1729,5 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - Contract run: 7 passed (RED observed first: the module did not exist)
   - Full suite: 1850 passed, 1 skipped (excluding `tests/test_spark.py`, `tests/pmbok`, per LL-013)
 - **Notes:**
-  - On the committed stories it reports 144 stories: 58 implemented, 60 Ready and not implemented, 25 Draft or blocked, 1 superseded, and 23 status-drift rows (`--check` exits 1; not wired into CI).
+  - On the committed stories it reports 144 stories: 58 implemented, 60 Ready and not implemented, 25 Draft or blocked, 1 superseded, and 15 status-drift rows (the first run of this entry said 23 and an earlier chat figure said 19; both were miscounts, corrected here) (`--check` exits 1; not wired into CI).
   - Marked Completed or Done with no log entry (Stories 1.1 and 9.3 among them) counts as implemented and is listed as drift.

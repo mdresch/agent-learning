@@ -12,7 +12,7 @@ description: Generates the Phase Carry-Over Backlog (implemented vs approved-but
 
 - **Generated, never stored.** The backlog is computed from `docs/user-stories/epic-*.md` and `implementation-log.md` each time. Do not commit a copy or edit the output; the Obsidian ingest (`obsidian-second-brain/scripts/ingest-agent-learning.mjs`) runs the script on every ingest.
 - **Four groups.** `implemented` (a log entry, or a status starting Completed/Done), `superseded` (Superseded), `ready` (Ready or Approved), `draft` (anything else). A story is in exactly one group; the groups add up to the number of `## Story` headings.
-- **Drift is reported, not resolved.** A story logged but not marked Completed/Done, or marked Completed/Done with no log entry, is listed under "Status drift" and keeps its group. `--check` exits 1 when drift exists; it is not wired into CI (19 stories drift today).
+- **Drift is reported, not resolved.** A story logged but not marked Completed/Done, or marked Completed/Done with no log entry, is listed under "Status drift" and keeps its group. `--check` exits 1 when drift exists; it is not wired into CI (15 stories drift today).
 - **Nothing is silently dropped.** `build()` asserts that every `## Story` heading in a file has a parseable `**Status:**` line.
 - **Deterministic.** No timestamps in the output, so the same inputs give the same text.
 - **No retroactive approvals.** The backlog describes what was built and what was not; it does not certify any gate (see the no-retroactive-gate-approvals preference).

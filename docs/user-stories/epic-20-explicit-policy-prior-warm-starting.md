@@ -15,7 +15,7 @@ Fixture used by the criteria below ("the base donor"): a low-authority softmax p
 
 ## Story 20.1 — The Damped Copy
 
-**Status:** Ready  
+**Status:** Completed (see `implementation-log.md`)  
 **As** a maintainer, **I want** the new policy's logits computed from the donor's by one stated formula, **so that** a transfer can be checked by hand.
 
 ### Acceptance Criteria:
@@ -31,7 +31,7 @@ Fixture used by the criteria below ("the base donor"): a low-authority softmax p
 
 ## Story 20.2 — The Provenance Record
 
-**Status:** Ready  
+**Status:** Completed (see `implementation-log.md`)  
 **As** an auditor, **I want** each warm start to say exactly what was copied from where, **so that** I can trace which policy seeded which.
 
 ### Acceptance Criteria:
@@ -44,7 +44,7 @@ Fixture used by the criteria below ("the base donor"): a low-authority softmax p
 
 ## Story 20.3 — The Command for a Policy Donor
 
-**Status:** Ready  
+**Status:** Completed (see `implementation-log.md`)  
 **As** a maintainer, **I want** one command that copies a donor's damped logits into a new policy, **so that** warm starting is a recorded, repeatable step.
 
 ### Acceptance Criteria:
@@ -87,7 +87,7 @@ Fixture used by the criteria below ("the base donor"): a low-authority softmax p
 
 ## Story 20.6 — The Real-Data Check (No Donor)
 
-**Status:** Ready  
+**Status:** Completed (see `implementation-log.md`)  
 **As** a maintainer, **I want** the command tried on the recorded policies, **so that** the missing real donor is shown, not assumed.
 
 ### Acceptance Criteria:

@@ -104,6 +104,7 @@ Measuring the effect on supervision (HYP-AL-008); Thompson policies; choosing a 
 4. **Open: effect measurement.** HYP-AL-008 needs a real converged donor and a cold-start comparison; neither exists.
 5. **Open: audit.** Provenance lives in the snapshot metadata. The warm start is not a training run and is not in the audit replay (FDD-018 §7 item 2).
 6. **Walkthrough sketch.** `examples/methodologies/15-warm-start/sketch.py` computes the damped softmax correctly and needs no change beyond the arithmetic check of section 3.
+7. **Open: Story 20.6 names a committed store that is not committed** (as FDD-019 §7 item 11). AC_0 speaks of "the committed one under `data/agent-learning/store`", but `data/agent-learning/` is ignored by git and the recorded governance store lives where `AGENT_LEARNING_LOCAL_STORE_DIR` points. Found 2026-11-04 while building Story 20.6. The test rebuilds a temporary store from what is committed (`docs/policy-shapes/episodes/`, the `<task>.actions.json` files and the decision results) and checks the recorded local store only on a machine that has it. Whether the story's wording should say so, or the recorded store should be committed in some form, is the maintainer's to decide (one decision covers both stories).
 
 ---
 

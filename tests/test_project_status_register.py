@@ -87,7 +87,14 @@ def test_chain_coverage_uses_template_stage_names() -> None:
 
 def test_audit_register_exists_and_is_empty() -> None:
     """Stage 11 record store exists (instantiated from the template) and holds no backfilled findings."""
-    audit = REGISTER.parent / "Audit-Register.md"
+    audit = REGISTER.parents[1] / "registers" / "Audit-Register.md"
     assert audit.is_file(), f"missing audit register: {audit}"
     text = audit.read_text(encoding="utf-8")
     assert "first real audit gets AUDIT-001" in text, "Audit-Register.md must stay empty until a real audit is run"
+
+
+def test_story_execution_register_exists_and_is_empty() -> None:
+    """Template-aligned register at docs/registers/; rows are added prospectively, never backfilled."""
+    reg = REGISTER.parents[1] / "registers" / "Story-Execution-Register.md"
+    assert reg.is_file(), f"missing story execution register: {reg}"
+    assert "first real row gets added" in reg.read_text(encoding="utf-8"), "must stay empty until a story runs through it"

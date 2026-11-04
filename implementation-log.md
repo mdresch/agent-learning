@@ -1682,3 +1682,28 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Review validation:** no code change; full suite 1836 passed, 1 skipped
 - **Amazon Q triage (round 2 on `21072f0`):**
   - `Q-100-3 | logic error | verified: no | decision: declined | list_policies sorts by (version, created_at) descending before applying limit (storage/local.py), and its contract says newest first, so the highest-version snapshot is always in the page and max() cannot pick a stale one; a prior with over 1000 versions still returns the newest 1000 | fix: none`
+
+## Story 20.6 — The Real-Data Check (No Donor)
+- **Commit:** `0498e7b`
+- **Date:** 2026-11-04
+- **Branch:** `feat/story-20.6`
+- **Source ADR / BRD / FDD:** ADR-020, BRD-020, FDD-020
+- **Files Modified/Created:**
+  - `.claude/skills/warm-start/SKILL.md`
+  - `docs/project-docs/Functional-Design/FDD-020-explicit-policy-prior-warm-starting.md`
+  - `docs/user-stories/epic-20-explicit-policy-prior-warm-starting.md`
+  - `tests/test_warm_start_real_data.py`
+- **Contracts:**
+  - `tests/test_warm_start_real_data.py`
+  - Contract run: 7 passed
+  - Full suite: 1839 passed, 1 skipped, 4 failed (excluding `tests/test_spark.py`, `tests/pmbok`, per LL-013). The 4 failures are in `tests/test_storage_cosmos.py` (`TypeError: %d format`) and fail identically without this change.
+- **Notes:**
+  - I1: `data/agent-learning/` is git-ignored, so no store is committed. The test rebuilds a temporary store from committed episodes, action files and decision results, and checks the local recorded store only where present. Recorded as FDD-020 section 7 item 7 for the maintainer to decide (as FDD-019 section 7 item 11).
+  - I2: AC_2 uses one synthetic cold low-authority target so the donor is what is refused. I3: AC_1 logits are synthetic and labelled.
+  - Result: no converged low-authority donor exists yet; no claim that a warm start reduces supervision (BRU-020-11).
+  - Stories 20.1 to 20.3 status updated to Completed (they were still marked Ready).
+  - RED was not re-observed by this session: the test file was written by an earlier session before the implementation commit. Story has no production-code change.
+- **Amazon Q triage (round 1 on `9f600de`):**
+  - `Q-101-1 | crash risk | verified: partial | decision: accepted | data["policy_id"] would raise a bare KeyError on an episode file without the field; all 169 committed approve-* episodes have it, so no failure today, but a named assertion is a better failure | fix: a4c3fb6`
+  - `Q-101-2 | crash risk | verified: partial | decision: accepted | same line as Q-101-1; Q's suggestion to skip a missing field was not taken, because a fixture missing it is a defect to name, not hide (the field is recorded as metadata only) | fix: a4c3fb6`
+- **Review validation:** 7 passed; test-only change

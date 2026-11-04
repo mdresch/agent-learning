@@ -15,7 +15,7 @@ Fixture used by the criteria below ("the base donor"): a low-authority softmax p
 
 ## Story 20.1 — The Damped Copy
 
-**Status:** Ready  
+**Status:** Completed (see `implementation-log.md`)  
 **As** a maintainer, **I want** the new policy's logits computed from the donor's by one stated formula, **so that** a transfer can be checked by hand.
 
 ### Acceptance Criteria:
@@ -31,7 +31,7 @@ Fixture used by the criteria below ("the base donor"): a low-authority softmax p
 
 ## Story 20.2 — The Provenance Record
 
-**Status:** Ready  
+**Status:** Completed (see `implementation-log.md`)  
 **As** an auditor, **I want** each warm start to say exactly what was copied from where, **so that** I can trace which policy seeded which.
 
 ### Acceptance Criteria:
@@ -44,7 +44,7 @@ Fixture used by the criteria below ("the base donor"): a low-authority softmax p
 
 ## Story 20.3 — The Command for a Policy Donor
 
-**Status:** Ready  
+**Status:** Completed (see `implementation-log.md`)  
 **As** a maintainer, **I want** one command that copies a donor's damped logits into a new policy, **so that** warm starting is a recorded, repeatable step.
 
 ### Acceptance Criteria:
@@ -87,11 +87,11 @@ Fixture used by the criteria below ("the base donor"): a low-authority softmax p
 
 ## Story 20.6 — The Real-Data Check (No Donor)
 
-**Status:** Ready  
+**Status:** Completed (see `implementation-log.md`)  
 **As** a maintainer, **I want** the command tried on the recorded policies, **so that** the missing real donor is shown, not assumed.
 
 ### Acceptance Criteria:
-- **$AC_0$ (Real Source):** the store is a temporary copy of the committed one under `data/agent-learning/store`; the policies found, their action ids and their authority are recorded in the test.
+- **$AC_0$ (Real Source):** the store is a temporary store rebuilt from the committed episodes (`docs/policy-shapes/episodes/`), action files and decision results, because `data/agent-learning/` is git-ignored (amended 2026-11-04, FDD-020 §7 item 7); the policies found, their action ids and their authority are recorded in the test.
 - **$AC_1$ (Real Action Sets):** for `approve-adr` as target and `approve-brd` as donor, the explicit map `approve_adr -> approve_brd`, `reject_adr -> reject_brd`, `request_revision_before_decision -> request_revision_before_decision` is accepted by `warm_start_logits`, while the identity map is refused because the ids differ; this gives real action-map cases.
 - **$AC_2$ (No Usable Donor):** `task-policy-warm-start` with any recorded `approve-*` policy as donor exits non-zero because it is full authority, and the copy of the store is equal to its earlier state.
 - **$AC_3$ (Labelled):** the result is recorded as a statement that no converged low-authority donor exists yet. It makes no claim that a warm start reduces supervision (BRU-020-11), and the docstring names the missing data (one policy that has converged and a cold target of the same family).

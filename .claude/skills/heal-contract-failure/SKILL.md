@@ -38,6 +38,10 @@ Contract failure is not limited to a red test runner in local validation or CI. 
 
 **Hard stop, any step:** if getting to green requires weakening, skipping, or bypassing a contract's assertions or a lint rule, stop and escalate instead of forcing it through.
 
+## Resuming a started `implement-story` run (branch or worktree already exists)
+
+An existing `feat/story-<X.Y>` branch or worktree means `implement-story` was started and cut off. The follow-up is this skill, not a second implementation. Inspect the leftovers read-only, then walk steps 1 to 5 from Intent: leftover tests and code are evidence to check against the ADR, BRD, FDD and story, not a contract to trust. Where the story has code, show the contract RED against the old code before the fix; where it has none, show the contract able to fail by mutating the production code it exercises (each mutation reverted, nothing committed), as in the Story 20.6 heal pass. Record the outcome as a dated correction entry in `implementation-log.md` if the original entry is already merged.
+
 ## Bounded retries
 
 Cap: 3 full walks of steps 1–5 per failure. Each attempt must differ from the last — a repeat with no new information from the previous failure is a signal to escalate early. Log each attempt (hypothesis, what changed, why it failed).

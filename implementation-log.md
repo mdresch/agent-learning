@@ -1575,3 +1575,30 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-96-2 | crash risk | verified: partial | decision: accepted | a Beta prior's values are (alpha, beta) tuples by construction (meta_prior._pool_thompson) and the Thompson test passes, so no crash; the type ignores are replaced by typed casts | fix: 368df84`
   - `Q-96-3 | test gap | verified: yes | decision: accepted | the test read the pointer through the private LocalFileStore._path; the public get_active_policy assertion is the invariant, so the private read is removed | fix: 368df84`
   - `Q-96-4 | test gap | verified: yes | decision: accepted | only two of the four required flags were exercised; all four are now parametrized | fix: 368df84`
+
+## Story 19.6 — Seeding a New Policy
+- **Commit:** `40009fc`
+- **Date:** 2026-11-04
+- **Branch:** `feat/story-19.6`
+- **Source ADR / BRD / FDD:** ADR-019, BRD-019, FDD-019
+- **Files Modified/Created:**
+  - `.claude/skills/meta-prior/SKILL.md`
+  - `docs/user-stories/epic-19-hierarchical-meta-prior-compilation.md`
+  - `src/agent_learning/__init__.py`
+  - `src/agent_learning/meta_prior.py`
+  - `tests/test_meta_prior_seed.py`
+- **Contracts:**
+  - `tests/test_meta_prior_seed.py`
+  - Contract run: 15 passed in 0.61s
+  - Full suite: 1812 passed, 1 skipped in 54.64s (excluding `tests/test_spark.py`, `tests/pmbok`, per LL-013)
+- **Notes:**
+  - I1: seed_values returns a new dict keyed by the new policy's action ids in the order given: a float for a softmax prior, an (alpha, beta) tuple for a Thompson prior
+  - I2: the bijection check is on the keys of role_map (exactly action_ids, each once) and its values (distinct, exactly prior.roles); each cause is a ValueError naming the action or role
+  - I3: AC_5 compiles a prior through the command and also pools the same members in memory, because seed_values takes a MetaPrior; reading a stored prior back into a MetaPrior is the seeding command's job (Story 20.5)
+  - No seed_record (FDD-019 H8): the record of a seeding is the warm_start provenance of Story 20.2
+  - seed_values exported from the package root (FDD-019 section 1 item 3)
+  - Full suite excludes tests/test_spark.py (JVM) and tests/pmbok (Story 34.5), per LL-013
+- **Review-fix commits:** `d054fe5`
+- **Review validation:** 15 passed
+- **Amazon Q triage (round 1 on `c9f1e22`):**
+  - `Q-97-1 | test gap | verified: yes | decision: accepted | the logits dict was mutated but never stored, so AC_5 only checked the in-memory prior; the test now stores the seeded policy, stores a learned version with changed logits, and asserts the stored prior and its snapshot are equal to their copies | fix: d054fe5`

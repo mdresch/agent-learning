@@ -50,7 +50,7 @@ class FakePoliciesContainer:
 
         item_id = body["id"]
         if item_id in self.items:
-            raise CosmosResourceExistsError(f"Resource already exists: {item_id}")
+            raise CosmosResourceExistsError(status_code=409, message=f"Resource already exists: {item_id}")
 
         doc = dict(body)
         doc["_etag"] = f"etag_{len(self.items) + 1}"
@@ -84,7 +84,7 @@ class FakePoliciesContainer:
                 raise effect
 
         if item not in self.items:
-            raise CosmosResourceNotFoundError(f"Item not found: {item}")
+            raise CosmosResourceNotFoundError(status_code=404, message=f"Item not found: {item}")
 
         current = self.items[item]
         if etag is not None and current.get("_etag") != etag:
@@ -105,7 +105,7 @@ class FakePoliciesContainer:
 
     def read_item(self, item: str, partition_key: str) -> Dict[str, Any]:
         if item not in self.items:
-            raise CosmosResourceNotFoundError(f"Not found: {item}")
+            raise CosmosResourceNotFoundError(status_code=404, message=f"Not found: {item}")
         return dict(self.items[item])
 
     def query_items(self, query: str, parameters: Optional[List[Dict[str, Any]]] = None, **kwargs: Any):
@@ -211,8 +211,8 @@ def test_ac2_etag_concurrency_replace_with_retry(store_fixture):
 
     # Simulate 2 transient ETag conflicts, then succeed on 3rd attempt
     container.replace_item_side_effects = [
-        CosmosAccessConditionFailedError("ETag mismatch attempt 1"),
-        CosmosAccessConditionFailedError("ETag mismatch attempt 2"),
+        CosmosAccessConditionFailedError(status_code=412, message="ETag mismatch attempt 1"),
+        CosmosAccessConditionFailedError(status_code=412, message="ETag mismatch attempt 2"),
         None,  # Success
     ]
 
@@ -255,10 +255,10 @@ def test_ac2_etag_concurrency_retry_exhaustion_raises(store_fixture):
 
     # 4 consecutive conflicts
     container.replace_item_side_effects = [
-        CosmosAccessConditionFailedError("Conflict 1"),
-        CosmosAccessConditionFailedError("Conflict 2"),
-        CosmosAccessConditionFailedError("Conflict 3"),
-        CosmosAccessConditionFailedError("Conflict 4"),
+        CosmosAccessConditionFailedError(status_code=412, message="Conflict 1"),
+        CosmosAccessConditionFailedError(status_code=412, message="Conflict 2"),
+        CosmosAccessConditionFailedError(status_code=412, message="Conflict 3"),
+        CosmosAccessConditionFailedError(status_code=412, message="Conflict 4"),
     ]
 
     policy_v2 = PolicySnapshot(
@@ -289,7 +289,7 @@ def test_ac3_create_pointer_retries_on_resource_exists_conflict(store_fixture):
             "updated_at": "2026-10-25T11:00:00+00:00",
             "_etag": "etag-race",
         }
-        raise CosmosResourceExistsError("Item already exists")
+        raise CosmosResourceExistsError(status_code=409, message="Item already exists")
 
     container.create_item = race_create
 

@@ -11,14 +11,15 @@ Generalized from two independently-converged real implementations. Unlike `imple
 
 SocialEngage has one (a pre-commit hook backstopping contract-first discipline). ADPA, at the time this template was built, did not — every step below was discipline-only, with nothing to catch a skipped step mechanically. **This changes how load-bearing this skill is, not what it says**: with no hook, this skill's own discipline is the only thing standing in for one. Say explicitly, in this project's own copy of this file, which case applies.
 
-## Dual Triggers: Mechanical Failure vs. PR Review Feedback ("Green Defect")
+## Three Triggers: Mechanical Failure, PR Review Feedback ("Green Defect"), and Dependency Bump PRs
 
-Contract failure is not limited to a red test runner in local validation or CI. It has two distinct triggers:
+Contract failure is not limited to a red test runner in local validation or CI. There are three distinct triggers:
 
 1. **Mechanical Test Failure (RED):** An existing assertion fails, a type-check breaks, or an unhandled exception halts execution.
 2. **Review Feedback / Latent Defect (GREEN Defect):** A code reviewer (human or automated bot, e.g. Amazon Q) identifies a bug, crash risk, unhandled edge case, inverted assertion, or missing validation while existing contract tests are passing. 
    - *Core Rule:* A passing test suite with a latent defect is a **Contract Incompleteness Failure**.
    - *Anti-Pattern:* Never jump directly into implementation code to patch a review comment. Bypassing the contract violates contract-driven development just as severely as skipping Step 3 during initial implementation.
+3. **Dependency Bump PR (e.g. Dependabot):** A bot opens a PR bumping a package version. The attached PR-check bots (for example the Cursor agents) report `NEUTRAL`, which is not a result of this project's contract suite, and "no regression visible" after a human applies the bump is not verification. **Procedure:** check out the bump PR's branch (or merge it into an isolated worktree), run the full accumulated contract suite against it, and only then merge it (GREEN) or walk the full heal loop below citing the dependency bump as the originating cause (RED). Never close a bump PR on "nothing looks broken" alone. (sidpa-template rule 34, rule 26.)
 
 ## Re-walk the whole chain, in order, every time — no classify-and-shortcut
 
@@ -40,7 +41,7 @@ Contract failure is not limited to a red test runner in local validation or CI. 
 
 ## Resuming a started `implement-story` run (branch or worktree already exists)
 
-An existing `feat/story-<X.Y>` branch or worktree means `implement-story` was started and cut off. The follow-up is this skill, not a second implementation. Inspect the leftovers read-only, then walk steps 1 to 5 from Intent: leftover tests and code are evidence to check against the ADR, BRD, FDD and story, not a contract to trust. Where the story has code, show the contract RED against the old code before the fix; where it has none, show the contract able to fail by mutating the production code it exercises (each mutation reverted, nothing committed), as in the Story 20.6 heal pass. Record the outcome as a dated correction entry in `implementation-log.md` if the original entry is already merged.
+An existing `feat/story-<X.Y>` branch or worktree means `implement-story` was started. Invoke this section only once abandonment is actually confirmed: ask the human when there is any ambiguity about whether another agent is still working it, because a quiet `git log` is not proof of abandonment and healing a live run is interference, not healing (sidpa-template rule 29). Once confirmed abandoned, the follow-up is this skill, not a second implementation. Inspect the leftovers read-only, then walk steps 1 to 5 from Intent: leftover tests and code are evidence to check against the ADR, BRD, FDD and story, not a contract to trust. Where the story has code, show the contract RED against the old code before the fix; where it has none, show the contract able to fail by mutating the production code it exercises (each mutation reverted, nothing committed), as in the Story 20.6 heal pass. Record the outcome as a dated correction entry in `implementation-log.md` if the original entry is already merged.
 
 ## Bounded retries
 

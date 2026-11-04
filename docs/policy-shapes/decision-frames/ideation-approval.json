@@ -1,0 +1,133 @@
+{
+  "task": "Ideation-Document.md v1.13 with Spark-Capture.md (Stage 1/2 Initiating): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "strategic_motivation_clear",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Spark-Capture.md and Ideation \u00a71.1-1.2 state a crisp problem (fine-tuning cost/opacity, prompt drift) and measurable objectives, without premature solutioning."
+    },
+    {
+      "id": "hypotheses_falsifiable",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Each of HYP-AL-001..024 has a statement, falsification criteria and an honest status; unresolvable (HYP-AL-011) and blocked ones are named, proposed thresholds are labelled unconfirmed."
+    },
+    {
+      "id": "scope_and_gaps_grounded",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "\u00a74.1 in/out scope is sourced from package exports; unpopulated sections 4.2-9 and the missing RACI are named as gaps, not invented."
+    },
+    {
+      "id": "snapshot_accuracy_dated",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Statements are dated 2026-10-25 and not contradicted by the repo at approval time; later-superseded facts (ADR-014..023 status, Objective 4, HYP-AL-008/009 status after Epics 15 and 20) are flagged, not silently carried."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_ideation",
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      },
+      "evidence": [
+        {
+          "criterion_id": "strategic_motivation_clear",
+          "source": "direct_doc_read:docs/project-docs/Ideation-Document.md@29b482c+Spark-Capture.md",
+          "support": 0.9,
+          "confidence": 0.88
+        },
+        {
+          "criterion_id": "hypotheses_falsifiable",
+          "source": "direct_doc_read:docs/project-docs/Ideation-Document.md@29b482c+Spark-Capture.md",
+          "support": 0.85,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "scope_and_gaps_grounded",
+          "source": "direct_doc_read:docs/project-docs/Ideation-Document.md@29b482c+Spark-Capture.md",
+          "support": 0.8,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "snapshot_accuracy_dated",
+          "source": "direct_doc_read:docs/project-docs/Ideation-Document.md@29b482c+Spark-Capture.md",
+          "support": 0.6,
+          "confidence": 0.85
+        }
+      ]
+    },
+    {
+      "action_id": "reject_ideation",
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      },
+      "evidence": [
+        {
+          "criterion_id": "strategic_motivation_clear",
+          "source": "direct_doc_read:docs/project-docs/Ideation-Document.md@29b482c+Spark-Capture.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "hypotheses_falsifiable",
+          "source": "direct_doc_read:docs/project-docs/Ideation-Document.md@29b482c+Spark-Capture.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "scope_and_gaps_grounded",
+          "source": "direct_doc_read:docs/project-docs/Ideation-Document.md@29b482c+Spark-Capture.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "snapshot_accuracy_dated",
+          "source": "direct_doc_read:docs/project-docs/Ideation-Document.md@29b482c+Spark-Capture.md",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ]
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      },
+      "evidence": [
+        {
+          "criterion_id": "strategic_motivation_clear",
+          "source": "direct_doc_read:docs/project-docs/Ideation-Document.md@29b482c+Spark-Capture.md",
+          "support": 0.12,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "hypotheses_falsifiable",
+          "source": "direct_doc_read:docs/project-docs/Ideation-Document.md@29b482c+Spark-Capture.md",
+          "support": 0.12,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "scope_and_gaps_grounded",
+          "source": "direct_doc_read:docs/project-docs/Ideation-Document.md@29b482c+Spark-Capture.md",
+          "support": 0.15,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "snapshot_accuracy_dated",
+          "source": "direct_doc_read:docs/project-docs/Ideation-Document.md@29b482c+Spark-Capture.md",
+          "support": 0.4,
+          "confidence": 0.75
+        }
+      ]
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

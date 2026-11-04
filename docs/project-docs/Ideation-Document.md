@@ -7,7 +7,7 @@
 | Document Title | Ideation Document — agent-learning SDK |
 | Version | 1.13 |
 | Date | 2026-10-25 |
-| Status | Draft |
+| Status | Approved (2026-11-04, Menno Drescher), together with `Spark-Capture.md`. Adjudicated via `approve-ideation` (robust utility 0.684, episode `c882fd98-427f-49e7-ae84-b985fa372230`), recorded at the time of approval and not backdated. Scored against git `29b482c`. Statements dated 2026-10-25 (for example §2.1.3 ADR status, Objective 4, and HYP-AL-008/009 status) are snapshots and are not rewritten by this approval. |
 | Source | `README.md`, `PYPI.md`, `docs/decision-making.md`, `docs/autonomy-complexity.md`, `docs/experiential-reinforcement-learning-comparison.md`, `docs/scout-agent-learn-skill.md`, `docs/scout-automation-agent-learning.md`, `docs/research/main.tex`, `examples/next_best_action.py`, `src/agent_learning/decision.py`/`cli.py`/`audit.py`, `git log`, and this session's own real use of the SDK (building and validating eight real TaskPolicies against the SocialEngage project, including the diff/baseline classification pair) |
 
 This is the first PM-governance-style document this project has — there is

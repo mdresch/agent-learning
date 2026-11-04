@@ -34,7 +34,7 @@ Contract failure is not limited to a red test runner in local validation or CI. 
 4. **Re-validate and, only now, fix the implementation (GREEN).** 
    - Minimal change to satisfy the now-failing, confirmed-correct contract test.
 5. **Validate.** 
-   - Run the specific contract (`uv run pytest tests/test_<x>.py`), then the full suite (`uv run pytest --ignore=tests/test_spark.py`).
+   - Run the specific contract (`uv run pytest tests/test_<x>.py`), then the full suite (`uv run pytest --ignore=tests/test_spark.py --ignore=tests/pmbok`).
 
 **Hard stop, any step:** if getting to green requires weakening, skipping, or bypassing a contract's assertions or a lint rule, stop and escalate instead of forcing it through.
 
@@ -67,4 +67,4 @@ If this skill's own re-walk ever surfaces a *pattern* worth generalizing — not
 
 ## Project facts (agent-learning)
 
-No mechanical enforcement layer: `.git/hooks` has no active hooks and no CI gate ties code changes to a contract. This skill's discipline is the only backstop. Contracts are pytest files under `tests/`; run one with `uv run pytest tests/test_<x>.py`, then the full suite with `uv run pytest --ignore=tests/test_spark.py`.
+No mechanical enforcement layer: `.git/hooks` has no active hooks and no CI gate ties code changes to a contract. This skill's discipline is the only backstop. Contracts are pytest files under `tests/`; run one with `uv run pytest tests/test_<x>.py`, then the full suite with `uv run pytest --ignore=tests/test_spark.py --ignore=tests/pmbok`.

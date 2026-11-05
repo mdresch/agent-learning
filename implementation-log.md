@@ -1766,3 +1766,13 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Evidence:** both documents read in full at git `29b482c`; the assistant authored the frame scores from that read, so they are an AI assessment accepted by the human, not independent measurement. Frame, decision and adjudication results, and episode: `docs/policy-shapes/{decision-frames/ideation-approval.json, results/ideation-decision-result.json, results/ideation-adjudication-result.json, episodes/ideation-approval-episode.json}`.
 - **Known staleness carried, not hidden:** the `snapshot_accuracy_dated` criterion scored 0.60 because several 2026-10-25 statements are now superseded (§2.1.3 says ADR-014 to ADR-023 are Proposed with no code; Objective 4 "not yet true"; HYP-AL-008/009 still Formulated after Epics 15 and 20). Hypotheses stay open until Stage 18.
 - **Does not change:** `approve-charter` and `approve-business-case` still have zero episodes (recorded gap, not backfilled). `Project-Status-Register.md` still says `approve-ideation` has none; update it after PR #110 merges to avoid a conflict on the same row.
+
+## Governance change — Sync template hardening (sidpa-template e97e8a3..adb93f3)
+- **Date:** 2026-11-04
+- **Branch:** `governance/sync-template-hardening`
+- **Source:** sidpa-template `docs/sequence-and-lessons.md` rules 25-34 and the skill changes behind them.
+- **Changed (Tier 2 skills only):** `implement-story` Step 0 (an existing story branch is not proof of abandonment: check liveness, ask the human, never heal a live run; sequential multi-agent pickup order; rules 28 and 29). `heal-contract-failure` (third trigger: dependency-bump PRs, rule 34; resume section waits for confirmed abandonment, rule 29). `pmbok-planning` (Foundation Pack tailoring and planning-round size, rules 30-33).
+- **Effect on LL-042:** LL-042 ("an existing story branch means a run was already started") stays as recorded; the skills now narrow its handoff to heal-contract-failure so it applies only after abandonment is confirmed. No register entry was rewritten.
+- **Not ported:** template rules 25 to 27 (framework-agnostic wording, JS/TS and Rust skeletons: this repo is pytest only) and the rule text itself (kept in the template as the source). Step 6 and the Definition of Done already run the whole suite.
+- **Verified:** `uv run pytest --ignore=tests/test_spark.py --ignore=tests/pmbok`: 1858 passed, 1 skipped (`tests/pmbok` excluded per ADR-034, LL-013).
+

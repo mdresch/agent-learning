@@ -4,9 +4,10 @@ report_id: "REP-STAGE12-OUTCOME-PHASE1"
 baseline_id: "PMP-BL-v1.0.0"
 lifecycle_stage: "Stage 12 (Actual Outcome)"
 pmbok_process: "5.5 Validate Scope & Value Realization"
-date: "2026-11-04"
+date: "2026-11-05"
 governance_policy: "none (Empirical Observation; records no approval and certifies no gate)"
-evidence_commit: "f86530a"
+evidence_commit: "5d4b05a"
+related_assessment: "REP-BRR-PHASE1-20261105 (Benefit-Realization-Review-Assessment.md)"
 ---
 
 # Stage 12 Actual Outcome Assessment: Phase 1
@@ -52,10 +53,11 @@ Phase 1 built the machinery for both options and validated neither hypothesis. T
 
 These are facts from the repository, not value claims:
 
-- Full test suite at `3567c96`: 1857 passed, 1 skipped, with `tests/test_spark.py` and `tests/pmbok` excluded (LL-013, ADR-034).
+- Full test suite at `5d4b05a` (2026-11-05): **1840 passed, 3 skipped, 0 failures**, with `tests/test_spark.py` and `tests/pmbok` excluded (LL-013, ADR-034). All contracts available and passing — **NO REGRESSION** detected.
 - Stories: 58 of 144 implemented, 60 approved and Ready but not built, 25 Draft or blocked, 1 superseded (`python scripts/phase_rollup.py`).
-- Drift: 15 stories have a status line that disagrees with `implementation-log.md` (AUDIT-006).
+- Drift: 0 stories have a status line that disagrees with `implementation-log.md` (AUDIT-006 reconciled by PR #117).
 - Audit: one bounded audit approved on 2026-11-04 (AUDIT-001 to AUDIT-006). It found ADR-034's decommissioning criteria not yet met (AUDIT-004).
+- Governance: PR #114-#117 merged — `approve-business-case`, `approve-charter`, `approve-audit-record` gates all have recorded episodes.
 
 ## 6. What blocks a real outcome measurement
 
@@ -73,4 +75,5 @@ These are facts from the repository, not value claims:
 ## 8. Inputs to Stages 13 to 18
 
 - Stage 13: raw observations from §6 and the open drift rows go into `OBS-*.md` notes in the Obsidian brain.
+- Stage 13 (Benefit Realization Review): **COMPLETED** — See `Benefit-Realization-Review-Assessment.md` (REP-BRR-PHASE1-20261105) for full assessment: all contracts pass (1840 passed, 0 failures), no regression, benefits realization at 12.5% (0 fully realized, 2 partially realized, 3 not started).
 - Stage 18: HYP-AL-008 and HYP-AL-009 enter with no Bayes factor from real data, which `adjudicate_hypothesis_batch()` cannot treat as a terminal state without one. The carry-over backlog is the seed for the next phase.

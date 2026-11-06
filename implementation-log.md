@@ -1797,3 +1797,12 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Recommendations carried:** refresh the Charter's execution status (header, milestones M1 to M4) to what Epics 15, 19 and 20 delivered at the Phase 1 close; update the cited Ideation and Business Case versions. Not done in this change, so the approved text stays what was scored.
 - **Evidence:** the document was read in full; frame scores were authored by the assistant and accepted by the human (AI assessment, not independent measurement). Files: `docs/policy-shapes/{decision-frames/charter-approval.json, results/charter-decision-result.json, results/charter-adjudication-result.json, episodes/charter-approval-episode.json}`.
 - **Gate state after this:** `approve-ideation`, `approve-business-case`, `approve-charter` all have a first episode. `approve-pmp`, `approve-audit-record`, `approve-adaptation-plan` and `approve-intent-refinement` still have none.
+
+---
+
+## Governance catch-up — Pillar Code Map for the original microsoft/agent-learning code (Draft)
+- **Date:** 2026-11-04
+- **Branch:** `governance/pillar-code-map`
+- **What:** new `docs/project-docs/Pillar-Code-Map.md` (Draft, not approved) assigning the 54 original `src/**/*.py` files (upstream `476f367`) plus `scripts/estimate_learning_cost.py` to the nine approved pillars, with coverage from Microsoft's shipped tests and the component skill that names each file. New `tests/test_pillar_code_map.py` (3 tests): every mapped file exists, every pillar is an approved pillar, no file is mapped twice.
+- **Finding:** the original code lands in four pillars (48 files in "Frozen-model, in-process learning", 4 in "Earned, auditable autonomy", 2 in "One TaskPolicy ...", 1 in "Packaged contextual learning"). Pillars 6 to 8 are served only by fork code; pillar 9 has no code. 46 of 55 files are named by no component skill. Nine files are under 60% coverage from shipped tests (`classifiers/router.py` 26%, `storage/cosmos.py` 29%, `metrics/intent_resolution.py` 45%, `metrics/task_completion.py` 45%, `spark.py` 46%, `metrics/base.py` 51%, `cli.py` 54%, `metrics/task_adherence.py` 56%, `classifiers/base.py` 57%).
+- **Not done (open):** governed ADR, BRD, FDD and Stories for the original code (to be approved prospectively, no backdating); component skills for uncovered areas; governed contracts starting with the nine low-coverage files; amendment of `Project-Pillars.md` and a prospective `approve-project-pillars` run. The map assigns pillars by module purpose (judgment), not measurement.

@@ -1776,3 +1776,13 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Not ported:** template rules 25 to 27 (framework-agnostic wording, JS/TS and Rust skeletons: this repo is pytest only) and the rule text itself (kept in the template as the source). Step 6 and the Definition of Done already run the whole suite.
 - **Verified:** `uv run pytest --ignore=tests/test_spark.py --ignore=tests/pmbok`: 1858 passed, 1 skipped (`tests/pmbok` excluded per ADR-034, LL-013).
 
+---
+
+## Governance gate — approve-business-case (Business-Case.md v1.5 with Benefits-Management-Plan.md v1.1)
+- **Date:** 2026-11-04 (prospective: recorded when approved, not backdated)
+- **Branch:** `governance/approve-business-case`
+- **Gate:** `agent-learning-governance` / `approve-business-case`. Recommendation `approve_business_case` (robust utility 0.607; request revision 0.232; reject 0.055). Human acceptance by Menno on 2026-11-04. Episode `50134905-b1c2-46d4-b0e5-82eb3190d2a5` in the store at `AGENT_LEARNING_LOCAL_STORE_DIR` (socialengage store, LL-040).
+- **Context (sponsor statement):** the scores are lower than an upfront approval would give because this is governance catch-up: the Charter was approved first and this gate had no earlier episode. Recorded as `approval_context: governance_catch_up` in the episode metadata.
+- **Evidence:** both documents read in full; frame scores were authored by the assistant and accepted by the human (AI assessment, not independent measurement). Files: `docs/policy-shapes/{decision-frames/business-case-approval.json, results/business-case-decision-result.json, results/business-case-adjudication-result.json, episodes/business-case-approval-episode.json}`.
+- **Weak points carried, not hidden:** no monetary ROI (ordinal proxies, named), benefit quantification deferred, ADR status and Option A dependency are dated snapshots, Benefits Management Plan cites older Ideation and Business Case versions, Approver field in the Business Case still reads "Not yet assigned".
+- **Does not change:** `approve-charter` still has zero episodes (recorded gap, not backfilled).

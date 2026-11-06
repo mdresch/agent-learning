@@ -2,7 +2,7 @@
 
 **Version:** 1.1
 **Date:** 2026-10-21
-**Status:** Draft — retrofitted, not a true pre-Charter input
+**Status:** Approved (2026-11-04, Menno Drescher) with `Business-Case.md` v1.5 via `approve-business-case` (episode `50134905-b1c2-46d4-b0e5-82eb3190d2a5`). Still a retrofit, not a true pre-Charter input: approval is a governance catch-up, not an upfront design approval. Not backdated.
 **Source:** `docs/project-docs/Ideation-Document.md` v1.8, `docs/project-docs/Business-Case.md` v1.4, `docs/project-docs/Project-Charter.md` v1.5, and PMBOK® Guide 8th Edition §2.1 (Governance Performance Domain), per excerpts the user supplied directly
 **Revision (v1.0 → v1.1):** incorporates two external governance reviews, each checked against the real source chain (Ideation §2.2/§3.1, Project-Charter.md §7) before acceptance — findings were not applied wholesale. See "External Review Disposition" near the end for what was accepted, corrected, or rejected, and why.
 

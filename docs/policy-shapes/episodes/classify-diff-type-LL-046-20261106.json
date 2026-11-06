@@ -1,0 +1,51 @@
+{
+  "episode_id": "c3d4e5f6-g7h8-9012-cdef-123456789012",
+  "timestamp": "2026-11-06T10:10:00Z",
+  "policy": "classify-diff-type",
+  "action": "classify",
+  "lesson_id": "LL-046",
+  "lesson_title": "Dual Evidence Storage Requires Reconciliation",
+  "diff_type": "process",
+  "subtype": "governance",
+  "evidence_basis": "execution",
+  "affected_artifacts": [
+    "src/agent_learning/governance.py",
+    "docs/policy-shapes/episodes/",
+    "AGENT_LEARNING_LOCAL_STORE_DIR",
+    "docs/registers/Audit-Register.md"
+  ],
+  "scope": "synchronization",
+  "impact": "high",
+  "confidence": "high",
+  "classification_timestamp": "2026-11-06T10:10:00Z",
+  "classifier": "classify-diff-type",
+  "rationale": "The change affects governance procedures and evidence management processes. While it doesn't change the architectural structure, it requires updates to how governance evidence is captured, stored, and synchronized across systems. The issue is that gate evidence exists in two locations (external store and repository copies) with no reconciliation mechanism, and upstream gates lack episodes entirely. This is a process-level change that affects the project's governance procedures and audit trail integrity. The evidence basis is 'execution' as this was discovered through the execution of Stage 15 lessons learned from INSIGHT-004 (derived from OBS-001, OBS-007, OBS-008).",
+  "decision": "Classify LL-046 as process/governance diff requiring Project Manager approval",
+  "decision_maker": "classify-diff-type (FULL authority)",
+  "evidence": {
+    "basis": "execution",
+    "artifacts": [
+      "docs/insights/INSIGHT-004.md",
+      "docs/observations/OBS-001.md",
+      "docs/observations/OBS-007.md",
+      "docs/observations/OBS-008.md",
+      "docs/project-docs/Status-Reports/Stage-15-Lesson-Learned-Assessment.md",
+      "docs/project-docs/Lessons-Learned-Register.md",
+      "docs/registers/Audit-Register.md"
+    ],
+    "lesson_text": "Gate evidence is split between the repository and an external store. A gate decision and adjudication write nothing; only registering the episode does, and it writes to a store outside the repository. The repository keeps copies under docs/policy-shapes, so the same gate has two records that nothing compares. Two upstream gates (approve-charter, approve-business-case) have no episode at all while later gates do. The chain's gate record is incomplete in the store and the repo alike."
+  },
+  "related_episodes": [
+    "42114091-0ccd-4c45-9b6b-c97046b048bd",
+    "c882fd98-427f-49e7-ae84-b985fa372230"
+  ],
+  "stage": 16,
+  "pmbok_process": "4.6 Perform Integrated Change Control",
+  "project_phase": "Phase 1",
+  "links": {
+    "lesson": "../project-docs/Lessons-Learned-Register.md#ll-046",
+    "insight": "../insights/INSIGHT-004.md",
+    "assessment": "../project-docs/Status-Reports/Stage-16-Governance-Change-Assessment.md",
+    "methodology": "../project-docs/Methodology/Stage-16-Governance-Change-Methodology.md"
+  }
+}

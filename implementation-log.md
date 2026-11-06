@@ -1786,3 +1786,14 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Evidence:** both documents read in full; frame scores were authored by the assistant and accepted by the human (AI assessment, not independent measurement). Files: `docs/policy-shapes/{decision-frames/business-case-approval.json, results/business-case-decision-result.json, results/business-case-adjudication-result.json, episodes/business-case-approval-episode.json}`.
 - **Weak points carried, not hidden:** no monetary ROI (ordinal proxies, named), benefit quantification deferred, ADR status and Option A dependency are dated snapshots, Benefits Management Plan cites older Ideation and Business Case versions, Approver field in the Business Case still reads "Not yet assigned".
 - **Does not change:** `approve-charter` still has zero episodes (recorded gap, not backfilled).
+
+---
+
+## Governance gate — approve-charter (Project-Charter.md v1.9)
+- **Date:** 2026-11-04 (prospective: recorded when approved, not backdated)
+- **Branch:** `governance/approve-charter`
+- **Gate:** `agent-learning-governance` / `approve-charter`. Recommendation `approve_charter` (robust utility 0.672; request revision 0.187; reject 0.044). Human acceptance by Menno on 2026-11-04, approved with recommendations. Episode `30bf4d8d-9896-42fc-b0d0-8dcd496acec1` in the store at `AGENT_LEARNING_LOCAL_STORE_DIR` (socialengage store, LL-040), `approval_context: governance_catch_up`.
+- **Context:** the Charter's section 12 records a 2026-10-21 self-commitment ("Approved by: Menno") with no earlier gate episode. That text is unchanged; this episode is the first gate record. The Business Case gate (PR #114) was run before this one, the reverse of the template order (Benefit at Stage 4 is a Charter input), and that sequencing is a known catch-up artefact.
+- **Recommendations carried:** refresh the Charter's execution status (header, milestones M1 to M4) to what Epics 15, 19 and 20 delivered at the Phase 1 close; update the cited Ideation and Business Case versions. Not done in this change, so the approved text stays what was scored.
+- **Evidence:** the document was read in full; frame scores were authored by the assistant and accepted by the human (AI assessment, not independent measurement). Files: `docs/policy-shapes/{decision-frames/charter-approval.json, results/charter-decision-result.json, results/charter-adjudication-result.json, episodes/charter-approval-episode.json}`.
+- **Gate state after this:** `approve-ideation`, `approve-business-case`, `approve-charter` all have a first episode. `approve-pmp`, `approve-audit-record`, `approve-adaptation-plan` and `approve-intent-refinement` still have none.

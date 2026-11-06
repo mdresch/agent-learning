@@ -1767,12 +1767,25 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Known staleness carried, not hidden:** the `snapshot_accuracy_dated` criterion scored 0.60 because several 2026-10-25 statements are now superseded (§2.1.3 says ADR-014 to ADR-023 are Proposed with no code; Objective 4 "not yet true"; HYP-AL-008/009 still Formulated after Epics 15 and 20). Hypotheses stay open until Stage 18.
 - **Does not change:** `approve-charter` and `approve-business-case` still have zero episodes (recorded gap, not backfilled). `Project-Status-Register.md` still says `approve-ideation` has none; update it after PR #110 merges to avoid a conflict on the same row.
 
-## Governance gate — approve-audit-record (Audit-Register.md AUDIT-001 to AUDIT-006)
-- **Date:** 2026-11-04 (prospective: recorded when approved, not backdated)
-- **Gate:** `agent-learning-governance` / `approve-audit-record`. Recommendation `approve_audit_record` (robust utility 0.682; request revision 0.199; reject 0.044). Human acceptance by Menno on 2026-11-04. Episode `42114091-0ccd-4c45-9b6b-c97046b048bd` in the store at `AGENT_LEARNING_LOCAL_STORE_DIR` (socialengage store, LL-040; 402 files before registration, 403 after).
-- **Evidence:** findings checked against code at git `f86530a`; the assistant authored the frame scores from that read, so they are an AI assessment accepted by the human, not independent measurement. Frame, decision and adjudication results, and episode: `docs/policy-shapes/{decision-frames/audit-record-approval.json, results/audit-record-decision-result.json, results/audit-record-adjudication-result.json, episodes/audit-record-approval-episode.json}`.
-- **Scope carried, not hidden:** a bounded sample (ADR-015, 019, 020, 034 and the story-status drift report). The other ADRs were not audited. Two drift findings stay open: AUDIT-004 (ADR-034 legacy `pmbok/` not yet decommissioned, tracked as Stories 34.4 and 34.5) and AUDIT-006 (15 status-drift stories, not reconciled).
-- **Does not change:** `approve-charter` and `approve-business-case` still have zero episodes (recorded gap, not backfilled).
+## Story 9.3 — Low-Pass Outcome Damping and Cumulative Lineage Kernel
+- **Commit:** `105b6ef`
+- **Date:** 2026-10-25
+- **Branch:** `feat/story-9.3`
+- **Source ADR / BRD / FDD:** ADR-009, BRD-009, FDD-009
+- **Files Modified/Created:**
+  - `pmbok/models/intent_refinement.py` (added `StrategicWhiplashError`, `LowPassOutcomeDampingFilter`, `validate_strategic_pivot_capacity()`, `compute_lineage_kernel()`)
+  - `.claude/skills/intent-refinement/SKILL.md` (updated with Story 9.3 constraints and API call sites)
+  - `tests/pmbok/test_intent_refinement.py` (added 3 contract tests for $AC_9, AC_{10}, AC_{11}$)
+  - `docs/user-stories/epic-9-intent-refinement-and-cognitive-feedback-loop.md` (status updated to Completed)
+- **Validation:**
+  - $AC_9$: `LowPassOutcomeDampingFilter` dampens high-frequency outcome noise with momentum $\beta \in [0.6, 0.85]$ and bias-corrected warmup for $N < 3$.
+  - $AC_{10}$: `validate_strategic_pivot_capacity()` enforces S3-S4 homeostatic balance ($\text{Pivots}_{\max} \le \lceil C_{\text{adapt}} / 2 \rceil$), raising `StrategicWhiplashError` on violation.
+  - $AC_{11}$: `compute_lineage_kernel()` computes deterministic hereditary SHA-256 knowledge hash linking generations without epistemic decay.
+  - Full test suite: 26/26 passed in `test_intent_refinement.py` (1.18s); 303/303 passed in `sidpa-template` (29.20s).
+- **Restored 2026-11-04:** this entry was deleted by commit `c97921e` (2026-10-25, a hash-fix for Story 10.1) and is re-added verbatim from `implementation-log.md` at `342880b`. The implementation commit `105b6ef` is on `main`. Found by `phase_rollup.py --check` (AUDIT-006).
+
+
+---
 
 ## Story 1.1 — Exclude `full`-authority episodes from `ReinforceLearner`'s training batch
 - **Commit:** `ce9346c`
@@ -1795,22 +1808,8 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - Full test suite: 18/18 passed in `test_learner.py`; 101/101 passed in `test_audit.py`; 442/442 passed across entire core test suite; 303/303 passed in `sidpa-template`. Zero regressions.
 - **Restored 2026-11-04:** this entry was deleted by commit `c97921e` (2026-10-25, a hash-fix for Story 10.1) and is re-added verbatim from `implementation-log.md` at `342880b`. The implementation commit `ce9346c` is on `main`. Found by `phase_rollup.py --check` (AUDIT-006).
 
-## Story 9.3 — Low-Pass Outcome Damping and Cumulative Lineage Kernel
-- **Commit:** `105b6ef`
-- **Date:** 2026-10-25
-- **Branch:** `feat/story-9.3`
-- **Source ADR / BRD / FDD:** ADR-009, BRD-009, FDD-009
-- **Files Modified/Created:**
-  - `pmbok/models/intent_refinement.py` (added `StrategicWhiplashError`, `LowPassOutcomeDampingFilter`, `validate_strategic_pivot_capacity()`, `compute_lineage_kernel()`)
-  - `.claude/skills/intent-refinement/SKILL.md` (updated with Story 9.3 constraints and API call sites)
-  - `tests/pmbok/test_intent_refinement.py` (added 3 contract tests for $AC_9, AC_{10}, AC_{11}$)
-  - `docs/user-stories/epic-9-intent-refinement-and-cognitive-feedback-loop.md` (status updated to Completed)
-- **Validation:**
-  - $AC_9$: `LowPassOutcomeDampingFilter` dampens high-frequency outcome noise with momentum $\beta \in [0.6, 0.85]$ and bias-corrected warmup for $N < 3$.
-  - $AC_{10}$: `validate_strategic_pivot_capacity()` enforces S3-S4 homeostatic balance ($\text{Pivots}_{\max} \le \lceil C_{\text{adapt}} / 2 \rceil$), raising `StrategicWhiplashError` on violation.
-  - $AC_{11}$: `compute_lineage_kernel()` computes deterministic hereditary SHA-256 knowledge hash linking generations without epistemic decay.
-  - Full test suite: 26/26 passed in `test_intent_refinement.py` (1.18s); 303/303 passed in `sidpa-template` (29.20s).
-- **Restored 2026-11-04:** this entry was deleted by commit `c97921e` (2026-10-25, a hash-fix for Story 10.1) and is re-added verbatim from `implementation-log.md` at `342880b`. The implementation commit `105b6ef` is on `main`. Found by `phase_rollup.py --check` (AUDIT-006).
+
+---
 
 ## Records maintenance — Story status drift reconciled (AUDIT-006)
 - **Date:** 2026-11-04
@@ -1820,3 +1819,56 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Verified:** `phase_rollup.py --check` exits 0 (0 drift rows); group counts are unchanged (58 implemented, 60 Ready, 25 Draft or blocked, 1 superseded).
 - **Not done:** the rule that stops the drift recurring (A3 in `Adaptation-Plan.md`) is still a proposal; this entry is a one-off cleanup, not the fix.
 
+
+
+---
+
+## Governance gate — approve-business-case (Business-Case.md v1.5 with Benefits-Management-Plan.md v1.1)
+- **Date:** 2026-11-04 (prospective: recorded when approved, not backdated)
+- **Branch:** `governance/approve-business-case`
+- **Gate:** `agent-learning-governance` / `approve-business-case`. Recommendation `approve_business_case` (robust utility 0.607; request revision 0.232; reject 0.055). Human acceptance by Menno on 2026-11-04. Episode `50134905-b1c2-46d4-b0e5-82eb3190d2a5` in the store at `AGENT_LEARNING_LOCAL_STORE_DIR` (socialengage store, LL-040).
+- **Context (sponsor statement):** the scores are lower than an upfront approval would give because this is governance catch-up: the Charter was approved first and this gate had no earlier episode. Recorded as `approval_context: governance_catch_up` in the episode metadata.
+- **Evidence:** both documents read in full; frame scores were authored by the assistant and accepted by the human (AI assessment, not independent measurement). Files: `docs/policy-shapes/{decision-frames/business-case-approval.json, results/business-case-decision-result.json, results/business-case-adjudication-result.json, episodes/business-case-approval-episode.json}`.
+- **Weak points carried, not hidden:** no monetary ROI (ordinal proxies, named), benefit quantification deferred, ADR status and Option A dependency are dated snapshots, Benefits Management Plan cites older Ideation and Business Case versions, Approver field in the Business Case still reads "Not yet assigned".
+- **Does not change:** `approve-charter` still has zero episodes (recorded gap, not backfilled).
+
+---
+
+## Governance gate — approve-charter (Project-Charter.md v1.9)
+- **Date:** 2026-11-04 (prospective: recorded when approved, not backdated)
+- **Branch:** `governance/approve-charter`
+- **Gate:** `agent-learning-governance` / `approve-charter`. Recommendation `approve_charter` (robust utility 0.672; request revision 0.187; reject 0.044). Human acceptance by Menno on 2026-11-04, approved with recommendations. Episode `30bf4d8d-9896-42fc-b0d0-8dcd496acec1` in the store at `AGENT_LEARNING_LOCAL_STORE_DIR` (socialengage store, LL-040), `approval_context: governance_catch_up`.
+- **Context:** the Charter's section 12 records a 2026-10-21 self-commitment ("Approved by: Menno") with no earlier gate episode. That text is unchanged; this episode is the first gate record. The Business Case gate (PR #114) was run before this one, the reverse of the template order (Benefit at Stage 4 is a Charter input), and that sequencing is a known catch-up artefact.
+- **Recommendations carried:** refresh the Charter's execution status (header, milestones M1 to M4) to what Epics 15, 19 and 20 delivered at the Phase 1 close; update the cited Ideation and Business Case versions. Not done in this change, so the approved text stays what was scored.
+- **Evidence:** the document was read in full; frame scores were authored by the assistant and accepted by the human (AI assessment, not independent measurement). Files: `docs/policy-shapes/{decision-frames/charter-approval.json, results/charter-decision-result.json, results/charter-adjudication-result.json, episodes/charter-approval-episode.json}`.
+- **Gate state after this:** `approve-ideation`, `approve-business-case`, `approve-charter` all have a first episode. `approve-pmp`, `approve-audit-record`, `approve-adaptation-plan` and `approve-intent-refinement` still have none.
+
+---
+
+## Governance change — Sync template hardening (sidpa-template e97e8a3..adb93f3)
+- **Date:** 2026-11-04
+- **Branch:** `governance/sync-template-hardening`
+- **Source:** sidpa-template `docs/sequence-and-lessons.md` rules 25-34 and the skill changes behind them.
+- **Changed (Tier 2 skills only):** `implement-story` Step 0 (an existing story branch is not proof of abandonment: check liveness, ask the human, never heal a live run; sequential multi-agent pickup order; rules 28 and 29). `heal-contract-failure` (third trigger: dependency-bump PRs, rule 34; resume section waits for confirmed abandonment, rule 29). `pmbok-planning` (Foundation Pack tailoring and planning-round size, rules 30-33).
+- **Effect on LL-042:** LL-042 ("an existing story branch means a run was already started") stays as recorded; the skills now narrow its handoff to heal-contract-failure so it applies only after abandonment is confirmed. No register entry was rewritten.
+- **Not ported:** template rules 25 to 27 (framework-agnostic wording, JS/TS and Rust skeletons: this repo is pytest only) and the rule text itself (kept in the template as the source). Step 6 and the Definition of Done already run the whole suite.
+- **Verified:** `uv run pytest --ignore=tests/test_spark.py --ignore=tests/pmbok`: 1858 passed, 1 skipped (`tests/pmbok` excluded per ADR-034, LL-013).
+
+---
+
+## Governance catch-up — Pillar Code Map for the original microsoft/agent-learning code (Draft)
+- **Date:** 2026-11-04
+- **Branch:** `governance/pillar-code-map`
+- **What:** new `docs/project-docs/Pillar-Code-Map.md` (Draft, not approved) assigning the 54 original `src/**/*.py` files (upstream `476f367`) plus `scripts/estimate_learning_cost.py` to the nine approved pillars, with coverage from Microsoft's shipped tests and the component skill that names each file. New `tests/test_pillar_code_map.py` (3 tests): every mapped file exists, every pillar is an approved pillar, no file is mapped twice.
+- **Finding:** the original code lands in four pillars (48 files in "Frozen-model, in-process learning", 4 in "Earned, auditable autonomy", 2 in "One TaskPolicy ...", 1 in "Packaged contextual learning"). Pillars 6 to 8 are served only by fork code; pillar 9 has no code. 46 of 55 files are named by no component skill. Nine files are under 60% coverage from shipped tests (`classifiers/router.py` 26%, `storage/cosmos.py` 29%, `metrics/intent_resolution.py` 45%, `metrics/task_completion.py` 45%, `spark.py` 46%, `metrics/base.py` 51%, `cli.py` 54%, `metrics/task_adherence.py` 56%, `classifiers/base.py` 57%).
+- **Not done (open):** governed ADR, BRD, FDD and Stories for the original code (to be approved prospectively, no backdating); component skills for uncovered areas; governed contracts starting with the nine low-coverage files; amendment of `Project-Pillars.md` and a prospective `approve-project-pillars` run. The map assigns pillars by module purpose (judgment), not measurement.
+
+
+---
+
+## Governance gate — approve-audit-record (Audit-Register.md AUDIT-001 to AUDIT-006)
+- **Date:** 2026-11-04 (prospective: recorded when approved, not backdated)
+- **Gate:** `agent-learning-governance` / `approve-audit-record`. Recommendation `approve_audit_record` (robust utility 0.682; request revision 0.199; reject 0.044). Human acceptance by Menno on 2026-11-04. Episode `42114091-0ccd-4c45-9b6b-c97046b048bd` in the store at `AGENT_LEARNING_LOCAL_STORE_DIR` (socialengage store, LL-040; 402 files before registration, 403 after).
+- **Evidence:** findings checked against code at git `f86530a`; the assistant authored the frame scores from that read, so they are an AI assessment accepted by the human, not independent measurement. Frame, decision and adjudication results, and episode: `docs/policy-shapes/{decision-frames/audit-record-approval.json, results/audit-record-decision-result.json, results/audit-record-adjudication-result.json, episodes/audit-record-approval-episode.json}`.
+- **Scope carried, not hidden:** a bounded sample (ADR-015, 019, 020, 034 and the story-status drift report). The other ADRs were not audited. Two drift findings stay open: AUDIT-004 (ADR-034 legacy `pmbok/` not yet decommissioned, tracked as Stories 34.4 and 34.5) and AUDIT-006 (15 status-drift stories, not reconciled).
+- **Does not change:** `approve-charter` and `approve-business-case` still have zero episodes (recorded gap, not backfilled).

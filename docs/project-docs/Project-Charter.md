@@ -4,6 +4,7 @@
 **Project Sponsor / Initiator:** Menno
 **Date:** 2026-10-22
 **Status:** **Approved** — M1 underway; M0.5 resolved: **Go**
+**Gate record:** `approve-charter` accepted by Menno on 2026-11-04, a governance catch-up approval (episode `30bf4d8d-9896-42fc-b0d0-8dcd496acec1`, robust utility 0.672), recorded at the time and not backdated. The section 12 approval dated 2026-10-21 stays as written; it was a document-level self-commitment with no earlier gate record. Approved with recommendations: refresh the execution status (header and milestones M1 to M4) to what Epics 15, 19 and 20 delivered at the Phase 1 close, and update the Ideation and Business Case versions cited.
 
 **Versioning convention from this point forward:** this charter is now
 approved and stable. Routine execution-time findings — new M0.5 research

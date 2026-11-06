@@ -26,6 +26,8 @@ description: PMBOK 8 Stage 18 Intent Refinement, Phase Close readiness evaluatio
 - **S3–S4 Homeostatic Capacity Balance ($AC_{10}$):** `validate_strategic_pivot_capacity()` rate-limits proposed strategic pivots against operational adaptation capacity ($\text{Pivots}_{\max} \le \lceil C_{\text{adapt}} / 2 \rceil$). Violations raise `StrategicWhiplashError`.
 - **Cumulative Lineage Kernel ($AC_{11}$):** `compute_lineage_kernel()` generates an immutable `CumulativeLineageKernel` preserving `root_spark`, `parent_refinement`, `immutable_core_invariants`, and an incremental cryptographic SHA-256 knowledge hash linking project generations without memory decay.
 
+- **Run location (LL-043):** `evaluate_phase_close_readiness`, `resolve_hypothesis` and `--mode seed-next` live in the legacy top-level `pmbok/` tree and `scripts/orchestrate_pmbok.py`, and their tests are in `tests/pmbok`, which CI excludes (ADR-034). Before a Stage 18 run, run `uv run pytest tests/pmbok/test_intent_refinement.py` in a clean environment and report the result; do not assume the tooling works because CI is green.
+
 ## Call sites
 
 - `pmbok/models/intent_refinement.py`: Exports `IntentRefinementProposalPayload`, `ReadinessAuditResult`, `ReadinessPreconditionError`, `evaluate_phase_close_readiness`, `HypothesisTerminalityError`, `resolve_hypothesis`, `adjudicate_hypothesis_batch`, `LowPassOutcomeDampingFilter`, `StrategicWhiplashError`, `validate_strategic_pivot_capacity`, `compute_lineage_kernel`.

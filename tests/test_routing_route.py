@@ -186,8 +186,8 @@ def test_ac3_earn_low(base_config: RoutingConfig) -> None:
     assert decision_low.authority == DecisionAuthority.LOW
     assert decision_low.reason == "low"
 
-    # 2. Unapproved bucket -> routes full with reason 'not_approved' for every entropy
-    for probs in [[0.95, 0.05], [0.8, 0.2], [0.5, 0.5]]:
+    # 2. Unapproved bucket with entropy <= tau_deesc -> routes full with reason 'not_approved'
+    for probs in [[0.95, 0.05], [0.90, 0.10]]:
         decision_unapproved = route(
             probs=probs,
             tier="standard",
@@ -198,10 +198,7 @@ def test_ac3_earn_low(base_config: RoutingConfig) -> None:
             cfg=base_config,
         )
         assert decision_unapproved.authority == DecisionAuthority.FULL
-        if probs == [0.95, 0.05] or probs == [0.8, 0.2]:
-            assert decision_unapproved.reason == "not_approved"
-        elif probs == [0.5, 0.5]:
-            assert decision_unapproved.reason == "margin"
+        assert decision_unapproved.reason == "not_approved"
 
 
 def test_ac4_hysteresis(base_config: RoutingConfig) -> None:
@@ -258,6 +255,17 @@ def test_ac4_hysteresis(base_config: RoutingConfig) -> None:
     )
     assert decision_none.authority == DecisionAuthority.FULL
     assert decision_none.reason == "no_previous"
+
+    # 5. Invalid previous string raises ValueError
+    with pytest.raises(ValueError, match="unknown previous"):
+        route(
+            probs=[0.8, 0.2],
+            tier="standard",
+            task_id="classify-request",
+            previous="unrecognized",
+            approved_for_low=True,
+            cfg=base_config,
+        )
 
 
 def test_ac5_no_hunting(base_config: RoutingConfig) -> None:

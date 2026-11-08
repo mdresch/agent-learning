@@ -283,6 +283,10 @@ def route(
             norm_prev = DecisionAuthority.LOW
         elif previous.lower() == "full":
             norm_prev = DecisionAuthority.FULL
+        else:
+            raise ValueError(f"unknown previous route string: {previous}")
+    elif previous is not None:
+        raise ValueError(f"unsupported previous route type: {type(previous)}")
 
     # 4. Escalate check
     if margin_val < cfg.eps_margin:

@@ -94,7 +94,20 @@ def extract_raw_review_texts(pr_data: dict[str, Any]) -> list[tuple[str, str]]:
         # For automated reviewers (e.g. amazon-q, cursor), take their latest full review summary
         if "amazon-q" in author.lower() or "bot" in author.lower():
             # Find the latest body that contains review content
-            review_bodies = [b for b in bodies if "review summary" in b.lower() or "status check" in b.lower() or "resolved findings" in b.lower() or "blocking issues" in b.lower()]
+            review_bodies = [
+                b
+                for b in bodies
+                if any(
+                    k in b.lower()
+                    for k in (
+                        "review summary",
+                        "status check",
+                        "resolved findings",
+                        "blocking issues",
+                        "finding status review",
+                    )
+                )
+            ]
             if review_bodies:
                 sources.append((author, review_bodies[-1]))
             else:
@@ -119,23 +132,47 @@ def convert_unstructured_review_to_tags(author: str, text: str, source_prefix: s
         return tagged_lines
 
     # Amazon Q Review parsing
-    if "amazon-q" in author.lower() or "Review Summary" in text:
+    if "amazon-q" in author.lower() or any(
+        k in text.lower() for k in ("review summary", "finding status review")
+    ):
         # 1. Blocking / Critical issues
         blocking_match = re.search(
-            r"###?\s*(?:Blocking issues found|Critical Issues Found|Critical Issues|Issues requiring fixes)[^\n]*\n([\s\S]*?)(?=\n###?|\Z)",
+            r"###?\s*(?:Blocking issues found|Critical Issues Found|Critical Issues|Issues Found|Issues requiring fixes)[^\n]*\n([\s\S]*?)(?=\n###?|\Z)",
             text,
             re.IGNORECASE,
         )
         if blocking_match:
             block_content = blocking_match.group(1)
-            items = re.findall(r"(?:^|\n)\s*(?:\d+\.|\*|-)\s+(.+?)(?=(?:\n\s*(?:\d+\.|\*|-)\s+)|\Z)", block_content, re.DOTALL)
+            items = re.findall(
+                r"(?:^|\n)\s*(?:\d+\.|\*|-|\*\*\d+\.)\s+(.+?)(?=(?:\n\s*(?:\d+\.|\*|-|\*\*\d+\.)\s+)|\Z)",
+                block_content,
+                re.DOTALL,
+            )
             for idx, item in enumerate(items, start=1):
-                clean_item = " ".join(item.split())
+                clean_item = " ".join(item.split()).replace("**", "")
                 low = clean_item.lower()
                 f_id = f"{source_prefix}-CRIT-{idx}"
                 if any(w in low for w in ("crash", "exception", "attributeerror", "keyerror", "unhandled", "vulnerability")):
                     tagged_lines.append(f"- [criterion: correctness] [claim: crash risk] [verified: yes] [finding: {f_id}]: {clean_item[:120]}")
-                elif any(w in low for w in ("test", "coverage", "unexercised", "untested")):
+                elif any(w in low for w in ("test", "coverage", "unexercised", "untested", "fragile")):
+                    tagged_lines.append(f"- [criterion: test_coverage] [claim: test gap] [verified: yes] [finding: {f_id}]: {clean_item[:120]}")
+                elif any(w in low for w in ("unused", "import", "style", "linter", "format")):
+                    tagged_lines.append(f"- [criterion: implementation_quality] [claim: style] [verified: partial] [finding: {f_id}]: {clean_item[:120]}")
+                else:
+                    tagged_lines.append(f"- [criterion: correctness] [claim: logic error] [verified: yes] [finding: {f_id}]: {clean_item[:120]}")
+        else:
+            single_block = re.search(
+                r"\*\*(?:One|\d+)\s+blocking\s+(?:defect|issue)[s]?\s+(?:was|were)\s+found:?\*\*:?\s*([\s\S]*?)(?=\n\n|\n###|\Z)",
+                text,
+                re.IGNORECASE,
+            )
+            if single_block:
+                clean_item = " ".join(single_block.group(1).split()).replace("**", "")
+                f_id = f"{source_prefix}-CRIT-1"
+                low = clean_item.lower()
+                if any(w in low for w in ("crash", "exception", "attributeerror", "keyerror", "unhandled", "vulnerability")):
+                    tagged_lines.append(f"- [criterion: correctness] [claim: crash risk] [verified: yes] [finding: {f_id}]: {clean_item[:120]}")
+                elif any(w in low for w in ("test", "coverage", "unexercised", "untested", "fragile")):
                     tagged_lines.append(f"- [criterion: test_coverage] [claim: test gap] [verified: yes] [finding: {f_id}]: {clean_item[:120]}")
                 elif any(w in low for w in ("unused", "import", "style", "linter", "format")):
                     tagged_lines.append(f"- [criterion: implementation_quality] [claim: style] [verified: partial] [finding: {f_id}]: {clean_item[:120]}")
@@ -144,7 +181,7 @@ def convert_unstructured_review_to_tags(author: str, text: str, source_prefix: s
 
         # 2. Remaining / Open items (Minor gaps)
         remaining_match = re.search(
-            r"###?\s*⚠️?\s*Remaining\s*/?\s*open items[^\n]*\n([\s\S]*?)(?=\n###?|\Z)",
+            r"###?\s*⚠️?\s*(?:Remaining\s*/?\s*open items|Remaining\s*items|Open\s*items)[^\n]*\n([\s\S]*?)(?=\n###?|\Z)",
             text,
             re.IGNORECASE,
         )
@@ -153,7 +190,7 @@ def convert_unstructured_review_to_tags(author: str, text: str, source_prefix: s
             table_rows = re.findall(r"\|\s*\d+\s*\|\s*([^|]+)\|\s*([^|]+)\|", rem_content)
             if table_rows:
                 for idx, (finding_title, notes) in enumerate(table_rows, start=1):
-                    clean_row = f"{finding_title.strip()}: {notes.strip()}"
+                    clean_row = f"{finding_title.strip()}: {notes.strip()}".replace("**", "")
                     low = clean_row.lower()
                     f_id = f"{source_prefix}-OPEN-{idx}"
                     if any(w in low for w in ("test", "tolerance", "residual")):
@@ -163,33 +200,39 @@ def convert_unstructured_review_to_tags(author: str, text: str, source_prefix: s
             else:
                 items = re.findall(r"(?:^|\n)\s*(?:\d+\.|\*|-)\s+(.+?)(?=(?:\n\s*(?:\d+\.|\*|-)\s+)|\Z)", rem_content, re.DOTALL)
                 for idx, item in enumerate(items, start=1):
-                    clean_item = " ".join(item.split())
+                    clean_item = " ".join(item.split()).replace("**", "")
                     f_id = f"{source_prefix}-OPEN-{idx}"
                     tagged_lines.append(f"- [criterion: implementation_quality] [claim: logic error] [verified: partial] [finding: {f_id}]: {clean_item[:120]}")
 
         # 3. Resolved in this commit (Confirmations)
         resolved_match = re.search(
-            r"###?\s*✅?\s*Resolved in this commit[^\n]*\n([\s\S]*?)(?=\n###?|\Z)",
+            r"###?\s*✅?\s*(?:Resolved in this commit|Resolved\s*/\s*Correctly Implemented|Resolved findings)[^\n]*\n([\s\S]*?)(?=\n###?|\Z)",
             text,
             re.IGNORECASE,
         )
         if resolved_match:
             res_content = resolved_match.group(1)
-            table_rows = re.findall(r"\|\s*\d+\s*\|\s*([^|]+)\|\s*([^|]+)\|", res_content)
-            if table_rows:
-                for idx, (title, _) in enumerate(table_rows, start=1):
-                    clean_t = title.strip().replace("*", "")
-                    f_id = f"{source_prefix}-RES-{idx}"
-                    if "invariant 6" in clean_t.lower() or "upstream" in clean_t.lower():
-                        tagged_lines.append(f"- [criterion: upstream_fork_purity] [claim: confirmation] [verified: yes] [finding: {f_id}]: {clean_t[:120]}")
-                    else:
-                        tagged_lines.append(f"- [criterion: correctness] [claim: confirmation] [verified: yes] [finding: {f_id}]: {clean_t[:120]}")
+            table_rows = re.findall(r"\|\s*([^|]+)\|\s*([^|]+)\|\s*([^|]+)\|", res_content)
+            idx = 1
+            for r in table_rows:
+                col0 = r[0].strip().replace("*", "")
+                col1 = r[1].strip().replace("*", "")
+                if not col0 or col0.startswith("-") or col0.lower() in ("#", "finding area", "finding"):
+                    continue
+                title = col1 if col0.isdigit() else col0
+                f_id = f"{source_prefix}-RES-{idx}"
+                idx += 1
+                if "invariant 6" in title.lower() or "upstream" in title.lower():
+                    tagged_lines.append(f"- [criterion: upstream_fork_purity] [claim: confirmation] [verified: yes] [finding: {f_id}]: {title[:120]}")
+                else:
+                    tagged_lines.append(f"- [criterion: correctness] [claim: confirmation] [verified: yes] [finding: {f_id}]: {title[:120]}")
 
         # 4. General positive confirmation if no blocking issues
         if (
             "no blocking issues found" in text.lower()
             or "looks correct" in text.lower()
             or "status: none" in text.lower()
+            or "none prevent merge" in text.lower()
         ) and not any("crash risk" in l or "logic error" in l for l in tagged_lines):
             f_id = f"{source_prefix}-CONFIRM"
             tagged_lines.append(

@@ -2499,3 +2499,35 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - $AC_1$: Strict boolean-only validation: non-boolean values (`"true"`, `"false"`, `1`, `0`, `None`, lists, dicts) raise `ValueError` naming the offending action ID, both at policy instantiation (`from_actions`) and snapshot deserialization (`from_snapshot`).
   - $AC_2$: With an empty safe subset (no reversible actions), the exploration rate applied is forced to 0.0 for every $t \ge 0$, including $t = 0$.
   - $AC_3$: Policy built from real repository definitions in `docs/policy-shapes/approve-adr.actions.json` has an empty safe subset and applied rate of 0.0 across all $t$.
+
+
+---
+
+## Story 17.3 — Choosing and Replaying
+- **Commit:** `54b10dc`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-17.3`
+- **Source ADR / BRD / FDD:** ADR-017 (§4.1, §4.2, §4.3), BRD-017 (BRU-017-05, BRU-017-06, BRU-017-07), FDD-017 (§2.3, §3.3, §3.4, §3.5, §3.7)
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/policy/epsilon_greedy.py` (`EpsilonGreedyPolicy.choose`, `last_decision_record`, `replay`, `_find_greedy_action`)
+  - `src/agent_learning_ext/policy/__init__.py` (re-export `replay`)
+  - `tests/test_epsilon_policy.py` (contract tests for $AC_0$ through $AC_7$, interpretations $I_1$ to $I_3$)
+  - `docs/user-stories/epic-17-scheduled-epsilon-greedy-policy.md` (Story 17.3 marked Completed)
+- **Contracts:**
+  - `tests/test_epsilon_policy.py`
+  - Contract run: 9 passed in 1.61s
+  - Cumulative suite: 43 passed across Epic 17 (`test_epsilon_schedule.py`, `test_epsilon_safety_mask.py`, `test_epsilon_policy.py`)
+- **Notes:**
+  - Pre-flight specification gate (`scripts/spec_gate.py 17.3`) evaluated: passed with robust utility 0.7040 and margin +0.1827 (episode `spec-17_3-5b41d3c3`).
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Zero changes to `src/agent_learning/`. All exploration policy logic isolated in `src/agent_learning_ext/policy/epsilon_greedy.py`.
+    - $I_2$: Empty Collection Base Case: Verified policy with no actions raises `ValueError("policy has no actions")`.
+    - $I_3$: Non-Finite Float Rejection: Bounded mathematical operations verified.
+  - $AC_0$: When rate is 0.0 (e.g. no safe actions), `choose` strictly picks the greedy action with highest mean; unpulled actions count as 0.5 (neutral mean); ties break by higher pull count then smaller ID; identical deterministic output across 100 calls.
+  - $AC_1$: Branch coin $u = \text{rng.random()}$ drawn from PRNG seeded via `seed_for(snapshot.id, request_id, timestamp)`. Branch is `"exploration"` iff $u < \epsilon$. Over 10,000 distinct request IDs at $t=0$ on the base policy ($\epsilon=0.5$), empirical exploration frequency is $0.5 \pm 0.02$.
+  - $AC_2$: Exploration randomly chooses among the ID-sorted safe action list (`{a, b}`); over 10,000 runs, non-safe action `c` is never picked.
+  - $AC_3$: `last_decision_record()` returns the dict specified in FDD-017 §2.3 with decimal string `prng_seed`, surviving JSON serialization and protecting against external mutation.
+  - $AC_4$: `replay(record, snapshot)` verifies and reproduces recorded decisions across both exploration and exploitation branches; raises `ValueError` on seed mismatch.
+  - $AC_5$: `choose()` without arguments generates random UUID request_id and UTC timestamp, stores record, and successfully replays.
+  - $AC_6$: `Decision.probabilities` match closed-form formula $(1 - \epsilon) \cdot [a=g] + \frac{\epsilon}{|S|} \cdot [a \in S]$, sum to 1 within $10^{-12}$, and `Decision.logprob` is strictly `None`.
+  - $AC_7$: `apply_update` raises `TypeError("use EpsilonGreedyLearner")` and `choose` leaves the snapshot completely unmodified.

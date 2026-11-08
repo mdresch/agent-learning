@@ -15,7 +15,7 @@ Fixture used by the criteria below ("the base statistics"): action `a` with 10 p
 
 ## Story 16.1 — The Scores
 
-**Status:** Ready  
+**Status:** Completed (2026-11-08, commit cfa05c5)  
 **As** an auditor, **I want** each action's bound computed by a pure function of its counts, **so that** a choice can be checked by hand.
 
 ### Acceptance Criteria:

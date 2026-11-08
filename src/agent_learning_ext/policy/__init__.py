@@ -16,11 +16,17 @@ from agent_learning.policy.scope_advice import (
     recommend,
 )
 from agent_learning.policy.thompson import ThompsonPolicy
+from agent_learning_ext.policy.action_statistics import ActionStats
+from agent_learning_ext.policy.ucb import C_DEFAULT, SELECTION_BASIS, WILSON_Z, ucb_scores
 
 __all__ = [
     "ADVICE_TASK_ID",
+    "C_DEFAULT",
     "DECISION_KINDS",
     "GATE_TASK_ID",
+    "SELECTION_BASIS",
+    "WILSON_Z",
+    "ActionStats",
     "ContextualSoftmaxPolicy",
     "Policy",
     "ScopeRecommendation",
@@ -29,4 +35,5 @@ __all__ = [
     "advice_reward",
     "baseline_snapshot",
     "recommend",
+    "ucb_scores",
 ]

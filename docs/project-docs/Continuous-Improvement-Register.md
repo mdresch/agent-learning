@@ -56,6 +56,9 @@ An entry records only what the epic's work actually surfaced. Do not seed this r
 | IMP-021 | Epic 16 | Continuous-Domain Parameter Widening Guard in Spec Auditor | Architectural simplification / Governance | Teach `spec_gate.py` to explicitly detect and flag when classical discrete primitives (e.g. Wilson score interval) are widened to continuous domains ($[0, \text{total}]$ with float successes), generating rationale tags for PR reviewers. | Eliminates repetitive review debate cycles across future bandit and exploration policies (e.g., Epic 17 Epsilon-Greedy). | In-Flight Candidate |
 | IMP-022 | Epic 16 | Public Ingestion Guard Ordering Pattern (Deduplication First) | Architectural simplification / Reliability | Standardize batch-ingestion loops in policy statistics and storage writers (`add_rewards`, `store_episodes`) to place the duplicate-skip check (`if id in seen: continue`) ahead of value and schema validation. | Ensures idempotent replay of heterogeneous batches containing legacy/foreign records without spurious validation halts on already-consumed data. | In-Flight Candidate |
 | IMP-023 | Epic 16 | Low-Authority Exploration Dataset Generation for HYP-AL-009 | Product opportunity | Build a synthetic low-authority benchmark simulator that generates mixed successes and failures (at least 100 scored episodes) to empirically benchmark UCB-1, Wilson-UCB, and Thompson sampling against REINFORCE on non-positive-only reward regimes (BRU-016-11). | Empirically resolves HYP-AL-009 with statistical significance rather than relying solely on positive-only consistency replays. | Rolled into Phase Next Intent Refinement |
+| IMP-024 | Epic 18 | Strict Floating-Point Zero-Rel-Tol Auditor in Spec Gate | Developer experience / Testability | Enhance `scripts/spec_gate.py` to identify floating-point assertions that specify `abs_tol` without explicit `rel_tol=0.0` or direct absolute difference checks, warning when default `rel_tol=1e-9` could silently relax tight contracts ($10^{-12}$). | Guarantees test contracts enforce exact mathematical invariance without silent tolerance relaxation. | In-Flight Candidate |
+| IMP-025 | Epic 18 | Automated Preference Pair Adapter from Curated Triage Dataset | ML Pipeline / Ingestion | Wire `tests/fixtures/critique_evidence/triage_replay_dataset.json` (139 human triage decisions) into a preference pair loader feeding `PairwiseLearner` directly via `TrainingRunner`. | Provides empirical human code review preferences to calibrate discrete governance decision policies offline. | In-Flight Candidate |
+| IMP-026 | Epic 18 | Synthetic Red Team Pair Set for Discrete Policy Robustness | Product opportunity / Governance | Implement the unbuilt Red Team pair set (BRU-018-12) derived from the 3 adversarial and 6 diff governance fixtures to stress-test `PairwiseLearner` under adversarial preference overrides. | Empirically stress-tests policy divergence bounds under targeted adversarial perturbation. | Rolled into Phase Next Intent Refinement |
 
 ---
 
@@ -104,6 +107,13 @@ One entry per epic recap, appended in the order held. Format:
 - **Cadence Date:** 2026-11-08
 - **Defensive Review (LL-###):** LL-046 (Continuous-Domain Widening in Statistical Bounds Must Be Guarded Against Classical Integer Reversion)
 - **Positive Improvement Harvest:** IMP-021, IMP-022, IMP-023
+
+---
+
+### Epic 18: Pairwise Preference Optimization for Discrete Action Logits
+- **Cadence Date:** 2026-11-08
+- **Defensive Review (LL-###):** LL-047 (Enforce Explicit Numerical Tolerances and Non-Tautological Contract Assertions)
+- **Positive Improvement Harvest:** IMP-024, IMP-025, IMP-026
 
 ---
 

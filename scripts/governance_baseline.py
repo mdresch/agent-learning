@@ -39,7 +39,7 @@ FAMILIES = {
     "fdd": ("docs/project-docs/Functional-Design/FDD-*.md", "approve-fdd"),
     "story": ("docs/user-stories/epic-*.md", "approve-user-stories"),
 }
-GOVERNED = {"approved", "accepted", "completed", "superseded"}
+GOVERNED = {"approved", "accepted", "completed", "superseded", "in"}
 EPISODE = re.compile(r"episode `([0-9a-f]{8})")
 AMENDMENT = re.compile(r"[Aa]mended (\d{4}-\d{2}-\d{2}) at Stage 16\b.*?episode `([0-9a-f]{8})")
 

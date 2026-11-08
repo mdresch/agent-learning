@@ -111,6 +111,13 @@ def test_story_progress_in_a_status_line_is_not_an_amendment(tree: tuple[dict, P
         root,
         "story",
         "**Status:** Approved\n",
+        "**Status:** In Progress (Stories 1.1 In Progress)\n",
+    )
+    assert gb.find_problems(manifest, root) == []
+    edit(
+        root,
+        "story",
+        "**Status:** In Progress (Stories 1.1 In Progress)\n",
         "**Status:** Completed (2026-11-05), implemented in feat/story-1.1.\n",
     )
     assert gb.find_problems(manifest, root) == []

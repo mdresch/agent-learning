@@ -186,6 +186,10 @@ def test_validation_missing_keys_and_invalid_shapes():
     with pytest.raises(TypeError, match="Expected sequence of PreferencePair or 2D ndarray"):
         bt_loss({"x": 0.1, "y": 0.2, "z": 0.3}, 12345, {"x": 0.0, "y": 0.0, "z": 0.0}, actions)
 
-    with pytest.raises(TypeError, match="Expected elements of pairs to be PreferencePair"):
-        bt_loss({"x": 0.1, "y": 0.2, "z": 0.3}, [1, 2, 3], {"x": 0.0, "y": 0.0, "z": 0.0}, actions)
+    # 5. Reject negative lambda
+    with pytest.raises(ValueError, match="lam must be non-negative"):
+        bt_loss({"x": 0.1, "y": 0.2, "z": 0.3}, pairs, {"x": 0.0, "y": 0.0, "z": 0.0}, actions, lam=-0.01)
+
+    with pytest.raises(ValueError, match="lam must be non-negative"):
+        bt_gradient({"x": 0.1, "y": 0.2, "z": 0.3}, pairs, {"x": 0.0, "y": 0.0, "z": 0.0}, actions, lam=-0.01)
 

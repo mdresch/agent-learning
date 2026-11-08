@@ -149,6 +149,8 @@ def bt_loss(
     loss(theta) = sum_{(w,l)} W[w][l] * log(1 + exp(-(theta_w - theta_l)))
                 + (lambda / 2) * sum_a (theta_a - theta_ref_a)^2
     """
+    if lam < 0.0:
+        raise ValueError(f"Regularization parameter lam must be non-negative, got {lam}")
     t_vec = _as_vector(theta, action_ids)
     r_vec = _as_vector(theta_ref, action_ids)
     W = _resolve_W(pairs_or_W, action_ids)
@@ -177,6 +179,8 @@ def bt_gradient(
     grad_a = -sum_l W[a][l] * s(a, l) + sum_w W[w][a] * s(w, a) + lambda * (theta_a - theta_ref_a)
     with s(w, l) = 1 / (1 + exp(theta_w - theta_l)) = sigmoid(-(theta_w - theta_l)).
     """
+    if lam < 0.0:
+        raise ValueError(f"Regularization parameter lam must be non-negative, got {lam}")
     t_vec = _as_vector(theta, action_ids)
     r_vec = _as_vector(theta_ref, action_ids)
     W = _resolve_W(pairs_or_W, action_ids)

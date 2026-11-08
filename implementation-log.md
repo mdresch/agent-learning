@@ -2641,3 +2641,34 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - $AC_1$: With existing governance action definitions lacking `reversible` flag, safe subset is strictly empty and exploration rate applied evaluates to 0.0 across all tasks; every decision is exploitation; policy locks onto the taken action with mean reward 1.0; untaken actions remain at neutral mean 0.5 and are never chosen. Documented as the stated price of the safety mask (BRU-017-03).
   - $AC_2$: Replay run twice yields identical statistics, deterministic decisions, and identical decision records; snapshots serialize cleanly to JSON and round-trip without loss.
   - $AC_3$: Explicitly labelled as a baseline run on real positive-only history without claims of superiority over REINFORCE, UCB, or Thompson sampling (BRU-017-13); missing data (low-authority policy with failures, declared `reversible` flags) documented in test module docstring.
+
+---
+
+## Story 22.1 — Scoring a Weight Vector With the Real Resolver
+- **Commit:** `88248f0`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-22.1`
+- **Source ADR / BRD / FDD:** ADR-022 (§4.1), BRD-022 (BRU-022-01, BRU-022-02, BRU-022-03), FDD-022 (§2.1, §3.1)
+- **Pre-Flight Spec Gate:** Proceed utility 0.6784, margin +0.1571 (>= +0.05), episode `spec-22_1-d05c4fb4`.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/weight_compiler.py` (`with_weights`, `evaluate`, `objective`, `LabeledFrame`, `CompiledWeights`, `NoImprovement`)
+  - `src/agent_learning_ext/__init__.py` (lazy re-exports of compiler symbols)
+  - `.claude/skills/weight-compiler/SKILL.md` (component skill)
+  - `tests/test_weight_objective.py` (contract tests for $AC_0$ through $AC_6$, interpretations $I_1$ to $I_3$)
+  - `docs/user-stories/epic-22-scored-search-decision-configuration-compilation.md` (Story 22.1 marked Completed)
+- **Contracts:**
+  - `tests/test_weight_objective.py`
+  - Contract run: 16 passed in 0.58s
+  - Cumulative suite: 24 passed (`test_weight_objective.py`, `test_upstream_untouched.py`)
+- **Notes:**
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Zero changes to `src/agent_learning/`. All logic in `src/agent_learning_ext/weight_compiler.py`.
+    - $I_2$: Defensive None-Safety for Dictionaries: Defensively guarded dictionary accesses and fallback lookups.
+    - $I_3$: Empty Collection Base Case: Empty sequence passed to `objective()` cleanly returns `0.0` without error.
+  - $AC_0$: `with_weights` applies weights to frame criteria while preserving constraints, options, and evidence; original frame is untouched.
+  - $AC_1$: `with_weights` raises `ValueError` for mismatched key sets, zero, negative, `nan`, or infinite weights.
+  - $AC_2$: `evaluate` on toy frame gives predicted `A` and margin 0.20 for `(0.7, 0.3)`; `None` and margin 0.0 for `(0.5, 0.5)` (tiebreak); `B` and margin 0.20 for `(0.3, 0.7)` within $10^{-9}$.
+  - $AC_3$: `objective` with label `A` and `beta=0.1` gives 1.02 for `(0.7, 0.3)`, 0.0 for `(0.5, 0.5)`, and 0.02 for `(0.3, 0.7)` within $10^{-9}$; total objective is the sum over all items.
+  - $AC_4$: If an option is ruled out by constraints, `evaluate` never returns it and the margin computation ignores it.
+  - $AC_5$: Replaced `DecisionResolver.resolve` with counting wrapper, confirming exactly one call per `evaluate` through the real resolver.
+  - $AC_6$: AST analysis verifies `weight_compiler.py` imports nothing from `agent_learning.storage` and performs no file I/O.

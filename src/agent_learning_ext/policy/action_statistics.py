@@ -7,7 +7,7 @@ Pure standard library only: no random, no storage imports.
 from __future__ import annotations
 
 import math
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
 
@@ -112,3 +112,91 @@ def read_statistics(
         )
 
     return result
+
+
+def reward_to_r(value: float) -> float:
+    """Map a reward in [-1, 1] to r in [0, 1] via (value + 1) / 2 (FDD-016 §2.4, E1)."""
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, (int, float))
+        or not math.isfinite(value)
+        or value < -1.0
+        or value > 1.0
+    ):
+        raise ValueError(f"reward value must be finite and within [-1, 1], got {value!r}")
+    return (float(value) + 1.0) / 2.0
+
+
+def add_rewards(
+    metadata: dict[str, Any],
+    action_ids: Sequence[str],
+    items: Iterable[tuple[str, str, float]],
+) -> tuple[str, ...]:
+    """In-place update of action statistics and consumed episode ids (FDD-016 §2.4, E1, E6, E7).
+
+    Parameters:
+        metadata: policy snapshot metadata dictionary modified in place.
+        action_ids: collection of valid action ids.
+        items: iterable of (episode_id, action_id, value) tuples where value in [-1, 1].
+
+    Returns:
+        tuple of episode ids counted, in order.
+    """
+    if not isinstance(metadata, dict):
+        raise TypeError("metadata must be a dictionary")
+
+    action_set = set(action_ids)
+
+    consumed_raw = metadata.setdefault("consumed_episode_ids", [])
+    if not isinstance(consumed_raw, list):
+        raise TypeError("consumed_episode_ids in metadata must be a list")
+    seen = set(consumed_raw)
+
+    action_stats = metadata.setdefault("action_statistics", {})
+    if not isinstance(action_stats, dict):
+        raise TypeError("action_statistics in metadata must be a dictionary")
+
+    counted_ids: list[str] = []
+
+    for episode_id, action_id, value in items:
+        # Validate value and map to r
+        r = reward_to_r(value)
+
+        # Skip if already counted in consumed_episode_ids or previously in this call
+        if episode_id in seen:
+            continue
+
+        if action_id not in action_set:
+            raise ValueError(f"action {action_id!r} not in action space")
+
+        seen.add(episode_id)
+        consumed_raw.append(episode_id)
+        counted_ids.append(episode_id)
+
+        raw = action_stats.get(action_id)
+        if raw is None:
+            pull_count = 0
+            cumulative_reward = 0.0
+        elif isinstance(raw, dict):
+            pull_count = raw.get("pull_count", 0)
+            cumulative_reward = raw.get("cumulative_reward", 0.0)
+        elif isinstance(raw, ActionStats):
+            pull_count = raw.pull_count
+            cumulative_reward = raw.cumulative_reward
+        else:
+            raise ValueError(f"invalid statistics entry for action {action_id!r}: {raw!r}")
+
+        new_pulls = pull_count + 1
+        new_cum = cumulative_reward + r
+        new_mean = new_cum / new_pulls
+
+        action_stats[action_id] = {
+            "pull_count": new_pulls,
+            "cumulative_reward": new_cum,
+            "mean_reward": new_mean,
+        }
+
+    return tuple(counted_ids)
+
+
+__all__ = ["ActionStats", "add_rewards", "read_statistics", "reward_to_r"]

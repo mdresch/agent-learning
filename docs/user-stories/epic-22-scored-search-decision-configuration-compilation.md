@@ -89,7 +89,7 @@ Fixtures used by the criteria below. "The toy frame": criteria `c1`, `c2`, optio
 
 ## Story 22.6 — Adopting a Proposal by a Human Decision
 
-**Status:** Ready  
+**Status:** Completed (2026-11-09)  
 **As** a maintainer, **I want** compiled weights to take effect only through a recorded human decision, **so that** a frozen configuration is never changed silently.
 
 ### Acceptance Criteria:

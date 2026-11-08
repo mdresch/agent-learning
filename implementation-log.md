@@ -2838,3 +2838,35 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - $AC_2$: `task-policy-decide` resolves with compiled weights when snapshot carries them and with stored weights when absent; matches direct `with_weights` resolution.
   - $AC_3$: Verified count of calls to `coordinate_ascent` and `propose` during online `task-policy-decide` is strictly zero.
   - $AC_4$: AST analysis verifies `DecisionResolver` remains pure and has zero references to `criteria_weights`.
+
+---
+
+## Story 22.6 — Adopting a Proposal by a Human Decision
+- **Commit:** `7784f49`
+- **Date:** 2026-11-09
+- **Branch:** `feat/story-22.6`
+- **Source ADR / BRD / FDD:** ADR-022 (§4.1), BRD-022 (BRU-022-12, BRU-022-13, BRU-022-14), FDD-022 (§1 item 4, §3.8, §4 L2)
+- **Pre-Flight Spec Gate:** Proceed utility 0.6128, margin +0.0611 (>= +0.05), episode `spec-22_6-d93f5f09`.
+- **Files Modified/Created:**
+  - `docs/policy-shapes/approve-compiled-weights.actions.json` (policy shape actions: `adjudicated`, `accepted`)
+  - `docs/policy-shapes/approve-compiled-weights.profile.json` (requires_human_approval: true, pins router to FULL)
+  - `src/agent_learning_ext/cli.py` (`task-policy-weights-adopt` subcommand)
+  - `.claude/skills/weight-compiler/SKILL.md` (updated component skill)
+  - `tests/test_weight_adopt.py` (contract tests for $AC_0$ through $AC_4$, interpretations $I_1$ to $I_4$)
+  - `docs/user-stories/epic-22-scored-search-decision-configuration-compilation.md` (Story 22.6 marked Completed)
+- **Contracts:**
+  - `tests/test_weight_adopt.py`
+  - Contract run: 5 passed in 1.15s
+  - Cumulative suite: 53 passed across Epic 22 (`test_weight_objective.py`, `test_weight_split.py`, `test_weight_search.py`, `test_weight_propose.py`, `test_weight_apply.py`, `test_weight_adopt.py`, `test_upstream_untouched.py`)
+- **Notes:**
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Zero edits to `src/agent_learning/`. Logic isolated in `src/agent_learning_ext/cli.py`.
+    - $I_2$: Storage Decoupling: Zero direct storage modification except through standard snapshot store persistence.
+    - $I_3$: Defensive None-Safety: Defensive validation of proposal and approval payloads.
+    - $I_4$: Policy Shape Invariant: `approve-compiled-weights` requires human approval (`requires_human_approval: true`, pinned to `FULL`).
+  - $AC_0$: `approve-compiled-weights` policy shape defines actions `adjudicated` and `accepted`, `requires_human_approval: true`, router pinned to FULL.
+  - $AC_1$: `task-policy-weights-adopt` validates human approval episode and sets `criteria_weights` and `criteria_weights_source` in snapshot metadata, advancing version.
+  - $AC_2$: Adoption fails with exit code 2 when proposal or approval payload is missing, unadjudicated, or not accepted.
+  - $AC_3$: Target policy is saved via `save_policy_snapshot` with new version; previous version remains untouched in history.
+  - $AC_4$: Direct resolution of toy frame with updated snapshot produces expected winning option under adopted weights.
+

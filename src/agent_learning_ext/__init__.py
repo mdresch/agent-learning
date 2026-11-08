@@ -85,6 +85,7 @@ _EXPORTS: dict[str, str] = {
     "PLAN_STANDARDS": "agent_learning.pmbok",
     "PROVISIONAL_TOKENS": "agent_learning.pmbok",
     "PairwiseComparison": "agent_learning.comparison",
+    "PairwiseLearner": "agent_learning_ext.learners.pairwise",
     "ParsedPlan": "agent_learning.pmbok",
     "PlanApprovalRecord": "agent_learning.pmbok",
     "PlanRoute": "agent_learning.tailoring",

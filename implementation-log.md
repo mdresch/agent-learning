@@ -2171,5 +2171,44 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - $AC_4$: Replay report carries mandatory disclaimer that consistency check on human tagging makes no claim of decision effectiveness (HYP-AL-005 stays open).
   - $AC_5$: Base case (empty collection) and defensive None handling verified.
 
+---
+
+## Story 18.4 — The Learner
+- **Commit:** `1787aaf`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-18.4`
+- **Source ADR / BRD / FDD:** ADR-018 (§4.1, §4.2), BRD-018 (BRU-018-04, BRU-018-05, BRU-018-08, BRU-018-09, BRU-018-10), FDD-018 (§2.3, §2.4, §3 item 3, G1, G2, G4)
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/learners/pairwise.py` (implemented `PairwiseLearner(Learner)`)
+  - `src/agent_learning_ext/learners/__init__.py` (re-exported `PairwiseLearner`)
+  - `src/agent_learning_ext/__init__.py` (registered lazy exports for `PairwiseLearner`)
+  - `agent-training-ext/agent_training_ext/dpo_preference.py` (re-exported `PairwiseLearner` in extension package)
+  - `.claude/skills/pairwise-preference/SKILL.md` (component skill)
+  - `tests/test_pairwise_learner.py` (contract tests for $AC_0$ through $AC_6$)
+  - `docs/user-stories/epic-18-pairwise-preference-optimization.md` (Story 18.4 marked Completed)
+- **Validation:**
+  - $AC_0$: `update()` validates policy type: raises `TypeError` if policy is not a `SoftmaxPolicy`, and raises `ValueError` if `max_logit_abs` is below instance `clamp`.
+  - $AC_1$: Reference logit freezing: first non-empty update records current policy logits into `policy._snapshot.metadata["pairwise_reference_logits"]`; subsequent updates leave stored reference logits untouched; corrupt stored reference (missing actions or non-finite values) raises `ValueError`.
+  - $AC_2$: Move to fit: updates policy logits to `fit_logits(theta_ref=reference_logits, pairs=pairs)` within $10^{-12}$; returned `LearnerResult.logit_deltas` matches `fitted - before`.
+  - $AC_3$: No-pair early exit: episodes yielding zero pairs do not write reference metadata, do not mutate logits or snapshot version, and return `episodes_used = 0`.
+  - $AC_4$: Idempotence: a second `update()` over the same episodes leaves policy logits identical and leaves `policy._snapshot.episodes_seen` unchanged.
+  - $AC_5$: Strict result envelope: `LearnerResult` contains `episodes_used = len(pairs)`, `mean_reward = 0.0`, `baseline_after == baseline_before`, `consumed_inputs = None`, and `extra` populated with `pairs`, `skipped_episodes`, `converged`, `iterations`, `stationarity`, `step_size`, `loss_before`, `loss_after`, and `reference_logits`; `rewards` argument is completely ignored.
+  - $AC_6$: Storage boundary & isolation: policy snapshot round-trips through `json.dumps`/`json.loads` cleanly and through `InMemoryLearningStore` with no new record types; `pairwise.py` imports zero symbols from `agent_learning.storage`.
+  - Full suite: 7/7 passed in `tests/test_pairwise_learner.py`. 27/27 pairwise tests passing. Upstream untouched and PR gate passing.
+- **Review (Step 8):** Amazon Q reviewed PR #122 across 4 rounds. All findings addressed and confirmed clean:
+  - `Q-122-1 | logic error | verified: yes | decision: accepted | Require persistent _snapshot.metadata explicitly on policy so initial reference logits are never lost to detached copy | fix: ac8b26a`
+  - `Q-122-2 | logic error | verified: yes | decision: accepted | Deduplicate episode IDs via unique set difference so duplicate IDs do not inflate skipped_episodes | fix: ac8b26a`
+  - `Q-122-3 | logic error | verified: yes | decision: accepted | Compute exact regularizer loss via bt_loss in zero-pairs path instead of hardcoding 0.0 | fix: ac8b26a`
+  - `Q-122-4 | test gap | verified: yes | decision: accepted | Add assertions in test_ac1 verifying post_logits != stored_ref and non-aliasing | fix: ac8b26a`
+  - `Q-122-5 | style | verified: yes | decision: accepted | Replace dir() with pw_module.__dict__.values() in storage purity test | fix: ac8b26a`
+  - `Q-122-6 | logic error | verified: yes | decision: accepted | Standardize episode ID extraction to ep.id matching pairs_from_episodes | fix: 8e661b8`
+  - `Q-122-7 | logic error | verified: yes | decision: accepted | Unify reference validation into _validate_or_freeze_reference so corrupt references raise ValueError even on zero pairs | fix: 8e661b8`
+  - `Q-122-8 | logic error | verified: yes | decision: accepted | Populate extra['reference_logits'] with dict(theta_ref) on zero-pairs path so reported loss is always paired with reference vector | fix: eedf86b`
+  - `Q-122-9 | logic error | verified: yes | decision: accepted | Read both metadata and logits directly from policy._snapshot to eliminate dual-source divergence | fix: eedf86b`
+  - `Q-122-10 | test gap | verified: yes | decision: accepted | Inspect symbol names in storage purity test | fix: eedf86b`
+  - `Q-122-11 | logic error | verified: yes | decision: accepted | Enforce instance clamp self.clamp in policy validation instead of hardcoded CLAMP | fix: d8289aa`
+  - `Q-122-12 | logic error | verified: yes | decision: accepted | Validate action presence and math.isfinite on live policy logits in _validate_or_freeze_reference | fix: d8289aa`
+  Amazon Q confirmed all findings resolved; CI checks (build-installer, test) passed green.
+
 
 

@@ -59,7 +59,7 @@ Fixture used by the criteria below ("the base set"): three actions `x`, `y` and 
 
 ## Story 18.4 — The Learner
 
-**Status:** Ready  
+**Status:** Completed  
 **As** a maintainer, **I want** the learner to move a `SoftmaxPolicy`'s logits to the fit, anchored to a reference, **so that** a few overrides cannot drag the policy far from where it started.
 
 ### Acceptance Criteria:

@@ -80,7 +80,7 @@ def test_parse_story_18_4() -> None:
     assert spec.epic_num == 18
     assert spec.story_id == "18.4"
     assert spec.title == "The Learner"
-    assert spec.status.lower() == "ready"
+    assert spec.status.lower() in ("ready", "completed")
     assert len(spec.acceptance_criteria) == 7
 
     # Check first AC ($AC_0$)

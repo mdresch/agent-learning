@@ -291,3 +291,160 @@ def test_i2_empty_action_space_raises() -> None:
     policy = UCBPolicy(empty_snap)
     with pytest.raises(ValueError, match="policy has no actions"):
         policy.choose()
+
+
+# ==============================================================================
+# Story 16.3 Contracts: Statistics in the Snapshot
+# ==============================================================================
+
+def test_story16_3_ac0_from_actions_initialization() -> None:
+    """AC_0: from_actions creates initial zeroed snapshot with policy_type ucb."""
+    actions = [Action(id="act1", description="action 1"), Action(id="act2", description="action 2")]
+    policy = UCBPolicy.from_actions(
+        actions,
+        variant="standard",
+        c=1.414,
+        agent_id="agent-007",
+        task_id="task-xyz",
+    )
+
+    snap = policy.snapshot()
+    assert snap.agent_id == "agent-007"
+    assert snap.task_id == "task-xyz"
+    assert snap.actions == actions
+    assert snap.logits == {"act1": 0.0, "act2": 0.0}
+
+    meta = snap.metadata
+    assert meta["policy_type"] == "ucb"
+    assert meta["ucb_variant"] == "standard"
+    assert meta["exploration_constant"] == 1.414
+    assert meta["consumed_episode_ids"] == []
+
+    stats = meta["action_statistics"]
+    assert stats["act1"] == {"pull_count": 0, "cumulative_reward": 0.0, "mean_reward": 0.0}
+    assert stats["act2"] == {"pull_count": 0, "cumulative_reward": 0.0, "mean_reward": 0.0}
+
+
+def test_story16_3_ac1_from_snapshot_reading() -> None:
+    """AC_1: from_snapshot reads FDD-016 §2.2 example; missing action reads as zero pulls."""
+    actions = [
+        Action(id="action_id_1", description="1"),
+        Action(id="action_id_2", description="2"),
+        Action(id="action_id_3", description="3"),  # missing from statistics
+    ]
+    meta = {
+        "policy_type": "ucb",
+        "ucb_variant": "wilson",
+        "exploration_constant": 1.4142135623730951,
+        "action_statistics": {
+            "action_id_1": {"pull_count": 42, "cumulative_reward": 37.5, "mean_reward": 37.5 / 42.0},
+            "action_id_2": {"pull_count": 15, "cumulative_reward": 10.0, "mean_reward": 10.0 / 15.0},
+        },
+        "consumed_episode_ids": ["ep-0001", "ep-0002"],
+    }
+    snap = PolicySnapshot(
+        id="snap-fdd-example",
+        agent_id="test-agent",
+        task_id="test-task",
+        actions=actions,
+        logits={a.id: 0.0 for a in actions},
+        metadata=meta,
+    )
+
+    policy = UCBPolicy.from_snapshot(snap)
+    loaded_snap = policy.snapshot()
+
+    assert loaded_snap.metadata["consumed_episode_ids"] == ["ep-0001", "ep-0002"]
+    # choose() should function and handle action_id_3 as 0 pulls (inf score, chosen first)
+    decision = policy.choose()
+    assert decision.action.id == "action_id_3"
+
+
+def test_story16_3_ac2_validation_through_from_snapshot() -> None:
+    """AC_2: from_snapshot validates snapshot metadata via read_statistics and variant checks."""
+    actions = [Action(id="a", description="a")]
+
+    # Unknown policy_type
+    bad_type = _make_snapshot(actions)
+    bad_type.metadata["policy_type"] = "softmax"
+    with pytest.raises(ValueError, match="policy_type"):
+        UCBPolicy.from_snapshot(bad_type)
+
+    # Unknown variant
+    bad_variant = _make_snapshot(actions)
+    bad_variant.metadata["ucb_variant"] = "epsilon"
+    with pytest.raises(ValueError, match="variant"):
+        UCBPolicy.from_snapshot(bad_variant)
+
+    # Non-positive c
+    bad_c = _make_snapshot(actions)
+    bad_c.metadata["exploration_constant"] = -1.0
+    with pytest.raises(ValueError, match="c"):
+        UCBPolicy.from_snapshot(bad_c)
+
+    # Foreign action in statistics
+    bad_foreign = _make_snapshot(actions)
+    bad_foreign.metadata["action_statistics"]["unknown_id"] = {
+        "pull_count": 1,
+        "cumulative_reward": 1.0,
+        "mean_reward": 1.0,
+    }
+    with pytest.raises(ValueError, match="unknown_id"):
+        UCBPolicy.from_snapshot(bad_foreign)
+
+    # Duplicate in consumed_episode_ids
+    bad_dup = _make_snapshot(actions)
+    bad_dup.metadata["consumed_episode_ids"] = ["ep-1", "ep-1"]
+    with pytest.raises(ValueError, match="ep-1"):
+        UCBPolicy.from_snapshot(bad_dup)
+
+    # Mean reward mismatch > 1e-9
+    bad_mean = _make_snapshot(actions)
+    bad_mean.metadata["action_statistics"]["a"] = {
+        "pull_count": 10,
+        "cumulative_reward": 8.0,
+        "mean_reward": 0.5,
+    }
+    with pytest.raises(ValueError, match="a"):
+        UCBPolicy.from_snapshot(bad_mean)
+
+
+def test_story16_3_ac3_storage_boundary_and_json_roundtrip(tmp_path: pytest.TempPathFactory) -> None:
+    """AC_3: snapshot roundtrips through JSON and store; ucb.py imports nothing from storage."""
+    # Static check: ucb.py does not import storage
+    import ast
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    ucb_path = root / "src" / "agent_learning_ext" / "policy" / "ucb.py"
+    tree = ast.parse(ucb_path.read_text(encoding="utf-8"), filename=str(ucb_path))
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                assert "storage" not in alias.name, f"ucb.py imports {alias.name}"
+        elif isinstance(node, ast.ImportFrom) and node.module:
+            assert "storage" not in node.module, f"ucb.py imports from {node.module}"
+
+    # JSON round-trip
+    actions = [Action(id="a", description="a"), Action(id="b", description="b")]
+    stats = {
+        "a": ActionStats(pull_count=10, cumulative_reward=8.0, mean_reward=0.8),
+        "b": ActionStats(pull_count=5, cumulative_reward=3.0, mean_reward=0.6),
+    }
+    snap = _make_snapshot(actions, stats)
+    policy = UCBPolicy(snap)
+
+    snap_dict = snap.to_dict()
+    json_str = json.dumps(snap_dict)
+    loaded_dict = json.loads(json_str)
+    restored_snap = PolicySnapshot.from_dict(loaded_dict)
+    assert restored_snap == snap
+
+    # In-memory store round-trip
+    from agent_learning.storage import InMemoryStore
+    store = InMemoryStore()
+    store.store_policy(snap)
+    retrieved = store.get_policy(snap.id, snap.agent_id)
+    assert retrieved == snap
+    assert retrieved is not None
+    restored_policy = UCBPolicy.from_snapshot(retrieved)
+    assert restored_policy.choose().action.id == policy.choose().action.id

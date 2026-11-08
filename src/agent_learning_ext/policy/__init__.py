@@ -16,7 +16,7 @@ from agent_learning.policy.scope_advice import (
     recommend,
 )
 from agent_learning.policy.thompson import ThompsonPolicy
-from agent_learning_ext.policy.action_statistics import ActionStats
+from agent_learning_ext.policy.action_statistics import ActionStats, read_statistics
 from agent_learning_ext.policy.ucb import C_DEFAULT, SELECTION_BASIS, WILSON_Z, UCBPolicy, ucb_scores
 
 __all__ = [
@@ -35,6 +35,7 @@ __all__ = [
     "UCBPolicy",
     "advice_reward",
     "baseline_snapshot",
+    "read_statistics",
     "recommend",
     "ucb_scores",
 ]

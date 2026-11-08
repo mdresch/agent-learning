@@ -47,6 +47,14 @@ else:
     class CosmosAccessConditionFailedError(CosmosHttpResponseError):  # type: ignore[no-redef]
         pass
 
+    class _FakeCosmosExceptions:
+        CosmosHttpResponseError = CosmosHttpResponseError
+        CosmosResourceNotFoundError = CosmosResourceNotFoundError
+        CosmosResourceExistsError = CosmosResourceExistsError
+        CosmosAccessConditionFailedError = CosmosAccessConditionFailedError
+
+    _microsoft.cosmos_exceptions = _FakeCosmosExceptions  # type: ignore
+
 
 def _utcnow_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -57,6 +65,18 @@ logger = logging.getLogger(__name__)
 
 class CosmosStore(_microsoft.CosmosStore):
     """Microsoft's CosmosStore with the guarded, ETag-protected active-policy pointer."""
+
+    def _read(self, key: str, item_id: str, agent_id: str) -> Optional[Dict[str, Any]]:
+        self._ensure_ready()
+        try:
+            return self._containers[key].read_item(item=item_id, partition_key=agent_id)
+        except CosmosResourceNotFoundError:
+            return None
+        except CosmosHttpResponseError as exc:
+            if getattr(exc, "status_code", None) == 404:
+                return None
+            logger.error("Cosmos read failed (%s/%s): %s", key, item_id, getattr(exc, "message", str(exc)))
+            return None
 
     def _store_active_pointer(self, policy: PolicySnapshot, max_retries: int = 3) -> None:
         self._ensure_ready()

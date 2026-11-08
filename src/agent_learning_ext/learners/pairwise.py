@@ -15,8 +15,8 @@ from typing import Any
 import numpy as np
 
 from agent_learning.learners import Learner, LearnerResult
-from agent_learning.policy import SoftmaxPolicy
-from agent_learning.types import Episode
+from agent_learning.policy import Policy, SoftmaxPolicy
+from agent_learning.types import Episode, PolicySnapshot
 
 
 @dataclass(frozen=True)
@@ -372,6 +372,47 @@ def fit_logits(
     )
 
 
+def _validate_or_freeze_reference(
+    policy: Policy,
+    snapshot: PolicySnapshot,
+    action_ids: Sequence[str],
+    *,
+    freeze: bool,
+) -> tuple[dict[str, float], dict[str, float]]:
+    """Validate stored reference logits, or freeze if missing and freeze=True.
+
+    Returns (theta_ref, stored_dict_for_extra).
+    Raises ValueError on invalid/corrupt reference.
+    Raises AttributeError if freeze=True and policy has no _snapshot.metadata.
+    """
+    if not hasattr(policy, "_snapshot") or not hasattr(policy._snapshot, "metadata"):
+        raise AttributeError(
+            f"Policy of type '{type(policy).__name__}' does not expose persistent '_snapshot.metadata'"
+        )
+    metadata = policy._snapshot.metadata
+    if "pairwise_reference_logits" in metadata:
+        ref_raw = metadata["pairwise_reference_logits"]
+        if not isinstance(ref_raw, Mapping):
+            raise ValueError("pairwise_reference_logits in policy metadata must be a mapping")
+        missing = [a for a in action_ids if a not in ref_raw]
+        if missing:
+            raise ValueError(f"Missing action(s) in pairwise_reference_logits: {missing}")
+        for a in action_ids:
+            val = float(ref_raw[a])
+            if not math.isfinite(val):
+                raise ValueError(f"Non-finite value for action '{a}' in pairwise_reference_logits: {val}")
+        theta_ref = {a: float(ref_raw[a]) for a in action_ids}
+        return theta_ref, dict(ref_raw)
+
+    if freeze:
+        theta_ref = {a: float(snapshot.logits[a]) for a in action_ids}
+        metadata["pairwise_reference_logits"] = dict(theta_ref)
+        return theta_ref, dict(theta_ref)
+
+    # Missing and freeze=False (zero pairs before any freeze)
+    return {a: float(snapshot.logits[a]) for a in action_ids}, {}
+
+
 class PairwiseLearner(Learner):
     """Pairwise Preference Optimization learner for discrete SoftmaxPolicy (FDD-018 §3 item 3).
 
@@ -426,19 +467,14 @@ class PairwiseLearner(Learner):
 
         # 2. Extract preference pairs (AC_3, FDD-018 G3, G5)
         pairs = pairs_from_episodes(episodes, action_ids)
+        unique_episode_ids = {ep.id for ep in episodes}
 
         # 3. Handle zero pairs path (AC_3)
-        unique_episode_ids = {
-            getattr(ep, "id", None) or getattr(ep, "episode_id", None) or str(id(ep))
-            for ep in episodes
-        }
         if len(pairs) == 0:
-            ref_raw = snapshot.metadata.get("pairwise_reference_logits")
-            if isinstance(ref_raw, Mapping) and all(a in ref_raw for a in action_ids):
-                ref_vec = {a: float(ref_raw[a]) for a in action_ids}
-            else:
-                ref_vec = {a: float(snapshot.logits[a]) for a in action_ids}
-            loss_zero = bt_loss(snapshot.logits, [], ref_vec, action_ids, lam=self.lam)
+            theta_ref, ref_extra = _validate_or_freeze_reference(
+                policy, snapshot, action_ids, freeze=False
+            )
+            loss_zero = bt_loss(snapshot.logits, [], theta_ref, action_ids, lam=self.lam)
             return LearnerResult(
                 episodes_used=0,
                 mean_reward=0.0,
@@ -455,32 +491,14 @@ class PairwiseLearner(Learner):
                     "step_size": min(self.lr, 1.0 / self.lam),
                     "loss_before": loss_zero,
                     "loss_after": loss_zero,
-                    "reference_logits": dict(ref_raw) if isinstance(ref_raw, Mapping) else {},
+                    "reference_logits": ref_extra,
                 },
             )
 
         # 4. Resolve and validate reference logits (AC_1, FDD-018 G4)
-        if not hasattr(policy, "_snapshot") or not hasattr(policy._snapshot, "metadata"):
-            raise AttributeError(
-                f"Policy of type '{type(policy).__name__}' does not expose persistent '_snapshot.metadata'"
-            )
-        policy_meta = policy._snapshot.metadata
-        if "pairwise_reference_logits" in policy_meta:
-            ref_raw = policy_meta["pairwise_reference_logits"]
-            if not isinstance(ref_raw, Mapping):
-                raise ValueError("pairwise_reference_logits in policy metadata must be a mapping")
-            missing = [a for a in action_ids if a not in ref_raw]
-            if missing:
-                raise ValueError(f"Missing action(s) in pairwise_reference_logits: {missing}")
-            for a in action_ids:
-                val = float(ref_raw[a])
-                if not math.isfinite(val):
-                    raise ValueError(f"Non-finite value for action '{a}' in pairwise_reference_logits: {val}")
-            theta_ref = {a: float(ref_raw[a]) for a in action_ids}
-        else:
-            # Freeze current logits as reference logits (written once, never overwritten)
-            theta_ref = {a: float(snapshot.logits[a]) for a in action_ids}
-            policy_meta["pairwise_reference_logits"] = dict(theta_ref)
+        theta_ref, ref_extra = _validate_or_freeze_reference(
+            policy, snapshot, action_ids, freeze=True
+        )
 
         # 5. Compute loss before update
         loss_before = bt_loss(snapshot.logits, pairs, theta_ref, action_ids, lam=self.lam)

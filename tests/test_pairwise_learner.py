@@ -197,6 +197,12 @@ def test_ac3_no_pairs_leaves_policy_untouched():
     assert snap.logits == init_logits
     assert res.logit_deltas == {}
 
+    # Corrupt reference in metadata raises ValueError even in zero-pairs path
+    corrupt_ref_policy = _make_policy(actions, logits=init_logits)
+    corrupt_ref_policy._snapshot.metadata["pairwise_reference_logits"] = {"x": 1.0}  # missing y, z
+    with pytest.raises(ValueError, match="action"):
+        learner.update(corrupt_ref_policy, episodes)
+
 
 def test_ac4_idempotent_repeated_update():
     """AC_4: Running update a second time on the same episodes leaves logits and episodes_seen unchanged."""

@@ -55,3 +55,8 @@ This skill governs Scored-Search Decision Configuration Compilation (`src/agent_
     - Every candidate weight vector floored at `step`, normalized to sum to 1.0; candidate rejected if any weight `< step`.
     - Every accepted candidate strictly raises objective by $> 10^{-12}$.
     - Search stops when a sweep accepts no candidate or reaches `max_sweeps`.
+11. **Strict Hold-Out Improvement & Proposal Contracts (AC_0, AC_1, AC_2, AC_6, BRU-022-07):**
+    - `propose(train, holdout, snapshot, *, proposed_at, ...)` returns `CompiledWeights` ONLY if `holdout_accuracy > baseline_holdout_accuracy` strictly; otherwise returns `NoImprovement`.
+    - Baseline evaluates each frame's own criteria weights on held-out items.
+    - `policy-compile-weights` writes proposal JSON without touching the policy store.
+    - `CompiledWeights.weights` is immutable `MappingProxyType`.

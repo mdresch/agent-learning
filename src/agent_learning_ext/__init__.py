@@ -175,6 +175,7 @@ _EXPORTS: dict[str, str] = {
     "parse_triage_line": "agent_learning.review_triage",
     "pairs_from_episodes": "agent_learning_ext.learners.pairwise",
     "plan_hash": "agent_learning.pmbok",
+    "propose": "agent_learning_ext.weight_compiler",
     "provenance": "agent_learning.warm_start",
     "raw_change_hash": "agent_learning.pmbok",
     "reconstruct_record": "agent_learning.review_triage",

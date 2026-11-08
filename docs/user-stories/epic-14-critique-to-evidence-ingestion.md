@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-014](../adr/ADR-014-critique-to-evidence-ingestion.md) — Accepted (2026-10-28)  
 **Source BRD/FDD:** [BRD-014](../project-docs/Business-Requirements/BRD-014-critique-to-evidence-ingestion.md) / [FDD-014](../project-docs/Functional-Design/FDD-014-critique-to-evidence-ingestion.md)  
-**Status:** In Progress (Stories 14.1–14.4, 14.6 Completed; Story 14.5 Ready) — stories derived from Accepted ADR-014, BRD-014 and FDD-014; adjudicated via `approve-user-stories` (robust utility 0.731, episode `bd32d840-ec45-43f4-b0e9-fe20026264e3`). The epic number follows the source ADR number, as Epic 11 follows ADR-011.  
+**Status:** Completed (all stories 14.1–14.6 Completed) — stories derived from Accepted ADR-014, BRD-014 and FDD-014; adjudicated via `approve-user-stories` (robust utility 0.731, episode `bd32d840-ec45-43f4-b0e9-fe20026264e3`). The epic number follows the source ADR number, as Epic 11 follows ADR-011.  
 
 Six stories build the pure module `src/agent_learning/critique_evidence.py`. Each rule sits in exactly one story's criteria (LL-012). Contract tests are `tests/test_critique_parse.py` (14.1), `tests/test_critique_apply.py` (14.2 and 14.3), `tests/test_critique_metadata.py` (14.4) and `tests/test_critique_rubric.py` (14.6). Story 14.5 is data work and has no test file. The long-term learned rubric (FDD-014 §8) is not a story yet.
 
@@ -69,7 +69,7 @@ Fixture used by the criteria below ("the base frame"): one option with two evide
 
 ## Story 14.5 — Replay on the Real Triage Records
 
-**Status:** In Progress (unblocked via exported review triage dataset)  
+**Status:** Completed (2026-11-08, agent-training-ext, per implementation-log.md)  
 **As** a maintainer, **I want** the 30 real review-triage records tagged by a person and run through the module, **so that** I can see whether the deltas point the way the human decisions did.
 
 ### Acceptance Criteria:

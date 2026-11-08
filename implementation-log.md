@@ -2141,5 +2141,35 @@ This log records completed user stories in accordance with the SIDPA `implement-
   Bayesian PR Gatekeeper evaluated PR #120: passed with robust utility 0.746 and margin +0.220 (>= +0.05).
   Passive learning episode `pr-120-1113d57-9b0bc29f` stored in LearningStore.
 
+---
+
+## Story 14.5 — Replay on the Real Triage Records
+- **Commit:** `f3b3731`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-14.5`
+- **Source ADR / BRD / FDD:** ADR-014 (§4.4), BRD-014, FDD-014 (§2.4, §4, §7, §8)
+- **Files Modified/Created:**
+  - `agent-training-ext/triage_replay.py` (implemented `ReplayFinding`, `TriageReplayReport`, `map_claim_to_criterion`, `replay_triage_finding`, `replay_triage_records`, `load_and_replay_log`, `export_replay_dataset`)
+  - `tests/test_critique_replay.py` (contract tests for $AC_0$ through $AC_5$)
+  - `tests/fixtures/critique_evidence/triage_replay_dataset.json` (committed dataset exporting 139 real review triage records tagged by Menno Drescher)
+  - `.claude/skills/critique-evidence/SKILL.md` (updated component skill with Section 7 review-triage replay engine)
+- **Contracts:**
+  - `tests/test_critique_replay.py`
+  - Contract run: 9 passed in 1.04s
+  - Full suite: 39 passed in `agent-training-ext/tests/` and `tests/test_critique_replay.py`
+- **Notes:**
+  - Pre-flight specification gate (`scripts/spec_gate.py 14.5`) evaluated: passed with robust utility 0.6475 and margin +0.1261 (episode `spec-14_5-1a713dff`).
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Replay engine and contracts reside in `agent-training-ext/` and `tests/`, leaving `src/agent_learning/` pristine.
+    - $I_2$: Storage Decoupling & Serialization Round-Trip: Replay report and records serialize cleanly to JSON without storage subsystem coupling.
+    - $I_3$: Defensive None-Safety: Missing fields or comment text default defensively without raising `AttributeError` when `None`.
+    - $I_4$: Empty Collection Base Case: Zero triage records return empty report without error.
+  - $AC_0$: Findings extracted from `implementation-log.md` using `review_triage.find_triage_lines` (139 real triage records).
+  - $AC_1$: Tagged by a named person (`tagger="Menno Drescher"`), module refuses empty tagger.
+  - $AC_2$: Declined findings have $\Delta s \ge 0$ and never lower pooled support; anomalous negative overrides are detected and flagged inconsistent.
+  - $AC_3$: Accepted findings have $\Delta s < 0$ and lower pooled support by that delta.
+  - $AC_4$: Replay report carries mandatory disclaimer that consistency check on human tagging makes no claim of decision effectiveness (HYP-AL-005 stays open).
+  - $AC_5$: Base case (empty collection) and defensive None handling verified.
+
 
 

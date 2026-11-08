@@ -227,3 +227,21 @@ class UCBPolicy(Policy):
     def apply_update(self, *args: Any, **kwargs: Any) -> None:
         """Raise TypeError: UCBPolicy does not support direct logit updates."""
         raise TypeError("use UCBLearner: UCBPolicy is not a logit-based policy")
+
+    def consumed_episode_ids(self) -> list[str]:
+        """Return a copy of the ids of the episodes already counted."""
+        return list(self._snapshot.metadata.get("consumed_episode_ids", []))
+
+    def update_statistics(
+        self,
+        metadata: dict[str, Any],
+        *,
+        episodes_seen: int,
+    ) -> None:
+        """Update action statistics and advance snapshot version (used by UCBLearner)."""
+        action_ids = [action.id for action in self._snapshot.actions]
+        read_statistics(metadata, action_ids)
+        self._snapshot.metadata = copy.deepcopy(metadata)
+        self._snapshot.episodes_seen = int(episodes_seen)
+        self._snapshot.updates_applied += 1
+        self._snapshot.advance_version()

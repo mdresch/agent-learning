@@ -2331,3 +2331,38 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - $AC_1$: `UCBPolicy.from_snapshot` reads FDD-016 §2.2 example; missing action in statistics reads as zero pulls.
   - $AC_2$: `read_statistics` raises `ValueError` for foreign action id, invalid statistic, unknown variant, duplicate consumed episodes, or mean reward discrepancy > $10^{-9}$. `UCBPolicy.from_snapshot` delegates directly to `read_statistics`.
   - $AC_3$: Snapshot survives `json.dumps`/`loads` unchanged and round-trips through `InMemoryStore` with zero storage imports in `ucb.py`.
+
+---
+
+## Story 16.4 — Counting Each Episode Once
+- **Commit:** `88adc2f`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-16.4`
+- **Source ADR / BRD / FDD:** ADR-016 (§4.4), BRD-016 (BRU-016-09, BRU-016-10), FDD-016 (§2.4, §3 item 6, E1, E6, E7)
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/policy/action_statistics.py` (implemented `reward_to_r` and `add_rewards` with bounded reward mapping, in-place metadata updates, and deduplication)
+  - `src/agent_learning_ext/policy/ucb.py` (implemented `update_statistics` and `consumed_episode_ids` on `UCBPolicy`)
+  - `src/agent_learning_ext/learners/ucb.py` (implemented `UCBLearner(Learner)` delegating counts to `add_rewards` and advancing snapshot version)
+  - `src/agent_learning_ext/learners/__init__.py`, `src/agent_learning_ext/policy/__init__.py`, `src/agent_learning_ext/__init__.py` (re-exported `UCBLearner`, `add_rewards`, `reward_to_r`)
+  - `.claude/skills/ucb/SKILL.md` (updated component skill with Learner Lifecycle & Ingestion section)
+  - `tests/test_ucb_learner.py` (27 contract tests for $AC_0$ through $AC_7$, interpretations $I_1$ through $I_4$)
+  - `docs/user-stories/epic-16-deterministic-ucb-decision-policy.md` (Story 16.4 marked Completed)
+- **Contracts:**
+  - `tests/test_ucb_learner.py`
+  - Contract run: 27 passed in 1.42s
+  - Cumulative suite: 52 passed across all UCB contract test suites (`test_action_statistics.py`, `test_ucb_policy.py`, `test_ucb_scores.py`, `test_ucb_learner.py`)
+- **Notes:**
+  - Pre-flight specification gate (`scripts/spec_gate.py 16.4`) evaluated: passed with robust utility 0.6447 and margin +0.1233 (episode `spec-16_4-cec1337e`).
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Implementation lives under `src/agent_learning_ext/` leaving upstream `src/agent_learning/` pristine (0 lines diff).
+    - $I_2$: Storage Decoupling & Serialization: `learners/ucb.py` imports nothing from `agent_learning.storage`; updated snapshot roundtrips cleanly via `json.dumps`/`loads`.
+    - $I_3$: Empty Collection Base Case: Empty episodes or rewards returns unmutated snapshot with `episodes_used=0`.
+    - $I_4$: Non-Finite Float Rejection: NaNs, Infs, booleans, and values outside $[-1, 1]$ rejected with `ValueError`.
+  - $AC_0$: Reward values map to $r = (\text{value} + 1)/2$ ($-1 \mapsto 0$, $0 \mapsto 0.5$, $1 \mapsto 1$). Out of range and non-finite values raise `ValueError`.
+  - $AC_1$: Episode 1 with reward 1.0 sets pull=1, cum=1.0, mean=1.0; episode 2 with reward 0.0 adds 1 pull and 0.5 cum (pull=2, cum=1.5, mean=0.75). Only chosen action changes.
+  - $AC_2$: Filters out non-ucb selection basis, foreign action ids, missing rewards; picks newest aggregate reward by `created_at`.
+  - $AC_3$: Repeated episodes in same or subsequent call count once only; `consumed_episode_ids` maintains single occurrence.
+  - $AC_4$: Two successive `run_offline_batch` runs over the same stored episodes produce the statistics of a single pass (first run uses 2 episodes, second uses 0).
+  - $AC_5$: Late reward recorded on earlier episode is counted once when first offered with reward.
+  - $AC_6$: `UCBLearner.update` produces statistics identical to direct `add_rewards` call; static AST check verifies zero inline count arithmetic in `learners/ucb.py`.
+  - $AC_7$: Snapshot version advances, `LearnerResult` contains `episodes_used`, `mean_reward`, `consumed_inputs`, and `extra`; call with no usable episodes returns `episodes_used=0` and leaves snapshot unmutated; `SoftmaxPolicy` raises `TypeError`.

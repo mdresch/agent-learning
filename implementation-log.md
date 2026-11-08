@@ -2531,3 +2531,30 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - $AC_5$: `choose()` without arguments generates random UUID request_id and UTC timestamp, stores record, and successfully replays.
   - $AC_6$: `Decision.probabilities` match closed-form formula $(1 - \epsilon) \cdot [a=g] + \frac{\epsilon}{|S|} \cdot [a \in S]$, sum to 1 within $10^{-12}$, and `Decision.logprob` is strictly `None`.
   - $AC_7$: `apply_update` raises `TypeError("use EpsilonGreedyLearner")` and `choose` leaves the snapshot completely unmodified.
+
+
+---
+
+## Story 21.1 — Entropy and Margin
+- **Commit:** `3334537`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-21.1`
+- **Source ADR / BRD / FDD:** ADR-021 (§4.1), BRD-021, FDD-021 (§1, §2)
+- **Pre-Flight Spec Gate:** Proceed utility 0.6978, margin +0.1765 (>= +0.05), episode `spec-21_1-bf6a5de9`.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/routing.py` (new module implementing pure `entropy_bits` and `margin` with boundary handling)
+  - `src/agent_learning_ext/__init__.py` (re-export `entropy`, `entropy_bits`, and `margin`)
+  - `tests/test_routing_signals.py` (contract tests for $AC_0$ through $AC_2$, interpretations $I_1, I_2$)
+  - `docs/user-stories/epic-21-contextual-authority-ensemble-routing.md` (Story 21.1 marked Completed)
+- **Contracts:**
+  - `tests/test_routing_signals.py`
+  - Contract run: 3 passed in 0.09s
+- **Validation:**
+  - $AC_0$: Entropy in bits: verified 2.0 for uniform distribution over 4 actions, 1.0 for `[0.5, 0.5]`, 0.2864 for `[0.95, 0.05]`, 0.7219 for `[0.8, 0.2]`, and 1.4577 for `[0.45, 0.40, 0.15]` within 1e-4; recomputed directly from `-sum p log2 p`; verified that zero probabilities contribute 0; single-action `[1.0]` has entropy 0; empty sequence returns 0.0.
+  - $AC_1$: Decision margin: verified 0.90, 0.60, 0.0, 0.30, and 0.05 for `[0.95, 0.05]`, `[0.8, 0.2]`, `[0.5, 0.5]`, `[0.6, 0.3, 0.1]`, and `[0.45, 0.40, 0.15]` within 1e-4; single-action `[1.0]` has margin 1.0; empty sequence returns 0.0.
+  - $AC_2$: Pure implementation: AST analysis verifies `src/agent_learning_ext/routing.py` imports nothing from `agent_learning.storage`, no `random`, and no `numpy`. Verified that mutable input sequences remain completely identical to their copies after calls.
+  - Observed RED first: `ModuleNotFoundError: No module named 'agent_learning_ext.routing'`.
+  - Upstream fork untouched: 8/8 passed in `tests/test_upstream_untouched.py`.
+  - Governance baseline: 18/18 passed in `tests/test_governance_baseline.py`.
+- **Review (Step 8):** Amazon Q reviewed PR #132. 1 finding addressed:
+  - `Q-132-1 | logic error | verified: yes | decision: accepted | Remove dead code 'np' from forbidden_modules and add alias.asname verification across Import and ImportFrom AST nodes | fix: acd4ac7`

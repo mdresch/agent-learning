@@ -14,7 +14,7 @@ Fixture used by the criteria below ("the base config"): `tau_esc` 1.0, `tau_dees
 
 ## Story 21.1 — Entropy and Margin
 
-**Status:** Ready  
+**Status:** Completed  
 **As** an auditor, **I want** the two uncertainty signals computed by plain arithmetic, **so that** a route can be checked by hand.
 
 ### Acceptance Criteria:

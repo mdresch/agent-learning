@@ -46,7 +46,7 @@ Fixture used by the criteria below ("the base statistics"): action `a` with 10 p
 
 ## Story 16.3 — Statistics in the Snapshot
 
-**Status:** Ready  
+**Status:** Completed (2026-11-08, commit 24ed5e3)  
 **As** a maintainer, **I want** the statistics kept in the policy snapshot, **so that** no new record type is needed.
 
 ### Acceptance Criteria:

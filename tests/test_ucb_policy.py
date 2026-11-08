@@ -147,6 +147,19 @@ def test_ac2_tie_breaking_rules() -> None:
     # Two actions with 0 pulls both score inf. If one has pull count 1 and another has 0, inf wins.
     # What if two actions have same score:
     # We can test with two identical actions whose score and pull counts match -> smaller id wins.
+    # Sub-case B: Equal score, different pull counts -> higher pull count wins over lexicographical order
+    actions_pull_tie = [Action(id="aaa", description="lower pulls"), Action(id="zzz", description="higher pulls")]
+    stats_pull_tie = {
+        "aaa": ActionStats(pull_count=5, cumulative_reward=5.0, mean_reward=1.0),
+        "zzz": ActionStats(pull_count=10, cumulative_reward=10.0, mean_reward=1.0),
+    }
+    # In wilson variant, both perfect actions score 1.0 exactly.
+    # zzz has pull count 10 > 5, so zzz must win despite aaa being lexicographically smaller.
+    snap_pull_tie = _make_snapshot(actions_pull_tie, stats_pull_tie, variant="wilson")
+    p_pull_tie = UCBPolicy(snap_pull_tie)
+    assert p_pull_tie.choose().action.id == "zzz"
+
+    # Sub-case C: Equal score and equal pull counts -> lexicographical order
     stats_same_pulls = {
         "p2": ActionStats(pull_count=5, cumulative_reward=3.0, mean_reward=0.6),
         "p1": ActionStats(pull_count=5, cumulative_reward=3.0, mean_reward=0.6),

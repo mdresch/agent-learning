@@ -2653,4 +2653,6 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-136-6 | logic error | verified: yes | decision: accepted | Return RouteDecision(FULL, ..., reason="anomaly", anomaly="missing routing config") when cfg=None to preserve fail-safe contract | fix: cafc1d9`
   - `Q-136-7 | logic error | verified: yes | decision: accepted | Disallow bool instances in RoutingConfig and probability inputs across all route validation paths | fix: 05dbaa7`
   - `Q-136-8 | logic error | verified: yes | decision: accepted | Move previous route normalization into deadband branch to preserve fail-safe escalation for invalid previous values | fix: e183c21`
+  - `Q-136-9 | crash risk | verified: yes | decision: accepted | Return RouteDecision with reason="anomaly" on invalid previous string/type instead of raising ValueError | fix: 2005086`
+  - `Q-136-10 | logic error | verified: yes | decision: accepted | Retain computed entropy_bits and margin in RouteDecision when cfg=None anomaly occurs | fix: 2005086`
 

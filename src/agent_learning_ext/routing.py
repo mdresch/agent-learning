@@ -277,8 +277,8 @@ def route(
     if cfg is None:
         return RouteDecision(
             authority=DecisionAuthority.FULL,
-            entropy_bits=None,
-            margin=None,
+            entropy_bits=ent_val,
+            margin=margin_val,
             reason="anomaly",
             anomaly="missing routing config",
         )
@@ -331,9 +331,21 @@ def route(
         elif previous.lower() == "full":
             norm_prev = DecisionAuthority.FULL
         else:
-            raise ValueError(f"unknown previous route string: {previous}")
+            return RouteDecision(
+                authority=DecisionAuthority.FULL,
+                entropy_bits=ent_val,
+                margin=margin_val,
+                reason="anomaly",
+                anomaly=f"unknown previous route string: {previous}",
+            )
     elif previous is not None:
-        raise ValueError(f"unsupported previous route type: {type(previous)}")
+        return RouteDecision(
+            authority=DecisionAuthority.FULL,
+            entropy_bits=ent_val,
+            margin=margin_val,
+            reason="anomaly",
+            anomaly=f"unsupported previous route type: {type(previous)}",
+        )
 
     if norm_prev is None:
         return RouteDecision(
@@ -371,4 +383,10 @@ def route(
                 anomaly=None,
             )
 
-    raise ValueError(f"unknown DecisionAuthority variant: {norm_prev}")
+    return RouteDecision(
+        authority=DecisionAuthority.FULL,
+        entropy_bits=ent_val,
+        margin=margin_val,
+        reason="anomaly",
+        anomaly=f"unknown DecisionAuthority variant: {norm_prev}",
+    )

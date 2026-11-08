@@ -261,16 +261,19 @@ def test_ac4_hysteresis(base_config: RoutingConfig) -> None:
     assert decision_none.authority == DecisionAuthority.FULL
     assert decision_none.reason == "no_previous"
 
-    # 5. Invalid previous string raises ValueError inside deadband
-    with pytest.raises(ValueError, match="unknown previous"):
-        route(
-            probs=[0.8, 0.2],
-            tier="standard",
-            task_id="classify-request",
-            previous="unrecognized",
-            approved_for_low=True,
-            cfg=base_config,
-        )
+    # 5. Invalid previous string routes FULL with reason 'anomaly' inside deadband
+    decision_invalid_prev = route(
+        probs=[0.8, 0.2],
+        tier="standard",
+        task_id="classify-request",
+        previous="unrecognized",
+        approved_for_low=True,
+        cfg=base_config,
+    )
+    assert decision_invalid_prev.authority == DecisionAuthority.FULL
+    assert decision_invalid_prev.reason == "anomaly"
+    assert decision_invalid_prev.anomaly is not None
+    assert "unknown previous route string" in decision_invalid_prev.anomaly.lower()
 
     # 6. Invalid previous does not prevent fail-safe escalation when entropy is high or margin is low
     decision_bad_prev_escalate = route(
@@ -382,7 +385,7 @@ def test_ac6_fail_safe(base_config: RoutingConfig) -> None:
     assert decision_unknown_tier.anomaly is not None
     assert "unknown tier" in decision_unknown_tier.anomaly.lower()
 
-    # Missing routing config routes FULL with anomaly
+    # Missing routing config routes FULL with anomaly while preserving computed valid signals
     decision_no_cfg = route(
         probs=[0.8, 0.2],
         tier="standard",
@@ -391,7 +394,7 @@ def test_ac6_fail_safe(base_config: RoutingConfig) -> None:
     )
     assert decision_no_cfg.authority == DecisionAuthority.FULL
     assert decision_no_cfg.reason == "anomaly"
-    assert decision_no_cfg.entropy_bits is None
-    assert decision_no_cfg.margin is None
+    assert decision_no_cfg.entropy_bits is not None and abs(decision_no_cfg.entropy_bits - 0.7219) < 1e-3
+    assert decision_no_cfg.margin is not None and abs(decision_no_cfg.margin - 0.60) < 1e-3
     assert decision_no_cfg.anomaly is not None
     assert "missing routing config" in decision_no_cfg.anomaly.lower()

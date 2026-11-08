@@ -2807,3 +2807,34 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - $AC_4$: `policy-compile-weights` writes complete proposal JSON object per FDD-022 §2.3 and writes nothing to the store.
   - $AC_5$: Dataset validation verifies all items have `frame`, `label`, `labeled_at`, and that labels belong to the active policy action space; exits non-zero naming the offending item. `weight_compiler.py` performs no file I/O.
   - $AC_6$: `CompiledWeights.weights` is immutable `MappingProxyType`; mutating raw input dict leaves stored weights intact, and direct mutation raises `TypeError`.
+
+---
+
+## Story 22.5 — Applying Frozen Weights
+- **Commit:** `b704c8b`
+- **Date:** 2026-11-09
+- **Branch:** `feat/story-22.5`
+- **Source ADR / BRD / FDD:** ADR-022 (§4.1), BRD-022 (BRU-022-10, BRU-022-11), FDD-022 (§1 item 3, §3.7, §4 L1)
+- **Pre-Flight Spec Gate:** Proceed utility 0.6191, margin +0.0978 (>= +0.05), episode `spec-22_5-4112e624`.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/weight_compiler.py` (`apply_compiled_config`)
+  - `src/agent_learning_ext/__init__.py` (re-exports `apply_compiled_config`)
+  - `src/agent_learning_ext/cli.py` (`task-policy-decide` applies compiled config)
+  - `.claude/skills/weight-compiler/SKILL.md` (updated component skill)
+  - `tests/test_weight_apply.py` (contract tests for $AC_0$ through $AC_4$, interpretations $I_1$ to $I_4$)
+  - `docs/user-stories/epic-22-scored-search-decision-configuration-compilation.md` (Story 22.5 marked Completed)
+- **Contracts:**
+  - `tests/test_weight_apply.py`
+  - Contract run: 5 passed in 1.13s
+  - Cumulative suite: 48 passed across Epic 22 (`test_weight_objective.py`, `test_weight_split.py`, `test_weight_search.py`, `test_weight_propose.py`, `test_weight_apply.py`, `test_upstream_untouched.py`)
+- **Notes:**
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Zero edits to `src/agent_learning/`. Logic isolated in `src/agent_learning_ext/weight_compiler.py` and `cli.py`.
+    - $I_2$: Storage Decoupling: Zero file I/O in `apply_compiled_config`.
+    - $I_3$: Defensive None-Safety: Defensive dictionary and metadata guards.
+    - $I_4$: Resolver Inviolability: AST check confirms `DecisionResolver` carries zero references to `criteria_weights`.
+  - $AC_0$: `apply_compiled_config` applies snapshot's `criteria_weights` to frame; returns frame untouched when snapshot metadata lacks `criteria_weights`.
+  - $AC_1$: Snapshot with criteria weights whose keys differ from frame criteria raises `ValueError`.
+  - $AC_2$: `task-policy-decide` resolves with compiled weights when snapshot carries them and with stored weights when absent; matches direct `with_weights` resolution.
+  - $AC_3$: Verified count of calls to `coordinate_ascent` and `propose` during online `task-policy-decide` is strictly zero.
+  - $AC_4$: AST analysis verifies `DecisionResolver` remains pure and has zero references to `criteria_weights`.

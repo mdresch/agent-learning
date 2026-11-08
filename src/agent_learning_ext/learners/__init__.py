@@ -8,6 +8,14 @@ from __future__ import annotations
 from agent_learning.learners import Learner, LearnerResult
 from agent_learning.learners.thompson import ThompsonLearner
 
+from .pairwise import PreferencePair, pairs_from_episodes
 from .reinforce import ReinforceLearner
 
-__all__ = ["Learner", "LearnerResult", "ReinforceLearner", "ThompsonLearner"]
+__all__ = [
+    "Learner",
+    "LearnerResult",
+    "PreferencePair",
+    "ReinforceLearner",
+    "ThompsonLearner",
+    "pairs_from_episodes",
+]

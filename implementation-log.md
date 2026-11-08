@@ -2057,3 +2057,25 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - Amazon Q Developer automated review audit completed: all findings (including `DENY_ARG` regex boundary, disk secret persistence removal, `timingSafeEqual` hex-buffer alignment, and input sanitization) resolved and verified clean.
   - GitHub Actions CI: `build-installer` (SUCCESS, 2m 9s), `test` (SUCCESS, 1m 7s).
   - Fast-forward merge to `main` verified with 0 phase rollup status drift.
+
+---
+
+## Story 18.1 — Pairs From Episodes
+- **Date:** 2026-11-08
+- **Source ADR / BRD / FDD:** ADR-018, BRD-018 (BRU-018-01, BRU-018-02, BRU-018-07, BRU-018-11), FDD-018 (§2.2, §3 item 1, G3, G5)
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/learners/pairwise.py` (implemented `PreferencePair`, `pairs_from_episodes`)
+  - `src/agent_learning_ext/learners/__init__.py` (re-export `PreferencePair`, `pairs_from_episodes`)
+  - `src/agent_learning_ext/__init__.py` (lazy export registration)
+  - `agent-training-ext/agent_training_ext/dpo_preference.py` (extension package wrapper)
+  - `.claude/skills/pairwise-preference/SKILL.md` (component skill)
+  - `tests/test_pairwise_pairs.py` (contract tests for $AC_0, AC_1, AC_2, AC_3, AC_4$)
+  - `docs/user-stories/epic-18-pairwise-preference-optimization.md` (status updated to Completed)
+- **Validation:**
+  - $AC_0$: Rejected feedback with different `correct_action_id` yields `PreferencePair(winner, loser, source_episode_id)`; `" Rejected "` whitespace and casing handled safely.
+  - $AC_1$: Accepted episodes, missing `correct_action_id`, identical actions, actions outside `action_ids`, and non-string `correct_action_id` yield empty list without error.
+  - $AC_2$: `decision_disposition == "modify"` without `feedback_status == "rejected"` yields no pair (FDD-018 G3).
+  - $AC_3$: Repeated episode IDs yield at most one pair; order of first appearance preserved (FDD-018 G5).
+  - $AC_4$: Episodes are not mutated by the call (`episodes == deepcopy(episodes)`).
+  - Full suite: 5/5 passed in `tests/test_pairwise_pairs.py`. Upstream untouched (8/8) and extension tests (18/18) clean.
+

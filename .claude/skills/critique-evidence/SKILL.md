@@ -17,6 +17,7 @@ This skill governs the Lightweight Critique-to-Evidence Ingestion Engine impleme
   - `agent-training-ext/tests/test_critique_parse.py` (Story 14.1 — Grammar, parser, bounds, field validation, purity)
   - `agent-training-ext/tests/test_critique_apply.py` (Story 14.2 & 14.3 — Exact shift, direction invariance, clamping, sequence, doubt, source tracking, immutability)
   - `agent-training-ext/tests/test_critique_metadata.py` (Story 14.4 — Episode metadata schema, JSON roundtrip, logit consistency)
+  - `tests/test_critique_replay.py` (Story 14.5 — Replay on the real triage records, human tagging consistency, directionality, and disclaimer)
   - `agent-training-ext/tests/test_critique_rubric.py` (Story 14.6 — Pre-calibrated delta rubric, versioning, overrides)
 
 ## Load-Bearing Constraints & Invariants
@@ -47,3 +48,7 @@ This skill governs the Lightweight Critique-to-Evidence Ingestion Engine impleme
 6. **Episode Metadata Serialization (Story 14.4):**
    - `to_episode_metadata(applied)` returns `{"critique_adjustments": [...]}` containing adjustment records with all required fields.
    - Fully JSON-serializable without custom decoders; attaches cleanly to `Episode.metadata`.
+7. **Review-Triage Replay Engine (Story 14.5 / ADR-014 §4.4):**
+   - Replays historical human triage records (`Q-<PR>-<n>`) through `apply_critique`.
+   - Directional invariance: accepted findings decrease support ($\Delta s < 0$), declined findings preserve support ($\Delta s \ge 0$).
+   - Mandatory disclaimer: recorded strictly as a consistency check on human tagging; makes no claim of decision effectiveness.

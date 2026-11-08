@@ -2143,6 +2143,36 @@ This log records completed user stories in accordance with the SIDPA `implement-
 
 ---
 
+## Story 14.5 — Replay on the Real Triage Records
+- **Commit:** `f3b3731`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-14.5`
+- **Source ADR / BRD / FDD:** ADR-014 (§4.4), BRD-014, FDD-014 (§2.4, §4, §7, §8)
+- **Files Modified/Created:**
+  - `agent-training-ext/triage_replay.py` (implemented `ReplayFinding`, `TriageReplayReport`, `map_claim_to_criterion`, `replay_triage_finding`, `replay_triage_records`, `load_and_replay_log`, `export_replay_dataset`)
+  - `tests/test_critique_replay.py` (contract tests for $AC_0$ through $AC_5$)
+  - `tests/fixtures/critique_evidence/triage_replay_dataset.json` (committed dataset exporting 139 real review triage records tagged by Menno Drescher)
+  - `.claude/skills/critique-evidence/SKILL.md` (updated component skill with Section 7 review-triage replay engine)
+- **Contracts:**
+  - `tests/test_critique_replay.py`
+  - Contract run: 9 passed in 1.04s
+  - Full suite: 39 passed in `agent-training-ext/tests/` and `tests/test_critique_replay.py`
+- **Notes:**
+  - Pre-flight specification gate (`scripts/spec_gate.py 14.5`) evaluated: passed with robust utility 0.6475 and margin +0.1261 (episode `spec-14_5-1a713dff`).
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Replay engine and contracts reside in `agent-training-ext/` and `tests/`, leaving `src/agent_learning/` pristine.
+    - $I_2$: Storage Decoupling & Serialization Round-Trip: Replay report and records serialize cleanly to JSON without storage subsystem coupling.
+    - $I_3$: Defensive None-Safety: Missing fields or comment text default defensively without raising `AttributeError` when `None`.
+    - $I_4$: Empty Collection Base Case: Zero triage records return empty report without error.
+  - $AC_0$: Findings extracted from `implementation-log.md` using `review_triage.find_triage_lines` (139 real triage records).
+  - $AC_1$: Tagged by a named person (`tagger="Menno Drescher"`), module refuses empty tagger.
+  - $AC_2$: Declined findings have $\Delta s \ge 0$ and never lower pooled support; anomalous negative overrides are detected and flagged inconsistent.
+  - $AC_3$: Accepted findings have $\Delta s < 0$ and lower pooled support by that delta.
+  - $AC_4$: Replay report carries mandatory disclaimer that consistency check on human tagging makes no claim of decision effectiveness (HYP-AL-005 stays open).
+  - $AC_5$: Base case (empty collection) and defensive None handling verified.
+
+---
+
 ## Story 18.4 — The Learner
 - **Commit:** `1787aaf`
 - **Date:** 2026-11-08
@@ -2157,7 +2187,7 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `tests/test_pairwise_learner.py` (contract tests for $AC_0$ through $AC_6$)
   - `docs/user-stories/epic-18-pairwise-preference-optimization.md` (Story 18.4 marked Completed)
 - **Validation:**
-  - $AC_0$: `update()` validates policy type: raises `TypeError` if policy is not a `SoftmaxPolicy`, and raises `ValueError` if `max_logit_abs` is below 8.0.
+  - $AC_0$: `update()` validates policy type: raises `TypeError` if policy is not a `SoftmaxPolicy`, and raises `ValueError` if `max_logit_abs` is below instance `clamp`.
   - $AC_1$: Reference logit freezing: first non-empty update records current policy logits into `policy._snapshot.metadata["pairwise_reference_logits"]`; subsequent updates leave stored reference logits untouched; corrupt stored reference (missing actions or non-finite values) raises `ValueError`.
   - $AC_2$: Move to fit: updates policy logits to `fit_logits(theta_ref=reference_logits, pairs=pairs)` within $10^{-12}$; returned `LearnerResult.logit_deltas` matches `fitted - before`.
   - $AC_3$: No-pair early exit: episodes yielding zero pairs do not write reference metadata, do not mutate logits or snapshot version, and return `episodes_used = 0`.
@@ -2165,7 +2195,20 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - $AC_5$: Strict result envelope: `LearnerResult` contains `episodes_used = len(pairs)`, `mean_reward = 0.0`, `baseline_after == baseline_before`, `consumed_inputs = None`, and `extra` populated with `pairs`, `skipped_episodes`, `converged`, `iterations`, `stationarity`, `step_size`, `loss_before`, `loss_after`, and `reference_logits`; `rewards` argument is completely ignored.
   - $AC_6$: Storage boundary & isolation: policy snapshot round-trips through `json.dumps`/`json.loads` cleanly and through `InMemoryLearningStore` with no new record types; `pairwise.py` imports zero symbols from `agent_learning.storage`.
   - Full suite: 7/7 passed in `tests/test_pairwise_learner.py`. 27/27 pairwise tests passing. Upstream untouched and PR gate passing.
-
+- **Review (Step 8):** Amazon Q reviewed PR #122 across 4 rounds. All findings addressed and confirmed clean:
+  - `Q-122-1 | logic error | verified: yes | decision: accepted | Require persistent _snapshot.metadata explicitly on policy so initial reference logits are never lost to detached copy | fix: ac8b26a`
+  - `Q-122-2 | logic error | verified: yes | decision: accepted | Deduplicate episode IDs via unique set difference so duplicate IDs do not inflate skipped_episodes | fix: ac8b26a`
+  - `Q-122-3 | logic error | verified: yes | decision: accepted | Compute exact regularizer loss via bt_loss in zero-pairs path instead of hardcoding 0.0 | fix: ac8b26a`
+  - `Q-122-4 | test gap | verified: yes | decision: accepted | Add assertions in test_ac1 verifying post_logits != stored_ref and non-aliasing | fix: ac8b26a`
+  - `Q-122-5 | flakiness | verified: yes | decision: accepted | Replace dir() with pw_module.__dict__.values() in storage purity test | fix: ac8b26a`
+  - `Q-122-6 | critical | verified: yes | decision: accepted | Standardize episode ID extraction to ep.id matching pairs_from_episodes | fix: 8e661b8`
+  - `Q-122-7 | logic gap | verified: yes | decision: accepted | Unify reference validation into _validate_or_freeze_reference so corrupt references raise ValueError even on zero pairs | fix: 8e661b8`
+  - `Q-122-8 | data contract | verified: yes | decision: accepted | Populate extra['reference_logits'] with dict(theta_ref) on zero-pairs path so reported loss is always paired with reference vector | fix: eedf86b`
+  - `Q-122-9 | architecture | verified: yes | decision: accepted | Read both metadata and logits directly from policy._snapshot to eliminate dual-source divergence | fix: eedf86b`
+  - `Q-122-10 | test robustness | verified: yes | decision: accepted | Inspect symbol names in storage purity test | fix: eedf86b`
+  - `Q-122-11 | logic error | verified: yes | decision: accepted | Enforce instance clamp self.clamp in policy validation instead of hardcoded CLAMP | fix: d8289aa`
+  - `Q-122-12 | logic gap | verified: yes | decision: accepted | Validate action presence and math.isfinite on live policy logits in _validate_or_freeze_reference | fix: d8289aa`
+  Amazon Q confirmed all findings resolved; CI checks (build-installer, test) passed green.
 
 
 

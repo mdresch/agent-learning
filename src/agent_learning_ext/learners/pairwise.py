@@ -405,6 +405,13 @@ def _validate_or_freeze_reference(
         theta_ref = {a: float(ref_raw[a]) for a in action_ids}
         return theta_ref, dict(ref_raw)
 
+    missing = [a for a in action_ids if a not in snap.logits]
+    if missing:
+        raise ValueError(f"Missing action(s) in policy logits: {missing}")
+    for a in action_ids:
+        val = float(snap.logits[a])
+        if not math.isfinite(val):
+            raise ValueError(f"Non-finite value for action '{a}' in policy logits: {val}")
     theta_ref = {a: float(snap.logits[a]) for a in action_ids}
     if freeze:
         metadata["pairwise_reference_logits"] = dict(theta_ref)
@@ -455,9 +462,9 @@ class PairwiseLearner(Learner):
         # 1. Type validation (AC_0)
         if not isinstance(policy, SoftmaxPolicy):
             raise TypeError(f"PairwiseLearner requires a SoftmaxPolicy instance, got {type(policy)}")
-        if policy.max_logit_abs < CLAMP:
+        if policy.max_logit_abs < self.clamp:
             raise ValueError(
-                f"SoftmaxPolicy max_logit_abs ({policy.max_logit_abs}) must be at least CLAMP ({CLAMP})"
+                f"SoftmaxPolicy max_logit_abs ({policy.max_logit_abs}) must be at least clamp ({self.clamp})"
             )
 
         snapshot = policy.snapshot()

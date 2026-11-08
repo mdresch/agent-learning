@@ -109,6 +109,11 @@ def test_ac0_type_and_clamp_validation():
     res = learner.update(valid_policy, [ep])
     assert res.episodes_used == 1
 
+    # Learner configured clamp > policy max_logit_abs raises ValueError
+    large_clamp_learner = PairwiseLearner(clamp=10.0)
+    with pytest.raises(ValueError, match="clamp"):
+        large_clamp_learner.update(valid_policy, [ep])
+
 
 def test_ac1_reference_frozen_and_validated():
     """AC_1: First update freezes reference logits; subsequent updates leave reference unchanged."""
@@ -203,6 +208,11 @@ def test_ac3_no_pairs_leaves_policy_untouched():
     corrupt_ref_policy._snapshot.metadata["pairwise_reference_logits"] = {"x": 1.0}  # missing y, z
     with pytest.raises(ValueError, match="action"):
         learner.update(corrupt_ref_policy, episodes)
+
+    # Live policy with non-finite logits raises ValueError even in zero-pairs path
+    nan_live_policy = _make_policy(actions, logits={"x": float("nan"), "y": 0.0, "z": 0.0})
+    with pytest.raises(ValueError, match="finite"):
+        learner.update(nan_live_policy, episodes)
 
 
 def test_ac4_idempotent_repeated_update():

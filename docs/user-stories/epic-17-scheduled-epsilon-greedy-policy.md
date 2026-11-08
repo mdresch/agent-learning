@@ -41,7 +41,7 @@ Fixture used by the criteria below ("the base policy"): three actions `a`, `b` a
 
 ## Story 17.3 — Choosing and Replaying
 
-**Status:** Ready — depends on Stories 15.1 and 15.3 of Epic 15.  
+**Status:** Completed (2026-11-08, commit 54b10dc) — depends on Stories 15.1 and 15.3 of Epic 15.  
 **As** an auditor, **I want** every decision to say whether it was a greedy pick or an exploration probe and to be replayable, **so that** a sub-optimal choice can be explained.
 
 ### Acceptance Criteria:

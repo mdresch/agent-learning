@@ -15,7 +15,7 @@ Fixture used by the criteria below ("the base policy"): three actions `a`, `b` a
 
 ## Story 17.1 — The Schedule
 
-**Status:** Ready  
+**Status:** Completed (2026-11-08, commit 8cced01)  
 **As** an auditor, **I want** the exploration rate to be a pure, bounded function of the pull count, **so that** its decay can be checked by hand.
 
 ### Acceptance Criteria:

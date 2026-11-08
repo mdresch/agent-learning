@@ -1,0 +1,44 @@
+---
+name: weight-compiler
+description: Guidance for Scored-Search Decision Configuration Compilation over criteria weights (ADR-022, Epic 22).
+---
+
+# Skill: weight-compiler (agent-learning)
+
+## Overview
+This skill governs Scored-Search Decision Configuration Compilation (`src/agent_learning_ext/weight_compiler.py`). Grounded in derivative-free black-box optimization, this offline utility optimizes Bayesian criteria weights against historical labeled decision frames using coordinate ascent and the real `DecisionResolver`, freezing compiled configurations for zero-overhead runtime deployment.
+
+## Governing Specifications & Contracts
+- **Architecture:** [`docs/adr/ADR-022-scored-search-decision-compilation.md`](../../docs/adr/ADR-022-scored-search-decision-compilation.md)
+- **Business Requirements:** [`docs/project-docs/Business-Requirements/BRD-022-scored-search-decision-configuration-compilation.md`](../../docs/project-docs/Business-Requirements/BRD-022-scored-search-decision-configuration-compilation.md)
+- **Functional Design:** [`docs/project-docs/Functional-Design/FDD-022-scored-search-decision-configuration-compilation.md`](../../docs/project-docs/Functional-Design/FDD-022-scored-search-decision-configuration-compilation.md)
+- **User Stories:** [`docs/user-stories/epic-22-scored-search-decision-configuration-compilation.md`](../../docs/user-stories/epic-22-scored-search-decision-configuration-compilation.md)
+- **Test Contracts:**
+  - `tests/test_weight_objective.py` (Story 22.1 — Scoring a Weight Vector With the Real Resolver)
+  - `tests/test_weight_split.py` (Story 22.2 — The Split and the Label Rule)
+  - `tests/test_weight_search.py` (Story 22.3 — The Coordinate Ascent)
+  - `tests/test_weight_propose.py` (Story 22.4 — Proposing Only a Real Improvement)
+  - `tests/test_weight_apply.py` (Story 22.5 — Applying Frozen Weights)
+  - `tests/test_weight_adopt.py` (Story 22.6 — Adopting a Proposal by a Human Decision)
+  - `tests/test_weight_real_data.py` (Story 22.7 — The Real-Data Regression Check)
+
+## Load-Bearing Constraints & Invariants
+1. **Upstream Fork Collision Protection (Invariant 6):**
+   - Resides in `src/agent_learning_ext/weight_compiler.py` and is re-exported via `src/agent_learning_ext`.
+   - `src/agent_learning/` remains 100% byte-for-byte untouched upstream code (0 lines diff).
+2. **Pure Module Boundary & Storage Decoupling (AC_6, BRU-022-10):**
+   - Zero imports from `agent_learning.storage` or `agent_learning_ext.storage`.
+   - Zero file I/O operations (no `open`, no `Path.read_*` or `Path.write_*`).
+3. **Scored Exclusively via the Real Resolver (AC_5, BRU-022-02):**
+   - Every candidate configuration is evaluated strictly through `DecisionResolver.resolve(snapshot, with_weights(frame, weights))`.
+   - The module contains no alternate scoring path or heuristic shortcuts.
+4. **Hard Constraint Inviolability (AC_4, BRU-022-04):**
+   - Ruled-out options never win under any candidate weight vector.
+   - Robust decision margin ignores ruled-out options and reflects separation between viable options only.
+5. **Simplex Invariant & Step Floor (AC_1, BRU-022-03, FDD L2):**
+   - Compiled weights must be strictly positive with a floor of one step (`STEP_DEFAULT = 0.05`), finite, and sum to 1.0 within 1e-9.
+   - Non-positive, non-finite, `nan`, or key-mismatched weights raise `ValueError`.
+6. **Multi-Objective Loss Formulation (AC_2, AC_3, ADR-022 §4.1):**
+   - Objective: $\sum [\mathbb{I}[\hat{y} = y^*] + \beta \cdot \text{Margin}]$.
+   - Default margin weight $\beta = 0.1$.
+   - $\hat{y}$ awards credit for `resolved` and `needs_user_feedback` (reasoned recommendation awaiting human approval), returning `None` for ties or unevidenced states.

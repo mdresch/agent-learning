@@ -231,7 +231,10 @@ def test_governance_baseline_passes() -> None:
     assert spec is not None and spec.loader is not None
     assert hasattr(spec.loader, "exec_module"), "Loader must implement exec_module"
     gb = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(gb)
+    try:
+        spec.loader.exec_module(gb)
+    except Exception as exc:
+        pytest.fail(f"Failed to execute governance_baseline module: {exc}")
 
     manifest = json.loads(gb.MANIFEST.read_text(encoding="utf-8"))
     problems = gb.find_problems(manifest, ROOT)

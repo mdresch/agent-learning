@@ -117,6 +117,7 @@ def find_problems(manifest: dict, root: Path) -> list[str]:
             problems.append(
                 f"{rel} was {entry['status']} and now reads {word!r}: an unrecorded lifecycle change."
             )
+            continue
         if fingerprint(family, text) != entry["sha256"]:
             problems.append(
                 f"{rel} is an approved document and has changed since it was baselined. Changes to it go through Stage 16: "
@@ -230,10 +231,21 @@ def store_verifier() -> Verify:
                 encoding="utf-8",
                 check=False,
             )
+            if run.returncode != 0:
+                err_detail = run.stderr.strip() or f"exit code {run.returncode}"
+                return f"failed to query store for task {task_id}: {err_detail}"
             out = run.stdout
-            cache[task_id] = (
-                [row["episode"] for row in json.loads(out[out.index("[") :])] if "[" in out else []
-            )
+            if "[" in out:
+                try:
+                    parsed_rows = json.loads(out[out.index("[") :])
+                    cache[task_id] = [
+                        row.get("episode", row) if isinstance(row, dict) else row
+                        for row in parsed_rows
+                    ]
+                except Exception as exc:
+                    return f"failed to parse store episodes for task {task_id}: {exc}"
+            else:
+                cache[task_id] = []
         match = [e for e in cache[task_id] if e["id"].startswith(prefix)]
         if not match:
             return f"no {task_id} episode {prefix} in the local store"

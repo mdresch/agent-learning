@@ -74,12 +74,17 @@ GOVERNED_DIRS = ("docs/adr", "docs/project-docs", "docs/user-stories")
 
 
 def load_baseline():
-    spec = importlib.util.spec_from_file_location(
-        "governance_baseline", ROOT / "scripts" / "governance_baseline.py"
-    )
-    assert spec is not None and spec.loader is not None
+    baseline_path = ROOT / "scripts" / "governance_baseline.py"
+    if not baseline_path.is_file():
+        raise RuntimeError(f"governance_baseline.py not found at {baseline_path}")
+    spec = importlib.util.spec_from_file_location("governance_baseline", baseline_path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"Unable to load spec for governance_baseline from {baseline_path}")
     module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
+    try:
+        spec.loader.exec_module(module)
+    except Exception as exc:
+        raise RuntimeError(f"Failed to execute governance_baseline module: {exc}") from exc
     return module
 
 
@@ -215,7 +220,12 @@ def agent_learn(*args: str) -> str:
 
 
 def parse_json(text: str) -> dict:
-    return json.loads(text[text.index("{") :])
+    if "{" not in text:
+        raise Stop(f"No JSON object found in output: {text.strip()[:200]}")
+    try:
+        return json.loads(text[text.index("{") :])
+    except (ValueError, json.JSONDecodeError) as exc:
+        raise Stop(f"Failed to parse JSON output: {exc}") from exc
 
 
 def slug(rel: str) -> str:
@@ -381,7 +391,9 @@ def accept(doc: str, by: str, summary: str) -> int:
     )
     paths["adjudicated"].write_text(json.dumps(adjudicated, indent=2) + "\n", encoding="utf-8")
     selected = adjudicated["selected_action"]["id"]
-    best = next(a for a in adjudicated["assessments"] if a["action"]["id"] == selected)
+    best = next((a for a in adjudicated["assessments"] if a["action"]["id"] == selected), None)
+    if best is None:
+        raise Stop(f"Selected action {selected!r} was not found in adjudicated assessments.")
     utils = sorted(
         (a["robust_utility"] for a in adjudicated["assessments"] if a.get("robust_utility") is not None),
         reverse=True,

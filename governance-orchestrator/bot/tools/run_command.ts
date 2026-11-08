@@ -14,7 +14,9 @@ const DENY_ARG = /^(--output|--exec|--upload-pack|--ext-diff|-c$|-o$)/;
 function allowed(argv: string[]): string | undefined {
   const [bin, a, b] = argv;
   if (argv.some((x) => DENY_ARG.test(x))) return "argument not allowed";
-  if (bin === "uv" && a === "run" && b === "agent-learn") return AGENT_LEARN_READ.has(argv[3] ?? "") ? undefined : `agent-learn ${argv[3]} is not allowed`;
+  if (bin === "uv" && a === "run" && (b === "agent-learn" || b === "agent-learn-ext")) {
+    return AGENT_LEARN_READ.has(argv[3] ?? "") ? undefined : `${b} ${argv[3]} is not allowed`;
+  }
   if (bin === "uv" && a === "run" && b === "pytest") return undefined;
   if (bin === "uv" && a === "run" && b === "python") return argv[3] === "scripts/phase_rollup.py" ? undefined : "only scripts/phase_rollup.py may run";
   if (bin === "git") {

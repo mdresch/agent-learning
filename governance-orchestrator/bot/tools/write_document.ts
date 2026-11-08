@@ -29,7 +29,11 @@ export default defineTool({
     if (!stage) throw new Error(`Unknown stage ${stageId}`);
 
     const abs = resolve(repoRoot, path);
-    const rel = relative(repoRoot, abs).split(sep).join("/");
+    const normalizedRoot = resolve(repoRoot);
+    if (!abs.startsWith(normalizedRoot + sep) && abs !== normalizedRoot) {
+      throw new Error("Path is outside the repository.");
+    }
+    const rel = relative(normalizedRoot, abs).split(sep).join("/");
     if (rel.startsWith("..") || rel === "") throw new Error("Path is outside the repository.");
     if (GENERATED.some((g) => rel === g || rel.startsWith(g))) throw new Error(`${rel} is generated or protected. Use the tooling or ask the human.`);
     if (!stage.writes.some((w) => rel === w || (w.endsWith("/") && rel.startsWith(w)))) {

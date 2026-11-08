@@ -288,8 +288,19 @@ export function saveState(state: JourneyState) {
   const stored = {
     ...persisted,
     updatedAt: now(),
-    // keep requested status; decisions are re-derived from decisions.ndjson on every load
-    approvals: state.approvals.map((a) => ({ ...a, status: "pending", decidedBy: undefined, decidedAt: undefined, note: undefined })),
+    // keep requested status; decisions are re-derived from decisions.ndjson on every load (reused episodes remain approved)
+    approvals: state.approvals.map((a) => {
+      if (a.reuse) {
+        return {
+          ...a,
+          status: "approved",
+          decidedBy: "reused episode",
+          decidedAt: a.reuse.recordedAt,
+          note: a.reuse.summary,
+        };
+      }
+      return { ...a, status: "pending", decidedBy: undefined, decidedAt: undefined, note: undefined };
+    }),
   };
   const tmp = `${statePath()}.tmp`;
   writeFileSync(tmp, JSON.stringify(stored, null, 2));

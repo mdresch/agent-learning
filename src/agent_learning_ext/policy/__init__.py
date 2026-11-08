@@ -17,6 +17,7 @@ from agent_learning.policy.scope_advice import (
 )
 from agent_learning.policy.thompson import ThompsonPolicy
 from agent_learning_ext.policy.action_statistics import ActionStats, add_rewards, read_statistics, reward_to_r
+from agent_learning_ext.policy.epsilon_greedy import epsilon_at
 from agent_learning_ext.policy.ucb import C_DEFAULT, SELECTION_BASIS, WILSON_Z, UCBPolicy, ucb_scores
 
 __all__ = [
@@ -36,6 +37,7 @@ __all__ = [
     "add_rewards",
     "advice_reward",
     "baseline_snapshot",
+    "epsilon_at",
     "read_statistics",
     "recommend",
     "reward_to_r",

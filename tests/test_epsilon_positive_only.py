@@ -45,6 +45,7 @@ Contract Interpretations (derived via scripts/spec_gate.py):
 
 from __future__ import annotations
 
+import copy
 import json
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -191,9 +192,10 @@ def test_ac1_locks_into_taken_action_due_to_safety_mask(record_property: pytest.
                 assert mean == pytest.approx(1.0, abs=1e-12)
                 assert mean > NEUTRAL_MEAN  # 1.0 > 0.5
             else:
-                # Untaken actions have pull_count 0 and cumulative_reward 0.0
+                # Untaken actions have pull_count 0, cumulative_reward 0.0, and mean_reward 0.0
                 assert stats[aid].pull_count == 0
                 assert stats[aid].cumulative_reward == 0.0
+                assert stats[aid].mean_reward == 0.0
 
         # 2. Make a decision and verify that policy locks onto the taken action
         decision = policy.choose(request_id=f"req-check-{task_id}")
@@ -237,6 +239,10 @@ def test_ac2_replay_run_twice_gives_identical_statistics_and_decisions() -> None
         run1._snapshot.id = f"snap-{task_id}"
         run2._snapshot.id = f"snap-{task_id}"
 
+        # Guard: choose() must not mutate metadata
+        meta_before1 = copy.deepcopy(run1.snapshot.metadata)
+        meta_before2 = copy.deepcopy(run2.snapshot.metadata)
+
         # Statistics match identically
         stats1 = run1.snapshot.metadata["action_statistics"]
         stats2 = run2.snapshot.metadata["action_statistics"]
@@ -245,6 +251,10 @@ def test_ac2_replay_run_twice_gives_identical_statistics_and_decisions() -> None
         # Decisions match identically with fixed request_id
         dec1 = run1.choose(request_id=f"req-repeat-{task_id}", timestamp="2026-11-08T00:00:00Z")
         dec2 = run2.choose(request_id=f"req-repeat-{task_id}", timestamp="2026-11-08T00:00:00Z")
+
+        # Verify choose() left snapshot metadata strictly unmutated
+        assert run1.snapshot.metadata == meta_before1
+        assert run2.snapshot.metadata == meta_before2
 
         assert dec1.action.id == dec2.action.id
         assert dec1.probabilities == dec2.probabilities

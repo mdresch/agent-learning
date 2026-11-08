@@ -53,6 +53,8 @@
 | [LL-040](#ll-040--print-the-resolved-store-path-before-a-governance-command) | Print the Resolved Store Path Before a Governance Command | Epic 19 / ADR-003 amendment | Universal Tooling | 2026-11-04 |
 | [LL-041](#ll-041--apply-a-lessons-tier-2-propagation-in-the-same-pr) | Apply a Lesson's Tier 2 Propagation in the Same PR | Epic 20 / Story 20.6 | Universal Process | 2026-11-04 |
 | [LL-042](#ll-042--an-existing-story-branch-means-a-run-was-already-started) | An Existing Story Branch Means a Run Was Already Started | Epic 20 / Story 20.6 | Universal Process | 2026-11-04 |
+| [LL-043](#ll-043--a-closing-stages-tooling-may-sit-outside-what-ci-runs) | A Closing Stage's Tooling May Sit Outside What CI Runs | Phase 1 Close / Stage 18 | Universal Process | 2026-11-04 |
+| [LL-044](#ll-044--the-monolithic-ideation-trap-decoupling-deep-exploratory-research-into-a-dedicated-library) | The Monolithic Ideation Trap: Decoupling Deep Exploratory Research into a Dedicated Library | Phase 1 Close / Stage 1 Initiation | Universal Governance & Process | 2026-11-06 |
 
 ---
 
@@ -621,3 +623,17 @@
 - **The Trap:** Stage 18 relies on `evaluate_phase_close_readiness` and `seed-next`, which exist only in the legacy top-level `pmbok/` tree. CI skips that tree's tests (`--ignore=tests/pmbok`) and ADR-034 plans to delete it. This surfaced at phase close, not while the tools were built.
 - **The Root Cause:** ADR-034 retires the tree by stages and nothing lists which later stages still depend on it.
 - **Actionable Invariant:** Before a phase-close stage runs, run its tests under `uv run` in a clean environment, and record which stages depend on code outside `src/`.
+
+---
+
+### LL-044 — The Monolithic Ideation Trap: Decoupling Deep Exploratory Research into a Dedicated Library
+- **Identifier:** `LL-044`
+- **Date:** 2026-11-06
+- **Epic / Story:** Phase 1 Close / Stage 1 Initiation (Phase 2 Transition)
+- **Scope:** Universal Governance & Architecture / Research Process
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/stage-1/SKILL.md` (or `.claude/skills/ideation/SKILL.md`) & `docs/research/ideation/README.md`; Tier 3: `sidpa-template/docs/research/`
+- **The Trap:** Attempting to force an early-stage lifecycle document (`Ideation-Document.md` or `Spark-Capture.md`) to resolve downstream chartering, economic feasibility, stakeholder taxonomy, and technical depth in a single monolithic artifact. The document swells to unmaintainable sizes (over 1,000 lines), conflating exploratory research with governed lifecycle progression, creating friction for reviews and gate checks.
+- **The Root Cause:** Lack of a designated, decoupled research repository for exploratory landscape studies, comparative SDK benchmarks, and architectural investigations. Without an offline research library, all inquiry is forced into the immediate lifecycle document under active governance.
+- **Actionable Invariant:** Decouple deep exploratory inquiry into a dedicated research directory (`docs/research/<domain>/`), while keeping lifecycle artifacts (`Spark-Capture.md`, `Ideation-Document.md`, `Project-Charter.md`) strictly focused on their specific stage gate deliverables. The lifecycle artifact summarizes the synthesized insight, records the hypotheses, and points to the research library for supporting evidence and comprehensive taxonomies.
+- **Verification Gate:** Pre-commit or stage gate checks ensure lifecycle artifacts cite canonical research artifacts in `docs/research/` rather than embedding multi-page comparative surveys and benchmarks inline.
+

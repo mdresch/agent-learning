@@ -1,0 +1,17 @@
+[
+  {
+    "id": "approve_benefits_plan",
+    "description": "The Benefits Management Plan defines credible, verifiable target benefits tied to hypotheses and sparks, named owners, realistic milestone timeframes, falsifiable metrics, and concrete disbenefit mitigations -- approve it to authorize benefits realization planning",
+    "parameters": {}
+  },
+  {
+    "id": "reject_benefits_plan",
+    "description": "The Benefits Management Plan fails to establish credible benefits, lacks verifiable metrics, or ignores significant disbenefits -- reject it outright",
+    "parameters": {}
+  },
+  {
+    "id": "request_revision_before_decision",
+    "description": "The Benefits Management Plan requires further metric definition, timeframe alignment, or risk mitigation before it can be judged",
+    "parameters": {}
+  }
+]

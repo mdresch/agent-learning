@@ -1,0 +1,130 @@
+{
+  "task": "Stakeholder Engagement Plan & Master Register (Phase 2): approve, reject, or request revision before PMP formalization",
+  "constraints": [
+    "no_technical_integrity_block"
+  ],
+  "criteria": [
+    {
+      "id": "charter_alignment",
+      "weight": 0.3,
+      "minimum_sources": 1,
+      "description": "Charter alignment (sovereign human agency, role definitions, zero unauthorized delegation, fork collision protection)"
+    },
+    {
+      "id": "substantive_content",
+      "weight": 0.3,
+      "minimum_sources": 1,
+      "description": "Substantive content (SEAM gap actions, Master Stakeholder Register contract SH-01..SH-07, data minimization, RACI matrix)"
+    },
+    {
+      "id": "internal_completeness",
+      "weight": 0.25,
+      "minimum_sources": 1,
+      "description": "Internal completeness against PMBOK process outputs (PMBOK 8 §2.5 Stakeholders, legacy 13.2 Plan Stakeholder Engagement)"
+    },
+    {
+      "id": "consistency_with_dependent_plans",
+      "weight": 0.15,
+      "minimum_sources": 1,
+      "description": "Consistency with dependent plans (Scope baseline v2.0, Project Charter v2.0, zero DAG cascade)"
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_plan",
+      "evidence": [
+        {
+          "criterion_id": "charter_alignment",
+          "source": "direct_doc_read:docs/project-docs/management-plans/Stakeholder-Engagement-Plan.md#1.1",
+          "support": 0.97,
+          "confidence": 0.95
+        },
+        {
+          "criterion_id": "substantive_content",
+          "source": "direct_doc_read:docs/project-docs/Stakeholder-Register.md#2",
+          "support": 0.98,
+          "confidence": 0.96
+        },
+        {
+          "criterion_id": "internal_completeness",
+          "source": "direct_doc_read:docs/project-docs/management-plans/Stakeholder-Engagement-Plan.md#1.5",
+          "support": 0.96,
+          "confidence": 0.94
+        },
+        {
+          "criterion_id": "consistency_with_dependent_plans",
+          "source": "direct_doc_read:docs/project-docs/Project-Charter.md#5",
+          "support": 0.97,
+          "confidence": 0.95
+        }
+      ],
+      "constraint_results": {
+        "no_technical_integrity_block": true
+      }
+    },
+    {
+      "action_id": "reject_plan",
+      "evidence": [
+        {
+          "criterion_id": "charter_alignment",
+          "source": "direct_doc_read:docs/project-docs/management-plans/Stakeholder-Engagement-Plan.md#1.1",
+          "support": 0.02,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "substantive_content",
+          "source": "direct_doc_read:docs/project-docs/Stakeholder-Register.md#2",
+          "support": 0.02,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "internal_completeness",
+          "source": "direct_doc_read:docs/project-docs/management-plans/Stakeholder-Engagement-Plan.md#1.5",
+          "support": 0.03,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "consistency_with_dependent_plans",
+          "source": "direct_doc_read:docs/project-docs/Project-Charter.md#5",
+          "support": 0.02,
+          "confidence": 0.85
+        }
+      ],
+      "constraint_results": {
+        "no_technical_integrity_block": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "charter_alignment",
+          "source": "direct_doc_read:docs/project-docs/management-plans/Stakeholder-Engagement-Plan.md#1.1",
+          "support": 0.04,
+          "confidence": 0.80
+        },
+        {
+          "criterion_id": "substantive_content",
+          "source": "direct_doc_read:docs/project-docs/Stakeholder-Register.md#2",
+          "support": 0.04,
+          "confidence": 0.80
+        },
+        {
+          "criterion_id": "internal_completeness",
+          "source": "direct_doc_read:docs/project-docs/management-plans/Stakeholder-Engagement-Plan.md#1.5",
+          "support": 0.05,
+          "confidence": 0.80
+        },
+        {
+          "criterion_id": "consistency_with_dependent_plans",
+          "source": "direct_doc_read:docs/project-docs/Project-Charter.md#5",
+          "support": 0.04,
+          "confidence": 0.80
+        }
+      ],
+      "constraint_results": {
+        "no_technical_integrity_block": true
+      }
+    }
+  ]
+}

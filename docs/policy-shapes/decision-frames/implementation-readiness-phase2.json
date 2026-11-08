@@ -1,0 +1,130 @@
+{
+  "task": "Implementation Readiness Authorization (Stage 8): validate foundation readiness, contract testability, and architectural boundary isolation for Phase 2 execution in agent-training-ext/",
+  "constraints": [
+    "no_technical_integrity_block"
+  ],
+  "criteria": [
+    {
+      "id": "traceability_grounding",
+      "weight": 0.30,
+      "minimum_sources": 1,
+      "description": "Traceability and grounding (End-to-end chain from accepted ADRs, BRDs, FDDs to User Stories in WBS dictionary and PMP baseline PMP-BL-v1.1.0)"
+    },
+    {
+      "id": "contract_testability_and_falsifiability",
+      "weight": 0.30,
+      "minimum_sources": 1,
+      "description": "Contract testability and falsifiability (Deterministic acceptance criteria, Ring 1 contract suites in agent-training-ext/tests/, zero unverified stubs)"
+    },
+    {
+      "id": "architectural_isolation_and_upstream_immunity",
+      "weight": 0.25,
+      "minimum_sources": 1,
+      "description": "Architectural isolation and upstream immunity (Zero lines of diff in src/agent_learning, complete isolation in agent-training-ext/, pure standard library purity)"
+    },
+    {
+      "id": "baseline_and_resource_envelope_alignment",
+      "weight": 0.15,
+      "minimum_sources": 1,
+      "description": "Baseline and resource envelope alignment (30.0 pd critical path across M6–M10, 120–160h maintainer capacity, 12.5 pd risk contingency, <=€100/mo OpEx)"
+    }
+  ],
+  "options": [
+    {
+      "action_id": "accept_foundation_proceed",
+      "evidence": [
+        {
+          "criterion_id": "traceability_grounding",
+          "source": "direct_doc_read:docs/project-docs/Project-Management-Plan.md",
+          "support": 0.98,
+          "confidence": 0.96
+        },
+        {
+          "criterion_id": "contract_testability_and_falsifiability",
+          "source": "direct_doc_read:docs/user-stories/epic-14-critique-to-evidence-ingestion.md",
+          "support": 0.97,
+          "confidence": 0.95
+        },
+        {
+          "criterion_id": "architectural_isolation_and_upstream_immunity",
+          "source": "direct_doc_read:docs/project-docs/management-plans/Quality-Management-Plan.md",
+          "support": 0.99,
+          "confidence": 0.98
+        },
+        {
+          "criterion_id": "baseline_and_resource_envelope_alignment",
+          "source": "direct_doc_read:docs/project-docs/management-plans/Schedule-Management-Plan.md",
+          "support": 0.96,
+          "confidence": 0.94
+        }
+      ],
+      "constraint_results": {
+        "no_technical_integrity_block": true
+      }
+    },
+    {
+      "action_id": "reject_needs_rework",
+      "evidence": [
+        {
+          "criterion_id": "traceability_grounding",
+          "source": "hypothetical_red_team:missing_foundation",
+          "support": 0.05,
+          "confidence": 0.90
+        },
+        {
+          "criterion_id": "contract_testability_and_falsifiability",
+          "source": "hypothetical_red_team:untestable_criteria",
+          "support": 0.04,
+          "confidence": 0.88
+        },
+        {
+          "criterion_id": "architectural_isolation_and_upstream_immunity",
+          "source": "hypothetical_red_team:fork_pollution",
+          "support": 0.03,
+          "confidence": 0.92
+        },
+        {
+          "criterion_id": "baseline_and_resource_envelope_alignment",
+          "source": "hypothetical_red_team:unbounded_scope",
+          "support": 0.05,
+          "confidence": 0.85
+        }
+      ],
+      "constraint_results": {
+        "no_technical_integrity_block": true
+      }
+    },
+    {
+      "action_id": "flag_for_human_review",
+      "evidence": [
+        {
+          "criterion_id": "traceability_grounding",
+          "source": "hypothetical_deliberation:moderate_uncertainty",
+          "support": 0.45,
+          "confidence": 0.70
+        },
+        {
+          "criterion_id": "contract_testability_and_falsifiability",
+          "source": "hypothetical_deliberation:moderate_uncertainty",
+          "support": 0.42,
+          "confidence": 0.68
+        },
+        {
+          "criterion_id": "architectural_isolation_and_upstream_immunity",
+          "source": "hypothetical_deliberation:moderate_uncertainty",
+          "support": 0.50,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "baseline_and_resource_envelope_alignment",
+          "source": "hypothetical_deliberation:moderate_uncertainty",
+          "support": 0.48,
+          "confidence": 0.72
+        }
+      ],
+      "constraint_results": {
+        "no_technical_integrity_block": true
+      }
+    }
+  ]
+}

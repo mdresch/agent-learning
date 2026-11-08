@@ -54,3 +54,8 @@ pmbokguide_eighthed_eng.pdf
 
 # Node dependencies (any depth)
 node_modules/
+
+# Logs
+logs/
+*.log
+

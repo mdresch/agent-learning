@@ -1,0 +1,142 @@
+{
+  "episode_id": "31b88dc3-01fc-4e3f-934e-c0be73a8e372",
+  "policy_name": "approve-pmp",
+  "timestamp": "2026-11-08T11:03:29.094411+00:00",
+  "frame": {
+    "task": "Project Management Plan Formalization (Stage 7): approve, reject, or request revision for PMP-BL-v1.1.0",
+    "constraints": [
+      "no_technical_integrity_block"
+    ],
+    "criteria": [
+      {
+        "id": "scope_boundary_clarity",
+        "weight": 0.35,
+        "minimum_sources": 1,
+        "description": "Scope boundary clarity (WBS 100% rule, out-of-scope boundaries, deliverable acceptance gates, agent-training-ext package isolation)"
+      },
+      {
+        "id": "risk_and_quality_coverage",
+        "weight": 0.35,
+        "minimum_sources": 1,
+        "description": "Risk and quality coverage (4-ring verification gates, Bayes factor thresholds, 5-tier RBS taxonomy, SEAM alignment, fork collision protection)"
+      },
+      {
+        "id": "unforced_schedule_cost_deferral",
+        "weight": 0.15,
+        "minimum_sources": 1,
+        "description": "Unforced schedule and cost balance (30.0 pd critical path, 100% internal Make sourcing, zero temp contractors, 120-160h maintainer capacity)"
+      },
+      {
+        "id": "charter_alignment",
+        "weight": 0.15,
+        "minimum_sources": 1,
+        "description": "Charter alignment (sovereign human agency, mathematical rigor, pure standard library, upstream Microsoft alignment)"
+      }
+    ],
+    "options": [
+      {
+        "action_id": "approve_pmp",
+        "evidence": [
+          {
+            "criterion_id": "scope_boundary_clarity",
+            "source": "direct_doc_read:docs/project-docs/management-plans/Scope-Management-Plan.md",
+            "support": 0.98,
+            "confidence": 0.96
+          },
+          {
+            "criterion_id": "risk_and_quality_coverage",
+            "source": "direct_doc_read:docs/project-docs/management-plans/Quality-Management-Plan.md",
+            "support": 0.97,
+            "confidence": 0.95
+          },
+          {
+            "criterion_id": "unforced_schedule_cost_deferral",
+            "source": "direct_doc_read:docs/project-docs/management-plans/Cost-Management-Plan.md",
+            "support": 0.96,
+            "confidence": 0.94
+          },
+          {
+            "criterion_id": "charter_alignment",
+            "source": "direct_doc_read:docs/project-docs/Project-Charter.md",
+            "support": 0.98,
+            "confidence": 0.96
+          }
+        ],
+        "constraint_results": {
+          "no_technical_integrity_block": true
+        }
+      },
+      {
+        "action_id": "reject_pmp",
+        "evidence": [
+          {
+            "criterion_id": "scope_boundary_clarity",
+            "source": "direct_doc_read:docs/project-docs/management-plans/Scope-Management-Plan.md",
+            "support": 0.02,
+            "confidence": 0.85
+          },
+          {
+            "criterion_id": "risk_and_quality_coverage",
+            "source": "direct_doc_read:docs/project-docs/management-plans/Quality-Management-Plan.md",
+            "support": 0.02,
+            "confidence": 0.85
+          },
+          {
+            "criterion_id": "unforced_schedule_cost_deferral",
+            "source": "direct_doc_read:docs/project-docs/management-plans/Cost-Management-Plan.md",
+            "support": 0.03,
+            "confidence": 0.85
+          },
+          {
+            "criterion_id": "charter_alignment",
+            "source": "direct_doc_read:docs/project-docs/Project-Charter.md",
+            "support": 0.02,
+            "confidence": 0.85
+          }
+        ],
+        "constraint_results": {
+          "no_technical_integrity_block": true
+        }
+      },
+      {
+        "action_id": "request_revision_before_decision",
+        "evidence": [
+          {
+            "criterion_id": "scope_boundary_clarity",
+            "source": "direct_doc_read:docs/project-docs/management-plans/Scope-Management-Plan.md",
+            "support": 0.03,
+            "confidence": 0.8
+          },
+          {
+            "criterion_id": "risk_and_quality_coverage",
+            "source": "direct_doc_read:docs/project-docs/management-plans/Quality-Management-Plan.md",
+            "support": 0.04,
+            "confidence": 0.8
+          },
+          {
+            "criterion_id": "unforced_schedule_cost_deferral",
+            "source": "direct_doc_read:docs/project-docs/management-plans/Cost-Management-Plan.md",
+            "support": 0.04,
+            "confidence": 0.8
+          },
+          {
+            "criterion_id": "charter_alignment",
+            "source": "direct_doc_read:docs/project-docs/Project-Charter.md",
+            "support": 0.03,
+            "confidence": 0.8
+          }
+        ],
+        "constraint_results": {
+          "no_technical_integrity_block": true
+        }
+      }
+    ]
+  },
+  "action": "approve_pmp",
+  "robust_utility": 0.9488,
+  "expected_utility": 0.9687,
+  "winning_margin": 0.9181,
+  "authority": "FULL",
+  "status": "Approved",
+  "sign_off_by": "Menno Drescher"
+}

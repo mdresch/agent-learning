@@ -1,77 +1,71 @@
 ---
 artifact_id: scope-foundation-pillar-overview-trace
 parent_plan_id: scope-management
-baseline_id: PMP-BL-v1.0.0
+baseline_id: PMP-BL-v1.1.0
 route: foundation_artifact
 governance_policy: approve-subsidiary-plan
 substage: "6.A-0P"
-version: "1.0.0"
+version: "2.0.0"
 owner_role: "Project Manager"
 depends_on: []
 approval_status: approved
 pmbok_process: "Define Scope"
 ---
 
-# Scope Foundation — Topic Pillars Overview & Trace (`PMP-BL-v1.0.0`)
+# Scope Foundation — Topic Pillars Overview & Trace (`PMP-BL-v1.1.0`)
 
-Connects the **integrated scope baseline** to the project **topic pillar** model in [Project-Pillars.md](../../../Project-Pillars.md) (**Approved** 2026-10-30; gate episode `8fe9fea9-6ef1-44be-82a9-e09677e47a4a`). That document is the sole source of pillar names and statements (Spark, Ideation, Business Case, Benefits). The four-layer doc stack (BRD, ADR, FDD, User Stories) and `docs/adr/README.md` manifesto are **not** topic pillars here.
+Connects the **integrated scope baseline** for Phase 2 to the project **topic pillar** model in [Project-Pillars.md](../../../Project-Pillars.md) (**Approved**; gate episode `8fe9fea9-6ef1-44be-82a9-e09677e47a4a`).
 
-## Pillar overview (statements)
+**Historical Baseline Archive:** Frozen Phase 1 pillar trace preserved in [`docs/project-docs/history/PMP-BL-v1.0.0/management-plans/scope-baseline/foundation/Scope-Pillar-Overview-and-Trace.md`](../../history/PMP-BL-v1.0.0/management-plans/scope-baseline/foundation/Scope-Pillar-Overview-and-Trace.md).
 
-| Topic pillar | One-line scope hook |
-| --- | --- |
-| **Frozen-model, in-process learning** | SDK policy layer; no GPU fine-tune job (Epics 12–13, 34, 36, 22). |
-| **Earned, auditable autonomy** | Wilson gate, evidence trace, governance chain (Epics 1–7, 9–10, 25–37). |
-| **One TaskPolicy for statistical and reasoned resolution** | Low vs full authority under one policy (Epics 1, 4, 7, 11, 21). |
-| **Packaged contextual learning** | ContextualSoftmaxPolicy packaged path (Epic 38). |
-| **An honest place against SFT, RLVR, and ERL** | Methodology catalog and positioning (Epic 36). |
-| **Critique becomes evidence** | Scalar-only REINFORCE gap; Option B track (Epics 14, 18, 10). |
-| **A new policy inherits a similar policy's prior** | Warm-start / meta-prior (Epics 19, 20; **M1–M2**). |
-| **A repair path for a stuck low-authority decision** | UCB / Thompson / epsilon baseline (Epics 15–17; **M3**). |
-| **A hosted layer someone would pay for** | HYP-AL-011 value research only (**M0.5**); not a delivery claim. |
+---
 
-Full statements, sources, and ADR primary assignment: [Project-Pillars.md](../../../Project-Pillars.md).
+## 1. Pillar Overview (Phase 2 Focus)
 
-## Pillar → WBS band → Charter anchor
+| Topic Pillar | Phase 2 Scope & WBS Implementation Hook |
+|---|---|
+| **Frozen-model, in-process learning** | Pure standard library extensions in `agent-training-ext/`; zero GPU fine-tuning; frozen-model Bayesian updates (Epics 14, 18, 22). |
+| **Earned, auditable autonomy** | Deterministic Wilson lower bounds; Bayesian gate episodes; zero status drift across registers (Epics 16, 21, 22). |
+| **One TaskPolicy for statistical and reasoned resolution** | Unified contextual routing between `low` and `full` authority tiers (Epics 16, 21). |
+| **Packaged contextual learning** | Exportable, self-contained contextual policy bundles deployed into downstream agents (Epic 38). |
+| **An honest place against SFT, RLVR, and ERL** | Pairwise DPO loss formulations for discrete policies achieving sample efficiency without GPU compute (Epic 18). |
+| **Critique becomes evidence** | Tag grammar and exact support shift engine converting reviewer feedback into Bayesian evidence frames (Epic 14, `DEL-P2-01`..`03`). |
+| **A new policy inherits a similar policy's prior** | Phase 1 foundation (Warm-start / meta-priors) leveraged across Phase 2 contextual bandits. |
+| **A repair path for a stuck low-authority decision** | Phase 1 foundation (UCB / Thompson) extended into multi-armed contextual ensemble routing. |
+| **A hosted layer someone would pay for** | Open-source foundation with enterprise-grade governance traceability. |
 
-| Topic pillar | WBS band | Primary epics / anchors | Phase 1? |
-| --- | --- | --- | --- |
-| Frozen-model, in-process learning | A, E | 1–7, 12–13, 34, 36; 22 (D) | Built + program track |
-| Earned, auditable autonomy | A, E | 3, 9–10, 25–37 | Harness **M4**; governance parallel |
-| One TaskPolicy… | A, D | 1, 4, 7, 11, 21 | 21 when scheduled |
-| Packaged contextual learning | D | 38 | Spec ready; not Charter-primary |
-| An honest place against SFT, RLVR, and ERL | A | 36 | Catalog / examples built |
-| Critique becomes evidence | C | 14, 18 (+ lessons 10) | **Deferred** until **M5** |
-| A new policy inherits… | **B** | 19, 20 | **Authorized M1–M2** |
-| A repair path for stuck low-authority… | **B** | 15, 16, 17 | **Authorized M3** |
-| A hosted layer someone would pay for | **F** | M0.5, HYP-AL-011 | Charter time-box |
+---
 
-Phase 1 **product scope** (Band **B** + **F**) directly advances three pillar threads: **prior inheritance**, **repair-path bandits**, and **hosted-layer research**, under **earned autonomy** verification (**M4**) and **frozen-model** engineering constraints.
+## 2. Pillar → WBS Band → Charter Anchor (Phase 2)
 
-**Milestone sequence (schedule view):** Charter gates run **M1 → M2 → M3 → M4 → M5** on the critical path, with **M0.5** in parallel to **M5**. That order **sequences the primary pillar proofs** (prior at M1–M2, repair at M3, earned harness at M4, critique **decision** at M5). Detail: [Schedule-Pillar-Overview-and-Trace.md](../../schedule-baseline/foundation/Schedule-Pillar-Overview-and-Trace.md) § *How pillars relate to milestone sequence*.
+| Topic Pillar | WBS Band | Primary Epics / Anchors | Phase 2 Status |
+|---|---|---|---|
+| **Critique becomes evidence** | **C** | Epic 14 (Stories 14.1–14.6) | **Authorized (Milestone M6)** |
+| **An honest place against SFT...** | **C** | Epic 18 (DPO Loss Engine) | **Authorized (Milestone M7)** |
+| **One TaskPolicy…** | **D** | Epics 16, 21 (Contextual Ensembles) | **Authorized (Milestone M8)** |
+| **Frozen-model learning** | **D** | Epic 22 (SIDPA Adaptation Loops) | **Authorized (Milestone M9)** |
+| **Packaged contextual learning** | **D** | Epic 38 (Packaged Contextual Exports) | **Authorized (Milestone M9)** |
+| **Earned, auditable autonomy** | **E / F** | PMBOK Continuous Verification / M10 Close | **Active Governance** |
 
-## Pillar ↔ PMBOK §2.2 foundation artifacts
+Phase 2 **product scope** (Bands **C** and **D**) operationalizes the authorized Option B capabilities within `agent-training-ext/` under complete upstream Microsoft fork immunity.
 
-| Foundation artifact | Substage | Pillars primarily substantiated |
-| --- | --- | --- |
-| [Scope-Project-Scope-Statement.md](Scope-Project-Scope-Statement.md) | 6.A-1 | Prior inheritance, repair path, hosted layer, critique (out-of-scope Phase 1) |
-| [Scope-WBS-Dictionary.md](Scope-WBS-Dictionary.md) | 6.A-2 | All nine (100% rule — every epic maps to ≥1 pillar via ADR assignment) |
-| [Scope-Monitor-Control-Scope.md](Scope-Monitor-Control-Scope.md) | 6.A-3 | Earned, auditable autonomy |
-| [Scope-Validate-Scope.md](Scope-Validate-Scope.md) | 6.A-4 | Earned, auditable autonomy; frozen-model (contract tests) |
-| [Scope-Domain-Checklist.md](Scope-Domain-Checklist.md) | 6.A-5 | Cross-cutting |
+---
 
-## Trace rule (RTM extension)
+## 3. Pillar ↔ PMBOK §2.2 Foundation Artifacts
 
-When tracing a WBS row to strategy:
+| Foundation Artifact | Substage | Pillars Primarily Substantiated |
+|---|---|---|
+| [Scope-Project-Scope-Statement.md](Scope-Project-Scope-Statement.md) | 6.A-1 | Critique becomes evidence, DPO, Contextual Ensembles, Upstream Fork Immunity. |
+| [Scope-WBS-Dictionary.md](Scope-WBS-Dictionary.md) | 6.A-2 | All nine (100% rule: every active story maps to a pillar via ADR). |
+| [Scope-Monitor-Control-Scope.md](Scope-Monitor-Control-Scope.md) | 6.A-3 | Earned, auditable autonomy; fork cleanliness verification. |
+| [Scope-Validate-Scope.md](Scope-Validate-Scope.md) | 6.A-4 | Earned autonomy; pure stdlib and contract test verification. |
+| [Scope-Domain-Checklist.md](Scope-Domain-Checklist.md) | 6.A-5 | Cross-cutting PMBOK 8 scope domain outcomes. |
 
-1. **Story** → parent **epic** → epic header **ADR** → [Project-Pillars.md](../../../Project-Pillars.md) **Primary assignment** table → **topic pillar**.
-2. **Band** (§1.5 / scope statement) states whether that pillar thread may execute in Phase 1.
-3. **Milestone** (§1.6) states which Charter gate consumes the pillar outcome.
+---
 
-At foundation approval, reviewers confirm Band **B** covers Charter **M1–M4** pillar threads and Band **C** holds **Critique becomes evidence** without silent Phase 1 implementation.
+## 4. Milestone Sequence Trace (Phase 2)
 
-## Revision triggers
+Charter milestone gates execute sequentially:
+$$\text{M6 (Critique Ingestion)} \longrightarrow \text{M7 (DPO Preference)} \longrightarrow \text{M8 (Contextual Ensembles)} \longrightarrow \text{M9 (SIDPA Loops)} \longrightarrow \text{M10 (Phase Close)}$$
 
-Reconcile this map when [Project-Pillars.md](../../../Project-Pillars.md) gains or renames a pillar, when the Primary assignment table changes for an in-scope ADR, or when §1.5 execution bands shift (Level 2+ scope change).
-
-**Schedule counterpart:** milestone and weighted-effort view — [Schedule-Pillar-Overview-and-Trace.md](../../schedule-baseline/foundation/Schedule-Pillar-Overview-and-Trace.md) (**6.B-0P**).
+Each milestone represents the empirical verification of its governing topic pillars and hypotheses.

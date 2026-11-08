@@ -1765,7 +1765,7 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Gate:** `agent-learning-governance` / `approve-ideation`. Recommendation `approve_ideation` (robust utility 0.684; request revision 0.174; reject 0.044). Human acceptance by Menno on 2026-11-04. Episode `c882fd98-427f-49e7-ae84-b985fa372230` in the store at `AGENT_LEARNING_LOCAL_STORE_DIR` (socialengage store, LL-040).
 - **Evidence:** both documents read in full at git `29b482c`; the assistant authored the frame scores from that read, so they are an AI assessment accepted by the human, not independent measurement. Frame, decision and adjudication results, and episode: `docs/policy-shapes/{decision-frames/ideation-approval.json, results/ideation-decision-result.json, results/ideation-adjudication-result.json, episodes/ideation-approval-episode.json}`.
 - **Known staleness carried, not hidden:** the `snapshot_accuracy_dated` criterion scored 0.60 because several 2026-10-25 statements are now superseded (§2.1.3 says ADR-014 to ADR-023 are Proposed with no code; Objective 4 "not yet true"; HYP-AL-008/009 still Formulated after Epics 15 and 20). Hypotheses stay open until Stage 18.
-- **Does not change:** `approve-charter` and `approve-business-case` still have zero episodes (recorded gap, not backfilled). `Project-Status-Register.md` still says `approve-ideation` has none; update it after PR #110 merges to avoid a conflict on the same row.
+- **Does not change:** `approve-charter` and `approve-business-case` still have zero episodes (recorded gap, not backfilled); `Project-Status-Register.md` still says `approve-ideation` has none; update it after PR #110 merges to avoid a conflict on the same row.
 
 ## Story 9.3 — Low-Pass Outcome Damping and Cumulative Lineage Kernel
 - **Commit:** `105b6ef`
@@ -1872,3 +1872,188 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Evidence:** findings checked against code at git `f86530a`; the assistant authored the frame scores from that read, so they are an AI assessment accepted by the human, not independent measurement. Frame, decision and adjudication results, and episode: `docs/policy-shapes/{decision-frames/audit-record-approval.json, results/audit-record-decision-result.json, results/audit-record-adjudication-result.json, episodes/audit-record-approval-episode.json}`.
 - **Scope carried, not hidden:** a bounded sample (ADR-015, 019, 020, 034 and the story-status drift report). The other ADRs were not audited. Two drift findings stay open: AUDIT-004 (ADR-034 legacy `pmbok/` not yet decommissioned, tracked as Stories 34.4 and 34.5) and AUDIT-006 (15 status-drift stories, not reconciled).
 - **Does not change:** `approve-charter` and `approve-business-case` still have zero episodes (recorded gap, not backfilled).
+
+---
+
+## Governance gate — approve-ideation (Ideation-Document.md v1.14 with Spark-Capture.md v2.0)
+- **Date:** 2026-11-07
+- **Gate:** `agent-learning-governance` / `approve-ideation`. Recommendation `approve_ideation` (robust utility 0.822, expected utility 0.875, winning margin +0.725). Human acceptance by Menno on 2026-11-07. Episode `a8db17b5-9134-4b7c-97f9-80cfe9ade4a1`.
+- **Context:** Phase 2 initiating under `PMP-BL-v1.0.1` targeting `PMP-BL-v1.1.0`. Operationalizes LL-044 ("The Monolithic Ideation Trap") by decoupling empirical research taxonomies to `docs/research/ideation/` and linking `HYP-AL-025`–`027` to `sidpa-template`.
+- **Evidence:** Files: `docs/policy-shapes/{decision-frames/ideation-approval-phase2.json, episodes/ideation-approval-phase2-episode.json}`.
+
+---
+
+## Governance gate — approve-benefits (Benefits-Management-Plan.md v2.0)
+- **Date:** 2026-11-08
+- **Gate:** `agent-learning-governance` / `approve-benefits`. Recommendation `approve_benefits_plan` (robust utility 0.884, expected utility 0.922, winning margin +0.772). Human acceptance by Menno on 2026-11-08. Episode `8cfdbf52-92bc-445f-aa0d-db729ca8667f`.
+- **Context:** Phase 2 Stage 3 under `PMP-BL-v1.0.1` targeting `PMP-BL-v1.1.0`. Strict adherence to PMBOK 8 Figure 2-3 sequencing (Benefits Management Plan authored in Stage 3 prior to Stage 4 Charter, resolving Phase 1 retrofit flaw). Formalizes BEN-P2-001 through BEN-P2-005 tied to M6–M10 milestone timeframes, falsifiable mathematical metrics, and concrete disbenefit mitigations.
+- **Evidence:** Files: `docs/policy-shapes/{approve-benefits.actions.json, decision-frames/benefits-approval-phase2.json, episodes/benefits-approval-phase2-episode.json}`.
+
+---
+
+## Governance gate — approve-business-case (Business-Case.md v2.0 with Benefits-Management-Plan.md v2.0)
+- **Date:** 2026-11-08
+- **Gate:** `agent-learning-governance` / `approve-business-case`. Recommendation `approve_business_case` (robust utility 0.868, expected utility 0.911, winning margin +0.750). Human acceptance by Menno on 2026-11-08. Episode `eca6fc5c-966b-4088-b0f6-157f57e99d52`.
+- **Context:** Phase 2 Stage 3 under `PMP-BL-v1.0.1` targeting `PMP-BL-v1.1.0`. Strict adherence to PMBOK 8 Figure 2-3 sequencing (Benefits Management Plan authored in Stage 3 prior to Stage 4 Charter). Justifies Option 3 (Governed Modular Extension via `agent-training-ext`) to ensure upstream Microsoft fork collision immunity and define target benefits BEN-P2-001 through BEN-P2-005.
+- **Evidence:** Files: `docs/policy-shapes/{approve-business-case.actions.json, decision-frames/business-case-approval-phase2.json, episodes/business-case-approval-phase2-episode.json}`.
+
+---
+
+## Governance gate — approve-charter (Project-Charter.md v2.0)
+- **Date:** 2026-11-08
+- **Gate:** `agent-learning-governance` / `approve-charter`. Recommendation `approve_charter` (robust utility 0.909, expected utility 0.941, winning margin +0.792). Human acceptance by Menno on 2026-11-08. Episode `b6e2fdba-0468-4951-8ceb-e81f08f2ed9b`.
+- **Context:** Phase 2 Stage 4 under `PMP-BL-v1.0.1` targeting `PMP-BL-v1.1.0`. Formally authorizes Milestones M6 through M10 and establishes the `agent-training-ext` packaging boundary to protect against upstream Microsoft merge collisions. Aligns 100% with Phase 2 Target Benefits BEN-P2-001 through BEN-P2-005.
+- **Evidence:** Files: `docs/policy-shapes/{approve-charter.actions.json, decision-frames/charter-approval-phase2.json, episodes/charter-approval-phase2-episode.json}`.
+
+---
+
+## Governance gate — approve-subsidiary-plan (Stakeholder-Engagement-Plan.md v2.0 & Stakeholder-Register.md v2.0)
+- **Date:** 2026-11-08
+- **Gate:** `agent-learning-governance` / `approve-subsidiary-plan`. Recommendation `approve_plan` (robust utility 0.943, expected utility 0.965, winning margin +0.906). Human acceptance by Menno on 2026-11-08. Episode `4ac619dc-8d64-499e-a8d5-9e21cf0fe294`.
+- **Context:** Phase 2 Stage 5 under `PMP-BL-v1.0.1` targeting `PMP-BL-v1.1.0`. Establishes the Master Stakeholder Register contract (`SH-01` through `SH-07`) defining authoritative role vocabulary, engagement gap closures, upstream Microsoft fork protection coordination, and RACI decision rights across all 18 PMBOK 8 stages.
+- **Evidence:** Files: `docs/policy-shapes/{approve-subsidiary-plan.actions.json, decision-frames/stakeholder-plan-approval-phase2.json, episodes/stakeholder-plan-approval-phase2-episode.json}`.
+
+---
+
+## Governance gate — approve-pmp (Project-Management-Plan.md v2.0 for PMP-BL-v1.1.0)
+- **Date:** 2026-11-08
+- **Gate:** `agent-learning-governance` / `approve-pmp`. Recommendation `approve_pmp` (robust utility 0.949, expected utility 0.969, winning margin +0.918). Human acceptance by Menno on 2026-11-08. Episode `31b88dc3-01fc-4e3f-934e-c0be73a8e372`.
+- **Context:** Phase 2 Stage 7 under `PMP-BL-v1.0.1` formally baselining minor increment `PMP-BL-v1.1.0`. Integrates all four foundational packs (Scope, Schedule, Resource, Cost), formalizes Milestones M6–M10, authorizes execution of Bands C & D within `agent-training-ext/`, and enforces strict Upstream Microsoft Fork Collision Protection (0 lines diff on `src/agent_learning`).
+- **Evidence:** Files: `docs/policy-shapes/{approve-pmp.actions.json, decision-frames/pmp-approval-phase2.json, episodes/pmp-approval-phase2-episode.json}`.
+
+---
+
+## Governance audit — Subsidiary Management Plans Validation & Synchronization (Communications, Procurement, Quality, Risk)
+- **Date:** 2026-11-08
+- **Scope:** Complete validation and baseline synchronization of the remaining four subsidiary management plans to Phase 2 (`PMP-BL-v1.1.0`, v2.0.0):
+  - `docs/project-docs/management-plans/Communications-Management-Plan.md` (v2.0.0, hash `3edbda23545b18f0fd84df495067b5dcdbb2351121d1406de992de7d531c74e2`, 2,029 words)
+  - `docs/project-docs/management-plans/Procurement-Management-Plan.md` (v2.0.0, hash `71cbe54099274892ac0c5068239441174503e7acff8252c8c5936ce7667ba44c`, 1,849 words)
+  - `docs/project-docs/management-plans/Quality-Management-Plan.md` (v2.0.0, hash `9dda5facbe7ae1a3e64ba38d7f5ba3030afaa73feb854bb45a41d77e0e6b5fb9`, 1,841 words)
+  - `docs/project-docs/management-plans/Risk-Management-Plan.md` (v2.0.0, hash `45a4e1478ae4e8bb58bad17d0644af837cad7f1ba9b07f3a97833efb7c7e8f39`, 2,276 words)
+- **Validation Results:**
+  - **ADR-012 Conformance:** All plans adhere strictly to the 3-section content contract, mandatory YAML frontmatter grammar, and word count rules (all within 600–5,000 word boundaries; 0 Tier A/B lint flags).
+  - **7-Role Stakeholder Register Alignment:** Integrated `SH-01` through `SH-07` (including `SH-07: Open-Source Ecosystem & Upstream Maintainers`).
+  - **Upstream Microsoft Fork Collision Protection:** Invariant 6 codified across Quality (zero-diff check `git diff upstream/main -- src/agent_learning` = 0 lines), Communications (upstream fork diff notice), Procurement (100% pure standard library in `agent-training-ext/`), and Risk (`RSK-P2-01` High-Severity avoidance).
+  - **Make-or-Buy Analysis:** Re-benchmarked for Phase 2, confirming 100% internal Make sourcing with €36,960.00 direct contractor cost avoidance and >€5,000 cloud GPU rental avoidance.
+  - **PMP Integration:** `Project-Management-Plan.md` v2.0.0 updated with canonical content hashes and refreshed Planning DAG connecting all 9 subsidiary management plans.
+
+---
+
+## Governance gate — validate-intent-foundation (Stage 8: Implementation Readiness Authorization)
+- **Date:** 2026-11-08
+- **Gate:** `agent-learning-governance` / `validate-intent-foundation`. Recommendation `accept_foundation_proceed` (robust utility 0.9547, expected utility 0.9724, winning margin +0.5834 over `flag_for_human_review`). Human acceptance by Menno on 2026-11-08. Episode `1aac1d78-cabb-4411-8c96-8304a95723fd`.
+- **Context:** Phase 2 Stage 8 formally authorizing entry into the implementation pipeline (Milestone M6: Epic 14 Lightweight Critique-to-Evidence Ingestion Engine). Verifies:
+  1. Traceability grounding from accepted ADR-014/018/016/021/022/038 to 143 user stories in WBS dictionary and schedule forecast.
+  2. Deterministic contract testability for story acceptance criteria.
+  3. Strict Upstream Microsoft Fork Collision Protection: dedicated extension package `agent-training-ext/`, 0 lines diff on `src/agent_learning`, and pure standard library purity.
+  4. Schedule and cost envelope alignment (30.0 pd critical path across M6–M10 within 120–160h maintainer capacity, 12.5 pd risk contingency, $\le €100/\text{mo}$ OpEx).
+- **Evidence:** Files: `docs/policy-shapes/{validate-intent-foundation.actions.json, decision-frames/implementation-readiness-phase2.json, episodes/implementation-readiness-phase2-episode.json}`.
+
+
+
+
+
+
+
+
+
+---
+
+## Story 14.1 — The Tag Grammar and Parser
+- **Date:** 2026-11-08
+- **Source ADR / BRD / FDD:** ADR-014, BRD-014, FDD-014 §2.1
+- **Files Modified/Created:**
+  - `agent-training-ext/critique_evidence.py` (implemented `parse_critique`, `CritiqueDelta`, tag parser regexes, and validation)
+  - `agent-training-ext/tests/test_critique_parse.py` (13 contract tests for $AC_0, AC_1, AC_2, AC_3, AC_4, AC_5$)
+  - `docs/user-stories/epic-14-critique-to-evidence-ingestion.md` (status updated to Completed)
+- **Validation:**
+  - $AC_0$: `parse_critique(text, source_id)` returns one `CritiqueDelta` per bullet in line order, keeping rationale verbatim, ignoring non-bullet lines.
+  - $AC_1$: Bullets missing `[criterion: ...]` or signed number/tags raise `ValueError` naming the line number.
+  - $AC_2$: Deltas outside `[-1.0, 1.0]` raise `ValueError`; `-1.00` and `+1.00` pass.
+  - $AC_3$: Empty rationale, invalid finding id, or invalid `source_id` raises `ValueError`.
+  - $AC_4$: Explicit `[finding: ...]` preserved; default `<source_id>#<n>` generated.
+  - $AC_5$: Pure module: standard library only, zero storage imports, zero file/network I/O.
+  - Full suite: 13/13 passed in `test_critique_parse.py`.
+
+---
+
+## Story 14.2 — Moving the Pooled Support by the Delta
+- **Date:** 2026-11-08
+- **Source ADR / BRD / FDD:** ADR-014, BRD-014, FDD-014 §3
+- **Files Modified/Created:**
+  - `agent-training-ext/critique_evidence.py` (implemented `apply_critique`, `AppliedCritique`, log-odds pooling, and shift logic)
+  - `agent-training-ext/tests/test_critique_apply.py` (contract tests for $AC_0, AC_1, AC_2, AC_3$)
+  - `docs/user-stories/epic-14-critique-to-evidence-ingestion.md` (status updated to Completed)
+- **Validation:**
+  - $AC_0$: Delta of -0.20 yields pooled support 0.6666 and +0.10 yields 0.9666, within $10^{-9}$ of `clip(before + delta)`, validated through `DecisionResolver.resolve()`.
+  - $AC_1$: Direction invariance verified across grid: negative delta never raises pooled support, positive delta never lowers, zero delta preserves.
+  - $AC_2$: Deltas of -0.9 and +0.9 land within $10^{-6}$ of 0 and 1; appended point support in $[0, 1]$.
+  - $AC_3$: Sequential composition (-0.20 then -0.10) applied sequentially arrives at `before - 0.30` within $10^{-9}$.
+  - Full suite: 4/4 passed for Story 14.2 criteria in `test_critique_apply.py`.
+
+---
+
+## Story 14.3 — Doubt, Traceability and Validation
+- **Date:** 2026-11-08
+- **Source ADR / BRD / FDD:** ADR-014, BRD-014, FDD-014 §3
+- **Files Modified/Created:**
+  - `agent-training-ext/critique_evidence.py` (implemented uncertainty damping `kappa`, immutable frame generation, validation constraints)
+  - `agent-training-ext/tests/test_critique_apply.py` (contract tests for $AC_0, AC_1, AC_2, AC_3, AC_4$)
+  - `docs/user-stories/epic-14-critique-to-evidence-ingestion.md` (status updated to Completed)
+- **Validation:**
+  - $AC_0$: Confidence set to `max(1 - u_after, 0.05)` with $u_{\text{after}} = \min(1, u + \kappa \cdot \max(0, -\Delta))$; positive delta leaves $u_{\text{after}} = u$.
+  - $AC_1$: Every appended point carries source `critique:<finding_id>`; all input frame points preserved.
+  - $AC_2$: Input frame immutable; output is clean new `DecisionFrame` instance.
+  - $AC_3$: Comprehensive validation: raises `ValueError` on unknown criterion, unknown option, criterion without evidence, duplicate finding id, previously used source, or $\kappa \notin [0.1, 0.5]$.
+  - $AC_4$: `DecisionResolver` validates and accepts all output frames.
+  - Full suite: 5/5 passed for Story 14.3 criteria in `test_critique_apply.py`.
+
+---
+
+## Story 14.4 — Episode Metadata
+- **Date:** 2026-11-08
+- **Source ADR / BRD / FDD:** ADR-014, BRD-014, FDD-014 §2.2
+- **Files Modified/Created:**
+  - `agent-training-ext/critique_evidence.py` (implemented `to_episode_metadata`)
+  - `agent-training-ext/tests/test_critique_metadata.py` (contract tests for $AC_0, AC_1, AC_2, AC_3$)
+  - `docs/user-stories/epic-14-critique-to-evidence-ingestion.md` (status updated to Completed)
+- **Validation:**
+  - $AC_0$: `to_episode_metadata(applied)` returns dictionary containing `critique_adjustments` with full schema (`basis`, `rubric_delta`, `override`, `rubric_version`, etc.).
+  - $AC_1$: JSON round-trip safe via `json.dumps` and `json.loads` without float-to-string corruption.
+  - $AC_2$: `support_after` matches pooled support of output frame within $10^{-9}$; `point_confidence` matches appended point confidence.
+  - $AC_3$: Storage boundary verified: attaches to episode metadata without introducing new record types.
+  - Full suite: 3/3 passed in `test_critique_metadata.py`.
+
+---
+
+## Story 14.6 — The Delta Rubric
+- **Date:** 2026-11-08
+- **Source ADR / BRD / FDD:** ADR-014, BRD-014, FDD-014 §2.4
+- **Files Modified/Created:**
+  - `agent-training-ext/critique_evidence.py` (implemented `rubric_delta`, `RUBRIC_TABLE`, `RUBRIC_VERSION = "1"`)
+  - `agent-training-ext/tests/test_critique_rubric.py` (contract tests for $AC_0, AC_1, AC_2, AC_3, AC_4$)
+  - `docs/user-stories/epic-14-critique-to-evidence-ingestion.md` (status updated to Completed)
+- **Validation:**
+  - $AC_0$: All 18 pairs in FDD-014 §2.4 table verified exactly (e.g. crash risk yes = -0.30, logic error partial = -0.13, style no = 0.0, confirmation partial = +0.05).
+  - $AC_1$: Refuses unknown claim type or verification status with `ValueError`.
+  - $AC_2$: Rubric form parsed with `basis="rubric"` and rubric delta applied.
+  - $AC_3$: Override flag set when explicit delta differs from rubric delta by $> 0.005$; un-tagged explicit deltas have `rubric_delta=None` and `override=False`.
+  - $AC_4$: Every adjustment records `rubric_version = "1"`.
+  - Full suite: 5/5 passed in `test_critique_rubric.py`.
+
+---
+
+## PR #118 — Upstream Fork Guard, Agent Learning Ext Separation, Stage 16 Amendment Pipeline, and Orchestrator Tooling
+- **Merge Commit:** `868218a3d96b9840a47da2ddf9dd489ce7ac1fd0`
+- **Branch:** `feat/upstream-isolation-and-stage16-amend` -> `main`
+- **Date:** 2026-11-08
+- **PR:** #118 (https://github.com/mdresch/agent-learning/pull/118)
+- **Scope:**
+  - Upstream Fork Isolation (Invariant 6): Restored `src/agent_learning/` to 100% byte-for-byte fidelity with upstream Microsoft HEAD; established `tests/upstream_manifest.json` and `tests/test_upstream_untouched.py`.
+  - Extension Namespace Separation: Migrated all custom runners, policies, learners, and storage adapters to `src/agent_learning_ext/`.
+  - Stage 16 Amendment Pipeline: Implemented `scripts/stage16_amend.py` and `scripts/governance_baseline.py` for automated measurement, classification, and prospective baseline amendments.
+  - Governance Orchestration Tooling: Deployed `governance-orchestrator/` with HMAC-signed decision logging, sandboxed CLI execution allowlist, and local web dashboard.
+- **Review & Audit:**
+  - Amazon Q Developer automated review audit completed: all findings (including `DENY_ARG` regex boundary, disk secret persistence removal, `timingSafeEqual` hex-buffer alignment, and input sanitization) resolved and verified clean.
+  - GitHub Actions CI: `build-installer` (SUCCESS, 2m 9s), `test` (SUCCESS, 1m 7s).
+  - Fast-forward merge to `main` verified with 0 phase rollup status drift.

@@ -4,18 +4,22 @@
 # It operationalizes GC-001 from LL-043 (Stage 18 Tooling Migration).
 #
 # Created: 2026-11-06
-# Version: 1.0.0
-# Related: ADP-20261106-001, BRP-20261106-001, LL-043
+# Version: 1.1.0
+# Related: ADP-20261106-001, BRP-20261106-001, LL-043, PCD-20261106-001
 
 ---
 
 # Workflow Metadata
 name: "Stage 18: Intent Refinement"
-version: "1.0.0"
-description: "Execute Stage 18 to close Phase 1 and seed Phase 2"
+version: "1.1.0"
+description: "Execute Stage 18 Bayesian cognitive feedback gate to close Phase 1 and seed Phase 2"
 skill_id: "stage-18"
+governance_policy: "approve-intent-refinement"
+baseline: "PMP-BL-v1.0.1"
 related_artifacts:
   - "ADP-20261106-001"
+  - "IRP-20261106-001"
+  - "PCD-20261106-001"
   - "BRP-20261106-001"
   - "LL-043"
   - "INSIGHT-003"
@@ -24,327 +28,99 @@ related_artifacts:
 
 # Workflow Configuration
 config:
-  # Execution settings
   execution:
-    timeout_minutes: 60
-    retry_attempts: 3
-    retry_delay_seconds: 10
+    timeout_minutes: 30
+    retry_attempts: 2
+    retry_delay_seconds: 5
     
-  # Logging settings
   logging:
     level: "INFO"
     format: "%(asctime)s - %(levelname)s - %(message)s"
-    file: "logs/stage-18-{timestamp}.log"
     
-  # Output settings
   output:
     directory: "output/stage-18"
-    overwrite: false
+    results_file: "output/stage-18/execution-results.json"
     
-  # Validation settings
   validation:
     strict: true
-    fail_fast: false
+    fail_fast: true
 
 ---
 
 # Workflow Steps
 steps:
-  # Step 0: Pre-Flight Check
-  - id: "step-0-pre-flight"
-    name: "Pre-Flight Check"
-    description: "Verify all prerequisites are met before proceeding"
-    command: "uv run python -m src.agent_learning.stage_18 step-0"
+  # Step 1: Readiness Audit
+  - id: "step-1-readiness-audit"
+    name: "Phase Closure Readiness Audit"
+    description: "Verify deliverables, clean audits, crystallized lessons, and operational adaptations"
+    command: "python scripts/execute_stage_18.py"
     timeout_minutes: 5
-    retry: true
     outputs:
-      - "output/stage-18/pre-flight-report.json"
+      - "output/stage-18/execution-results.json"
     validation:
       required: true
       criteria:
-        - "all_prerequisites_met == true"
-    on_failure:
-      action: "stop"
-      message: "Pre-flight check failed. Please address all prerequisites before proceeding."
+        - "readiness.is_ready == true"
+        - "readiness.deliverables_accepted >= 6"
+        - "readiness.crystallized_lessons_count >= 46"
 
-  # Step 1: Validate Phase Closure Readiness
-  - id: "step-1-readiness"
-    name: "Validate Phase Closure Readiness"
-    description: "Evaluate whether Phase 1 is ready for closure"
-    command: "uv run python -m src.agent_learning.stage_18 step-1"
-    timeout_minutes: 10
-    retry: true
-    dependencies:
-      - "step-0-pre-flight"
+  # Step 2: Hypothesis Inventory & Adjudication
+  - id: "step-2-hypothesis-adjudication"
+    name: "Bayesian Hypothesis Adjudication"
+    description: "Adjudicate all cataloged hypotheses to terminal states (Validated / Refuted)"
+    timeout_minutes: 5
+    validation:
+      required: true
+      criteria:
+        - "adjudication.terminal == true"
+        - "adjudication.inconclusive == 0"
+
+  # Step 3: Low-Pass Damping & Strategic Pivot Capacity
+  - id: "step-3-damping-and-capacity"
+    name: "Low-Pass Damping and Pivot Capacity Validation"
+    description: "Apply beta=0.75 damping and verify strategic pivots are within capacity limits"
+    timeout_minutes: 5
+    validation:
+      required: true
+      criteria:
+        - "damping.whiplash_detected == false"
+        - "capacity.within_limits == true"
+
+  # Step 4: Proposal Generation & Documentation Update
+  - id: "step-4-update-documentation"
+    name: "Update Intent Refinement Documentation"
+    description: "Update IRP-20261106-001 and assessment report with execution results"
+    command: "python scripts/update_stage_18_docs.py"
+    timeout_minutes: 5
     inputs:
-      - "docs/project-docs/Status-Reports/Stage-12-Actual-Outcome-Assessment.md"
-      - "docs/project-docs/Status-Reports/Benefit-Realization-Review-Assessment.md"
-      - "docs/project-docs/Lessons-Learned-Register.md"
+      - "output/stage-18/execution-results.json"
+    outputs:
+      - "docs/governance/irp/IRP-20261106-001-Phase-1-Intent-Refinement-Proposal.md"
+      - "docs/project-docs/Status-Reports/Stage-18-Intent-Refinement-Assessment.md"
+    validation:
+      required: true
+
+  # Step 5: Governance Approval & Phase Close Decision
+  - id: "step-5-approval-gate"
+    name: "Approval Gate & Close Decision Record"
+    description: "Submit to approve-intent-refinement and record PCD-20261106-001"
+    outputs:
+      - "docs/governance/decisions/PCD-20261106-001-Phase-1-Close-Decision.md"
+    validation:
+      required: true
+      criteria:
+        - "decision == 'APPROVE'"
+
+  # Step 6: Phase Seeding & Baseline Rollup Check
+  - id: "step-6-seeding-and-rollup"
+    name: "Seed Phase 2 and Verify Rollup Alignment"
+    description: "Seed Spark-Capture.md and verify zero status drift across backlog"
+    command: "python scripts/phase_rollup.py --check"
+    timeout_minutes: 5
+    outputs:
+      - "docs/project-docs/Spark-Capture.md"
       - "docs/project-docs/Project-Status-Register.md"
-    outputs:
-      - "output/stage-18/readiness-report.md"
-      - "output/stage-18/readiness-score.json"
     validation:
       required: true
       criteria:
-        - "readiness_score >= 0.9"
-    on_failure:
-      action: "warn"
-      message: "Phase closure readiness score is below 0.9. Manual review required."
-
-  # Step 2: Evaluate Realized Outcomes
-  - id: "step-2-outcomes"
-    name: "Evaluate Realized Outcomes"
-    description: "Compare realized outcomes against expected outcomes"
-    command: "uv run python -m src.agent_learning.stage_18 step-2"
-    timeout_minutes: 15
-    retry: true
-    dependencies:
-      - "step-1-readiness"
-    inputs:
-      - "docs/project-docs/Benefits-Management-Plan.md"
-      - "docs/project-docs/Business-Case.md"
-      - "docs/project-docs/Status-Reports/Stage-12-Actual-Outcome-Assessment.md"
-      - "docs/project-docs/Status-Reports/Benefit-Realization-Review-Assessment.md"
-      - "output/stage-18/readiness-score.json"
-    outputs:
-      - "output/stage-18/outcome-comparison.md"
-      - "output/stage-18/outcome-deltas.json"
-    validation:
-      required: true
-      criteria:
-        - "all_outcomes_evaluated == true"
-    on_failure:
-      action: "stop"
-      message: "Failed to evaluate realized outcomes. Check input data."
-
-  # Step 3: Generate Intent Refinement Proposal
-  - id: "step-3-refinement"
-    name: "Generate Intent Refinement Proposal"
-    description: "Create proposal for refining strategic intent"
-    command: "uv run python -m src.agent_learning.stage_18 step-3"
-    timeout_minutes: 20
-    retry: true
-    dependencies:
-      - "step-2-outcomes"
-    inputs:
-      - "docs/project-docs/Lessons-Learned-Register.md"
-      - "output/stage-18/outcome-deltas.json"
-      - "output/stage-18/readiness-report.md"
-      - "docs/Spark-Capture.md"
-      - "docs/Ideation-Document.md"
-    outputs:
-      - "output/stage-18/Intent-Refinement-Proposal.md"
-      - "output/stage-18/intent_refinement.json"
-    validation:
-      required: true
-      criteria:
-        - "proposal_completeness == 1.0"
-    on_failure:
-      action: "stop"
-      message: "Failed to generate intent refinement proposal. Check input data."
-
-  # Step 4: Seed Next Phase
-  - id: "step-4-seed"
-    name: "Seed Next Phase"
-    description: "Create initial artifacts for Phase 2"
-    command: "uv run python -m src.agent_learning.stage_18 step-4"
-    timeout_minutes: 25
-    retry: true
-    dependencies:
-      - "step-3-refinement"
-    inputs:
-      - "output/stage-18/Intent-Refinement-Proposal.md"
-      - "output/stage-18/intent_refinement.json"
-      - "docs/Project-Charter.md"
-      - "docs/Business-Case.md"
-    outputs:
-      - "output/stage-18/Spark-Capture-Phase-2.md"
-      - "output/stage-18/Ideation-Document-Phase-2.md"
-      - "output/stage-18/Business-Case-Phase-2.md"
-      - "output/stage-18/Project-Charter-Phase-2.md"
-      - "output/stage-18/Project-Management-Plan-Phase-2.md"
-    validation:
-      required: true
-      criteria:
-        - "all_artifacts_created == true"
-        - "all_artifacts_valid == true"
-    on_failure:
-      action: "stop"
-      message: "Failed to seed next phase. Check input data and templates."
-
-  # Step 5: Record Governance Episode
-  - id: "step-5-record"
-    name: "Record Governance Episode"
-    description: "Record Stage 18 execution as governance episode"
-    command: "uv run python -m src.agent_learning.stage_18 step-5"
-    timeout_minutes: 5
-    retry: true
-    dependencies:
-      - "step-4-seed"
-    inputs:
-      - "output/stage-18/readiness-report.md"
-      - "output/stage-18/outcome-comparison.md"
-      - "output/stage-18/Intent-Refinement-Proposal.md"
-      - "output/stage-18/Spark-Capture-Phase-2.md"
-      - "output/stage-18/Ideation-Document-Phase-2.md"
-      - "output/stage-18/Business-Case-Phase-2.md"
-      - "output/stage-18/Project-Charter-Phase-2.md"
-      - "output/stage-18/Project-Management-Plan-Phase-2.md"
-    outputs:
-      - "docs/policy-shapes/episodes/stage-18-{timestamp}.json"
-    validation:
-      required: true
-      criteria:
-        - "episode_valid == true"
-        - "episode_saved == true"
-    on_failure:
-      action: "stop"
-      message: "Failed to record governance episode. Check permissions and paths."
-
-  # Step 6: Update Project Status
-  - id: "step-6-update"
-    name: "Update Project Status"
-    description: "Update Project Status Register to reflect completion"
-    command: "uv run python -m src.agent_learning.stage_18 step-6"
-    timeout_minutes: 5
-    retry: true
-    dependencies:
-      - "step-5-record"
-    inputs:
-      - "output/stage-18/stage-18-{timestamp}.json"
-      - "output/stage-18/Spark-Capture-Phase-2.md"
-      - "output/stage-18/Ideation-Document-Phase-2.md"
-      - "output/stage-18/Business-Case-Phase-2.md"
-      - "output/stage-18/Project-Charter-Phase-2.md"
-      - "output/stage-18/Project-Management-Plan-Phase-2.md"
-    outputs:
-      - "docs/project-docs/Project-Status-Register.md" (updated)
-    validation:
-      required: true
-      criteria:
-        - "status_updated == true"
-        - "all_references_valid == true"
-    on_failure:
-      action: "stop"
-      message: "Failed to update project status. Check file permissions."
-
----
-
-# Parallel Execution Configuration
-parallel:
-  enabled: false
-  max_concurrent: 1
-  
-# Conditional Execution
-conditions:
-  # Skip Steps 2-6 if Step 1 fails with score < 0.7
-  - condition: "step-1-readiness.readiness_score < 0.7"
-    action: "skip"
-    steps:
-      - "step-2-outcomes"
-      - "step-3-refinement"
-      - "step-4-seed"
-      - "step-5-record"
-      - "step-6-update"
-    message: "Phase closure readiness score is too low. Skipping remaining steps."
-
----
-
-# Error Handling
-on_error:
-  default:
-    action: "stop"
-    message: "Stage 18 execution failed. Check logs for details."
-    
-  step_specific:
-    step-0-pre-flight:
-      action: "stop"
-      message: "Pre-flight check failed. Please address all prerequisites."
-      
-    step-1-readiness:
-      action: "warn"
-      message: "Phase closure readiness score is low. Consider manual review."
-      
-    step-2-outcomes:
-      action: "stop"
-      message: "Failed to evaluate realized outcomes. Check input data."
-      
-    step-3-refinement:
-      action: "stop"
-      message: "Failed to generate intent refinement proposal. Check input data."
-      
-    step-4-seed:
-      action: "stop"
-      message: "Failed to seed next phase. Check templates and input data."
-      
-    step-5-record:
-      action: "stop"
-      message: "Failed to record governance episode. Check permissions."
-      
-    step-6-update:
-      action: "stop"
-      message: "Failed to update project status. Check file permissions."
-
----
-
-# Notifications
-notifications:
-  on_start:
-    message: "Stage 18 execution started"
-    recipients:
-      - "project-manager"
-      
-  on_complete:
-    message: "Stage 18 execution completed successfully"
-    recipients:
-      - "project-manager"
-      - "team"
-      
-  on_failure:
-    message: "Stage 18 execution failed"
-    recipients:
-      - "project-manager"
-      - "team"
-
----
-
-# Cleanup
-cleanup:
-  on_complete:
-    - "rm -rf output/stage-18/temp/*"
-    - "rm -f output/stage-18/*.tmp"
-    
-  on_failure:
-    - "rm -rf output/stage-18/temp/*"
-    - "rm -f output/stage-18/*.tmp"
-    - "rm -f output/stage-18/*.partial"
-
----
-
-# Reporting
-reports:
-  summary:
-    file: "output/stage-18/Stage-18-Summary-Report.md"
-    template: "stage-18-summary-template.md"
-    
-  detailed:
-    file: "output/stage-18/Stage-18-Detailed-Report.md"
-    template: "stage-18-detailed-template.md"
-    
-  governance:
-    file: "output/stage-18/Stage-18-Governance-Report.json"
-    format: "json"
-
----
-
-# Version History
-version_history:
-  - version: "1.0.0"
-    date: "2026-11-06"
-    author: "Vibe Code"
-    changes: "Initial version - Migrated from legacy pmbok/"
-    related:
-      - "ADP-20261106-001"
-      - "BRP-20261106-001"
-      - "LL-043"
+        - "exit_code == 0"

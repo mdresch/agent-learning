@@ -1,31 +1,31 @@
 ---
 artifact_id: scope-foundation-wbs-dictionary
 parent_plan_id: scope-management
-baseline_id: PMP-BL-v1.0.0
+baseline_id: PMP-BL-v1.1.0
 route: foundation_artifact
 governance_policy: approve-subsidiary-plan
 substage: "6.A-2"
-version: "1.0.0"
+version: "2.0.0"
 owner_role: "Project Manager"
 depends_on: []
 approval_status: approved
 pmbok_process: "Develop Scope Structure"
 ---
 
-# Scope Foundation — WBS Dictionary (`PMP-BL-v1.0.0`)
+# Scope Foundation — WBS Dictionary (`PMP-BL-v1.1.0`)
 
-PMBOK 8 **Scope Performance Domain** §2.2 — **Develop Scope Structure (WBS)**. Canonical **143** story rows for baseline `PMP-BL-v1.0.0`. Boundaries and execution bands: [Scope-Project-Scope-Statement.md](Scope-Project-Scope-Statement.md). **Topic pillar trace** (epic → ADR → pillar): [Scope-Pillar-Overview-and-Trace.md](Scope-Pillar-Overview-and-Trace.md).
+**PMBOK 8 Scope Performance Domain** §2.2 — **Develop Scope Structure (WBS)**. Canonical **143** story rows for baseline `PMP-BL-v1.1.0`. Boundaries and execution bands: [Scope-Project-Scope-Statement.md](Scope-Project-Scope-Statement.md). **Topic pillar trace** (epic → ADR → pillar): [Scope-Pillar-Overview-and-Trace.md](Scope-Pillar-Overview-and-Trace.md).
+
+**Historical Baseline Archive:** Frozen Phase 1 WBS dictionary preserved in [`docs/project-docs/history/PMP-BL-v1.0.0/management-plans/scope-baseline/foundation/Scope-WBS-Dictionary.md`](../../history/PMP-BL-v1.0.0/management-plans/scope-baseline/foundation/Scope-WBS-Dictionary.md).
 
 ## WBS Dictionary & 100% Rule
 Every deliverable maps to one parent epic and one user story. Unassigned work packages are prohibited. The 100% rule requires development work, documentation updates, and test suites to trace to an approved story acceptance criterion ($AC_n$).
 
 Each row below uses these dictionary fields:
-
 * **Parent epic:** the epic named in the row. The story file is the child of that epic.
-* **Owner role:** Project Manager.
-* **Acceptance criteria:** the $AC_n$ items in that story file. This dictionary records the story id and title. It does not copy the criteria.
-
-Epic 14 and Epic 18 are Band **C** (§1.5): written and approved, **not authorized for Phase 1 implementation**. Epic 22 rows are Band **D** placeholders for ADR-022.
+* **Owner role:** Project Manager / Lead Agent Engineer.
+* **Acceptance criteria:** the $AC_n$ items in that story file. This dictionary records the story id and title.
+* **Phase 2 Execution Authorization:** Band C (Epic 14 Critique Ingestion, Epic 18 DPO Preference) and Band D (Epics 16, 21, 22, 38) are **fully authorized for Phase 2 execution** in `agent-training-ext/` under Upstream Fork Collision Protection constraints.
 
 | Story | Title | Parent epic |
 | --- | --- | --- |

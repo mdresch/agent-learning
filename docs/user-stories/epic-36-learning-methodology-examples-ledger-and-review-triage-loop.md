@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-036](../adr/ADR-036-learning-methodology-examples-ledger-and-review-triage-loop.md) — Accepted (2026-10-26)  
 **Source BRD/FDD:** [BRD-036](../project-docs/Business-Requirements/BRD-036-learning-methodology-examples-ledger-and-review-triage-loop.md) / [FDD-036](../project-docs/Functional-Design/FDD-036-learning-methodology-examples-ledger-and-review-triage-loop.md)  
-**Status:** Approved (2026-10-26, Menno) — derived from Accepted ADR-036; adjudicated via `approve-user-stories` (robust utility 0.769, episode `80fe8a45-29a0-4a52-baa9-476f70d88209`).  The epic number follows the source ADR number, as Epic 11 follows ADR-011.  
+**Status:** Completed (Stories 36.1–36.6 implemented and verified) — derived from Accepted ADR-036; adjudicated via `approve-user-stories` (robust utility 0.769, episode `80fe8a45-29a0-4a52-baa9-476f70d88209`).  The epic number follows the source ADR number, as Epic 11 follows ADR-011.  
 
 ---
 

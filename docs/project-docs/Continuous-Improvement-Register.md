@@ -47,6 +47,7 @@ An entry records only what the epic's work actually surfaced. Do not seed this r
 | IMP-012 | Epic 20 | Detect an existing story branch or worktree before Step 0 | Developer experience | Extends IMP-001's `worktree <story>` command: if `feat/story-<X.Y>` or its worktree already exists, print the branch, `git status --short`, the commits ahead of `main` and the story's log entry, and point to `heal-contract-failure` (the rule added to `implement-story` Step 0 in PR #105). In Story 20.6 a started run was adopted because nothing stopped it. | A started run is healed from Intent, never adopted or implemented twice; the rule is enforced by the tool, not only by the skill text | Rolled into Phase Next Intent Refinement |
 | IMP-013 | Epic 20 | Build the Cosmos test fakes' exceptions in one place | Developer experience | `tests/test_storage_cosmos.py` constructed `azure-cosmos` exceptions with the message as the first positional argument; the SDK now formats that argument as a status code, so four Story 2.1 contract tests failed on `main` until PR #102. A single helper that builds the fake exceptions with `status_code` and `message` (or a CI run against the latest SDK) shows this kind of SDK drift where it starts. | SDK changes break one helper, visibly, not four contract tests in an unrelated story | Rolled into Phase Next Intent Refinement |
 | IMP-014 | Phase 1 close | Move the Stage 18 tooling onto the path ADR-034 keeps | Architectural simplification | `evaluate_phase_close_readiness`, hypothesis adjudication and `seed-next` exist only in the legacy `pmbok/` tree that ADR-034 plans to delete, and their tests are excluded from CI (INSIGHT-003, LL-043, AUDIT-004). Port them to `src/agent_learning/pmbok/` as pure functions with tests CI runs, or amend ADR-034 to keep them, before Stories 34.4 and 34.5 delete the tree. | Phase close tooling that CI protects and that survives the decommissioning | Rolled into Phase Next Intent Refinement |
+| IMP-015 | Epic 14 | Export PR review comments into committed fixtures for offline replay | Developer experience / Test data | Automate export of Amazon Q review comment threads into committed offline fixtures (`tests/fixtures/critique/`) so Story 14.5 can run deterministically without network calls or manual scraping. | Unblocks Story 14.5 real triage replay and enables automated validation of HYP-AL-005 | In-Flight Candidate |
 
 ---
 
@@ -81,6 +82,13 @@ One entry per epic recap, appended in the order held. Format:
 - **Cadence Date:** 2026-11-04
 - **Defensive Review (LL-###):** LL-041, LL-042
 - **Positive Improvement Harvest:** IMP-009, IMP-010, IMP-011, IMP-012, IMP-013
+
+---
+
+### Epic 14: Lightweight Critique-to-Evidence Ingestion Engine
+- **Cadence Date:** 2026-11-08
+- **Defensive Review (LL-###):** no-new-lessons (Tier 1 sign-off; Invariant 6 and Invariant 4 fully verified in `agent-training-ext`)
+- **Positive Improvement Harvest:** IMP-015
 
 ---
 

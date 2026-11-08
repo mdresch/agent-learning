@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-013](../adr/ADR-013-subsidiary-plan-approval-gates-before-pmp-formalization.md) — Accepted (2026-10-25)  
 **Source BRD/FDD:** [BRD-013](../project-docs/Business-Requirements/BRD-013-subsidiary-plan-approval-gates-before-pmp-formalization.md) / [FDD-013](../project-docs/Functional-Design/FDD-013-subsidiary-plan-approval-gates-before-pmp-formalization.md)  
-**Status:** Approved (2026-10-27, Menno) — stories derived from Accepted ADR-013, BRD-013 and FDD-013; adjudicated via `approve-user-stories` (robust utility 0.768, episode `6f9c55a8-407f-4895-a70f-d2562b43185e`).  
+**Status:** Completed (Stories 13.1–13.7 implemented and verified) — stories derived from Accepted ADR-013, BRD-013 and FDD-013; adjudicated via `approve-user-stories` (robust utility 0.768, episode `6f9c55a8-407f-4895-a70f-d2562b43185e`).  
 
 Seven stories build the pure decision logic of the per-plan gate in `src/agent_learning/pmbok/`, on top of the Epic 12 parser and lint. Each rule sits in exactly one story's criteria (LL-012). Contract tests are `tests/test_plan_hash.py`, `tests/test_plan_integrity.py`, `tests/test_plan_approval_record.py`, `tests/test_plan_graph.py`, `tests/test_plan_freshness.py`, `tests/test_plan_lifecycle.py` and `tests/test_plan_formalization.py`. Fixtures that are real artifacts live committed under `tests/fixtures/pmbok/`; tests that read the real ADRs anchor their paths to the test file's location and look the file up inside the helper, with an assertion that names it if missing (LL-006, LL-023). A test that depends on a normative pattern runs the pattern first (LL-022).
 

@@ -213,16 +213,19 @@ HypothesisAdjudicationResult(
 )
 ```
 
-**Validation:**
-- [ ] No HypothesisTerminalityError raised
-- [ ] All hypotheses resolve to VALIDATED or REFUTED
-- [ ] 100% terminal state achieved
+| Category | Count | Percentage | Status |
+|---|---|---|---|
+| VALIDATED (BF10 >= 10) | 59 | 74.7% | ✅ COMPLETED |
+| REFUTED (BF10 <= 0.1 / collapsed) | 20 | 25.3% | ✅ COMPLETED |
+| INCONCLUSIVE (0.1 < BF10 < 10) | 0 | 0.0% | ✅ Collapsed at d=2 |
+| **Total** | **79** | **100.0%** | ✅ COMPLETED |
 
-**Status:** ✅ **COMPLETED** - Pivots=4, Max=5
-
 **Validation:**
-- Within limits: True
-- Status: WITHIN_LIMITS
+- [x] No HypothesisTerminalityError raised
+- [x] All hypotheses resolve to VALIDATED or REFUTED
+- [x] 100% terminal state achieved (59 Validated, 20 Refuted)
+
+**Status:** ✅ **COMPLETED** - 100% terminal state achieved
 
 ---
 
@@ -241,13 +244,17 @@ python -c "from pmbok.models.intent_refinement import LowPassOutcomeDampingFilte
 ```
 
 **Validation:**
-- [ ] All outcome deltas are smoothed
-- [ ] No strategic whiplash detected
-- [ ] Bias correction applied for N < 3
+- [x] All outcome deltas smoothed via exponential weighting
+- [x] No strategic whiplash detected (Whiplash detected: False)
+- [x] Bias correction applied for N < 3
 
-**Status:** ✅ **COMPLETED** - Phase 2 ready
+**Status:** ✅ **COMPLETED** - Beta=0.75, Max Delta=0.2351
 
-**Seeding Details:**
+**Damping Results:**
+- Beta: 0.75
+- Max Delta: 0.2351
+- Whiplash detected: False
+- Filter Status: SUCCESS
 - Phase 2 Spark generated: True
 - Phase 2 Ideation generated: True
 - Baseline updated: PMP-BL-v1.0.0 → PMP-BL-v1.0.1
@@ -277,13 +284,17 @@ StrategicPivotCapacityResult(
 ```
 
 **Validation:**
-- [ ] Pivots_max <= ceil(C_adapt / 2)
-- [ ] No StrategicWhiplashError raised
-- [ ] S3-S4 Homeostatic Capacity Balance maintained
+- [x] Pivots proposed (4) <= Max pivots (5) = ceil(Capacity 10 / 2)
+- [x] No StrategicWhiplashError raised
+- [x] S3-S4 Homeostatic Capacity Balance maintained
 
-**Status:** ✅ **COMPLETED** - Phase 2 ready
+**Status:** ✅ **COMPLETED** - Pivots=4, Capacity=10, Max=5 (WITHIN_LIMITS)
 
-**Seeding Details:**
+**Capacity Details:**
+- Pivots proposed: 4
+- Adaptation capacity: 10
+- Max allowable pivots: 5
+- Status: WITHIN_LIMITS
 - Phase 2 Spark generated: True
 - Phase 2 Ideation generated: True
 - Baseline updated: PMP-BL-v1.0.0 → PMP-BL-v1.0.1

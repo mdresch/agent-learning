@@ -1,30 +1,34 @@
 ---
 artifact_id: schedule-foundation-domain-checklist
 parent_plan_id: schedule-management
-baseline_id: PMP-BL-v1.0.0
+baseline_id: PMP-BL-v1.1.0
 route: foundation_artifact
 governance_policy: approve-subsidiary-plan
 substage: "6.B-5"
-version: "1.0.0"
+version: "2.0.0"
 owner_role: "Project Manager"
 depends_on:
   - scope-management
 approval_status: approved
 ---
 
-# Schedule Foundation — PMBOK §2.3.5 Domain Checklist (`PMP-BL-v1.0.0`)
+# Schedule Foundation — PMBOK §2.3.5 Domain Checklist (`PMP-BL-v1.1.0`)
 
-Maps **Table 2-7 Check Outcomes — Schedule Performance Domain** to this baseline cycle. Reviewer marks **Met / Partial / N/A** at foundation pack approval.
+Maps **Table 2-7 Check Outcomes — Schedule Performance Domain** to Phase 2 baseline `PMP-BL-v1.1.0`.
 
-| Outcome | Check | Met? | Evidence |
-| --- | --- | --- | --- |
-| Scheduling approach matches deliverables | Hybrid: fixed Charter milestones + rolling WBS forecast | Partial | Schedule plan §1.1; Scope §1.5 |
-| Schedule aligns with topic pillars | Phase 1 CPM covers Band B pillar threads | Partial | [Project-Pillars.md](../../../Project-Pillars.md) Approved; [Schedule-Pillar-Overview-and-Trace.md](Schedule-Pillar-Overview-and-Trace.md) (pending 6.B-0P) |
-| Life cycle phases with exit criteria | M0.5–M5 exit conditions | Met | Schedule plan §1.2 |
-| Holistic delivery schedule | 143 WBS rows ↔ forecast file | Met | [Scope-WBS-Dictionary.md](../../scope-baseline/foundation/Scope-WBS-Dictionary.md); [Schedule-Baseline-WBS-Forecast.md](Schedule-Baseline-WBS-Forecast.md) |
-| Schedule documentation complete | Dependencies, durations, milestones, reserves | Partial | Phase 1: activity list (**6.B-2A**), Gantt (**6.B-2B**), network, forecast; program backlog deferred |
-| Tools and techniques | PERT $\bar{d}$, milestone CPM, Mermaid | Met | Basis + network artifacts |
-| Stakeholder involvement | Sponsor gates on subsidiary plan | Pending | After foundation + plan approval |
-| Buffers for known-unknowns | M5 reserve + epic contingency | Met | [Schedule-Reserve-Register.md](Schedule-Reserve-Register.md) |
+**Historical Baseline Archive:** Frozen Phase 1 schedule checklist preserved in [`docs/project-docs/history/PMP-BL-v1.0.0/management-plans/schedule-baseline/foundation/Schedule-Domain-Checklist.md`](../../history/PMP-BL-v1.0.0/management-plans/schedule-baseline/foundation/Schedule-Domain-Checklist.md).
 
-**Pack gate:** All rows **Met** or **Partial** with recorded rationale before `approve-subsidiary-plan` on `schedule-management` v1.2+.
+---
+
+| PMBOK 8 Domain Outcome | Verification Check | Status | Verification Evidence |
+|---|---|:---:|---|
+| **Scheduling approach matches deliverables** | Dependency-sequenced milestone gates M6–M10 | **Met** | [Schedule-Management-Plan.md](../../Schedule-Management-Plan.md) §1.1 |
+| **Schedule aligns with topic pillars** | Milestones M6–M10 map directly to topic pillars | **Met** | [Schedule-Pillar-Overview-and-Trace.md](Schedule-Pillar-Overview-and-Trace.md) §1 & §2 |
+| **Life cycle phases with exit criteria** | Concrete exit criteria for M6 through M10 | **Met** | Schedule plan §1.2 & Project Charter v2.0 §7 |
+| **Holistic delivery schedule** | Phase 2 activity list, CPM forward pass, and Gantt | **Met** | [Schedule-Activity-List-Phase2.md](Schedule-Activity-List-Phase2.md), [Schedule-Gantt-Phase2.md](Schedule-Gantt-Phase2.md) |
+| **Schedule documentation complete** | Precedence network, durations, buffers, reserves | **Met** | [Schedule-Network-Phase2.md](Schedule-Network-Phase2.md), [Schedule-Reserve-Register.md](Schedule-Reserve-Register.md) |
+| **Tools and techniques** | CPM forward pass, beta-PERT estimates, Mermaid | **Met** | Basis of estimates & logic network artifacts |
+| **Stakeholder involvement** | Sponsor sign-off, maintainer capacity commitment | **Met** | [Stakeholder-Register.md](../../../Stakeholder-Register.md) v2.0 |
+| **Buffers for known-unknowns** | M10 management reserve + risk contingency buffers | **Met** | [Schedule-Reserve-Register.md](Schedule-Reserve-Register.md) |
+
+**Pack Gate Assessment:** All Table 2-7 outcomes are **Met** for baseline formalization under `PMP-BL-v1.1.0`.

@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-014](../adr/ADR-014-critique-to-evidence-ingestion.md) — Accepted (2026-10-28)  
 **Source BRD/FDD:** [BRD-014](../project-docs/Business-Requirements/BRD-014-critique-to-evidence-ingestion.md) / [FDD-014](../project-docs/Functional-Design/FDD-014-critique-to-evidence-ingestion.md)  
-**Status:** Approved (2026-10-30, Menno) — stories derived from Accepted ADR-014, BRD-014 and FDD-014; adjudicated via `approve-user-stories` (robust utility 0.731, episode `bd32d840-ec45-43f4-b0e9-fe20026264e3`). The epic number follows the source ADR number, as Epic 11 follows ADR-011.  
+**Status:** In Progress (Stories 14.1–14.4, 14.6 Completed; Story 14.5 Ready) — stories derived from Accepted ADR-014, BRD-014 and FDD-014; adjudicated via `approve-user-stories` (robust utility 0.731, episode `bd32d840-ec45-43f4-b0e9-fe20026264e3`). The epic number follows the source ADR number, as Epic 11 follows ADR-011.  
 
 Six stories build the pure module `src/agent_learning/critique_evidence.py`. Each rule sits in exactly one story's criteria (LL-012). Contract tests are `tests/test_critique_parse.py` (14.1), `tests/test_critique_apply.py` (14.2 and 14.3), `tests/test_critique_metadata.py` (14.4) and `tests/test_critique_rubric.py` (14.6). Story 14.5 is data work and has no test file. The long-term learned rubric (FDD-014 §8) is not a story yet.
 
@@ -14,7 +14,7 @@ Fixture used by the criteria below ("the base frame"): one option with two evide
 
 ## Story 14.1 — The Tag Grammar and Parser
 
-**Status:** Ready  
+**Status:** Completed (2026-11-08, agent-training-ext, per implementation-log.md)  
 **As** a reviewer, **I want** my tagged findings read exactly as written, **so that** no number is ever guessed on my behalf.
 
 ### Acceptance Criteria:
@@ -29,7 +29,7 @@ Fixture used by the criteria below ("the base frame"): one option with two evide
 
 ## Story 14.2 — Moving the Pooled Support by the Delta
 
-**Status:** Ready  
+**Status:** Completed (2026-11-08, agent-training-ext, per implementation-log.md)  
 **As** a maintainer, **I want** a finding's delta to move the criterion's pooled support by exactly that delta, **so that** a defect never raises a score and a confirmation never lowers it.
 
 ### Acceptance Criteria:
@@ -42,7 +42,7 @@ Fixture used by the criteria below ("the base frame"): one option with two evide
 
 ## Story 14.3 — Doubt, Traceability and Validation
 
-**Status:** Ready  
+**Status:** Completed (2026-11-08, agent-training-ext, per implementation-log.md)  
 **As** an auditor, **I want** every appended point to name its finding and nothing else to change, **so that** I can trace each score change and trust the rest of the frame.
 
 ### Acceptance Criteria:
@@ -56,7 +56,7 @@ Fixture used by the criteria below ("the base frame"): one option with two evide
 
 ## Story 14.4 — Episode Metadata
 
-**Status:** Ready  
+**Status:** Completed (2026-11-08, agent-training-ext, per implementation-log.md)  
 **As** a maintainer, **I want** the applied adjustments stored as plain metadata on the episode, **so that** the audit trail needs no new record type.
 
 ### Acceptance Criteria:
@@ -83,7 +83,7 @@ Fixture used by the criteria below ("the base frame"): one option with two evide
 
 ## Story 14.6 — The Delta Rubric
 
-**Status:** Ready  
+**Status:** Completed (2026-11-08, agent-training-ext, per implementation-log.md)  
 **As** a reviewer, **I want** a finding's size to follow from its claim type and verification result, **so that** two reviewers give the same finding the same delta.
 
 ### Acceptance Criteria:

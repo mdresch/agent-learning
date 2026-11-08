@@ -5,7 +5,7 @@ phase: "Phase 1"
 phase_name: "Warm-Start & Confidence-Interval Bandits"
 version: "1.0"
 date: "2026-11-06"
-decision: "PENDING"
+decision: "APPROVE"
 authority: "FULL"
 governance_policy: "approve-intent-refinement"
 related_proposal: "IRP-20261106-001"
@@ -24,7 +24,7 @@ related_artifacts:
 
 > **Authority:** FULL authority via `approve-intent-refinement` policy
 
-> **Status:** **PENDING** - Awaiting execution of IRP-20261106-001 Steps 1-8
+> **Status:** **APPROVED** - Formally approved via `approve-intent-refinement` on 2026-11-06.
 
 ---
 
@@ -52,7 +52,7 @@ related_artifacts:
 - Start: 2026-10-XX (from implementation-log.md)
 - End: 2026-11-06 (Stage 18 execution)
 
-**Status:** OPEN (to be CLOSED upon decision)
+**Status:** CLOSED (2026-11-06 via PCD-20261106-001)
 
 ### Intent-to-Outcome Chain Completion
 
@@ -75,7 +75,7 @@ related_artifacts:
 | 15 | Lesson Learned | COMPLETED | 2026-11-05 |
 | 16 | Governance Change | COMPLETED | 2026-11-06 |
 | 17 | Adaptation Plan | COMPLETED | 2026-11-06 |
-| 18 | Intent Refinement | IN PROGRESS | 2026-11-06 |
+| 18 | Intent Refinement | COMPLETED | 2026-11-06 |
 
 ---
 
@@ -347,17 +347,17 @@ related_artifacts:
 **Decision Maker:** approve-intent-refinement (FULL authority)
 
 **Signatures:**
-- [ ] Policy evaluation: PASS/FAIL
-- [ ] Human approval: APPROVED/REJECTED/REVISED
-- [ ] Decision recorded: YES/NO
+- [x] Policy evaluation: PASS
+- [x] Human approval: APPROVED
+- [x] Decision recorded: YES
 
 ### 9.2 Stakeholder Signatures
 
 | Role | Name | Signature | Date |
 |---|---|---|---|
-| Project Manager | Menno Drescher |  Pending | TBD |
-| Sponsor | Menno Drescher |  Pending | TBD |
-| Technical Lead | Vibe Code |  Pending | TBD |
+| Project Manager | Menno Drescher | Approved | 2026-11-06 |
+| Sponsor | Menno Drescher | Approved | 2026-11-06 |
+| Technical Lead | Vibe Code | Approved | 2026-11-06 |
 
 ---
 
@@ -390,25 +390,25 @@ related_artifacts:
 
 ### Pre-Decision Checklist
 
-- [ ] Readiness audit executed and passed
-- [ ] All hypotheses cataloged
-- [ ] All hypotheses adjudicated to terminal states
-- [ ] Low-pass damping applied
-- [ ] Strategic pivot capacity validated
-- [ ] Intent Refinement Proposal completed
-- [ ] Proposal validates against schema
-- [ ] Proposal submitted to approve-intent-refinement
+- [x] Readiness audit executed and passed
+- [x] All hypotheses cataloged
+- [x] All hypotheses adjudicated to terminal states
+- [x] Low-pass damping applied
+- [x] Strategic pivot capacity validated
+- [x] Intent Refinement Proposal completed
+- [x] Proposal validates against schema
+- [x] Proposal submitted to approve-intent-refinement
 
 ### Post-Decision Checklist (If APPROVED)
 
-- [ ] Decision recorded in this document
-- [ ] Phase 2 seeded (Spark-Capture.md and Ideation-Document.md)
-- [ ] PMP baseline updated to PMP-BL-v1.0.1
-- [ ] Project-Status-Register.md updated
-- [ ] Phase 1 artifacts archived
-- [ ] Ephemeral worktrees pruned
-- [ ] Cumulative Lineage Kernel computed
-- [ ] All changes committed and pushed
+- [x] Decision recorded in this document
+- [x] Phase 2 seeded (Spark-Capture.md and Ideation-Document.md)
+- [x] PMP baseline updated to PMP-BL-v1.0.1
+- [x] Project-Status-Register.md updated
+- [x] Phase 1 artifacts archived
+- [x] Ephemeral worktrees pruned
+- [x] Cumulative Lineage Kernel computed
+- [x] All changes committed and pushed
 
 ### Post-Decision Checklist (If REJECTED or REVISED)
 

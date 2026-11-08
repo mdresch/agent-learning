@@ -6,7 +6,7 @@ baseline_to: "PMP-BL-v1.0.1"
 version: "1.0"
 date: "2026-11-06"
 prepared_by: "Vibe Code (on behalf of Project Manager)"
-status: "draft"
+status: "completed"
 related_changes:
   - "GC-001"
   - "GC-002"

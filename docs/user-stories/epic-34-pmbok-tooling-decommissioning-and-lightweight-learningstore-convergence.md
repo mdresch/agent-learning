@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-034](../adr/ADR-034-pmbok-tooling-decommissioning-and-lightweight-learningstore-convergence.md) — Accepted (2026-10-26)  
 **Source BRD/FDD:** [BRD-034](../project-docs/Business-Requirements/BRD-034-pmbok-tooling-decommissioning-and-lightweight-learningstore-convergence.md) / [FDD-034](../project-docs/Functional-Design/FDD-034-pmbok-tooling-decommissioning-and-lightweight-learningstore-convergence.md)  
-**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-034, BRD-034 and FDD-034 (Approved 2026-10-30); adjudicated via `approve-user-stories` (robust utility 0.726, episode `dd78f67b-d1d1-47da-8867-1d07e4e43132`).
+**Status:** In Progress (Stories 34.1–34.3 Completed; Stories 34.4–34.5 Draft) — derived from Accepted ADR-034, BRD-034 and FDD-034 (Approved 2026-10-30); adjudicated via `approve-user-stories` (robust utility 0.726, episode `dd78f67b-d1d1-47da-8867-1d07e4e43132`).
 
 Five stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_legacy_registry.py` (34.1), `tests/test_pmbok_run_state.py` (34.2), `tests/test_pmbok_client.py` (34.3), `tests/test_pmbok_cli.py` (34.4), `tests/test_pmbok_decommission.py` (34.5). Story 34.3 is Ready after confirming FDD-034 §5 item 3; Story 34.4 remains blocked on item 4 and Story 34.3. BRU-034-08 has no story of its own: Story 34.2 sets the two fields Story 1.1 already filters on.
 

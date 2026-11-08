@@ -193,6 +193,7 @@ def test_ac3_no_pairs_leaves_policy_untouched():
     snap = policy.snapshot()
     assert res.episodes_used == 0
     assert "pairwise_reference_logits" not in snap.metadata
+    assert res.extra["reference_logits"] == init_logits
     assert snap.version == 1
     assert snap.logits == init_logits
     assert res.logit_deltas == {}
@@ -281,7 +282,8 @@ def test_ac6_storage_boundary_and_purity():
 
     # Must import nothing from storage
     assert "storage" not in pw_module.__dict__
-    for obj in pw_module.__dict__.values():
+    for name, obj in pw_module.__dict__.items():
+        assert "storage" not in name.lower()
         if hasattr(obj, "__module__") and obj.__module__:
             assert not obj.__module__.startswith("agent_learning.storage")
 

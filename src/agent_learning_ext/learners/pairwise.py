@@ -16,7 +16,7 @@ import numpy as np
 
 from agent_learning.learners import Learner, LearnerResult
 from agent_learning.policy import Policy, SoftmaxPolicy
-from agent_learning.types import Episode, PolicySnapshot
+from agent_learning.types import Episode
 
 
 @dataclass(frozen=True)
@@ -374,22 +374,23 @@ def fit_logits(
 
 def _validate_or_freeze_reference(
     policy: Policy,
-    snapshot: PolicySnapshot,
     action_ids: Sequence[str],
     *,
     freeze: bool,
 ) -> tuple[dict[str, float], dict[str, float]]:
     """Validate stored reference logits, or freeze if missing and freeze=True.
 
+    Reads metadata and logits directly from policy._snapshot to prevent source divergence.
     Returns (theta_ref, stored_dict_for_extra).
     Raises ValueError on invalid/corrupt reference.
-    Raises AttributeError if freeze=True and policy has no _snapshot.metadata.
+    Raises AttributeError if policy has no _snapshot.metadata.
     """
     if not hasattr(policy, "_snapshot") or not hasattr(policy._snapshot, "metadata"):
         raise AttributeError(
             f"Policy of type '{type(policy).__name__}' does not expose persistent '_snapshot.metadata'"
         )
-    metadata = policy._snapshot.metadata
+    snap = policy._snapshot
+    metadata = snap.metadata
     if "pairwise_reference_logits" in metadata:
         ref_raw = metadata["pairwise_reference_logits"]
         if not isinstance(ref_raw, Mapping):
@@ -404,13 +405,10 @@ def _validate_or_freeze_reference(
         theta_ref = {a: float(ref_raw[a]) for a in action_ids}
         return theta_ref, dict(ref_raw)
 
+    theta_ref = {a: float(snap.logits[a]) for a in action_ids}
     if freeze:
-        theta_ref = {a: float(snapshot.logits[a]) for a in action_ids}
         metadata["pairwise_reference_logits"] = dict(theta_ref)
-        return theta_ref, dict(theta_ref)
-
-    # Missing and freeze=False (zero pairs before any freeze)
-    return {a: float(snapshot.logits[a]) for a in action_ids}, {}
+    return theta_ref, dict(theta_ref)
 
 
 class PairwiseLearner(Learner):
@@ -472,7 +470,7 @@ class PairwiseLearner(Learner):
         # 3. Handle zero pairs path (AC_3)
         if len(pairs) == 0:
             theta_ref, ref_extra = _validate_or_freeze_reference(
-                policy, snapshot, action_ids, freeze=False
+                policy, action_ids, freeze=False
             )
             loss_zero = bt_loss(snapshot.logits, [], theta_ref, action_ids, lam=self.lam)
             return LearnerResult(
@@ -497,7 +495,7 @@ class PairwiseLearner(Learner):
 
         # 4. Resolve and validate reference logits (AC_1, FDD-018 G4)
         theta_ref, ref_extra = _validate_or_freeze_reference(
-            policy, snapshot, action_ids, freeze=True
+            policy, action_ids, freeze=True
         )
 
         # 5. Compute loss before update

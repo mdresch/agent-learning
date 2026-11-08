@@ -54,6 +54,7 @@ _EXPORTS: dict[str, str] = {
     "ESCALATE_TO_HUMAN": "agent_learning.governance",
     "ESCALATION_ACTIONS": "agent_learning.governance",
     "EpisodeCapture": "agent_learning_ext.capture",
+    "EpsilonGreedyLearner": "agent_learning_ext.learners.epsilon_greedy",
     "EpsilonGreedyPolicy": "agent_learning_ext.policy.epsilon_greedy",
     "EvidencePoint": "agent_learning_ext.decision",
     "ExampleClass": "agent_learning.methodology_catalog",

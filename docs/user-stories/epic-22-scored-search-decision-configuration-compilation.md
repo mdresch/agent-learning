@@ -59,7 +59,7 @@ Fixtures used by the criteria below. "The toy frame": criteria `c1`, `c2`, optio
 
 ## Story 22.4 — Proposing Only a Real Improvement
 
-**Status:** Ready  
+**Status:** Completed (2026-11-09)  
 **As** an approver, **I want** a proposal only when the held-out accuracy truly beats the weights in force, **so that** a frozen configuration is never changed for no gain.
 
 ### Acceptance Criteria:
@@ -69,7 +69,7 @@ Fixtures used by the criteria below. "The toy frame": criteria `c1`, `c2`, optio
 - **$AC_3$ (Baseline Is As Stored):** the baseline uses each frame's own authored weights, unchanged, on the same held-out items.
 - **$AC_4$ (Proposal File):** `policy-compile-weights` writes the proposal object of FDD-022 §2.3 for both outcomes, holds the policy id and version it compiled against, and writes nothing to the store.
 - **$AC_5$ (Dataset Checks):** a dataset item whose label is not an action id of the active policy, or that lacks `frame`, `label` or `labeled_at`, makes `policy-compile-weights` exit non-zero and name the item. `weight_compiler.py` does not open the dataset file.
-- **$AC_6$ (Frozen Weights):** `CompiledWeights.weights` is a `MappingProxyType`. Writing into it raises, and mutating the dict passed to the constructor leaves the stored weights unchanged.
+- **$AC_6$ (Frozen Weights):** `CompiledWeights.weights` is a `MappingProxyType`. Writing into it raises `TypeError`, and mutating the dict passed to the constructor leaves the stored weights unchanged.
 
 ---
 

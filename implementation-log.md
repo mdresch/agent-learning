@@ -2773,3 +2773,37 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - $AC_3$: Deterministic repeatability verified across calls and across fresh sub-processes; AST inspection confirms `random` is only imported for hold-out splitting.
   - $AC_4$: Search bounded by `max_sweeps` sweeps per start point and stops when a sweep accepts no candidate; `restarts=1` utilizes only the mean of frames' own weights; `result.weights` is immutable `MappingProxyType`.
   - $AC_5$: Execution time measured and recorded via `record_property` (5.52s << 60.0s threshold). Not claimed as a benchmark.
+
+---
+
+## Story 22.4 — Proposing Only a Real Improvement
+- **Commit:** `9fc3149`
+- **Date:** 2026-11-09
+- **Branch:** `feat/story-22.4`
+- **Source ADR / BRD / FDD:** ADR-022 (§4.1), BRD-022 (BRU-022-07, BRU-022-08, BRU-022-09, BRU-022-10), FDD-022 (§1 item 1, §1 item 2, §2.2, §2.3, §2.4, §3.6, §3.8, §4 L4, L6, L7, L8)
+- **Pre-Flight Spec Gate:** Proceed utility 0.6191, margin +0.0978 (>= +0.05), episode `spec-22_4-a71ab4b5`.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/weight_compiler.py` (`propose`)
+  - `src/agent_learning_ext/__init__.py` (re-exports `propose`)
+  - `src/agent_learning_ext/cli.py` (`policy-compile-weights` CLI command and validation)
+  - `.claude/skills/weight-compiler/SKILL.md` (updated component skill)
+  - `tests/test_weight_propose.py` (contract tests for $AC_0$ through $AC_6$, interpretations $I_1$ to $I_5$)
+  - `docs/user-stories/epic-22-scored-search-decision-configuration-compilation.md` (Story 22.4 marked Completed)
+- **Contracts:**
+  - `tests/test_weight_propose.py`
+  - Contract run: 7 passed in 3.37s
+  - Cumulative suite: 43 passed across Epic 22 (`test_weight_objective.py`, `test_weight_split.py`, `test_weight_search.py`, `test_weight_propose.py`, `test_upstream_untouched.py`)
+- **Notes:**
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Zero edits to `src/agent_learning/`. Logic isolated in `src/agent_learning_ext/weight_compiler.py` and `cli.py`.
+    - $I_2$: Storage Decoupling: Zero file I/O in `weight_compiler.py`; `policy-compile-weights` CLI handles dataset file read and proposal file write without touching the store.
+    - $I_3$: Defensive None-Safety: Defensive dictionary guards.
+    - $I_4$: Empty Collection Base Case: Handling empty collections cleanly.
+    - $I_5$: Specific Exception Classes: Verified explicit exception types (`TypeError` on frozen weights mutation).
+  - $AC_0$: `propose` on misaligned synthetic suite returns `CompiledWeights` with `holdout_accuracy` strictly above `baseline_holdout_accuracy`, reporting seed, split sizes, evaluations, sweeps, and restarts.
+  - $AC_1$: When compiled weights tie with baseline on held-out part, `propose` returns `NoImprovement` carrying both accuracies and no weights.
+  - $AC_2$: When compiled weights score lower than baseline on held-out part, `propose` returns `NoImprovement`.
+  - $AC_3$: Baseline computation strictly uses each frame's own authored criteria weights on the held-out items.
+  - $AC_4$: `policy-compile-weights` writes complete proposal JSON object per FDD-022 §2.3 and writes nothing to the store.
+  - $AC_5$: Dataset validation verifies all items have `frame`, `label`, `labeled_at`, and that labels belong to the active policy action space; exits non-zero naming the offending item. `weight_compiler.py` performs no file I/O.
+  - $AC_6$: `CompiledWeights.weights` is immutable `MappingProxyType`; mutating raw input dict leaves stored weights intact, and direct mutation raises `TypeError`.

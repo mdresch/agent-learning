@@ -489,3 +489,88 @@ def coordinate_ascent(
         restarts=num_restarts,
     )
 
+
+def propose(
+    train: Sequence[LabeledFrame],
+    holdout: Sequence[LabeledFrame],
+    snapshot: PolicySnapshot,
+    *,
+    proposed_at: str | datetime,
+    step: float = STEP_DEFAULT,
+    restarts: int = RESTARTS_DEFAULT,
+    max_sweeps: int = MAX_SWEEPS_DEFAULT,
+    beta: float = BETA_DEFAULT,
+    seed: int = 0,
+) -> CompiledWeights | NoImprovement:
+    """Propose criteria weights only when holdout accuracy strictly beats baseline (FDD-022 §3.6).
+
+    AC_0: On misaligned suite, returns CompiledWeights with holdout_accuracy > baseline.
+    AC_1: Returns NoImprovement when compiled accuracy equals baseline on held-out part.
+    AC_2: Returns NoImprovement when compiled accuracy is lower than baseline.
+    AC_3: Baseline uses each frame's own authored criteria weights on held-out items.
+    AC_6: Resulting CompiledWeights.weights is immutable MappingProxyType.
+    """
+    validate_label_timing(train, proposed_at)
+    validate_label_timing(holdout, proposed_at)
+
+    if not holdout:
+        raise ValueError("holdout items cannot be empty")
+
+    ascent_res = coordinate_ascent(
+        train,
+        snapshot,
+        step=step,
+        restarts=restarts,
+        max_sweeps=max_sweeps,
+        beta=beta,
+    )
+
+    baseline_hits = 0
+    for it in holdout:
+        fr = getattr(it, "frame", None) or it["frame"]
+        w_stored = {c.id: c.weight for c in fr.criteria}
+        pred, _ = evaluate(it, w_stored, snapshot)
+        if pred == it.label:
+            baseline_hits += 1
+    baseline_holdout_accuracy = baseline_hits / len(holdout)
+
+    compiled_hits = 0
+    compiled_margins: list[float] = []
+    for it in holdout:
+        pred, margin = evaluate(it, ascent_res.weights, snapshot)
+        if pred == it.label:
+            compiled_hits += 1
+        compiled_margins.append(margin)
+    holdout_accuracy = compiled_hits / len(holdout)
+    holdout_margin = sum(compiled_margins) / len(holdout)
+
+    proposed_at_str = (
+        proposed_at
+        if isinstance(proposed_at, str)
+        else proposed_at.isoformat().replace("+00:00", "Z")
+    )
+
+    if holdout_accuracy > baseline_holdout_accuracy:
+        return CompiledWeights(
+            weights=ascent_res.weights,
+            train_accuracy=ascent_res.train_accuracy,
+            holdout_accuracy=holdout_accuracy,
+            baseline_holdout_accuracy=baseline_holdout_accuracy,
+            holdout_margin=holdout_margin,
+            seed=seed,
+            evaluations=ascent_res.evaluations,
+            sweeps=ascent_res.sweeps,
+            restarts=ascent_res.restarts,
+            proposed_at=proposed_at_str,
+        )
+
+    return NoImprovement(
+        reason=(
+            f"Compiled holdout accuracy {holdout_accuracy:.4f} did not strictly beat "
+            f"baseline {baseline_holdout_accuracy:.4f}"
+        ),
+        baseline_holdout_accuracy=baseline_holdout_accuracy,
+        best_holdout_accuracy=holdout_accuracy,
+    )
+
+

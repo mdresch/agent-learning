@@ -50,3 +50,8 @@ This skill governs Scored-Search Decision Configuration Compilation (`src/agent_
    - `validate_label_timing(items, proposed_at)` validates that every item's `labeled_at` is strictly earlier than `proposed_at`. If `labeled_at >= proposed_at`, it raises `ValueError` naming the item.
 9. **Held-Out Partition Untouched (AC_4):**
    - Offline coordinate ascent runs exclusively on the training partition without invoking the resolver on held-out items during search.
+10. **Coordinate Ascent Monotonicity & Bounded Search (AC_0, AC_1, AC_4):**
+    - `coordinate_ascent(train, snapshot, *, step=0.05, restarts=5, max_sweeps=20, beta=0.1)` optimizes weights deterministically over start points (frames' mean, uniform, individual criterion spikes).
+    - Every candidate weight vector floored at `step`, normalized to sum to 1.0; candidate rejected if any weight `< step`.
+    - Every accepted candidate strictly raises objective by $> 10^{-12}$.
+    - Search stops when a sweep accepts no candidate or reaches `max_sweeps`.

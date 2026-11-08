@@ -2742,3 +2742,34 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - $AC_2$: Input permutation invariance verified: shuffling input sequence prior to `split_holdout` yields identical splits.
   - $AC_3$: `validate_label_timing` rejects items where `labeled_at >= proposed_at` with descriptive `ValueError` naming the offending item.
   - $AC_4$: Offline training search verifies zero evaluation calls against held-out partition during search execution.
+
+---
+
+## Story 22.3 — The Coordinate Ascent
+- **Commit:** `1a05262`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-22.3`
+- **Source ADR / BRD / FDD:** ADR-022 (§4.1), BRD-022 (BRU-022-03, BRU-022-04, BRU-022-07, BRU-022-10), FDD-022 (§1 item 1, §2.1, §2.2, §3.5, §4 L2, L5)
+- **Pre-Flight Spec Gate:** Proceed utility 0.6191, margin +0.0978 (>= +0.05), episode `spec-22_3-e40bf240`.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/weight_compiler.py` (`coordinate_ascent`, `CoordinateAscentResult`, `_project_to_simplex`)
+  - `src/agent_learning_ext/__init__.py` (re-exports `coordinate_ascent`, `CoordinateAscentResult`)
+  - `.claude/skills/weight-compiler/SKILL.md` (updated component skill)
+  - `tests/test_weight_search.py` (contract tests for $AC_0$ through $AC_5$, interpretations $I_1$ to $I_4$)
+  - `docs/user-stories/epic-22-scored-search-decision-configuration-compilation.md` (Story 22.3 marked Completed)
+- **Contracts:**
+  - `tests/test_weight_search.py`
+  - Contract run: 6 passed in 5.52s
+  - Cumulative suite: 36 passed across Epic 22 (`test_weight_objective.py`, `test_weight_split.py`, `test_weight_search.py`, `test_upstream_untouched.py`)
+- **Notes:**
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Zero edits to `src/agent_learning/`. All logic in `src/agent_learning_ext/weight_compiler.py`.
+    - $I_2$: Storage Decoupling: Zero file I/O or storage dependencies in search routine.
+    - $I_3$: Defensive None-Safety: Defensive dictionary and attribute guards.
+    - $I_4$: Empty Collection Base Case: Passing an empty training sequence raises `ValueError` cleanly.
+  - $AC_0$: Every weight vector evaluated during search and returned in result satisfies strictly positive floor `step=0.05` and sums to 1.0 within $10^{-9}$. Items with mismatched criterion IDs raise `ValueError`.
+  - $AC_1$: Training objective is non-decreasing across accepted candidates and strictly dominates all start points within $10^{-9}$.
+  - $AC_2$: On the synthetic suite, coordinate ascent successfully recovers weights within 0.05 of hidden `(0.6, 0.3, 0.1)` per criterion and achieves 1.0 training accuracy.
+  - $AC_3$: Deterministic repeatability verified across calls and across fresh sub-processes; AST inspection confirms `random` is only imported for hold-out splitting.
+  - $AC_4$: Search bounded by `max_sweeps` sweeps per start point and stops when a sweep accepts no candidate; `restarts=1` utilizes only the mean of frames' own weights; `result.weights` is immutable `MappingProxyType`.
+  - $AC_5$: Execution time measured and recorded via `record_property` (5.52s << 60.0s threshold). Not claimed as a benchmark.

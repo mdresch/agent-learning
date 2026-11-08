@@ -2366,3 +2366,28 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - $AC_5$: Late reward recorded on earlier episode is counted once when first offered with reward.
   - $AC_6$: `UCBLearner.update` produces statistics identical to direct `add_rewards` call; static AST check verifies zero inline count arithmetic in `learners/ucb.py`.
   - $AC_7$: Snapshot version advances, `LearnerResult` contains `episodes_used`, `mean_reward`, `consumed_inputs`, and `extra`; call with no usable episodes returns `episodes_used=0` and leaves snapshot unmutated; `SoftmaxPolicy` raises `TypeError`.
+
+---
+
+## Story 16.5 — Staying Out of REINFORCE
+- **Commit:** `ef2a900`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-16.5`
+- **Source ADR / BRD / FDD:** ADR-016 (§4.4), BRD-016 (BRU-016-08), FDD-016 (§3 item 7, E2)
+- **Files Modified/Created:**
+  - `tests/test_ucb_reinforce_guard.py` (contract tests for $AC_0$, $AC_1$, $AC_2$)
+  - `docs/user-stories/epic-16-deterministic-ucb-decision-policy.md` (Story 16.5 marked Completed)
+- **Contracts:**
+  - `tests/test_ucb_reinforce_guard.py`
+  - Contract run: 3 passed in 1.21s
+  - Cumulative suite: 56 passed across all UCB contract test suites
+- **Notes:**
+  - Pre-flight specification gate (`scripts/spec_gate.py 16.5`) evaluated: passed with robust utility 0.6830 and margin +0.1617 (episode `spec-16_5-8e7bea4f`).
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Zero changes to `src/agent_learning/` and zero changes to `learners/reinforce.py`.
+    - $I_2$: Storage Decoupling & Serialization: Pure capture-path contract testing.
+    - $I_3$: Empty Collection Base Case: Safe handling of skipped episodes.
+    - $I_4$: Non-Finite Float Rejection: Bounded reward handling.
+  - $AC_0$: Captured UCB episodes have `action_logprob = None`. `ReinforceLearner.update` over exclusively UCB episodes returns `episodes_used = 0` and leaves snapshot version, episodes_seen, and logits completely unchanged.
+  - $AC_1$: Over 3 softmax episodes and 3 UCB episodes with rewards, `ReinforceLearner` consumes exactly the 3 softmax episodes (`episodes_used = 3`), producing logits and baseline identical to training on the 3 softmax episodes alone within $10^{-12}$.
+  - $AC_2$: The isolation behavior is provided entirely by existing `action_logprob is None` check in `ReinforceLearner`; zero conditions added to `learners/reinforce.py`.

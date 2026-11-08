@@ -2099,5 +2099,14 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - $AC_2$: Aggregated count matrix form $W$ matches term-by-term pair summation within $10^{-12}$ on pair sets with repeat pairs.
   - $AC_3$: Single pair $x > y$ verifies gradient at $\theta = (0, 0, 0)$ is $(-0.5, +0.5, 0)$ and gradient norm at stationary point $(1.3235, -1.3235, 0)$ is zero within $10^{-3}$.
   - Full suite: 4/4 passed in `tests/test_pairwise_loss.py`. 44/44 passed across regression checks.
+- **Review (Step 8):** Amazon Q reviewed PR #119 across 3 rounds. All accepted findings amended:
+  - `Q-119-1 | crash risk | verified: yes | decision: accepted | Add missing key check in _as_vector with explicit ValueError | fix: 5af9cd5`
+  - `Q-119-2 | crash risk | verified: yes | decision: accepted | Validate isinstance(pairs_or_W, np.ndarray) shape (n, n) and reject invalid shapes/types with ValueError | fix: 5af9cd5`
+  - `Q-119-3 | style | verified: yes | decision: accepted | Remove unused import math from pairwise.py | fix: 5af9cd5`
+  - `Q-119-4 | style | verified: yes | decision: accepted | Add test coverage with pytest.raises for error branches | fix: 5af9cd5`
+  - `Q-119-5 | crash risk | verified: yes | decision: accepted | Enforce sequence element type is PreferencePair and reject non-sequences with TypeError | fix: 3ec7afd`
+  - `Q-119-6 | crash risk | verified: yes | decision: accepted | Reject negative lambda parameter in bt_loss and bt_gradient with ValueError | fix: 174e3ff`
+  Amazon Q confirmed all findings resolved; CI checks (build-installer, test) passed green.
+
 
 

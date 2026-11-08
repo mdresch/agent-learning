@@ -125,6 +125,8 @@ def _resolve_W(pairs_or_W: Sequence[PreferencePair] | np.ndarray, action_ids: Se
     if isinstance(pairs_or_W, np.ndarray):
         if pairs_or_W.ndim != 2 or pairs_or_W.shape != (n, n):
             raise ValueError(f"Expected 2D preference matrix W of shape ({n}, {n}), got shape {pairs_or_W.shape}")
+        if np.any(pairs_or_W < 0.0):
+            raise ValueError("Preference count matrix W must contain non-negative values")
         return pairs_or_W
     if isinstance(pairs_or_W, (str, bytes)) or not isinstance(pairs_or_W, Sequence):
         raise TypeError(f"Expected sequence of PreferencePair or 2D ndarray, got {type(pairs_or_W)}")

@@ -166,12 +166,18 @@ def test_validation_missing_keys_and_invalid_shapes():
     with pytest.raises(ValueError, match="Missing required action"):
         bt_loss({"x": 0.1, "y": 0.2, "z": 0.3}, pairs, {"x": 0.0}, actions)
 
-    # 3. Invalid W shape (e.g. 1D or wrong dimensions)
+    with pytest.raises(ValueError, match="Missing required action"):
+        bt_gradient({"x": 0.1, "y": 0.2, "z": 0.3}, pairs, {"x": 0.0}, actions)
+
+    # 3. Invalid W shape (e.g. 1D or wrong dimensions or negative values)
     with pytest.raises(ValueError, match="Expected 2D preference matrix W"):
         bt_loss({"x": 0.1, "y": 0.2, "z": 0.3}, np.array([1.0, 2.0]), {"x": 0.0, "y": 0.0, "z": 0.0}, actions)
 
     with pytest.raises(ValueError, match="Expected 2D preference matrix W"):
         bt_gradient({"x": 0.1, "y": 0.2, "z": 0.3}, np.ones((2, 2)), {"x": 0.0, "y": 0.0, "z": 0.0}, actions)
+
+    with pytest.raises(ValueError, match="must contain non-negative"):
+        bt_loss({"x": 0.1, "y": 0.2, "z": 0.3}, -np.ones((3, 3)), {"x": 0.0, "y": 0.0, "z": 0.0}, actions)
 
     # 4. Reject non-sequence types, string, or bad element types in pairs_or_W
     with pytest.raises(TypeError, match="Expected sequence of PreferencePair or 2D ndarray"):

@@ -30,7 +30,7 @@ Fixture used by the criteria below ("the base statistics"): action `a` with 10 p
 
 ## Story 16.2 — Choosing Deterministically
 
-**Status:** Ready — depends on Story 15.3 (`Decision.logprob` optional).  
+**Status:** Completed (2026-11-08, commit 56209d1) — depends on Story 15.3 (`Decision.logprob` optional).  
 **As** an auditor, **I want** the same snapshot to give the same action every time, **so that** a replayed decision is identical.
 
 ### Acceptance Criteria:

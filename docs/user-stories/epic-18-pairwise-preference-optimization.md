@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-018](../adr/ADR-018-pairwise-preference-optimization.md) — Accepted (2026-10-28)  
 **Source BRD/FDD:** [BRD-018](../project-docs/Business-Requirements/BRD-018-pairwise-preference-optimization.md) / [FDD-018](../project-docs/Functional-Design/FDD-018-pairwise-preference-optimization.md)  
-**Status:** In Progress (2026-11-08) — stories derived from Accepted ADR-018, BRD-018 and FDD-018; adjudicated via `approve-user-stories` (robust utility 0.735, episode `42460cf3-2d31-4aaa-911e-e6d3ac2c1467`). The epic number follows the source ADR number, as Epic 17 follows ADR-017.  
+**Status:** Completed (all stories 18.1–18.6 Completed) — stories derived from Accepted ADR-018, BRD-018 and FDD-018; adjudicated via `approve-user-stories` (robust utility 0.735, episode `42460cf3-2d31-4aaa-911e-e6d3ac2c1467`). The epic number follows the source ADR number, as Epic 17 follows ADR-017.  
 
 Six stories build `src/agent_learning/learners/pairwise.py`. Each rule sits in exactly one story's criteria (LL-012). Contract tests are `tests/test_pairwise_pairs.py` (18.1), `tests/test_pairwise_loss.py` (18.2), `tests/test_pairwise_fit.py` (18.3), `tests/test_pairwise_learner.py` (18.4), `tests/test_pairwise_runner.py` (18.5) and `tests/test_pairwise_real_data.py` (18.6). Showing that the learner improves decisions is a data gap, not a story (BRD-018 Out of Scope). The audit replay of this learner's runs is not a story (FDD-018 §7 item 2).
 
@@ -89,7 +89,7 @@ Fixture used by the criteria below ("the base set"): three actions `x`, `y` and 
 
 ## Story 18.6 — The Real-Data Check (Zero Pairs)
 
-**Status:** Ready  
+**Status:** Completed  
 **As** a maintainer, **I want** the learner run on the recorded history, **so that** the missing real data is shown, not assumed.
 
 ### Acceptance Criteria:

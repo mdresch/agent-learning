@@ -1,0 +1,7 @@
+{
+  "$comment": "Journey tailoring. Edited by a human only; no agent tool can write the journey/ folder. A waiver removes a stage from the path and must carry a reason, an approver and a date. Never use a waiver to backfill a missed gate: record the gap instead. Optional epicScope (for example [\"38\", \"39\"]) limits stages 6 and 8 to those epics for this phase; leave it out to include every epic in docs/user-stories.",
+  "profile": "standard",
+  "cycle": 1,
+  "approver": "Menno Drescher",
+  "stageOverrides": {}
+}

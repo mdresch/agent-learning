@@ -13,11 +13,20 @@ import math
 import random
 import uuid
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any
 
 from ..types import Action, PolicySnapshot
 from .base import Decision, Policy
+
+
+@dataclass
+class ThompsonDecision(Decision):
+    """A Decision with no selection probability: probability matching has none (ADR-015)."""
+
+    logprob: float | None
+
 
 PRIOR_ALPHA = 1.0
 PRIOR_BETA = 1.0
@@ -249,7 +258,7 @@ class ThompsonPolicy(Policy):
             "posterior_parameters": posterior,
             "sampled_payoffs": draws,
         }
-        return Decision(
+        return ThompsonDecision(
             action=self._snapshot.actions[best],
             logprob=None,
             probabilities=[mean / total for mean in means],

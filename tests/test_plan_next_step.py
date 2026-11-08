@@ -350,7 +350,7 @@ class TestNoStorageNoNewDependency:
         for name in ("LintFlag", "LintResult", "NextStep", "NextStepDecision", "next_step", "parse_frontmatter",
                      "validate_metadata", "check_content", "count_words", "lint_plan", "omission_flags"):
             assert hasattr(pmbok_pkg, name), name
-            import agent_learning
+            import agent_learning_ext as agent_learning
 
             assert getattr(agent_learning, name) is getattr(pmbok_pkg, name), name
         assert set(GENERATORS) == {"llm", "human", "stub", "mock"}

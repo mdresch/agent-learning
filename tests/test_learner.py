@@ -15,7 +15,7 @@ import random
 import pytest
 
 from agent_learning.config import LearnerConfig
-from agent_learning.learners import ReinforceLearner
+from agent_learning_ext.learners.reinforce import ReinforceLearner
 from agent_learning.policy import SoftmaxPolicy
 from agent_learning.types import Action, ConsumedInput, Episode, Reward, RewardSource
 
@@ -282,7 +282,7 @@ def test_ac_2_low_authority_importance_sampling_unchanged() -> None:
 
 def test_ac_3_audit_warning_on_full_authority_presence() -> None:
     """Story 1.1 AC3: audit.py emits the updated ADR-001 §4.5 exclusion warning when full-authority episode is present."""
-    from agent_learning.audit import AuditReport, _attribute, _projection
+    from agent_learning_ext.audit import AuditReport, _attribute, _projection
     actions = [Action(id="a"), Action(id="b")]
     policy = SoftmaxPolicy.from_actions(actions, agent_id="gov")
     snapshot = policy.snapshot()

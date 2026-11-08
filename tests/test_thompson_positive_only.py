@@ -44,7 +44,7 @@ from pathlib import Path
 import pytest
 
 from agent_learning.config import LearnerConfig
-from agent_learning.learners.reinforce import ReinforceLearner
+from agent_learning_ext.learners.reinforce import ReinforceLearner
 from agent_learning.learners.thompson import ThompsonLearner
 from agent_learning.policy import SoftmaxPolicy
 from agent_learning.policy.thompson import SELECTION_BASIS, ThompsonPolicy

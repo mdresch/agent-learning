@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-004](../../adr/ADR-004-authority-migration-comparison-not-replay.md) — Accepted (2026-10-23), §3, §4.1, §4.2, §7
 **Source BRD:** [BRD-004](../Business-Requirements/BRD-004-authority-migration-diagnostic-snapshot.md)
-**Status:** Approved (2026-10-23, Menno) — derived from an Accepted ADR's disclosed gap; adjudicated via `approve-fdd` (robust utility 0.883, episode `2bb6e21c...`).
+**Status:** Approved (2026-10-23, Menno) — derived from an Accepted ADR's disclosed gap; adjudicated via `approve-fdd` (robust utility 0.883, episode `2bb6e21c...`). Amended 2026-11-05 at Stage 16: Design 3 now leaves `types.py` untouched, classified `amendment_log_entry` via `classify-diff-type` (robust utility 0.896, episode `2516ec2e...`) and accepted by Menno; Story 4.1 AC_4 and BRD-004 BRU-004-05 were amended in the same change. Changes to this document go through Stage 16.
 
 ## Design 1: `MigrationRecord` Structure
 
@@ -73,9 +73,11 @@ if current_authority != target_authority:
 
 If `current_authority == target_authority`, the command is idempotent and no duplicate record is appended.
 
-## Design 3: Correct Stale Docstring in `src/agent_learning/types.py`
+## Design 3: Correct the Replay Claim in Documentation, Not in `src/agent_learning/types.py` (amended at Stage 16, 2026-11-05)
 
-Current lines 130–132:
+Microsoft's `src/agent_learning/types.py` is never edited in place (fork rule): it stays identical to the pinned upstream so that merging `upstream/main` never clashes with code we wrote. Its docstring currently reads:
+
+Lines 130–132 as Microsoft ships them:
 ```python
     Tool calls made while generating the assistant output are captured
     in ``tool_calls``. Outcomes (evaluator metrics, user feedback)
@@ -83,14 +85,13 @@ Current lines 130–132:
     to choose its action (so the learner can replay the decision).
 ```
 
-**Proposed Correction:**
-```python
-    Tool calls made while generating the assistant output are captured
-    in ``tool_calls``. Outcomes (evaluator metrics, user feedback)
-    are attached. ``context_features`` carries optional caller-supplied
-    contextual attributes used for reward shaping and observability;
-    it is not consumed by non-contextual bandit action selection (see ADR-004).
-```
+That claim is materially incorrect (ADR-004 §3). The correction therefore lives in documentation, and three checks hold:
+
+1. ADR-004 §3 states that the docstring is materially incorrect and that `context_features` is caller-supplied context used for reward shaping and observability, not decision evidence and not consumed by non-contextual bandit action selection or historical replay.
+2. `src/agent_learning/types.py` is byte-identical to the pinned upstream version, guarded by `tests/test_upstream_untouched.py`.
+3. No document this project owns claims that `context_features` lets the learner replay the decision, except quotations of Microsoft's docstring in ADR-004, BRD-004 and FDD-004 that name it as the defect.
+
+The replacement docstring formerly proposed here is withdrawn: it was never applied to Microsoft's file.
 
 ## Error Handling & Compatibility
 

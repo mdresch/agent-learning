@@ -14,7 +14,7 @@ from pathlib import Path
 from unittest.mock import patch
 import pytest
 
-from agent_learning import DecisionResult
+from agent_learning_ext import DecisionResult
 from agent_learning.comparison import (
     DEFAULT_EPSILON,
     ClassificationType,
@@ -25,7 +25,7 @@ from agent_learning.comparison import (
     _validate_preconditions,
     _classify,
 )
-from agent_learning.cli import main as cli_main
+from agent_learning_ext.cli import main as cli_main
 
 
 FIXTURES_DIR = Path(__file__).resolve().parent / "fixtures" / "comparison"

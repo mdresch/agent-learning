@@ -3,27 +3,17 @@
 from __future__ import annotations
 
 import argparse
-import copy
 import json
 import logging
 import random
 import sys
 import uuid
 from collections import Counter
-from dataclasses import dataclass
 from datetime import datetime, timezone
-from pathlib import Path
-from typing import Any, cast
+from typing import Any
 
 from ._version import __version__
 from .autonomy import ComplexityProfile, assess_autonomy
-from .config import AutonomyConfig
-from .warm_start import DAMPING_DEFAULT, DAMPING_DEFAULT_META_PRIOR, provenance, warm_start_logits
-from .comparison import (
-    DEFAULT_EPSILON,
-    ClassificationType,
-    compare_decision_sequence,
-)
 from .decision import (
     DecisionAuthority,
     DecisionFrame,
@@ -31,11 +21,8 @@ from .decision import (
     DecisionStatus,
     TaskPolicy,
     TieBreakDisposition,
-    capture_decision_evidence_enabled,
 )
-from .meta_prior import FamilyMember, MetaPrior, compile_meta_prior, seed_values
 from .policy.softmax_bandit import SoftmaxPolicy
-from .policy.thompson import ThompsonPolicy
 from .storage.cosmos import get_default_store
 from .training.runner import LearningRunner
 from .types import Action, Episode, MetricName, PolicySnapshot, RewardSource
@@ -51,23 +38,6 @@ def _episode_limit(value: str) -> int:
     if limit < 1 or limit > _MAX_EPISODES:
         raise argparse.ArgumentTypeError(f"limit must be between 1 and {_MAX_EPISODES}")
     return limit
-
-
-def _damping_factor(value: str) -> float:
-    try:
-        damping = float(value)
-    except ValueError as exc:
-        raise argparse.ArgumentTypeError(f"damping must be a float, got {value!r}") from exc
-    if damping <= 0.0 or damping > 1.0:
-        raise argparse.ArgumentTypeError(f"damping must be in (0, 1.0], got {damping}")
-    return damping
-
-
-def _retry_cap(value: str) -> int:
-    cap = int(value)
-    if cap < 1:
-        raise argparse.ArgumentTypeError("retry-cap must be an integer >= 1")
-    return cap
 
 
 def _iso_date(value: str) -> str:
@@ -227,11 +197,6 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         help="Path to a JSON complexity profile. Defaults conservatively to standard.",
     )
     init.add_argument(
-        "--capture-decision-evidence",
-        action="store_true",
-        help="Opt in: a low-authority decision must then carry non-empty audit_evidence (ADR-006).",
-    )
-    init.add_argument(
         "--decision-authority",
         choices=[authority.value for authority in DecisionAuthority],
         help="Action-selection authority: low uses learned policy evidence; full resolves a decision frame.",
@@ -257,43 +222,6 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         required=True,
     )
 
-    family_set = sub.add_parser(
-        "task-policy-family-set",
-        help="Declare the task family and role map of an existing task policy (meta-prior membership).",
-    )
-    family_set.add_argument("--agent-id", required=True)
-    family_set.add_argument("--task-id", required=True)
-    family_set.add_argument("--family", required=True, help="Family name; policies with the same name are pooled together.")
-    family_set.add_argument(
-        "--role-map",
-        required=True,
-        help="JSON object mapping every action id of the policy to the role it plays in the family.",
-    )
-
-    meta_compile = sub.add_parser(
-        "task-policy-meta-compile",
-        help="Pool the converged policies of a task family into a stored meta-prior snapshot.",
-    )
-    meta_compile.add_argument("--agent-id", required=True)
-    meta_compile.add_argument("--family", required=True, help="Family name declared with task-policy-family-set.")
-    meta_compile.add_argument(
-        "--output-prior-name",
-        required=True,
-        help="Name (pseudo task id) under which the prior is stored; compiling again under it stores the next version.",
-    )
-    meta_compile.add_argument(
-        "--sigma-het",
-        type=float,
-        required=True,
-        help="Largest per-role spread the family may have and still be pooled (no default).",
-    )
-    meta_compile.add_argument(
-        "--kappa-prior",
-        type=float,
-        default=10.0,
-        help="Prior strength for Beta-count families, above 0 and at most 10 (default: 10.0).",
-    )
-
     register = sub.add_parser(
         "task-episode-register",
         help="Register an agent task episode from a JSON file.",
@@ -305,51 +233,6 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         "--episode",
         required=True,
         help="Path to a JSON file containing an Episode object.",
-    )
-    register.add_argument(
-        "--decision-result",
-        help="Optional DecisionResult JSON whose audit_evidence is copied into the episode metadata (write-once).",
-    )
-
-    compare = sub.add_parser(
-        "task-policy-compare",
-        help="Compare a sequence of full-authority DecisionResults to classify decision progress or regression.",
-    )
-    compare.add_argument(
-        "--sequence",
-        nargs="+",
-        required=True,
-        help="List of 2+ DecisionResult JSON file paths in chronological order.",
-    )
-    compare.add_argument(
-        "--epsilon",
-        type=float,
-        default=DEFAULT_EPSILON,
-        help="Classification epsilon tolerance threshold (default: 0.01).",
-    )
-    compare.add_argument(
-        "--retry-cap",
-        type=_retry_cap,
-        default=3,
-        help="Maximum consecutive regression attempts before human escalation (default: 3, minimum: 1).",
-    )
-
-    warm_start = sub.add_parser(
-        "task-policy-warm-start",
-        help="Explicitly warm-start a target decision policy from a donor policy or meta-prior.",
-    )
-    warm_start.add_argument("--agent-id", required=True, help="Agent identifier.")
-    warm_start.add_argument("--target-task-id", required=True, help="Target task identifier.")
-    warm_start.add_argument("--donor-task-id", help="Donor task identifier.")
-    warm_start.add_argument("--meta-prior", help="Family meta-prior name.")
-    warm_start.add_argument(
-        "--damping",
-        type=_damping_factor,
-        help="Confidence damping factor in (0, 1.0]. Defaults to 0.70 for policy donor (1.0 for meta-prior).",
-    )
-    warm_start.add_argument(
-        "--action-map",
-        help="JSON mapping target action IDs to donor action IDs.",
     )
 
     return parser
@@ -766,16 +649,6 @@ def _cmd_decide_task_policy(args: argparse.Namespace) -> int:
             file=sys.stderr,
         )
         return 2
-    if capture_decision_evidence_enabled(snapshot):
-        # ADR-006: an opted-in policy needs audit_evidence on every decision, and this command has
-        # no option to supply it yet. Say so instead of failing inside decide().
-        print(
-            "This policy has capture_decision_evidence enabled and requires audit_evidence; "
-            "pass it through the SDK (TaskPolicy.decide(audit_evidence=...)). "
-            "task-policy-decide cannot supply it.",
-            file=sys.stderr,
-        )
-        return 2
 
     autonomy_assessment = assess_autonomy(store, snapshot)
     recommended_index = next(
@@ -957,9 +830,6 @@ def _cmd_init_task_policy(args: argparse.Namespace) -> int:
             ),
         }
     )
-    if args.capture_decision_evidence:
-        # Written only when opted in; an absent key means off, so default metadata is unchanged.
-        snapshot.metadata["capture_decision_evidence"] = True
     store.store_policy(snapshot)
     print(json.dumps(_policy_payload(snapshot), indent=2))
     return 0
@@ -1012,32 +882,14 @@ def _cmd_set_task_policy_authority(args: argparse.Namespace) -> int:
             file=sys.stderr,
         )
         return 2
-    current_authority = TaskPolicy(snapshot).authority.value
-    target_authority = args.authority.lower()
-    if current_authority != target_authority:
-        # Diagnostic snapshot of the converged distribution at the moment authority changes
-        # (ADR-004, FDD-004 design 2). Append only: earlier records are never touched.
-        probabilities = SoftmaxPolicy.from_snapshot(snapshot).probabilities()
-        migrated_at = datetime.now(timezone.utc).isoformat()
-        snapshot.metadata.setdefault("migration_records", []).append(
-            {
-                "policy_version_at_migration": snapshot.version,
-                "action_probabilities_at_migration": {
-                    action.id: probability for action, probability in zip(snapshot.actions, probabilities)
-                },
-                "from_authority": current_authority,
-                "to_authority": target_authority,
-                "migrated_at": migrated_at,
-            }
-        )
-        snapshot.metadata.update(
-            {
-                "decision_authority": target_authority,
-                "decision_authority_source": "configured",
-                "decision_authority_updated_at": migrated_at,
-            }
-        )
-        store.store_policy(snapshot)
+    snapshot.metadata.update(
+        {
+            "decision_authority": args.authority,
+            "decision_authority_source": "configured",
+            "decision_authority_updated_at": datetime.now(timezone.utc).isoformat(),
+        }
+    )
+    store.store_policy(snapshot)
     print(
         json.dumps(
             {
@@ -1047,215 +899,6 @@ def _cmd_set_task_policy_authority(args: argparse.Namespace) -> int:
             indent=2,
         )
     )
-    return 0
-
-
-def _cmd_set_task_policy_family(args: argparse.Namespace) -> int:
-    """Write ``family`` and ``role_map`` into the active snapshot's metadata (FDD-019 §3 item 6).
-
-    The snapshot keeps its id and version, as in ``task-policy-authority-set``. Nothing is written when
-    any check fails.
-    """
-    if not args.family.strip():
-        print("--family must not be empty.", file=sys.stderr)
-        return 2
-    try:
-        role_map = json.loads(args.role_map)
-    except json.JSONDecodeError as exc:
-        print(f"--role-map is not valid JSON: {exc}", file=sys.stderr)
-        return 2
-    if not isinstance(role_map, dict) or not all(
-        isinstance(action_id, str) and isinstance(role, str) and role.strip()
-        for action_id, role in role_map.items()
-    ):
-        print("--role-map must be a JSON object of action ids to non-empty role names.", file=sys.stderr)
-        return 2
-
-    store = get_default_store()
-    snapshot = store.get_active_policy(args.agent_id, args.task_id)
-    if snapshot is None:
-        print(f"No active policy for task {args.task_id!r}.", file=sys.stderr)
-        return 2
-    action_ids = {action.id for action in snapshot.actions}
-    outside = sorted(set(role_map) - action_ids)
-    if outside:
-        print(f"--role-map names actions outside the policy's actions: {outside}.", file=sys.stderr)
-        return 2
-    missing = sorted(action_ids - set(role_map))
-    if missing:
-        print(f"--role-map misses actions of the policy: {missing}.", file=sys.stderr)
-        return 2
-    if len(set(role_map.values())) != len(role_map):
-        print("--role-map sends two actions to one role; it must be a bijection onto roles.", file=sys.stderr)
-        return 2
-
-    snapshot.metadata["family"] = args.family
-    snapshot.metadata["role_map"] = role_map
-    store.store_policy(snapshot)
-    print(
-        json.dumps(
-            {"family": args.family, "role_map": role_map, "current_policy": _policy_payload(snapshot)},
-            indent=2,
-        )
-    )
-    return 0
-
-
-@dataclass
-class FamilyScan:
-    """What ``_scan_family`` found: the qualifying members, the excluded ones with reasons, the kind."""
-
-    members: list[FamilyMember]
-    excluded: list[dict[str, str]]
-    representation: str | None
-
-
-def _gate_passed(store: Any, snapshot: PolicySnapshot) -> bool:
-    """The ADR-003 gate for a member, computed with the ``standard`` tier thresholds (FDD-019 H1)."""
-    return assess_autonomy(store, snapshot, AutonomyConfig.for_tier("standard")).eligible
-
-
-def _scan_family(store: Any, agent_id: str, family: str) -> FamilyScan:
-    """Find the members of ``family`` among the agent's active policies; read only (FDD-019 §3 item 7).
-
-    A candidate declares ``family`` and is not itself a meta-prior. It is excluded, with a reason, when it
-    is full authority, has no ``role_map`` or does not meet the gate (H1, H5). Members are sorted by task
-    id. Members with ``posterior_parameters`` are read as ``(alpha, beta)`` pairs, the others as logits;
-    a mix raises ``ValueError`` naming the tasks.
-    """
-    members: list[FamilyMember] = []
-    excluded: list[dict[str, str]] = []
-    beta_tasks: list[str] = []
-    softmax_tasks: list[str] = []
-
-    for task in sorted(store.list_agent_tasks(agent_id), key=lambda item: item.id):
-        snapshot = store.get_active_policy(agent_id, task.id)
-        if snapshot is None or snapshot.metadata.get("is_family_meta_prior"):
-            continue
-        if snapshot.metadata.get("family") != family:
-            continue
-
-        role_map = snapshot.metadata.get("role_map")
-        reason: str | None = None
-        params: dict[str, Any] = {}
-        if TaskPolicy(snapshot).authority.value == "full":
-            reason = "full decision authority: there are no learned logits to pool"
-        elif not isinstance(role_map, dict) or not role_map:
-            reason = "no role_map declared"
-        else:
-            if "posterior_parameters" in snapshot.metadata:
-                # Read the posterior before the gate (FDD-019 H9): a malformed one is an exclusion with a reason.
-                try:
-                    posterior = ThompsonPolicy.from_snapshot(snapshot).posterior()
-                except ValueError as exc:
-                    reason = f"posterior_parameters unreadable: {exc}"
-                else:
-                    params = {
-                        action.id: (posterior["alpha"][action.id], posterior["beta"][action.id])
-                        for action in snapshot.actions
-                    }
-            else:
-                params = {action.id: snapshot.logits.get(action.id, 0.0) for action in snapshot.actions}
-            if reason is None and not _gate_passed(store, snapshot):
-                reason = "the ADR-003 gate is not met under the standard tier"
-
-        if reason is not None or not isinstance(role_map, dict):
-            excluded.append({"task_id": task.id, "reason": reason or "no role_map declared"})
-            continue
-        members.append(
-            FamilyMember(
-                task_id=task.id,
-                version=snapshot.version,
-                role_map=dict(role_map),
-                params=params,
-                gate_passed=True,
-            )
-        )
-        (beta_tasks if "posterior_parameters" in snapshot.metadata else softmax_tasks).append(task.id)
-
-    if beta_tasks and softmax_tasks:
-        raise ValueError(
-            f"family {family!r} mixes Beta-count members ({', '.join(beta_tasks)}) "
-            f"and logit members ({', '.join(softmax_tasks)})"
-        )
-    representation = "thompson" if beta_tasks else "softmax" if softmax_tasks else None
-    return FamilyScan(members=members, excluded=excluded, representation=representation)
-
-
-def _cmd_meta_compile_task_policy(args: argparse.Namespace) -> int:
-    """Compile a family's meta-prior and store it as an ordinary snapshot (FDD-019 §3 item 7, steps 3 and 4).
-
-    Nothing is stored when the family is refused; the reasons, with the excluded candidates, go to stderr.
-    The member snapshots are never written. The prior is the active policy of its own pseudo-task, named by
-    ``--output-prior-name``; compiling again under that name stores the next version and records
-    ``supersedes``, and the older snapshot is left as it was (H6, H8).
-    """
-    store = get_default_store()
-    existing = store.get_active_policy(args.agent_id, args.output_prior_name)
-    if existing is not None and not existing.metadata.get("is_family_meta_prior"):
-        # Checked first: a refused name needs no pooling (Q-96-1).
-        print(
-            f"--output-prior-name {args.output_prior_name!r} is the task id of an existing task policy, not a meta-prior.",
-            file=sys.stderr,
-        )
-        return 2
-    scan: FamilyScan | None = None
-    try:
-        scan = _scan_family(store, args.agent_id, args.family)
-        prior = compile_meta_prior(
-            scan.members,
-            representation=scan.representation or "softmax",
-            sigma_het=args.sigma_het,
-            kappa_prior=args.kappa_prior,
-        )
-    except ValueError as exc:
-        print(f"Cannot compile a meta-prior for family {args.family!r}: {exc}", file=sys.stderr)
-        for item in scan.excluded if scan is not None else []:
-            print(f"  excluded {item['task_id']}: {item['reason']}", file=sys.stderr)
-        return 2
-
-    if prior.representation == "softmax":
-        logits = {role: cast(float, prior.values[role]) for role in prior.roles}
-        posterior: dict[str, Any] = {}
-    else:
-        # A Beta prior's values are (alpha, beta) tuples by construction (meta_prior._pool_thompson).
-        logits = {role: 0.0 for role in prior.roles}
-        pairs = {role: cast(tuple[float, float], prior.values[role]) for role in prior.roles}
-        posterior = {
-            "posterior_parameters": {
-                "alpha": {role: pair[0] for role, pair in pairs.items()},
-                "beta": {role: pair[1] for role, pair in pairs.items()},
-            }
-        }
-
-    metadata: dict[str, Any] = {
-        "is_family_meta_prior": True,
-        "family": args.family,
-        "family_member_count": prior.member_count,
-        "compiled_from": [{"task_id": task_id, "version": version} for task_id, version in prior.compiled_from],
-        "compile_time": datetime.now(timezone.utc).isoformat(),
-        "sigma_het": prior.sigma_het,
-        "kappa_prior": prior.kappa_prior,
-        "representation": prior.representation,
-        "validation_report": {
-            "family_size": prior.member_count,
-            "excluded": scan.excluded if scan is not None else [],
-            "role_spread": dict(prior.role_spread),
-        },
-        **posterior,
-    }
-    if existing is not None:
-        metadata["supersedes"] = existing.id
-    snapshot = PolicySnapshot(
-        agent_id=args.agent_id,
-        task_id=args.output_prior_name,
-        version=existing.version + 1 if existing is not None else 0,
-        actions=[Action(id=role) for role in prior.roles],
-        logits=logits,
-        metadata=metadata,
-    )
-    store.store_policy(snapshot)
-    print(json.dumps(snapshot.to_dict(), indent=2))
     return 0
 
 
@@ -1288,27 +931,6 @@ def _cmd_register_task_episode(args: argparse.Namespace) -> int:
     except (KeyError, TypeError, ValueError) as exc:
         print(f"Invalid episode definition: {exc}", file=sys.stderr)
         return 2
-
-    if args.decision_result:
-        try:
-            decision_result = _load_decision_result(args.decision_result)
-        except (TypeError, ValueError) as exc:
-            print(str(exc), file=sys.stderr)
-            return 2
-        if decision_result.audit_evidence is not None:
-            evidence = copy.deepcopy(dict(decision_result.audit_evidence))
-            current = episode.metadata.get("audit_evidence")
-            if current is not None and current != evidence:
-                print("Episode metadata.audit_evidence differs from the decision result; it is write-once.", file=sys.stderr)
-                return 2
-            episode.metadata["audit_evidence"] = evidence
-    stored_episode = store.get_episode(episode.id, args.agent_id)
-    if stored_episode is not None and "audit_evidence" in stored_episode.metadata:
-        stored_evidence = stored_episode.metadata["audit_evidence"]
-        if "audit_evidence" in episode.metadata and episode.metadata["audit_evidence"] != stored_evidence:
-            print("Episode metadata.audit_evidence differs from the stored episode; it is write-once.", file=sys.stderr)
-            return 2
-        episode.metadata["audit_evidence"] = stored_evidence
 
     if args.require_decision_policy:
         policy = store.get_policy(episode.policy_id or "", args.agent_id)
@@ -1370,344 +992,6 @@ def _cmd_register_task_episode(args: argparse.Namespace) -> int:
     return 0
 
 
-def _cmd_compare_task_policy(args: argparse.Namespace) -> int:
-    if not args.sequence or len(args.sequence) < 2:
-        print("At least two decision result files are required for comparison.", file=sys.stderr)
-        return 2
-
-    results: list[DecisionResult] = []
-    for path in args.sequence:
-        try:
-            results.append(_load_decision_result(path))
-        except (TypeError, ValueError) as exc:
-            print(str(exc), file=sys.stderr)
-            return 2
-
-    sequence_result = compare_decision_sequence(
-        results,
-        epsilon=args.epsilon,
-        retry_cap=args.retry_cap,
-    )
-
-    for i, comp in enumerate(sequence_result.comparisons):
-        src_path = args.sequence[i]
-        dst_path = args.sequence[i + 1]
-        print(f"=== Comparison: {src_path} -> {dst_path} ===")
-        print(f"Policy: {comp.before_policy_id} (v{comp.before_version}) -> {comp.after_policy_id} (v{comp.after_version})")
-        print(f"Classification: {comp.classification.value.upper()} ({comp.classification_reason})")
-        print(f"Leader: {comp.leader_before} -> {comp.leader_after} (changed: {comp.leader_changed}, feasible: {comp.leader_feasible})")
-        print(f"Margin: {comp.margin_before:.5f} -> {comp.margin_after:.5f} (delta: {comp.margin_delta:+.5f})")
-        print(f"Leader Robust Utility Delta: {comp.leader_robust_utility_delta:+.5f}")
-        print("\nPer-Action Deltas:")
-        for action_id, delta in comp.action_deltas.items():
-            print(
-                f"  - {action_id}: "
-                f"robust_utility: {delta.robust_utility_delta:+.5f}, "
-                f"expected_utility: {delta.expected_utility_delta:+.5f}, "
-                f"uncertainty: {delta.uncertainty_delta:+.5f}"
-            )
-
-        if comp.classification == ClassificationType.REGRESSION:
-            print("\nRegression Attribution (Negative Criteria Movements):")
-            if comp.attribution:
-                for attr in comp.attribution:
-                    print(
-                        f"  - {attr['criterion_id']}: "
-                        f"{attr['before_support']:.4f} -> {attr['after_support']:.4f} "
-                        f"({attr['support_delta']:+.4f})"
-                    )
-            else:
-                print("  (No individual negative criteria movements found for the leader)")
-
-    if sequence_result.consecutive_regression_count > 0:
-        print(f"\nConsecutive Regressions: {sequence_result.consecutive_regression_count} / {args.retry_cap}")
-
-    if sequence_result.escalation_required:
-        print("ESCALATE: human review required (consecutive regressions reached retry cap)")
-
-    return 0
-
-
-def _latest_meta_prior(store: Any, agent_id: str, name: str) -> PolicySnapshot:
-    """The prior ``task-policy-warm-start --meta-prior`` seeds from (FDD-020 §2.1 item 3, J5).
-
-    The highest-version stored snapshot of ``name`` that is a meta-prior. It is refused when another stored
-    snapshot of the name names it in ``supersedes``, because it was then replaced out of order, and when it
-    is not in softmax logits (Thompson policies are not covered). Raises ``ValueError`` naming the cause.
-    """
-    snapshots = store.list_policies(agent_id, name, limit=1000)
-    if not snapshots:
-        raise ValueError(f"meta-prior {name!r} not found for agent {agent_id!r}")
-    latest = max(snapshots, key=lambda snapshot: snapshot.version)
-    if not latest.metadata.get("is_family_meta_prior"):
-        raise ValueError(f"task {name!r} is not a meta-prior")
-    if any(other.metadata.get("supersedes") == latest.id for other in snapshots):
-        raise ValueError(f"meta-prior {name!r} version {latest.version} is superseded")
-    if latest.metadata.get("representation", "softmax") != "softmax" or "posterior_parameters" in latest.metadata:
-        raise ValueError(f"meta-prior {name!r} is in Beta counts; only softmax priors can seed a warm start")
-    return latest
-
-
-def _prior_from_snapshot(snapshot: PolicySnapshot) -> MetaPrior:
-    """Read a stored softmax meta-prior back into a ``MetaPrior`` (the inverse of ``task-policy-meta-compile``)."""
-    roles = tuple(sorted(action.id for action in snapshot.actions))
-    for role in roles:
-        if role not in snapshot.logits:
-            # A made-up zero would seed a policy from a corrupt prior, so refuse it by name.
-            raise ValueError(f"meta-prior {snapshot.task_id!r} has no logit for role {role!r}")
-    report = snapshot.metadata.get("validation_report", {})
-    return MetaPrior(
-        representation="softmax",
-        roles=roles,
-        values={role: snapshot.logits[role] for role in roles},
-        member_count=int(snapshot.metadata.get("family_member_count", 0)),
-        role_spread=dict(report.get("role_spread", {})),
-        sigma_het=float(snapshot.metadata.get("sigma_het", 0.0)),
-        kappa_prior=None,
-        compiled_from=tuple((item["task_id"], item["version"]) for item in snapshot.metadata.get("compiled_from", [])),
-    )
-
-
-def _warm_start_from_meta_prior(store: Any, args: argparse.Namespace, target: PolicySnapshot) -> int:
-    """The ``--meta-prior`` branch of ``task-policy-warm-start`` (Story 20.5). Writes only on success."""
-    try:
-        prior_snapshot = _latest_meta_prior(store, args.agent_id, args.meta_prior)
-    except ValueError as exc:
-        print(f"Cannot warm start from meta-prior {args.meta_prior!r}: {exc}.", file=sys.stderr)
-        return 2
-
-    target_family = target.metadata.get("family")
-    role_map = target.metadata.get("role_map")
-    if not target_family or target_family != prior_snapshot.metadata.get("family"):
-        print(
-            f"Target family {target_family!r} does not match the meta-prior's family "
-            f"{prior_snapshot.metadata.get('family')!r}.",
-            file=sys.stderr,
-        )
-        return 2
-    if not isinstance(role_map, dict) or not role_map:
-        print("Target policy declares no role_map; declare one with task-policy-family-set.", file=sys.stderr)
-        return 2
-
-    damping = args.damping if args.damping is not None else DAMPING_DEFAULT_META_PRIOR
-    action_ids = [action.id for action in target.actions]
-    try:
-        seeds = seed_values(_prior_from_snapshot(prior_snapshot), role_map, action_ids)
-        new_logits = {action_id: float(cast(float, seeds[action_id])) * damping for action_id in action_ids}
-        prov = provenance(
-            prior_snapshot,
-            damping,
-            datetime.now(timezone.utc).isoformat(),
-            action_map=role_map,
-            kind="meta_prior",
-            gate_met=None,
-        )
-    except (ValueError, TypeError) as exc:
-        print(f"Failed to seed from meta-prior {args.meta_prior!r}: {exc}", file=sys.stderr)
-        return 2
-
-    target_copy = PolicySnapshot.from_dict(target.to_dict())
-    target_copy.logits = new_logits
-    target_copy.episodes_seen = 0
-    target_copy.updates_applied = 0
-    target_copy.baseline = 0.0
-    target_copy.metadata.update(prov)
-    target_copy.advance_version()
-    store.store_policy(target_copy)
-
-    print(json.dumps(_policy_payload(target_copy), indent=2))
-    return 0
-
-
-def _cmd_warm_start_task_policy(args: argparse.Namespace) -> int:
-    has_donor = bool(args.donor_task_id)
-    has_meta = bool(args.meta_prior)
-    if (has_donor and has_meta) or (not has_donor and not has_meta):
-        print(
-            "Exactly one of --donor-task-id or --meta-prior must be provided.",
-            file=sys.stderr,
-        )
-        return 2
-
-    if has_meta and args.action_map is not None:
-        print("--action-map cannot be used with --meta-prior.", file=sys.stderr)
-        return 2
-
-    store = get_default_store()
-
-    target = store.get_active_policy(args.agent_id, args.target_task_id)
-    if target is None:
-        print(f"Target task {args.target_task_id!r} not found for agent {args.agent_id!r}.", file=sys.stderr)
-        return 2
-
-    if not _is_decision_policy(target):
-        policy_scope = target.metadata.get("policy_scope")
-        print(
-            f"Target policy must be a delegated decision policy, got policy_scope: {policy_scope!r}.",
-            file=sys.stderr,
-        )
-        return 2
-
-    target_authority = target.metadata.get("decision_authority", DecisionAuthority.LOW.value)
-    if target_authority == DecisionAuthority.FULL.value:
-        print(
-            "Target policy has full decision authority; warm-starting requires low authority.",
-            file=sys.stderr,
-        )
-        return 2
-
-    if target.updates_applied > 0:
-        print(
-            f"Target policy is not cold: updates_applied is {target.updates_applied} (expected 0).",
-            file=sys.stderr,
-        )
-        return 2
-
-    if target.episodes_seen > 0:
-        print(
-            f"Target policy is not cold: episodes_seen is {target.episodes_seen} (expected 0).",
-            file=sys.stderr,
-        )
-        return 2
-
-    if any(logit != 0.0 for logit in target.logits.values()):
-        print(
-            f"Target policy is not cold: non-zero logits present {target.logits}.",
-            file=sys.stderr,
-        )
-        return 2
-
-    if "warm_start_donor_policy_id" in target.metadata:
-        print(
-            f"Target policy is not cold: warm_start_donor_policy_id is already present ({target.metadata['warm_start_donor_policy_id']!r}).",
-            file=sys.stderr,
-        )
-        return 2
-
-    if has_donor:
-        donor_task_id = args.donor_task_id
-
-        if donor_task_id == args.target_task_id:
-            print(
-                f"Donor task cannot be the same as target task ({donor_task_id!r}).",
-                file=sys.stderr,
-            )
-            return 2
-
-        donor = store.get_active_policy(args.agent_id, donor_task_id)
-        if donor is None:
-            print(
-                f"Donor task {donor_task_id!r} not found for agent {args.agent_id!r}.",
-                file=sys.stderr,
-            )
-            return 2
-
-        donor_authority = donor.metadata.get("decision_authority", DecisionAuthority.LOW.value)
-        if donor_authority == DecisionAuthority.FULL.value:
-            print(
-                "Donor policy has full decision authority; warm-starting requires low authority.",
-                file=sys.stderr,
-            )
-            return 2
-
-        if not donor.logits:
-            print(
-                f"Donor policy {donor_task_id!r} has no logits.",
-                file=sys.stderr,
-            )
-            return 2
-
-        target_action_ids = [action.id for action in target.actions]
-        donor_action_ids = [action.id for action in donor.actions]
-
-        if args.action_map is None:
-            if set(target_action_ids) == set(donor_action_ids):
-                action_map = {act: act for act in target_action_ids}
-            else:
-                print(
-                    f"Action map omitted but target action IDs {sorted(target_action_ids)} "
-                    f"differ from donor action IDs {sorted(donor_action_ids)}.",
-                    file=sys.stderr,
-                )
-                return 2
-        else:
-            raw_map = args.action_map.strip()
-            path_candidate = Path(raw_map)
-            if path_candidate.is_file():
-                try:
-                    with open(path_candidate, "r", encoding="utf-8") as f:
-                        action_map = json.load(f)
-                except Exception as exc:
-                    print(f"Failed to read --action-map file: {exc}", file=sys.stderr)
-                    return 2
-            else:
-                try:
-                    action_map = json.loads(raw_map)
-                except Exception as exc:
-                    print(f"Failed to parse --action-map: {exc}", file=sys.stderr)
-                    return 2
-
-            if not isinstance(action_map, dict):
-                print(
-                    "--action-map must be a JSON object mapping target action IDs to donor action IDs.",
-                    file=sys.stderr,
-                )
-                return 2
-
-        damping = args.damping if args.damping is not None else DAMPING_DEFAULT
-
-        try:
-            new_logits = warm_start_logits(
-                donor.logits,
-                action_map,
-                target_action_ids,
-                damping=damping,
-            )
-        except (ValueError, TypeError) as exc:
-            print(f"Failed to compute warm start logits: {exc}", file=sys.stderr)
-            return 2
-
-        try:
-            donor_assessment = assess_autonomy(
-                store,
-                donor,
-                config=AutonomyConfig.for_tier("standard"),
-            )
-            gate_met = bool(donor_assessment.eligible)
-        except Exception as exc:
-            logger.warning("Failed to evaluate donor autonomy gate: %s", exc)
-            gate_met = False
-
-        now_iso = datetime.now(timezone.utc).isoformat()
-
-        try:
-            prov = provenance(
-                donor,
-                damping,
-                now_iso,
-                action_map=action_map,
-                kind="policy",
-                gate_met=gate_met,
-            )
-        except (ValueError, TypeError) as exc:
-            print(f"Failed to generate provenance: {exc}", file=sys.stderr)
-            return 2
-
-        target_copy = PolicySnapshot.from_dict(target.to_dict())
-        target_copy.logits = new_logits
-        target_copy.episodes_seen = 0
-        target_copy.updates_applied = 0
-        target_copy.baseline = 0.0
-        target_copy.metadata.update(prov)
-        target_copy.advance_version()
-        store.store_policy(target_copy)
-
-        print(json.dumps(_policy_payload(target_copy), indent=2))
-        return 0
-
-    return _warm_start_from_meta_prior(store, args, target)
-
-
 def main(argv: list[str] | None = None) -> int:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s - %(message)s")
     parser = _build_arg_parser()
@@ -1727,12 +1011,8 @@ def main(argv: list[str] | None = None) -> int:
         "task-policy-adjudicate": _cmd_adjudicate_task_policy,
         "task-policy-init": _cmd_init_task_policy,
         "task-policy-authority-set": _cmd_set_task_policy_authority,
-        "task-policy-family-set": _cmd_set_task_policy_family,
-        "task-policy-meta-compile": _cmd_meta_compile_task_policy,
         "task-policy-complexity-set": _cmd_set_task_policy_complexity,
         "task-episode-register": _cmd_register_task_episode,
-        "task-policy-compare": _cmd_compare_task_policy,
-        "task-policy-warm-start": _cmd_warm_start_task_policy,
     }
     handler = dispatch[args.command]
     return handler(args)

@@ -1,0 +1,1747 @@
+# ext-source: src/agent_learning/cli.py sha256:ea57cfaea8e1b701a78d902a35af1b76a0a166acca8dd5560963477e2d73e22c
+# ruff: noqa  (kept faithful to Microsoft's code and style so upstream changes merge in cleanly)
+# Copy of Microsoft's module for agent_learning_ext (fork rule: Microsoft's file is never edited).
+# EXT: our commands and amended behaviour (task-policy-*, decision frames, evidence capture, governance, comparison, warm start, meta-prior, Thompson, authority diagnostics); reached through agent-learn-ext. Microsoft's agent-learn is untouched.
+# When the upstream pin moves and the source file changes, merge that change here and update the hash above.
+"""Command-line interface for the agent-learning SDK."""
+
+from __future__ import annotations
+
+import argparse
+import copy
+import json
+import logging
+import random
+import sys
+import uuid
+from collections import Counter
+from dataclasses import dataclass
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, cast
+
+from agent_learning._version import __version__
+from agent_learning_ext.autonomy import ComplexityProfile, assess_autonomy
+from agent_learning_ext.config import AutonomyConfig
+from agent_learning.warm_start import DAMPING_DEFAULT, DAMPING_DEFAULT_META_PRIOR, provenance, warm_start_logits
+from agent_learning.comparison import (
+    DEFAULT_EPSILON,
+    ClassificationType,
+    compare_decision_sequence,
+)
+from agent_learning_ext.decision import (
+    DecisionAuthority,
+    DecisionFrame,
+    DecisionResult,
+    DecisionStatus,
+    TaskPolicy,
+    TieBreakDisposition,
+    capture_decision_evidence_enabled,
+)
+from agent_learning.meta_prior import FamilyMember, MetaPrior, compile_meta_prior, seed_values
+from agent_learning.policy.softmax_bandit import SoftmaxPolicy
+from agent_learning.policy.thompson import ThompsonPolicy
+from agent_learning_ext.storage.cosmos import get_default_store
+from agent_learning_ext.training.runner import LearningRunner
+from agent_learning.types import Action, Episode, MetricName, PolicySnapshot, RewardSource
+
+logger = logging.getLogger(__name__)
+
+_MAX_EPISODES = 500
+_DECISION_POLICY_SCOPE = "delegated_decision"
+
+
+def _episode_limit(value: str) -> int:
+    limit = int(value)
+    if limit < 1 or limit > _MAX_EPISODES:
+        raise argparse.ArgumentTypeError(f"limit must be between 1 and {_MAX_EPISODES}")
+    return limit
+
+
+def _damping_factor(value: str) -> float:
+    try:
+        damping = float(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError(f"damping must be a float, got {value!r}") from exc
+    if damping <= 0.0 or damping > 1.0:
+        raise argparse.ArgumentTypeError(f"damping must be in (0, 1.0], got {damping}")
+    return damping
+
+
+def _retry_cap(value: str) -> int:
+    cap = int(value)
+    if cap < 1:
+        raise argparse.ArgumentTypeError("retry-cap must be an integer >= 1")
+    return cap
+
+
+def _iso_date(value: str) -> str:
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except (TypeError, ValueError) as exc:
+        raise argparse.ArgumentTypeError(f"invalid ISO 8601 date: {value!r}") from exc
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc).isoformat()
+
+
+def _load_complexity_profile(path: str) -> ComplexityProfile:
+    try:
+        with open(path, "r", encoding="utf-8") as profile_file:
+            payload = json.load(profile_file)
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ValueError(f"Unable to read complexity profile: {exc}") from exc
+    return ComplexityProfile.from_dict(payload)
+
+
+def _load_decision_frame(path: str, snapshot: PolicySnapshot) -> DecisionFrame:
+    try:
+        with open(path, "r", encoding="utf-8") as frame_file:
+            payload = json.load(frame_file)
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ValueError(f"Unable to read decision frame: {exc}") from exc
+    if not isinstance(payload, dict):
+        raise TypeError("Decision frame must be a JSON object")
+    try:
+        return DecisionFrame.from_dict(payload, snapshot.actions)
+    except (KeyError, TypeError, ValueError) as exc:
+        raise ValueError(f"Invalid decision frame: {exc}") from exc
+
+
+def _load_decision_result(path: str) -> DecisionResult:
+    try:
+        with open(path, "r", encoding="utf-8") as result_file:
+            payload = json.load(result_file)
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ValueError(f"Unable to read decision result: {exc}") from exc
+    if not isinstance(payload, dict):
+        raise TypeError("Decision result must be a JSON object")
+    try:
+        return DecisionResult.from_dict(payload)
+    except (KeyError, TypeError, ValueError) as exc:
+        raise ValueError(f"Invalid decision result: {exc}") from exc
+
+
+def _build_arg_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        prog="agent-learn-ext",
+        description=f"Evidence-driven decision CLI for AI agents. SDK version {__version__}.",
+    )
+    parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
+    sub = parser.add_subparsers(dest="command")
+
+    sub.add_parser("list", help="List discovered agent ids and names.")
+
+    tasks = sub.add_parser("tasks-list", help="List tasks for an agent.")
+    tasks.add_argument("agent_id")
+    tasks.add_argument("--decision-only", action="store_true")
+
+    count = sub.add_parser(
+        "task-episodes-count",
+        help="Count full learning episodes for an agent.",
+    )
+    count.add_argument("agent_id")
+    count.add_argument("--task-id")
+    count.add_argument(
+        "--include-incomplete",
+        action="store_true",
+        help="Count pending and incomplete attempts as well as full learning episodes.",
+    )
+    count.add_argument("--start-date", type=_iso_date)
+    count.add_argument("--end-date", type=_iso_date)
+
+    episodes = sub.add_parser(
+        "task-episodes-list",
+        help="Print episodes with score and reward details.",
+    )
+    episodes.add_argument("agent_id")
+    episodes.add_argument("--task-id")
+    episodes.add_argument("--limit", type=_episode_limit, default=_MAX_EPISODES)
+    episodes.add_argument("--include-incomplete", action="store_true")
+    episodes.add_argument("--start-date", type=_iso_date)
+    episodes.add_argument("--end-date", type=_iso_date)
+
+    train = sub.add_parser("train", help="Run one offline learning batch.")
+    train.add_argument("--agent-id", required=True)
+    train.add_argument("--task-id")
+    train.add_argument("--limit", type=_episode_limit, default=200)
+    train.add_argument("--min-episodes", type=_episode_limit, default=1)
+    train.add_argument("--decision-only", action="store_true")
+    train.add_argument("--start-date", type=_iso_date)
+    train.add_argument("--end-date", type=_iso_date)
+    train.add_argument(
+        "--skip-scoring",
+        action="store_true",
+        help="Skip scoring episodes that have no rewards yet.",
+    )
+
+    score = sub.add_parser("score", help="Score episodes but skip the policy update.")
+    score.add_argument("--agent-id", required=True)
+    score.add_argument("--task-id")
+    score.add_argument("--limit", type=_episode_limit, default=100)
+
+    show = sub.add_parser("task-policy", help="Print the active policy for an agent task.")
+    show.add_argument("--agent-id", required=True)
+    show.add_argument("--task-id", required=True)
+
+    decide = sub.add_parser(
+        "task-policy-decide",
+        help="Choose a delegated decision action and return learned feedback.",
+    )
+    decide.add_argument("--agent-id", required=True)
+    decide.add_argument("--task-id", required=True)
+    decide.add_argument("--history-limit", type=_episode_limit, default=100)
+    decide.add_argument("--greedy", action="store_true")
+    decide.add_argument("--seed", type=int)
+    decide.add_argument(
+        "--decision-frame",
+        help="JSON evidence frame required by policies with full decision authority.",
+    )
+
+    adjudicate = sub.add_parser(
+        "task-policy-adjudicate",
+        help="Apply accept or reject to a pending reasoned task-policy result.",
+    )
+    adjudicate.add_argument("--agent-id", required=True)
+    adjudicate.add_argument("--task-id", required=True)
+    adjudicate.add_argument("--decision-result", required=True)
+    adjudicate.add_argument(
+        "--disposition",
+        choices=[disposition.value for disposition in TieBreakDisposition],
+        required=True,
+    )
+
+    init = sub.add_parser(
+        "task-policy-init",
+        help="Create and activate the initial policy for an agent task.",
+    )
+    init.add_argument("--agent-id", required=True)
+    init.add_argument("--task-id", required=True)
+    init.add_argument(
+        "--decision-context",
+        required=True,
+        help="Stable description of the delegated choice this policy controls.",
+    )
+    init.add_argument(
+        "--actions",
+        required=True,
+        help="Path to a JSON file containing a list of {id, description, parameters} objects.",
+    )
+    init.add_argument(
+        "--complexity-profile",
+        help="Path to a JSON complexity profile. Defaults conservatively to standard.",
+    )
+    init.add_argument(
+        "--capture-decision-evidence",
+        action="store_true",
+        help="Opt in: a low-authority decision must then carry non-empty audit_evidence (ADR-006).",
+    )
+    init.add_argument(
+        "--decision-authority",
+        choices=[authority.value for authority in DecisionAuthority],
+        help="Action-selection authority: low uses learned policy evidence; full resolves a decision frame.",
+    )
+
+    complexity = sub.add_parser(
+        "task-policy-complexity-set",
+        help="Configure complexity for an existing delegated decision policy.",
+    )
+    complexity.add_argument("--agent-id", required=True)
+    complexity.add_argument("--task-id", required=True)
+    complexity.add_argument("--profile", required=True)
+
+    authority = sub.add_parser(
+        "task-policy-authority-set",
+        help="Configure action-selection authority for an existing task policy.",
+    )
+    authority.add_argument("--agent-id", required=True)
+    authority.add_argument("--task-id", required=True)
+    authority.add_argument(
+        "--authority",
+        choices=[decision_authority.value for decision_authority in DecisionAuthority],
+        required=True,
+    )
+
+    family_set = sub.add_parser(
+        "task-policy-family-set",
+        help="Declare the task family and role map of an existing task policy (meta-prior membership).",
+    )
+    family_set.add_argument("--agent-id", required=True)
+    family_set.add_argument("--task-id", required=True)
+    family_set.add_argument("--family", required=True, help="Family name; policies with the same name are pooled together.")
+    family_set.add_argument(
+        "--role-map",
+        required=True,
+        help="JSON object mapping every action id of the policy to the role it plays in the family.",
+    )
+
+    meta_compile = sub.add_parser(
+        "task-policy-meta-compile",
+        help="Pool the converged policies of a task family into a stored meta-prior snapshot.",
+    )
+    meta_compile.add_argument("--agent-id", required=True)
+    meta_compile.add_argument("--family", required=True, help="Family name declared with task-policy-family-set.")
+    meta_compile.add_argument(
+        "--output-prior-name",
+        required=True,
+        help="Name (pseudo task id) under which the prior is stored; compiling again under it stores the next version.",
+    )
+    meta_compile.add_argument(
+        "--sigma-het",
+        type=float,
+        required=True,
+        help="Largest per-role spread the family may have and still be pooled (no default).",
+    )
+    meta_compile.add_argument(
+        "--kappa-prior",
+        type=float,
+        default=10.0,
+        help="Prior strength for Beta-count families, above 0 and at most 10 (default: 10.0).",
+    )
+
+    register = sub.add_parser(
+        "task-episode-register",
+        help="Register an agent task episode from a JSON file.",
+    )
+    register.add_argument("--agent-id", required=True)
+    register.add_argument("--task-id", required=True)
+    register.add_argument("--require-decision-policy", action="store_true")
+    register.add_argument(
+        "--episode",
+        required=True,
+        help="Path to a JSON file containing an Episode object.",
+    )
+    register.add_argument(
+        "--decision-result",
+        help="Optional DecisionResult JSON whose audit_evidence is copied into the episode metadata (write-once).",
+    )
+
+    compare = sub.add_parser(
+        "task-policy-compare",
+        help="Compare a sequence of full-authority DecisionResults to classify decision progress or regression.",
+    )
+    compare.add_argument(
+        "--sequence",
+        nargs="+",
+        required=True,
+        help="List of 2+ DecisionResult JSON file paths in chronological order.",
+    )
+    compare.add_argument(
+        "--epsilon",
+        type=float,
+        default=DEFAULT_EPSILON,
+        help="Classification epsilon tolerance threshold (default: 0.01).",
+    )
+    compare.add_argument(
+        "--retry-cap",
+        type=_retry_cap,
+        default=3,
+        help="Maximum consecutive regression attempts before human escalation (default: 3, minimum: 1).",
+    )
+
+    warm_start = sub.add_parser(
+        "task-policy-warm-start",
+        help="Explicitly warm-start a target decision policy from a donor policy or meta-prior.",
+    )
+    warm_start.add_argument("--agent-id", required=True, help="Agent identifier.")
+    warm_start.add_argument("--target-task-id", required=True, help="Target task identifier.")
+    warm_start.add_argument("--donor-task-id", help="Donor task identifier.")
+    warm_start.add_argument("--meta-prior", help="Family meta-prior name.")
+    warm_start.add_argument(
+        "--damping",
+        type=_damping_factor,
+        help="Confidence damping factor in (0, 1.0]. Defaults to 0.70 for policy donor (1.0 for meta-prior).",
+    )
+    warm_start.add_argument(
+        "--action-map",
+        help="JSON mapping target action IDs to donor action IDs.",
+    )
+
+    return parser
+
+
+def _cmd_agents_list(args: argparse.Namespace) -> int:
+    del args
+    agents = get_default_store().list_agents()
+    print(json.dumps([{"id": agent.id, "name": agent.name} for agent in agents], indent=2))
+    return 0
+
+
+def _cmd_agent_tasks_list(args: argparse.Namespace) -> int:
+    store = get_default_store()
+    tasks = store.list_agent_tasks(args.agent_id)
+    if args.decision_only:
+        tasks = [
+            task
+            for task in tasks
+            if _is_decision_policy(store.get_active_policy(args.agent_id, task.id))
+        ]
+    print(json.dumps([{"id": task.id, "name": task.name} for task in tasks], indent=2))
+    return 0
+
+
+def _cmd_agents_episodes_count(args: argparse.Namespace) -> int:
+    count = get_default_store().count_episodes(
+        args.agent_id,
+        task_id=args.task_id,
+        full_only=not args.include_incomplete,
+        start_date=args.start_date,
+        end_date=args.end_date,
+    )
+    print(count)
+    return 0
+
+
+def _cmd_agents_episodes_list(args: argparse.Namespace) -> int:
+    store = get_default_store()
+    episodes = store.query_episodes(
+        args.agent_id,
+        task_id=args.task_id,
+        limit=_MAX_EPISODES,
+        start_date=args.start_date,
+        end_date=args.end_date,
+        full_only=not args.include_incomplete,
+    )
+
+    payload = []
+    for episode in episodes[: args.limit]:
+        metrics = store.get_metric_results(episode.id, args.agent_id)
+        rewards = store.get_rewards_for_episode(episode.id, args.agent_id)
+        aggregate_rewards = [
+            reward for reward in rewards if reward.source == RewardSource.AGGREGATE
+        ]
+        aggregate_rewards.sort(key=lambda reward: reward.created_at, reverse=True)
+        completion = next(
+            (metric for metric in metrics if metric.metric == MetricName.TASK_COMPLETION),
+            None,
+        )
+        payload.append(
+            {
+                "episode": episode.to_dict(),
+                "score_breakdown": [metric.to_dict() for metric in metrics],
+                "final_reward": aggregate_rewards[0].value if aggregate_rewards else None,
+                "task_completion_quality": completion.to_dict() if completion else None,
+            }
+        )
+    print(json.dumps(payload, indent=2))
+    return 0
+
+
+def _cmd_train(args: argparse.Namespace) -> int:
+    store = get_default_store()
+    task_ids = (
+        [args.task_id]
+        if args.task_id
+        else [task.id for task in store.list_agent_tasks(args.agent_id)]
+    )
+    selected_episodes = store.query_episodes(
+        args.agent_id,
+        task_id=args.task_id,
+        limit=args.limit,
+        start_date=args.start_date,
+        end_date=args.end_date,
+        full_only=True,
+    )
+    episode_limits = Counter(episode.task_id for episode in selected_episodes)
+    runs: list[dict[str, Any]] = []
+    skipped: list[dict[str, str]] = []
+    for task_id in task_ids:
+        snapshot = store.get_active_policy(args.agent_id, task_id)
+        if snapshot is None:
+            skipped.append({"task_id": task_id, "reason": "no active policy"})
+            continue
+        if args.decision_only and not _is_decision_policy(snapshot):
+            skipped.append({"task_id": task_id, "reason": "not a delegated decision policy"})
+            continue
+        if (
+            _is_decision_policy(snapshot)
+            and TaskPolicy(snapshot).authority is DecisionAuthority.FULL
+        ):
+            skipped.append(
+                {
+                    "task_id": task_id,
+                    "reason": "full decision authority uses reasoned resolution, not REINFORCE",
+                }
+            )
+            continue
+        episode_limit = episode_limits.get(task_id, 0)
+        if episode_limit == 0:
+            skipped.append({"task_id": task_id, "reason": "no episodes in selected batch"})
+            continue
+        if episode_limit < args.min_episodes:
+            skipped.append(
+                {
+                    "task_id": task_id,
+                    "reason": (
+                        f"selected batch has {episode_limit} episodes; "
+                        f"minimum is {args.min_episodes}"
+                    ),
+                }
+            )
+            continue
+        policy = SoftmaxPolicy.from_snapshot(snapshot)
+        runner = LearningRunner(store=store, policy=policy)
+        run = runner.run_offline_batch(
+            args.agent_id,
+            task_id=task_id,
+            episode_limit=episode_limit,
+            start_date=args.start_date,
+            end_date=args.end_date,
+            score_missing=not args.skip_scoring,
+        )
+        runs.append(run.to_dict())
+
+    print(json.dumps({"agent_id": args.agent_id, "runs": runs, "skipped": skipped}, indent=2))
+    if runs:
+        return 0
+    print(
+        f"No task policies were trained for agent_id={args.agent_id!r}. "
+        "Check the skipped reasons and initialize missing task policies.",
+        file=sys.stderr,
+    )
+    return 2
+
+
+def _cmd_score(args: argparse.Namespace) -> int:
+    store = get_default_store()
+    runner = LearningRunner(store=store)
+    episodes = store.query_episodes(
+        args.agent_id,
+        task_id=args.task_id,
+        limit=args.limit,
+        full_only=True,
+    )
+    scored = 0
+    for episode in episodes:
+        if runner.has_usable_reward(episode):
+            continue
+        rewards = runner.score_and_record(episode)
+        if any(reward.source == RewardSource.AGGREGATE for reward in rewards):
+            scored += 1
+    print(json.dumps({"episodes_seen": len(episodes), "newly_scored": scored}, indent=2))
+    return 0
+
+
+def _policy_payload(snapshot: PolicySnapshot) -> dict[str, Any]:
+    payload = snapshot.to_dict()
+    policy = SoftmaxPolicy.from_snapshot(snapshot)
+    payload["action_probabilities"] = {
+        action.id: probability
+        for action, probability in zip(snapshot.actions, policy.probabilities())
+    }
+    return payload
+
+
+def _is_decision_policy(snapshot: PolicySnapshot | None) -> bool:
+    return bool(
+        snapshot
+        and snapshot.metadata.get("policy_scope") == _DECISION_POLICY_SCOPE
+    )
+
+
+def _latest_aggregate(store: Any, episode: Episode) -> float | None:
+    rewards = [
+        reward
+        for reward in store.get_rewards_for_episode(episode.id, episode.agent_id)
+        if reward.source == RewardSource.AGGREGATE
+    ]
+    if not rewards:
+        return None
+    return max(rewards, key=lambda reward: reward.created_at).value
+
+
+def _decision_feedback(
+    store: Any, snapshot: PolicySnapshot, history_limit: int
+) -> dict[str, Any]:
+    stats = {
+        action.id: {
+            "attempts": 0,
+            "correctness_evaluated": 0,
+            "correct": 0,
+            "correctness_rate": None,
+            "rewarded_episodes": 0,
+            "mean_reward": None,
+            "recent_outcomes": [],
+        }
+        for action in snapshot.actions
+    }
+    reward_totals = {action.id: 0.0 for action in snapshot.actions}
+    episodes = store.query_episodes(
+        snapshot.agent_id,
+        task_id=snapshot.task_id,
+        limit=history_limit,
+    )
+    for episode in episodes:
+        action_id = episode.action_id
+        if action_id not in stats:
+            continue
+        action_stats = stats[action_id]
+        action_stats["attempts"] += 1
+        correct_action_id = episode.metadata.get("correct_action_id")
+        was_correct = None
+        if correct_action_id:
+            was_correct = action_id == correct_action_id
+            action_stats["correctness_evaluated"] += 1
+            action_stats["correct"] += int(was_correct)
+        reward = _latest_aggregate(store, episode)
+        if reward is not None:
+            action_stats["rewarded_episodes"] += 1
+            reward_totals[action_id] += reward
+        if len(action_stats["recent_outcomes"]) < 3:
+            score_breakdown = {}
+            for result in store.get_metric_results(episode.id, episode.agent_id):
+                score_breakdown[result.metric.value] = {
+                    "normalized": result.normalized,
+                    "status": result.status,
+                    "reason": result.reason,
+                }
+            action_stats["recent_outcomes"].append(
+                {
+                    "created_at": episode.created_at,
+                    "was_correct": was_correct,
+                    "reward": reward,
+                    "execution_status": episode.execution_status,
+                    "result_summary": episode.result_summary,
+                    "score_breakdown": score_breakdown,
+                }
+            )
+    for action_id, action_stats in stats.items():
+        evaluated = action_stats["correctness_evaluated"]
+        rewarded = action_stats["rewarded_episodes"]
+        if evaluated:
+            action_stats["correctness_rate"] = action_stats["correct"] / evaluated
+        if rewarded:
+            action_stats["mean_reward"] = reward_totals[action_id] / rewarded
+    return {"episodes_reviewed": len(episodes), "actions": stats}
+
+
+def _policy_difference(
+    current: PolicySnapshot, previous: PolicySnapshot | None
+) -> dict[str, Any] | None:
+    if previous is None:
+        return None
+    current_payload = _policy_payload(current)
+    previous_payload = _policy_payload(previous)
+    action_ids = sorted(
+        set(current_payload["action_probabilities"])
+        | set(previous_payload["action_probabilities"])
+    )
+    return {
+        "version": current.version - previous.version,
+        "baseline": current.baseline - previous.baseline,
+        "episodes_seen": current.episodes_seen - previous.episodes_seen,
+        "updates_applied": current.updates_applied - previous.updates_applied,
+        "logits": {
+            action_id: current.logits.get(action_id, 0.0)
+            - previous.logits.get(action_id, 0.0)
+            for action_id in action_ids
+        },
+        "action_probabilities": {
+            action_id: current_payload["action_probabilities"].get(action_id, 0.0)
+            - previous_payload["action_probabilities"].get(action_id, 0.0)
+            for action_id in action_ids
+        },
+    }
+
+
+def _cmd_show_task_policy(args: argparse.Namespace) -> int:
+    store = get_default_store()
+    snapshot = store.get_active_policy(args.agent_id, args.task_id)
+    if snapshot is None:
+        print(
+            f"No active policy found for agent_id={args.agent_id!r}, "
+            f"task_id={args.task_id!r}.",
+            file=sys.stderr,
+        )
+        return 2
+    previous = next(
+        (
+            policy
+            for policy in store.list_policies(args.agent_id, args.task_id)
+            if policy.id != snapshot.id
+        ),
+        None,
+    )
+    autonomy_assessment = assess_autonomy(store, snapshot)
+    print(
+        json.dumps(
+            {
+                "current_policy": _policy_payload(snapshot),
+                "previous_policy": _policy_payload(previous) if previous else None,
+                "difference": _policy_difference(snapshot, previous),
+                "autonomy": {
+                    **autonomy_assessment.to_dict(),
+                    "mode": "autonomous" if autonomy_assessment.eligible else "supervised",
+                },
+            },
+            indent=2,
+        )
+    )
+    return 0
+
+
+def _cmd_decide_task_policy(args: argparse.Namespace) -> int:
+    store = get_default_store()
+    snapshot = store.get_active_policy(args.agent_id, args.task_id)
+    if snapshot is None:
+        print(
+            f"No active policy found for agent_id={args.agent_id!r}, "
+            f"task_id={args.task_id!r}.",
+            file=sys.stderr,
+        )
+        return 2
+    if not _is_decision_policy(snapshot):
+        print(
+            "The active policy is not marked as a delegated decision policy. "
+            "Questions, reporting tasks, and agent-learning automation are not eligible.",
+            file=sys.stderr,
+        )
+        return 2
+    rng = random.Random(args.seed) if args.seed is not None else None
+    task_policy = TaskPolicy(snapshot, rng=rng)
+    if task_policy.authority is DecisionAuthority.FULL:
+        if not args.decision_frame:
+            print(
+                "A policy with full decision authority requires --decision-frame.",
+                file=sys.stderr,
+            )
+            return 2
+        try:
+            frame = _load_decision_frame(args.decision_frame, snapshot)
+            result = task_policy.decide(frame)
+        except (TypeError, ValueError) as exc:
+            print(str(exc), file=sys.stderr)
+            return 2
+
+        feedback = _decision_feedback(store, snapshot, args.history_limit)
+        focus_action = result.selected_action or result.proposed_action
+        learned_assessment = assess_autonomy(store, snapshot)
+        execute_without_confirmation = result.status is DecisionStatus.RESOLVED
+        request_user_feedback = result.status in {
+            DecisionStatus.NEEDS_USER_FEEDBACK,
+            DecisionStatus.NEEDS_USER_TIE_BREAK,
+        }
+        if result.status is DecisionStatus.NEEDS_USER_TIE_BREAK:
+            feedback_reason = "decision_tie"
+            outcome_recording = "user_feedback"
+        elif result.status is DecisionStatus.NEEDS_USER_FEEDBACK:
+            feedback_reason = "human_approval_required"
+            outcome_recording = "user_feedback"
+        elif result.status is DecisionStatus.NEEDS_EVIDENCE:
+            feedback_reason = "additional_evidence_required"
+            outcome_recording = "additional_evidence"
+        elif result.status is DecisionStatus.RESOLVED:
+            feedback_reason = "observable_outcome"
+            outcome_recording = "observable_outcome"
+        else:
+            feedback_reason = "decision_reframe_required"
+            outcome_recording = "decision_reframe"
+        payload = result.to_dict()
+        payload.update(
+            {
+                "decision_context": snapshot.metadata.get("decision_context"),
+                "decision_authority": task_policy.authority.value,
+                "selection_mode": "reasoned",
+                "selected_action_feedback": (
+                    feedback["actions"].get(focus_action.id) if focus_action else None
+                ),
+                "historical_feedback": feedback,
+                "autonomy": {
+                    "eligible": execute_without_confirmation,
+                    "authorization_basis": result.authorization_basis or "none",
+                    "decision_authority": task_policy.authority.value,
+                    "mode": (
+                        "autonomous" if execute_without_confirmation else "supervised"
+                    ),
+                    "execute_without_confirmation": execute_without_confirmation,
+                    "request_user_feedback": request_user_feedback,
+                    "observable_outcome_satisfies_feedback": execute_without_confirmation,
+                    "feedback_reason": feedback_reason,
+                    "outcome_recording": outcome_recording,
+                    "complexity": learned_assessment.complexity.to_dict(),
+                    "learned_policy_assessment": learned_assessment.to_dict(),
+                },
+            }
+        )
+        print(json.dumps(payload, indent=2))
+        return 0
+    if args.decision_frame:
+        print(
+            "--decision-frame is only valid for a policy with full decision authority.",
+            file=sys.stderr,
+        )
+        return 2
+    if capture_decision_evidence_enabled(snapshot):
+        # ADR-006: an opted-in policy needs audit_evidence on every decision, and this command has
+        # no option to supply it yet. Say so instead of failing inside decide().
+        print(
+            "This policy has capture_decision_evidence enabled and requires audit_evidence; "
+            "pass it through the SDK (TaskPolicy.decide(audit_evidence=...)). "
+            "task-policy-decide cannot supply it.",
+            file=sys.stderr,
+        )
+        return 2
+
+    autonomy_assessment = assess_autonomy(store, snapshot)
+    recommended_index = next(
+        index
+        for index, action in enumerate(snapshot.actions)
+        if action.id == autonomy_assessment.recommended_action_id
+    )
+    audit_sampled = False
+    if autonomy_assessment.eligible:
+        learned_result = task_policy.decide(
+            selected_action_id=autonomy_assessment.recommended_action_id
+        )
+        mode = "autonomous-greedy"
+        audit_rng = rng or random.Random()
+        audit_sampled = audit_rng.random() < autonomy_assessment.audit_rate
+    elif args.greedy:
+        learned_result = task_policy.decide(
+            selected_action_id=autonomy_assessment.recommended_action_id
+        )
+        mode = "greedy"
+    else:
+        learned_result = task_policy.decide()
+        mode = "sampled"
+    selected_action = learned_result.proposed_action
+    if selected_action is None:  # pragma: no cover - TaskPolicy low contract
+        raise RuntimeError("low-authority TaskPolicy returned no proposed action")
+    selected_probability = learned_result.action_probabilities[selected_action.id]
+    logprob = learned_result.action_logprob
+    probabilities = [
+        learned_result.action_probabilities[action.id] for action in snapshot.actions
+    ]
+    feedback = _decision_feedback(store, snapshot, args.history_limit)
+    selected_stats = feedback["actions"][selected_action.id]
+    recommendation = snapshot.actions[recommended_index]
+    if not autonomy_assessment.eligible:
+        feedback_reason = "autonomy_thresholds_not_met"
+        outcome_recording = "user_feedback_or_observable_outcome"
+    elif audit_sampled:
+        feedback_reason = "drift_audit"
+        outcome_recording = "user_feedback"
+    else:
+        feedback_reason = "observable_outcome"
+        outcome_recording = "observable_outcome"
+    autonomy_payload = {
+        **autonomy_assessment.to_dict(),
+        "decision_authority": task_policy.authority.value,
+        "mode": "autonomous" if autonomy_assessment.eligible else "supervised",
+        "execute_without_confirmation": autonomy_assessment.eligible,
+        "request_user_feedback": not autonomy_assessment.eligible or audit_sampled,
+        "observable_outcome_satisfies_feedback": not audit_sampled,
+        "feedback_reason": feedback_reason,
+        "outcome_recording": outcome_recording,
+        "audit": {
+            "rate": autonomy_assessment.audit_rate,
+            "sampled": audit_sampled,
+        },
+    }
+    print(
+        json.dumps(
+            {
+                "agent_id": snapshot.agent_id,
+                "task_id": snapshot.task_id,
+                "decision_context": snapshot.metadata.get("decision_context"),
+                "decision_authority": task_policy.authority.value,
+                "policy_id": snapshot.id,
+                "policy_version": snapshot.version,
+                "selection_mode": mode,
+                "selected_action": {
+                    **selected_action.to_dict(),
+                    "probability": selected_probability,
+                    "logprob": logprob,
+                },
+                "recommended_action": {
+                    **recommendation.to_dict(),
+                    "probability": probabilities[recommended_index],
+                },
+                "action_probabilities": {
+                    action.id: probability
+                    for action, probability in zip(snapshot.actions, probabilities)
+                },
+                "selected_action_feedback": selected_stats,
+                "historical_feedback": feedback,
+                "autonomy": autonomy_payload,
+            },
+            indent=2,
+        )
+    )
+    return 0
+
+
+def _cmd_adjudicate_task_policy(args: argparse.Namespace) -> int:
+    store = get_default_store()
+    snapshot = store.get_active_policy(args.agent_id, args.task_id)
+    if not _is_decision_policy(snapshot):
+        print(
+            "Decision adjudication requires an active delegated decision policy.",
+            file=sys.stderr,
+        )
+        return 2
+    task_policy = TaskPolicy(snapshot)
+    if task_policy.authority is not DecisionAuthority.FULL:
+        print(
+            "Decision-result adjudication requires full decision authority.",
+            file=sys.stderr,
+        )
+        return 2
+    try:
+        pending = _load_decision_result(args.decision_result)
+        result = task_policy.adjudicate(pending, args.disposition)
+    except (TypeError, ValueError) as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
+    payload = result.to_dict()
+    payload["decision_authority"] = task_policy.authority.value
+    print(json.dumps(payload, indent=2))
+    return 0
+
+
+def _cmd_init_task_policy(args: argparse.Namespace) -> int:
+    store = get_default_store()
+    if store.get_active_policy(args.agent_id, args.task_id) is not None:
+        print(
+            f"An active policy already exists for agent_id={args.agent_id!r}, "
+            f"task_id={args.task_id!r}.",
+            file=sys.stderr,
+        )
+        return 2
+    try:
+        with open(args.actions, "r", encoding="utf-8") as actions_file:
+            action_payloads = json.load(actions_file)
+    except (OSError, json.JSONDecodeError) as exc:
+        print(f"Unable to read --actions file: {exc}", file=sys.stderr)
+        return 2
+    if not isinstance(action_payloads, list) or len(action_payloads) < 2:
+        print(
+            "--actions file must contain at least two delegated decision actions",
+            file=sys.stderr,
+        )
+        return 2
+    try:
+        actions = [Action.from_dict(item) for item in action_payloads]
+    except (KeyError, TypeError, ValueError) as exc:
+        print(f"Invalid action definition: {exc}", file=sys.stderr)
+        return 2
+    action_ids = [action.id for action in actions]
+    if any(not action_id.strip() for action_id in action_ids) or len(set(action_ids)) != len(
+        action_ids
+    ):
+        print("Decision action ids must be non-empty and unique", file=sys.stderr)
+        return 2
+    policy = SoftmaxPolicy.from_actions(
+        actions,
+        agent_id=args.agent_id,
+        task_id=args.task_id,
+    )
+    snapshot = policy.snapshot()
+    try:
+        complexity_profile = (
+            _load_complexity_profile(args.complexity_profile)
+            if args.complexity_profile
+            else ComplexityProfile()
+        )
+    except (TypeError, ValueError) as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
+    snapshot.metadata.update(
+        {
+            "policy_scope": _DECISION_POLICY_SCOPE,
+            "decision_context": args.decision_context,
+            "decision_authority": (
+                args.decision_authority or DecisionAuthority.LOW.value
+            ),
+            "decision_authority_source": (
+                "configured" if args.decision_authority else "default"
+            ),
+            "complexity_profile": complexity_profile.to_dict(),
+            "complexity_profile_source": (
+                "configured" if args.complexity_profile else "default"
+            ),
+        }
+    )
+    if args.capture_decision_evidence:
+        # Written only when opted in; an absent key means off, so default metadata is unchanged.
+        snapshot.metadata["capture_decision_evidence"] = True
+    store.store_policy(snapshot)
+    print(json.dumps(_policy_payload(snapshot), indent=2))
+    return 0
+
+
+def _cmd_set_task_policy_complexity(args: argparse.Namespace) -> int:
+    store = get_default_store()
+    snapshot = store.get_active_policy(args.agent_id, args.task_id)
+    if not _is_decision_policy(snapshot):
+        print(
+            "Complexity configuration requires an active delegated decision policy.",
+            file=sys.stderr,
+        )
+        return 2
+    try:
+        profile = _load_complexity_profile(args.profile)
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
+    snapshot.metadata.update(
+        {
+            "complexity_profile": profile.to_dict(),
+            "complexity_profile_source": "configured",
+            "complexity_profile_updated_at": datetime.now(timezone.utc).isoformat(),
+        }
+    )
+    store.store_policy(snapshot)
+    assessment = assess_autonomy(store, snapshot)
+    print(
+        json.dumps(
+            {
+                "current_policy": _policy_payload(snapshot),
+                "autonomy": {
+                    **assessment.to_dict(),
+                    "mode": "autonomous" if assessment.eligible else "supervised",
+                },
+            },
+            indent=2,
+        )
+    )
+    return 0
+
+
+def _cmd_set_task_policy_authority(args: argparse.Namespace) -> int:
+    store = get_default_store()
+    snapshot = store.get_active_policy(args.agent_id, args.task_id)
+    if not _is_decision_policy(snapshot):
+        print(
+            "Authority configuration requires an active delegated decision policy.",
+            file=sys.stderr,
+        )
+        return 2
+    current_authority = TaskPolicy(snapshot).authority.value
+    target_authority = args.authority.lower()
+    if current_authority != target_authority:
+        # Diagnostic snapshot of the converged distribution at the moment authority changes
+        # (ADR-004, FDD-004 design 2). Append only: earlier records are never touched.
+        probabilities = SoftmaxPolicy.from_snapshot(snapshot).probabilities()
+        migrated_at = datetime.now(timezone.utc).isoformat()
+        snapshot.metadata.setdefault("migration_records", []).append(
+            {
+                "policy_version_at_migration": snapshot.version,
+                "action_probabilities_at_migration": {
+                    action.id: probability for action, probability in zip(snapshot.actions, probabilities)
+                },
+                "from_authority": current_authority,
+                "to_authority": target_authority,
+                "migrated_at": migrated_at,
+            }
+        )
+        snapshot.metadata.update(
+            {
+                "decision_authority": target_authority,
+                "decision_authority_source": "configured",
+                "decision_authority_updated_at": migrated_at,
+            }
+        )
+        store.store_policy(snapshot)
+    print(
+        json.dumps(
+            {
+                "current_policy": _policy_payload(snapshot),
+                "decision_authority": TaskPolicy(snapshot).authority.value,
+            },
+            indent=2,
+        )
+    )
+    return 0
+
+
+def _cmd_set_task_policy_family(args: argparse.Namespace) -> int:
+    """Write ``family`` and ``role_map`` into the active snapshot's metadata (FDD-019 §3 item 6).
+
+    The snapshot keeps its id and version, as in ``task-policy-authority-set``. Nothing is written when
+    any check fails.
+    """
+    if not args.family.strip():
+        print("--family must not be empty.", file=sys.stderr)
+        return 2
+    try:
+        role_map = json.loads(args.role_map)
+    except json.JSONDecodeError as exc:
+        print(f"--role-map is not valid JSON: {exc}", file=sys.stderr)
+        return 2
+    if not isinstance(role_map, dict) or not all(
+        isinstance(action_id, str) and isinstance(role, str) and role.strip()
+        for action_id, role in role_map.items()
+    ):
+        print("--role-map must be a JSON object of action ids to non-empty role names.", file=sys.stderr)
+        return 2
+
+    store = get_default_store()
+    snapshot = store.get_active_policy(args.agent_id, args.task_id)
+    if snapshot is None:
+        print(f"No active policy for task {args.task_id!r}.", file=sys.stderr)
+        return 2
+    action_ids = {action.id for action in snapshot.actions}
+    outside = sorted(set(role_map) - action_ids)
+    if outside:
+        print(f"--role-map names actions outside the policy's actions: {outside}.", file=sys.stderr)
+        return 2
+    missing = sorted(action_ids - set(role_map))
+    if missing:
+        print(f"--role-map misses actions of the policy: {missing}.", file=sys.stderr)
+        return 2
+    if len(set(role_map.values())) != len(role_map):
+        print("--role-map sends two actions to one role; it must be a bijection onto roles.", file=sys.stderr)
+        return 2
+
+    snapshot.metadata["family"] = args.family
+    snapshot.metadata["role_map"] = role_map
+    store.store_policy(snapshot)
+    print(
+        json.dumps(
+            {"family": args.family, "role_map": role_map, "current_policy": _policy_payload(snapshot)},
+            indent=2,
+        )
+    )
+    return 0
+
+
+@dataclass
+class FamilyScan:
+    """What ``_scan_family`` found: the qualifying members, the excluded ones with reasons, the kind."""
+
+    members: list[FamilyMember]
+    excluded: list[dict[str, str]]
+    representation: str | None
+
+
+def _gate_passed(store: Any, snapshot: PolicySnapshot) -> bool:
+    """The ADR-003 gate for a member, computed with the ``standard`` tier thresholds (FDD-019 H1)."""
+    return assess_autonomy(store, snapshot, AutonomyConfig.for_tier("standard")).eligible
+
+
+def _scan_family(store: Any, agent_id: str, family: str) -> FamilyScan:
+    """Find the members of ``family`` among the agent's active policies; read only (FDD-019 §3 item 7).
+
+    A candidate declares ``family`` and is not itself a meta-prior. It is excluded, with a reason, when it
+    is full authority, has no ``role_map`` or does not meet the gate (H1, H5). Members are sorted by task
+    id. Members with ``posterior_parameters`` are read as ``(alpha, beta)`` pairs, the others as logits;
+    a mix raises ``ValueError`` naming the tasks.
+    """
+    members: list[FamilyMember] = []
+    excluded: list[dict[str, str]] = []
+    beta_tasks: list[str] = []
+    softmax_tasks: list[str] = []
+
+    for task in sorted(store.list_agent_tasks(agent_id), key=lambda item: item.id):
+        snapshot = store.get_active_policy(agent_id, task.id)
+        if snapshot is None or snapshot.metadata.get("is_family_meta_prior"):
+            continue
+        if snapshot.metadata.get("family") != family:
+            continue
+
+        role_map = snapshot.metadata.get("role_map")
+        reason: str | None = None
+        params: dict[str, Any] = {}
+        if TaskPolicy(snapshot).authority.value == "full":
+            reason = "full decision authority: there are no learned logits to pool"
+        elif not isinstance(role_map, dict) or not role_map:
+            reason = "no role_map declared"
+        else:
+            if "posterior_parameters" in snapshot.metadata:
+                # Read the posterior before the gate (FDD-019 H9): a malformed one is an exclusion with a reason.
+                try:
+                    posterior = ThompsonPolicy.from_snapshot(snapshot).posterior()
+                except ValueError as exc:
+                    reason = f"posterior_parameters unreadable: {exc}"
+                else:
+                    params = {
+                        action.id: (posterior["alpha"][action.id], posterior["beta"][action.id])
+                        for action in snapshot.actions
+                    }
+            else:
+                params = {action.id: snapshot.logits.get(action.id, 0.0) for action in snapshot.actions}
+            if reason is None and not _gate_passed(store, snapshot):
+                reason = "the ADR-003 gate is not met under the standard tier"
+
+        if reason is not None or not isinstance(role_map, dict):
+            excluded.append({"task_id": task.id, "reason": reason or "no role_map declared"})
+            continue
+        members.append(
+            FamilyMember(
+                task_id=task.id,
+                version=snapshot.version,
+                role_map=dict(role_map),
+                params=params,
+                gate_passed=True,
+            )
+        )
+        (beta_tasks if "posterior_parameters" in snapshot.metadata else softmax_tasks).append(task.id)
+
+    if beta_tasks and softmax_tasks:
+        raise ValueError(
+            f"family {family!r} mixes Beta-count members ({', '.join(beta_tasks)}) "
+            f"and logit members ({', '.join(softmax_tasks)})"
+        )
+    representation = "thompson" if beta_tasks else "softmax" if softmax_tasks else None
+    return FamilyScan(members=members, excluded=excluded, representation=representation)
+
+
+def _cmd_meta_compile_task_policy(args: argparse.Namespace) -> int:
+    """Compile a family's meta-prior and store it as an ordinary snapshot (FDD-019 §3 item 7, steps 3 and 4).
+
+    Nothing is stored when the family is refused; the reasons, with the excluded candidates, go to stderr.
+    The member snapshots are never written. The prior is the active policy of its own pseudo-task, named by
+    ``--output-prior-name``; compiling again under that name stores the next version and records
+    ``supersedes``, and the older snapshot is left as it was (H6, H8).
+    """
+    store = get_default_store()
+    existing = store.get_active_policy(args.agent_id, args.output_prior_name)
+    if existing is not None and not existing.metadata.get("is_family_meta_prior"):
+        # Checked first: a refused name needs no pooling (Q-96-1).
+        print(
+            f"--output-prior-name {args.output_prior_name!r} is the task id of an existing task policy, not a meta-prior.",
+            file=sys.stderr,
+        )
+        return 2
+    scan: FamilyScan | None = None
+    try:
+        scan = _scan_family(store, args.agent_id, args.family)
+        prior = compile_meta_prior(
+            scan.members,
+            representation=scan.representation or "softmax",
+            sigma_het=args.sigma_het,
+            kappa_prior=args.kappa_prior,
+        )
+    except ValueError as exc:
+        print(f"Cannot compile a meta-prior for family {args.family!r}: {exc}", file=sys.stderr)
+        for item in scan.excluded if scan is not None else []:
+            print(f"  excluded {item['task_id']}: {item['reason']}", file=sys.stderr)
+        return 2
+
+    if prior.representation == "softmax":
+        logits = {role: cast(float, prior.values[role]) for role in prior.roles}
+        posterior: dict[str, Any] = {}
+    else:
+        # A Beta prior's values are (alpha, beta) tuples by construction (meta_prior._pool_thompson).
+        logits = {role: 0.0 for role in prior.roles}
+        pairs = {role: cast(tuple[float, float], prior.values[role]) for role in prior.roles}
+        posterior = {
+            "posterior_parameters": {
+                "alpha": {role: pair[0] for role, pair in pairs.items()},
+                "beta": {role: pair[1] for role, pair in pairs.items()},
+            }
+        }
+
+    metadata: dict[str, Any] = {
+        "is_family_meta_prior": True,
+        "family": args.family,
+        "family_member_count": prior.member_count,
+        "compiled_from": [{"task_id": task_id, "version": version} for task_id, version in prior.compiled_from],
+        "compile_time": datetime.now(timezone.utc).isoformat(),
+        "sigma_het": prior.sigma_het,
+        "kappa_prior": prior.kappa_prior,
+        "representation": prior.representation,
+        "validation_report": {
+            "family_size": prior.member_count,
+            "excluded": scan.excluded if scan is not None else [],
+            "role_spread": dict(prior.role_spread),
+        },
+        **posterior,
+    }
+    if existing is not None:
+        metadata["supersedes"] = existing.id
+    snapshot = PolicySnapshot(
+        agent_id=args.agent_id,
+        task_id=args.output_prior_name,
+        version=existing.version + 1 if existing is not None else 0,
+        actions=[Action(id=role) for role in prior.roles],
+        logits=logits,
+        metadata=metadata,
+    )
+    store.store_policy(snapshot)
+    print(json.dumps(snapshot.to_dict(), indent=2))
+    return 0
+
+
+def _cmd_register_task_episode(args: argparse.Namespace) -> int:
+    store = get_default_store()
+    try:
+        with open(args.episode, "r", encoding="utf-8") as episode_file:
+            payload = json.load(episode_file)
+    except (OSError, json.JSONDecodeError) as exc:
+        print(f"Unable to read --episode file: {exc}", file=sys.stderr)
+        return 2
+    if not isinstance(payload, dict):
+        print("--episode file must contain a JSON object", file=sys.stderr)
+        return 2
+
+    payload = dict(payload)
+    for field, expected in (("agent_id", args.agent_id), ("task_id", args.task_id)):
+        actual = payload.get(field)
+        if actual is not None and actual != expected:
+            print(
+                f"Episode {field}={actual!r} does not match --{field.replace('_', '-')}={expected!r}.",
+                file=sys.stderr,
+            )
+            return 2
+        payload[field] = expected
+    payload.setdefault("id", str(uuid.uuid4()))
+
+    try:
+        episode = Episode.from_dict(payload)
+    except (KeyError, TypeError, ValueError) as exc:
+        print(f"Invalid episode definition: {exc}", file=sys.stderr)
+        return 2
+
+    if args.decision_result:
+        try:
+            decision_result = _load_decision_result(args.decision_result)
+        except (TypeError, ValueError) as exc:
+            print(str(exc), file=sys.stderr)
+            return 2
+        if decision_result.audit_evidence is not None:
+            evidence = copy.deepcopy(dict(decision_result.audit_evidence))
+            current = episode.metadata.get("audit_evidence")
+            if current is not None and current != evidence:
+                print("Episode metadata.audit_evidence differs from the decision result; it is write-once.", file=sys.stderr)
+                return 2
+            episode.metadata["audit_evidence"] = evidence
+    stored_episode = store.get_episode(episode.id, args.agent_id)
+    if stored_episode is not None and "audit_evidence" in stored_episode.metadata:
+        stored_evidence = stored_episode.metadata["audit_evidence"]
+        if "audit_evidence" in episode.metadata and episode.metadata["audit_evidence"] != stored_evidence:
+            print("Episode metadata.audit_evidence differs from the stored episode; it is write-once.", file=sys.stderr)
+            return 2
+        episode.metadata["audit_evidence"] = stored_evidence
+
+    if args.require_decision_policy:
+        policy = store.get_policy(episode.policy_id or "", args.agent_id)
+        if not _is_decision_policy(policy) or policy.task_id != args.task_id:
+            print(
+                "Episode registration requires a delegated decision policy and its policy_id.",
+                file=sys.stderr,
+            )
+            return 2
+        action_ids = {action.id for action in policy.actions}
+        if episode.action_id not in action_ids:
+            print("Episode action_id is not in the delegated decision policy.", file=sys.stderr)
+            return 2
+        correct_action_id = episode.metadata.get("correct_action_id")
+        if correct_action_id is not None and correct_action_id not in action_ids:
+            print(
+                "Episode metadata.correct_action_id is not in the delegated decision policy.",
+                file=sys.stderr,
+            )
+            return 2
+        feedback_status = str(
+            episode.metadata.get("feedback_status") or ""
+        ).strip().lower()
+        if (
+            feedback_status == "accepted"
+            and correct_action_id is not None
+            and correct_action_id != episode.action_id
+        ):
+            print(
+                "Accepted feedback requires metadata.correct_action_id to match action_id.",
+                file=sys.stderr,
+            )
+            return 2
+        if feedback_status in {"accepted", "rejected"} and not episode.is_full:
+            print(
+                "Accepted or rejected feedback requires a completed episode.",
+                file=sys.stderr,
+            )
+            return 2
+
+    existing = store.get_episode(episode.id, args.agent_id)
+    if existing is not None and not existing.is_full and episode.is_full:
+        episode.metadata.setdefault("decision_created_at", existing.created_at)
+        episode.created_at = datetime.now(timezone.utc).isoformat()
+
+    store.store_episode(episode)
+    if args.require_decision_policy and feedback_status in {"accepted", "rejected"}:
+        active_policy = store.get_active_policy(args.agent_id, args.task_id)
+        if active_policy is not None:
+            active_policy.metadata["explicit_user_feedback"] = {
+                "status": feedback_status,
+                "action_id": episode.action_id,
+                "correct_action_id": episode.metadata.get("correct_action_id"),
+                "episode_id": episode.id,
+                "recorded_at": episode.created_at,
+            }
+            store.store_policy(active_policy)
+    print(json.dumps(episode.to_dict(), indent=2))
+    return 0
+
+
+def _cmd_compare_task_policy(args: argparse.Namespace) -> int:
+    if not args.sequence or len(args.sequence) < 2:
+        print("At least two decision result files are required for comparison.", file=sys.stderr)
+        return 2
+
+    results: list[DecisionResult] = []
+    for path in args.sequence:
+        try:
+            results.append(_load_decision_result(path))
+        except (TypeError, ValueError) as exc:
+            print(str(exc), file=sys.stderr)
+            return 2
+
+    sequence_result = compare_decision_sequence(
+        results,
+        epsilon=args.epsilon,
+        retry_cap=args.retry_cap,
+    )
+
+    for i, comp in enumerate(sequence_result.comparisons):
+        src_path = args.sequence[i]
+        dst_path = args.sequence[i + 1]
+        print(f"=== Comparison: {src_path} -> {dst_path} ===")
+        print(f"Policy: {comp.before_policy_id} (v{comp.before_version}) -> {comp.after_policy_id} (v{comp.after_version})")
+        print(f"Classification: {comp.classification.value.upper()} ({comp.classification_reason})")
+        print(f"Leader: {comp.leader_before} -> {comp.leader_after} (changed: {comp.leader_changed}, feasible: {comp.leader_feasible})")
+        print(f"Margin: {comp.margin_before:.5f} -> {comp.margin_after:.5f} (delta: {comp.margin_delta:+.5f})")
+        print(f"Leader Robust Utility Delta: {comp.leader_robust_utility_delta:+.5f}")
+        print("\nPer-Action Deltas:")
+        for action_id, delta in comp.action_deltas.items():
+            print(
+                f"  - {action_id}: "
+                f"robust_utility: {delta.robust_utility_delta:+.5f}, "
+                f"expected_utility: {delta.expected_utility_delta:+.5f}, "
+                f"uncertainty: {delta.uncertainty_delta:+.5f}"
+            )
+
+        if comp.classification == ClassificationType.REGRESSION:
+            print("\nRegression Attribution (Negative Criteria Movements):")
+            if comp.attribution:
+                for attr in comp.attribution:
+                    print(
+                        f"  - {attr['criterion_id']}: "
+                        f"{attr['before_support']:.4f} -> {attr['after_support']:.4f} "
+                        f"({attr['support_delta']:+.4f})"
+                    )
+            else:
+                print("  (No individual negative criteria movements found for the leader)")
+
+    if sequence_result.consecutive_regression_count > 0:
+        print(f"\nConsecutive Regressions: {sequence_result.consecutive_regression_count} / {args.retry_cap}")
+
+    if sequence_result.escalation_required:
+        print("ESCALATE: human review required (consecutive regressions reached retry cap)")
+
+    return 0
+
+
+def _latest_meta_prior(store: Any, agent_id: str, name: str) -> PolicySnapshot:
+    """The prior ``task-policy-warm-start --meta-prior`` seeds from (FDD-020 §2.1 item 3, J5).
+
+    The highest-version stored snapshot of ``name`` that is a meta-prior. It is refused when another stored
+    snapshot of the name names it in ``supersedes``, because it was then replaced out of order, and when it
+    is not in softmax logits (Thompson policies are not covered). Raises ``ValueError`` naming the cause.
+    """
+    snapshots = store.list_policies(agent_id, name, limit=1000)
+    if not snapshots:
+        raise ValueError(f"meta-prior {name!r} not found for agent {agent_id!r}")
+    latest = max(snapshots, key=lambda snapshot: snapshot.version)
+    if not latest.metadata.get("is_family_meta_prior"):
+        raise ValueError(f"task {name!r} is not a meta-prior")
+    if any(other.metadata.get("supersedes") == latest.id for other in snapshots):
+        raise ValueError(f"meta-prior {name!r} version {latest.version} is superseded")
+    if latest.metadata.get("representation", "softmax") != "softmax" or "posterior_parameters" in latest.metadata:
+        raise ValueError(f"meta-prior {name!r} is in Beta counts; only softmax priors can seed a warm start")
+    return latest
+
+
+def _prior_from_snapshot(snapshot: PolicySnapshot) -> MetaPrior:
+    """Read a stored softmax meta-prior back into a ``MetaPrior`` (the inverse of ``task-policy-meta-compile``)."""
+    roles = tuple(sorted(action.id for action in snapshot.actions))
+    for role in roles:
+        if role not in snapshot.logits:
+            # A made-up zero would seed a policy from a corrupt prior, so refuse it by name.
+            raise ValueError(f"meta-prior {snapshot.task_id!r} has no logit for role {role!r}")
+    report = snapshot.metadata.get("validation_report", {})
+    return MetaPrior(
+        representation="softmax",
+        roles=roles,
+        values={role: snapshot.logits[role] for role in roles},
+        member_count=int(snapshot.metadata.get("family_member_count", 0)),
+        role_spread=dict(report.get("role_spread", {})),
+        sigma_het=float(snapshot.metadata.get("sigma_het", 0.0)),
+        kappa_prior=None,
+        compiled_from=tuple((item["task_id"], item["version"]) for item in snapshot.metadata.get("compiled_from", [])),
+    )
+
+
+def _warm_start_from_meta_prior(store: Any, args: argparse.Namespace, target: PolicySnapshot) -> int:
+    """The ``--meta-prior`` branch of ``task-policy-warm-start`` (Story 20.5). Writes only on success."""
+    try:
+        prior_snapshot = _latest_meta_prior(store, args.agent_id, args.meta_prior)
+    except ValueError as exc:
+        print(f"Cannot warm start from meta-prior {args.meta_prior!r}: {exc}.", file=sys.stderr)
+        return 2
+
+    target_family = target.metadata.get("family")
+    role_map = target.metadata.get("role_map")
+    if not target_family or target_family != prior_snapshot.metadata.get("family"):
+        print(
+            f"Target family {target_family!r} does not match the meta-prior's family "
+            f"{prior_snapshot.metadata.get('family')!r}.",
+            file=sys.stderr,
+        )
+        return 2
+    if not isinstance(role_map, dict) or not role_map:
+        print("Target policy declares no role_map; declare one with task-policy-family-set.", file=sys.stderr)
+        return 2
+
+    damping = args.damping if args.damping is not None else DAMPING_DEFAULT_META_PRIOR
+    action_ids = [action.id for action in target.actions]
+    try:
+        seeds = seed_values(_prior_from_snapshot(prior_snapshot), role_map, action_ids)
+        new_logits = {action_id: float(cast(float, seeds[action_id])) * damping for action_id in action_ids}
+        prov = provenance(
+            prior_snapshot,
+            damping,
+            datetime.now(timezone.utc).isoformat(),
+            action_map=role_map,
+            kind="meta_prior",
+            gate_met=None,
+        )
+    except (ValueError, TypeError) as exc:
+        print(f"Failed to seed from meta-prior {args.meta_prior!r}: {exc}", file=sys.stderr)
+        return 2
+
+    target_copy = PolicySnapshot.from_dict(target.to_dict())
+    target_copy.logits = new_logits
+    target_copy.episodes_seen = 0
+    target_copy.updates_applied = 0
+    target_copy.baseline = 0.0
+    target_copy.metadata.update(prov)
+    target_copy.advance_version()
+    store.store_policy(target_copy)
+
+    print(json.dumps(_policy_payload(target_copy), indent=2))
+    return 0
+
+
+def _cmd_warm_start_task_policy(args: argparse.Namespace) -> int:
+    has_donor = bool(args.donor_task_id)
+    has_meta = bool(args.meta_prior)
+    if (has_donor and has_meta) or (not has_donor and not has_meta):
+        print(
+            "Exactly one of --donor-task-id or --meta-prior must be provided.",
+            file=sys.stderr,
+        )
+        return 2
+
+    if has_meta and args.action_map is not None:
+        print("--action-map cannot be used with --meta-prior.", file=sys.stderr)
+        return 2
+
+    store = get_default_store()
+
+    target = store.get_active_policy(args.agent_id, args.target_task_id)
+    if target is None:
+        print(f"Target task {args.target_task_id!r} not found for agent {args.agent_id!r}.", file=sys.stderr)
+        return 2
+
+    if not _is_decision_policy(target):
+        policy_scope = target.metadata.get("policy_scope")
+        print(
+            f"Target policy must be a delegated decision policy, got policy_scope: {policy_scope!r}.",
+            file=sys.stderr,
+        )
+        return 2
+
+    target_authority = target.metadata.get("decision_authority", DecisionAuthority.LOW.value)
+    if target_authority == DecisionAuthority.FULL.value:
+        print(
+            "Target policy has full decision authority; warm-starting requires low authority.",
+            file=sys.stderr,
+        )
+        return 2
+
+    if target.updates_applied > 0:
+        print(
+            f"Target policy is not cold: updates_applied is {target.updates_applied} (expected 0).",
+            file=sys.stderr,
+        )
+        return 2
+
+    if target.episodes_seen > 0:
+        print(
+            f"Target policy is not cold: episodes_seen is {target.episodes_seen} (expected 0).",
+            file=sys.stderr,
+        )
+        return 2
+
+    if any(logit != 0.0 for logit in target.logits.values()):
+        print(
+            f"Target policy is not cold: non-zero logits present {target.logits}.",
+            file=sys.stderr,
+        )
+        return 2
+
+    if "warm_start_donor_policy_id" in target.metadata:
+        print(
+            f"Target policy is not cold: warm_start_donor_policy_id is already present ({target.metadata['warm_start_donor_policy_id']!r}).",
+            file=sys.stderr,
+        )
+        return 2
+
+    if has_donor:
+        donor_task_id = args.donor_task_id
+
+        if donor_task_id == args.target_task_id:
+            print(
+                f"Donor task cannot be the same as target task ({donor_task_id!r}).",
+                file=sys.stderr,
+            )
+            return 2
+
+        donor = store.get_active_policy(args.agent_id, donor_task_id)
+        if donor is None:
+            print(
+                f"Donor task {donor_task_id!r} not found for agent {args.agent_id!r}.",
+                file=sys.stderr,
+            )
+            return 2
+
+        donor_authority = donor.metadata.get("decision_authority", DecisionAuthority.LOW.value)
+        if donor_authority == DecisionAuthority.FULL.value:
+            print(
+                "Donor policy has full decision authority; warm-starting requires low authority.",
+                file=sys.stderr,
+            )
+            return 2
+
+        if not donor.logits:
+            print(
+                f"Donor policy {donor_task_id!r} has no logits.",
+                file=sys.stderr,
+            )
+            return 2
+
+        target_action_ids = [action.id for action in target.actions]
+        donor_action_ids = [action.id for action in donor.actions]
+
+        if args.action_map is None:
+            if set(target_action_ids) == set(donor_action_ids):
+                action_map = {act: act for act in target_action_ids}
+            else:
+                print(
+                    f"Action map omitted but target action IDs {sorted(target_action_ids)} "
+                    f"differ from donor action IDs {sorted(donor_action_ids)}.",
+                    file=sys.stderr,
+                )
+                return 2
+        else:
+            raw_map = args.action_map.strip()
+            path_candidate = Path(raw_map)
+            if path_candidate.is_file():
+                try:
+                    with open(path_candidate, "r", encoding="utf-8") as f:
+                        action_map = json.load(f)
+                except Exception as exc:
+                    print(f"Failed to read --action-map file: {exc}", file=sys.stderr)
+                    return 2
+            else:
+                try:
+                    action_map = json.loads(raw_map)
+                except Exception as exc:
+                    print(f"Failed to parse --action-map: {exc}", file=sys.stderr)
+                    return 2
+
+            if not isinstance(action_map, dict):
+                print(
+                    "--action-map must be a JSON object mapping target action IDs to donor action IDs.",
+                    file=sys.stderr,
+                )
+                return 2
+
+        damping = args.damping if args.damping is not None else DAMPING_DEFAULT
+
+        try:
+            new_logits = warm_start_logits(
+                donor.logits,
+                action_map,
+                target_action_ids,
+                damping=damping,
+            )
+        except (ValueError, TypeError) as exc:
+            print(f"Failed to compute warm start logits: {exc}", file=sys.stderr)
+            return 2
+
+        try:
+            donor_assessment = assess_autonomy(
+                store,
+                donor,
+                config=AutonomyConfig.for_tier("standard"),
+            )
+            gate_met = bool(donor_assessment.eligible)
+        except Exception as exc:
+            logger.warning("Failed to evaluate donor autonomy gate: %s", exc)
+            gate_met = False
+
+        now_iso = datetime.now(timezone.utc).isoformat()
+
+        try:
+            prov = provenance(
+                donor,
+                damping,
+                now_iso,
+                action_map=action_map,
+                kind="policy",
+                gate_met=gate_met,
+            )
+        except (ValueError, TypeError) as exc:
+            print(f"Failed to generate provenance: {exc}", file=sys.stderr)
+            return 2
+
+        target_copy = PolicySnapshot.from_dict(target.to_dict())
+        target_copy.logits = new_logits
+        target_copy.episodes_seen = 0
+        target_copy.updates_applied = 0
+        target_copy.baseline = 0.0
+        target_copy.metadata.update(prov)
+        target_copy.advance_version()
+        store.store_policy(target_copy)
+
+        print(json.dumps(_policy_payload(target_copy), indent=2))
+        return 0
+
+    return _warm_start_from_meta_prior(store, args, target)
+
+
+def main(argv: list[str] | None = None) -> int:
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s - %(message)s")
+    parser = _build_arg_parser()
+    args = parser.parse_args(argv)
+    if args.command is None:
+        parser.print_help()
+        return 0
+    dispatch = {
+        "list": _cmd_agents_list,
+        "tasks-list": _cmd_agent_tasks_list,
+        "task-episodes-count": _cmd_agents_episodes_count,
+        "task-episodes-list": _cmd_agents_episodes_list,
+        "train": _cmd_train,
+        "score": _cmd_score,
+        "task-policy": _cmd_show_task_policy,
+        "task-policy-decide": _cmd_decide_task_policy,
+        "task-policy-adjudicate": _cmd_adjudicate_task_policy,
+        "task-policy-init": _cmd_init_task_policy,
+        "task-policy-authority-set": _cmd_set_task_policy_authority,
+        "task-policy-family-set": _cmd_set_task_policy_family,
+        "task-policy-meta-compile": _cmd_meta_compile_task_policy,
+        "task-policy-complexity-set": _cmd_set_task_policy_complexity,
+        "task-episode-register": _cmd_register_task_episode,
+        "task-policy-compare": _cmd_compare_task_policy,
+        "task-policy-warm-start": _cmd_warm_start_task_policy,
+    }
+    handler = dispatch[args.command]
+    return handler(args)
+
+
+if __name__ == "__main__":  # pragma: no cover
+    sys.exit(main())

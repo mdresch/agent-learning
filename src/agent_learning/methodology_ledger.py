@@ -16,7 +16,7 @@ import re
 from collections.abc import Collection
 from dataclasses import dataclass
 
-from .config import AutonomyConfig
+from agent_learning_ext.config import AutonomyConfig
 
 __all__ = [
     "LedgerEntry",

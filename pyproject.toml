@@ -61,6 +61,7 @@ spark = [
 
 [project.scripts]
 agent-learn = "agent_learning.cli:main"
+agent-learn-ext = "agent_learning_ext.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/microsoft/agent-learning"

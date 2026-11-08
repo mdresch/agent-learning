@@ -28,7 +28,7 @@ from pathlib import Path
 
 import pytest
 
-from agent_learning.config import AutonomyConfig
+from agent_learning_ext.config import AutonomyConfig
 from agent_learning.methodology_ledger import LedgerEntry, current_entries, parse_ledger
 
 ROOT = Path(__file__).resolve().parent.parent

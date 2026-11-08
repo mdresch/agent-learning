@@ -11,7 +11,7 @@ NOT EVIDENCE: this run does not validate or invalidate the methodology. The diff
 
 from __future__ import annotations
 
-from agent_learning.decision import (
+from agent_learning_ext.decision import (
     DecisionAuthority,
     DecisionCriterion,
     DecisionFrame,

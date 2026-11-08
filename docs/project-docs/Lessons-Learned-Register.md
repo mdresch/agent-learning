@@ -58,6 +58,7 @@
 | [LL-045](#ll-045--pre-flight-specification-gaps-in-replay-engines-auditing-empty-collection-and-none-safety-contracts) | Pre-Flight Specification Gaps in Replay Engines: Auditing Empty-Collection and None-Safety Contracts | Epic 14 / Story 14.5 | Universal Design & Testing | 2026-11-08 |
 | [LL-046](#ll-046--continuous-domain-widening-in-statistical-bounds-must-be-guarded-against-classical-integer-reversion) | Continuous-Domain Widening in Statistical Bounds Must Be Guarded Against Classical Integer Reversion | Epic 16 / Stories 16.1–16.6 | Universal Design & Testing | 2026-11-08 |
 | [LL-047](#ll-047--enforce-explicit-numerical-tolerances-and-non-tautological-contract-assertions) | Enforce Explicit Numerical Tolerances and Non-Tautological Contract Assertions | Epic 18 / Stories 18.1–18.6 | Universal Testing & ML | 2026-11-08 |
+| [LL-048](#ll-048--dual-invocation-compatibility-patterns-and-action-space-safety-mask-lock-in) | Dual Invocation Compatibility Patterns and Action Space Safety Mask Lock-In | Epic 17 / Stories 17.1–17.6 | Universal Design & RL Prototyping | 2026-11-08 |
 
 ---
 
@@ -682,6 +683,23 @@
   1. For tight mathematical contracts, always enforce absolute tolerances explicitly (`abs(a - b) <= 1e-12` and `math.isclose(a, b, rel_tol=0.0, abs_tol=1e-12)`).
   2. Anchor all boundary and contract assertions directly to runtime outputs (`result.episodes_used`, `result.extra['pairs']`, `policy.snapshot().logits`) and verified docstrings.
 - **Verification Gate:** Pre-flight spec gates and automated PR gatekeeper reviews check for explicit numerical tolerances and verify that contract assertions target runtime state objects.
+
+---
+
+### LL-048 — Dual Invocation Compatibility Patterns and Action Space Safety Mask Lock-In
+- **Identifier:** `LL-048`
+- **Date:** 2026-11-08
+- **Epic / Story:** Epic 17 / Stories 17.1–17.6 (commits `7928803`, `363a2d6`, `8d39db8`, `1076509`, `ce118aa`, `9c10ec5`)
+- **Scope:** Universal Design & RL Prototyping / Policy Extension Frameworks
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/implement-story/SKILL.md` & `src/agent_learning_ext/policy/`; Tier 3: `sidpa-template` (proposed, needs human approval before cross-repo change)
+- **The Trap:** In implementing RL exploration policies that inherit from abstract upstream base classes (`Policy`), two distinct architectural traps emerge:
+  1. *Dual-Invocation Calling Conventions:* Upstream test runners (`LearningRunner`) invoke `policy.snapshot()` and `policy.actions()` as methods per abstract base class definitions, whereas user stories, interactive scripts, and modern test suites frequently inspect them as properties (`policy.snapshot.metadata`, `policy.actions`). Standard `@property` decorators cause downstream method invocations to fail with `TypeError: 'list' object is not callable` or `'PolicySnapshot' object is not callable`, while raw methods cause property reads to yield uninspected function handles.
+  2. *Safety Mask Exploitation Lock-In:* When exploration is gated by a strict safety mask (exploring only actions declared `reversible: true`), unflagged action definitions force the exploration rate to 0.0 for all $t$. In positive-only replay histories ($r = 1.0$), the policy permanently locks onto the first taken action because unpulled actions remain at neutral mean 0.5. Unless tests explicitly assert and document this lock-in as the *stated price of the safety mask* (BRU-017-03), reviewers and auditors unfamiliar with the domain may misclassify deliberate safety suppression as exploration starvation or a dead-lock bug.
+- **The Root Cause:** Architectural tension between abstract callable signatures and property-access ergonomics, combined with undocumented behavioral consequences of safety constraints on real-world datasets.
+- **Actionable Invariant:**
+  1. Implement transparent dual-invocation wrappers (`CallableSnapshot` and `CallableActionList`) that provide both callable execution (`obj()`) and attribute delegation (`obj.attr` / list iteration), guarding `__getattr__` against infinite recursion on internal attributes (`_target`).
+  2. Always explicitly document and test safety mask boundaries: when $A_{\text{safe}} = \emptyset$, assert that $\epsilon_t = 0.0$ across all $t$, that every decision is exploitation, and that lock-in onto positive-reward actions is expected, desired behavior under human safety governance.
+- **Verification Gate:** Pre-flight spec gates audit action property signatures and verify that test docstrings explicitly document safety mask lock-in tradeoffs.
 
 
 

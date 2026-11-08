@@ -162,6 +162,13 @@ class CallableSnapshot:
         return self._target.to_dict()
 
 
+class CallableActionList(list):
+    """List of Actions supporting both method invocation policy.actions() and property policy.actions."""
+
+    def __call__(self) -> CallableActionList:
+        return self
+
+
 class EpsilonGreedyPolicy(Policy):
     """Scheduled Epsilon-Greedy policy baseline with safety mask (ADR-017, FDD-017)."""
 
@@ -193,9 +200,9 @@ class EpsilonGreedyPolicy(Policy):
         return CallableSnapshot(self._snapshot)
 
     @property
-    def actions(self) -> Sequence[Action]:
+    def actions(self) -> CallableActionList:
         """Sequence of actions available in the policy snapshot."""
-        return self._snapshot.actions
+        return CallableActionList(self._snapshot.actions)
 
     @property
     def safe_subset(self) -> set[str]:

@@ -59,6 +59,9 @@ An entry records only what the epic's work actually surfaced. Do not seed this r
 | IMP-024 | Epic 18 | Strict Floating-Point Zero-Rel-Tol Auditor in Spec Gate | Developer experience / Testability | Enhance `scripts/spec_gate.py` to identify floating-point assertions that specify `abs_tol` without explicit `rel_tol=0.0` or direct absolute difference checks, warning when default `rel_tol=1e-9` could silently relax tight contracts ($10^{-12}$). | Guarantees test contracts enforce exact mathematical invariance without silent tolerance relaxation. | In-Flight Candidate |
 | IMP-025 | Epic 18 | Automated Preference Pair Adapter from Curated Triage Dataset | ML Pipeline / Ingestion | Wire `tests/fixtures/critique_evidence/triage_replay_dataset.json` (139 human triage decisions) into a preference pair loader feeding `PairwiseLearner` directly via `TrainingRunner`. | Provides empirical human code review preferences to calibrate discrete governance decision policies offline. | In-Flight Candidate |
 | IMP-026 | Epic 18 | Synthetic Red Team Pair Set for Discrete Policy Robustness | Product opportunity / Governance | Implement the unbuilt Red Team pair set (BRU-018-12) derived from the 3 adversarial and 6 diff governance fixtures to stress-test `PairwiseLearner` under adversarial preference overrides. | Empirically stress-tests policy divergence bounds under targeted adversarial perturbation. | Rolled into Phase Next Intent Refinement |
+| IMP-027 | Epic 17 | Dual-Access Invocation Pattern (Callable Property Wrapper) for Extension Policies | Architectural simplification / Developer experience | Standardize `CallableSnapshot` and `CallableActionList` into a shared utility (`agent_learning_ext.policy.base_compat`) so that any custom policy implementing upstream `Policy` abstract methods can be seamlessly accessed as both methods (`policy.snapshot()`, `policy.actions()`) and attributes (`policy.snapshot.metadata`, `policy.actions`). | Eliminates calling convention mismatches between upstream runner harnesses and modern test assertions across all future extension policies. | In-Flight Candidate |
+| IMP-028 | Epic 17 | Automated Action Space Reversibility Linter and Declarative Registry | Developer experience / Governance | Build an automated linter and CLI command (`task-policy-lint-reversibility`) that scans `docs/policy-shapes/*.actions.json`, validates strict boolean typing of `"parameters": {"reversible": bool}`, and flags unflagged action definitions where human maintenance could safely enable bounded exploratory probing. | Gives maintainers an explicit inventory of candidate reversible actions, allowing scheduled exploration to be deliberately unblocked without risking destructive actions. | In-Flight Candidate |
+| IMP-029 | Epic 17 | Multi-Policy Offline Benchmarking Harness with Synthetic Failure Injection | Product opportunity / Research | Implement the out-of-scope benchmark comparing REINFORCE, UCB, Thompson sampling, and Scheduled Epsilon-Greedy on simulated task environments with known failure modes and controlled non-positive rewards, evaluating regret, convergence speed, and safety violation rates. | Empirically proves or disproves HYP-AL-009 on heterogeneous reward landscapes rather than purely positive-only history. | Rolled into Phase Next Intent Refinement |
 
 ---
 
@@ -114,6 +117,13 @@ One entry per epic recap, appended in the order held. Format:
 - **Cadence Date:** 2026-11-08
 - **Defensive Review (LL-###):** LL-047 (Enforce Explicit Numerical Tolerances and Non-Tautological Contract Assertions)
 - **Positive Improvement Harvest:** IMP-024, IMP-025, IMP-026
+
+---
+
+### Epic 17: Scheduled Epsilon-Greedy Policy Baseline
+- **Cadence Date:** 2026-11-08
+- **Defensive Review (LL-###):** LL-048 (Dual Invocation Compatibility Patterns and Action Space Safety Mask Lock-In)
+- **Positive Improvement Harvest:** IMP-027, IMP-028, IMP-029
 
 ---
 

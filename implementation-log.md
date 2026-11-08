@@ -2618,8 +2618,34 @@ This log records completed user stories in accordance with the SIDPA `implement-
 
 ---
 
+## Story 17.6 — The Positive-Only Baseline Run
+- **Commit:** `68b1ec3`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-17.6`
+- **Source ADR / BRD / FDD:** ADR-017 (§4.3), BRD-017 (BRU-017-03, BRU-017-13), FDD-017 (§3.8)
+- **Pre-Flight Spec Gate:** Proceed utility 0.7154, margin +0.1941 (>= +0.05), episode `spec-17_6-f6d0db0f`.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/policy/epsilon_greedy.py` (`CallableActionList` supporting both property and method access on `policy.actions`)
+  - `tests/test_epsilon_positive_only.py` (contract tests for $AC_0$ through $AC_3$, interpretations $I_1$ to $I_3$)
+  - `docs/user-stories/epic-17-scheduled-epsilon-greedy-policy.md` (Story 17.6 marked Completed)
+- **Contracts:**
+  - `tests/test_epsilon_positive_only.py`
+  - Contract run: 5 passed in 1.48s
+  - Cumulative suite: 60 passed across Epic 17 (`test_epsilon_schedule.py`, `test_epsilon_safety_mask.py`, `test_epsilon_policy.py`, `test_epsilon_learner.py`, `test_epsilon_reinforce_guard.py`, `test_epsilon_positive_only.py`)
+- **Notes:**
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Zero changes in `src/agent_learning/`. All logic isolated under `src/agent_learning_ext/`.
+    - $I_2$: Storage Decoupling & Serialization: Snapshots survive JSON round-tripping without storage dependencies.
+    - $I_3$: Empty Collection Base Case: Verified clean handling on empty collections.
+  - $AC_0$: History is the real `approve-*` episodes of `agent-learning-governance` loaded from `docs/policy-shapes/episodes/` (177 episodes across 12 governance tasks); all replayed as $r = 1.0$ through `EpsilonGreedyLearner` and `EpsilonGreedyPolicy`; count and file names recorded via `record_property`.
+  - $AC_1$: With existing governance action definitions lacking `reversible` flag, safe subset is strictly empty and exploration rate applied evaluates to 0.0 across all tasks; every decision is exploitation; policy locks onto the taken action with mean reward 1.0; untaken actions remain at neutral mean 0.5 and are never chosen. Documented as the stated price of the safety mask (BRU-017-03).
+  - $AC_2$: Replay run twice yields identical statistics, deterministic decisions, and identical decision records; snapshots serialize cleanly to JSON and round-trip without loss.
+  - $AC_3$: Explicitly labelled as a baseline run on real positive-only history without claims of superiority over REINFORCE, UCB, or Thompson sampling (BRU-017-13); missing data (low-authority policy with failures, declared `reversible` flags) documented in test module docstring.
+
+---
+
 ## Story 21.2 — The Route
-- **Commit:** `adbf9ad`
+- **Commit:** `a34ad95`
 - **Date:** 2026-11-08
 - **Branch:** `feat/story-21.2`
 - **Source ADR / BRD / FDD:** ADR-021 (§4.1), BRD-021, FDD-021 (§1, §2, §3)
@@ -2655,4 +2681,3 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-136-8 | logic error | verified: yes | decision: accepted | Move previous route normalization into deadband branch to preserve fail-safe escalation for invalid previous values | fix: e183c21`
   - `Q-136-9 | crash risk | verified: yes | decision: accepted | Return RouteDecision with reason="anomaly" on invalid previous string/type instead of raising ValueError | fix: 2005086`
   - `Q-136-10 | logic error | verified: yes | decision: accepted | Retain computed entropy_bits and margin in RouteDecision when cfg=None anomaly occurs | fix: 2005086`
-

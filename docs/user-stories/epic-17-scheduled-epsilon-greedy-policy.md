@@ -58,7 +58,7 @@ Fixture used by the criteria below ("the base policy"): three actions `a`, `b` a
 
 ## Story 17.4 — Statistics and the Learner
 
-**Status:** Ready  
+**Status:** Completed (2026-11-08, commit 497c4f9)  
 **As** a maintainer, **I want** the means and counts kept in the policy snapshot in the record the UCB policy also uses, **so that** no new record type is needed and the two cannot drift apart.
 
 ### Acceptance Criteria:

@@ -2443,11 +2443,68 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-128-4 | crash risk | verified: yes | decision: accepted | Add pre-check in _load_real_governance_episodes raising FileNotFoundError if EPISODES_DIR does not exist | fix: 818a6d0`
   Amazon Q confirmed all findings resolved; CI checks (build-installer, test) passed green.
 
+---
+
+## Story 17.1 — The Schedule
+- **Commit:** `8cced01`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-17.1`
+- **Source ADR / BRD / FDD:** ADR-017 (§4.1), BRD-017 (BRU-017-01), FDD-017 (§3.1, §5)
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/policy/epsilon_greedy.py` (`epsilon_at`, `SELECTION_BASIS`, `NEUTRAL_MEAN`)
+  - `src/agent_learning_ext/policy/__init__.py` (re-export `epsilon_at`)
+  - `src/agent_learning_ext/__init__.py` (lazy export `epsilon_at`)
+  - `tests/test_epsilon_schedule.py` (contract tests for $AC_0$ through $AC_3$, interpretations $I_1$ to $I_3$)
+  - `docs/user-stories/epic-17-scheduled-epsilon-greedy-policy.md` (Story 17.1 marked Completed)
+- **Contracts:**
+  - `tests/test_epsilon_schedule.py`
+  - Contract run: 16 passed in 1.14s
+  - Cumulative suite: 16 passed across Epic 17
+- **Notes:**
+  - Pre-flight specification gate (`scripts/spec_gate.py 17.1`) evaluated: passed with robust utility 0.7154 and margin +0.1941 (episode `spec-17_1-d983df68`).
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Zero changes to `src/agent_learning/`. All exploration policy logic isolated in `src/agent_learning_ext/policy/epsilon_greedy.py`.
+    - $I_2$: Storage Decoupling & Serialization: Pure mathematical exploration schedule calculation without storage coupling or I/O.
+    - $I_3$: Empty Collection Base Case: Verified against boundary conditions.
+  - $AC_0$: `epsilon_at(t, 0.5, 0.05, 0.05)` gives 0.5 for $t=0$, 0.25 for $t=20$, 0.05 for $t=180$, and 0.05 for $t=1000$ (within $10^{-12}$), recomputed directly from closed form $\max(\text{floor}, \epsilon_0 / (1 + \delta \cdot t))$.
+  - $AC_1$: Over $t \in [0, 5000]$, the rate is strictly non-increasing ($\epsilon(t) \ge \epsilon(t+1)$) and never drops below $\text{floor}$.
+  - $AC_2$: With $\text{floor} = \epsilon_0$, rate is constant at $\epsilon_0$; with $\delta = 0$, rate is $\epsilon_0$ for every $t$.
+  - $AC_3$: Explicit `ValueError` naming the offending argument for $\delta < 0$, $\epsilon_0 < \text{floor}$, values outside $[0, 1]$, $t < 0$, booleans, and non-finite arguments (`nan`, `inf`).
+
+
+---
+
+## Story 17.2 — The Safety Mask
+- **Commit:** `b4ef91c`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-17.2`
+- **Source ADR / BRD / FDD:** ADR-017 (§4.1, §4.3), BRD-017 (BRU-017-02, BRU-017-03, BRU-017-04), FDD-017 (§2.1, §3.2, §3.3, §5)
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/policy/epsilon_greedy.py` (`EpsilonGreedyPolicy`, `safe_subset`, `safe_actions`, `exploration_rate_applied`, `_validate_reversible`)
+  - `src/agent_learning_ext/policy/__init__.py` (re-export `EpsilonGreedyPolicy`)
+  - `src/agent_learning_ext/__init__.py` (lazy export `EpsilonGreedyPolicy`)
+  - `tests/test_epsilon_safety_mask.py` (contract tests for $AC_0$ through $AC_3$, interpretations $I_1$ to $I_3$)
+  - `docs/user-stories/epic-17-scheduled-epsilon-greedy-policy.md` (Story 17.2 marked Completed)
+- **Contracts:**
+  - `tests/test_epsilon_safety_mask.py`
+  - Contract run: 18 passed in 1.11s
+  - Cumulative suite: 34 passed across Epic 17 (`test_epsilon_schedule.py`, `test_epsilon_safety_mask.py`)
+- **Notes:**
+  - Pre-flight specification gate (`scripts/spec_gate.py 17.2`) evaluated: passed with robust utility 0.7454 and margin +0.2241 (episode `spec-17_2-f85a03d2`).
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Zero changes to `src/agent_learning/`. All safety masking logic isolated in `src/agent_learning_ext/policy/epsilon_greedy.py`.
+    - $I_2$: Storage Decoupling & Serialization: Pure snapshot validation and JSON round-tripping tested without storage coupling or I/O.
+    - $I_3$: Non-Finite Float Rejection: Rejection of non-finite parameters in schedule checked.
+  - $AC_0$: Safe subset on the base policy is `{a, b}`; actions without `"reversible"` key or with `"reversible": false` are strictly excluded from the safe subset.
+  - $AC_1$: Strict boolean-only validation: non-boolean values (`"true"`, `"false"`, `1`, `0`, `None`, lists, dicts) raise `ValueError` naming the offending action ID, both at policy instantiation (`from_actions`) and snapshot deserialization (`from_snapshot`).
+  - $AC_2$: With an empty safe subset (no reversible actions), the exploration rate applied is forced to 0.0 for every $t \ge 0$, including $t = 0$.
+  - $AC_3$: Policy built from real repository definitions in `docs/policy-shapes/approve-adr.actions.json` has an empty safe subset and applied rate of 0.0 across all $t$.
+
 
 ---
 
 ## Story 21.1 — Entropy and Margin
-- **Commit:** `67d7541`
+- **Commit:** `3334537`
 - **Date:** 2026-11-08
 - **Branch:** `feat/story-21.1`
 - **Source ADR / BRD / FDD:** ADR-021 (§4.1), BRD-021, FDD-021 (§1, §2)
@@ -2468,5 +2525,4 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - Upstream fork untouched: 8/8 passed in `tests/test_upstream_untouched.py`.
   - Governance baseline: 18/18 passed in `tests/test_governance_baseline.py`.
 - **Review (Step 8):** Amazon Q reviewed PR #132. 1 finding addressed:
-  - `Q-132-1 | logic error | verified: yes | decision: accepted | Remove dead code 'np' from forbidden_modules and add alias.asname verification across Import and ImportFrom AST nodes | fix: 978978a`
-
+  - `Q-132-1 | logic error | verified: yes | decision: accepted | Remove dead code 'np' from forbidden_modules and add alias.asname verification across Import and ImportFrom AST nodes | fix: acd4ac7`

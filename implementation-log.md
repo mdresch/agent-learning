@@ -2301,3 +2301,33 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-125-1 | logic error | verified: yes | decision: accepted | Enforce exact abs diff <= 1e-12 with rel_tol=0.0 in test_ac1 so default rel_tol=1e-9 does not loosen AC_1 tolerance | fix: 3e1521f`
   - `Q-125-2 | test gap | verified: yes | decision: accepted | Capture baseline episode copies from store.get_episode after store_episode in test_ac2 | fix: 3e1521f`
   Amazon Q confirmed all findings resolved; CI checks (build-installer, test) passed green.
+
+---
+
+## Story 16.3 — Statistics in the Snapshot
+- **Commit:** `24ed5e3`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-16.3`
+- **Source ADR / BRD / FDD:** ADR-016 (§4.3), BRD-016 (BRU-016-07, BRU-016-08), FDD-016 (§2.2, §2.4, §3 item 2, E5, E7)
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/policy/action_statistics.py` (implemented `read_statistics` with validation for action space boundaries, non-negative pull counts, cumulative reward bounds, mean reward tolerance, and consumed episode uniqueness)
+  - `src/agent_learning_ext/policy/ucb.py` (implemented `UCBPolicy.from_actions` factory and `UCBPolicy.from_snapshot` loader calling `read_statistics`)
+  - `src/agent_learning_ext/policy/__init__.py` (re-exported `read_statistics` and cleaned `__all__`)
+  - `.claude/skills/ucb/SKILL.md` (updated with Snapshot Lifecycle & Delegation section)
+  - `tests/test_action_statistics.py` (7 tests for `read_statistics` contract and edge cases)
+  - `tests/test_ucb_policy.py` (added contract tests for $AC_0$ through $AC_3$)
+  - `docs/user-stories/epic-16-deterministic-ucb-decision-policy.md` (Story 16.3 marked Completed)
+- **Contracts:**
+  - `tests/test_action_statistics.py`, `tests/test_ucb_policy.py`
+  - Contract run: 25 passed in 2.68s
+  - Cumulative suite: 60 passed in `tests/test_action_statistics.py`, `tests/test_ucb_policy.py`, `tests/test_ucb_scores.py`, and `tests/test_thompson_policy.py`
+- **Notes:**
+  - Pre-flight specification gate (`scripts/spec_gate.py 16.3`) evaluated: passed with robust utility 0.7423 and margin +0.2210 (episode `spec-16_3-7be3048e`).
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Implementation lives under `src/agent_learning_ext/` leaving upstream `src/agent_learning/` pristine (0 lines diff).
+    - $I_2$: Defensive None-Safety: Missing or None metadata in `read_statistics` safely treated as empty dictionary without `AttributeError`.
+    - $I_3$: Non-Finite Float Rejection: NaNs/Infs rejected with `ValueError`.
+  - $AC_0$: `UCBPolicy.from_actions` initializes all actions with 0 pulls, 0.0 cumulative, 0.0 mean reward, zero logits, empty `consumed_episode_ids`, and variant/c in metadata.
+  - $AC_1$: `UCBPolicy.from_snapshot` reads FDD-016 §2.2 example; missing action in statistics reads as zero pulls.
+  - $AC_2$: `read_statistics` raises `ValueError` for foreign action id, invalid statistic, unknown variant, duplicate consumed episodes, or mean reward discrepancy > $10^{-9}$. `UCBPolicy.from_snapshot` delegates directly to `read_statistics`.
+  - $AC_3$: Snapshot survives `json.dumps`/`loads` unchanged and round-trips through `InMemoryStore` with zero storage imports in `ucb.py`.

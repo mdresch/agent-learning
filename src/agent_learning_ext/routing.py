@@ -38,7 +38,6 @@ PINNED_FULL: tuple[str, ...] = (
     "approve-routing-thresholds",
     "approve-routing-bucket",
 )
-SEED_DAMPING_DEFAULT: float = 0.70
 
 
 @dataclass(frozen=True)

@@ -88,7 +88,20 @@ def load_baseline():
     return module
 
 
-gb = load_baseline()
+_gb = None
+
+
+def get_gb():
+    global _gb
+    if _gb is None:
+        _gb = load_baseline()
+    return _gb
+
+
+def __getattr__(name: str):
+    if name == "gb":
+        return get_gb()
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 class Stop(Exception):
@@ -185,8 +198,10 @@ def build_frame(rel: str, f: dict) -> dict:
         for i, (cid, _, _) in enumerate(CRITERIA):
             if action in LIFECYCLE:
                 support = 0.95 if f["status_line_changed"] else 0.02
-            else:
+            elif action in IDEAL:
                 support = max(0.02, 1 - abs(obs[i] - IDEAL[action][i]))
+            else:
+                raise Stop(f"Unknown action {action!r} without an ideal profile")
             evidence.append(
                 {
                     "criterion_id": cid,
@@ -240,6 +255,7 @@ def slug(rel: str) -> str:
 def resolve(doc: str) -> str:
     path = (ROOT / doc) if not Path(doc).is_absolute() else Path(doc)
     rel = path.resolve().relative_to(ROOT).as_posix()
+    gb = get_gb()
     manifest = json.loads(gb.MANIFEST.read_text(encoding="utf-8"))
     if rel not in manifest["documents"]:
         raise Stop(
@@ -275,6 +291,7 @@ def propose(doc: str, tag: str | None) -> int:
     cand = normalize((ROOT / rel).read_text(encoding="utf-8"))
     if base == cand:
         raise Stop(f"{rel} is identical to HEAD: there is no edit to classify.")
+    gb = get_gb()
     if (
         gb.fingerprint(gb.discover(ROOT)[rel], cand)
         == json.loads(gb.MANIFEST.read_text(encoding="utf-8"))["documents"][rel]["sha256"]
@@ -454,6 +471,7 @@ def accept(doc: str, by: str, summary: str) -> int:
         f"Amended {today} at Stage 16: {summary}, classified `{selected}` "
         f"(robust utility {best['robust_utility']:.3f}, episode `{episode['id'][:8]}...`) and accepted by {by}."
     )
+    gb = get_gb()
     updated = status_edit(gb.discover(ROOT)[rel], current, record)
     if b"\r\n" in path.read_bytes():  # keep the file's own line endings
         updated = updated.replace("\n", "\r\n")
@@ -461,6 +479,7 @@ def accept(doc: str, by: str, summary: str) -> int:
     meas["accepted"] = True
     meas["episode"] = episode["id"][:8]
     pend.write_text(json.dumps(meas, indent=2) + "\n", encoding="utf-8")
+    gb = get_gb()
     manifest = json.loads(gb.MANIFEST.read_text(encoding="utf-8"))
     new, errors, notes = gb.refresh(manifest, ROOT, gb.store_verifier())
     if errors:

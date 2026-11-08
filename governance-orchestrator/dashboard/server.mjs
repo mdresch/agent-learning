@@ -6,7 +6,7 @@
 // Every decision line is HMAC-signed with GOVERNANCE_APPROVAL_SECRET; the agent's tools verify it.
 // Start the agent server with the same secret. The agent has no shell, so it cannot read it.
 
-import { createHmac, randomUUID } from "node:crypto";
+import { createHmac, randomUUID, timingSafeEqual } from "node:crypto";
 import { appendFileSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { spawn } from "node:child_process";
 import { createServer } from "node:http";
@@ -36,6 +36,14 @@ const signCycle = (d) =>
 const signStart = (d) =>
   createHmac("sha256", secret).update(JSON.stringify(["stage_start", d.stageId, d.cycle, d.note, d.decidedBy, d.decidedAt])).digest("hex");
 
+const safeEqual = (a, b) => {
+  if (typeof a !== "string" || typeof b !== "string") return false;
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
+  if (bufA.length !== bufB.length) return false;
+  return timingSafeEqual(bufA, bufB);
+};
+
 function verifiedDecisions() {
   const file = join(stateDir, "decisions.ndjson");
   if (!existsSync(file)) return { decisions: [], starts: [], signals: [] };
@@ -47,10 +55,10 @@ function verifiedDecisions() {
     try {
       const d = JSON.parse(raw);
       if (d.type === "cycle_start") {
-        if (signCycle(d) === d.sig) starts.push({ note: d.note, decidedBy: d.decidedBy, decidedAt: d.decidedAt });
+        if (safeEqual(signCycle(d), d.sig)) starts.push({ note: d.note, decidedBy: d.decidedBy, decidedAt: d.decidedAt });
       } else if (d.type === "stage_start") {
-        if (d.stageId === 1 && signStart(d) === d.sig) signals.push({ cycle: d.cycle, note: d.note, decidedBy: d.decidedBy, decidedAt: d.decidedAt });
-      } else if (sign(d) === d.sig) decisions.push(d);
+        if (d.stageId === 1 && safeEqual(signStart(d), d.sig)) signals.push({ cycle: d.cycle, note: d.note, decidedBy: d.decidedBy, decidedAt: d.decidedAt });
+      } else if (safeEqual(sign(d), d.sig)) decisions.push(d);
     } catch {
       /* ignore malformed line */
     }
@@ -164,7 +172,7 @@ function launchOrchestrator(reason, prompt) {
     mcpServers: { governance: {
       command: "node",
       args: [join(projectRoot, "node_modules", "tsx", "dist", "cli.mjs"), join(projectRoot, "mcp", "server.ts")],
-      env: { GOVERNANCE_APPROVAL_SECRET: "${GOVERNANCE_APPROVAL_SECRET}", GOVERNANCE_STATE_DIR: "${GOVERNANCE_STATE_DIR}" },
+      env: { GOVERNANCE_APPROVAL_SECRET: secret, GOVERNANCE_STATE_DIR: stateDir },
     } },
   }, null, 2));
   const allowed = ["Agent", "Read", "Grep", "Glob", ...GOV_TOOLS.map((t) => `mcp__governance__${t}`)].join(",");

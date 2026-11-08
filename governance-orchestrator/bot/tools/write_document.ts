@@ -48,7 +48,8 @@ export default defineTool({
       }
     }
     if (mode === "create" && existsSync(abs)) throw new Error(`${rel} already exists. Use append, or replace if it is not frozen.`);
-    if (mode !== "create" && !existsSync(abs) && mode === "append") throw new Error(`${rel} does not exist; nothing to append to.`);
+    if (mode === "append" && !existsSync(abs)) throw new Error(`${rel} does not exist; nothing to append to.`);
+    if (mode === "replace" && !existsSync(abs)) throw new Error(`${rel} does not exist; nothing to replace. Use mode="create".`);
 
     mkdirSync(dirname(abs), { recursive: true });
     if (mode === "append") appendFileSync(abs, content.startsWith("\n") ? content : `\n${content}`);

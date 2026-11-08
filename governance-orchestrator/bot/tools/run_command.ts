@@ -17,7 +17,18 @@ function allowed(argv: string[]): string | undefined {
   if (bin === "uv" && a === "run" && (b === "agent-learn" || b === "agent-learn-ext")) {
     return AGENT_LEARN_READ.has(argv[3] ?? "") ? undefined : `${b} ${argv[3]} is not allowed`;
   }
-  if (bin === "uv" && a === "run" && b === "pytest") return undefined;
+  if (bin === "uv" && a === "run" && b === "pytest") {
+    const pytestArgs = argv.slice(3);
+    for (const arg of pytestArgs) {
+      if (arg.startsWith("-o") || arg.startsWith("-c") || arg.startsWith("--override-ini") || arg.startsWith("--import-mode")) {
+        return `pytest argument ${arg} is not allowed`;
+      }
+      if (!arg.startsWith("-") && !arg.startsWith("tests/") && !arg.startsWith("tests\\")) {
+        return `pytest path ${arg} must be within tests/`;
+      }
+    }
+    return undefined;
+  }
   if (bin === "uv" && a === "run" && b === "python") return argv[3] === "scripts/phase_rollup.py" ? undefined : "only scripts/phase_rollup.py may run";
   if (bin === "git") {
     if (!GIT_READ.has(a ?? "")) return `git ${a} is not allowed`;

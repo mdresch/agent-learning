@@ -277,8 +277,8 @@ def route(
     if cfg is None:
         return RouteDecision(
             authority=DecisionAuthority.FULL,
-            entropy_bits=ent_val,
-            margin=margin_val,
+            entropy_bits=None,
+            margin=None,
             reason="anomaly",
             anomaly="missing routing config",
         )

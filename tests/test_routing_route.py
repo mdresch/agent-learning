@@ -285,10 +285,28 @@ def test_ac5_no_hunting(base_config: RoutingConfig) -> None:
         [0.79, 0.21],  # ~0.742 bits
     ]
 
-    # Test with initial route = LOW
-    current_authority: DecisionAuthority | None = DecisionAuthority.LOW
+    # Test starting at FULL, transitioning to LOW, then oscillating in deadband
+    current_authority: DecisionAuthority | None = DecisionAuthority.FULL
     route_changes = 0
 
+    # Step 1: De-escalate from FULL to LOW
+    deesc_decision = route(
+        probs=[0.95, 0.05],
+        tier="standard",
+        task_id="classify-request",
+        previous=current_authority,
+        approved_for_low=True,
+        requires_human_approval=False,
+        cfg=base_config,
+    )
+    if deesc_decision.authority != current_authority:
+        route_changes += 1
+        current_authority = deesc_decision.authority
+
+    assert current_authority == DecisionAuthority.LOW
+    assert route_changes == 1
+
+    # Step 2: Oscillate inside deadband; authority should remain LOW without flipping
     for probs in oscillating_probs:
         decision = route(
             probs=probs,
@@ -303,7 +321,7 @@ def test_ac5_no_hunting(base_config: RoutingConfig) -> None:
             route_changes += 1
             current_authority = decision.authority
 
-    assert route_changes <= 1, f"Route changed {route_changes} times during deadband oscillation (max 1 allowed)"
+    assert route_changes == 1, f"Route changed {route_changes} times during deadband oscillation (expected exactly 1)"
 
 
 def test_ac6_fail_safe(base_config: RoutingConfig) -> None:
@@ -361,5 +379,7 @@ def test_ac6_fail_safe(base_config: RoutingConfig) -> None:
     )
     assert decision_no_cfg.authority == DecisionAuthority.FULL
     assert decision_no_cfg.reason == "anomaly"
+    assert decision_no_cfg.entropy_bits is None
+    assert decision_no_cfg.margin is None
     assert decision_no_cfg.anomaly is not None
     assert "missing routing config" in decision_no_cfg.anomaly.lower()

@@ -2588,3 +2588,8 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - Observed RED first: `ImportError: cannot import name 'MIN_GAP_BITS' from 'agent_learning_ext.routing'`.
   - Upstream fork untouched: 8/8 passed in `tests/test_upstream_untouched.py`.
   - Governance baseline: 18/18 passed in `tests/test_governance_baseline.py`.
+- **Review (Step 8):** Amazon Q reviewed PR #136. All findings addressed:
+  - `Q-136-1 | logic error | verified: yes | decision: accepted | Replace [0.82, 0.18] in test_ac5_no_hunting with [0.80, 0.20] (0.7219 bits) to ensure strictly within deadband [0.70, 1.0] | fix: ac2d63e`
+  - `Q-136-2 | logic error | verified: yes | decision: accepted | Replace silent fallthrough in route() with explicit ValueError on unknown DecisionAuthority variant | fix: ac2d63e`
+  - `Q-136-3 | test gap | verified: yes | decision: accepted | Add explicit reason assertions across all test cases in test_ac3_earn_low | fix: ac2d63e`
+

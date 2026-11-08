@@ -198,9 +198,10 @@ def test_ac3_earn_low(base_config: RoutingConfig) -> None:
             cfg=base_config,
         )
         assert decision_unapproved.authority == DecisionAuthority.FULL
-        # For entropy <= tau_deesc or in deadband with previous=LOW, reason is 'not_approved'
-        if probs == [0.95, 0.05]:
+        if probs == [0.95, 0.05] or probs == [0.8, 0.2]:
             assert decision_unapproved.reason == "not_approved"
+        elif probs == [0.5, 0.5]:
+            assert decision_unapproved.reason == "margin"
 
 
 def test_ac4_hysteresis(base_config: RoutingConfig) -> None:
@@ -263,7 +264,7 @@ def test_ac5_no_hunting(base_config: RoutingConfig) -> None:
     """AC_5: over a sequence of entropies oscillating inside the deadband, route changes at most once."""
     # Sequence of probabilities all inside deadband [0.70, 1.0] with margin >= 0.20:
     oscillating_probs = [
-        [0.82, 0.18],  # ~0.679 bits -> wait, let's verify entropy
+        [0.80, 0.20],  # ~0.7219 bits (inside deadband [0.70, 1.0])
         [0.78, 0.22],  # ~0.760 bits
         [0.75, 0.25],  # ~0.811 bits
         [0.78, 0.22],  # ~0.760 bits

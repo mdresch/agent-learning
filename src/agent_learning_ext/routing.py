@@ -359,10 +359,4 @@ def route(
                 anomaly=None,
             )
 
-    return RouteDecision(
-        authority=DecisionAuthority.FULL,
-        entropy_bits=ent_val,
-        margin=margin_val,
-        reason="hysteresis",
-        anomaly=None,
-    )
+    raise ValueError(f"unknown DecisionAuthority variant: {norm_prev}")

@@ -124,6 +124,14 @@ def test_ac3_wilson_symmetry_reuse_and_integer_invariance() -> None:
     # Check integer arguments return same values as before (regression guard)
     assert abs(wilson_lower_bound(8, 10) - (1.0 - ucb_scores({"x": ActionStats(10, 2.0, 0.2)}, 10, variant="wilson")["x"])) < 1e-12
 
+    # Validation guards on successes
+    with pytest.raises(ValueError, match="successes"):
+        wilson_lower_bound(-0.1, 10)
+    with pytest.raises(ValueError, match="successes"):
+        wilson_lower_bound(10.1, 10)
+    with pytest.raises(ValueError, match="successes"):
+        wilson_lower_bound(float("nan"), 10)
+
 
 def test_ac4_validation_errors() -> None:
     """AC_4: ValueError for invalid inputs."""

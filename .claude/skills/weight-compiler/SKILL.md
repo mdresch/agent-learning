@@ -60,3 +60,8 @@ This skill governs Scored-Search Decision Configuration Compilation (`src/agent_
     - Baseline evaluates each frame's own criteria weights on held-out items.
     - `policy-compile-weights` writes proposal JSON without touching the policy store.
     - `CompiledWeights.weights` is immutable `MappingProxyType`.
+12. **Runtime Weight Application & Zero Online Search (AC_0, AC_2, AC_3, AC_4, FDD L1):**
+    - `apply_compiled_config(frame, snapshot)` replaces a frame's criteria weights with `snapshot.metadata["criteria_weights"]` via `with_weights()`.
+    - Returns frame unchanged when snapshot lacks `criteria_weights`.
+    - `task-policy-decide` applies weights transparently at runtime; zero search overhead online (`coordinate_ascent` calls = 0).
+    - `DecisionResolver` remains 100% untouched without reference to `criteria_weights`.

@@ -48,6 +48,7 @@ from agent_learning_ext.weight_compiler import (
     CompiledWeights,
     LabeledFrame,
     NoImprovement,
+    apply_compiled_config,
     propose,
     split_holdout,
 )
@@ -727,6 +728,7 @@ def _cmd_decide_task_policy(args: argparse.Namespace) -> int:
             return 2
         try:
             frame = _load_decision_frame(args.decision_frame, snapshot)
+            frame = apply_compiled_config(frame, snapshot)
             result = task_policy.decide(frame)
         except (TypeError, ValueError) as exc:
             print(str(exc), file=sys.stderr)

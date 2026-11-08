@@ -88,7 +88,7 @@ Fixture used by the criteria below ("the base statistics"): action `a` with 10 p
 
 ## Story 16.6 — The Positive-Only Check (HYP-AL-009)
 
-**Status:** Ready  
+**Status:** Completed (2026-11-08, commit 713b9f7)  
 **As** a maintainer, **I want** the recorded positive-only history replayed through the policy, **so that** I can see how a deterministic bound behaves when every reward is 1.0.
 
 ### Acceptance Criteria:

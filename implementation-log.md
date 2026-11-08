@@ -2394,6 +2394,31 @@ This log records completed user stories in accordance with the SIDPA `implement-
 
 ---
 
+## Story 16.6 — The Positive-Only Check (HYP-AL-009)
+- **Commit:** `713b9f7`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-16.6`
+- **Source ADR / BRD / FDD:** ADR-016 (§4.4), BRD-016 (BRU-016-11), FDD-016 (§3, §8)
+- **Files Modified/Created:**
+  - `tests/test_ucb_positive_only.py` (contract tests for $AC_0$ through $AC_3$, interpretations $I_1$ to $I_3$)
+  - `docs/user-stories/epic-16-deterministic-ucb-decision-policy.md` (Story 16.6 marked Completed)
+- **Contracts:**
+  - `tests/test_ucb_positive_only.py`
+  - Contract run: 6 passed in 1.45s
+  - Cumulative suite: 62 passed across all Epic 16 contract test suites (`test_action_statistics.py`, `test_ucb_policy.py`, `test_ucb_scores.py`, `test_ucb_learner.py`, `test_ucb_reinforce_guard.py`, `test_ucb_positive_only.py`)
+- **Notes:**
+  - Pre-flight specification gate (`scripts/spec_gate.py 16.6`) evaluated: passed with robust utility 0.6752 and margin +0.1538 (episode `spec-16_6-c2b576ee`).
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Zero changes to `src/agent_learning/`.
+    - $I_2$: Storage Decoupling & Serialization: Pure policy replay contract testing.
+    - $I_3$: Empty Collection Base Case: Verified against boundary conditions.
+  - $AC_0$: Replayed real `approve-*` episodes of `agent-learning-governance` from `docs/policy-shapes/episodes/` with $r = 1.0$ for the action taken; episode counts and filenames recorded dynamically via pytest properties.
+  - $AC_1$: After replay, every untaken action maintains 0 pulls and scores `math.inf`, guaranteeing selection before any taken action; taken action's Wilson score is exactly 1.0, and its Wilson lower bound strictly monotonically rises with count $N$, matching `wilson_lower_bound` (ADR-003).
+  - $AC_2$: Replay run twice on the same history produces 100% identical `action_statistics` and deterministic action choices.
+  - $AC_3$: Test suite and properties explicitly label this as a consistency check on a real positive-only history without claiming superiority over alternative bandits without low-authority failure data (BRU-016-11).
+
+---
+
 ## Story 18.6 — The Real-Data Check (Zero Pairs)
 - **Commit:** `a7d1bc8`
 - **Date:** 2026-11-08

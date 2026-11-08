@@ -394,6 +394,19 @@ def test_ac6_source_check_finds_no_second_implementation_in_learners_ucb() -> No
             )
 
 
+def test_ac6_add_rewards_skips_already_consumed_even_with_invalid_value_or_action() -> None:
+    """Q-review: add_rewards deduplication guard precedes value/action validation so duplicates are skipped cleanly."""
+    metadata: dict[str, Any] = {
+        "action_statistics": {"a": {"pull_count": 1, "cumulative_reward": 1.0, "mean_reward": 1.0}},
+        "consumed_episode_ids": ["e1"],
+    }
+    # Pass already-consumed "e1" with an invalid reward and unknown action_id
+    counted = add_rewards(metadata, ["a"], [("e1", "unknown_action", 999.0)])
+    assert counted == ()
+    assert metadata["consumed_episode_ids"] == ["e1"]
+    assert metadata["action_statistics"]["a"]["pull_count"] == 1
+
+
 # -----------------------------------------------------------------------------
 # AC_7 (Result) & Interpretations
 # -----------------------------------------------------------------------------

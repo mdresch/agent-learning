@@ -159,12 +159,12 @@ def add_rewards(
     counted_ids: list[str] = []
 
     for episode_id, action_id, value in items:
-        # Validate value and map to r
-        r = reward_to_r(value)
-
         # Skip if already counted in consumed_episode_ids or previously in this call
         if episode_id in seen:
             continue
+
+        # Validate value and map to r
+        r = reward_to_r(value)
 
         if action_id not in action_set:
             raise ValueError(f"action {action_id!r} not in action space")

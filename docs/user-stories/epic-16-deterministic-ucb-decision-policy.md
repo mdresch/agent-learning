@@ -76,7 +76,7 @@ Fixture used by the criteria below ("the base statistics"): action `a` with 10 p
 
 ## Story 16.5 — Staying Out of REINFORCE
 
-**Status:** Ready — depends on Story 15.3 (`Decision.logprob` optional).  
+**Status:** Completed (2026-11-08, commit ef2a900) — depends on Story 15.3 (`Decision.logprob` optional).  
 **As** a maintainer, **I want** UCB episodes to be invisible to `ReinforceLearner`, **so that** a deterministic pick is never trained on as a softmax sample.
 
 ### Acceptance Criteria:

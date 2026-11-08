@@ -2210,5 +2210,26 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-122-12 | logic error | verified: yes | decision: accepted | Validate action presence and math.isfinite on live policy logits in _validate_or_freeze_reference | fix: d8289aa`
   Amazon Q confirmed all findings resolved; CI checks (build-installer, test) passed green.
 
+---
 
-
+## Story 18.5 — Through the Runner
+- **Commit:** `17a2b06`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-18.5`
+- **Source ADR / BRD / FDD:** ADR-018 (§4.3), BRD-018 (BRU-018-11), FDD-018 (§2.3, §7 item 2, G7)
+- **Pre-Flight Spec Gate:** Proceed utility 0.7787, margin +0.2574 (>= +0.05), episode `spec-18_5-f26b87c5`.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/training/runner.py` (aliased `TrainingRunner = LearningRunner` to preserve upstream Invariant 6 while adhering to ADR-018/FDD-018 naming)
+  - `src/agent_learning_ext/training/__init__.py` (exported `TrainingRunner`)
+  - `src/agent_learning_ext/__init__.py` (re-exported `TrainingRunner` with `# noqa: PLE0605`)
+  - `agent-training-ext/agent_training_ext/dpo_preference.py` (re-exported `TrainingRunner`)
+  - `tests/test_pairwise_runner.py` (contract tests for $AC_0$ through $AC_4$, interpretations $I_1, I_2$)
+  - `docs/user-stories/epic-18-pairwise-preference-optimization.md` (Story 18.5 marked Completed)
+  - `docs/project-docs/Project-Status-Register.md` (orientation updated, 69 implemented, 0 drift)
+- **Validation:**
+  - $AC_0$: `TrainingRunner(learner=PairwiseLearner())` over store with override episodes completes `run_offline_batch()` with `RunStatus.SUCCEEDED` and `algorithm == "PairwiseLearner"`.
+  - $AC_1$: Two successive `run_offline_batch()` runs over the same stored episodes leave logits unchanged within $10^{-12}$ tolerance.
+  - $AC_2$: Stored episodes remain strictly untouched and identical after offline batch runs.
+  - $AC_3$: Audit replay of `PairwiseLearner` run cleanly returns `AuditStatus.INSUFFICIENT_LINEAGE` without raising, citing FDD-018 §7 item 2.
+  - $AC_4$: Running over store with 0 pairs or empty batch returns `SUCCEEDED` run with 0 episodes used and unchanged logits; non-finite floats (NaN/Inf) raise `ValueError`.
+  - Full suite: 5/5 passed in `tests/test_pairwise_runner.py`. 32/32 pairwise suite tests passing. Governance baseline and phase rollup clean (0 status drift).

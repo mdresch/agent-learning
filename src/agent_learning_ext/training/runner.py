@@ -229,4 +229,7 @@ def _summarise_result(result: LearnerResult) -> Dict[str, object]:
     }
 
 
-__all__ = ["LearningRunner"]
+# Alias per ADR-018 / FDD-018
+TrainingRunner = LearningRunner
+
+__all__ = ["LearningRunner", "TrainingRunner"]

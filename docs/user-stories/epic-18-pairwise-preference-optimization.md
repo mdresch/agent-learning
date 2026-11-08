@@ -75,14 +75,15 @@ Fixture used by the criteria below ("the base set"): three actions `x`, `y` and 
 
 ## Story 18.5 — Through the Runner
 
-**Status:** Ready  
+**Status:** Completed  
 **As** an adopter, **I want** to train a policy with this learner through the training runner, **so that** it needs no special entry point.
 
 ### Acceptance Criteria:
 - **$AC_0$ (Runs):** `TrainingRunner(learner=PairwiseLearner())` over a store that holds override episodes completes `run_offline_batch` with a `SUCCEEDED` run whose `algorithm` is `PairwiseLearner`.
-- **$AC_1$ (Twice):** two successive `run_offline_batch` runs over the same stored episodes leave the logits as after the first.
+- **$AC_1$ (Twice):** two successive `run_offline_batch` runs over the same stored episodes leave the logits as after the first within 1e-12 tolerance.
 - **$AC_2$ (Episodes Untouched):** the stored episodes are equal to their earlier copies after the run.
 - **$AC_3$ (Audit Replay):** the audit replay of such a run reports insufficient lineage and does not raise; the test asserts this and its docstring names FDD-018 §7 item 2.
+- **$AC_4$ (Empty Store & Non-Finite Guard):** running over a store with 0 pairs or an empty batch returns a `SUCCEEDED` run with 0 episodes used, leaving policy logits unchanged; non-finite float parameters (NaN / Inf) raise ValueError.
 
 ---
 

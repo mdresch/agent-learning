@@ -2,6 +2,6 @@
 
 from __future__ import annotations
 
-from .runner import LearningRunner
+from .runner import LearningRunner, TrainingRunner
 
-__all__ = ["LearningRunner"]
+__all__ = ["LearningRunner", "TrainingRunner"]

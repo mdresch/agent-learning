@@ -13,6 +13,7 @@ import json
 import logging
 import random
 import sys
+import time
 import uuid
 from collections import Counter
 from dataclasses import dataclass
@@ -43,6 +44,14 @@ from agent_learning.policy.softmax_bandit import SoftmaxPolicy
 from agent_learning.policy.thompson import ThompsonPolicy
 from agent_learning_ext.storage.cosmos import get_default_store
 from agent_learning_ext.training.runner import LearningRunner
+from agent_learning_ext.weight_compiler import (
+    CompiledWeights,
+    LabeledFrame,
+    NoImprovement,
+    apply_compiled_config,
+    propose,
+    split_holdout,
+)
 from agent_learning.types import Action, Episode, MetricName, PolicySnapshot, RewardSource
 
 logger = logging.getLogger(__name__)
@@ -356,6 +365,17 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         "--action-map",
         help="JSON mapping target action IDs to donor action IDs.",
     )
+
+    compile_weights = sub.add_parser(
+        "policy-compile-weights",
+        help="Compile criteria weights offline against a validation dataset.",
+    )
+    compile_weights.add_argument("--agent-id", required=True, help="Agent identifier.")
+    compile_weights.add_argument("--task-id", required=True, help="Task identifier.")
+    compile_weights.add_argument("--validation-dataset", required=True, help="Validation dataset JSON file.")
+    compile_weights.add_argument("--seed", type=int, required=True, help="Integer seed for hold-out split.")
+    compile_weights.add_argument("--proposed-at", help="Proposal timestamp (ISO 8601). Defaults to current UTC time.")
+    compile_weights.add_argument("--output-proposal", required=True, help="Output proposal JSON file path.")
 
     return parser
 
@@ -708,6 +728,7 @@ def _cmd_decide_task_policy(args: argparse.Namespace) -> int:
             return 2
         try:
             frame = _load_decision_frame(args.decision_frame, snapshot)
+            frame = apply_compiled_config(frame, snapshot)
             result = task_policy.decide(frame)
         except (TypeError, ValueError) as exc:
             print(str(exc), file=sys.stderr)
@@ -1713,6 +1734,148 @@ def _cmd_warm_start_task_policy(args: argparse.Namespace) -> int:
     return _warm_start_from_meta_prior(store, args, target)
 
 
+def _cmd_compile_weights(args: argparse.Namespace) -> int:
+    store = get_default_store()
+    snapshot = store.get_active_policy(args.agent_id, args.task_id)
+    if snapshot is None:
+        print(
+            f"No active policy found for agent_id={args.agent_id!r}, task_id={args.task_id!r}.",
+            file=sys.stderr,
+        )
+        return 2
+
+    valid_action_ids = {a.id for a in snapshot.actions}
+
+    ds_path = Path(args.validation_dataset)
+    if not ds_path.is_file():
+        print(f"Dataset file not found: {args.validation_dataset}", file=sys.stderr)
+        return 2
+
+    try:
+        raw_items = json.loads(ds_path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        print(f"Failed to read dataset JSON: {exc}", file=sys.stderr)
+        return 2
+
+    if not isinstance(raw_items, list):
+        print("Validation dataset must be a JSON array of items.", file=sys.stderr)
+        return 2
+
+    labeled_items: list[LabeledFrame] = []
+    for idx, item in enumerate(raw_items):
+        if not isinstance(item, dict):
+            print(f"Dataset item {idx} is not an object: {item!r}", file=sys.stderr)
+            return 2
+        for required_field in ("frame", "label", "labeled_at"):
+            if required_field not in item:
+                print(
+                    f"Dataset item {idx} lacks required field {required_field!r}: {item!r}",
+                    file=sys.stderr,
+                )
+                return 2
+
+        label = item["label"]
+        if label not in valid_action_ids:
+            print(
+                f"Dataset item {idx} has invalid label {label!r}; active policy actions: {sorted(valid_action_ids)}",
+                file=sys.stderr,
+            )
+            return 2
+
+        frame_data = item["frame"]
+        try:
+            from agent_learning.decision import DecisionFrame as CoreDecisionFrame
+            if isinstance(frame_data, CoreDecisionFrame):
+                frame = frame_data
+            elif isinstance(frame_data, dict):
+                frame = CoreDecisionFrame.from_dict(frame_data, snapshot.actions)
+            elif isinstance(frame_data, DecisionFrame):
+                frame = CoreDecisionFrame.from_dict(frame_data.to_dict(), snapshot.actions)
+            else:
+                raise ValueError(f"Unexpected frame type: {type(frame_data).__name__}")
+        except Exception as exc:
+            print(f"Dataset item {idx} has invalid frame: {exc}", file=sys.stderr)
+            return 2
+
+        labeled_items.append(
+            LabeledFrame(
+                frame=frame,
+                label=str(label),
+                labeled_at=str(item["labeled_at"]),
+            )
+        )
+
+    proposed_at = (
+        args.proposed_at
+        if args.proposed_at is not None
+        else datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    )
+
+    t0 = time.perf_counter()
+    try:
+        train, holdout = split_holdout(labeled_items, seed=args.seed)
+        result = propose(
+            train,
+            holdout,
+            snapshot,
+            proposed_at=proposed_at,
+            seed=args.seed,
+        )
+    except Exception as exc:
+        print(f"Weight compilation failed: {exc}", file=sys.stderr)
+        return 2
+    duration = time.perf_counter() - t0
+
+    if isinstance(result, CompiledWeights):
+        proposal_obj: dict[str, Any] = {
+            "task_id": args.task_id,
+            "agent_id": args.agent_id,
+            "policy_id": snapshot.id,
+            "policy_version": snapshot.version,
+            "improved": True,
+            "weights": dict(result.weights),
+            "train_accuracy": result.train_accuracy,
+            "holdout_accuracy": result.holdout_accuracy,
+            "baseline_holdout_accuracy": result.baseline_holdout_accuracy,
+            "holdout_margin": result.holdout_margin,
+            "seed": result.seed,
+            "evaluations": result.evaluations,
+            "sweeps": result.sweeps,
+            "restarts": result.restarts,
+            "proposed_at": result.proposed_at,
+            "dataset_size": len(labeled_items),
+            "train_size": len(train),
+            "holdout_size": len(holdout),
+            "earliest_labeled_at": min(it.labeled_at for it in labeled_items),
+            "latest_labeled_at": max(it.labeled_at for it in labeled_items),
+            "compile_duration_seconds": round(duration, 4),
+        }
+    else:
+        proposal_obj = {
+            "task_id": args.task_id,
+            "agent_id": args.agent_id,
+            "policy_id": snapshot.id,
+            "policy_version": snapshot.version,
+            "improved": False,
+            "reason": result.reason,
+            "baseline_holdout_accuracy": result.baseline_holdout_accuracy,
+            "best_holdout_accuracy": result.best_holdout_accuracy,
+            "seed": args.seed,
+            "dataset_size": len(labeled_items),
+            "train_size": len(train),
+            "holdout_size": len(holdout),
+            "earliest_labeled_at": min(it.labeled_at for it in labeled_items),
+            "latest_labeled_at": max(it.labeled_at for it in labeled_items),
+            "compile_duration_seconds": round(duration, 4),
+        }
+
+    out_path = Path(args.output_proposal)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(proposal_obj, indent=2), encoding="utf-8")
+    print(f"Proposal written to {args.output_proposal} (improved={proposal_obj['improved']})")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s - %(message)s")
     parser = _build_arg_parser()
@@ -1738,6 +1901,7 @@ def main(argv: list[str] | None = None) -> int:
         "task-episode-register": _cmd_register_task_episode,
         "task-policy-compare": _cmd_compare_task_policy,
         "task-policy-warm-start": _cmd_warm_start_task_policy,
+        "policy-compile-weights": _cmd_compile_weights,
     }
     handler = dispatch[args.command]
     return handler(args)

@@ -2685,8 +2685,164 @@ This log records completed user stories in accordance with the SIDPA `implement-
 
 ---
 
+## Story 22.1 — Scoring a Weight Vector With the Real Resolver
+- **Commit:** `88248f0`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-22.1`
+- **Source ADR / BRD / FDD:** ADR-022 (§4.1), BRD-022 (BRU-022-01, BRU-022-02, BRU-022-03), FDD-022 (§2.1, §3.1)
+- **Pre-Flight Spec Gate:** Proceed utility 0.6784, margin +0.1571 (>= +0.05), episode `spec-22_1-d05c4fb4`.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/weight_compiler.py` (`with_weights`, `evaluate`, `objective`, `LabeledFrame`, `CompiledWeights`, `NoImprovement`)
+  - `src/agent_learning_ext/__init__.py` (lazy re-exports of compiler symbols)
+  - `.claude/skills/weight-compiler/SKILL.md` (component skill)
+  - `tests/test_weight_objective.py` (contract tests for $AC_0$ through $AC_6$, interpretations $I_1$ to $I_3$)
+  - `docs/user-stories/epic-22-scored-search-decision-configuration-compilation.md` (Story 22.1 marked Completed)
+- **Contracts:**
+  - `tests/test_weight_objective.py`
+  - Contract run: 16 passed in 0.58s
+  - Cumulative suite: 24 passed (`test_weight_objective.py`, `test_upstream_untouched.py`)
+- **Notes:**
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Zero changes to `src/agent_learning/`. All logic in `src/agent_learning_ext/weight_compiler.py`.
+    - $I_2$: Defensive None-Safety for Dictionaries: Defensively guarded dictionary accesses and fallback lookups.
+    - $I_3$: Empty Collection Base Case: Empty sequence passed to `objective()` cleanly returns `0.0` without error.
+  - $AC_0$: `with_weights` applies weights to frame criteria while preserving constraints, options, and evidence; original frame is untouched.
+  - $AC_1$: `with_weights` raises `ValueError` for mismatched key sets, zero, negative, `nan`, or infinite weights.
+  - $AC_2$: `evaluate` on toy frame gives predicted `A` and margin 0.20 for `(0.7, 0.3)`; `None` and margin 0.0 for `(0.5, 0.5)` (tiebreak); `B` and margin 0.20 for `(0.3, 0.7)` within $10^{-9}$.
+  - $AC_3$: `objective` with label `A` and `beta=0.1` gives 1.02 for `(0.7, 0.3)`, 0.0 for `(0.5, 0.5)`, and 0.02 for `(0.3, 0.7)` within $10^{-9}$; total objective is the sum over all items.
+  - $AC_4$: If an option is ruled out by constraints, `evaluate` never returns it and the margin computation ignores it.
+  - $AC_5$: Replaced `DecisionResolver.resolve` with counting wrapper, confirming exactly one call per `evaluate` through the real resolver.
+  - $AC_6$: AST analysis verifies `weight_compiler.py` imports nothing from `agent_learning.storage` and performs no file I/O.
+
+---
+
+## Story 22.2 — The Split and the Label Rule
+- **Commit:** `4e60ee3`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-22.2`
+- **Source ADR / BRD / FDD:** ADR-022 (§4.1), BRD-022 (BRU-022-05, BRU-022-06, BRU-022-10), FDD-022 (§1 item 1, §2.1, §3.4, §3.6)
+- **Pre-Flight Spec Gate:** Proceed utility 0.6917, margin +0.1704 (>= +0.05), episode `spec-22_2-1926d25b`.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/weight_compiler.py` (`split_holdout`, `validate_label_timing`, `_parse_iso`)
+  - `src/agent_learning_ext/__init__.py` (re-exports `split_holdout`, `validate_label_timing`)
+  - `.claude/skills/weight-compiler/SKILL.md` (updated component skill)
+  - `tests/test_weight_split.py` (contract tests for $AC_0$ through $AC_4$, interpretations $I_1$ to $I_3$)
+  - `docs/user-stories/epic-22-scored-search-decision-configuration-compilation.md` (Story 22.2 marked Completed)
+- **Contracts:**
+  - `tests/test_weight_split.py`
+  - Contract run: 6 passed in 0.58s
+  - Cumulative suite: 30 passed across Epic 22 (`test_weight_objective.py`, `test_weight_split.py`, `test_upstream_untouched.py`)
+- **Notes:**
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Zero edits to `src/agent_learning/`. All logic in `src/agent_learning_ext/weight_compiler.py`.
+    - $I_2$: Storage Decoupling: Zero file I/O or storage dependencies in splitting and validation functions.
+    - $I_3$: Deterministic Ordering: Canonical JSON serialization of frame metadata used as deterministic sort key tiebreaker.
+  - $AC_0$: `split_holdout` with fixed seed returns identical partitions across invocations and separate runs; differing seed produces differing splits; partitions are strictly disjoint and reconstruct full dataset.
+  - $AC_1$: Validates `fraction` bounds `[0.3, 0.5]`, integer seed, and raises `ValueError` if either partition has fewer than `MIN_PART` (5) items.
+  - $AC_2$: Input permutation invariance verified: shuffling input sequence prior to `split_holdout` yields identical splits.
+  - $AC_3$: `validate_label_timing` rejects items where `labeled_at >= proposed_at` with descriptive `ValueError` naming the offending item.
+  - $AC_4$: Offline training search verifies zero evaluation calls against held-out partition during search execution.
+
+---
+
+## Story 22.3 — The Coordinate Ascent
+- **Commit:** `1a05262`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-22.3`
+- **Source ADR / BRD / FDD:** ADR-022 (§4.1), BRD-022 (BRU-022-03, BRU-022-04, BRU-022-07, BRU-022-10), FDD-022 (§1 item 1, §2.1, §2.2, §3.5, §4 L2, L5)
+- **Pre-Flight Spec Gate:** Proceed utility 0.6191, margin +0.0978 (>= +0.05), episode `spec-22_3-e40bf240`.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/weight_compiler.py` (`coordinate_ascent`, `CoordinateAscentResult`, `_project_to_simplex`)
+  - `src/agent_learning_ext/__init__.py` (re-exports `coordinate_ascent`, `CoordinateAscentResult`)
+  - `.claude/skills/weight-compiler/SKILL.md` (updated component skill)
+  - `tests/test_weight_search.py` (contract tests for $AC_0$ through $AC_5$, interpretations $I_1$ to $I_4$)
+  - `docs/user-stories/epic-22-scored-search-decision-configuration-compilation.md` (Story 22.3 marked Completed)
+- **Contracts:**
+  - `tests/test_weight_search.py`
+  - Contract run: 6 passed in 5.52s
+  - Cumulative suite: 36 passed across Epic 22 (`test_weight_objective.py`, `test_weight_split.py`, `test_weight_search.py`, `test_upstream_untouched.py`)
+- **Notes:**
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Zero edits to `src/agent_learning/`. All logic in `src/agent_learning_ext/weight_compiler.py`.
+    - $I_2$: Storage Decoupling: Zero file I/O or storage dependencies in search routine.
+    - $I_3$: Defensive None-Safety: Defensive dictionary and attribute guards.
+    - $I_4$: Empty Collection Base Case: Passing an empty training sequence raises `ValueError` cleanly.
+  - $AC_0$: Every weight vector evaluated during search and returned in result satisfies strictly positive floor `step=0.05` and sums to 1.0 within $10^{-9}$. Items with mismatched criterion IDs raise `ValueError`.
+  - $AC_1$: Training objective is non-decreasing across accepted candidates and strictly dominates all start points within $10^{-9}$.
+  - $AC_2$: On the synthetic suite, coordinate ascent successfully recovers weights within 0.05 of hidden `(0.6, 0.3, 0.1)` per criterion and achieves 1.0 training accuracy.
+  - $AC_3$: Deterministic repeatability verified across calls and across fresh sub-processes; AST inspection confirms `random` is only imported for hold-out splitting.
+  - $AC_4$: Search bounded by `max_sweeps` sweeps per start point and stops when a sweep accepts no candidate; `restarts=1` utilizes only the mean of frames' own weights; `result.weights` is immutable `MappingProxyType`.
+  - $AC_5$: Execution time measured and recorded via `record_property` (5.52s << 60.0s threshold). Not claimed as a benchmark.
+
+---
+
+## Story 22.4 — Proposing Only a Real Improvement
+- **Commit:** `9fc3149`
+- **Date:** 2026-11-09
+- **Branch:** `feat/story-22.4`
+- **Source ADR / BRD / FDD:** ADR-022 (§4.1), BRD-022 (BRU-022-07, BRU-022-08, BRU-022-09, BRU-022-10), FDD-022 (§1 item 1, §1 item 2, §2.2, §2.3, §2.4, §3.6, §3.8, §4 L4, L6, L7, L8)
+- **Pre-Flight Spec Gate:** Proceed utility 0.6191, margin +0.0978 (>= +0.05), episode `spec-22_4-a71ab4b5`.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/weight_compiler.py` (`propose`)
+  - `src/agent_learning_ext/__init__.py` (re-exports `propose`)
+  - `src/agent_learning_ext/cli.py` (`policy-compile-weights` CLI command and validation)
+  - `.claude/skills/weight-compiler/SKILL.md` (updated component skill)
+  - `tests/test_weight_propose.py` (contract tests for $AC_0$ through $AC_6$, interpretations $I_1$ to $I_5$)
+  - `docs/user-stories/epic-22-scored-search-decision-configuration-compilation.md` (Story 22.4 marked Completed)
+- **Contracts:**
+  - `tests/test_weight_propose.py`
+  - Contract run: 7 passed in 3.37s
+  - Cumulative suite: 43 passed across Epic 22 (`test_weight_objective.py`, `test_weight_split.py`, `test_weight_search.py`, `test_weight_propose.py`, `test_upstream_untouched.py`)
+- **Notes:**
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Zero edits to `src/agent_learning/`. Logic isolated in `src/agent_learning_ext/weight_compiler.py` and `cli.py`.
+    - $I_2$: Storage Decoupling: Zero file I/O in `weight_compiler.py`; `policy-compile-weights` CLI handles dataset file read and proposal file write without touching the store.
+    - $I_3$: Defensive None-Safety: Defensive dictionary guards.
+    - $I_4$: Empty Collection Base Case: Handling empty collections cleanly.
+    - $I_5$: Specific Exception Classes: Verified explicit exception types (`TypeError` on frozen weights mutation).
+  - $AC_0$: `propose` on misaligned synthetic suite returns `CompiledWeights` with `holdout_accuracy` strictly above `baseline_holdout_accuracy`, reporting seed, split sizes, evaluations, sweeps, and restarts.
+  - $AC_1$: When compiled weights tie with baseline on held-out part, `propose` returns `NoImprovement` carrying both accuracies and no weights.
+  - $AC_2$: When compiled weights score lower than baseline on held-out part, `propose` returns `NoImprovement`.
+  - $AC_3$: Baseline computation strictly uses each frame's own authored criteria weights on the held-out items.
+  - $AC_4$: `policy-compile-weights` writes complete proposal JSON object per FDD-022 §2.3 and writes nothing to the store.
+  - $AC_5$: Dataset validation verifies all items have `frame`, `label`, `labeled_at`, and that labels belong to the active policy action space; exits non-zero naming the offending item. `weight_compiler.py` performs no file I/O.
+  - $AC_6$: `CompiledWeights.weights` is immutable `MappingProxyType`; mutating raw input dict leaves stored weights intact, and direct mutation raises `TypeError`.
+
+---
+
+## Story 22.5 — Applying Frozen Weights
+- **Commit:** `b704c8b`
+- **Date:** 2026-11-09
+- **Branch:** `feat/story-22.5`
+- **Source ADR / BRD / FDD:** ADR-022 (§4.1), BRD-022 (BRU-022-10, BRU-022-11), FDD-022 (§1 item 3, §3.7, §4 L1)
+- **Pre-Flight Spec Gate:** Proceed utility 0.6191, margin +0.0978 (>= +0.05), episode `spec-22_5-4112e624`.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/weight_compiler.py` (`apply_compiled_config`)
+  - `src/agent_learning_ext/__init__.py` (re-exports `apply_compiled_config`)
+  - `src/agent_learning_ext/cli.py` (`task-policy-decide` applies compiled config)
+  - `.claude/skills/weight-compiler/SKILL.md` (updated component skill)
+  - `tests/test_weight_apply.py` (contract tests for $AC_0$ through $AC_4$, interpretations $I_1$ to $I_4$)
+  - `docs/user-stories/epic-22-scored-search-decision-configuration-compilation.md` (Story 22.5 marked Completed)
+- **Contracts:**
+  - `tests/test_weight_apply.py`
+  - Contract run: 5 passed in 1.13s
+  - Cumulative suite: 48 passed across Epic 22 (`test_weight_objective.py`, `test_weight_split.py`, `test_weight_search.py`, `test_weight_propose.py`, `test_weight_apply.py`, `test_upstream_untouched.py`)
+- **Notes:**
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Zero edits to `src/agent_learning/`. Logic isolated in `src/agent_learning_ext/weight_compiler.py` and `cli.py`.
+    - $I_2$: Storage Decoupling: Zero file I/O in `apply_compiled_config`.
+    - $I_3$: Defensive None-Safety: Defensive dictionary and metadata guards.
+    - $I_4$: Resolver Inviolability: AST check confirms `DecisionResolver` carries zero references to `criteria_weights`.
+  - $AC_0$: `apply_compiled_config` applies snapshot's `criteria_weights` to frame; returns frame untouched when snapshot metadata lacks `criteria_weights`.
+  - $AC_1$: Snapshot with criteria weights whose keys differ from frame criteria raises `ValueError`.
+  - $AC_2$: `task-policy-decide` resolves with compiled weights when snapshot carries them and with stored weights when absent; matches direct `with_weights` resolution.
+  - $AC_3$: Verified count of calls to `coordinate_ascent` and `propose` during online `task-policy-decide` is strictly zero.
+  - $AC_4$: AST analysis verifies `DecisionResolver` remains pure and has zero references to `criteria_weights`.
+
+---
+
 ## Story 21.3 — Pinned Gates
-- **Commit:** `873b98f`
+- **Commit:** `873b98f` (review fixes `41a2106`)
 - **Date:** 2026-11-08
 - **Branch:** `feat/story-21.3`
 - **Source ADR / BRD / FDD:** ADR-021 (§4.1), BRD-021, FDD-021 (§1 item 3, §2.1)
@@ -2718,4 +2874,3 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-142-6 | crash risk | verified: yes | decision: accepted | Wrap spec.loader.exec_module in try/except with pytest.fail in test_governance_baseline_passes | fix: e9a2c34`
   - `Q-142-7 | crash risk | verified: yes | decision: accepted | Move gb.MANIFEST and gb.find_problems inside try/except block in test_governance_baseline_passes | fix: e2c70a1`
   - `Q-142-8 | crash risk | verified: yes | decision: accepted | Initialize problems list and assert inside try block while re-raising AssertionError in test_governance_baseline_passes | fix: d49b01f`
-

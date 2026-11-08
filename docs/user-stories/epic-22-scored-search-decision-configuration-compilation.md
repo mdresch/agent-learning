@@ -14,7 +14,7 @@ Fixtures used by the criteria below. "The toy frame": criteria `c1`, `c2`, optio
 
 ## Story 22.1 — Scoring a Weight Vector With the Real Resolver
 
-**Status:** Ready  
+**Status:** Completed (2026-11-08)  
 **As** an auditor, **I want** a candidate scored by the real resolver and nothing else, **so that** a compiled weight is judged by the rule that will use it.
 
 ### Acceptance Criteria:
@@ -30,7 +30,7 @@ Fixtures used by the criteria below. "The toy frame": criteria `c1`, `c2`, optio
 
 ## Story 22.2 — The Split and the Label Rule
 
-**Status:** Ready  
+**Status:** Completed (2026-11-08)  
 **As** a maintainer, **I want** a reproducible hold-out and labels that predate the proposal, **so that** reported accuracy is honest.
 
 ### Acceptance Criteria:
@@ -44,7 +44,7 @@ Fixtures used by the criteria below. "The toy frame": criteria `c1`, `c2`, optio
 
 ## Story 22.3 — The Coordinate Ascent
 
-**Status:** Ready  
+**Status:** Completed (2026-11-08)  
 **As** a maintainer, **I want** a deterministic search that keeps the weights valid, **so that** a result can be reproduced and trusted.
 
 ### Acceptance Criteria:
@@ -59,7 +59,7 @@ Fixtures used by the criteria below. "The toy frame": criteria `c1`, `c2`, optio
 
 ## Story 22.4 — Proposing Only a Real Improvement
 
-**Status:** Ready  
+**Status:** Completed (2026-11-09)  
 **As** an approver, **I want** a proposal only when the held-out accuracy truly beats the weights in force, **so that** a frozen configuration is never changed for no gain.
 
 ### Acceptance Criteria:
@@ -75,7 +75,7 @@ Fixtures used by the criteria below. "The toy frame": criteria `c1`, `c2`, optio
 
 ## Story 22.5 — Applying Frozen Weights
 
-**Status:** Ready  
+**Status:** Completed (2026-11-09)  
 **As** an operator, **I want** an online decision to use the adopted weights and run no search, **so that** a production decision stays deterministic and fast.
 
 ### Acceptance Criteria:

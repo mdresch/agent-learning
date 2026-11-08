@@ -2417,6 +2417,31 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - $AC_2$: Replay run twice on the same history produces 100% identical `action_statistics` and deterministic action choices.
   - $AC_3$: Test suite and properties explicitly label this as a consistency check on a real positive-only history without claiming superiority over alternative bandits without low-authority failure data (BRU-016-11).
 
+---
+
+## Story 18.6 — The Real-Data Check (Zero Pairs)
+- **Commit:** `a7d1bc8`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-18.6`
+- **Source ADR / BRD / FDD:** ADR-018 (§3, §5 item 4), BRD-018 (BRU-018-12), FDD-018 (§6, §7 item 1)
+- **Pre-Flight Spec Gate:** Proceed utility 0.7046, margin +0.1833 (>= +0.05), episode `spec-18_6-b6b87a5e`.
+- **Files Modified/Created:**
+  - `tests/test_pairwise_real_data.py` (contract tests for $AC_0$ through $AC_3$, interpretations $I_1, I_2, I_3$)
+  - `.claude/skills/pairwise-preference/SKILL.md` (updated with Story 18.5 runner integration & Story 18.6 real data boundary)
+  - `docs/user-stories/epic-18-pairwise-preference-optimization.md` (Story 18.6 and Epic 18 marked Completed)
+  - `docs/project-docs/Project-Status-Register.md` (orientation updated, 72 implemented, 0 drift)
+- **Validation:**
+  - $AC_0$: Real source episodes: loaded 177 committed `approve-*` episodes of `agent-learning-governance` from `docs/policy-shapes/episodes/` (well exceeding the >= 76 baseline from 2026-10-29), recorded count and file names.
+  - $AC_1$: `pairs_from_episodes` over the real governance episodes returns exactly 0 preference pairs, because all historical episodes represent accepted approvals with no override rejections.
+  - $AC_2$: `PairwiseLearner.update()` leaves `SoftmaxPolicy`'s logits completely unchanged within 1e-12, writes no reference to metadata, leaves snapshot version unchanged, and returns `episodes_used = 0`.
+  - $AC_3$: Output is explicitly labelled as the real preference data boundary (BRU-018-12), making no claim about learner quality, and specifically documenting the missing data (real human override adjudications) and the unbuilt Red Team pair set.
+  - Full suite: 4/4 passed in `tests/test_pairwise_real_data.py`. 36/36 pairwise suite tests passing. Governance baseline and phase rollup clean (0 status drift).
+- **Review (Step 8):** Amazon Q reviewed PR #128. All 4 findings addressed and confirmed clean:
+  - `Q-128-1 | logic error | verified: yes | decision: accepted | Ground AC_3 assertions on system under test and test docstring rather than tautological local string variable | fix: 818a6d0`
+  - `Q-128-2 | logic error | verified: yes | decision: accepted | Replace inverted guard logic in test_ac1 with explicit check that no episode combines rejected status, valid correct_action_id, and different action | fix: 818a6d0`
+  - `Q-128-3 | test gap | verified: yes | decision: accepted | Add explicit non-empty guard assert len(actions) > 0 in test_ac2 and test_ac3 to prevent silent vacuous pass | fix: 818a6d0`
+  - `Q-128-4 | crash risk | verified: yes | decision: accepted | Add pre-check in _load_real_governance_episodes raising FileNotFoundError if EPISODES_DIR does not exist | fix: 818a6d0`
+  Amazon Q confirmed all findings resolved; CI checks (build-installer, test) passed green.
 
 ---
 

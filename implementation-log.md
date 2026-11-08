@@ -2212,3 +2212,35 @@ This log records completed user stories in accordance with the SIDPA `implement-
 
 
 
+
+---
+
+## Story 16.1 — The Scores
+- **Commit:** `cfa05c5`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-16.1`
+- **Source ADR / BRD / FDD:** ADR-016 (§4.1), BRD-016 (BRU-016-01, BRU-016-03), FDD-016 (§2.1, §2.4, §3 item 1, E3, E7)
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/policy/action_statistics.py` (implemented shared `ActionStats` dataclass)
+  - `src/agent_learning_ext/policy/ucb.py` (implemented `ucb_scores`, constants `WILSON_Z`, `C_DEFAULT`, `SELECTION_BASIS`)
+  - `src/agent_learning_ext/learners/ucb.py` (initialized learner stub without RNG)
+  - `src/agent_learning_ext/autonomy.py` (widened `wilson_lower_bound` successes annotation to float per FDD-016 E3)
+  - `src/agent_learning_ext/policy/__init__.py` (re-exported UCB policy symbols and ActionStats)
+  - `.claude/skills/ucb/SKILL.md` (component skill)
+  - `tests/test_ucb_scores.py` (contract tests for $AC_0$ through $AC_5$)
+  - `docs/user-stories/epic-16-deterministic-ucb-decision-policy.md` (Story 16.1 marked Completed)
+- **Contracts:**
+  - `tests/test_ucb_scores.py`
+  - Contract run: 6 passed in 1.07s
+  - Regression suite: 36 passed in `tests/test_ucb_scores.py` and `agent-training-ext/tests/`
+- **Notes:**
+  - Pre-flight specification gate (`scripts/spec_gate.py 16.1`) evaluated: passed with robust utility 0.7367 and margin +0.2153 (episode `spec-16_1-1b37bfc3`).
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Code implemented under `src/agent_learning_ext/` leaving upstream `src/agent_learning/` pristine (0 lines diff).
+    - $I_2$: Storage Decoupling & Serialization: Pure standard library implementation with zero storage coupling.
+  - $AC_0$: Standard UCB1 scores match 1.8408 for `a` and 2.0719 for `b` on base statistics within $10^{-4}$ and match formula within $10^{-12}$.
+  - $AC_1$: Wilson variant scores 1.0 for perfect (10/10) and 0.2775 for zero (0/10) within $10^{-4}$; base statistics match closed form within $10^{-9}$.
+  - $AC_2$: Unexplored action with 0 pulls scores `math.inf` in both variants; `total == 1` gives bonus 0 in standard variant.
+  - $AC_3$: Wilson symmetry $1 - \text{wilson\_lower\_bound}(N - k, N)$ matches score within $10^{-12}$ across grid $N \in [1, 50], k \in [0, N]$; integer invariance verified.
+  - $AC_4$: Validation raises `ValueError` for unknown variant, non-positive or non-finite `c`, `total != sum(pulls)`, negative or non-integer `pull_count`, and cumulative reward outside $[0, \text{pull\_count}]$ or non-finite.
+  - $AC_5$: Static AST check verifies zero imports of `random` and zero references to random attributes in `policy/ucb.py` and `learners/ucb.py`.

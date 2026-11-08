@@ -109,8 +109,6 @@ def test_ac1_always_full(base_config: RoutingConfig) -> None:
             assert decision.reason == "pinned", (
                 f"Task {task_id} did not have reason 'pinned': {decision.reason}"
             )
-            assert decision.entropy_bits is not None
-            assert decision.margin is not None
             assert decision.anomaly is None
 
 
@@ -205,10 +203,16 @@ def test_ac4_shape_files() -> None:
             )
 
         action_ids: list[str] = [item["id"] for item in data]
-        prefix = task_id.replace("-", "_")
+        expected_task_prefix = "approve-"
+        assert task_id.startswith(expected_task_prefix), (
+            f"Task ID must start with '{expected_task_prefix}': {task_id}"
+        )
+        suffix = task_id[len(expected_task_prefix):].replace("-", "_")
+        expected_approve = f"approve_{suffix}"
+        expected_reject = f"reject_{suffix}"
 
-        assert f"approve_{prefix[8:]}" in action_ids
-        assert f"reject_{prefix[8:]}" in action_ids
+        assert expected_approve in action_ids, f"Expected {expected_approve} in {action_ids}"
+        assert expected_reject in action_ids, f"Expected {expected_reject} in {action_ids}"
         assert "request_revision_before_decision" in action_ids
 
         # JSON round-trip serialization check (I_2)

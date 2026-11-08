@@ -46,7 +46,7 @@ Fixture used by the criteria below ("the base statistics"): action `a` with 10 p
 
 ## Story 16.3 — Statistics in the Snapshot
 
-**Status:** Ready  
+**Status:** Completed (2026-11-08, commit 24ed5e3)  
 **As** a maintainer, **I want** the statistics kept in the policy snapshot, **so that** no new record type is needed.
 
 ### Acceptance Criteria:
@@ -59,7 +59,7 @@ Fixture used by the criteria below ("the base statistics"): action `a` with 10 p
 
 ## Story 16.4 — Counting Each Episode Once
 
-**Status:** Ready  
+**Status:** Completed (2026-11-08, commit 88adc2f)  
 **As** a maintainer, **I want** each reward to add to the statistics exactly once, **so that** retraining on recent episodes cannot inflate a count.
 
 ### Acceptance Criteria:
@@ -76,7 +76,7 @@ Fixture used by the criteria below ("the base statistics"): action `a` with 10 p
 
 ## Story 16.5 — Staying Out of REINFORCE
 
-**Status:** Ready — depends on Story 15.3 (`Decision.logprob` optional).  
+**Status:** Completed (2026-11-08, commit ef2a900) — depends on Story 15.3 (`Decision.logprob` optional).  
 **As** a maintainer, **I want** UCB episodes to be invisible to `ReinforceLearner`, **so that** a deterministic pick is never trained on as a softmax sample.
 
 ### Acceptance Criteria:

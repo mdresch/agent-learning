@@ -24,6 +24,7 @@ from .pairwise import (
     pairs_from_episodes,
 )
 from .reinforce import ReinforceLearner
+from .ucb import UCBLearner
 
 __all__ = [
     "CLAMP",
@@ -38,6 +39,7 @@ __all__ = [
     "PreferencePair",
     "ReinforceLearner",
     "ThompsonLearner",
+    "UCBLearner",
     "bt_gradient",
     "bt_loss",
     "build_pair_matrix",

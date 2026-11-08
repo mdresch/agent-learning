@@ -14,7 +14,7 @@ from typing import Any
 from agent_learning.policy.base import Decision, Policy
 from agent_learning.types import Action, PolicySnapshot
 from agent_learning_ext.autonomy import wilson_lower_bound
-from agent_learning_ext.policy.action_statistics import ActionStats
+from agent_learning_ext.policy.action_statistics import ActionStats, read_statistics
 
 # Constants per FDD-016 §2.1
 WILSON_Z: float = 1.96
@@ -95,34 +95,76 @@ class UCBPolicy(Policy):
         self._snapshot = copy.deepcopy(snapshot)
         self._last_decision_record: dict[str, Any] | None = None
 
+    @classmethod
+    def from_actions(
+        cls,
+        actions: Sequence[Action],
+        *,
+        variant: str = "wilson",
+        c: float = C_DEFAULT,
+        agent_id: str = "default",
+        task_id: str = "default",
+    ) -> UCBPolicy:
+        """Create a new UCBPolicy from an action space with initial zero statistics (AC_0)."""
+        if variant not in ("standard", "wilson"):
+            raise ValueError(f"unknown variant {variant!r}; must be 'standard' or 'wilson'")
+        if isinstance(c, bool) or not isinstance(c, (int, float)) or not math.isfinite(c) or c <= 0:
+            raise ValueError(f"c must be a positive finite float; got {c!r}")
+
+        act_list = list(actions)
+        stats_dict = {
+            a.id: {"pull_count": 0, "cumulative_reward": 0.0, "mean_reward": 0.0}
+            for a in act_list
+        }
+        metadata = {
+            "policy_type": "ucb",
+            "ucb_variant": variant,
+            "exploration_constant": c,
+            "action_statistics": stats_dict,
+            "consumed_episode_ids": [],
+        }
+        snapshot = PolicySnapshot(
+            agent_id=agent_id,
+            task_id=task_id,
+            actions=act_list,
+            logits={a.id: 0.0 for a in act_list},
+            metadata=metadata,
+        )
+        return cls(snapshot)
+
+    @classmethod
+    def from_snapshot(cls, snapshot: PolicySnapshot) -> UCBPolicy:
+        """Construct and validate a UCBPolicy from a PolicySnapshot (AC_1, AC_2)."""
+        metadata = getattr(snapshot, "metadata", None) or {}
+        policy_type = metadata.get("policy_type")
+        if policy_type != "ucb":
+            raise ValueError(f"snapshot policy_type must be 'ucb'; got {policy_type!r}")
+
+        variant = metadata.get("ucb_variant", "wilson")
+        if variant not in ("standard", "wilson"):
+            raise ValueError(f"unknown variant {variant!r}; must be 'standard' or 'wilson'")
+
+        c = metadata.get("exploration_constant", C_DEFAULT)
+        if isinstance(c, bool) or not isinstance(c, (int, float)) or not math.isfinite(c) or c <= 0:
+            raise ValueError(f"c must be a positive finite float; got {c!r}")
+
+        # Delegate all statistics validation to read_statistics (AC_2)
+        read_statistics(metadata, [a.id for a in snapshot.actions])
+
+        return cls(snapshot)
+
     def choose(self, state: Any = None) -> Decision:
         """Deterministically choose an action using Upper Confidence Bound scoring."""
         if not self._snapshot.actions:
             raise ValueError("policy has no actions")
 
-        stats_meta = self._snapshot.metadata.get("action_statistics", {})
-        variant = self._snapshot.metadata.get("ucb_variant", "wilson")
-        c = self._snapshot.metadata.get("exploration_constant", C_DEFAULT)
+        metadata = self._snapshot.metadata or {}
+        variant = metadata.get("ucb_variant", "wilson")
+        c = metadata.get("exploration_constant", C_DEFAULT)
 
-        # Ingest statistics for every action in action space
-        stats: dict[str, ActionStats] = {}
-        total = 0
-        for action in self._snapshot.actions:
-            raw = stats_meta.get(action.id)
-            if raw is None:
-                st = ActionStats(pull_count=0, cumulative_reward=0.0, mean_reward=0.0)
-            elif isinstance(raw, ActionStats):
-                st = raw
-            elif isinstance(raw, dict):
-                st = ActionStats(
-                    pull_count=raw.get("pull_count", 0),
-                    cumulative_reward=float(raw.get("cumulative_reward", 0.0)),
-                    mean_reward=float(raw.get("mean_reward", 0.0)),
-                )
-            else:
-                st = ActionStats(pull_count=0, cumulative_reward=0.0, mean_reward=0.0)
-            stats[action.id] = st
-            total += st.pull_count
+        # Ingest statistics via shared read_statistics function
+        stats = read_statistics(metadata, [a.id for a in self._snapshot.actions])
+        total = sum(st.pull_count for st in stats.values())
 
         scores = ucb_scores(stats, total, variant=variant, c=c)
 
@@ -142,15 +184,10 @@ class UCBPolicy(Policy):
                 best_score = sc
                 best_pulls = pc
             elif sc == best_score:
-                if pc > best_pulls:
+                if pc > best_pulls or (pc == best_pulls and action.id < best_action.id):
                     best_action = action
                     best_score = sc
                     best_pulls = pc
-                elif pc == best_pulls:
-                    if action.id < best_action.id:
-                        best_action = action
-                        best_score = sc
-                        best_pulls = pc
 
         if best_action is None:
             raise RuntimeError("failed to select an action from non-empty action space")
@@ -190,3 +227,21 @@ class UCBPolicy(Policy):
     def apply_update(self, *args: Any, **kwargs: Any) -> None:
         """Raise TypeError: UCBPolicy does not support direct logit updates."""
         raise TypeError("use UCBLearner: UCBPolicy is not a logit-based policy")
+
+    def consumed_episode_ids(self) -> list[str]:
+        """Return a copy of the ids of the episodes already counted."""
+        return list(self._snapshot.metadata.get("consumed_episode_ids", []))
+
+    def update_statistics(
+        self,
+        metadata: dict[str, Any],
+        *,
+        episodes_seen: int,
+    ) -> None:
+        """Update action statistics and advance snapshot version (used by UCBLearner)."""
+        action_ids = [action.id for action in self._snapshot.actions]
+        read_statistics(metadata, action_ids)
+        self._snapshot.metadata = copy.deepcopy(metadata)
+        self._snapshot.episodes_seen = int(episodes_seen)
+        self._snapshot.updates_applied += 1
+        self._snapshot.advance_version()

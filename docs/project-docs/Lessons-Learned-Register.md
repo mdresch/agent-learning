@@ -55,6 +55,7 @@
 | [LL-042](#ll-042--an-existing-story-branch-means-a-run-was-already-started) | An Existing Story Branch Means a Run Was Already Started | Epic 20 / Story 20.6 | Universal Process | 2026-11-04 |
 | [LL-043](#ll-043--a-closing-stages-tooling-may-sit-outside-what-ci-runs) | A Closing Stage's Tooling May Sit Outside What CI Runs | Phase 1 Close / Stage 18 | Universal Process | 2026-11-04 |
 | [LL-044](#ll-044--the-monolithic-ideation-trap-decoupling-deep-exploratory-research-into-a-dedicated-library) | The Monolithic Ideation Trap: Decoupling Deep Exploratory Research into a Dedicated Library | Phase 1 Close / Stage 1 Initiation | Universal Governance & Process | 2026-11-06 |
+| [LL-045](#ll-045--pre-flight-specification-gaps-in-replay-engines-auditing-empty-collection-and-none-safety-contracts) | Pre-Flight Specification Gaps in Replay Engines: Auditing Empty-Collection and None-Safety Contracts | Epic 14 / Story 14.5 | Universal Design & Testing | 2026-11-08 |
 
 ---
 
@@ -636,4 +637,18 @@
 - **The Root Cause:** Lack of a designated, decoupled research repository for exploratory landscape studies, comparative SDK benchmarks, and architectural investigations. Without an offline research library, all inquiry is forced into the immediate lifecycle document under active governance.
 - **Actionable Invariant:** Decouple deep exploratory inquiry into a dedicated research directory (`docs/research/<domain>/`), while keeping lifecycle artifacts (`Spark-Capture.md`, `Ideation-Document.md`, `Project-Charter.md`) strictly focused on their specific stage gate deliverables. The lifecycle artifact summarizes the synthesized insight, records the hypotheses, and points to the research library for supporting evidence and comprehensive taxonomies.
 - **Verification Gate:** Pre-commit or stage gate checks ensure lifecycle artifacts cite canonical research artifacts in `docs/research/` rather than embedding multi-page comparative surveys and benchmarks inline.
+
+---
+
+### LL-045 — Pre-Flight Specification Gaps in Replay Engines: Auditing Empty-Collection and None-Safety Contracts
+- **Identifier:** `LL-045`
+- **Date:** 2026-11-08
+- **Epic / Story:** Epic 14 / Story 14.5 (commit `f3b3731`, PR #121)
+- **Scope:** Universal Design & Testing / Replay Engines
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/implement-story/SKILL.md` (Step 1b Pre-Flight Spec Gate); Tier 3: `sidpa-template/scripts/spec_gate.py`
+- **The Trap:** Replay engines and log parsers written to process real production history often assume well-formed entries. When stories are drafted without explicit contracts for empty collections (e.g., empty log, 0 matching records) or defensive None-handling on optional fields (e.g., missing comment text, unpopulated metadata), implementations fail abruptly with unhandled `AttributeError` or `KeyError` when exposed to partial data. In Story 14.5, the initial spec was marked blocked on a data gap and completely omitted empty collection / defensive None contracts.
+- **The Root Cause:** Drafting test contracts directly against anticipated positive datasets without running an adversarial specification audit to identify edge cases, boundary conditions, and None-safety gaps upfront.
+- **Actionable Invariant:** Run the Pre-Flight Specification Gate (`scripts/spec_gate.py <X.Y>`) before drafting any RED contracts. The gate audits four orthogonal criteria (specification completeness, testability, Invariant 6 upstream fork purity, architectural boundaries), identifies unstated None-safety and empty collection requirements, and derives recommended contract interpretations ($I_1, I_2, \dots$) to be included in test docstrings.
+- **Verification Gate:** Step 1b of `implement-story` runs `scripts/spec_gate.py <X.Y>` and requires robust utility margin $\ge +0.05$ before RED test drafting begins.
+
 

@@ -181,16 +181,18 @@ _EXPORTS: dict[str, str] = {
     "route": "agent_learning_ext.routing",
     "reward_to_r": "agent_learning_ext.policy.action_statistics",
     "seed_values": "agent_learning.meta_prior",
+    "split_holdout": "agent_learning_ext.weight_compiler",
     "to_episode_metadata": "agent_learning.tailoring",
     "topological_order": "agent_learning.pmbok",
     "ucb_scores": "agent_learning_ext.policy.ucb",
     "validate_catalog": "agent_learning.methodology_catalog",
     "validate_dependencies": "agent_learning.pmbok",
+    "validate_label_timing": "agent_learning_ext.weight_compiler",
     "validate_metadata": "agent_learning.pmbok",
     "validate_route_set": "agent_learning.tailoring",
     "warm_start_logits": "agent_learning.warm_start",
     "wilson_lower_bound": "agent_learning_ext.autonomy",
-    "with_weights": "agent_learning_ext.weight_compiler"
+    "with_weights": "agent_learning_ext.weight_compiler",
 }
 
 __all__ = sorted(_EXPORTS)  # noqa: PLE0605

@@ -42,3 +42,11 @@ This skill governs Scored-Search Decision Configuration Compilation (`src/agent_
    - Objective: $\sum [\mathbb{I}[\hat{y} = y^*] + \beta \cdot \text{Margin}]$.
    - Default margin weight $\beta = 0.1$.
    - $\hat{y}$ awards credit for `resolved` and `needs_user_feedback` (reasoned recommendation awaiting human approval), returning `None` for ties or unevidenced states.
+7. **Reproducible Disjoint Hold-Out (AC_0, AC_1, AC_2, BRU-022-05):**
+   - `split_holdout(items, *, fraction=0.3, seed)` returns reproducible disjoint partitions that sum to the input collection.
+   - Requires `0.3 <= fraction <= 0.5`, integer seed, and $\ge \text{MIN\_PART}$ (5) items in both partitions, raising `ValueError` otherwise.
+   - Sorts items deterministically prior to shuffling (`random.Random(seed)`), ensuring permutation invariance.
+8. **Label Timing Validation (AC_3, BRU-022-06):**
+   - `validate_label_timing(items, proposed_at)` validates that every item's `labeled_at` is strictly earlier than `proposed_at`. If `labeled_at >= proposed_at`, it raises `ValueError` naming the item.
+9. **Held-Out Partition Untouched (AC_4):**
+   - Offline coordinate ascent runs exclusively on the training partition without invoking the resolver on held-out items during search.

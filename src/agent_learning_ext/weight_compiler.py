@@ -1,9 +1,11 @@
-"""Scored-search decision configuration compilation (Story 22.1).
+"""Scored-search decision configuration compilation (Story 22.1 & Story 22.2).
 
 Source ADR: ADR-022 (Scored-Search Decision Configuration Compilation)
-Source BRD: BRD-022 (BRU-022-01, BRU-022-02, BRU-022-03, BRU-022-04, BRU-022-10)
-Source FDD: FDD-022 (§1 item 1, §2.1, §2.2, §3.1, §3.2, §3.3, §4 L1, L2, L7)
-Story: Story 22.1 (Scoring a Weight Vector With the Real Resolver)
+Source BRD: BRD-022 (BRU-022-01, BRU-022-02, BRU-022-03, BRU-022-04, BRU-022-05, BRU-022-06, BRU-022-10)
+Source FDD: FDD-022 (§1 item 1, §2.1, §2.2, §3.1, §3.2, §3.3, §3.4, §3.6, §4 L1, L2, L7)
+Stories:
+- Story 22.1 (Scoring a Weight Vector With the Real Resolver)
+- Story 22.2 (The Split and the Label Rule)
 
 Contract Interpretations:
 - [I1] Upstream Fork Purity (Invariant 6): Implemented in src/agent_learning_ext/weight_compiler.py.
@@ -13,9 +15,12 @@ Contract Interpretations:
 
 from __future__ import annotations
 
+import json
 import math
+import random
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, replace
+from datetime import datetime, timezone
 from types import MappingProxyType
 from typing import Any
 
@@ -49,6 +54,10 @@ class LabeledFrame:
     label: str  # the action id the human settled on
     labeled_at: str  # ISO 8601 timestamp
 
+    def __hash__(self) -> int:
+        task = getattr(self.frame, "task", id(self.frame))
+        return hash((task, self.label, self.labeled_at))
+
 
 @dataclass(frozen=True)
 class CompiledWeights:
@@ -66,7 +75,8 @@ class CompiledWeights:
     proposed_at: str
 
     def __post_init__(self) -> None:
-        object.__setattr__(self, "weights", MappingProxyType(dict(self.weights)))
+        if not isinstance(self.weights, MappingProxyType):
+            object.__setattr__(self, "weights", MappingProxyType(dict(self.weights)))
 
 
 @dataclass(frozen=True)
@@ -78,7 +88,22 @@ class NoImprovement:
     best_holdout_accuracy: float
 
 
-# --- Core Pure Functions (FDD-022 §3.1 - §3.3) ---
+# --- Helper Functions ---
+
+
+def _parse_iso(ts: str | datetime) -> datetime:
+    """Parse ISO 8601 timestamp string or datetime into UTC-aware datetime."""
+    if isinstance(ts, datetime):
+        if ts.tzinfo is None:
+            return ts.replace(tzinfo=timezone.utc)
+        return ts
+    dt = datetime.fromisoformat(str(ts).replace("Z", "+00:00"))
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt
+
+
+# --- Core Pure Functions (FDD-022 §3.1 - §3.6) ---
 
 
 def with_weights(
@@ -121,6 +146,8 @@ def with_weights(
 
     validated_weights: list[float] = []
     for w in ordered_weights:
+        if isinstance(w, bool):
+            raise ValueError(f"invalid weight {w!r}")
         try:
             fw = float(w)
         except (TypeError, ValueError) as exc:
@@ -217,3 +244,95 @@ def objective(
         total_score += is_correct + beta * margin
 
     return total_score
+
+
+def validate_label_timing(
+    items: Sequence[Any],
+    proposed_at: str | datetime,
+) -> None:
+    """Validate that all items were labeled strictly before proposed_at (FDD-022 §3.6, AC_3).
+
+    Raises ValueError naming the item when any labeled_at equals or follows proposed_at.
+    """
+    prop_dt = _parse_iso(proposed_at)
+    for item in items:
+        labeled_at_raw = getattr(item, "labeled_at", None)
+        if labeled_at_raw is None and isinstance(item, dict):
+            labeled_at_raw = item.get("labeled_at")
+        if labeled_at_raw is None:
+            raise ValueError(f"Item lacks labeled_at: {item!r}")
+
+        item_dt = _parse_iso(labeled_at_raw)
+        if item_dt >= prop_dt:
+            task_name = getattr(getattr(item, "frame", None), "task", None)
+            name_str = f"item '{task_name}'" if task_name else f"item {item!r}"
+            raise ValueError(
+                f"{name_str} labeled_at ({labeled_at_raw}) equals or follows "
+                f"proposed_at ({proposed_at})"
+            )
+
+
+def split_holdout(
+    items: Sequence[LabeledFrame],
+    *,
+    fraction: float = HOLDOUT_FRACTION_DEFAULT,
+    seed: int,
+) -> tuple[list[LabeledFrame], list[LabeledFrame]]:
+    """Partition items into a training part and a held-out part reproducibly (FDD-022 §3.4).
+
+    AC_0: split_holdout on the synthetic suite with seed 7 returns the same two parts
+    on every call and in a fresh process; a different seed returns a different split;
+    the parts are disjoint and together equal the input.
+
+    AC_1: a fraction of 0.3 on 40 items holds out 12; a fraction under 0.3 or over 0.5,
+    a non-integer seed, and an input that would leave fewer than 5 items in either part
+    each raise ValueError.
+
+    AC_2: shuffling the input list before the call does not change the parts (sorts
+    deterministically before partitioning).
+    """
+    if not isinstance(seed, int) or isinstance(seed, bool):
+        raise ValueError(f"seed must be an integer, got {seed!r}")
+    if not isinstance(fraction, (int, float)) or isinstance(fraction, bool):
+        raise ValueError(f"fraction must be a float, got {fraction!r}")
+    if math.isnan(fraction) or math.isinf(fraction) or fraction < 0.3 or fraction > 0.5:
+        raise ValueError(f"fraction must be between 0.3 and 0.5, got {fraction}")
+
+    n = len(items)
+    holdout_count = int(round(n * fraction))
+    train_count = n - holdout_count
+
+    if train_count < MIN_PART or holdout_count < MIN_PART:
+        raise ValueError(
+            f"input would leave fewer than {MIN_PART} items in either part: "
+            f"total={n}, train={train_count}, holdout={holdout_count}"
+        )
+
+    def _deterministic_sort_key(item: Any) -> tuple[str, str, str]:
+        labeled_at = getattr(item, "labeled_at", None)
+        if labeled_at is None and isinstance(item, dict):
+            labeled_at = item.get("labeled_at", "")
+        label = getattr(item, "label", None)
+        if label is None and isinstance(item, dict):
+            label = item.get("label", "")
+        frame = getattr(item, "frame", None)
+        if frame is None and isinstance(item, dict):
+            frame = item.get("frame", "")
+        if hasattr(frame, "to_dict"):
+            frame_str = json.dumps(frame.to_dict(), sort_keys=True)
+        elif isinstance(frame, dict):
+            frame_str = json.dumps(frame, sort_keys=True)
+        else:
+            frame_str = str(frame)
+        return (str(labeled_at), str(label), frame_str)
+
+    ordered = sorted(items, key=_deterministic_sort_key)
+
+    rng = random.Random(seed)
+    indices = list(range(n))
+    rng.shuffle(indices)
+
+    train = [ordered[i] for i in indices[:train_count]]
+    holdout = [ordered[i] for i in indices[train_count:]]
+
+    return train, holdout

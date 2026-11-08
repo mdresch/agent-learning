@@ -2713,3 +2713,32 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - $AC_4$: If an option is ruled out by constraints, `evaluate` never returns it and the margin computation ignores it.
   - $AC_5$: Replaced `DecisionResolver.resolve` with counting wrapper, confirming exactly one call per `evaluate` through the real resolver.
   - $AC_6$: AST analysis verifies `weight_compiler.py` imports nothing from `agent_learning.storage` and performs no file I/O.
+
+---
+
+## Story 22.2 — The Split and the Label Rule
+- **Commit:** `4e60ee3`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-22.2`
+- **Source ADR / BRD / FDD:** ADR-022 (§4.1), BRD-022 (BRU-022-05, BRU-022-06, BRU-022-10), FDD-022 (§1 item 1, §2.1, §3.4, §3.6)
+- **Pre-Flight Spec Gate:** Proceed utility 0.6917, margin +0.1704 (>= +0.05), episode `spec-22_2-1926d25b`.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/weight_compiler.py` (`split_holdout`, `validate_label_timing`, `_parse_iso`)
+  - `src/agent_learning_ext/__init__.py` (re-exports `split_holdout`, `validate_label_timing`)
+  - `.claude/skills/weight-compiler/SKILL.md` (updated component skill)
+  - `tests/test_weight_split.py` (contract tests for $AC_0$ through $AC_4$, interpretations $I_1$ to $I_3$)
+  - `docs/user-stories/epic-22-scored-search-decision-configuration-compilation.md` (Story 22.2 marked Completed)
+- **Contracts:**
+  - `tests/test_weight_split.py`
+  - Contract run: 6 passed in 0.58s
+  - Cumulative suite: 30 passed across Epic 22 (`test_weight_objective.py`, `test_weight_split.py`, `test_upstream_untouched.py`)
+- **Notes:**
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Zero edits to `src/agent_learning/`. All logic in `src/agent_learning_ext/weight_compiler.py`.
+    - $I_2$: Storage Decoupling: Zero file I/O or storage dependencies in splitting and validation functions.
+    - $I_3$: Deterministic Ordering: Canonical JSON serialization of frame metadata used as deterministic sort key tiebreaker.
+  - $AC_0$: `split_holdout` with fixed seed returns identical partitions across invocations and separate runs; differing seed produces differing splits; partitions are strictly disjoint and reconstruct full dataset.
+  - $AC_1$: Validates `fraction` bounds `[0.3, 0.5]`, integer seed, and raises `ValueError` if either partition has fewer than `MIN_PART` (5) items.
+  - $AC_2$: Input permutation invariance verified: shuffling input sequence prior to `split_holdout` yields identical splits.
+  - $AC_3$: `validate_label_timing` rejects items where `labeled_at >= proposed_at` with descriptive `ValueError` naming the offending item.
+  - $AC_4$: Offline training search verifies zero evaluation calls against held-out partition during search execution.

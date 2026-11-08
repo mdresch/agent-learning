@@ -80,6 +80,22 @@ class CompiledWeights:
 
 
 @dataclass(frozen=True)
+class CoordinateAscentResult:
+    """Result of coordinate ascent search over criteria weights (FDD-022 §3.5)."""
+
+    weights: Mapping[str, float]
+    train_accuracy: float
+    train_objective: float
+    evaluations: int
+    sweeps: int
+    restarts: int
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.weights, MappingProxyType):
+            object.__setattr__(self, "weights", MappingProxyType(dict(self.weights)))
+
+
+@dataclass(frozen=True)
 class NoImprovement:
     """Outcome when compiled weights fail to strictly outperform baseline holdout accuracy."""
 
@@ -336,3 +352,140 @@ def split_holdout(
     holdout = [ordered[i] for i in indices[train_count:]]
 
     return train, holdout
+
+
+def _project_to_simplex(weights: Mapping[str, float], step: float) -> dict[str, float]:
+    """Ensure all weights are at least step and sum to 1.0 within 1e-9."""
+    res = {k: max(step, float(v)) for k, v in weights.items()}
+    tot = sum(res.values())
+    res = {k: v / tot for k, v in res.items()}
+    for _ in range(10):
+        if all(v >= step - 1e-9 for v in res.values()):
+            break
+        res = {k: max(step, v) for k, v in res.items()}
+        tot = sum(res.values())
+        res = {k: v / tot for k, v in res.items()}
+    return res
+
+
+def coordinate_ascent(
+    train: Sequence[LabeledFrame],
+    snapshot: PolicySnapshot,
+    *,
+    step: float = STEP_DEFAULT,
+    restarts: int = RESTARTS_DEFAULT,
+    max_sweeps: int = MAX_SWEEPS_DEFAULT,
+    beta: float = BETA_DEFAULT,
+) -> CoordinateAscentResult:
+    """Optimize criteria weights via coordinate ascent on training partition (FDD-022 §3.5).
+
+    AC_0: Every weight vector evaluated is positive, at least step 0.05, and sums to 1.0 within 1e-9.
+          Items whose frames have different criterion ids raise ValueError.
+    AC_1: Training objective of returned weights is at least that of every start point,
+          and never decreases from one accepted candidate to the next.
+    AC_2: Synthetic suite returns weights within 0.05 of (0.6, 0.3, 0.1) and training accuracy 1.0.
+    AC_3: Deterministic execution and reproducibility across runs and fresh processes.
+    AC_4: Stops after max_sweeps or when sweep accepts nothing; reports evaluations, sweeps, restarts.
+          restarts=1 uses only the mean of the frames' own weights.
+    """
+    if not train:
+        raise ValueError("train items cannot be empty")
+
+    first_frame = getattr(train[0], "frame", None)
+    if first_frame is None and isinstance(train[0], dict):
+        first_frame = train[0].get("frame")
+    if first_frame is None:
+        raise ValueError(f"First item lacks a DecisionFrame: {train[0]!r}")
+
+    first_cids = {c.id for c in first_frame.criteria}
+
+    for idx, item in enumerate(train):
+        fr = getattr(item, "frame", None)
+        if fr is None and isinstance(item, dict):
+            fr = item.get("frame")
+        if fr is None:
+            raise ValueError(f"Item {idx} lacks a DecisionFrame: {item!r}")
+        item_cids = {c.id for c in fr.criteria}
+        if item_cids != first_cids:
+            raise ValueError(
+                f"All items must share one set of criterion ids, mismatch: "
+                f"{sorted(first_cids)} vs {sorted(item_cids)}"
+            )
+
+    cids = sorted(first_cids)
+    K = len(cids)
+
+    # 1. Start points in specified deterministic order:
+    # 1a. Mean of frames' own normalized weights
+    mean_w: dict[str, float] = {cid: 0.0 for cid in cids}
+    for item in train:
+        fr = getattr(item, "frame", None) or item["frame"]
+        norm = sum(c.weight for c in fr.criteria)
+        for c in fr.criteria:
+            mean_w[c.id] += (c.weight / norm) / len(train)
+    sp1 = _project_to_simplex(mean_w, step)
+
+    # 1b. Uniform weights
+    sp2 = {cid: 1.0 / K for cid in cids}
+
+    # 1c. For each criterion in sorted id order: 0.5 on it, rest shared equally
+    sp_criteria: list[dict[str, float]] = []
+    for cid in cids:
+        if K > 1:
+            pt = {other: (0.5 / (K - 1)) if other != cid else 0.5 for other in cids}
+        else:
+            pt = {cid: 1.0}
+        sp_criteria.append(_project_to_simplex(pt, step))
+
+    all_start_points = [sp1, sp2, *sp_criteria]
+    num_restarts = max(1, min(restarts, len(all_start_points)))
+    start_points = all_start_points[:num_restarts]
+
+    total_evaluations = 0
+    best_overall_obj: float = -float("inf")
+    best_overall_w: dict[str, float] = {}
+    best_overall_sweeps: int = 0
+
+    for start_w in start_points:
+        curr_w = dict(start_w)
+        curr_obj = objective(curr_w, train, snapshot, beta=beta)
+        total_evaluations += len(train)
+
+        sweeps_completed = 0
+        for _ in range(max_sweeps):
+            sweeps_completed += 1
+            accepted_in_sweep = False
+            for cid in cids:
+                for delta in (+step, -step):
+                    cand = dict(curr_w)
+                    cand[cid] = max(step, cand[cid] + delta)
+                    tot = sum(cand.values())
+                    cand = {k: v / tot for k, v in cand.items()}
+                    if any(v < step - 1e-9 for v in cand.values()):
+                        continue
+                    cand_obj = objective(cand, train, snapshot, beta=beta)
+                    total_evaluations += len(train)
+                    if cand_obj > curr_obj + 1e-12:
+                        curr_w = cand
+                        curr_obj = cand_obj
+                        accepted_in_sweep = True
+            if not accepted_in_sweep:
+                break
+
+        if curr_obj > best_overall_obj + 1e-12:
+            best_overall_obj = curr_obj
+            best_overall_w = curr_w
+            best_overall_sweeps = sweeps_completed
+
+    hits = sum(evaluate(it, best_overall_w, snapshot)[0] == it.label for it in train)
+    train_acc = hits / len(train)
+
+    return CoordinateAscentResult(
+        weights=best_overall_w,
+        train_accuracy=train_acc,
+        train_objective=best_overall_obj,
+        evaluations=total_evaluations,
+        sweeps=best_overall_sweeps,
+        restarts=num_restarts,
+    )
+

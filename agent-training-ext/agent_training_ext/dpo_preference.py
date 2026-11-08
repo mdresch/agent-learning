@@ -21,6 +21,7 @@ from agent_learning_ext.learners.pairwise import (
     fit_logits,
     pairs_from_episodes,
 )
+from agent_learning_ext.training import TrainingRunner
 
 __all__ = [
     "CLAMP",
@@ -31,6 +32,7 @@ __all__ = [
     "FitResult",
     "PairwiseLearner",
     "PreferencePair",
+    "TrainingRunner",
     "bt_gradient",
     "bt_loss",
     "build_pair_matrix",

@@ -100,6 +100,7 @@ _EXPORTS: dict[str, str] = {
     "ThompsonLearner": "agent_learning.learners.thompson",
     "ThompsonPolicy": "agent_learning.policy.thompson",
     "TieBreakDisposition": "agent_learning_ext.decision",
+    "TrainingRunner": "agent_learning_ext.training",
     "TriageRecord": "agent_learning.review_triage",
     "VALID_DONOR_KINDS": "agent_learning.warm_start",
     "VOLATILE_KEYS": "agent_learning.pmbok",
@@ -162,7 +163,7 @@ _EXPORTS: dict[str, str] = {
     "wilson_lower_bound": "agent_learning_ext.autonomy"
 }
 
-__all__ = sorted(_EXPORTS)
+__all__ = sorted(_EXPORTS)  # noqa: PLE0605
 
 
 def __getattr__(name: str) -> Any:

@@ -7,7 +7,8 @@ L2 regularization anchored to frozen reference logits.
 
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
+import math
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
 
@@ -23,6 +24,26 @@ class PreferencePair:
     winner: str
     loser: str
     source_episode_id: str
+
+
+# FDD-018 §2.1 Constants
+LAMBDA_MIN: float = 0.05
+CLAMP: float = 8.0
+LR_DEFAULT: float = 0.1
+STEPS_DEFAULT: int = 2000
+TOL_DEFAULT: float = 1e-8
+
+
+@dataclass(frozen=True)
+class FitResult:
+    """The result of fitting action logits to pairwise preferences (FDD-018 §2.2)."""
+
+    logits: dict[str, float]
+    converged: bool
+    iterations: int
+    stationarity: float
+    step_size: float
+    loss: float
 
 
 def pairs_from_episodes(
@@ -201,4 +222,166 @@ def bt_gradient(
 
     total_grad = data_grad + reg_grad
     return {a: float(total_grad[i]) for i, a in enumerate(action_ids)}
+
+
+def fit_logits(
+    pairs: Sequence[PreferencePair],
+    action_ids: Sequence[str],
+    theta_ref: Mapping[str, float] | Sequence[float],
+    *,
+    lam: float = 0.05,
+    lr: float = 0.1,
+    steps: int = 2000,
+    clamp: float = 8.0,
+    tol: float = 1e-8,
+    trace_fn: Callable[[dict[str, float]], None] | None = None,
+) -> FitResult:
+    """Fit action logits directly to preference pairs via projected gradient descent (FDD-018 §3 item 2).
+
+    Parameters:
+    - pairs: Sequence of PreferencePair(winner, loser, source_episode_id).
+    - action_ids: Sequence of valid discrete action identifiers.
+    - theta_ref: Anchor reference logits, as a mapping or sequence aligned with action_ids.
+    - lam: L2 regularization parameter (must be >= LAMBDA_MIN = 0.05).
+    - lr: Maximum step size (learning rate, must be > 0).
+    - steps: Maximum iterations cap (must be >= 1).
+    - clamp: Absolute logit boundary box [-clamp, +clamp] (must be > 0).
+    - tol: Stationarity tolerance for early stopping (must be > 0).
+    - trace_fn: Optional callback invoked with the current logit mapping before optimization
+      and after each iteration step.
+    """
+    # 1. Parameter validation (AC_0)
+    if not math.isfinite(lam) or lam < LAMBDA_MIN:
+        raise ValueError(f"Regularization parameter lam must be at least {LAMBDA_MIN}, got {lam}")
+    if not math.isfinite(lr) or lr <= 0.0:
+        raise ValueError(f"Learning rate lr must be a finite positive float, got {lr}")
+    if steps < 1:
+        raise ValueError(f"Iteration cap steps must be at least 1, got {steps}")
+    if not math.isfinite(clamp) or clamp <= 0.0:
+        raise ValueError(f"Clamp parameter clamp must be a finite positive float, got {clamp}")
+    if not math.isfinite(tol) or tol <= 0.0:
+        raise ValueError(f"Tolerance tol must be a finite positive float, got {tol}")
+
+    # 2. Reference logits validation (AC_0)
+    if isinstance(theta_ref, Mapping):
+        missing = [a for a in action_ids if a not in theta_ref]
+        if missing:
+            raise ValueError(f"Missing action(s) in theta_ref: {missing}")
+        for a in action_ids:
+            val = float(theta_ref[a])
+            if not math.isfinite(val):
+                raise ValueError(f"Non-finite value in theta_ref for action '{a}': {val}")
+        r_vec = np.array([float(theta_ref[a]) for a in action_ids], dtype=np.float64)
+    else:
+        arr = np.asarray(theta_ref, dtype=np.float64)
+        if arr.ndim != 1 or arr.shape[0] != len(action_ids):
+            raise ValueError(f"Expected 1D sequence in theta_ref of length {len(action_ids)}, got shape {arr.shape}")
+        if not np.all(np.isfinite(arr)):
+            raise ValueError("All values in theta_ref must be finite")
+        r_vec = arr
+
+    # 3. Pair actions validation (AC_0)
+    valid_actions = set(action_ids)
+    for p in pairs:
+        if p.winner not in valid_actions or p.loser not in valid_actions:
+            raise ValueError(
+                f"Preference pair names unknown action(s): winner='{p.winner}', loser='{p.loser}' not in {action_ids}"
+            )
+
+    # 4. Pair deduplication by episode ID (FDD-018 §3 item 2.1, G5)
+    deduped_pairs: list[PreferencePair] = []
+    seen_episodes: set[str] = set()
+    for p in pairs:
+        if p.source_episode_id in seen_episodes:
+            continue
+        seen_episodes.add(p.source_episode_id)
+        deduped_pairs.append(p)
+
+    # 5. Build count matrix W and calculate max_degree (AC_3)
+    W = build_pair_matrix(deduped_pairs, action_ids)
+    if len(action_ids) > 0 and len(deduped_pairs) > 0:
+        degrees = np.sum(W, axis=1) + np.sum(W, axis=0)
+        max_degree = float(np.max(degrees))
+    else:
+        max_degree = 0.0
+
+    step_size = float(min(lr, 1.0 / (lam + 0.5 * max_degree)))
+
+    # Start at theta_ref clipped to box (AC_2, FDD-018 §3 item 2.3)
+    theta = np.clip(r_vec, -clamp, clamp)
+
+    # Case: No pairs (AC_1)
+    if len(deduped_pairs) == 0:
+        res_logits = {a: float(theta[i]) for i, a in enumerate(action_ids)}
+        if trace_fn is not None:
+            trace_fn(res_logits)
+        no_pairs_loss = bt_loss(theta, W, r_vec, action_ids, lam=lam)
+        return FitResult(
+            logits=res_logits,
+            converged=True,
+            iterations=0,
+            stationarity=0.0,
+            step_size=step_size,
+            loss=no_pairs_loss,
+        )
+
+    # Initial trace recording
+    if trace_fn is not None:
+        trace_fn({a: float(theta[i]) for i, a in enumerate(action_ids)})
+
+    converged = False
+    stationarity = 0.0
+    actual_iterations = steps
+
+    # 6. Projected Gradient Descent loop (AC_4, AC_6)
+    for step_idx in range(1, steps + 1):
+        # Exact vectorized gradient of regularized Bradley-Terry loss
+        Z = theta[:, None] - theta[None, :]
+        S = np.exp(-np.logaddexp(0.0, Z))
+        M = W * S
+        data_grad = - np.sum(M, axis=1) + np.sum(M, axis=0)
+        reg_grad = lam * (theta - r_vec)
+        grad = data_grad + reg_grad
+
+        # Gradient step + projection onto box [-clamp, +clamp]
+        theta_candidate = np.clip(theta - step_size * grad, -clamp, clamp)
+        stationarity = float(np.max(np.abs(theta - theta_candidate)) / step_size)
+
+        theta = theta_candidate
+
+        if trace_fn is not None:
+            trace_fn({a: float(theta[i]) for i, a in enumerate(action_ids)})
+
+        if stationarity <= tol:
+            converged = True
+            actual_iterations = step_idx
+            break
+
+    # 7. Final regularized loss (FDD-018 §2.4)
+    final_loss = bt_loss(theta, W, r_vec, action_ids, lam=lam)
+
+    return FitResult(
+        logits={a: float(theta[i]) for i, a in enumerate(action_ids)},
+        converged=converged,
+        iterations=actual_iterations,
+        stationarity=stationarity,
+        step_size=step_size,
+        loss=final_loss,
+    )
+
+
+__all__ = [
+    "CLAMP",
+    "LAMBDA_MIN",
+    "LR_DEFAULT",
+    "STEPS_DEFAULT",
+    "TOL_DEFAULT",
+    "FitResult",
+    "PreferencePair",
+    "bt_gradient",
+    "bt_loss",
+    "build_pair_matrix",
+    "fit_logits",
+    "pairs_from_episodes",
+]
 

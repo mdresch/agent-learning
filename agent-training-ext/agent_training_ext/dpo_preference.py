@@ -7,17 +7,31 @@ agent-training-ext namespace (Milestone M7 / Schedule Baseline Phase 2).
 from __future__ import annotations
 
 from agent_learning_ext.learners.pairwise import (
+    CLAMP,
+    LAMBDA_MIN,
+    LR_DEFAULT,
+    STEPS_DEFAULT,
+    TOL_DEFAULT,
+    FitResult,
     PreferencePair,
     bt_gradient,
     bt_loss,
     build_pair_matrix,
+    fit_logits,
     pairs_from_episodes,
 )
 
 __all__ = [
+    "CLAMP",
+    "LAMBDA_MIN",
+    "LR_DEFAULT",
+    "STEPS_DEFAULT",
+    "TOL_DEFAULT",
+    "FitResult",
     "PreferencePair",
     "bt_gradient",
     "bt_loss",
     "build_pair_matrix",
+    "fit_logits",
     "pairs_from_episodes",
 ]

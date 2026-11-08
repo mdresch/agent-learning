@@ -283,20 +283,6 @@ def route(
             anomaly="missing routing config",
         )
 
-    # Normalize previous authority
-    norm_prev: DecisionAuthority | None = None
-    if isinstance(previous, DecisionAuthority):
-        norm_prev = previous
-    elif isinstance(previous, str):
-        if previous.lower() == "low":
-            norm_prev = DecisionAuthority.LOW
-        elif previous.lower() == "full":
-            norm_prev = DecisionAuthority.FULL
-        else:
-            raise ValueError(f"unknown previous route string: {previous}")
-    elif previous is not None:
-        raise ValueError(f"unsupported previous route type: {type(previous)}")
-
     # 4. Escalate check
     if margin_val < cfg.eps_margin:
         return RouteDecision(
@@ -336,6 +322,19 @@ def route(
             )
 
     # 6. Hysteresis deadband (tau_deesc < ent_val < tau_esc and margin_val >= eps_margin)
+    norm_prev: DecisionAuthority | None = None
+    if isinstance(previous, DecisionAuthority):
+        norm_prev = previous
+    elif isinstance(previous, str):
+        if previous.lower() == "low":
+            norm_prev = DecisionAuthority.LOW
+        elif previous.lower() == "full":
+            norm_prev = DecisionAuthority.FULL
+        else:
+            raise ValueError(f"unknown previous route string: {previous}")
+    elif previous is not None:
+        raise ValueError(f"unsupported previous route type: {type(previous)}")
+
     if norm_prev is None:
         return RouteDecision(
             authority=DecisionAuthority.FULL,

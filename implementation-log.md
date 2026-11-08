@@ -2651,5 +2651,6 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-136-4 | logic error | verified: yes | decision: accepted | Raise ValueError on unrecognized previous route string in route() rather than silently falling through to None | fix: 649ee79`
   - `Q-136-5 | test gap | verified: yes | decision: accepted | Replace deadband distribution in test_ac3_earn_low with distributions strictly below tau_deesc (0.70) | fix: 649ee79`
   - `Q-136-6 | logic error | verified: yes | decision: accepted | Return RouteDecision(FULL, ..., reason="anomaly", anomaly="missing routing config") when cfg=None to preserve fail-safe contract | fix: cafc1d9`
-  - `Q-136-7 | type safety | verified: yes | decision: accepted | Disallow bool instances in RoutingConfig and probability inputs across all route validation paths | fix: 05dbaa7`
+  - `Q-136-7 | logic error | verified: yes | decision: accepted | Disallow bool instances in RoutingConfig and probability inputs across all route validation paths | fix: 05dbaa7`
+  - `Q-136-8 | logic error | verified: yes | decision: accepted | Move previous route normalization into deadband branch to preserve fail-safe escalation for invalid previous values | fix: e183c21`
 

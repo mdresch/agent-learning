@@ -261,7 +261,7 @@ def test_ac4_hysteresis(base_config: RoutingConfig) -> None:
     assert decision_none.authority == DecisionAuthority.FULL
     assert decision_none.reason == "no_previous"
 
-    # 5. Invalid previous string raises ValueError
+    # 5. Invalid previous string raises ValueError inside deadband
     with pytest.raises(ValueError, match="unknown previous"):
         route(
             probs=[0.8, 0.2],
@@ -271,6 +271,18 @@ def test_ac4_hysteresis(base_config: RoutingConfig) -> None:
             approved_for_low=True,
             cfg=base_config,
         )
+
+    # 6. Invalid previous does not prevent fail-safe escalation when entropy is high or margin is low
+    decision_bad_prev_escalate = route(
+        probs=[0.5, 0.5],
+        tier="standard",
+        task_id="classify-request",
+        previous="unrecognized",
+        approved_for_low=True,
+        cfg=base_config,
+    )
+    assert decision_bad_prev_escalate.authority == DecisionAuthority.FULL
+    assert decision_bad_prev_escalate.reason in ("margin", "entropy")
 
 
 def test_ac5_no_hunting(base_config: RoutingConfig) -> None:

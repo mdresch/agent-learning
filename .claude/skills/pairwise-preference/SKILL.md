@@ -45,3 +45,11 @@ This skill governs the Pairwise Preference Optimization learner for discrete act
    - Applies strictly to `SoftmaxPolicy` with `max_logit_abs >= 8.0`.
    - Reference logits $\theta_{\text{ref}}$ frozen into `metadata["pairwise_reference_logits"]` on first non-empty update and never overwritten.
    - `rewards` argument is ignored; returns `mean_reward = 0.0`, `baseline_after = baseline_before`, `consumed_inputs = None`.
+7. **TrainingRunner Integration (Story 18.5, FDD-018 §7 item 2):**
+   - Re-exported alias `TrainingRunner = LearningRunner` satisfies FDD naming while preserving upstream Invariant 6 fork purity.
+   - Idempotent: repeated `run_offline_batch` calls on unchanged episodes leave logits invariant within $10^{-12}$.
+   - Audit replay flags `AuditStatus.INSUFFICIENT_LINEAGE` without raising, reflecting external preference replay lineage.
+8. **Real-Data Check & Preference Data Boundary (Story 18.6, BRU-018-12):**
+   - Historical governance approval episodes (`docs/policy-shapes/episodes/`) are all accepted decisions with zero human override rejections.
+   - `pairs_from_episodes` returns zero pairs on recorded history; learner execution leaves policy logits untouched, writes no reference, and returns `episodes_used = 0`.
+   - Proves zero-pair historical boundary; makes no quality claim about the learner (missing real override adjudications and unbuilt Red Team pair set).

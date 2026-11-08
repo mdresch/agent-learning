@@ -132,6 +132,22 @@ def _find_greedy_action(
     return best_action, empirical_means
 
 
+class CallableSnapshot:
+    """Wrapper allowing policy.snapshot to be accessed as both a PolicySnapshot and a callable method."""
+
+    def __init__(self, target: PolicySnapshot) -> None:
+        self._target = target
+
+    def __call__(self) -> PolicySnapshot:
+        return self._target
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._target, name)
+
+    def to_dict(self) -> dict[str, Any]:
+        return self._target.to_dict()
+
+
 class EpsilonGreedyPolicy(Policy):
     """Scheduled Epsilon-Greedy policy baseline with safety mask (ADR-017, FDD-017)."""
 
@@ -158,9 +174,9 @@ class EpsilonGreedyPolicy(Policy):
         read_statistics(metadata, [a.id for a in snapshot.actions])
 
     @property
-    def snapshot(self) -> PolicySnapshot:
-        """Return the underlying PolicySnapshot."""
-        return self._snapshot
+    def snapshot(self) -> CallableSnapshot:
+        """Return the underlying PolicySnapshot (supports both property access and method call)."""
+        return CallableSnapshot(self._snapshot)
 
     @property
     def actions(self) -> Sequence[Action]:
@@ -328,6 +344,25 @@ class EpsilonGreedyPolicy(Policy):
     def from_snapshot(cls, snapshot: PolicySnapshot) -> EpsilonGreedyPolicy:
         """Construct and validate an EpsilonGreedyPolicy from an existing PolicySnapshot."""
         return cls(snapshot)
+
+    def consumed_episode_ids(self) -> list[str]:
+        """Return a copy of the ids of the episodes already counted."""
+        metadata = self._snapshot.metadata or {}
+        return list(metadata.get("consumed_episode_ids", []))
+
+    def update_statistics(
+        self,
+        metadata: dict[str, Any],
+        *,
+        episodes_seen: int,
+    ) -> None:
+        """Update action statistics and advance snapshot version (used by EpsilonGreedyLearner)."""
+        action_ids = [action.id for action in self._snapshot.actions]
+        read_statistics(metadata, action_ids)
+        self._snapshot.metadata = copy.deepcopy(metadata)
+        self._snapshot.episodes_seen = int(episodes_seen)
+        self._snapshot.updates_applied += 1
+        self._snapshot.advance_version()
 
     def apply_update(self, *args: Any, **kwargs: Any) -> Any:
         """Disallow direct logit updates on non-logit policy (FDD-017 §3 item 6)."""

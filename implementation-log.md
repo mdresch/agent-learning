@@ -2297,3 +2297,7 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - $AC_3$: Audit replay of `PairwiseLearner` run cleanly returns `AuditStatus.INSUFFICIENT_LINEAGE` without raising, citing FDD-018 §7 item 2.
   - $AC_4$: Running over store with 0 pairs or empty batch returns `SUCCEEDED` run with 0 episodes used and unchanged logits; non-finite floats (NaN/Inf) raise `ValueError`.
   - Full suite: 5/5 passed in `tests/test_pairwise_runner.py`. 32/32 pairwise suite tests passing. Governance baseline and phase rollup clean (0 status drift).
+- **Review (Step 8):** Amazon Q reviewed PR #125 across 2 rounds. All findings addressed and confirmed clean:
+  - `Q-125-1 | logic error | verified: yes | decision: accepted | Enforce exact abs diff <= 1e-12 with rel_tol=0.0 in test_ac1 so default rel_tol=1e-9 does not loosen AC_1 tolerance | fix: 3e1521f`
+  - `Q-125-2 | test gap | verified: yes | decision: accepted | Capture baseline episode copies from store.get_episode after store_episode in test_ac2 | fix: 3e1521f`
+  Amazon Q confirmed all findings resolved; CI checks (build-installer, test) passed green.

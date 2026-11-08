@@ -129,7 +129,8 @@ def test_ac1_two_successive_runs_leave_logits_as_after_the_first():
     logits_after_second = dict(policy.snapshot().logits)
 
     for a in actions:
-        assert math.isclose(logits_after_second[a], logits_after_first[a], abs_tol=1e-12)
+        assert abs(logits_after_second[a] - logits_after_first[a]) <= 1e-12
+        assert math.isclose(logits_after_second[a], logits_after_first[a], rel_tol=0.0, abs_tol=1e-12)
 
 
 def test_ac2_stored_episodes_are_untouched_after_run():
@@ -141,11 +142,11 @@ def test_ac2_stored_episodes_are_untouched_after_run():
 
     ep1 = _make_episode("ep-1", "y", "rejected", "x")
     ep2 = _make_episode("ep-2", "z", "rejected", "y")
-    ep1_copy = copy.deepcopy(ep1)
-    ep2_copy = copy.deepcopy(ep2)
 
     store.store_episode(ep1)
     store.store_episode(ep2)
+    ep1_copy = copy.deepcopy(store.get_episode("ep-1", "agent"))
+    ep2_copy = copy.deepcopy(store.get_episode("ep-2", "agent"))
 
     runner = TrainingRunner(store=store, policy=policy, metrics=[], learner=PairwiseLearner())
     runner.run_offline_batch("agent", task_id="task", score_missing=False)

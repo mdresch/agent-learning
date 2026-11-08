@@ -272,7 +272,13 @@ def route(
         )
 
     if cfg is None:
-        raise ValueError("RoutingConfig must be provided for unpinned decisions")
+        return RouteDecision(
+            authority=DecisionAuthority.FULL,
+            entropy_bits=ent_val,
+            margin=margin_val,
+            reason="anomaly",
+            anomaly="missing routing config",
+        )
 
     # Normalize previous authority
     norm_prev: DecisionAuthority | None = None

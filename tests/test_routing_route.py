@@ -134,9 +134,8 @@ def test_ac2_escalate(base_config: RoutingConfig) -> None:
     assert decision_ent.entropy_bits is not None and decision_ent.entropy_bits >= 1.0
     assert decision_ent.margin is not None and decision_ent.margin >= 0.20
 
-    # 2. Margin below 0.20 routes full with reason 'margin', even when entropy is below tau_deesc (0.7)
-    # Synthetic distribution with entropy < 0.7 and margin < 0.20:
-    # E.g. [0.45, 0.40, 0.15] has margin 0.05 < 0.20, routes full by margin
+    # 2. Margin below 0.20 routes full with reason 'margin'
+    # E.g. [0.45, 0.40, 0.15] has margin 0.05 < 0.20 (and entropy ~1.46 >= 1.0), routes full by margin
     decision_margin1 = route(
         probs=[0.45, 0.40, 0.15],
         tier="standard",
@@ -345,3 +344,15 @@ def test_ac6_fail_safe(base_config: RoutingConfig) -> None:
     assert decision_unknown_tier.margin is None
     assert decision_unknown_tier.anomaly is not None
     assert "unknown tier" in decision_unknown_tier.anomaly.lower()
+
+    # Missing routing config routes FULL with anomaly
+    decision_no_cfg = route(
+        probs=[0.8, 0.2],
+        tier="standard",
+        task_id="classify-request",
+        cfg=None,
+    )
+    assert decision_no_cfg.authority == DecisionAuthority.FULL
+    assert decision_no_cfg.reason == "anomaly"
+    assert decision_no_cfg.anomaly is not None
+    assert "missing routing config" in decision_no_cfg.anomaly.lower()

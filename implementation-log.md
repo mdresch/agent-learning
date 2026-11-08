@@ -2594,4 +2594,5 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-136-3 | test gap | verified: yes | decision: accepted | Add explicit reason assertions across all test cases in test_ac3_earn_low | fix: c9da326`
   - `Q-136-4 | logic error | verified: yes | decision: accepted | Raise ValueError on unrecognized previous route string in route() rather than silently falling through to None | fix: 649ee79`
   - `Q-136-5 | test gap | verified: yes | decision: accepted | Replace deadband distribution in test_ac3_earn_low with distributions strictly below tau_deesc (0.70) | fix: 649ee79`
+  - `Q-136-6 | logic error | verified: yes | decision: accepted | Return RouteDecision(FULL, ..., reason="anomaly", anomaly="missing routing config") when cfg=None to preserve fail-safe contract | fix: e33fc37`
 

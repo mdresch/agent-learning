@@ -315,13 +315,14 @@ def fit_logits(
         res_logits = {a: float(theta[i]) for i, a in enumerate(action_ids)}
         if trace_fn is not None:
             trace_fn(res_logits)
+        no_pairs_loss = bt_loss(theta, W, r_vec, action_ids, lam=lam)
         return FitResult(
             logits=res_logits,
             converged=True,
             iterations=0,
             stationarity=0.0,
             step_size=step_size,
-            loss=0.0,
+            loss=no_pairs_loss,
         )
 
     # Initial trace recording

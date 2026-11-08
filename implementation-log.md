@@ -2141,5 +2141,31 @@ This log records completed user stories in accordance with the SIDPA `implement-
   Bayesian PR Gatekeeper evaluated PR #120: passed with robust utility 0.746 and margin +0.220 (>= +0.05).
   Passive learning episode `pr-120-1113d57-9b0bc29f` stored in LearningStore.
 
+---
+
+## Story 18.4 — The Learner
+- **Commit:** `1787aaf`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-18.4`
+- **Source ADR / BRD / FDD:** ADR-018 (§4.1, §4.2), BRD-018 (BRU-018-04, BRU-018-05, BRU-018-08, BRU-018-09, BRU-018-10), FDD-018 (§2.3, §2.4, §3 item 3, G1, G2, G4)
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/learners/pairwise.py` (implemented `PairwiseLearner(Learner)`)
+  - `src/agent_learning_ext/learners/__init__.py` (re-exported `PairwiseLearner`)
+  - `src/agent_learning_ext/__init__.py` (registered lazy exports for `PairwiseLearner`)
+  - `agent-training-ext/agent_training_ext/dpo_preference.py` (re-exported `PairwiseLearner` in extension package)
+  - `.claude/skills/pairwise-preference/SKILL.md` (component skill)
+  - `tests/test_pairwise_learner.py` (contract tests for $AC_0$ through $AC_6$)
+  - `docs/user-stories/epic-18-pairwise-preference-optimization.md` (Story 18.4 marked Completed)
+- **Validation:**
+  - $AC_0$: `update()` validates policy type: raises `TypeError` if policy is not a `SoftmaxPolicy`, and raises `ValueError` if `max_logit_abs` is below 8.0.
+  - $AC_1$: Reference logit freezing: first non-empty update records current policy logits into `policy._snapshot.metadata["pairwise_reference_logits"]`; subsequent updates leave stored reference logits untouched; corrupt stored reference (missing actions or non-finite values) raises `ValueError`.
+  - $AC_2$: Move to fit: updates policy logits to `fit_logits(theta_ref=reference_logits, pairs=pairs)` within $10^{-12}$; returned `LearnerResult.logit_deltas` matches `fitted - before`.
+  - $AC_3$: No-pair early exit: episodes yielding zero pairs do not write reference metadata, do not mutate logits or snapshot version, and return `episodes_used = 0`.
+  - $AC_4$: Idempotence: a second `update()` over the same episodes leaves policy logits identical and leaves `policy._snapshot.episodes_seen` unchanged.
+  - $AC_5$: Strict result envelope: `LearnerResult` contains `episodes_used = len(pairs)`, `mean_reward = 0.0`, `baseline_after == baseline_before`, `consumed_inputs = None`, and `extra` populated with `pairs`, `skipped_episodes`, `converged`, `iterations`, `stationarity`, `step_size`, `loss_before`, `loss_after`, and `reference_logits`; `rewards` argument is completely ignored.
+  - $AC_6$: Storage boundary & isolation: policy snapshot round-trips through `json.dumps`/`json.loads` cleanly and through `InMemoryLearningStore` with no new record types; `pairwise.py` imports zero symbols from `agent_learning.storage`.
+  - Full suite: 7/7 passed in `tests/test_pairwise_learner.py`. 27/27 pairwise tests passing. Upstream untouched and PR gate passing.
+
+
 
 

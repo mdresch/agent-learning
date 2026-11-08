@@ -11,10 +11,13 @@ Covers:
 from __future__ import annotations
 
 import json
+from pathlib import Path
 from unittest.mock import patch
 
 import pytest
 
+from agent_learning.storage.local import LocalFileStore
+from agent_learning_ext.learners.pairwise import pairs_from_episodes
 from scripts.pr_gate import (
     build_decision_frame,
     convert_unstructured_review_to_tags,
@@ -266,3 +269,118 @@ def test_cli_main_early_halt_output(capsys: pytest.CaptureFixture[str]) -> None:
         captured = capsys.readouterr()
         assert "GATE RESULT: HALTED" in captured.out
         assert "Decision Margin: N/A" in captured.out
+
+
+def test_evaluate_pr_passive_episode_storage_accepted(tmp_path: Path) -> None:
+    mock_pr = {
+        "title": "Clean Story Delivery",
+        "headRefOid": "abc12345678",
+        "statusCheckRollup": [{"name": "test", "conclusion": "SUCCESS"}],
+        "files": [{"path": "src/agent_learning_ext/learner.py"}],
+        "reviews": [
+            {
+                "author": {"login": "amazon-q[bot]"},
+                "body": "Review Summary: All checks pass. No blocking issues found.",
+            }
+        ],
+        "comments": [],
+    }
+    with patch("scripts.pr_gate.fetch_pr_data", return_value=mock_pr):
+        passed, _, details = evaluate_pr(101, store_dir=tmp_path, persist_episode=True)
+        assert passed is True
+        ep_id = details.get("episode_id")
+        assert ep_id is not None
+
+        # Verify persisted in LocalFileStore
+        store = LocalFileStore(root_dir=tmp_path)
+        ep = store.get_episode(ep_id, "agent-learning-governance")
+        assert ep is not None
+        assert ep.action_id == "approve_and_merge"
+        assert ep.metadata.get("feedback_status") == "accepted"
+        assert ep.metadata.get("pr_number") == 101
+
+        # Accepted episodes contribute no preference pairs
+        pairs = pairs_from_episodes([ep], ["approve_and_merge", "request_revisions"])
+        assert len(pairs) == 0
+
+
+def test_evaluate_pr_passive_episode_storage_rejected_yields_preference_pair(tmp_path: Path) -> None:
+    mock_pr = {
+        "title": "Buggy PR",
+        "headRefOid": "bad98765432",
+        "statusCheckRollup": [{"name": "test", "conclusion": "SUCCESS"}],
+        "files": [{"path": "src/agent_learning_ext/buggy.py"}],
+        "reviews": [
+            {
+                "author": {"login": "amazon-q[bot]"},
+                "body": """Review Summary
+### Blocking issues found
+1. Unhandled exception crash risk in production code.
+2. Logic error causing invalid state transitions.
+""",
+            }
+        ],
+        "comments": [],
+    }
+    with patch("scripts.pr_gate.fetch_pr_data", return_value=mock_pr):
+        passed, _, details = evaluate_pr(102, store_dir=tmp_path, persist_episode=True)
+        assert passed is False
+        ep_id = details.get("episode_id")
+        assert ep_id is not None
+
+        # Verify persisted in LocalFileStore
+        store = LocalFileStore(root_dir=tmp_path)
+        ep = store.get_episode(ep_id, "agent-learning-governance")
+        assert ep is not None
+        assert ep.action_id == "approve_and_merge"
+        assert ep.metadata.get("feedback_status") == "rejected"
+        assert ep.metadata.get("correct_action_id") == "request_revisions"
+
+        # Rejected episodes naturally yield Bradley-Terry preference pairs!
+        pairs = pairs_from_episodes([ep], ["approve_and_merge", "request_revisions"])
+        assert len(pairs) == 1
+        assert pairs[0].winner == "request_revisions"
+        assert pairs[0].loser == "approve_and_merge"
+        assert pairs[0].source_episode_id == ep_id
+
+
+def test_evaluate_pr_passive_episode_storage_ci_failure(tmp_path: Path) -> None:
+    mock_pr = {
+        "title": "Failing CI PR",
+        "headRefOid": "ci000111",
+        "statusCheckRollup": [{"name": "test", "conclusion": "FAILURE"}],
+        "files": [{"path": "src/agent_learning_ext/mod.py"}],
+        "reviews": [],
+        "comments": [],
+    }
+    with patch("scripts.pr_gate.fetch_pr_data", return_value=mock_pr):
+        passed, _, details = evaluate_pr(103, store_dir=tmp_path, persist_episode=True)
+        assert passed is False
+        ep_id = details.get("episode_id")
+        assert ep_id is not None
+
+        store = LocalFileStore(root_dir=tmp_path)
+        ep = store.get_episode(ep_id, "agent-learning-governance")
+        assert ep is not None
+        assert ep.metadata.get("feedback_status") == "rejected"
+        assert ep.metadata.get("correct_action_id") == "request_revisions"
+
+
+def test_evaluate_pr_no_store_flag(tmp_path: Path) -> None:
+    mock_pr = {
+        "title": "No store PR",
+        "headRefOid": "nostore1",
+        "statusCheckRollup": [{"name": "test", "conclusion": "SUCCESS"}],
+        "files": [{"path": "src/agent_learning_ext/clean.py"}],
+        "reviews": [
+            {
+                "author": {"login": "amazon-q[bot]"},
+                "body": "Review Summary: All checks pass. No blocking issues found.",
+            }
+        ],
+        "comments": [],
+    }
+    with patch("scripts.pr_gate.fetch_pr_data", return_value=mock_pr):
+        passed, _, details = evaluate_pr(104, store_dir=tmp_path, persist_episode=False)
+        assert passed is True
+        assert details.get("episode_id") is None

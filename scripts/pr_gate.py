@@ -19,6 +19,7 @@ import json
 import re
 import subprocess
 import sys
+import uuid
 from pathlib import Path
 from typing import Any
 
@@ -36,6 +37,8 @@ from agent_learning.decision import (
     EvidencePoint,
     PolicySnapshot,
 )
+from agent_learning.storage.local import LocalFileStore
+from agent_learning.types import Episode
 
 try:
     from agent_training_ext.critique_evidence import (
@@ -246,7 +249,75 @@ def make_snapshot(frame: DecisionFrame) -> PolicySnapshot:
     )
 
 
-def evaluate_pr(pr_number: int) -> tuple[bool, str, dict[str, Any]]:
+def save_gate_episode(
+    pr_number: int,
+    pr_data: dict[str, Any],
+    passed: bool,
+    reason: str,
+    margin: float,
+    applied: Any | None = None,
+    store_dir: Path | str | None = None,
+) -> str | None:
+    """Passively persist the PR gate decision as an auditable Episode in LearningStore."""
+    target_dir = Path(store_dir) if store_dir else ROOT / "data" / "agent-learning" / "store"
+    try:
+        store = LocalFileStore(root_dir=target_dir)
+        head_commit = str(pr_data.get("headRefOid") or "unknown")
+        ep_uuid = uuid.uuid4().hex[:8]
+        short_commit = head_commit[:7] if head_commit != "unknown" else "run"
+        episode_id = f"pr-{pr_number}-{short_commit}-{ep_uuid}"
+
+        adjustments = to_episode_metadata(applied).get("critique_adjustments", []) if applied else []
+
+        if passed:
+            action_id = "approve_and_merge"
+            meta: dict[str, Any] = {
+                "pr_number": pr_number,
+                "title": pr_data.get("title", ""),
+                "head_commit": head_commit,
+                "feedback_status": "accepted",
+                "margin": round(margin, 4),
+                "critique_adjustments": adjustments,
+            }
+        else:
+            action_id = "approve_and_merge"
+            meta = {
+                "pr_number": pr_number,
+                "title": pr_data.get("title", ""),
+                "head_commit": head_commit,
+                "feedback_status": "rejected",
+                "correct_action_id": "request_revisions",
+                "rejection_reason": reason,
+                "margin": round(margin, 4),
+                "critique_adjustments": adjustments,
+            }
+
+        episode = Episode(
+            id=episode_id,
+            agent_id="agent-learning-governance",
+            task_id=f"pr-{pr_number}-governance-gate",
+            task_name=f"PR #{pr_number} Governance Review Gate",
+            policy_id=f"policy-pr-{pr_number}-governance-gate",
+            policy_version=1,
+            action_id=action_id,
+            intent_summary=f"Bayesian gatekeeper evaluation of PR #{pr_number}",
+            user_input=f"PR #{pr_number}: {pr_data.get('title', '')}",
+            assistant_output=reason,
+            metadata=meta,
+        )
+
+        store.store_episode(episode)
+        return episode_id
+    except Exception as exc:  # noqa: BLE001
+        print(f"Warning: Passive episode storage skipped: {exc}", file=sys.stderr)
+        return None
+
+
+def evaluate_pr(
+    pr_number: int,
+    store_dir: Path | str | None = None,
+    persist_episode: bool = True,
+) -> tuple[bool, str, dict[str, Any]]:
     """Evaluate a PR against CI checks, Invariant 6, and Epic 14 Bayesian critique."""
     pr_data = fetch_pr_data(pr_number)
 
@@ -258,14 +329,27 @@ def evaluate_pr(pr_number: int) -> tuple[bool, str, dict[str, Any]]:
         if c.get("conclusion") in ("FAILURE", "TIMED_OUT", "ACTION_REQUIRED")
     ]
     if failing_checks:
+        reason = f"CI check failure: {', '.join(failing_checks)}. All GitHub Actions must pass."
+        ep_id = None
+        if persist_episode:
+            ep_id = save_gate_episode(
+                pr_number=pr_number,
+                pr_data=pr_data,
+                passed=False,
+                reason=reason,
+                margin=-1.0,
+                applied=None,
+                store_dir=store_dir,
+            )
         return (
             False,
-            f"CI check failure: {', '.join(failing_checks)}. All GitHub Actions must pass.",
+            reason,
             {
                 "pr_number": pr_number,
                 "title": pr_data.get("title"),
                 "head_commit": pr_data.get("headRefOid"),
                 "ci_failures": failing_checks,
+                "episode_id": ep_id,
             },
         )
 
@@ -276,17 +360,30 @@ def evaluate_pr(pr_number: int) -> tuple[bool, str, dict[str, Any]]:
         p for p in changed_files if p.startswith("src/agent_learning/") and not p.startswith("src/agent_learning_ext/")
     ]
     if upstream_violations:
+        reason = (
+            f"Invariant 6 Violation: Pull request modifies upstream files: {', '.join(upstream_violations)}. "
+            "All customizations must reside in src/agent_learning_ext/ or agent-training-ext/."
+        )
+        ep_id = None
+        if persist_episode:
+            ep_id = save_gate_episode(
+                pr_number=pr_number,
+                pr_data=pr_data,
+                passed=False,
+                reason=reason,
+                margin=-1.0,
+                applied=None,
+                store_dir=store_dir,
+            )
         return (
             False,
-            (
-                f"Invariant 6 Violation: Pull request modifies upstream files: {', '.join(upstream_violations)}. "
-                "All customizations must reside in src/agent_learning_ext/ or agent-training-ext/."
-            ),
+            reason,
             {
                 "pr_number": pr_number,
                 "title": pr_data.get("title"),
                 "head_commit": pr_data.get("headRefOid"),
                 "upstream_violations": upstream_violations,
+                "episode_id": ep_id,
             },
         )
 
@@ -339,6 +436,18 @@ def evaluate_pr(pr_number: int) -> tuple[bool, str, dict[str, Any]]:
             f"{result.reason or ''}".strip()
         )
 
+    ep_id = None
+    if persist_episode:
+        ep_id = save_gate_episode(
+            pr_number=pr_number,
+            pr_data=pr_data,
+            passed=passed,
+            reason=reason,
+            margin=margin,
+            applied=applied,
+            store_dir=store_dir,
+        )
+
     details: dict[str, Any] = {
         "pr_number": pr_number,
         "title": pr_data.get("title"),
@@ -358,6 +467,7 @@ def evaluate_pr(pr_number: int) -> tuple[bool, str, dict[str, Any]]:
         },
         "critique_deltas_count": len(deltas),
         "critique_adjustments": to_episode_metadata(applied).get("critique_adjustments", []),
+        "episode_id": ep_id,
     }
 
     return passed, reason, details
@@ -370,11 +480,17 @@ def main() -> int:
     parser.add_argument("pr_number", type=int, help="GitHub Pull Request number to evaluate")
     parser.add_argument("--merge", action="store_true", help="Automatically merge if the gate passes")
     parser.add_argument("--json", action="store_true", help="Output full evaluation in JSON format")
+    parser.add_argument("--no-store", action="store_true", help="Do not persist the evaluation episode to LearningStore")
+    parser.add_argument("--store-dir", type=str, default=None, help="Custom directory path for LearningStore")
 
     args = parser.parse_args()
 
     try:
-        passed, reason, details = evaluate_pr(args.pr_number)
+        passed, reason, details = evaluate_pr(
+            args.pr_number,
+            store_dir=args.store_dir,
+            persist_episode=not args.no_store,
+        )
     except Exception as exc:  # noqa: BLE001
         print(f"Error evaluating PR #{args.pr_number}: {exc}", file=sys.stderr)
         return 2
@@ -388,6 +504,8 @@ def main() -> int:
     print(f"PR GATEKEEPER EVALUATION: PR #{args.pr_number} — {details.get('title')}")
     print("=" * 80)
     print(f"Commit: {details.get('head_commit')}")
+    if details.get("episode_id"):
+        print(f"Passive Learning Episode: {details.get('episode_id')}")
     print(f"Ingested Findings: {details.get('critique_deltas_count')} critique deltas applied.")
 
     for adj in details.get("critique_adjustments", []):

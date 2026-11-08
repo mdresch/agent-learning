@@ -59,7 +59,7 @@ Fixture used by the criteria below ("the base statistics"): action `a` with 10 p
 
 ## Story 16.4 — Counting Each Episode Once
 
-**Status:** Ready  
+**Status:** Completed (2026-11-08, commit 88adc2f)  
 **As** a maintainer, **I want** each reward to add to the statistics exactly once, **so that** retraining on recent episodes cannot inflate a count.
 
 ### Acceptance Criteria:

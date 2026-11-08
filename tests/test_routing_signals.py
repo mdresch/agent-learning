@@ -123,7 +123,7 @@ def test_ac2_pure() -> None:
     source_file = Path(inspect.getfile(routing_mod)).resolve()
     tree = ast.parse(source_file.read_text(encoding="utf-8"), filename=str(source_file))
 
-    forbidden_modules = {"random", "numpy", "np"}
+    forbidden_modules = {"random", "numpy"}
     forbidden_prefixes = ("agent_learning.storage", "agent_learning_ext.storage")
 
     for node in ast.walk(tree):
@@ -133,11 +133,14 @@ def test_ac2_pure() -> None:
                 assert name not in forbidden_modules, f"routing.py must not import '{name}'"
                 for prefix in forbidden_prefixes:
                     assert not name.startswith(prefix), f"routing.py must not import '{name}'"
+                assert alias.asname not in forbidden_modules, f"routing.py must not import '{alias.asname}'"
         elif isinstance(node, ast.ImportFrom):
             mod_name = node.module or ""
             assert mod_name not in forbidden_modules, f"routing.py must not import from '{mod_name}'"
             for prefix in forbidden_prefixes:
                 assert not mod_name.startswith(prefix), f"routing.py must not import from '{mod_name}'"
+            for alias in node.names:
+                assert alias.asname not in forbidden_modules, f"routing.py must not import '{alias.asname}'"
 
     # 2. Input sequence remains completely untouched (equal to copy) after calls
     test_inputs = [

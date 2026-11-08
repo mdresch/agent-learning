@@ -2467,3 +2467,6 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - Observed RED first: `ModuleNotFoundError: No module named 'agent_learning_ext.routing'`.
   - Upstream fork untouched: 8/8 passed in `tests/test_upstream_untouched.py`.
   - Governance baseline: 18/18 passed in `tests/test_governance_baseline.py`.
+- **Review (Step 8):** Amazon Q reviewed PR #132. 1 finding addressed:
+  - `Q-132-1 | logic error | verified: yes | decision: accepted | Remove dead code 'np' from forbidden_modules and add alias.asname verification across Import and ImportFrom AST nodes | fix: 978978a`
+

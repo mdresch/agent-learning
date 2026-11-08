@@ -2641,3 +2641,75 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - $AC_1$: With existing governance action definitions lacking `reversible` flag, safe subset is strictly empty and exploration rate applied evaluates to 0.0 across all tasks; every decision is exploitation; policy locks onto the taken action with mean reward 1.0; untaken actions remain at neutral mean 0.5 and are never chosen. Documented as the stated price of the safety mask (BRU-017-03).
   - $AC_2$: Replay run twice yields identical statistics, deterministic decisions, and identical decision records; snapshots serialize cleanly to JSON and round-trip without loss.
   - $AC_3$: Explicitly labelled as a baseline run on real positive-only history without claims of superiority over REINFORCE, UCB, or Thompson sampling (BRU-017-13); missing data (low-authority policy with failures, declared `reversible` flags) documented in test module docstring.
+
+---
+
+## Story 21.2 — The Route
+- **Commit:** `a34ad95`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-21.2`
+- **Source ADR / BRD / FDD:** ADR-021 (§4.1), BRD-021, FDD-021 (§1, §2, §3)
+- **Pre-Flight Spec Gate:** Proceed utility 0.7457, margin +0.2244 (>= +0.05), episode `spec-21_2-8078d8fb`.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/routing.py` (`MIN_GAP_BITS`, `EPS_MARGIN_DEFAULT`, `VALID_TIERS`, `PINNED_FULL`, `RoutingConfig`, `RouteDecision`, `route`)
+  - `src/agent_learning_ext/__init__.py` (re-export constants, dataclasses, and `route`)
+  - `tests/test_routing_route.py` (contract tests for $AC_0$ through $AC_6$, interpretations $I_1, I_2$)
+  - `docs/user-stories/epic-21-contextual-authority-ensemble-routing.md` (Story 21.2 marked Completed)
+- **Contracts:**
+  - `tests/test_routing_route.py`
+  - Contract run: 7 passed in 2.09s
+  - Cumulative suite: 10 passed across Epic 21 (`test_routing_signals.py`, `test_routing_route.py`)
+- **Validation:**
+  - $AC_0$: `RoutingConfig` enforces valid bounds: raises `ValueError` for gaps under 0.15 bits (including 0.149), inverted thresholds (`tau_esc < tau_deesc`), non-finite values (`nan`, `inf`), negative `tau_deesc`, and `eps_margin <= 0` or `eps_margin > 1.0`; exact gap of 0.15 is accepted.
+  - $AC_1$: Critical tier: requests with `tier="critical"` route `FULL` with reason `"critical"` even with low entropy (`[0.99, 0.01]`) and approved bucket.
+  - $AC_2$: Escalate logic: entropy $\ge 1.0$ routes `FULL` with reason `"entropy"` (when margin $\ge 0.20$); margin $< 0.20$ routes `FULL` with reason `"margin"` even when entropy is below `tau_deesc`.
+  - $AC_3$: Earn Low: entropy $\le 0.70$ and margin $\ge 0.20$ with approved bucket routes `LOW` with reason `"low"`; unapproved bucket routes `FULL` with reason `"not_approved"` for every entropy.
+  - $AC_4$: Hysteresis deadband: inside deadband (`0.70 < H < 1.0` and margin $\ge 0.20$), `[0.8, 0.2]` retains previous route (`LOW` or `FULL`) with reason `"hysteresis"`; revoked/unapproved bucket with previous `LOW` falls back to `FULL` with reason `"not_approved"`; `previous=None` inside deadband gives `FULL` with reason `"no_previous"`.
+  - $AC_5$: No hunting: over a sequence of oscillating entropies strictly within the deadband, the route changes at most once.
+  - $AC_6$: Fail safe: empty list, NaN, infinity, negative probability, sum drifting to 0.9 or 1.1, and unknown tier route `FULL` with reason `"anomaly"`, descriptive anomaly text, and `entropy_bits=None, margin=None`.
+  - Observed RED first: `ImportError: cannot import name 'MIN_GAP_BITS' from 'agent_learning_ext.routing'`.
+  - Upstream fork untouched: 8/8 passed in `tests/test_upstream_untouched.py`.
+  - Governance baseline: 18/18 passed in `tests/test_governance_baseline.py`.
+- **Review (Step 8):** Amazon Q reviewed PR #136. All findings addressed:
+  - `Q-136-1 | logic error | verified: yes | decision: accepted | Replace [0.82, 0.18] in test_ac5_no_hunting with [0.80, 0.20] (0.7219 bits) to ensure strictly within deadband [0.70, 1.0] | fix: c9da326`
+  - `Q-136-2 | logic error | verified: yes | decision: accepted | Replace silent fallthrough in route() with explicit ValueError on unknown DecisionAuthority variant | fix: c9da326`
+  - `Q-136-3 | test gap | verified: yes | decision: accepted | Add explicit reason assertions across all test cases in test_ac3_earn_low | fix: c9da326`
+  - `Q-136-4 | logic error | verified: yes | decision: accepted | Raise ValueError on unrecognized previous route string in route() rather than silently falling through to None | fix: 649ee79`
+  - `Q-136-5 | test gap | verified: yes | decision: accepted | Replace deadband distribution in test_ac3_earn_low with distributions strictly below tau_deesc (0.70) | fix: 649ee79`
+  - `Q-136-6 | logic error | verified: yes | decision: accepted | Return RouteDecision(FULL, ..., reason="anomaly", anomaly="missing routing config") when cfg=None to preserve fail-safe contract | fix: cafc1d9`
+  - `Q-136-7 | logic error | verified: yes | decision: accepted | Disallow bool instances in RoutingConfig and probability inputs across all route validation paths | fix: 05dbaa7`
+  - `Q-136-8 | logic error | verified: yes | decision: accepted | Move previous route normalization into deadband branch to preserve fail-safe escalation for invalid previous values | fix: e183c21`
+  - `Q-136-9 | crash risk | verified: yes | decision: accepted | Return RouteDecision with reason="anomaly" on invalid previous string/type instead of raising ValueError | fix: 2005086`
+  - `Q-136-10 | logic error | verified: yes | decision: accepted | Retain computed entropy_bits and margin in RouteDecision when cfg=None anomaly occurs | fix: 2005086`
+  - `Q-136-11 | documentation | verified: yes | decision: accepted | Remove unused constant SEED_DAMPING_DEFAULT deferred to Story 21.5 | fix: 978fb32`
+
+---
+
+## Story 22.1 — Scoring a Weight Vector With the Real Resolver
+- **Commit:** `88248f0`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-22.1`
+- **Source ADR / BRD / FDD:** ADR-022 (§4.1), BRD-022 (BRU-022-01, BRU-022-02, BRU-022-03), FDD-022 (§2.1, §3.1)
+- **Pre-Flight Spec Gate:** Proceed utility 0.6784, margin +0.1571 (>= +0.05), episode `spec-22_1-d05c4fb4`.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/weight_compiler.py` (`with_weights`, `evaluate`, `objective`, `LabeledFrame`, `CompiledWeights`, `NoImprovement`)
+  - `src/agent_learning_ext/__init__.py` (lazy re-exports of compiler symbols)
+  - `.claude/skills/weight-compiler/SKILL.md` (component skill)
+  - `tests/test_weight_objective.py` (contract tests for $AC_0$ through $AC_6$, interpretations $I_1$ to $I_3$)
+  - `docs/user-stories/epic-22-scored-search-decision-configuration-compilation.md` (Story 22.1 marked Completed)
+- **Contracts:**
+  - `tests/test_weight_objective.py`
+  - Contract run: 16 passed in 0.58s
+  - Cumulative suite: 24 passed (`test_weight_objective.py`, `test_upstream_untouched.py`)
+- **Notes:**
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Zero changes to `src/agent_learning/`. All logic in `src/agent_learning_ext/weight_compiler.py`.
+    - $I_2$: Defensive None-Safety for Dictionaries: Defensively guarded dictionary accesses and fallback lookups.
+    - $I_3$: Empty Collection Base Case: Empty sequence passed to `objective()` cleanly returns `0.0` without error.
+  - $AC_0$: `with_weights` applies weights to frame criteria while preserving constraints, options, and evidence; original frame is untouched.
+  - $AC_1$: `with_weights` raises `ValueError` for mismatched key sets, zero, negative, `nan`, or infinite weights.
+  - $AC_2$: `evaluate` on toy frame gives predicted `A` and margin 0.20 for `(0.7, 0.3)`; `None` and margin 0.0 for `(0.5, 0.5)` (tiebreak); `B` and margin 0.20 for `(0.3, 0.7)` within $10^{-9}$.
+  - $AC_3$: `objective` with label `A` and `beta=0.1` gives 1.02 for `(0.7, 0.3)`, 0.0 for `(0.5, 0.5)`, and 0.02 for `(0.3, 0.7)` within $10^{-9}$; total objective is the sum over all items.
+  - $AC_4$: If an option is ruled out by constraints, `evaluate` never returns it and the margin computation ignores it.
+  - $AC_5$: Replaced `DecisionResolver.resolve` with counting wrapper, confirming exactly one call per `evaluate` through the real resolver.
+  - $AC_6$: AST analysis verifies `weight_compiler.py` imports nothing from `agent_learning.storage` and performs no file I/O.

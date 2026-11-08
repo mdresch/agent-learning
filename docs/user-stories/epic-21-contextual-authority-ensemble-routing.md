@@ -26,7 +26,7 @@ Fixture used by the criteria below ("the base config"): `tau_esc` 1.0, `tau_dees
 
 ## Story 21.2 — The Route
 
-**Status:** Ready  
+**Status:** Completed  
 **As** a maintainer, **I want** a request routed by entropy, margin, tier and the bucket's approval, with no flapping, **so that** unsure requests reach full review and routine ones stay fast.
 
 ### Acceptance Criteria:

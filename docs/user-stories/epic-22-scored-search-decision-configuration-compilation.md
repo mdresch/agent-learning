@@ -14,7 +14,7 @@ Fixtures used by the criteria below. "The toy frame": criteria `c1`, `c2`, optio
 
 ## Story 22.1 — Scoring a Weight Vector With the Real Resolver
 
-**Status:** Ready  
+**Status:** Completed (2026-11-08)  
 **As** an auditor, **I want** a candidate scored by the real resolver and nothing else, **so that** a compiled weight is judged by the rule that will use it.
 
 ### Acceptance Criteria:

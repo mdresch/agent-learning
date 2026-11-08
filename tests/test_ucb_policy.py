@@ -365,25 +365,25 @@ def test_story16_3_ac2_validation_through_from_snapshot() -> None:
     actions = [Action(id="a", description="a")]
 
     # Unknown policy_type
-    bad_type = _make_snapshot(actions)
+    bad_type = copy.deepcopy(_make_snapshot(actions))
     bad_type.metadata["policy_type"] = "softmax"
     with pytest.raises(ValueError, match="policy_type"):
         UCBPolicy.from_snapshot(bad_type)
 
     # Unknown variant
-    bad_variant = _make_snapshot(actions)
+    bad_variant = copy.deepcopy(_make_snapshot(actions))
     bad_variant.metadata["ucb_variant"] = "epsilon"
     with pytest.raises(ValueError, match="variant"):
         UCBPolicy.from_snapshot(bad_variant)
 
     # Non-positive c
-    bad_c = _make_snapshot(actions)
+    bad_c = copy.deepcopy(_make_snapshot(actions))
     bad_c.metadata["exploration_constant"] = -1.0
     with pytest.raises(ValueError, match="c"):
         UCBPolicy.from_snapshot(bad_c)
 
     # Foreign action in statistics
-    bad_foreign = _make_snapshot(actions)
+    bad_foreign = copy.deepcopy(_make_snapshot(actions))
     bad_foreign.metadata["action_statistics"]["unknown_id"] = {
         "pull_count": 1,
         "cumulative_reward": 1.0,
@@ -393,13 +393,13 @@ def test_story16_3_ac2_validation_through_from_snapshot() -> None:
         UCBPolicy.from_snapshot(bad_foreign)
 
     # Duplicate in consumed_episode_ids
-    bad_dup = _make_snapshot(actions)
+    bad_dup = copy.deepcopy(_make_snapshot(actions))
     bad_dup.metadata["consumed_episode_ids"] = ["ep-1", "ep-1"]
     with pytest.raises(ValueError, match="ep-1"):
         UCBPolicy.from_snapshot(bad_dup)
 
     # Mean reward mismatch > 1e-9
-    bad_mean = _make_snapshot(actions)
+    bad_mean = copy.deepcopy(_make_snapshot(actions))
     bad_mean.metadata["action_statistics"]["a"] = {
         "pull_count": 10,
         "cumulative_reward": 8.0,
@@ -444,7 +444,7 @@ def test_story16_3_ac3_storage_boundary_and_json_roundtrip(tmp_path: pytest.Temp
     store = InMemoryStore()
     store.store_policy(snap)
     retrieved = store.get_policy(snap.id, snap.agent_id)
-    assert retrieved == snap
     assert retrieved is not None
+    assert retrieved == snap
     restored_policy = UCBPolicy.from_snapshot(retrieved)
     assert restored_policy.choose().action.id == policy.choose().action.id

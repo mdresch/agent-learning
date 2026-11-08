@@ -260,7 +260,5 @@ def test_ac4_decision_resolver_unchanged() -> None:
     tree = ast.parse(resolver_file.read_text(encoding="utf-8"))
 
     for node in ast.walk(tree):
-        if isinstance(node, ast.Str) and "criteria_weights" in node.s:
-            pytest.fail("DecisionResolver must not reference 'criteria_weights'")
-        elif isinstance(node, ast.Constant) and isinstance(node.value, str) and "criteria_weights" in node.value:
+        if isinstance(node, ast.Constant) and isinstance(node.value, str) and "criteria_weights" in node.value:
             pytest.fail("DecisionResolver must not reference 'criteria_weights'")

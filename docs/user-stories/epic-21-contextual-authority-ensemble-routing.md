@@ -42,7 +42,7 @@ Fixture used by the criteria below ("the base config"): `tau_esc` 1.0, `tau_dees
 
 ## Story 21.3 — Pinned Gates
 
-**Status:** Ready  
+**Status:** Completed  
 **As** an auditor, **I want** the governance gates impossible to route down, **so that** no entropy value can take a human out of a baseline decision.
 
 ### Acceptance Criteria:

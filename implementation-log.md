@@ -2200,14 +2200,14 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-122-2 | logic error | verified: yes | decision: accepted | Deduplicate episode IDs via unique set difference so duplicate IDs do not inflate skipped_episodes | fix: ac8b26a`
   - `Q-122-3 | logic error | verified: yes | decision: accepted | Compute exact regularizer loss via bt_loss in zero-pairs path instead of hardcoding 0.0 | fix: ac8b26a`
   - `Q-122-4 | test gap | verified: yes | decision: accepted | Add assertions in test_ac1 verifying post_logits != stored_ref and non-aliasing | fix: ac8b26a`
-  - `Q-122-5 | flakiness | verified: yes | decision: accepted | Replace dir() with pw_module.__dict__.values() in storage purity test | fix: ac8b26a`
-  - `Q-122-6 | critical | verified: yes | decision: accepted | Standardize episode ID extraction to ep.id matching pairs_from_episodes | fix: 8e661b8`
-  - `Q-122-7 | logic gap | verified: yes | decision: accepted | Unify reference validation into _validate_or_freeze_reference so corrupt references raise ValueError even on zero pairs | fix: 8e661b8`
-  - `Q-122-8 | data contract | verified: yes | decision: accepted | Populate extra['reference_logits'] with dict(theta_ref) on zero-pairs path so reported loss is always paired with reference vector | fix: eedf86b`
-  - `Q-122-9 | architecture | verified: yes | decision: accepted | Read both metadata and logits directly from policy._snapshot to eliminate dual-source divergence | fix: eedf86b`
-  - `Q-122-10 | test robustness | verified: yes | decision: accepted | Inspect symbol names in storage purity test | fix: eedf86b`
+  - `Q-122-5 | style | verified: yes | decision: accepted | Replace dir() with pw_module.__dict__.values() in storage purity test | fix: ac8b26a`
+  - `Q-122-6 | logic error | verified: yes | decision: accepted | Standardize episode ID extraction to ep.id matching pairs_from_episodes | fix: 8e661b8`
+  - `Q-122-7 | logic error | verified: yes | decision: accepted | Unify reference validation into _validate_or_freeze_reference so corrupt references raise ValueError even on zero pairs | fix: 8e661b8`
+  - `Q-122-8 | logic error | verified: yes | decision: accepted | Populate extra['reference_logits'] with dict(theta_ref) on zero-pairs path so reported loss is always paired with reference vector | fix: eedf86b`
+  - `Q-122-9 | logic error | verified: yes | decision: accepted | Read both metadata and logits directly from policy._snapshot to eliminate dual-source divergence | fix: eedf86b`
+  - `Q-122-10 | test gap | verified: yes | decision: accepted | Inspect symbol names in storage purity test | fix: eedf86b`
   - `Q-122-11 | logic error | verified: yes | decision: accepted | Enforce instance clamp self.clamp in policy validation instead of hardcoded CLAMP | fix: d8289aa`
-  - `Q-122-12 | logic gap | verified: yes | decision: accepted | Validate action presence and math.isfinite on live policy logits in _validate_or_freeze_reference | fix: d8289aa`
+  - `Q-122-12 | logic error | verified: yes | decision: accepted | Validate action presence and math.isfinite on live policy logits in _validate_or_freeze_reference | fix: d8289aa`
   Amazon Q confirmed all findings resolved; CI checks (build-installer, test) passed green.
 
 

@@ -2535,6 +2535,38 @@ This log records completed user stories in accordance with the SIDPA `implement-
 
 ---
 
+## Story 17.4 — Statistics and the Learner
+- **Commit:** `497c4f9`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-17.4`
+- **Source ADR / BRD / FDD:** ADR-017 (§4.1, §4.3), BRD-017 (BRU-017-08, BRU-017-09, BRU-017-10), FDD-017 (§2.2, §2.4, §3.2, §3.6, §3.7)
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/policy/epsilon_greedy.py` (`consumed_episode_ids`, `update_statistics`, `CallableSnapshot`)
+  - `src/agent_learning_ext/learners/epsilon_greedy.py` (`EpsilonGreedyLearner`)
+  - `src/agent_learning_ext/learners/__init__.py` (re-export `EpsilonGreedyLearner`)
+  - `src/agent_learning_ext/__init__.py` (lazy export `EpsilonGreedyLearner`)
+  - `tests/test_epsilon_learner.py` (contract tests for $AC_0$ through $AC_6$, interpretations $I_1$ to $I_3$)
+  - `docs/user-stories/epic-17-scheduled-epsilon-greedy-policy.md` (Story 17.4 marked Completed)
+- **Contracts:**
+  - `tests/test_epsilon_learner.py`
+  - Contract run: 9 passed in 1.17s
+  - Cumulative suite: 52 passed across Epic 17 (`test_epsilon_schedule.py`, `test_epsilon_safety_mask.py`, `test_epsilon_policy.py`, `test_epsilon_learner.py`)
+- **Notes:**
+  - Pre-flight specification gate (`scripts/spec_gate.py 17.4`) evaluated: passed with robust utility 0.7423 and margin +0.2210 (episode `spec-17_4-4a16a432`).
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Zero changes to `src/agent_learning/`. All learner logic isolated in `src/agent_learning_ext/learners/epsilon_greedy.py`.
+    - $I_2$: Defensive None-Safety for Dictionaries: Defensively guarded dictionary accesses in learner and policy.
+    - $I_3$: Non-Finite Float Rejection: Rejection of non-finite reward values.
+  - $AC_0$: `from_actions` initialises all action counts, cumulative rewards, and means to 0/0.0; `from_snapshot` strictly validates statistics and detects duplicates, non-finite values, and mean discrepancies $> 10^{-9}$.
+  - $AC_1$: `reward_to_r` maps $[-1, 1]$ monotonically to $[0, 1]$ via $(v + 1)/2$; rejects values outside $[-1, 1]$, booleans, and non-finite floats.
+  - $AC_2$: Episode increments `pull_count`, accumulates reward, and updates `mean_reward` solely for the chosen action, keeping unchosen actions pristine.
+  - $AC_3$: Ingestion skips episodes where `selection_basis != "epsilon_greedy"`, action ID is unknown, or aggregate reward is missing; newest aggregate reward per episode is selected.
+  - $AC_4$: Ingestion is strictly idempotent: repeatedly offering previously counted episodes leaves statistics and `episodes_used` at 0; two successive `LearningRunner.run_offline_batch` passes produce identical state to a single pass.
+  - $AC_5$: `EpsilonGreedyLearner` and `UCBLearner` produce identical action statistics for identical episodes by calling the shared `add_rewards` primitive in `action_statistics.py`.
+  - $AC_6$: Successful update advances snapshot version and returns `LearnerResult` with `episodes_used`, `mean_reward`, and `consumed_inputs`; rejects `SoftmaxPolicy` with `TypeError`; zero imports from `agent_learning.storage`.
+
+---
+
 ## Story 21.1 — Entropy and Margin
 - **Commit:** `3334537`
 - **Date:** 2026-11-08
@@ -2559,11 +2591,35 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Review (Step 8):** Amazon Q reviewed PR #132. 1 finding addressed:
   - `Q-132-1 | logic error | verified: yes | decision: accepted | Remove dead code 'np' from forbidden_modules and add alias.asname verification across Import and ImportFrom AST nodes | fix: acd4ac7`
 
+---
+
+## Story 17.5 — Staying Out of REINFORCE
+- **Commit:** `1fab18d`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-17.5`
+- **Source ADR / BRD / FDD:** ADR-017 (§4.1, §4.3), BRD-017 (BRU-017-11, BRU-017-12), FDD-017 (§3.5, §3.7)
+- **Pre-Flight Spec Gate:** Proceed utility 0.6830, margin +0.1617 (>= +0.05), episode `spec-17_5-855ed913`.
+- **Files Modified/Created:**
+  - `tests/test_epsilon_reinforce_guard.py` (contract tests for $AC_0$ through $AC_2$, interpretations $I_1$ to $I_4$)
+  - `docs/user-stories/epic-17-scheduled-epsilon-greedy-policy.md` (Story 17.5 marked Completed)
+- **Contracts:**
+  - `tests/test_epsilon_reinforce_guard.py`
+  - Contract run: 3 passed in 1.42s
+  - Cumulative suite: 55 passed across Epic 17 (`test_epsilon_schedule.py`, `test_epsilon_safety_mask.py`, `test_epsilon_policy.py`, `test_epsilon_learner.py`, `test_epsilon_reinforce_guard.py`)
+- **Notes:**
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Zero changes in `src/agent_learning/`. All logic isolated under `src/agent_learning_ext/`.
+    - $I_2$: Storage Decoupling & Serialization: Policy snapshots and episode records survive JSON serialization without storage dependencies.
+    - $I_3$: Empty Collection Base Case: When passed an empty collection or when all episodes are excluded, `ReinforceLearner` returns `episodes_used=0` and leaves logits unmutated.
+    - $I_4$: Non-Finite Float Rejection: Aggregate rewards must be finite and within $[-1, 1]$, strictly raising `ValueError` on NaN or Inf.
+  - $AC_0$: Episodes generated through `EpsilonGreedyPolicy.choose` and the `EpisodeCapture` path have `action_logprob` strictly `None`; `ReinforceLearner.update` over exclusively epsilon episodes returns `episodes_used = 0`, reports `full_authority_excluded = 3`, and leaves softmax logits and version unchanged.
+  - $AC_1$: Over 3 softmax episodes and 3 epsilon episodes, `ReinforceLearner` uses exactly the 3 softmax episodes (`episodes_used = 3`), excludes the 3 epsilon episodes (`full_authority_excluded = 3`), and resulting logits and baseline equal those from the 3 softmax episodes alone within $10^{-12}$.
+  - $AC_2$: Behavioural verification confirms the guard is powered by the existing check on `action_logprob is None` in `ReinforceLearner`; zero edits or added conditions to `learners/reinforce.py`. Tested empty batch and non-finite float rejection.
 
 ---
 
 ## Story 21.2 — The Route
-- **Commit:** `2cdea35`
+- **Commit:** `adbf9ad`
 - **Date:** 2026-11-08
 - **Branch:** `feat/story-21.2`
 - **Source ADR / BRD / FDD:** ADR-021 (§4.1), BRD-021, FDD-021 (§1, §2, §3)

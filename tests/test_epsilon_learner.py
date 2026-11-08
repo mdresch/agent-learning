@@ -196,8 +196,9 @@ def test_ac3_selection_filtering_and_newest_aggregate_reward() -> None:
     ep_unknown = _episode("ep-unk", "action_not_in_policy")
     ep_no_reward = _episode("ep-norew", "a")
 
+    # Test mixed timestamp representations (e.g. +00:00 vs Z)
     rw_old = _reward("ep-ok", -1.0, created_at="2026-11-08T00:00:00Z")
-    rw_new = _reward("ep-ok", 1.0, created_at="2026-11-08T01:00:00Z")  # newer
+    rw_new = _reward("ep-ok", 1.0, created_at="2026-11-08T00:01:00+00:00")  # newer even with mixed tz suffix
     rw_metric = _reward("ep-ok", 0.0, source=RewardSource.METRIC)
 
     res = learner.update(
@@ -366,12 +367,12 @@ def test_ac6_result_version_advancement_and_type_check() -> None:
 
 def test_ac6_storage_import_isolation() -> None:
     """AC_6: policy/epsilon_greedy.py and learners/epsilon_greedy.py import nothing from storage."""
-    pol_path = Path("src/agent_learning_ext/policy/epsilon_greedy.py")
-    lrn_path = Path("src/agent_learning_ext/learners/epsilon_greedy.py")
+    repo_root = Path(__file__).resolve().parent.parent
+    pol_path = repo_root / "src" / "agent_learning_ext" / "policy" / "epsilon_greedy.py"
+    lrn_path = repo_root / "src" / "agent_learning_ext" / "learners" / "epsilon_greedy.py"
 
     for path in (pol_path, lrn_path):
-        if not path.exists():
-            continue
+        assert path.exists(), f"Source file must exist: {path}"
         tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
         for node in ast.walk(tree):
             if isinstance(node, ast.Import):
@@ -379,3 +380,26 @@ def test_ac6_storage_import_isolation() -> None:
                     assert "storage" not in alias.name
             elif isinstance(node, ast.ImportFrom):
                 assert "storage" not in (node.module or "")
+
+
+def test_callable_snapshot_guard_and_deepcopy() -> None:
+    """CallableSnapshot guards _target against recursion and supports copy.deepcopy."""
+    from agent_learning_ext.policy.epsilon_greedy import CallableSnapshot
+
+    snap = _make_policy().snapshot()
+    wrapper = CallableSnapshot(snap)
+
+    # Calling wrapper returns snapshot
+    assert wrapper() is snap
+    # Direct property access delegates to snapshot
+    assert wrapper.version == snap.version
+    assert wrapper.task_id == snap.task_id
+
+    # Non-existent attribute raises AttributeError without recursion
+    with pytest.raises(AttributeError):
+        _ = wrapper.non_existent_attribute_xyz
+
+    # Deepcopy works cleanly without recursion
+    copied = copy.deepcopy(wrapper)
+    assert copied() is not snap
+    assert copied().version == snap.version

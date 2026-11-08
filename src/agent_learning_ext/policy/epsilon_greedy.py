@@ -136,13 +136,27 @@ class CallableSnapshot:
     """Wrapper allowing policy.snapshot to be accessed as both a PolicySnapshot and a callable method."""
 
     def __init__(self, target: PolicySnapshot) -> None:
-        self._target = target
+        object.__setattr__(self, "_target", target)
 
     def __call__(self) -> PolicySnapshot:
         return self._target
 
     def __getattr__(self, name: str) -> Any:
-        return getattr(self._target, name)
+        if name == "_target":
+            raise AttributeError(name)
+        target = self.__dict__.get("_target")
+        if target is None:
+            raise AttributeError(name)
+        return getattr(target, name)
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        if name == "_target":
+            object.__setattr__(self, name, value)
+        else:
+            setattr(self._target, name, value)
+
+    def __deepcopy__(self, memo: dict[int, Any]) -> CallableSnapshot:
+        return CallableSnapshot(copy.deepcopy(self._target, memo))
 
     def to_dict(self) -> dict[str, Any]:
         return self._target.to_dict()

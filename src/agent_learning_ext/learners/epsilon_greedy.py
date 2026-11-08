@@ -7,13 +7,35 @@ Pure standard library only: zero random numbers, zero storage imports, zero file
 from __future__ import annotations
 
 import copy
+import datetime
 from collections.abc import Iterable
+from typing import Any
 
 from agent_learning.learners.base import Learner, LearnerResult
 from agent_learning.policy.base import Policy
 from agent_learning.types import ConsumedInput, Episode, Reward, RewardSource
 from agent_learning_ext.policy.action_statistics import add_rewards, reward_to_r
 from agent_learning_ext.policy.epsilon_greedy import SELECTION_BASIS, EpsilonGreedyPolicy
+
+
+def _parse_timestamp(val: Any) -> float:
+    """Safely parse a timestamp into UTC seconds since epoch for robust comparison."""
+    if isinstance(val, (int, float)):
+        return float(val)
+    if isinstance(val, datetime.datetime):
+        if val.tzinfo is None:
+            val = val.replace(tzinfo=datetime.timezone.utc)
+        return val.timestamp()
+    if isinstance(val, str):
+        cleaned = val.replace("Z", "+00:00")
+        try:
+            dt = datetime.datetime.fromisoformat(cleaned)
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=datetime.timezone.utc)
+            return dt.timestamp()
+        except ValueError:
+            return 0.0
+    return 0.0
 
 
 class EpsilonGreedyLearner(Learner):
@@ -45,7 +67,10 @@ class EpsilonGreedyLearner(Learner):
             # Validate reward value upfront (reject non-finite, out-of-range, bool)
             reward_to_r(reward.value)
             current = aggregate.get(reward.episode_id)
-            if current is None or reward.created_at > current.created_at:
+            if (
+                current is None
+                or _parse_timestamp(reward.created_at) > _parse_timestamp(current.created_at)
+            ):
                 aggregate[reward.episode_id] = reward
 
         # 2. Collect eligible episodes (selection_basis="epsilon_greedy", valid action, aggregate reward)

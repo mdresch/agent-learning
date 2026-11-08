@@ -53,6 +53,9 @@ An entry records only what the epic's work actually surfaced. Do not seed this r
 | IMP-018 | Epic 14 | Empirical Reviewer Reliability Weighting | Product opportunity | Use the 139 real triage records from `tests/fixtures/critique_evidence/triage_replay_dataset.json` to compute reviewer trust/precision per claim type, applying calibrated doubt shifts ($\Delta d$) rather than raw support shifts alone. | Prevents uncalibrated bot reviewers with high false-alarm rates from halting valid PRs while preserving safety on crash risks. | Rolled into Phase Next Intent Refinement |
 | IMP-019 | Epic 14 | Passive Governance Learning Harvester | Developer experience / ML Pipeline | Automate harvesting historical triage lines (`Q-<PR>-<n>`) and gate decisions from `implementation-log.md` into auditable `Episode` records and preference pairs in `data/agent-learning/store/`. | Seeds the LearningStore with real human governance choices, giving passive learners (such as PairwiseLearner) empirical training data. | In-Flight Candidate |
 | IMP-020 | Epic 14 | Pre-Flight Spec Gate Rubric Standardization | Architectural simplification | Unify adversarial spec findings in `scripts/spec_gate.py` directly with the Epic 14 rubric (`specification_completeness`, `testability`, `upstream_fork_purity`, `architectural_boundaries`). | Guarantees mathematical and conceptual symmetry between pre-flight spec readiness and PR gatekeeper evaluations. | In-Flight Candidate |
+| IMP-021 | Epic 16 | Continuous-Domain Parameter Widening Guard in Spec Auditor | Architectural simplification / Governance | Teach `spec_gate.py` to explicitly detect and flag when classical discrete primitives (e.g. Wilson score interval) are widened to continuous domains ($[0, \text{total}]$ with float successes), generating rationale tags for PR reviewers. | Eliminates repetitive review debate cycles across future bandit and exploration policies (e.g., Epic 17 Epsilon-Greedy). | In-Flight Candidate |
+| IMP-022 | Epic 16 | Public Ingestion Guard Ordering Pattern (Deduplication First) | Architectural simplification / Reliability | Standardize batch-ingestion loops in policy statistics and storage writers (`add_rewards`, `store_episodes`) to place the duplicate-skip check (`if id in seen: continue`) ahead of value and schema validation. | Ensures idempotent replay of heterogeneous batches containing legacy/foreign records without spurious validation halts on already-consumed data. | In-Flight Candidate |
+| IMP-023 | Epic 16 | Low-Authority Exploration Dataset Generation for HYP-AL-009 | Product opportunity | Build a synthetic low-authority benchmark simulator that generates mixed successes and failures (at least 100 scored episodes) to empirically benchmark UCB-1, Wilson-UCB, and Thompson sampling against REINFORCE on non-positive-only reward regimes (BRU-016-11). | Empirically resolves HYP-AL-009 with statistical significance rather than relying solely on positive-only consistency replays. | Rolled into Phase Next Intent Refinement |
 
 ---
 
@@ -94,6 +97,13 @@ One entry per epic recap, appended in the order held. Format:
 - **Cadence Date:** 2026-11-08
 - **Defensive Review (LL-###):** LL-045 (Pre-flight specification gate catching empty collection & None-safety gaps before contract drafting)
 - **Positive Improvement Harvest:** IMP-015, IMP-016, IMP-017, IMP-018, IMP-019, IMP-020
+
+---
+
+### Epic 16: Deterministic Upper Confidence Bound (UCB) Decision Policy
+- **Cadence Date:** 2026-11-08
+- **Defensive Review (LL-###):** LL-046 (Continuous-Domain Widening in Statistical Bounds Must Be Guarded Against Classical Integer Reversion)
+- **Positive Improvement Harvest:** IMP-021, IMP-022, IMP-023
 
 ---
 

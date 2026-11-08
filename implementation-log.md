@@ -2709,4 +2709,8 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - Observed RED first: `AssertionError: Policy shape file missing: .../docs/policy-shapes/approve-routing-thresholds.actions.json`.
   - Upstream fork untouched: 8/8 passed in `tests/test_upstream_untouched.py`.
   - Governance baseline: 18/18 passed in `tests/test_governance_baseline.py`.
+- **Review (Step 8):** Amazon Q reviewed PR #142. All findings addressed:
+  - `Q-142-1 | crash risk | verified: yes | decision: accepted | Validate action object schema before extracting action IDs in test_ac4_shape_files | fix: c2e49a1`
+  - `Q-142-2 | logic error | verified: yes | decision: accepted | Enforce exact action IDs without fallback in test_ac4_shape_files | fix: c2e49a1`
+  - `Q-142-3 | crash risk | verified: yes | decision: accepted | Add hasattr guard on spec.loader.exec_module in test_governance_baseline_passes | fix: c2e49a1`
 

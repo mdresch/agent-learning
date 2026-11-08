@@ -192,18 +192,24 @@ def test_ac4_shape_files() -> None:
         assert isinstance(data, list), f"Expected list of actions in {path}, got {type(data)}"
         assert len(data) == 3, f"Expected exactly 3 actions in {path}, got {len(data)}"
 
+        for idx, item in enumerate(data):
+            assert isinstance(item, dict), f"Item {idx} in {path} must be a dict"
+            assert "id" in item and isinstance(item["id"], str) and item["id"].strip(), (
+                f"Missing or invalid 'id' in item {idx} of {path}"
+            )
+            assert "description" in item and isinstance(item["description"], str) and item["description"].strip(), (
+                f"Missing or invalid 'description' in item {idx} of {path}"
+            )
+            assert "parameters" in item and isinstance(item["parameters"], dict), (
+                f"Missing or invalid 'parameters' in item {idx} of {path}"
+            )
+
         action_ids: list[str] = [item["id"] for item in data]
         prefix = task_id.replace("-", "_")
 
-        assert f"approve_{prefix[8:]}" in action_ids or any(aid.startswith("approve_") for aid in action_ids)
-        assert f"reject_{prefix[8:]}" in action_ids or any(aid.startswith("reject_") for aid in action_ids)
+        assert f"approve_{prefix[8:]}" in action_ids
+        assert f"reject_{prefix[8:]}" in action_ids
         assert "request_revision_before_decision" in action_ids
-
-        for item in data:
-            assert isinstance(item, dict)
-            assert "id" in item and item["id"].strip()
-            assert "description" in item and item["description"].strip()
-            assert "parameters" in item and isinstance(item["parameters"], dict)
 
         # JSON round-trip serialization check (I_2)
         serialized = json.dumps(data, indent=2)
@@ -219,6 +225,7 @@ def test_governance_baseline_passes() -> None:
         "governance_baseline", ROOT / "scripts" / "governance_baseline.py"
     )
     assert spec is not None and spec.loader is not None
+    assert hasattr(spec.loader, "exec_module"), "Loader must implement exec_module"
     gb = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(gb)
 

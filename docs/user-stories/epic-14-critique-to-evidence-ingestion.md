@@ -69,7 +69,7 @@ Fixture used by the criteria below ("the base frame"): one option with two evide
 
 ## Story 14.5 — Replay on the Real Triage Records
 
-**Status:** Ready — blocked until the original Amazon Q comments are exported from the PR threads (ADR-014 §4.4, test data gap).  
+**Status:** In Progress (unblocked via exported review triage dataset)  
 **As** a maintainer, **I want** the 30 real review-triage records tagged by a person and run through the module, **so that** I can see whether the deltas point the way the human decisions did.
 
 ### Acceptance Criteria:
@@ -78,6 +78,7 @@ Fixture used by the criteria below ("the base frame"): one option with two evide
 - **$AC_2$ (Declined Findings):** a finding the human *declined* in triage is one the human judged not to be a real defect, so its recorded delta is zero or positive and never negative; applying it does not lower the pooled support of the criterion it names. Any declined finding tagged with a negative delta is listed, not hidden.
 - **$AC_3$ (Accepted Findings):** a finding the human *accepted* in triage was a real defect, so its recorded delta is negative, and applying it lowers the pooled support by that delta.
 - **$AC_4$ (Not Evidence Of Effectiveness):** the result is recorded as a consistency check on the tagging. It makes no claim that the method improves decisions (HYP-AL-005 stays open).
+- **$AC_5$ (Empty & Defensive):** passing zero triage records or empty lines returns an empty replay report without error; missing optional fields or comment texts default defensively to None or empty dictionary without raising AttributeError.
 
 ---
 

@@ -1,0 +1,9 @@
+{
+  "intent_ambiguity": "low",
+  "context_variability": "variable",
+  "outcome_observability": "direct",
+  "decision_impact": "high",
+  "reversibility": "reversible",
+  "requires_human_approval": true,
+  "rationale": "Adopting compiled decision weights changes production decision configuration and requires explicit human sign-off per ADR-021 and ADR-022."
+}

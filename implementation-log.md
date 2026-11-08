@@ -2133,7 +2133,13 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - $AC_6$: Honest convergence reporting: cap stop has `converged = False` and `stationarity > tol`; early stop has `converged = True` and `stationarity <= tol`; `iterations` equals steps taken.
   - $AC_7$: Deterministic and standard-library/numpy purity: repeated calls yield identical logits; module imports zero random modules.
   - $AC_8$: 2,000-step fit on 3 actions with 1,000 pairs executes in under 1.1s (well below 5.0s requirement).
-  - Full suite: 9/9 passed in `tests/test_pairwise_fit.py`. Full test suite: 1,951 passed, 4 skipped.
+  - Full suite: 10/10 passed in `tests/test_pairwise_fit.py`. Full test suite: 1,951 passed, 4 skipped.
+- **Review (Step 8):** Amazon Q reviewed PR #120 across 2 rounds. All findings addressed:
+  - `Q-120-1 | logic error | verified: yes | decision: accepted | Replace hardcoded loss=0.0 in no-pairs path with bt_loss(theta, W, r_vec, action_ids, lam=lam) to accurately account for regularizer loss when theta_ref is outside clamp box | fix: 1113d57`
+  - `Q-120-2 | test gap | verified: yes | decision: accepted | Relax fragile assert res.iterations == 2000 to assert 0 < res.iterations <= 2000 in test_ac8 to avoid spurious test failures when early stationarity threshold is hit | fix: 1113d57`
+  Amazon Q confirmed all findings resolved; CI checks (build-installer, test) passed green.
+  Bayesian PR Gatekeeper evaluated PR #120: passed with robust utility 0.746 and margin +0.220 (>= +0.05).
+  Passive learning episode `pr-120-1113d57-9b0bc29f` stored in LearningStore.
 
 
 

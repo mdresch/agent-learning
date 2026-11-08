@@ -41,7 +41,7 @@ Fixture used by the criteria below ("the base set"): three actions `x`, `y` and 
 
 ## Story 18.3 — The Fit
 
-**Status:** Ready  
+**Status:** Completed  
 **As** a maintainer, **I want** the fit to converge safely or say that it did not, **so that** a result is never taken for an optimum it is not.
 
 ### Acceptance Criteria:

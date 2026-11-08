@@ -2108,5 +2108,32 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-119-6 | crash risk | verified: yes | decision: accepted | Reject negative lambda parameter in bt_loss and bt_gradient with ValueError | fix: 174e3ff`
   Amazon Q confirmed all findings resolved; CI checks (build-installer, test) passed green.
 
+---
+
+## Story 18.3 — The Fit
+- **Commit:** `253676d`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-18.3`
+- **Source ADR / BRD / FDD:** ADR-018 (§4.1, §4.2), BRD-018 (BRU-018-04, BRU-018-05, BRU-018-06, BRU-018-07), FDD-018 (§2.1, §2.2, §3 item 2, G1, G2)
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/learners/pairwise.py` (implemented `fit_logits`, `FitResult`, constants `LAMBDA_MIN`, `CLAMP`, `LR_DEFAULT`, `STEPS_DEFAULT`, `TOL_DEFAULT`)
+  - `src/agent_learning_ext/learners/__init__.py` (re-exported `fit_logits`, `FitResult`, constants)
+  - `src/agent_learning_ext/__init__.py` (registered lazy exports for `FitResult` and `fit_logits`)
+  - `agent-training-ext/agent_training_ext/dpo_preference.py` (re-exported new primitives in extension package)
+  - `.claude/skills/pairwise-preference/SKILL.md` (component skill)
+  - `tests/test_pairwise_fit.py` (contract tests for $AC_0$ through $AC_8$)
+  - `docs/user-stories/epic-18-pairwise-preference-optimization.md` (Story 18.3 marked Completed)
+- **Validation:**
+  - $AC_0$: `lam = 0.049` raises `ValueError`, `0.05` accepted; non-finite arguments, `lr <= 0`, `steps < 1`, `clamp <= 0`, action missing from `theta_ref`, and pair naming unknown action raise `ValueError` naming argument.
+  - $AC_1$: With zero pairs, returned logits equal `theta_ref` exactly, `converged` is True, `iterations` is 0, `stationarity` is 0.0.
+  - $AC_2$: Clamps every returned logit into $[-8.0, +8.0]$, including for pairs pushing logits past 8 and `theta_ref` outside box.
+  - $AC_3$: Step size equals $\min(\text{lr}, 1 / (\lambda + 0.5 \cdot \text{max\_degree}))$; matches 0.1 on 18 pairs and $< 0.1$ on 3,000 pairs.
+  - $AC_4$: Regularized loss monotonically non-increasing across iterations for 18, 100, 1,000, and 3,000 pairs (tested via `trace_fn` callback; no step increases loss by $> 10^{-12}$).
+  - $AC_5$: On consistent 3,000 pairs ($x > y \times 1500, x > z \times 900, y > z \times 600$), returned logits strictly preserve $x > y > z$.
+  - $AC_6$: Honest convergence reporting: cap stop has `converged = False` and `stationarity > tol`; early stop has `converged = True` and `stationarity <= tol`; `iterations` equals steps taken.
+  - $AC_7$: Deterministic and standard-library/numpy purity: repeated calls yield identical logits; module imports zero random modules.
+  - $AC_8$: 2,000-step fit on 3 actions with 1,000 pairs executes in under 1.1s (well below 5.0s requirement).
+  - Full suite: 9/9 passed in `tests/test_pairwise_fit.py`. Full test suite: 1,951 passed, 4 skipped.
+
 
 

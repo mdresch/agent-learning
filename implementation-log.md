@@ -2470,3 +2470,32 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - $AC_1$: Over $t \in [0, 5000]$, the rate is strictly non-increasing ($\epsilon(t) \ge \epsilon(t+1)$) and never drops below $\text{floor}$.
   - $AC_2$: With $\text{floor} = \epsilon_0$, rate is constant at $\epsilon_0$; with $\delta = 0$, rate is $\epsilon_0$ for every $t$.
   - $AC_3$: Explicit `ValueError` naming the offending argument for $\delta < 0$, $\epsilon_0 < \text{floor}$, values outside $[0, 1]$, $t < 0$, booleans, and non-finite arguments (`nan`, `inf`).
+
+
+---
+
+## Story 17.2 — The Safety Mask
+- **Commit:** `b4ef91c`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-17.2`
+- **Source ADR / BRD / FDD:** ADR-017 (§4.1, §4.3), BRD-017 (BRU-017-02, BRU-017-03, BRU-017-04), FDD-017 (§2.1, §3.2, §3.3, §5)
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/policy/epsilon_greedy.py` (`EpsilonGreedyPolicy`, `safe_subset`, `safe_actions`, `exploration_rate_applied`, `_validate_reversible`)
+  - `src/agent_learning_ext/policy/__init__.py` (re-export `EpsilonGreedyPolicy`)
+  - `src/agent_learning_ext/__init__.py` (lazy export `EpsilonGreedyPolicy`)
+  - `tests/test_epsilon_safety_mask.py` (contract tests for $AC_0$ through $AC_3$, interpretations $I_1$ to $I_3$)
+  - `docs/user-stories/epic-17-scheduled-epsilon-greedy-policy.md` (Story 17.2 marked Completed)
+- **Contracts:**
+  - `tests/test_epsilon_safety_mask.py`
+  - Contract run: 18 passed in 1.11s
+  - Cumulative suite: 34 passed across Epic 17 (`test_epsilon_schedule.py`, `test_epsilon_safety_mask.py`)
+- **Notes:**
+  - Pre-flight specification gate (`scripts/spec_gate.py 17.2`) evaluated: passed with robust utility 0.7454 and margin +0.2241 (episode `spec-17_2-f85a03d2`).
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Zero changes to `src/agent_learning/`. All safety masking logic isolated in `src/agent_learning_ext/policy/epsilon_greedy.py`.
+    - $I_2$: Storage Decoupling & Serialization: Pure snapshot validation and JSON round-tripping tested without storage coupling or I/O.
+    - $I_3$: Non-Finite Float Rejection: Rejection of non-finite parameters in schedule checked.
+  - $AC_0$: Safe subset on the base policy is `{a, b}`; actions without `"reversible"` key or with `"reversible": false` are strictly excluded from the safe subset.
+  - $AC_1$: Strict boolean-only validation: non-boolean values (`"true"`, `"false"`, `1`, `0`, `None`, lists, dicts) raise `ValueError` naming the offending action ID, both at policy instantiation (`from_actions`) and snapshot deserialization (`from_snapshot`).
+  - $AC_2$: With an empty safe subset (no reversible actions), the exploration rate applied is forced to 0.0 for every $t \ge 0$, including $t = 0$.
+  - $AC_3$: Policy built from real repository definitions in `docs/policy-shapes/approve-adr.actions.json` has an empty safe subset and applied rate of 0.0 across all $t$.

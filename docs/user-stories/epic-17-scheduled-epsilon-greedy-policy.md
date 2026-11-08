@@ -28,7 +28,7 @@ Fixture used by the criteria below ("the base policy"): three actions `a`, `b` a
 
 ## Story 17.2 — The Safety Mask
 
-**Status:** Ready  
+**Status:** Completed (2026-11-08, commit b4ef91c)  
 **As** a maintainer, **I want** exploration restricted to actions a human has declared reversible, **so that** a random probe cannot run a destructive action.
 
 ### Acceptance Criteria:

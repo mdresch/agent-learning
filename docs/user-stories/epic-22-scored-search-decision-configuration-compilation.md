@@ -30,7 +30,7 @@ Fixtures used by the criteria below. "The toy frame": criteria `c1`, `c2`, optio
 
 ## Story 22.2 — The Split and the Label Rule
 
-**Status:** Ready  
+**Status:** Completed (2026-11-08)  
 **As** a maintainer, **I want** a reproducible hold-out and labels that predate the proposal, **so that** reported accuracy is honest.
 
 ### Acceptance Criteria:

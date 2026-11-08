@@ -5,13 +5,18 @@ Pure standard library exploration schedule and action selection under human safe
 
 from __future__ import annotations
 
+import copy
+import datetime
 import math
-from collections.abc import Sequence
+import random
+import uuid
+from collections.abc import Mapping, Sequence
 from typing import Any
 
-from agent_learning.policy.base import Policy
+from agent_learning.policy.base import Decision, Policy
+from agent_learning.policy.thompson import seed_for
 from agent_learning.types import Action, PolicySnapshot
-from agent_learning_ext.policy.action_statistics import read_statistics
+from agent_learning_ext.policy.action_statistics import ActionStats, read_statistics
 
 # Constants per FDD-017 §2.1
 SELECTION_BASIS: str = "epsilon_greedy"
@@ -87,11 +92,53 @@ def _validate_reversible(action: Action) -> None:
             )
 
 
+def _find_greedy_action(
+    actions: Sequence[Action],
+    stats: Mapping[str, ActionStats],
+) -> tuple[Action, dict[str, float]]:
+    """Determine the greedy action and empirical means mapping (FDD-017 §3 item 3.5).
+
+    Each action's mean is mean_reward when pull_count > 0, else 0.5 (neutral mean).
+    Tie breaking:
+        1. Highest mean
+        2. Higher pull_count
+        3. Lexicographically smaller action.id
+    """
+    empirical_means: dict[str, float] = {}
+    best_action: Action | None = None
+    best_mean = -math.inf
+    best_pulls = -1
+
+    for a in actions:
+        st = stats[a.id]
+        mean = st.mean_reward if st.pull_count > 0 else NEUTRAL_MEAN
+        empirical_means[a.id] = mean
+
+        if best_action is None or mean > best_mean:
+            best_action = a
+            best_mean = mean
+            best_pulls = st.pull_count
+        elif mean == best_mean:
+            if st.pull_count > best_pulls or (
+                st.pull_count == best_pulls and a.id < best_action.id
+            ):
+                best_action = a
+                best_mean = mean
+                best_pulls = st.pull_count
+
+    if best_action is None:
+        raise ValueError("policy has no actions")
+
+    return best_action, empirical_means
+
+
 class EpsilonGreedyPolicy(Policy):
     """Scheduled Epsilon-Greedy policy baseline with safety mask (ADR-017, FDD-017)."""
 
     def __init__(self, snapshot: PolicySnapshot) -> None:
         self._snapshot = snapshot
+        self._last_record: dict[str, Any] | None = None
+
         metadata = getattr(snapshot, "metadata", None) or {}
         policy_type = metadata.get("policy_type")
         if policy_type != "epsilon_greedy":
@@ -119,16 +166,6 @@ class EpsilonGreedyPolicy(Policy):
     def actions(self) -> Sequence[Action]:
         """Sequence of actions available in the policy snapshot."""
         return self._snapshot.actions
-
-    def choose(
-        self,
-        state: Any = None,
-        *,
-        request_id: str | None = None,
-        timestamp: str | None = None,
-    ) -> Any:
-        """Choose an action (full implementation in Story 17.3)."""
-        raise NotImplementedError("choose is implemented in Story 17.3")
 
     @property
     def safe_subset(self) -> set[str]:
@@ -169,6 +206,81 @@ class EpsilonGreedyPolicy(Policy):
 
     # Alias per convention
     rate_applied = exploration_rate_applied
+
+    def choose(
+        self,
+        state: Any = None,
+        *,
+        request_id: str | None = None,
+        timestamp: str | None = None,
+    ) -> Decision:
+        """Choose an action under the exploration schedule and safety mask (FDD-017 §3 item 3)."""
+        if not self._snapshot.actions:
+            raise ValueError("policy has no actions")
+
+        if request_id is None:
+            request_id = str(uuid.uuid4())
+        if timestamp is None:
+            timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat()
+
+        # Seed PRNG via HMAC-SHA256 (Story 15.1, ADR-015 §4.3)
+        seed = seed_for(self._snapshot.id, request_id, timestamp)
+        rng = random.Random(seed)
+
+        metadata = self._snapshot.metadata or {}
+        stats = read_statistics(metadata, [a.id for a in self._snapshot.actions])
+        total_pulls = sum(st.pull_count for st in stats.values())
+
+        safe = self.safe_actions
+        safe_ids = {a.id for a in safe}
+
+        if not safe:
+            eps = 0.0
+        else:
+            schedule = metadata.get("epsilon_schedule", {})
+            eps = epsilon_at(total_pulls, schedule["eps0"], schedule["delta"], schedule["floor"])
+
+        # The branch coin u is drawn first from the seeded PRNG on every decision (FDD-017 F4)
+        u = rng.random()
+        branch_taken = "exploration" if (bool(safe) and u < eps) else "exploitation"
+
+        greedy_action, empirical_means = _find_greedy_action(self._snapshot.actions, stats)
+
+        if branch_taken == "exploration":
+            chosen = rng.choice(safe)
+        else:
+            chosen = greedy_action
+
+        # Calculate display selection probabilities (FDD-017 §3 item 3.7)
+        # P(a) = (1 - eps) * [a == g] + (eps / |S|) * [a in S]
+        probabilities: list[float] = []
+        num_safe = len(safe)
+        for a in self._snapshot.actions:
+            prob = 0.0
+            if a.id == greedy_action.id:
+                prob += 1.0 - eps
+            if num_safe > 0 and a.id in safe_ids:
+                prob += eps / num_safe
+            probabilities.append(prob)
+
+        self._last_record = {
+            "request_id": request_id,
+            "timestamp": timestamp,
+            "prng_seed": str(seed),
+            "branch_taken": branch_taken,
+            "exploration_rate_applied": float(eps),
+            "total_pulls": total_pulls,
+            "empirical_means": empirical_means,
+            "chosen": chosen.id,
+        }
+
+        return Decision(action=chosen, logprob=None, probabilities=probabilities)
+
+    def last_decision_record(self) -> dict[str, Any]:
+        """Return a deep copy of the last decision record (FDD-017 §2.3, §3 item 4)."""
+        if self._last_record is None:
+            raise RuntimeError("no decision has been made yet")
+        return copy.deepcopy(self._last_record)
 
     @classmethod
     def from_actions(
@@ -222,4 +334,64 @@ class EpsilonGreedyPolicy(Policy):
         raise TypeError("use EpsilonGreedyLearner")
 
 
-__all__ = ["NEUTRAL_MEAN", "SELECTION_BASIS", "EpsilonGreedyPolicy", "epsilon_at"]
+def replay(record: Mapping[str, Any], snapshot: PolicySnapshot) -> dict[str, str]:
+    """Replay an epsilon-greedy decision from its audit record (FDD-017 §3 item 5).
+
+    Re-derives the seed, checks equality with prng_seed, redraws the branch coin and
+    pick, and returns {'branch_taken': ..., 'chosen': ...}.
+
+    Raises:
+        ValueError: If prng_seed does not match the re-derived seed.
+    """
+    req_id = record.get("request_id")
+    ts = record.get("timestamp")
+    recorded_seed = record.get("prng_seed")
+
+    expected_seed = seed_for(snapshot.id, str(req_id), str(ts))
+    if str(expected_seed) != str(recorded_seed):
+        raise ValueError(
+            f"prng_seed mismatch: recorded {recorded_seed!r} != expected {expected_seed}"
+        )
+
+    rng = random.Random(expected_seed)
+    metadata = snapshot.metadata or {}
+    stats = read_statistics(metadata, [a.id for a in snapshot.actions])
+    total_pulls = sum(st.pull_count for st in stats.values())
+
+    safe = sorted(
+        [
+            a
+            for a in snapshot.actions
+            if a.parameters is not None and a.parameters.get("reversible") is True
+        ],
+        key=lambda a: a.id,
+    )
+
+    if not safe:
+        eps = 0.0
+    else:
+        schedule = metadata.get("epsilon_schedule", {})
+        eps = epsilon_at(total_pulls, schedule["eps0"], schedule["delta"], schedule["floor"])
+
+    u = rng.random()
+    branch_taken = "exploration" if (bool(safe) and u < eps) else "exploitation"
+
+    if branch_taken == "exploration":
+        chosen_id = rng.choice(safe).id
+    else:
+        greedy_action, _ = _find_greedy_action(snapshot.actions, stats)
+        chosen_id = greedy_action.id
+
+    return {
+        "branch_taken": branch_taken,
+        "chosen": chosen_id,
+    }
+
+
+__all__ = [
+    "NEUTRAL_MEAN",
+    "SELECTION_BASIS",
+    "EpsilonGreedyPolicy",
+    "epsilon_at",
+    "replay",
+]

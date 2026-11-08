@@ -124,6 +124,9 @@ def test_ac1_reference_frozen_and_validated():
     stored_ref = policy.snapshot().metadata.get("pairwise_reference_logits")
     assert stored_ref is not None
     assert stored_ref == init_logits
+    post_logits = policy.snapshot().logits
+    assert post_logits != stored_ref  # Ensure post-update logits moved and did not alias stored_ref
+    assert policy._snapshot.metadata["pairwise_reference_logits"] is not policy._snapshot.logits
 
     # Second update with different episode: stored reference must NOT change
     ep2 = _make_episode("ep-2", "y", "rejected", "z")
@@ -257,6 +260,14 @@ def test_ac5_learner_result_contract_and_rewards_ignored():
     assert isinstance(res.extra["converged"], bool)
     assert isinstance(res.extra["reference_logits"], dict)
 
+    # AC_5 deduplication: repeated episode ID does not inflate skipped_episodes count
+    ep1_orig = episodes[0]
+    ep1_dup = _make_episode("ep-1", "y", "rejected", "x")
+    ep_acc = _make_episode("ep-2", "x", "accepted", "x")
+    res_dup = learner.update(policy, [ep1_orig, ep1_dup, ep_acc])
+    assert res_dup.extra["pairs"] == 1
+    assert res_dup.extra["skipped_episodes"] == 1  # only ep-2 is skipped, ep-1 was used once (dup ignored)
+
 
 def test_ac6_storage_boundary_and_purity():
     """AC_6: Snapshot survives JSON round-trip; pairwise.py imports nothing from agent_learning.storage."""
@@ -264,8 +275,7 @@ def test_ac6_storage_boundary_and_purity():
 
     # Must import nothing from storage
     assert "storage" not in pw_module.__dict__
-    for attr in dir(pw_module):
-        obj = getattr(pw_module, attr)
+    for obj in pw_module.__dict__.values():
         if hasattr(obj, "__module__") and obj.__module__:
             assert not obj.__module__.startswith("agent_learning.storage")
 

@@ -428,7 +428,17 @@ class PairwiseLearner(Learner):
         pairs = pairs_from_episodes(episodes, action_ids)
 
         # 3. Handle zero pairs path (AC_3)
+        unique_episode_ids = {
+            getattr(ep, "id", None) or getattr(ep, "episode_id", None) or str(id(ep))
+            for ep in episodes
+        }
         if len(pairs) == 0:
+            ref_raw = snapshot.metadata.get("pairwise_reference_logits")
+            if isinstance(ref_raw, Mapping) and all(a in ref_raw for a in action_ids):
+                ref_vec = {a: float(ref_raw[a]) for a in action_ids}
+            else:
+                ref_vec = {a: float(snapshot.logits[a]) for a in action_ids}
+            loss_zero = bt_loss(snapshot.logits, [], ref_vec, action_ids, lam=self.lam)
             return LearnerResult(
                 episodes_used=0,
                 mean_reward=0.0,
@@ -438,19 +448,23 @@ class PairwiseLearner(Learner):
                 consumed_inputs=None,
                 extra={
                     "pairs": 0,
-                    "skipped_episodes": len(episodes),
+                    "skipped_episodes": len(unique_episode_ids),
                     "converged": True,
                     "iterations": 0,
                     "stationarity": 0.0,
                     "step_size": min(self.lr, 1.0 / self.lam),
-                    "loss_before": 0.0,
-                    "loss_after": 0.0,
-                    "reference_logits": dict(snapshot.metadata.get("pairwise_reference_logits", {})),
+                    "loss_before": loss_zero,
+                    "loss_after": loss_zero,
+                    "reference_logits": dict(ref_raw) if isinstance(ref_raw, Mapping) else {},
                 },
             )
 
         # 4. Resolve and validate reference logits (AC_1, FDD-018 G4)
-        policy_meta = getattr(policy, "_snapshot", snapshot).metadata
+        if not hasattr(policy, "_snapshot") or not hasattr(policy._snapshot, "metadata"):
+            raise AttributeError(
+                f"Policy of type '{type(policy).__name__}' does not expose persistent '_snapshot.metadata'"
+            )
+        policy_meta = policy._snapshot.metadata
         if "pairwise_reference_logits" in policy_meta:
             ref_raw = policy_meta["pairwise_reference_logits"]
             if not isinstance(ref_raw, Mapping):
@@ -493,6 +507,7 @@ class PairwiseLearner(Learner):
             episodes_seen=snapshot.episodes_seen,
         )
 
+        pair_episode_ids = {p.source_episode_id for p in pairs}
         return LearnerResult(
             episodes_used=len(pairs),
             mean_reward=0.0,
@@ -502,7 +517,7 @@ class PairwiseLearner(Learner):
             consumed_inputs=None,
             extra={
                 "pairs": len(pairs),
-                "skipped_episodes": len(episodes) - len(pairs),
+                "skipped_episodes": len(unique_episode_ids - pair_episode_ids),
                 "converged": fit_res.converged,
                 "iterations": fit_res.iterations,
                 "stationarity": fit_res.stationarity,

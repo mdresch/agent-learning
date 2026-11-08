@@ -17,7 +17,7 @@ from agent_learning.policy.scope_advice import (
 )
 from agent_learning.policy.thompson import ThompsonPolicy
 from agent_learning_ext.policy.action_statistics import ActionStats
-from agent_learning_ext.policy.ucb import C_DEFAULT, SELECTION_BASIS, WILSON_Z, ucb_scores
+from agent_learning_ext.policy.ucb import C_DEFAULT, SELECTION_BASIS, WILSON_Z, UCBPolicy, ucb_scores
 
 __all__ = [
     "ADVICE_TASK_ID",
@@ -32,6 +32,7 @@ __all__ = [
     "ScopeRecommendation",
     "SoftmaxPolicy",
     "ThompsonPolicy",
+    "UCBPolicy",
     "advice_reward",
     "baseline_snapshot",
     "recommend",

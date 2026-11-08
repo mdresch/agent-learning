@@ -2244,3 +2244,33 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - $AC_3$: Wilson symmetry $1 - \text{wilson\_lower\_bound}(N - k, N)$ matches score within $10^{-12}$ across grid $N \in [1, 50], k \in [0, N]$; integer invariance verified.
   - $AC_4$: Validation raises `ValueError` for unknown variant, non-positive or non-finite `c`, `total != sum(pulls)`, negative or non-integer `pull_count`, and cumulative reward outside $[0, \text{pull\_count}]$ or non-finite.
   - $AC_5$: Static AST check verifies zero imports of `random` and zero references to random attributes in `policy/ucb.py` and `learners/ucb.py`.
+
+---
+
+## Story 16.2 — Choosing Deterministically
+- **Commit:** `56209d1`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-16.2`
+- **Source ADR / BRD / FDD:** ADR-016 (§4.2), BRD-016 (BRU-016-02, BRU-016-04, BRU-016-05, BRU-016-06), FDD-016 (§2.3, §3 item 3, §3 item 4, §3 item 5, E2, E4)
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/policy/ucb.py` (implemented `UCBPolicy(Policy)` with deterministic `choose`, tie-breaking, one-hot probabilities, `None` logprob, and `last_decision_record`)
+  - `src/agent_learning_ext/policy/__init__.py` (re-exported `UCBPolicy`)
+  - `.claude/skills/ucb/SKILL.md` (updated component skill with `UCBPolicy` interface and constraints)
+  - `tests/test_ucb_policy.py` (contract tests for $AC_0$ through $AC_6$)
+  - `docs/user-stories/epic-16-deterministic-ucb-decision-policy.md` (Story 16.2 marked Completed)
+- **Contracts:**
+  - `tests/test_ucb_policy.py`
+  - Contract run: 7 passed in 2.68s
+  - Cumulative suite: 13 passed in `tests/test_ucb_scores.py` and `tests/test_ucb_policy.py`
+- **Notes:**
+  - Pre-flight specification gate (`scripts/spec_gate.py 16.2`) evaluated: passed with robust utility 0.7345 and margin +0.2131 (episode `spec-16_2-8a01198f`).
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Implementation lives under `src/agent_learning_ext/` leaving upstream `src/agent_learning/` pristine (0 lines diff).
+    - $I_2$: Empty Collection Base Case: Empty action space raises `ValueError("policy has no actions")`.
+  - $AC_0$: `choose()` returns action with highest score (`b` on base statistics).
+  - $AC_1$: 100 repeated in-process calls and independent subprocess execution return the exact same action deterministically.
+  - $AC_2$: Equal scores tie-break by higher pull count, then lexicographically smaller `action.id` (`alpha` over `beta`).
+  - $AC_3$: Three unpulled actions explore round-robin by lexicographical id order (`a` then `b` then `c`); once all have 1 pull, none scores `inf`.
+  - $AC_4$: Returned `Decision` has `logprob=None` and one-hot `probabilities` on chosen action.
+  - $AC_5$: `last_decision_record()` returns FDD-016 §2.3 record with `null` for `math.inf`; survives `json.dumps`/`loads` round-trip; defensive copy prevents mutation leakage.
+  - $AC_6$: `apply_update()` raises `TypeError` naming `UCBLearner`; `choose()` leaves snapshot completely unmutated.

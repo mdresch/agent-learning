@@ -189,10 +189,14 @@ def complexity_for_snapshot(snapshot: PolicySnapshot) -> ComplexityAssessment:
     return assess_complexity(profile, len(snapshot.actions), profile_source=source)
 
 
-def wilson_lower_bound(successes: int, total: int, z: float = 1.96) -> float:
+def wilson_lower_bound(successes: float, total: int, z: float = 1.96) -> float:
     """Return the Wilson-score lower bound for a Bernoulli proportion."""
     if total <= 0:
         return 0.0
+    if not isinstance(successes, (int, float)) or not math.isfinite(successes):
+        raise ValueError(f"successes must be a finite float; got {successes!r}")
+    if successes < 0.0 or successes > total:
+        raise ValueError(f"successes ({successes}) must be in [0, total] (0..{total})")
     proportion = successes / total
     z_squared = z * z
     denominator = 1.0 + z_squared / total

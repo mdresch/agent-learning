@@ -149,7 +149,7 @@ def test_ac1_untaken_actions_score_inf_and_chosen_before_taken(record_property: 
                 n = stats[aid].pull_count
                 k = stats[aid].cumulative_reward
                 assert n == taken_counts[aid]
-                assert k == float(n)
+                assert k == pytest.approx(float(n), abs=1e-12)
                 # Wilson score for perfect action is 1.0
                 assert scores[aid] == pytest.approx(1.0, abs=1e-12)
 

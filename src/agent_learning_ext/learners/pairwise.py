@@ -14,6 +14,8 @@ from typing import Any
 
 import numpy as np
 
+from agent_learning.learners import Learner, LearnerResult
+from agent_learning.policy import SoftmaxPolicy
 from agent_learning.types import Episode
 
 
@@ -370,6 +372,148 @@ def fit_logits(
     )
 
 
+class PairwiseLearner(Learner):
+    """Pairwise Preference Optimization learner for discrete SoftmaxPolicy (FDD-018 §3 item 3).
+
+    Fits action logits directly to preference pairs (winner, loser) extracted from human
+    reviewer overrides with the Bradley-Terry model and convex L2 regularization anchored
+    to frozen reference logits.
+    """
+
+    def __init__(
+        self,
+        *,
+        lam: float = LAMBDA_MIN,
+        lr: float = LR_DEFAULT,
+        steps: int = STEPS_DEFAULT,
+        clamp: float = CLAMP,
+        tol: float = TOL_DEFAULT,
+    ) -> None:
+        if not math.isfinite(lam) or lam < LAMBDA_MIN:
+            raise ValueError(f"Regularization parameter lam must be at least {LAMBDA_MIN}, got {lam}")
+        if not math.isfinite(lr) or lr <= 0.0:
+            raise ValueError(f"Learning rate lr must be a finite positive float, got {lr}")
+        if steps < 1:
+            raise ValueError(f"Iteration cap steps must be at least 1, got {steps}")
+        if not math.isfinite(clamp) or clamp <= 0.0:
+            raise ValueError(f"Clamp parameter clamp must be a finite positive float, got {clamp}")
+        if not math.isfinite(tol) or tol <= 0.0:
+            raise ValueError(f"Tolerance tol must be a finite positive float, got {tol}")
+
+        self.lam = lam
+        self.lr = lr
+        self.steps = steps
+        self.clamp = clamp
+        self.tol = tol
+
+    def update(
+        self,
+        policy: Any,
+        episodes: Sequence[Episode],
+        rewards: Sequence[float] | None = None,
+    ) -> LearnerResult:
+        """Update a SoftmaxPolicy with preference pairs extracted from episodes (FDD-018 §3 item 3)."""
+        # 1. Type validation (AC_0)
+        if not isinstance(policy, SoftmaxPolicy):
+            raise TypeError(f"PairwiseLearner requires a SoftmaxPolicy instance, got {type(policy)}")
+        if policy.max_logit_abs < CLAMP:
+            raise ValueError(
+                f"SoftmaxPolicy max_logit_abs ({policy.max_logit_abs}) must be at least CLAMP ({CLAMP})"
+            )
+
+        snapshot = policy.snapshot()
+        action_ids = [a.id if hasattr(a, "id") else str(a) for a in snapshot.actions]
+
+        # 2. Extract preference pairs (AC_3, FDD-018 G3, G5)
+        pairs = pairs_from_episodes(episodes, action_ids)
+
+        # 3. Handle zero pairs path (AC_3)
+        if len(pairs) == 0:
+            return LearnerResult(
+                episodes_used=0,
+                mean_reward=0.0,
+                baseline_before=snapshot.baseline,
+                baseline_after=snapshot.baseline,
+                logit_deltas={},
+                consumed_inputs=None,
+                extra={
+                    "pairs": 0,
+                    "skipped_episodes": len(episodes),
+                    "converged": True,
+                    "iterations": 0,
+                    "stationarity": 0.0,
+                    "step_size": min(self.lr, 1.0 / self.lam),
+                    "loss_before": 0.0,
+                    "loss_after": 0.0,
+                    "reference_logits": dict(snapshot.metadata.get("pairwise_reference_logits", {})),
+                },
+            )
+
+        # 4. Resolve and validate reference logits (AC_1, FDD-018 G4)
+        policy_meta = getattr(policy, "_snapshot", snapshot).metadata
+        if "pairwise_reference_logits" in policy_meta:
+            ref_raw = policy_meta["pairwise_reference_logits"]
+            if not isinstance(ref_raw, Mapping):
+                raise ValueError("pairwise_reference_logits in policy metadata must be a mapping")
+            missing = [a for a in action_ids if a not in ref_raw]
+            if missing:
+                raise ValueError(f"Missing action(s) in pairwise_reference_logits: {missing}")
+            for a in action_ids:
+                val = float(ref_raw[a])
+                if not math.isfinite(val):
+                    raise ValueError(f"Non-finite value for action '{a}' in pairwise_reference_logits: {val}")
+            theta_ref = {a: float(ref_raw[a]) for a in action_ids}
+        else:
+            # Freeze current logits as reference logits (written once, never overwritten)
+            theta_ref = {a: float(snapshot.logits[a]) for a in action_ids}
+            policy_meta["pairwise_reference_logits"] = dict(theta_ref)
+
+        # 5. Compute loss before update
+        loss_before = bt_loss(snapshot.logits, pairs, theta_ref, action_ids, lam=self.lam)
+
+        # 6. Fit logits from theta_ref (FDD-018 G5)
+        fit_res = fit_logits(
+            pairs=pairs,
+            action_ids=action_ids,
+            theta_ref=theta_ref,
+            lam=self.lam,
+            lr=self.lr,
+            steps=self.steps,
+            clamp=self.clamp,
+            tol=self.tol,
+        )
+
+        # 7. Compute deltas = fitted - current (FDD-018 §3 item 3.4)
+        deltas = {a: float(fit_res.logits[a] - snapshot.logits[a]) for a in action_ids}
+
+        # 8. Apply deltas to policy, keeping episodes_seen unchanged (FDD-018 §3 item 3.4, AC_4)
+        policy.apply_update(
+            deltas,
+            baseline=snapshot.baseline,
+            episodes_seen=snapshot.episodes_seen,
+        )
+
+        return LearnerResult(
+            episodes_used=len(pairs),
+            mean_reward=0.0,
+            baseline_before=snapshot.baseline,
+            baseline_after=snapshot.baseline,
+            logit_deltas=deltas,
+            consumed_inputs=None,
+            extra={
+                "pairs": len(pairs),
+                "skipped_episodes": len(episodes) - len(pairs),
+                "converged": fit_res.converged,
+                "iterations": fit_res.iterations,
+                "stationarity": fit_res.stationarity,
+                "step_size": fit_res.step_size,
+                "loss_before": loss_before,
+                "loss_after": fit_res.loss,
+                "reference_logits": dict(theta_ref),
+            },
+        )
+
+
 __all__ = [
     "CLAMP",
     "LAMBDA_MIN",
@@ -377,6 +521,7 @@ __all__ = [
     "STEPS_DEFAULT",
     "TOL_DEFAULT",
     "FitResult",
+    "PairwiseLearner",
     "PreferencePair",
     "bt_gradient",
     "bt_loss",

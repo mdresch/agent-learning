@@ -129,6 +129,7 @@ _EXPORTS: dict[str, str] = {
     "derive_class": "agent_learning.methodology_catalog",
     "derive_plan_state": "agent_learning.pmbok",
     "effective_upstreams": "agent_learning.pmbok",
+    "epsilon_at": "agent_learning_ext.policy.epsilon_greedy",
     "evaluate_governance_diff": "agent_learning.governance",
     "filter_crystallized_lessons": "agent_learning.lessons_learned",
     "find_triage_lines": "agent_learning.review_triage",

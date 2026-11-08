@@ -2321,3 +2321,9 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - $AC_2$: `PairwiseLearner.update()` leaves `SoftmaxPolicy`'s logits completely unchanged within 1e-12, writes no reference to metadata, leaves snapshot version unchanged, and returns `episodes_used = 0`.
   - $AC_3$: Output is explicitly labelled as the real preference data boundary (BRU-018-12), making no claim about learner quality, and specifically documenting the missing data (real human override adjudications) and the unbuilt Red Team pair set.
   - Full suite: 4/4 passed in `tests/test_pairwise_real_data.py`. 36/36 pairwise suite tests passing. Governance baseline and phase rollup clean (0 status drift).
+- **Review (Step 8):** Amazon Q reviewed PR #128. All 4 findings addressed and confirmed clean:
+  - `Q-128-1 | logic error | verified: yes | decision: accepted | Ground AC_3 assertions on system under test and test docstring rather than tautological local string variable | fix: 818a6d0`
+  - `Q-128-2 | logic error | verified: yes | decision: accepted | Replace inverted guard logic in test_ac1 with explicit check that no episode combines rejected status, valid correct_action_id, and different action | fix: 818a6d0`
+  - `Q-128-3 | test gap | verified: yes | decision: accepted | Add explicit non-empty guard assert len(actions) > 0 in test_ac2 and test_ac3 to prevent silent vacuous pass | fix: 818a6d0`
+  - `Q-128-4 | crash risk | verified: yes | decision: accepted | Add pre-check in _load_real_governance_episodes raising FileNotFoundError if EPISODES_DIR does not exist | fix: 818a6d0`
+  Amazon Q confirmed all findings resolved; CI checks (build-installer, test) passed green.

@@ -44,6 +44,8 @@ EPISODES_DIR = ROOT / "docs" / "policy-shapes" / "episodes"
 
 def _load_real_governance_episodes() -> list[tuple[str, Episode]]:
     """Load approve-* episodes of agent-learning-governance from docs/policy-shapes/episodes/."""
+    if not EPISODES_DIR.is_dir():
+        raise FileNotFoundError(f"Committed governance episodes directory not found: {EPISODES_DIR}")
     valid_keys = set(inspect.signature(Episode.__init__).parameters.keys()) - {"self"}
     json_files = sorted(EPISODES_DIR.glob("*.json"))
 
@@ -118,13 +120,17 @@ def test_ac1_zero_pairs_extracted_from_real_history():
 
     assert len(pairs) == 0, f"Expected exactly 0 preference pairs from accepted history, got {len(pairs)}: {pairs}"
 
-    # Explicitly verify why zero pairs were returned: all feedback_status values are non-rejected
+    # Explicitly verify why zero pairs were returned: no episode has an override rejection
     for ep in episodes:
-        feedback_status = (ep.metadata or {}).get("feedback_status")
-        # In governance history, all records were accepted/adjudicated approvals
-        assert str(feedback_status).lower().strip() != "rejected" or not (ep.metadata or {}).get("correct_action_id"), (
-            f"Episode {ep.id} unexpectedly had a valid override rejection"
+        meta = ep.metadata or {}
+        feedback_status = str(meta.get("feedback_status", "")).lower().strip()
+        correct_action = meta.get("correct_action_id")
+        is_override_pair = (
+            feedback_status == "rejected"
+            and bool(correct_action)
+            and correct_action != ep.action_id
         )
+        assert not is_override_pair, f"Episode {ep.id} unexpectedly had an override rejection pair"
 
 
 def test_ac2_logits_stay_unchanged_and_episodes_used_is_zero():
@@ -135,6 +141,7 @@ def test_ac2_logits_stay_unchanged_and_episodes_used_is_zero():
     records = _load_real_governance_episodes()
     episodes = [ep for _, ep in records]
     actions = sorted({ep.action_id for ep in episodes if ep.action_id})
+    assert len(actions) > 0, "Expected non-empty action set from recorded episodes"
 
     policy = _make_policy(actions)
     initial_logits = dict(policy.snapshot().logits)
@@ -168,28 +175,32 @@ def test_ac3_labelled_as_missing_real_preference_data_boundary():
     records = _load_real_governance_episodes()
     episodes = [ep for _, ep in records]
     actions = sorted({ep.action_id for ep in episodes if ep.action_id})
+    assert len(actions) > 0, "Expected non-empty action set from recorded episodes"
 
     policy = _make_policy(actions)
     learner = PairwiseLearner()
     result = learner.update(policy, episodes)
 
+    # 1. Verify learner result verifies zero pairs from real data
     assert result.episodes_used == 0
+    assert result.extra.get("pairs") == 0
+    assert result.extra.get("skipped_episodes") == len(episodes)
+    assert result.extra.get("converged") is True
+    assert result.mean_reward == 0.0
 
-    # Statement recorded: real preference data does not exist yet
-    boundary_statement = (
-        "REAL PREFERENCE DATA BOUNDARY (BRU-018-12): All historical governance episodes "
-        "in docs/policy-shapes/episodes/ represent accepted approvals. Zero real preference "
-        "pairs exist in historical logs. The missing data comprises: (1) real override "
-        "adjudications where a human reviewer rejected a proposed decision and designated "
-        "an alternative correct action, and (2) the unbuilt Red Team adversarial pair set. "
-        "This check proves the zero-pair boundary and makes no claim about learner quality."
-    )
-    assert "BRU-018-12" in boundary_statement
-    assert "real override adjudications" in boundary_statement
-    assert "unbuilt Red Team" in boundary_statement
-    assert "makes no claim about learner quality" in boundary_statement
+    # 2. Verify test docstring explicitly records the required boundary statements per AC_3
+    test_doc = test_ac3_labelled_as_missing_real_preference_data_boundary.__doc__ or ""
+    assert "BRU-018-12" in test_doc
+    assert "no claim about the learner's quality" in test_doc
+    assert "real override adjudications" in test_doc
+    assert "unbuilt Red Team pair set" in test_doc
 
-    # Serialization survival check (Interpretation I2)
+    # 3. Verify module docstring also records the missing data contract
+    assert "BRU-018-12" in (__doc__ or "")
+    assert "real override adjudications" in (__doc__ or "")
+    assert "unbuilt Red Team pair set" in (__doc__ or "")
+
+    # 4. Serialization survival check (Interpretation I2)
     snap = policy.snapshot()
     serialized = json.dumps(snap.to_dict() if hasattr(snap, "to_dict") else snap.__dict__, default=str)
     assert "gov-policy-snapshot" in serialized

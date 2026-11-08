@@ -1,0 +1,92 @@
+{
+  "episode_id": "d4e5f6g7-h8i9-0123-defg-234567890123",
+  "timestamp": "2026-11-06T10:15:00Z",
+  "policy": "escalate-diff-response",
+  "action": "escalate",
+  "lesson_id": "LL-046",
+  "lesson_title": "Dual Evidence Storage Requires Reconciliation",
+  "diff_type": "process",
+  "subtype": "governance",
+  "escalation_level": "project_manager",
+  "action_required": "create_subsidiary_plan_amendment",
+  "evidence_basis": "execution",
+  "threshold_exceeded": false,
+  "charter_approval_limit": "within",
+  "required_approvals": [
+    "project_manager"
+  ],
+  "decision_timestamp": "2026-11-06T10:15:00Z",
+  "escalator": "escalate-diff-response",
+  "rationale": "LL-046 is classified as a process/governance diff with high impact but within Project Manager authority limits. The change involves establishing a single authoritative source for governance evidence and implementing automated synchronization with conflict detection. While the impact on audit trail integrity is high, this is a procedural change that can be implemented through a Subsidiary Plan Amendment to the Governance Management Plan. The change does not require Steering Committee approval as it doesn't affect the project's architectural structure, scope, or major schedule/cost parameters. The evidence basis is 'execution' as this issue was discovered through executed work and validated lessons learned.",
+  "decision": "Escalate LL-046 to Project Manager for Subsidiary Plan Amendment approval",
+  "decision_maker": "escalate-diff-response (LOW authority, human decides)",
+  "evidence": {
+    "basis": "execution",
+    "artifacts": [
+      "docs/policy-shapes/episodes/classify-diff-type-LL-046-20261106.json",
+      "docs/insights/INSIGHT-004.md",
+      "docs/observations/OBS-001.md",
+      "docs/observations/OBS-007.md",
+      "docs/observations/OBS-008.md",
+      "docs/registers/Audit-Register.md",
+      "docs/project-docs/Project-Charter.md"
+    ],
+    "classification_episode": "c3d4e5f6-g7h8-9012-cdef-123456789012",
+    "impact_assessment": {
+      "technical": {
+        "complexity": "neutral",
+        "test_coverage": "new_tests_required",
+        "performance": "neutral",
+        "security": "neutral",
+        "maintainability": "improved"
+      },
+      "process": {
+        "workflow": "changed",
+        "tooling": "modified",
+        "training": "not_required",
+        "documentation": "required"
+      },
+      "governance": {
+        "policy_changes": "required",
+        "approval_authority": "unchanged",
+        "audit_trail": "improved",
+        "compliance": "improved"
+      },
+      "business": {
+        "cost": "neutral",
+        "schedule": "neutral",
+        "scope": "unchanged",
+        "risk": "reduced"
+      }
+    }
+  },
+  "related_episodes": [
+    "c3d4e5f6-g7h8-9012-cdef-123456789012",
+    "42114091-0ccd-4c45-9b6b-c97046b048bd"
+  ],
+  "subsidiary_plan_amendment": {
+    "amendment_id": "SPA-20261106-001",
+    "plan": "Governance-Management-Plan",
+    "version": "v1.1.0",
+    "changes": [
+      "Designate single authoritative source for governance evidence",
+      "Implement automated synchronization with conflict detection",
+      "Backfill missing episodes for approve-charter and approve-business-case",
+      "Update governance policies to enforce evidence writing",
+      "Add validation to ensure all gates write evidence to designated source"
+    ],
+    "justification": "Process improvement to ensure audit trail integrity and compliance",
+    "status": "prepared",
+    "submission_date": "2026-11-06"
+  },
+  "stage": 16,
+  "pmbok_process": "4.6 Perform Integrated Change Control",
+  "project_phase": "Phase 1",
+  "links": {
+    "lesson": "../project-docs/Lessons-Learned-Register.md#ll-046",
+    "insight": "../insights/INSIGHT-004.md",
+    "classification_episode": "classify-diff-type-LL-046-20261106.json",
+    "assessment": "../project-docs/Status-Reports/Stage-16-Governance-Change-Assessment.md",
+    "methodology": "../project-docs/Methodology/Stage-16-Governance-Change-Methodology.md"
+  }
+}

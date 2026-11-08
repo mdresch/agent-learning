@@ -1,0 +1,133 @@
+{
+  "task": "Project-Charter.md v1.9 (Stage 2 Objective): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "strategic_purpose_clear",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Purpose and justification trace to the approved-for-recommendation Business Case option analysis; Phase 1 goals (HYP-AL-008/009, M0.5 Go/No-Go, Phase 2 gate) are explicit."
+    },
+    {
+      "id": "sponsor_authority_and_boundaries",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Sponsor, approval basis and limits of authority are stated (self-commitment; binds neither Microsoft nor maintainers; authorizes exploration, not a merge)."
+    },
+    {
+      "id": "objectives_measurable_aligned_to_benefits",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Objectives, deliverables, milestones and success criteria are testable via the hypotheses' falsification criteria and align with the benefits; no invented dates or budget."
+    },
+    {
+      "id": "scope_realistic_and_current",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "In/out scope, resources, constraints and risks are honest and realistic, and the document reflects the project's state at approval time. Known issues: execution status in the header and milestones is dated (M2 to M4 work has since been built in Epics 15, 19, 20); cites older Ideation and Business Case versions; the 2026-10-21 approval in section 12 was a document-level self-commitment with no gate record."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_charter",
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      },
+      "evidence": [
+        {
+          "criterion_id": "strategic_purpose_clear",
+          "source": "direct_doc_read:docs/project-docs/Project-Charter.md@v1.9",
+          "support": 0.88,
+          "confidence": 0.88
+        },
+        {
+          "criterion_id": "sponsor_authority_and_boundaries",
+          "source": "direct_doc_read:docs/project-docs/Project-Charter.md@v1.9",
+          "support": 0.85,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "objectives_measurable_aligned_to_benefits",
+          "source": "direct_doc_read:docs/project-docs/Project-Charter.md@v1.9",
+          "support": 0.78,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "scope_realistic_and_current",
+          "source": "direct_doc_read:docs/project-docs/Project-Charter.md@v1.9",
+          "support": 0.6,
+          "confidence": 0.85
+        }
+      ]
+    },
+    {
+      "action_id": "reject_charter",
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      },
+      "evidence": [
+        {
+          "criterion_id": "strategic_purpose_clear",
+          "source": "direct_doc_read:docs/project-docs/Project-Charter.md@v1.9",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "sponsor_authority_and_boundaries",
+          "source": "direct_doc_read:docs/project-docs/Project-Charter.md@v1.9",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "objectives_measurable_aligned_to_benefits",
+          "source": "direct_doc_read:docs/project-docs/Project-Charter.md@v1.9",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "scope_realistic_and_current",
+          "source": "direct_doc_read:docs/project-docs/Project-Charter.md@v1.9",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ]
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      },
+      "evidence": [
+        {
+          "criterion_id": "strategic_purpose_clear",
+          "source": "direct_doc_read:docs/project-docs/Project-Charter.md@v1.9",
+          "support": 0.12,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "sponsor_authority_and_boundaries",
+          "source": "direct_doc_read:docs/project-docs/Project-Charter.md@v1.9",
+          "support": 0.12,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "objectives_measurable_aligned_to_benefits",
+          "source": "direct_doc_read:docs/project-docs/Project-Charter.md@v1.9",
+          "support": 0.2,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "scope_realistic_and_current",
+          "source": "direct_doc_read:docs/project-docs/Project-Charter.md@v1.9",
+          "support": 0.42,
+          "confidence": 0.75
+        }
+      ]
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

@@ -46,6 +46,10 @@ description: Automated governance change pipeline (Stage 16) and the ADR-010 Bre
   - Tier 3: Universal cross-project rules (`sidpa-template`, `RULE[user_global]`).
 - **Phase Close Bridge:** `filter_crystallized_lessons()` outputs dicts with `crystallized: True` which directly satisfy `pmbok.models.intent_refinement.evaluate_phase_close_readiness()`.
 
+## 2.5 Running a governance command (LL-040)
+
+- Before any `task-policy-decide`, `task-policy-adjudicate` or `task-episode-register`, resolve and print the store path (`AGENT_LEARNING_LOCAL_STORE_DIR` if set, else `./data/agent-learning/store`) and count the files in it before and after. On this machine the variable points at the socialengage store, and `task-policy-decide` and `task-policy-adjudicate` write nothing; only `task-episode-register` adds a file.
+
 ## 3. Call sites
 
 - `agent_learning/__init__.py`: re-exports `parse_lessons_learned_markdown`, `load_lessons_learned_register`, `filter_crystallized_lessons`, `LessonsLearnedEntry`, and governance pipeline symbols.

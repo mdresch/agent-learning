@@ -609,3 +609,15 @@
 - **The Trap:** `git worktree add -b feat/story-20.6` failed because the branch and a worktree with uncommitted tests, skill and FDD edits already existed from a cut-off run. The leftovers were adopted and committed as the new run's own, so RED was never observed and the log had to be corrected afterwards (PR #104).
 - **The Root Cause:** Step 0 described only the clean case. A failing `git worktree add` was read as a nuisance, not as the sign of a started run.
 - **Actionable Invariant:** If the story branch or worktree exists, stop `implement-story` at Step 0, inspect it read-only, tell the human, and continue with `heal-contract-failure` from Intent. Show the contract able to fail (RED, or by reverted mutation where the story has no code) before relying on it, and never adopt uncommitted leftovers without that walk.
+
+---
+
+### LL-043 — A Closing Stage's Tooling May Sit Outside What CI Runs
+- **Identifier:** `LL-043`
+- **Date:** 2026-11-04
+- **Epic / Story:** Phase 1 close / Stage 18 readiness (INSIGHT-003)
+- **Scope:** Universal Process
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/intent-refinement/SKILL.md`; Tier 3: `sidpa-template` (proposed, needs human approval before any cross-repo change)
+- **The Trap:** Stage 18 relies on `evaluate_phase_close_readiness` and `seed-next`, which exist only in the legacy top-level `pmbok/` tree. CI skips that tree's tests (`--ignore=tests/pmbok`) and ADR-034 plans to delete it. This surfaced at phase close, not while the tools were built.
+- **The Root Cause:** ADR-034 retires the tree by stages and nothing lists which later stages still depend on it.
+- **Actionable Invariant:** Before a phase-close stage runs, run its tests under `uv run` in a clean environment, and record which stages depend on code outside `src/`.

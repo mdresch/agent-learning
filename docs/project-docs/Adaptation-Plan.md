@@ -70,7 +70,7 @@ A1 is a text change to four skill files and is reverted with `git revert` of its
 ## Verification & Rollout Gates
 
 - A1: `grep -c "LL-0xx"` finds each id in its Tier 2 file (LL-040, LL-042, LL-043 pass on 2026-11-04); the lessons tests pass.
-- A2: the Stage 18 readiness and adjudication code imports under `uv run` with no missing dependency, and has a test that CI runs (the legacy `tests/pmbok/test_intent_refinement.py` was deleted on 2026-11-04).
+- A2: `uv run pytest` runs the Stage 18 readiness tests with no collection error and no `--ignore=tests/pmbok`.
 - A3: `grep -c "phase_rollup" .claude/skills/implement-story/SKILL.md` finds the new Step 7 rule; the next story logged shows no drift row for itself; `python scripts/phase_rollup.py --check` already exits 0 after the one-off reconciliation.
 
 ## What this is not yet

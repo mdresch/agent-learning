@@ -1,0 +1,40 @@
+{
+  "task": "Audit-Register.md AUDIT-001 to AUDIT-006 (Stage 11): approve, reject, or request revision",
+  "criteria": [
+    {"id": "findings_substantiated", "weight": 1.0, "minimum_sources": 1,
+     "description": "Each finding names the code or config it was checked against (file, symbol or command) and the check was run on 2026-11-04 at git f86530a."},
+    {"id": "verdicts_correct", "weight": 1.0, "minimum_sources": 1,
+     "description": "Verdicts use the register taxonomy and match the evidence: confirmed_accurate where the code matches, confirmed_with_drift where it does not."},
+    {"id": "corrective_actions_actionable", "weight": 1.0, "minimum_sources": 1,
+     "description": "Each drift finding points at an owner or tracked story; AUDIT-006 names a human reconciliation that is not yet done."},
+    {"id": "scope_limits_disclosed", "weight": 1.0, "minimum_sources": 1,
+     "description": "The register says the sample is four ADRs plus the drift report and does not claim the other ADRs are accurate."}
+  ],
+  "options": [
+    {"action_id": "approve_audit_record",
+     "constraint_results": {"no_unsubstantiated_finding": true},
+     "evidence": [
+       {"criterion_id": "findings_substantiated", "source": "direct_code_read:src/agent_learning+pyproject.toml+.github/workflows/tests.yaml@f86530a", "support": 0.88, "confidence": 0.85},
+       {"criterion_id": "verdicts_correct", "source": "direct_code_read:src/agent_learning+pyproject.toml+.github/workflows/tests.yaml@f86530a", "support": 0.85, "confidence": 0.85},
+       {"criterion_id": "corrective_actions_actionable", "source": "register_read:docs/registers/Audit-Register.md@f86530a", "support": 0.7, "confidence": 0.8},
+       {"criterion_id": "scope_limits_disclosed", "source": "register_read:docs/registers/Audit-Register.md@f86530a", "support": 0.75, "confidence": 0.85}]},
+    {"action_id": "reject_audit_record",
+     "constraint_results": {"no_unsubstantiated_finding": true},
+     "evidence": [
+       {"criterion_id": "findings_substantiated", "source": "direct_code_read:src/agent_learning@f86530a", "support": 0.05, "confidence": 0.8},
+       {"criterion_id": "verdicts_correct", "source": "direct_code_read:src/agent_learning@f86530a", "support": 0.05, "confidence": 0.8},
+       {"criterion_id": "corrective_actions_actionable", "source": "register_read:docs/registers/Audit-Register.md@f86530a", "support": 0.05, "confidence": 0.8},
+       {"criterion_id": "scope_limits_disclosed", "source": "register_read:docs/registers/Audit-Register.md@f86530a", "support": 0.05, "confidence": 0.8}]},
+    {"action_id": "request_revision_before_decision",
+     "constraint_results": {"no_unsubstantiated_finding": true},
+     "evidence": [
+       {"criterion_id": "findings_substantiated", "source": "direct_code_read:src/agent_learning@f86530a", "support": 0.12, "confidence": 0.75},
+       {"criterion_id": "verdicts_correct", "source": "direct_code_read:src/agent_learning@f86530a", "support": 0.15, "confidence": 0.75},
+       {"criterion_id": "corrective_actions_actionable", "source": "register_read:docs/registers/Audit-Register.md@f86530a", "support": 0.35, "confidence": 0.75},
+       {"criterion_id": "scope_limits_disclosed", "source": "register_read:docs/registers/Audit-Register.md@f86530a", "support": 0.3, "confidence": 0.75}]}
+  ],
+  "constraints": ["no_unsubstantiated_finding"],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

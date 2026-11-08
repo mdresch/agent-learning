@@ -47,6 +47,10 @@ After `Project-Charter.md` is approved by `approve-charter`:
 3. Draft the BRD citing the ADRs, then the FDD citing the BRD, then User Stories (Work Packages) with BDD acceptance criteria. Order is strict: ADR before BRD before FDD before Story.
 4. Only then synthesize the subsidiary plans and the PMP (below): User Stories are the Work Packages that give Schedule and Cost real inputs.
 
+**Foundation Pack tailoring is a project-size decision, not a universal requirement** (sidpa-template rule 30). Before drafting a subsidiary plan, decide whether it needs a Foundation Pack (`docs/project-docs/management-plans/<domain>-baseline/foundation/`) populated first. Use that tier only when the plan document itself cannot hold the detail the project needs (a complex multi-team schedule that needs a real network and basis of estimates, for example). Do not add one for completeness when the plan's own prose answers what is required. An approved Foundation Pack is a frozen historical record; new cross-cutting rules go in the living subsidiary plan as a dated subsection (rule 31). Check this repo's `scripts/orchestrate_pmbok.py` output for a dangling "Pending" Foundation reference before relying on it.
+
+**Planning-round size is a hybrid agile/waterfall tailoring decision scaled to uncertainty, not a fixed batch size** (rule 32). Well-understood, evidenced work can be batch-planned further ahead; novel, unevidenced work should not be committed into the same upfront batch. An approved epic can be marked `Deferred` to the next phase (it stays `Approved`, only its execution window moves). One fast phase is a data point, not a recalibration of planning estimates (rule 33).
+
 ### 1. Full Planning Orchestration
 Executed after `Project-Charter.md` is approved by `approve-charter`. Generates all 9 subsidiary management plans and integrates them into `Project-Management-Plan.md`.
 

@@ -1,0 +1,2087 @@
+{
+  "readiness": {
+    "audit_ref": "AUD-CLOSE-A9A8427E",
+    "is_ready": true,
+    "verified_at": "2026-11-06T21:40:51.944004+00:00",
+    "deliverables_accepted": 6,
+    "open_findings_count": 0,
+    "crystallized_lessons_count": 46,
+    "governance_changes_count": 4,
+    "adaptations_complete": 10,
+    "test_suite_status": "1840 passed, 3 skipped, 0 failures"
+  },
+  "hypotheses": [
+    {
+      "id": "HYP-001",
+      "source": "Stage 3 & 9 (Deliverable)",
+      "statement": "Deliverable acceptance criterion 1",
+      "current_status": "Active",
+      "bayes_factor": 12.25,
+      "evidence": [
+        "Epic-20-Story-1.md"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-002",
+      "source": "Stage 3 & 9 (Deliverable)",
+      "statement": "Deliverable acceptance criterion 2",
+      "current_status": "Active",
+      "bayes_factor": 30.09,
+      "evidence": [
+        "Epic-20-Story-2.md"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-003",
+      "source": "Stage 3 & 9 (Deliverable)",
+      "statement": "Deliverable acceptance criterion 3",
+      "current_status": "Active",
+      "bayes_factor": 70.9,
+      "evidence": [
+        "Epic-20-Story-3.md"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-004",
+      "source": "Stage 3 & 9 (Deliverable)",
+      "statement": "Deliverable acceptance criterion 4",
+      "current_status": "Active",
+      "bayes_factor": 0.05,
+      "evidence": [
+        "Epic-20-Story-4.md"
+      ],
+      "terminal": true,
+      "terminal_status": "REFUTED"
+    },
+    {
+      "id": "HYP-005",
+      "source": "Stage 3 & 9 (Deliverable)",
+      "statement": "Deliverable acceptance criterion 5",
+      "current_status": "Active",
+      "bayes_factor": 29.68,
+      "evidence": [
+        "Epic-20-Story-5.md"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-006",
+      "source": "Stage 3 & 9 (Deliverable)",
+      "statement": "Deliverable acceptance criterion 6",
+      "current_status": "Active",
+      "bayes_factor": 12.39,
+      "evidence": [
+        "Epic-20-Story-6.md"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-007",
+      "source": "Stage 3 & 9 (Deliverable)",
+      "statement": "Deliverable acceptance criterion 7",
+      "current_status": "Active",
+      "bayes_factor": 68.49,
+      "evidence": [
+        "Epic-20-Story-7.md"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-008",
+      "source": "Stage 3 & 9 (Deliverable)",
+      "statement": "Deliverable acceptance criterion 8",
+      "current_status": "Active",
+      "bayes_factor": 29.84,
+      "evidence": [
+        "Epic-20-Story-8.md"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-009",
+      "source": "Stage 3 & 9 (Deliverable)",
+      "statement": "Deliverable acceptance criterion 9",
+      "current_status": "Active",
+      "bayes_factor": 82.85,
+      "evidence": [
+        "Epic-20-Story-9.md"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-010",
+      "source": "Stage 3 & 9 (Deliverable)",
+      "statement": "Deliverable acceptance criterion 10",
+      "current_status": "Active",
+      "bayes_factor": 82.52,
+      "evidence": [
+        "Epic-20-Story-10.md"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-011",
+      "source": "Stage 12 (Actual Outcome)",
+      "statement": "Outcome hypothesis 1",
+      "current_status": "Active",
+      "bayes_factor": 40.62,
+      "evidence": [
+        "REP-AO-PHASE1-20261105"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-012",
+      "source": "Stage 12 (Actual Outcome)",
+      "statement": "Outcome hypothesis 2",
+      "current_status": "Active",
+      "bayes_factor": 96.15,
+      "evidence": [
+        "REP-AO-PHASE1-20261105"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-013",
+      "source": "Stage 12 (Actual Outcome)",
+      "statement": "Outcome hypothesis 3",
+      "current_status": "Active",
+      "bayes_factor": 18.35,
+      "evidence": [
+        "REP-AO-PHASE1-20261105"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-014",
+      "source": "Stage 12 (Actual Outcome)",
+      "statement": "Outcome hypothesis 4",
+      "current_status": "Active",
+      "bayes_factor": 86.27,
+      "evidence": [
+        "REP-AO-PHASE1-20261105"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-015",
+      "source": "Stage 12 (Actual Outcome)",
+      "statement": "Outcome hypothesis 5",
+      "current_status": "Active",
+      "bayes_factor": 82.64,
+      "evidence": [
+        "REP-AO-PHASE1-20261105"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-016",
+      "source": "Stage 12 (Actual Outcome)",
+      "statement": "Outcome hypothesis 6",
+      "current_status": "Active",
+      "bayes_factor": 58.26,
+      "evidence": [
+        "REP-AO-PHASE1-20261105"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-017",
+      "source": "Stage 12 (Actual Outcome)",
+      "statement": "Outcome hypothesis 7",
+      "current_status": "Active",
+      "bayes_factor": 0.06,
+      "evidence": [
+        "REP-AO-PHASE1-20261105"
+      ],
+      "terminal": true,
+      "terminal_status": "REFUTED"
+    },
+    {
+      "id": "HYP-018",
+      "source": "Stage 12 (Actual Outcome)",
+      "statement": "Outcome hypothesis 8",
+      "current_status": "Active",
+      "bayes_factor": 0.09,
+      "evidence": [
+        "REP-AO-PHASE1-20261105"
+      ],
+      "terminal": true,
+      "terminal_status": "REFUTED"
+    },
+    {
+      "id": "HYP-019",
+      "source": "Stage 12 (Actual Outcome)",
+      "statement": "Outcome hypothesis 9",
+      "current_status": "Active",
+      "bayes_factor": 73.41,
+      "evidence": [
+        "REP-AO-PHASE1-20261105"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-020",
+      "source": "Stage 12 (Actual Outcome)",
+      "statement": "Outcome hypothesis 10",
+      "current_status": "Active",
+      "bayes_factor": 30.51,
+      "evidence": [
+        "REP-AO-PHASE1-20261105"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-021",
+      "source": "OBS-001",
+      "statement": "Observation 1 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 17.18,
+      "evidence": [
+        "OBS-001.md"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-022",
+      "source": "OBS-002",
+      "statement": "Observation 2 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 19.09,
+      "evidence": [
+        "OBS-002.md"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-023",
+      "source": "OBS-003",
+      "statement": "Observation 3 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 67.21,
+      "evidence": [
+        "OBS-003.md"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-024",
+      "source": "OBS-004",
+      "statement": "Observation 4 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 43.32,
+      "evidence": [
+        "OBS-004.md"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-025",
+      "source": "OBS-005",
+      "statement": "Observation 5 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 34.03,
+      "evidence": [
+        "OBS-005.md"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-026",
+      "source": "OBS-006",
+      "statement": "Observation 6 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 0.06,
+      "evidence": [
+        "OBS-006.md"
+      ],
+      "terminal": true,
+      "terminal_status": "REFUTED"
+    },
+    {
+      "id": "HYP-027",
+      "source": "OBS-007",
+      "statement": "Observation 7 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 75.62,
+      "evidence": [
+        "OBS-007.md"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-028",
+      "source": "OBS-008",
+      "statement": "Observation 8 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 44.15,
+      "evidence": [
+        "OBS-008.md"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-029",
+      "source": "OBS-009",
+      "statement": "Observation 9 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 0.06,
+      "evidence": [
+        "OBS-009.md"
+      ],
+      "terminal": true,
+      "terminal_status": "REFUTED"
+    },
+    {
+      "id": "HYP-029",
+      "source": "INSIGHT-001",
+      "statement": "Insight 1 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 85.86,
+      "evidence": [
+        "INSIGHT-001.md"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-030",
+      "source": "INSIGHT-002",
+      "statement": "Insight 2 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 30.61,
+      "evidence": [
+        "INSIGHT-002.md"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-031",
+      "source": "INSIGHT-003",
+      "statement": "Insight 3 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 38.39,
+      "evidence": [
+        "INSIGHT-003.md"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-032",
+      "source": "INSIGHT-004",
+      "statement": "Insight 4 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 28.99,
+      "evidence": [
+        "INSIGHT-004.md"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-032",
+      "source": "LL-001",
+      "statement": "Lesson 1 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 3.22,
+      "evidence": [
+        "LL-001"
+      ],
+      "terminal": true,
+      "terminal_status": "REFUTED"
+    },
+    {
+      "id": "HYP-033",
+      "source": "LL-002",
+      "statement": "Lesson 2 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 45.61,
+      "evidence": [
+        "LL-002"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-034",
+      "source": "LL-003",
+      "statement": "Lesson 3 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 0.03,
+      "evidence": [
+        "LL-003"
+      ],
+      "terminal": true,
+      "terminal_status": "REFUTED"
+    },
+    {
+      "id": "HYP-035",
+      "source": "LL-004",
+      "statement": "Lesson 4 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 60.52,
+      "evidence": [
+        "LL-004"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-036",
+      "source": "LL-005",
+      "statement": "Lesson 5 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 62.61,
+      "evidence": [
+        "LL-005"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-037",
+      "source": "LL-006",
+      "statement": "Lesson 6 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 0.03,
+      "evidence": [
+        "LL-006"
+      ],
+      "terminal": true,
+      "terminal_status": "REFUTED"
+    },
+    {
+      "id": "HYP-038",
+      "source": "LL-007",
+      "statement": "Lesson 7 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 0.02,
+      "evidence": [
+        "LL-007"
+      ],
+      "terminal": true,
+      "terminal_status": "REFUTED"
+    },
+    {
+      "id": "HYP-039",
+      "source": "LL-008",
+      "statement": "Lesson 8 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 19.87,
+      "evidence": [
+        "LL-008"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-040",
+      "source": "LL-009",
+      "statement": "Lesson 9 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 81.29,
+      "evidence": [
+        "LL-009"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-041",
+      "source": "LL-010",
+      "statement": "Lesson 10 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 15.72,
+      "evidence": [
+        "LL-010"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-042",
+      "source": "LL-011",
+      "statement": "Lesson 11 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 99.65,
+      "evidence": [
+        "LL-011"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-043",
+      "source": "LL-012",
+      "statement": "Lesson 12 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 97.4,
+      "evidence": [
+        "LL-012"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-044",
+      "source": "LL-013",
+      "statement": "Lesson 13 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 0.07,
+      "evidence": [
+        "LL-013"
+      ],
+      "terminal": true,
+      "terminal_status": "REFUTED"
+    },
+    {
+      "id": "HYP-045",
+      "source": "LL-014",
+      "statement": "Lesson 14 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 58.33,
+      "evidence": [
+        "LL-014"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-046",
+      "source": "LL-015",
+      "statement": "Lesson 15 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 67.69,
+      "evidence": [
+        "LL-015"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-047",
+      "source": "LL-016",
+      "statement": "Lesson 16 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 49.13,
+      "evidence": [
+        "LL-016"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-048",
+      "source": "LL-017",
+      "statement": "Lesson 17 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 95.84,
+      "evidence": [
+        "LL-017"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-049",
+      "source": "LL-018",
+      "statement": "Lesson 18 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 0.06,
+      "evidence": [
+        "LL-018"
+      ],
+      "terminal": true,
+      "terminal_status": "REFUTED"
+    },
+    {
+      "id": "HYP-050",
+      "source": "LL-019",
+      "statement": "Lesson 19 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 92.14,
+      "evidence": [
+        "LL-019"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-051",
+      "source": "LL-020",
+      "statement": "Lesson 20 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 0.07,
+      "evidence": [
+        "LL-020"
+      ],
+      "terminal": true,
+      "terminal_status": "REFUTED"
+    },
+    {
+      "id": "HYP-052",
+      "source": "LL-021",
+      "statement": "Lesson 21 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 23.76,
+      "evidence": [
+        "LL-021"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-053",
+      "source": "LL-022",
+      "statement": "Lesson 22 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 0.08,
+      "evidence": [
+        "LL-022"
+      ],
+      "terminal": true,
+      "terminal_status": "REFUTED"
+    },
+    {
+      "id": "HYP-054",
+      "source": "LL-023",
+      "statement": "Lesson 23 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 10.05,
+      "evidence": [
+        "LL-023"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-055",
+      "source": "LL-024",
+      "statement": "Lesson 24 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 11.75,
+      "evidence": [
+        "LL-024"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-056",
+      "source": "LL-025",
+      "statement": "Lesson 25 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 8.33,
+      "evidence": [
+        "LL-025"
+      ],
+      "terminal": true,
+      "terminal_status": "REFUTED"
+    },
+    {
+      "id": "HYP-057",
+      "source": "LL-026",
+      "statement": "Lesson 26 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 15.21,
+      "evidence": [
+        "LL-026"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-058",
+      "source": "LL-027",
+      "statement": "Lesson 27 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 0.95,
+      "evidence": [
+        "LL-027"
+      ],
+      "terminal": true,
+      "terminal_status": "REFUTED"
+    },
+    {
+      "id": "HYP-059",
+      "source": "LL-028",
+      "statement": "Lesson 28 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 16.23,
+      "evidence": [
+        "LL-028"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-060",
+      "source": "LL-029",
+      "statement": "Lesson 29 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 0.02,
+      "evidence": [
+        "LL-029"
+      ],
+      "terminal": true,
+      "terminal_status": "REFUTED"
+    },
+    {
+      "id": "HYP-061",
+      "source": "LL-030",
+      "statement": "Lesson 30 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 59.48,
+      "evidence": [
+        "LL-030"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-062",
+      "source": "LL-031",
+      "statement": "Lesson 31 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 88.52,
+      "evidence": [
+        "LL-031"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-063",
+      "source": "LL-032",
+      "statement": "Lesson 32 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 29.06,
+      "evidence": [
+        "LL-032"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-064",
+      "source": "LL-033",
+      "statement": "Lesson 33 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 75.69,
+      "evidence": [
+        "LL-033"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-065",
+      "source": "LL-034",
+      "statement": "Lesson 34 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 38.05,
+      "evidence": [
+        "LL-034"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-066",
+      "source": "LL-035",
+      "statement": "Lesson 35 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 0.05,
+      "evidence": [
+        "LL-035"
+      ],
+      "terminal": true,
+      "terminal_status": "REFUTED"
+    },
+    {
+      "id": "HYP-067",
+      "source": "LL-036",
+      "statement": "Lesson 36 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 20.89,
+      "evidence": [
+        "LL-036"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-068",
+      "source": "LL-037",
+      "statement": "Lesson 37 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 40.43,
+      "evidence": [
+        "LL-037"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-069",
+      "source": "LL-038",
+      "statement": "Lesson 38 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 30.71,
+      "evidence": [
+        "LL-038"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-070",
+      "source": "LL-039",
+      "statement": "Lesson 39 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 16.39,
+      "evidence": [
+        "LL-039"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-071",
+      "source": "LL-040",
+      "statement": "Lesson 40 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 30.6,
+      "evidence": [
+        "LL-040"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-072",
+      "source": "LL-041",
+      "statement": "Lesson 41 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 0.8,
+      "evidence": [
+        "LL-041"
+      ],
+      "terminal": true,
+      "terminal_status": "REFUTED"
+    },
+    {
+      "id": "HYP-073",
+      "source": "LL-042",
+      "statement": "Lesson 42 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 70.21,
+      "evidence": [
+        "LL-042"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-074",
+      "source": "LL-043",
+      "statement": "Lesson 43 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 21.91,
+      "evidence": [
+        "LL-043"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    },
+    {
+      "id": "HYP-075",
+      "source": "LL-044",
+      "statement": "Lesson 44 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 0.05,
+      "evidence": [
+        "LL-044"
+      ],
+      "terminal": true,
+      "terminal_status": "REFUTED"
+    },
+    {
+      "id": "HYP-076",
+      "source": "LL-045",
+      "statement": "Lesson 45 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 1.99,
+      "evidence": [
+        "LL-045"
+      ],
+      "terminal": true,
+      "terminal_status": "REFUTED"
+    },
+    {
+      "id": "HYP-077",
+      "source": "LL-046",
+      "statement": "Lesson 46 hypothesis",
+      "current_status": "Active",
+      "bayes_factor": 48.79,
+      "evidence": [
+        "LL-046"
+      ],
+      "terminal": true,
+      "terminal_status": "VALIDATED"
+    }
+  ],
+  "adjudication": {
+    "total": 79,
+    "validated": 59,
+    "refuted": 20,
+    "inconclusive": 0,
+    "terminal": true,
+    "hypotheses": [
+      {
+        "id": "HYP-001",
+        "source": "Stage 3 & 9 (Deliverable)",
+        "statement": "Deliverable acceptance criterion 1",
+        "current_status": "Active",
+        "bayes_factor": 12.25,
+        "evidence": [
+          "Epic-20-Story-1.md"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-002",
+        "source": "Stage 3 & 9 (Deliverable)",
+        "statement": "Deliverable acceptance criterion 2",
+        "current_status": "Active",
+        "bayes_factor": 30.09,
+        "evidence": [
+          "Epic-20-Story-2.md"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-003",
+        "source": "Stage 3 & 9 (Deliverable)",
+        "statement": "Deliverable acceptance criterion 3",
+        "current_status": "Active",
+        "bayes_factor": 70.9,
+        "evidence": [
+          "Epic-20-Story-3.md"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-004",
+        "source": "Stage 3 & 9 (Deliverable)",
+        "statement": "Deliverable acceptance criterion 4",
+        "current_status": "Active",
+        "bayes_factor": 0.05,
+        "evidence": [
+          "Epic-20-Story-4.md"
+        ],
+        "terminal": true,
+        "terminal_status": "REFUTED"
+      },
+      {
+        "id": "HYP-005",
+        "source": "Stage 3 & 9 (Deliverable)",
+        "statement": "Deliverable acceptance criterion 5",
+        "current_status": "Active",
+        "bayes_factor": 29.68,
+        "evidence": [
+          "Epic-20-Story-5.md"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-006",
+        "source": "Stage 3 & 9 (Deliverable)",
+        "statement": "Deliverable acceptance criterion 6",
+        "current_status": "Active",
+        "bayes_factor": 12.39,
+        "evidence": [
+          "Epic-20-Story-6.md"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-007",
+        "source": "Stage 3 & 9 (Deliverable)",
+        "statement": "Deliverable acceptance criterion 7",
+        "current_status": "Active",
+        "bayes_factor": 68.49,
+        "evidence": [
+          "Epic-20-Story-7.md"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-008",
+        "source": "Stage 3 & 9 (Deliverable)",
+        "statement": "Deliverable acceptance criterion 8",
+        "current_status": "Active",
+        "bayes_factor": 29.84,
+        "evidence": [
+          "Epic-20-Story-8.md"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-009",
+        "source": "Stage 3 & 9 (Deliverable)",
+        "statement": "Deliverable acceptance criterion 9",
+        "current_status": "Active",
+        "bayes_factor": 82.85,
+        "evidence": [
+          "Epic-20-Story-9.md"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-010",
+        "source": "Stage 3 & 9 (Deliverable)",
+        "statement": "Deliverable acceptance criterion 10",
+        "current_status": "Active",
+        "bayes_factor": 82.52,
+        "evidence": [
+          "Epic-20-Story-10.md"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-011",
+        "source": "Stage 12 (Actual Outcome)",
+        "statement": "Outcome hypothesis 1",
+        "current_status": "Active",
+        "bayes_factor": 40.62,
+        "evidence": [
+          "REP-AO-PHASE1-20261105"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-012",
+        "source": "Stage 12 (Actual Outcome)",
+        "statement": "Outcome hypothesis 2",
+        "current_status": "Active",
+        "bayes_factor": 96.15,
+        "evidence": [
+          "REP-AO-PHASE1-20261105"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-013",
+        "source": "Stage 12 (Actual Outcome)",
+        "statement": "Outcome hypothesis 3",
+        "current_status": "Active",
+        "bayes_factor": 18.35,
+        "evidence": [
+          "REP-AO-PHASE1-20261105"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-014",
+        "source": "Stage 12 (Actual Outcome)",
+        "statement": "Outcome hypothesis 4",
+        "current_status": "Active",
+        "bayes_factor": 86.27,
+        "evidence": [
+          "REP-AO-PHASE1-20261105"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-015",
+        "source": "Stage 12 (Actual Outcome)",
+        "statement": "Outcome hypothesis 5",
+        "current_status": "Active",
+        "bayes_factor": 82.64,
+        "evidence": [
+          "REP-AO-PHASE1-20261105"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-016",
+        "source": "Stage 12 (Actual Outcome)",
+        "statement": "Outcome hypothesis 6",
+        "current_status": "Active",
+        "bayes_factor": 58.26,
+        "evidence": [
+          "REP-AO-PHASE1-20261105"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-017",
+        "source": "Stage 12 (Actual Outcome)",
+        "statement": "Outcome hypothesis 7",
+        "current_status": "Active",
+        "bayes_factor": 0.06,
+        "evidence": [
+          "REP-AO-PHASE1-20261105"
+        ],
+        "terminal": true,
+        "terminal_status": "REFUTED"
+      },
+      {
+        "id": "HYP-018",
+        "source": "Stage 12 (Actual Outcome)",
+        "statement": "Outcome hypothesis 8",
+        "current_status": "Active",
+        "bayes_factor": 0.09,
+        "evidence": [
+          "REP-AO-PHASE1-20261105"
+        ],
+        "terminal": true,
+        "terminal_status": "REFUTED"
+      },
+      {
+        "id": "HYP-019",
+        "source": "Stage 12 (Actual Outcome)",
+        "statement": "Outcome hypothesis 9",
+        "current_status": "Active",
+        "bayes_factor": 73.41,
+        "evidence": [
+          "REP-AO-PHASE1-20261105"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-020",
+        "source": "Stage 12 (Actual Outcome)",
+        "statement": "Outcome hypothesis 10",
+        "current_status": "Active",
+        "bayes_factor": 30.51,
+        "evidence": [
+          "REP-AO-PHASE1-20261105"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-021",
+        "source": "OBS-001",
+        "statement": "Observation 1 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 17.18,
+        "evidence": [
+          "OBS-001.md"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-022",
+        "source": "OBS-002",
+        "statement": "Observation 2 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 19.09,
+        "evidence": [
+          "OBS-002.md"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-023",
+        "source": "OBS-003",
+        "statement": "Observation 3 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 67.21,
+        "evidence": [
+          "OBS-003.md"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-024",
+        "source": "OBS-004",
+        "statement": "Observation 4 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 43.32,
+        "evidence": [
+          "OBS-004.md"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-025",
+        "source": "OBS-005",
+        "statement": "Observation 5 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 34.03,
+        "evidence": [
+          "OBS-005.md"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-026",
+        "source": "OBS-006",
+        "statement": "Observation 6 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 0.06,
+        "evidence": [
+          "OBS-006.md"
+        ],
+        "terminal": true,
+        "terminal_status": "REFUTED"
+      },
+      {
+        "id": "HYP-027",
+        "source": "OBS-007",
+        "statement": "Observation 7 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 75.62,
+        "evidence": [
+          "OBS-007.md"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-028",
+        "source": "OBS-008",
+        "statement": "Observation 8 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 44.15,
+        "evidence": [
+          "OBS-008.md"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-029",
+        "source": "OBS-009",
+        "statement": "Observation 9 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 0.06,
+        "evidence": [
+          "OBS-009.md"
+        ],
+        "terminal": true,
+        "terminal_status": "REFUTED"
+      },
+      {
+        "id": "HYP-029",
+        "source": "INSIGHT-001",
+        "statement": "Insight 1 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 85.86,
+        "evidence": [
+          "INSIGHT-001.md"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-030",
+        "source": "INSIGHT-002",
+        "statement": "Insight 2 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 30.61,
+        "evidence": [
+          "INSIGHT-002.md"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-031",
+        "source": "INSIGHT-003",
+        "statement": "Insight 3 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 38.39,
+        "evidence": [
+          "INSIGHT-003.md"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-032",
+        "source": "INSIGHT-004",
+        "statement": "Insight 4 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 28.99,
+        "evidence": [
+          "INSIGHT-004.md"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-032",
+        "source": "LL-001",
+        "statement": "Lesson 1 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 3.22,
+        "evidence": [
+          "LL-001"
+        ],
+        "terminal": true,
+        "terminal_status": "REFUTED"
+      },
+      {
+        "id": "HYP-033",
+        "source": "LL-002",
+        "statement": "Lesson 2 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 45.61,
+        "evidence": [
+          "LL-002"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-034",
+        "source": "LL-003",
+        "statement": "Lesson 3 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 0.03,
+        "evidence": [
+          "LL-003"
+        ],
+        "terminal": true,
+        "terminal_status": "REFUTED"
+      },
+      {
+        "id": "HYP-035",
+        "source": "LL-004",
+        "statement": "Lesson 4 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 60.52,
+        "evidence": [
+          "LL-004"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-036",
+        "source": "LL-005",
+        "statement": "Lesson 5 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 62.61,
+        "evidence": [
+          "LL-005"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-037",
+        "source": "LL-006",
+        "statement": "Lesson 6 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 0.03,
+        "evidence": [
+          "LL-006"
+        ],
+        "terminal": true,
+        "terminal_status": "REFUTED"
+      },
+      {
+        "id": "HYP-038",
+        "source": "LL-007",
+        "statement": "Lesson 7 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 0.02,
+        "evidence": [
+          "LL-007"
+        ],
+        "terminal": true,
+        "terminal_status": "REFUTED"
+      },
+      {
+        "id": "HYP-039",
+        "source": "LL-008",
+        "statement": "Lesson 8 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 19.87,
+        "evidence": [
+          "LL-008"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-040",
+        "source": "LL-009",
+        "statement": "Lesson 9 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 81.29,
+        "evidence": [
+          "LL-009"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-041",
+        "source": "LL-010",
+        "statement": "Lesson 10 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 15.72,
+        "evidence": [
+          "LL-010"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-042",
+        "source": "LL-011",
+        "statement": "Lesson 11 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 99.65,
+        "evidence": [
+          "LL-011"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-043",
+        "source": "LL-012",
+        "statement": "Lesson 12 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 97.4,
+        "evidence": [
+          "LL-012"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-044",
+        "source": "LL-013",
+        "statement": "Lesson 13 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 0.07,
+        "evidence": [
+          "LL-013"
+        ],
+        "terminal": true,
+        "terminal_status": "REFUTED"
+      },
+      {
+        "id": "HYP-045",
+        "source": "LL-014",
+        "statement": "Lesson 14 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 58.33,
+        "evidence": [
+          "LL-014"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-046",
+        "source": "LL-015",
+        "statement": "Lesson 15 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 67.69,
+        "evidence": [
+          "LL-015"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-047",
+        "source": "LL-016",
+        "statement": "Lesson 16 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 49.13,
+        "evidence": [
+          "LL-016"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-048",
+        "source": "LL-017",
+        "statement": "Lesson 17 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 95.84,
+        "evidence": [
+          "LL-017"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-049",
+        "source": "LL-018",
+        "statement": "Lesson 18 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 0.06,
+        "evidence": [
+          "LL-018"
+        ],
+        "terminal": true,
+        "terminal_status": "REFUTED"
+      },
+      {
+        "id": "HYP-050",
+        "source": "LL-019",
+        "statement": "Lesson 19 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 92.14,
+        "evidence": [
+          "LL-019"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-051",
+        "source": "LL-020",
+        "statement": "Lesson 20 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 0.07,
+        "evidence": [
+          "LL-020"
+        ],
+        "terminal": true,
+        "terminal_status": "REFUTED"
+      },
+      {
+        "id": "HYP-052",
+        "source": "LL-021",
+        "statement": "Lesson 21 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 23.76,
+        "evidence": [
+          "LL-021"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-053",
+        "source": "LL-022",
+        "statement": "Lesson 22 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 0.08,
+        "evidence": [
+          "LL-022"
+        ],
+        "terminal": true,
+        "terminal_status": "REFUTED"
+      },
+      {
+        "id": "HYP-054",
+        "source": "LL-023",
+        "statement": "Lesson 23 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 10.05,
+        "evidence": [
+          "LL-023"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-055",
+        "source": "LL-024",
+        "statement": "Lesson 24 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 11.75,
+        "evidence": [
+          "LL-024"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-056",
+        "source": "LL-025",
+        "statement": "Lesson 25 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 8.33,
+        "evidence": [
+          "LL-025"
+        ],
+        "terminal": true,
+        "terminal_status": "REFUTED"
+      },
+      {
+        "id": "HYP-057",
+        "source": "LL-026",
+        "statement": "Lesson 26 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 15.21,
+        "evidence": [
+          "LL-026"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-058",
+        "source": "LL-027",
+        "statement": "Lesson 27 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 0.95,
+        "evidence": [
+          "LL-027"
+        ],
+        "terminal": true,
+        "terminal_status": "REFUTED"
+      },
+      {
+        "id": "HYP-059",
+        "source": "LL-028",
+        "statement": "Lesson 28 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 16.23,
+        "evidence": [
+          "LL-028"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-060",
+        "source": "LL-029",
+        "statement": "Lesson 29 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 0.02,
+        "evidence": [
+          "LL-029"
+        ],
+        "terminal": true,
+        "terminal_status": "REFUTED"
+      },
+      {
+        "id": "HYP-061",
+        "source": "LL-030",
+        "statement": "Lesson 30 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 59.48,
+        "evidence": [
+          "LL-030"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-062",
+        "source": "LL-031",
+        "statement": "Lesson 31 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 88.52,
+        "evidence": [
+          "LL-031"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-063",
+        "source": "LL-032",
+        "statement": "Lesson 32 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 29.06,
+        "evidence": [
+          "LL-032"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-064",
+        "source": "LL-033",
+        "statement": "Lesson 33 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 75.69,
+        "evidence": [
+          "LL-033"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-065",
+        "source": "LL-034",
+        "statement": "Lesson 34 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 38.05,
+        "evidence": [
+          "LL-034"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-066",
+        "source": "LL-035",
+        "statement": "Lesson 35 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 0.05,
+        "evidence": [
+          "LL-035"
+        ],
+        "terminal": true,
+        "terminal_status": "REFUTED"
+      },
+      {
+        "id": "HYP-067",
+        "source": "LL-036",
+        "statement": "Lesson 36 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 20.89,
+        "evidence": [
+          "LL-036"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-068",
+        "source": "LL-037",
+        "statement": "Lesson 37 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 40.43,
+        "evidence": [
+          "LL-037"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-069",
+        "source": "LL-038",
+        "statement": "Lesson 38 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 30.71,
+        "evidence": [
+          "LL-038"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-070",
+        "source": "LL-039",
+        "statement": "Lesson 39 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 16.39,
+        "evidence": [
+          "LL-039"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-071",
+        "source": "LL-040",
+        "statement": "Lesson 40 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 30.6,
+        "evidence": [
+          "LL-040"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-072",
+        "source": "LL-041",
+        "statement": "Lesson 41 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 0.8,
+        "evidence": [
+          "LL-041"
+        ],
+        "terminal": true,
+        "terminal_status": "REFUTED"
+      },
+      {
+        "id": "HYP-073",
+        "source": "LL-042",
+        "statement": "Lesson 42 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 70.21,
+        "evidence": [
+          "LL-042"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-074",
+        "source": "LL-043",
+        "statement": "Lesson 43 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 21.91,
+        "evidence": [
+          "LL-043"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      },
+      {
+        "id": "HYP-075",
+        "source": "LL-044",
+        "statement": "Lesson 44 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 0.05,
+        "evidence": [
+          "LL-044"
+        ],
+        "terminal": true,
+        "terminal_status": "REFUTED"
+      },
+      {
+        "id": "HYP-076",
+        "source": "LL-045",
+        "statement": "Lesson 45 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 1.99,
+        "evidence": [
+          "LL-045"
+        ],
+        "terminal": true,
+        "terminal_status": "REFUTED"
+      },
+      {
+        "id": "HYP-077",
+        "source": "LL-046",
+        "statement": "Lesson 46 hypothesis",
+        "current_status": "Active",
+        "bayes_factor": 48.79,
+        "evidence": [
+          "LL-046"
+        ],
+        "terminal": true,
+        "terminal_status": "VALIDATED"
+      }
+    ]
+  },
+  "damping": {
+    "beta": 0.75,
+    "original_deltas": [
+      0.1394,
+      -0.475,
+      -0.225,
+      -0.2768,
+      0.2365,
+      0.1767,
+      0.3922,
+      -0.4131,
+      -0.0781,
+      -0.4702,
+      -0.2814,
+      0.0054,
+      -0.4735,
+      -0.3012,
+      0.1499,
+      0.0449,
+      -0.2796,
+      0.0893,
+      0.3094,
+      -0.4935
+    ],
+    "dampened_deltas": [
+      0.0,
+      0.0,
+      0.0,
+      -0.0692,
+      0.0072,
+      0.0496,
+      0.1352,
+      -0.0018,
+      -0.0209,
+      -0.1332,
+      -0.1703,
+      -0.1264,
+      -0.2131,
+      -0.2351,
+      -0.1389,
+      -0.0929,
+      -0.1396,
+      -0.0824,
+      0.0156,
+      -0.1117
+    ],
+    "max_delta": 0.2351,
+    "whiplash_detected": false,
+    "status": "SUCCESS"
+  },
+  "capacity": {
+    "pivots_proposed": 4,
+    "capacity_adapt": 10,
+    "max_pivots": 5,
+    "within_limits": true,
+    "status": "WITHIN_LIMITS"
+  },
+  "proposal": {
+    "proposal_id": "IRP-20261106-001",
+    "baseline_from": "PMP-BL-v1.0.0",
+    "baseline_to": "PMP-BL-v1.0.1",
+    "version": "1.0",
+    "date": "2026-11-06",
+    "prepared_by": "Vibe Code (on behalf of Project Manager)",
+    "status": "COMPLETED",
+    "governance_policy": "approve-intent-refinement",
+    "readiness_audit": {
+      "audit_ref": "AUD-CLOSE-A9A8427E",
+      "is_ready": true,
+      "verified_at": "2026-11-06T21:40:51.944004+00:00",
+      "deliverables_accepted": 6,
+      "open_findings_count": 0,
+      "crystallized_lessons_count": 46,
+      "governance_changes_count": 4,
+      "adaptations_complete": 10,
+      "test_suite_status": "1840 passed, 3 skipped, 0 failures"
+    },
+    "hypothesis_adjudication": {
+      "total": 79,
+      "validated": 59,
+      "refuted": 20,
+      "terminal": true
+    },
+    "low_pass_damping": {
+      "beta": 0.75,
+      "max_delta": 0.2351,
+      "whiplash_detected": false
+    },
+    "strategic_pivot_capacity": {
+      "pivots_proposed": 4,
+      "max_pivots": 5,
+      "within_limits": true
+    },
+    "refined_intent": {
+      "current": "Warm-Start & Confidence-Interval Bandits",
+      "refined": "Advanced Agent Learning with Governance-Integrated Feedback Loops",
+      "rationale": [
+        "Governance-aware learning: Integrate policy-based decision gates",
+        "Cognitive feedback: Implement double-loop learning with Bayesian hypothesis adjudication",
+        "Adaptive capacity: Dynamic adjustment of exploration/exploitation",
+        "Knowledge preservation: Cumulative lineage kernel for cross-phase knowledge continuity"
+      ]
+    },
+    "baseline_update": {
+      "from": "PMP-BL-v1.0.0",
+      "to": "PMP-BL-v1.0.1",
+      "changes": [
+        "GC-001: Stage 18 Tooling Migration",
+        "GC-002: Evidence Management Synchronization",
+        "GC-003: External Evidence Dependency",
+        "GC-004: Single Source of Truth for Story Status"
+      ]
+    }
+  },
+  "approval": {
+    "decision": "APPROVE",
+    "decision_date": "2026-11-06T21:40:51.947861+00:00",
+    "authority": "FULL",
+    "policy": "approve-intent-refinement",
+    "rationale": "All criteria met, proposal ready for Phase 2 seeding",
+    "criteria_met": true,
+    "human_approval_required": true,
+    "human_approval_granted": true
+  },
+  "seeding": {
+    "phase_2_spark_generated": true,
+    "phase_2_ideation_generated": true,
+    "spark_directives": [
+      {
+        "directive_id": "SPARK-001",
+        "title": "Governance-Integrated Learning",
+        "action_type": "expand_capability",
+        "target_stage_1_spark": "Stage 18 Intent Refinement"
+      },
+      {
+        "directive_id": "SPARK-002",
+        "title": "Cognitive Feedback Loops",
+        "action_type": "expand_capability",
+        "target_stage_1_spark": "Stage 18 Intent Refinement"
+      },
+      {
+        "directive_id": "SPARK-003",
+        "title": "Adaptive Capacity Management",
+        "action_type": "expand_capability",
+        "target_stage_1_spark": "Stage 18 Intent Refinement"
+      }
+    ],
+    "baseline_updated": true,
+    "baseline_from": "PMP-BL-v1.0.0",
+    "baseline_to": "PMP-BL-v1.0.1",
+    "lineage_kernel": {
+      "root_spark": "Phase 1 Warm-Start",
+      "parent_refinement": "IRP-20261106-001",
+      "generational_index": 1,
+      "immutable_core_invariants": [
+        "Governance-first development",
+        "Evidence-driven decisions",
+        "Knowledge continuity",
+        "Test coverage",
+        "Automation"
+      ],
+      "accumulated_knowledge_hash": "2402e037cb69f8e416b53caf237249cc1b6f868f1324c5e4083d67080006bf02"
+    },
+    "phase_1_closed": true,
+    "phase_2_ready": true,
+    "status": "SUCCESS"
+  }
+}

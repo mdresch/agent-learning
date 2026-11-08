@@ -9,7 +9,7 @@ import { repoRoot } from "../lib/store.js";
 const AGENT_LEARN_READ = new Set(["list", "tasks-list", "task-policy", "task-policy-decide", "task-episodes-count", "task-episodes-list"]);
 const GIT_READ = new Set(["status", "log", "diff", "show", "branch", "ls-files", "check-ignore", "rev-parse", "worktree"]);
 const GH_PR_READ = new Set(["view", "list", "checks", "diff"]);
-const DENY_ARG = /^(--output|--exec|--upload-pack|--ext-diff|-c$|-o$)/;
+const DENY_ARG = /^(--output|--exec|--upload-pack|--ext-diff)($|=)|^-(c|o)($|=)/;
 
 function allowed(argv: string[]): string | undefined {
   const [bin, a, b] = argv;

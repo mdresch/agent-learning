@@ -380,6 +380,18 @@ def status_edit(family: str, text: str, record: str) -> str:
 
 
 def accept(doc: str, by: str, summary: str) -> int:
+    by = by.strip()
+    summary = summary.strip()
+    if not by or not summary:
+        raise Stop("Both --by and --summary are required and cannot be empty.")
+    if "\n" in by or "\r" in by:
+        raise Stop("--by must be a single line without newline characters.")
+    if "\n" in summary or "\r" in summary:
+        raise Stop("--summary must be a single line without newline characters.")
+    if len(by) > 100:
+        raise Stop(f"--by is too long ({len(by)} > 100 chars).")
+    if len(summary) > 200:
+        raise Stop(f"--summary is too long ({len(summary)} > 200 chars).")
     rel = resolve(doc)
     pend = pending(rel)
     if pend is None:

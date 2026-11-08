@@ -36,12 +36,11 @@ const signCycle = (d) =>
 const signStart = (d) =>
   createHmac("sha256", secret).update(JSON.stringify(["stage_start", d.stageId, d.cycle, d.note, d.decidedBy, d.decidedAt])).digest("hex");
 
-const safeEqual = (a, b) => {
-  if (typeof a !== "string" || typeof b !== "string") return false;
-  const bufA = Buffer.from(a);
-  const bufB = Buffer.from(b);
-  if (bufA.length !== bufB.length) return false;
-  return timingSafeEqual(bufA, bufB);
+const safeEqual = (expectedHex, actual) => {
+  if (typeof expectedHex !== "string" || typeof actual !== "string") return false;
+  const expected = Buffer.from(expectedHex, "hex");
+  const got = Buffer.from(actual, "hex");
+  return expected.length === got.length && timingSafeEqual(expected, got);
 };
 
 function verifiedDecisions() {
@@ -172,7 +171,7 @@ function launchOrchestrator(reason, prompt) {
     mcpServers: { governance: {
       command: "node",
       args: [join(projectRoot, "node_modules", "tsx", "dist", "cli.mjs"), join(projectRoot, "mcp", "server.ts")],
-      env: { GOVERNANCE_APPROVAL_SECRET: secret, GOVERNANCE_STATE_DIR: stateDir },
+      env: { GOVERNANCE_STATE_DIR: stateDir },
     } },
   }, null, 2));
   const allowed = ["Agent", "Read", "Grep", "Glob", ...GOV_TOOLS.map((t) => `mcp__governance__${t}`)].join(",");

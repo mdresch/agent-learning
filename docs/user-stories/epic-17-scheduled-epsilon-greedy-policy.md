@@ -86,7 +86,7 @@ Fixture used by the criteria below ("the base policy"): three actions `a`, `b` a
 
 ## Story 17.6 — The Positive-Only Baseline Run
 
-**Status:** Ready  
+**Status:** Completed (2026-11-08)  
 **As** a maintainer, **I want** the recorded positive-only history replayed through the baseline, **so that** I can see how it behaves when every reward is 1.0 and no action is flagged reversible.
 
 ### Acceptance Criteria:

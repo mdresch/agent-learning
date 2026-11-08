@@ -2682,3 +2682,34 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-136-9 | crash risk | verified: yes | decision: accepted | Return RouteDecision with reason="anomaly" on invalid previous string/type instead of raising ValueError | fix: 2005086`
   - `Q-136-10 | logic error | verified: yes | decision: accepted | Retain computed entropy_bits and margin in RouteDecision when cfg=None anomaly occurs | fix: 2005086`
   - `Q-136-11 | documentation | verified: yes | decision: accepted | Remove unused constant SEED_DAMPING_DEFAULT deferred to Story 21.5 | fix: 978fb32`
+
+---
+
+## Story 22.1 — Scoring a Weight Vector With the Real Resolver
+- **Commit:** `88248f0`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-22.1`
+- **Source ADR / BRD / FDD:** ADR-022 (§4.1), BRD-022 (BRU-022-01, BRU-022-02, BRU-022-03), FDD-022 (§2.1, §3.1)
+- **Pre-Flight Spec Gate:** Proceed utility 0.6784, margin +0.1571 (>= +0.05), episode `spec-22_1-d05c4fb4`.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/weight_compiler.py` (`with_weights`, `evaluate`, `objective`, `LabeledFrame`, `CompiledWeights`, `NoImprovement`)
+  - `src/agent_learning_ext/__init__.py` (lazy re-exports of compiler symbols)
+  - `.claude/skills/weight-compiler/SKILL.md` (component skill)
+  - `tests/test_weight_objective.py` (contract tests for $AC_0$ through $AC_6$, interpretations $I_1$ to $I_3$)
+  - `docs/user-stories/epic-22-scored-search-decision-configuration-compilation.md` (Story 22.1 marked Completed)
+- **Contracts:**
+  - `tests/test_weight_objective.py`
+  - Contract run: 16 passed in 0.58s
+  - Cumulative suite: 24 passed (`test_weight_objective.py`, `test_upstream_untouched.py`)
+- **Notes:**
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Zero changes to `src/agent_learning/`. All logic in `src/agent_learning_ext/weight_compiler.py`.
+    - $I_2$: Defensive None-Safety for Dictionaries: Defensively guarded dictionary accesses and fallback lookups.
+    - $I_3$: Empty Collection Base Case: Empty sequence passed to `objective()` cleanly returns `0.0` without error.
+  - $AC_0$: `with_weights` applies weights to frame criteria while preserving constraints, options, and evidence; original frame is untouched.
+  - $AC_1$: `with_weights` raises `ValueError` for mismatched key sets, zero, negative, `nan`, or infinite weights.
+  - $AC_2$: `evaluate` on toy frame gives predicted `A` and margin 0.20 for `(0.7, 0.3)`; `None` and margin 0.0 for `(0.5, 0.5)` (tiebreak); `B` and margin 0.20 for `(0.3, 0.7)` within $10^{-9}$.
+  - $AC_3$: `objective` with label `A` and `beta=0.1` gives 1.02 for `(0.7, 0.3)`, 0.0 for `(0.5, 0.5)`, and 0.02 for `(0.3, 0.7)` within $10^{-9}$; total objective is the sum over all items.
+  - $AC_4$: If an option is ruled out by constraints, `evaluate` never returns it and the margin computation ignores it.
+  - $AC_5$: Replaced `DecisionResolver.resolve` with counting wrapper, confirming exactly one call per `evaluate` through the real resolver.
+  - $AC_6$: AST analysis verifies `weight_compiler.py` imports nothing from `agent_learning.storage` and performs no file I/O.

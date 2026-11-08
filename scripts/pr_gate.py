@@ -261,7 +261,12 @@ def evaluate_pr(pr_number: int) -> tuple[bool, str, dict[str, Any]]:
         return (
             False,
             f"CI check failure: {', '.join(failing_checks)}. All GitHub Actions must pass.",
-            {"ci_failures": failing_checks},
+            {
+                "pr_number": pr_number,
+                "title": pr_data.get("title"),
+                "head_commit": pr_data.get("headRefOid"),
+                "ci_failures": failing_checks,
+            },
         )
 
     # 2. Invariant 6: Upstream Fork Collision Protection
@@ -277,7 +282,12 @@ def evaluate_pr(pr_number: int) -> tuple[bool, str, dict[str, Any]]:
                 f"Invariant 6 Violation: Pull request modifies upstream files: {', '.join(upstream_violations)}. "
                 "All customizations must reside in src/agent_learning_ext/ or agent-training-ext/."
             ),
-            {"upstream_violations": upstream_violations},
+            {
+                "pr_number": pr_number,
+                "title": pr_data.get("title"),
+                "head_commit": pr_data.get("headRefOid"),
+                "upstream_violations": upstream_violations,
+            },
         )
 
     # 3. Extract and parse reviews
@@ -389,11 +399,19 @@ def main() -> int:
 
     print("-" * 80)
     scores = details.get("assessments", {})
-    app_score = scores.get("approve_and_merge", {})
-    rev_score = scores.get("request_revisions", {})
-    print(f"Approve Option: Robust Utility = {app_score.get('robust_utility')} | Expected Utility = {app_score.get('expected_utility')}")
-    print(f"Revise Option:  Robust Utility = {rev_score.get('robust_utility')} | Expected Utility = {rev_score.get('expected_utility')}")
-    print(f"Decision Margin: {details.get('margin'):+.3f} (Required: >= +0.05)")
+    app_score = scores.get("approve_and_merge")
+    rev_score = scores.get("request_revisions")
+    if app_score and rev_score:
+        print(f"Approve Option: Robust Utility = {app_score.get('robust_utility')} | Expected Utility = {app_score.get('expected_utility')}")
+        print(f"Revise Option:  Robust Utility = {rev_score.get('robust_utility')} | Expected Utility = {rev_score.get('expected_utility')}")
+    else:
+        print("Assessments: N/A (Halted prior to Bayesian decision resolution)")
+
+    margin = details.get("margin")
+    if margin is not None:
+        print(f"Decision Margin: {margin:+.3f} (Required: >= +0.05)")
+    else:
+        print("Decision Margin: N/A")
     print("-" * 80)
 
     if passed:

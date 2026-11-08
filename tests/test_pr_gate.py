@@ -250,3 +250,19 @@ def test_cli_main_json_output(capsys: pytest.CaptureFixture[str]) -> None:
         data = json.loads(captured.out)
         assert data["passed"] is True
         assert data["details"]["pr_number"] == 999
+
+
+def test_cli_main_early_halt_output(capsys: pytest.CaptureFixture[str]) -> None:
+    mock_eval = (
+        False,
+        "Invariant 6 Violation: Pull request modifies upstream files",
+        {"pr_number": 999, "title": "Test PR", "upstream_violations": ["src/agent_learning/core.py"]},
+    )
+    with patch("sys.argv", ["pr_gate.py", "999"]), patch(
+        "scripts.pr_gate.evaluate_pr", return_value=mock_eval
+    ):
+        code = main()
+        assert code == 1
+        captured = capsys.readouterr()
+        assert "GATE RESULT: HALTED" in captured.out
+        assert "Decision Margin: N/A" in captured.out

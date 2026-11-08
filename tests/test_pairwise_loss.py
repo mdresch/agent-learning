@@ -18,13 +18,14 @@ Acceptance Criteria:
 """
 
 import math
+
 import numpy as np
 import pytest
 
 from agent_learning_ext.learners.pairwise import (
     PreferencePair,
-    bt_loss,
     bt_gradient,
+    bt_loss,
     build_pair_matrix,
 )
 
@@ -147,3 +148,28 @@ def test_ac3_single_pair_gradient_values():
     assert abs(grad_stat["x"]) < 1e-3
     assert abs(grad_stat["y"]) < 1e-3
     assert abs(grad_stat["z"]) < 1e-3
+
+
+def test_validation_missing_keys_and_invalid_shapes():
+    """Verify clean ValueError diagnostics for missing action keys and invalid W shape."""
+    actions = ["x", "y", "z"]
+    pairs = [PreferencePair(winner="x", loser="y", source_episode_id="ep-1")]
+
+    # 1. Incomplete mapping in theta
+    with pytest.raises(ValueError, match="Missing required action"):
+        bt_loss({"x": 0.1, "y": 0.2}, pairs, {"x": 0.0, "y": 0.0, "z": 0.0}, actions)
+
+    with pytest.raises(ValueError, match="Missing required action"):
+        bt_gradient({"x": 0.1, "y": 0.2}, pairs, {"x": 0.0, "y": 0.0, "z": 0.0}, actions)
+
+    # 2. Incomplete mapping in theta_ref
+    with pytest.raises(ValueError, match="Missing required action"):
+        bt_loss({"x": 0.1, "y": 0.2, "z": 0.3}, pairs, {"x": 0.0}, actions)
+
+    # 3. Invalid W shape (e.g. 1D or wrong dimensions)
+    with pytest.raises(ValueError, match="Expected 2D preference matrix W"):
+        bt_loss({"x": 0.1, "y": 0.2, "z": 0.3}, np.array([1.0, 2.0]), {"x": 0.0, "y": 0.0, "z": 0.0}, actions)
+
+    with pytest.raises(ValueError, match="Expected 2D preference matrix W"):
+        bt_gradient({"x": 0.1, "y": 0.2, "z": 0.3}, np.ones((2, 2)), {"x": 0.0, "y": 0.0, "z": 0.0}, actions)
+

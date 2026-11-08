@@ -7,9 +7,9 @@ L2 regularization anchored to frozen reference logits.
 
 from __future__ import annotations
 
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-import math
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 import numpy as np
 
@@ -109,11 +109,26 @@ def build_pair_matrix(
 def _as_vector(data: Mapping[str, float] | np.ndarray | Sequence[float], action_ids: Sequence[str]) -> np.ndarray:
     """Convert a mapping or array of action values to a float64 1D array ordered by action_ids."""
     if isinstance(data, Mapping):
+        missing = [a for a in action_ids if a not in data]
+        if missing:
+            raise ValueError(f"Missing required action(s) in parameter mapping: {missing}")
         return np.array([float(data[a]) for a in action_ids], dtype=np.float64)
     arr = np.asarray(data, dtype=np.float64)
     if arr.ndim != 1 or arr.shape[0] != len(action_ids):
         raise ValueError(f"Expected 1D array of length {len(action_ids)}, got shape {arr.shape}")
     return arr
+
+
+def _resolve_W(pairs_or_W: Sequence[PreferencePair] | np.ndarray, action_ids: Sequence[str]) -> np.ndarray:
+    """Validate and return count matrix W of shape (|A|, |A|)."""
+    n = len(action_ids)
+    if isinstance(pairs_or_W, np.ndarray):
+        if pairs_or_W.ndim != 2 or pairs_or_W.shape != (n, n):
+            raise ValueError(f"Expected 2D preference matrix W of shape ({n}, {n}), got shape {pairs_or_W.shape}")
+        return pairs_or_W
+    if not isinstance(pairs_or_W, Sequence):
+        raise TypeError(f"Expected sequence of PreferencePair or 2D ndarray, got {type(pairs_or_W)}")
+    return build_pair_matrix(pairs_or_W, action_ids)
 
 
 def bt_loss(
@@ -131,11 +146,7 @@ def bt_loss(
     """
     t_vec = _as_vector(theta, action_ids)
     r_vec = _as_vector(theta_ref, action_ids)
-
-    if isinstance(pairs_or_W, np.ndarray) and pairs_or_W.ndim == 2:
-        W = pairs_or_W
-    else:
-        W = build_pair_matrix(pairs_or_W, action_ids)  # type: ignore[arg-type]
+    W = _resolve_W(pairs_or_W, action_ids)
 
     # Z[w, l] = theta_w - theta_l
     Z = t_vec[:, None] - t_vec[None, :]
@@ -163,11 +174,7 @@ def bt_gradient(
     """
     t_vec = _as_vector(theta, action_ids)
     r_vec = _as_vector(theta_ref, action_ids)
-
-    if isinstance(pairs_or_W, np.ndarray) and pairs_or_W.ndim == 2:
-        W = pairs_or_W
-    else:
-        W = build_pair_matrix(pairs_or_W, action_ids)  # type: ignore[arg-type]
+    W = _resolve_W(pairs_or_W, action_ids)
 
     # Z[i, j] = theta_i - theta_j
     Z = t_vec[:, None] - t_vec[None, :]

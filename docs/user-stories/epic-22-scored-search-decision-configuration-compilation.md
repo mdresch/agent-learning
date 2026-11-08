@@ -75,7 +75,7 @@ Fixtures used by the criteria below. "The toy frame": criteria `c1`, `c2`, optio
 
 ## Story 22.5 — Applying Frozen Weights
 
-**Status:** Ready  
+**Status:** Completed (2026-11-09)  
 **As** an operator, **I want** an online decision to use the adopted weights and run no search, **so that** a production decision stays deterministic and fast.
 
 ### Acceptance Criteria:

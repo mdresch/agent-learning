@@ -126,6 +126,7 @@ _EXPORTS: dict[str, str] = {
     "VOLATILE_KEYS": "agent_learning.pmbok",
     "add_rewards": "agent_learning_ext.policy.action_statistics",
     "approval_record": "agent_learning.pmbok",
+    "apply_compiled_config": "agent_learning_ext.weight_compiler",
     "assess_autonomy": "agent_learning_ext.autonomy",
     "assess_complexity": "agent_learning_ext.autonomy",
     "audit_run": "agent_learning_ext.audit",

@@ -574,3 +574,24 @@ def propose(
     )
 
 
+def apply_compiled_config(
+    frame: DecisionFrame,
+    snapshot: PolicySnapshot,
+) -> DecisionFrame:
+    """Apply compiled criteria weights carried in policy snapshot metadata (FDD-022 §3.7).
+
+    Returns frame unchanged when snapshot.metadata has no criteria_weights;
+    otherwise returns with_weights(frame, weights), raising ValueError if criterion ids differ.
+    """
+    metadata = getattr(snapshot, "metadata", None)
+    if not isinstance(metadata, Mapping):
+        return frame
+
+    criteria_weights = metadata.get("criteria_weights")
+    if criteria_weights is None or not isinstance(criteria_weights, Mapping) or not criteria_weights:
+        return frame
+
+    return with_weights(frame, criteria_weights)
+
+
+

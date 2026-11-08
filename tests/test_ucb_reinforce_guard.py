@@ -31,7 +31,6 @@ from agent_learning_ext.learners.reinforce import ReinforceLearner
 from agent_learning_ext.policy.ucb import SELECTION_BASIS, UCBPolicy
 
 ACTIONS = [Action(id="a", description="Action A"), Action(id="b", description="Action B"), Action(id="c", description="Action C")]
-TS = "2026-10-29T08:00:00+00:00"
 
 
 def _capture() -> EpisodeCapture:

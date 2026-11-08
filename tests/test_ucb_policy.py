@@ -105,7 +105,7 @@ def test_ac1_repeatable_across_calls_and_processes() -> None:
         "data = json.loads(sys.argv[1])\n"
         "actions = [Action(id=a['id'], description=a['description']) for a in data['actions']]\n"
         "snap = PolicySnapshot(id='s', agent_id='a', task_id='t', actions=actions, logits={a['id']: 0.0 for a in data['actions']}, "
-        "metadata={'policy_type': 'ucb', 'ucb_variant': 'standard', 'exploration_constant': 1.414, "
+        "metadata={'policy_type': 'ucb', 'ucb_variant': 'standard', 'exploration_constant': 2.0 ** 0.5, "
         "'action_statistics': data['stats'], 'consumed_episode_ids': []})\n"
         "p = UCBPolicy(snap)\n"
         "print(p.choose().action.id)\n"
@@ -270,3 +270,11 @@ def test_ac6_not_a_logit_policy_and_snapshot_unaltered() -> None:
 
     # Verify snapshot was not mutated
     assert policy.snapshot() == snap_copy
+
+
+def test_i2_empty_action_space_raises() -> None:
+    """I2 (Empty Collection Base Case): Policy with empty actions raises ValueError on choose."""
+    empty_snap = _make_snapshot(actions=[])
+    policy = UCBPolicy(empty_snap)
+    with pytest.raises(ValueError, match="policy has no actions"):
+        policy.choose()

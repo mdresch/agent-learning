@@ -152,7 +152,8 @@ class UCBPolicy(Policy):
                         best_score = sc
                         best_pulls = pc
 
-        assert best_action is not None
+        if best_action is None:
+            raise RuntimeError("failed to select an action from non-empty action space")
 
         # Build one-hot probabilities
         probabilities = [1.0 if a.id == best_action.id else 0.0 for a in self._snapshot.actions]

@@ -149,11 +149,15 @@ def test_ac4_validation_errors() -> None:
     with pytest.raises(ValueError, match="c"):
         ucb_scores(valid_stats, 5, variant="standard", c=True)  # type: ignore
 
-    # total != sum(pull_count)
+    # total != sum(pull_count) or bad total type
     with pytest.raises(ValueError, match="total"):
         ucb_scores(valid_stats, 6, variant="standard")
     with pytest.raises(ValueError, match="total"):
         ucb_scores(valid_stats, 4, variant="wilson")
+    with pytest.raises(ValueError, match="total"):
+        ucb_scores(valid_stats, 5.0, variant="standard")  # type: ignore
+    with pytest.raises(ValueError, match="total"):
+        ucb_scores(valid_stats, True, variant="standard")  # type: ignore
 
     # Negative pull count
     bad_pulls = {"a": ActionStats(pull_count=-1, cumulative_reward=0.0, mean_reward=0.0)}

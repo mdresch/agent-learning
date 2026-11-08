@@ -43,6 +43,9 @@ def ucb_scores(
     if variant not in ("standard", "wilson"):
         raise ValueError(f"unknown variant {variant!r}; must be 'standard' or 'wilson'")
 
+    if isinstance(total, bool) or not isinstance(total, int) or total < 0:
+        raise ValueError(f"total must be a non-negative integer; got {total!r}")
+
     if isinstance(c, bool) or not isinstance(c, (int, float)) or not math.isfinite(c) or c <= 0:
         raise ValueError(f"c must be a positive finite float; got {c!r}")
 

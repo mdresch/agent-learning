@@ -1,0 +1,133 @@
+{
+  "task": "ADR-039 (Governed Baseline Contracts for the Original SDK Code): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "architectural_soundness",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Characterization contracts via implement-story, four work groups, no production change by default, findings routed to heal-contract-failure; consistent with ADR-002, ADR-034 and ADR-036 and with the loop."
+    },
+    {
+      "id": "alternatives_considered",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Four alternatives named and rejected: rely on Microsoft tests alone, unlabelled coverage tests, rewrite under new ADRs, cover everything at once."
+    },
+    {
+      "id": "consequences_honest",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "States that behavior is pinned as observed, bugs stay pinned until healed on purpose, coverage is an observation not a goal, and the work is dated catch-up."
+    },
+    {
+      "id": "gap_disclosure_quality",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Names the JVM exclusion for spark, what the store does and does not hold (180 real local-evaluator metric results, none from the Azure wrappers, none below 0.5 except skipped, no router history), the 21 scorers and cli left out, the unset coverage floor, and that the Pillar Code Map is Draft."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_adr",
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      },
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "direct_doc_read:docs/adr/ADR-039-governed-baseline-contracts-for-original-code.md",
+          "support": 0.86,
+          "confidence": 0.86
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "direct_doc_read:docs/adr/ADR-039-governed-baseline-contracts-for-original-code.md",
+          "support": 0.84,
+          "confidence": 0.86
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "direct_doc_read:docs/adr/ADR-039-governed-baseline-contracts-for-original-code.md",
+          "support": 0.86,
+          "confidence": 0.86
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "direct_doc_read:docs/adr/ADR-039-governed-baseline-contracts-for-original-code.md",
+          "support": 0.88,
+          "confidence": 0.86
+        }
+      ]
+    },
+    {
+      "action_id": "reject_adr",
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      },
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "direct_doc_read:docs/adr/ADR-039-governed-baseline-contracts-for-original-code.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "direct_doc_read:docs/adr/ADR-039-governed-baseline-contracts-for-original-code.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "direct_doc_read:docs/adr/ADR-039-governed-baseline-contracts-for-original-code.md",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "direct_doc_read:docs/adr/ADR-039-governed-baseline-contracts-for-original-code.md",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ]
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      },
+      "evidence": [
+        {
+          "criterion_id": "architectural_soundness",
+          "source": "direct_doc_read:docs/adr/ADR-039-governed-baseline-contracts-for-original-code.md",
+          "support": 0.14,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "alternatives_considered",
+          "source": "direct_doc_read:docs/adr/ADR-039-governed-baseline-contracts-for-original-code.md",
+          "support": 0.14,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "consequences_honest",
+          "source": "direct_doc_read:docs/adr/ADR-039-governed-baseline-contracts-for-original-code.md",
+          "support": 0.12,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "gap_disclosure_quality",
+          "source": "direct_doc_read:docs/adr/ADR-039-governed-baseline-contracts-for-original-code.md",
+          "support": 0.1,
+          "confidence": 0.75
+        }
+      ]
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

@@ -2641,3 +2641,44 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - $AC_1$: With existing governance action definitions lacking `reversible` flag, safe subset is strictly empty and exploration rate applied evaluates to 0.0 across all tasks; every decision is exploitation; policy locks onto the taken action with mean reward 1.0; untaken actions remain at neutral mean 0.5 and are never chosen. Documented as the stated price of the safety mask (BRU-017-03).
   - $AC_2$: Replay run twice yields identical statistics, deterministic decisions, and identical decision records; snapshots serialize cleanly to JSON and round-trip without loss.
   - $AC_3$: Explicitly labelled as a baseline run on real positive-only history without claims of superiority over REINFORCE, UCB, or Thompson sampling (BRU-017-13); missing data (low-authority policy with failures, declared `reversible` flags) documented in test module docstring.
+
+---
+
+## Story 21.2 — The Route
+- **Commit:** `a34ad95`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-21.2`
+- **Source ADR / BRD / FDD:** ADR-021 (§4.1), BRD-021, FDD-021 (§1, §2, §3)
+- **Pre-Flight Spec Gate:** Proceed utility 0.7457, margin +0.2244 (>= +0.05), episode `spec-21_2-8078d8fb`.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/routing.py` (`MIN_GAP_BITS`, `EPS_MARGIN_DEFAULT`, `VALID_TIERS`, `PINNED_FULL`, `RoutingConfig`, `RouteDecision`, `route`)
+  - `src/agent_learning_ext/__init__.py` (re-export constants, dataclasses, and `route`)
+  - `tests/test_routing_route.py` (contract tests for $AC_0$ through $AC_6$, interpretations $I_1, I_2$)
+  - `docs/user-stories/epic-21-contextual-authority-ensemble-routing.md` (Story 21.2 marked Completed)
+- **Contracts:**
+  - `tests/test_routing_route.py`
+  - Contract run: 7 passed in 2.09s
+  - Cumulative suite: 10 passed across Epic 21 (`test_routing_signals.py`, `test_routing_route.py`)
+- **Validation:**
+  - $AC_0$: `RoutingConfig` enforces valid bounds: raises `ValueError` for gaps under 0.15 bits (including 0.149), inverted thresholds (`tau_esc < tau_deesc`), non-finite values (`nan`, `inf`), negative `tau_deesc`, and `eps_margin <= 0` or `eps_margin > 1.0`; exact gap of 0.15 is accepted.
+  - $AC_1$: Critical tier: requests with `tier="critical"` route `FULL` with reason `"critical"` even with low entropy (`[0.99, 0.01]`) and approved bucket.
+  - $AC_2$: Escalate logic: entropy $\ge 1.0$ routes `FULL` with reason `"entropy"` (when margin $\ge 0.20$); margin $< 0.20$ routes `FULL` with reason `"margin"` even when entropy is below `tau_deesc`.
+  - $AC_3$: Earn Low: entropy $\le 0.70$ and margin $\ge 0.20$ with approved bucket routes `LOW` with reason `"low"`; unapproved bucket routes `FULL` with reason `"not_approved"` for every entropy.
+  - $AC_4$: Hysteresis deadband: inside deadband (`0.70 < H < 1.0` and margin $\ge 0.20$), `[0.8, 0.2]` retains previous route (`LOW` or `FULL`) with reason `"hysteresis"`; revoked/unapproved bucket with previous `LOW` falls back to `FULL` with reason `"not_approved"`; `previous=None` inside deadband gives `FULL` with reason `"no_previous"`.
+  - $AC_5$: No hunting: over a sequence of oscillating entropies strictly within the deadband, the route changes at most once.
+  - $AC_6$: Fail safe: empty list, NaN, infinity, negative probability, sum drifting to 0.9 or 1.1, and unknown tier route `FULL` with reason `"anomaly"`, descriptive anomaly text, and `entropy_bits=None, margin=None`.
+  - Observed RED first: `ImportError: cannot import name 'MIN_GAP_BITS' from 'agent_learning_ext.routing'`.
+  - Upstream fork untouched: 8/8 passed in `tests/test_upstream_untouched.py`.
+  - Governance baseline: 18/18 passed in `tests/test_governance_baseline.py`.
+- **Review (Step 8):** Amazon Q reviewed PR #136. All findings addressed:
+  - `Q-136-1 | logic error | verified: yes | decision: accepted | Replace [0.82, 0.18] in test_ac5_no_hunting with [0.80, 0.20] (0.7219 bits) to ensure strictly within deadband [0.70, 1.0] | fix: c9da326`
+  - `Q-136-2 | logic error | verified: yes | decision: accepted | Replace silent fallthrough in route() with explicit ValueError on unknown DecisionAuthority variant | fix: c9da326`
+  - `Q-136-3 | test gap | verified: yes | decision: accepted | Add explicit reason assertions across all test cases in test_ac3_earn_low | fix: c9da326`
+  - `Q-136-4 | logic error | verified: yes | decision: accepted | Raise ValueError on unrecognized previous route string in route() rather than silently falling through to None | fix: 649ee79`
+  - `Q-136-5 | test gap | verified: yes | decision: accepted | Replace deadband distribution in test_ac3_earn_low with distributions strictly below tau_deesc (0.70) | fix: 649ee79`
+  - `Q-136-6 | logic error | verified: yes | decision: accepted | Return RouteDecision(FULL, ..., reason="anomaly", anomaly="missing routing config") when cfg=None to preserve fail-safe contract | fix: cafc1d9`
+  - `Q-136-7 | logic error | verified: yes | decision: accepted | Disallow bool instances in RoutingConfig and probability inputs across all route validation paths | fix: 05dbaa7`
+  - `Q-136-8 | logic error | verified: yes | decision: accepted | Move previous route normalization into deadband branch to preserve fail-safe escalation for invalid previous values | fix: e183c21`
+  - `Q-136-9 | crash risk | verified: yes | decision: accepted | Return RouteDecision with reason="anomaly" on invalid previous string/type instead of raising ValueError | fix: 2005086`
+  - `Q-136-10 | logic error | verified: yes | decision: accepted | Retain computed entropy_bits and margin in RouteDecision when cfg=None anomaly occurs | fix: 2005086`
+  - `Q-136-11 | documentation | verified: yes | decision: accepted | Remove unused constant SEED_DAMPING_DEFAULT deferred to Story 21.5 | fix: 978fb32`

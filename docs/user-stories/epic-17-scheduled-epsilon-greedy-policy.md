@@ -74,7 +74,7 @@ Fixture used by the criteria below ("the base policy"): three actions `a`, `b` a
 
 ## Story 17.5 — Staying Out of REINFORCE
 
-**Status:** Ready — depends on Story 15.3 of Epic 15.  
+**Status:** Completed (2026-11-08) — depends on Story 15.3 of Epic 15.  
 **As** a maintainer, **I want** epsilon-greedy episodes to be invisible to `ReinforceLearner`, **so that** a baseline pick is never trained on as a softmax sample.
 
 ### Acceptance Criteria:

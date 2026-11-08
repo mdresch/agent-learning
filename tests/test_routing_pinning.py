@@ -233,9 +233,9 @@ def test_governance_baseline_passes() -> None:
     gb = importlib.util.module_from_spec(spec)
     try:
         spec.loader.exec_module(gb)
+        manifest = json.loads(gb.MANIFEST.read_text(encoding="utf-8"))
+        problems = gb.find_problems(manifest, ROOT)
     except Exception as exc:
-        pytest.fail(f"Failed to execute governance_baseline module: {exc}")
+        pytest.fail(f"Failed to execute governance_baseline verification: {exc}")
 
-    manifest = json.loads(gb.MANIFEST.read_text(encoding="utf-8"))
-    problems = gb.find_problems(manifest, ROOT)
     assert not problems, "Governance baseline problems detected:\n" + "\n".join(problems)

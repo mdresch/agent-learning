@@ -2716,4 +2716,5 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-142-4 | test gap | verified: yes | decision: accepted | Replace magic slice prefix[8:] with named prefix constant and assertion in test_ac4_shape_files | fix: f4b1b9d`
   - `Q-142-5 | test gap | verified: yes | decision: accepted | Align AC_1 assertions strictly to AC_1 contract (authority==FULL and reason=='pinned') | fix: f4b1b9d`
   - `Q-142-6 | crash risk | verified: yes | decision: accepted | Wrap spec.loader.exec_module in try/except with pytest.fail in test_governance_baseline_passes | fix: e9a2c34`
+  - `Q-142-7 | crash risk | verified: yes | decision: accepted | Move gb.MANIFEST and gb.find_problems inside try/except block in test_governance_baseline_passes | fix: e2c70a1`
 

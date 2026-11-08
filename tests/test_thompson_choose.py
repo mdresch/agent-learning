@@ -31,8 +31,7 @@ import typing
 
 import pytest
 
-from agent_learning.policy.base import Decision
-from agent_learning.policy.thompson import ThompsonPolicy, replay, seed_for
+from agent_learning.policy.thompson import ThompsonDecision, ThompsonPolicy, replay, seed_for
 from agent_learning.types import Action, PolicySnapshot
 
 ACTIONS = [Action(id="a"), Action(id="b"), Action(id="c")]
@@ -164,7 +163,8 @@ def test_i4_an_explicitly_empty_argument_is_refused_by_name(kwargs: dict, name: 
 def test_ac3_the_decision_has_no_log_probability() -> None:
     decision = _policy().choose(request_id="r", timestamp=TS)
     assert decision.logprob is None
-    assert typing.get_type_hints(Decision)["logprob"] == (float | None)
+    assert isinstance(decision, ThompsonDecision)
+    assert typing.get_type_hints(ThompsonDecision)["logprob"] == (float | None)
 
 
 def test_i3_probabilities_are_the_normalised_posterior_means() -> None:

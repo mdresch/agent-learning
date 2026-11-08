@@ -9,7 +9,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from agent_learning import AuditReport, AuditStatus, LocalFileStore, audit_run
+from agent_learning import LocalFileStore
+from agent_learning_ext import AuditReport, AuditStatus, audit_run
 
 _EXIT_CODES = {
     AuditStatus.VERIFIED: 0,

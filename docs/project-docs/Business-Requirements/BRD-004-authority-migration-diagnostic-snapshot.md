@@ -1,7 +1,7 @@
 # BRD-004: Authority-Migration Diagnostic Snapshot and Docstring Alignment
 
 **Source ADR:** [ADR-004](../../adr/ADR-004-authority-migration-comparison-not-replay.md) — Accepted (2026-10-23), §3, §4.1, §4.2, §7
-**Status:** Approved (2026-10-23, Menno) — derived from an Accepted ADR's disclosed gap; adjudicated via `approve-brd` (robust utility 0.883, episode `ee36273a...`).
+**Status:** Approved (2026-10-23, Menno) — derived from an Accepted ADR's disclosed gap; adjudicated via `approve-brd` (robust utility 0.883, episode `ee36273a...`). Amended 2026-11-05 at Stage 16: BRU-004-05 and the two statements that required editing `types.py`, classified `amendment_log_entry` via `classify-diff-type` (robust utility 0.896, episode `a6216071...`) and accepted by Menno; Story 4.1 AC_4 and FDD-004 Design 3 were amended in the same change. Changes to this document go through Stage 16.
 **Stakeholders:** Menno (Sponsor/PM/maintainer). No separate Product Owner exists for this SDK; naming that rather than inventing one.
 
 ## Business Need
@@ -14,7 +14,7 @@ ADR-004 established two fundamental findings:
 2. **Diagnostic Snapshot Capture at Migration Time (§4.2):**
    Because the learned bandit is non-contextual, the complete representation of what the policy had learned at migration time is its softmax action probability distribution. At the exact instant of authority migration, the SDK must record a frozen, diagnostic `MigrationRecord` inside `PolicySnapshot.metadata`.
 3. **Docstring Defect in `types.py:130-132` (§3):**
-   The docstring for `Episode.context_features` currently claims it carries input "so the learner can replay the decision." This statement is materially incorrect and actively misleading: `SoftmaxPolicy` is non-contextual and never reads `context_features` during action selection, and no replay mechanism exists. This docstring must be aligned with actual system behavior.
+   The docstring for `Episode.context_features` currently claims it carries input "so the learner can replay the decision." This statement is materially incorrect and actively misleading: `SoftmaxPolicy` is non-contextual and never reads `context_features` during action selection, and no replay mechanism exists. The correction is recorded in ADR-004 §3. Microsoft's `types.py` is not edited in place (fork rule), so the docstring stays as Microsoft ships it and is superseded by that text.
 
 This BRD formalizes the requirements to persist diagnostic migration snapshots and align codebase documentation.
 
@@ -30,7 +30,7 @@ This BRD formalizes the requirements to persist diagnostic migration snapshots a
   `policy_id` is deliberately omitted as redundant with the enclosing `PolicySnapshot.id`.
 - **BRU-004-03**: Storage boundary discipline: `MigrationRecord` must be persisted exclusively within `PolicySnapshot.metadata` — it must never create a sixth `LearningStore` record type (ADR-002 §7 Invariant #2, ADR-004 §4.2).
 - **BRU-004-04**: No retroactive replay: the system must not attempt to re-evaluate historical `low`-authority episodes under `full` authority during or after migration (ADR-004 §4.1, §7 Invariant #1).
-- **BRU-004-05**: Docstring correction: `Episode.context_features` in `types.py` must be updated to accurately state that `context_features` provides caller-supplied context for reward shaping and observability, not for non-contextual bandit action selection or historical replay (ADR-004 §3).
+- **BRU-004-05**: Replay-claim correction (amended at Stage 16, 2026-11-05): the statement in Microsoft's `Episode.context_features` docstring that the learner can replay the decision is materially incorrect (ADR-004 §3). Because Microsoft's `types.py` is never edited in place (fork rule), the correction is recorded in ADR-004 §3: `context_features` provides caller-supplied context for reward shaping and observability, not for non-contextual bandit action selection or historical replay. `types.py` stays identical to the pinned upstream version.
 
 ## Stakeholder Success Metrics
 
@@ -38,7 +38,7 @@ This BRD formalizes the requirements to persist diagnostic migration snapshots a
 |---|---|
 | `task-policy-authority-set` creates a diagnostic `MigrationRecord` in `PolicySnapshot.metadata` | Not true today — migration is currently a silent metadata update with no snapshot (ADR-004 §3) |
 | Multiple authority transitions append records sequentially without overwriting earlier transitions | Not true today — no history array exists |
-| `Episode.context_features` docstring accurately describes actual behavior | Not true today — docstring claims non-existent replay capability (ADR-004 §3) |
+| `context_features` is described accurately in this project's documentation | Yes: ADR-004 §3. Microsoft's docstring still claims replay and stays unedited (fork rule) |
 
 ## Out of Scope
 

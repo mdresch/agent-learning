@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Sequence
 
-from .decision import DecisionResult
+from agent_learning_ext.decision import DecisionResult
 
 DEFAULT_EPSILON: float = 0.01
 

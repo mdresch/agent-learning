@@ -332,7 +332,6 @@ class DecisionResult:
     authorization_basis: str | None = None
     action_probabilities: Mapping[str, float] = field(default_factory=dict)
     action_logprob: float | None = None
-    audit_evidence: Mapping[str, Any] | None = None
 
     def to_dict(self) -> dict[str, object]:
         return {
@@ -352,7 +351,6 @@ class DecisionResult:
             "authorization_basis": self.authorization_basis,
             "action_probabilities": dict(self.action_probabilities),
             "action_logprob": self.action_logprob,
-            "audit_evidence": dict(self.audit_evidence) if self.audit_evidence is not None else None,
         }
 
     @classmethod
@@ -360,7 +358,6 @@ class DecisionResult:
         selected_action = data.get("selected_action")
         proposed_action = data.get("proposed_action")
         action_logprob = data.get("action_logprob")
-        audit_evidence = data.get("audit_evidence")
         try:
             status = DecisionStatus(data["status"])
         except KeyError as exc:
@@ -401,7 +398,6 @@ class DecisionResult:
             action_logprob=(
                 float(action_logprob) if action_logprob is not None else None
             ),
-            audit_evidence=audit_evidence,
         )
 
 
@@ -779,8 +775,6 @@ class DecisionResolver:
 
     @staticmethod
     def _requires_human_approval(snapshot: PolicySnapshot) -> bool:
-        if bool(snapshot.metadata.get("requires_human_approval")):
-            return True
         profile = snapshot.metadata.get("complexity_profile")
         return bool(isinstance(profile, dict) and profile.get("requires_human_approval"))
 
@@ -851,17 +845,6 @@ class DecisionResolver:
         )
 
 
-CAPTURE_DECISION_EVIDENCE_KEY = "capture_decision_evidence"
-AUDIT_EVIDENCE_REQUIRED_MESSAGE = (
-    "TaskPolicy requires non-empty audit_evidence when capture_decision_evidence is enabled"
-)
-
-
-def capture_decision_evidence_enabled(snapshot: PolicySnapshot) -> bool:
-    """Return the opt-in flag of a policy snapshot; absent or None means False (ADR-006)."""
-    return bool(snapshot.metadata.get(CAPTURE_DECISION_EVIDENCE_KEY) or False)
-
-
 class TaskPolicy:
     """One agent-task decision policy with reasoned and learned selection routes."""
 
@@ -871,7 +854,6 @@ class TaskPolicy:
         *,
         resolver: DecisionResolver | None = None,
         rng: random.Random | None = None,
-        capture_decision_evidence: bool | None = None,
     ) -> None:
         if len(snapshot.actions) < 2:
             raise ValueError("task policy requires at least two actions")
@@ -882,9 +864,6 @@ class TaskPolicy:
         except ValueError as exc:
             raise ValueError("decision_authority must be 'low' or 'full'") from exc
         self._snapshot = PolicySnapshot.from_dict(snapshot.to_dict())
-        if capture_decision_evidence is not None:
-            # An explicit value sets the opt-in flag; None leaves the stored value alone.
-            self._snapshot.metadata[CAPTURE_DECISION_EVIDENCE_KEY] = bool(capture_decision_evidence)
         self._resolver = resolver or DecisionResolver()
         self._rng = rng
 
@@ -897,7 +876,6 @@ class TaskPolicy:
         frame: DecisionFrame | None = None,
         *,
         selected_action_id: str | None = None,
-        audit_evidence: Mapping[str, Any] | None = None,
     ) -> DecisionResult:
         """Select through Bayesian resolution or the policy's learned logits."""
         if self.authority is DecisionAuthority.FULL:
@@ -908,10 +886,6 @@ class TaskPolicy:
             return self._resolver.resolve(self._snapshot, frame)
         if frame is not None:
             raise ValueError("low decision authority uses learned policy evidence, not a decision frame")
-        if capture_decision_evidence_enabled(self._snapshot) and (
-            not isinstance(audit_evidence, Mapping) or len(audit_evidence) == 0
-        ):
-            raise ValueError(AUDIT_EVIDENCE_REQUIRED_MESSAGE)
 
         policy = SoftmaxPolicy.from_snapshot(self.snapshot(), rng=self._rng)
         probabilities_list = policy.probabilities()
@@ -951,7 +925,6 @@ class TaskPolicy:
             candidate_actions=tuple(self._snapshot.actions),
             action_probabilities=probabilities,
             action_logprob=action_logprob,
-            audit_evidence=audit_evidence,
         )
 
     def adjudicate(
@@ -988,7 +961,6 @@ class TaskPolicy:
 
 
 __all__ = [
-    "CAPTURE_DECISION_EVIDENCE_KEY",
     "CriterionAssessment",
     "DecisionAuthority",
     "DecisionCriterion",
@@ -1002,5 +974,4 @@ __all__ = [
     "OptionAssessment",
     "TaskPolicy",
     "TieBreakDisposition",
-    "capture_decision_evidence_enabled",
 ]

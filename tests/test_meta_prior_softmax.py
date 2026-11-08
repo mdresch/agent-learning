@@ -215,7 +215,7 @@ def test_ac5_meta_prior_is_pure() -> None:
 
 
 def test_the_types_and_the_function_are_exported_from_the_package_root() -> None:
-    import agent_learning
+    import agent_learning_ext as agent_learning
 
     assert agent_learning.FamilyMember is FamilyMember
     assert agent_learning.MetaPrior is MetaPrior

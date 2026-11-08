@@ -1,0 +1,1004 @@
+{
+  "_comment": "Fingerprint of every approved ADR, BRD, FDD and epic file. A change to one goes through Stage 16 (ADR-007) and is recorded in its Status as `Amended <date> at Stage 16 ... episode `<id>``. Update this file only with scripts/governance_baseline.py, which checks that record against the episode store.",
+  "baseline_date": "2026-11-05",
+  "documents": {
+    "docs/adr/ADR-001-decision-authority-model.md": {
+      "family": "adr",
+      "status": "accepted",
+      "sha256": "8b100a8cff41bfe46af7a290c8d99d42acce1485fc3aa4595bd613988800a5aa",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/adr/ADR-002-storage-backend-strategy.md": {
+      "family": "adr",
+      "status": "accepted",
+      "sha256": "acb3345196eb380915837908a4abd82e6ebda21301ed594ca9561a7a0234244c",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/adr/ADR-003-evidence-gated-autonomy-thresholds.md": {
+      "family": "adr",
+      "status": "accepted",
+      "sha256": "c7315b5947aba7543a5f75cbdbf324137356aabd178bc13b4f450ca35ed54de0",
+      "approval_episode": "8dd3abc6",
+      "amendments": []
+    },
+    "docs/adr/ADR-004-authority-migration-comparison-not-replay.md": {
+      "family": "adr",
+      "status": "accepted",
+      "sha256": "de63edc7f53d2379c08c098672cef92d8e1ba7c0db4e525c94cac5880595c2ab",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/adr/ADR-005-decision-progress-comparison.md": {
+      "family": "adr",
+      "status": "accepted",
+      "sha256": "a942237da99c6f359779acd70763883727fc7efdc80de443e61316c0916bd2b3",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/adr/ADR-006-opt-in-lightweight-evidence-capture-for-low-authority.md": {
+      "family": "adr",
+      "status": "accepted",
+      "sha256": "5f573bcf2ecf7c6cf9de2280b12fcf0208b052c1039fc9bdd839211be6c90a00",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/adr/ADR-007-governance-change-paired-diff-classification-and-escalation.md": {
+      "family": "adr",
+      "status": "accepted",
+      "sha256": "3dd6b3f854035b2b2144ab9acec67adcb4f2d883fa94783480fc42c50103ec42",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/adr/ADR-008-pmbok-lifecycle-orchestration-and-pmp-adaptation-loop.md": {
+      "family": "adr",
+      "status": "accepted",
+      "sha256": "b1bde7eef4d9db97effd5dbdccfbb5794868e5df06c328587ac1852f18d35157",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/adr/ADR-009-intent-refinement-and-cognitive-feedback-loop.md": {
+      "family": "adr",
+      "status": "accepted",
+      "sha256": "410a6e20cd18938b612247892485daf0c73571cda54dd185dd869e4af8b2a829",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/adr/ADR-010-lessons-learned-crystallization-and-register.md": {
+      "family": "adr",
+      "status": "accepted",
+      "sha256": "d7eb57ad7f642dbbd4fd7525cf18b09635f7b48db1be6331dfc4e5f4f4570d33",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/adr/ADR-011-project-tailoring-and-route-decision.md": {
+      "family": "adr",
+      "status": "accepted",
+      "sha256": "3eb530b6c74c0d4f07a4e63c131a72e524d9fc3876ffc86313ff4f26284ac8e9",
+      "approval_episode": "6c76db96",
+      "amendments": []
+    },
+    "docs/adr/ADR-012-subsidiary-management-plan-standards-and-content-contracts.md": {
+      "family": "adr",
+      "status": "accepted",
+      "sha256": "f443d82d0b9113b3f25fbc03e5768ed09c552fb23143ff47b0119471ea51c64a",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/adr/ADR-013-subsidiary-plan-approval-gates-before-pmp-formalization.md": {
+      "family": "adr",
+      "status": "accepted",
+      "sha256": "8597caab3c31a76a74029a29eb3cb122fc7b1ac1b81d7cbde05afb2e25827ab7",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/adr/ADR-014-critique-to-evidence-ingestion.md": {
+      "family": "adr",
+      "status": "accepted",
+      "sha256": "5d7769569ca063b53db295ae71c8f9fad99895751458d4cab1879a53ec37ef35",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/adr/ADR-015-bayesian-bandit-posterior-sampling.md": {
+      "family": "adr",
+      "status": "accepted",
+      "sha256": "82559aab283abe82d82f905e5b498e241a73ea47052688feb6d859f5daeeafc6",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/adr/ADR-016-deterministic-ucb-decision-policy.md": {
+      "family": "adr",
+      "status": "accepted",
+      "sha256": "82d038513f22ec5cc395b96634ce8961038ee4c10909016ae5f36fe111cf0223",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/adr/ADR-017-scheduled-epsilon-greedy-policy.md": {
+      "family": "adr",
+      "status": "accepted",
+      "sha256": "7762abfcbfe12c15c794982d58dedce12d11dced521fbc9c7dc2df7238031625",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/adr/ADR-018-pairwise-preference-optimization.md": {
+      "family": "adr",
+      "status": "accepted",
+      "sha256": "e913a921f4a4fa2809635ac32bb7b1d123be15f9092031ee0c11ff8efcb5388a",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/adr/ADR-019-hierarchical-meta-prior-compilation.md": {
+      "family": "adr",
+      "status": "accepted",
+      "sha256": "730542822e6223edfba9bb25c33d4b088bc33cbb0607b6fce30b32a968a73bb9",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/adr/ADR-020-explicit-policy-prior-warm-starting.md": {
+      "family": "adr",
+      "status": "accepted",
+      "sha256": "a4c147a4dcbbaa6148ab0913348b2860328e79311d51ae054ef00b2731eaba7d",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/adr/ADR-021-contextual-authority-ensemble-routing.md": {
+      "family": "adr",
+      "status": "accepted",
+      "sha256": "f787a4e37d25f89945122ba9123cbe2eeb4a86e73b842fb5a121bbb8de0ee5f9",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/adr/ADR-022-scored-search-decision-compilation.md": {
+      "family": "adr",
+      "status": "accepted",
+      "sha256": "6db34018411b82f16de558e30ab063cfe81da23d73dcc43ed2d64ece8201bb6e",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/adr/ADR-023-active-dueling-bandit-ranking-engine.md": {
+      "family": "adr",
+      "status": "accepted",
+      "sha256": "7817e6bf55ad412a54799c9e0e113e4a6b677046fb17fe33e66840dafc5850a2",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/adr/ADR-024-learning-methodology-selection-chain.md": {
+      "family": "adr",
+      "status": "accepted",
+      "sha256": "d7ad941cc4038d9df7a5410f106fafbbb7bcf5872d2390bd2c0baa98f2974210",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/adr/ADR-025-scope-management-plan-standard-and-baseline-contract.md": {
+      "family": "adr",
+      "status": "accepted",
+      "sha256": "5027dab74e05ee17694973d220a2fa17ce541a9a3295216078f5d377dc713fa5",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/adr/ADR-026-schedule-management-plan-standard-and-baseline-contract.md": {
+      "family": "adr",
+      "status": "accepted",
+      "sha256": "9885fd9002cb370622d167e68684446eb2e7e8aaf0a2bd57c7cffe9d06e85bce",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/adr/ADR-027-cost-management-plan-standard-and-baseline-contract.md": {
+      "family": "adr",
+      "status": "accepted",
+      "sha256": "768340db277b719c92a9362f0262813833b7e16c24840bced4914bdac63bd903",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/adr/ADR-028-risk-management-plan-standard.md": {
+      "family": "adr",
+      "status": "accepted",
+      "sha256": "e15d29117b8eb3d241db93347f18df78d1fc4f0ee071b0af8cba45648b1e7834",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/adr/ADR-029-quality-management-plan-standard.md": {
+      "family": "adr",
+      "status": "accepted",
+      "sha256": "08414bc2d4bb16b50c7b869512a8ad1d1c5953e993da10bd1d48852a06857b27",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/adr/ADR-030-resource-management-plan-standard.md": {
+      "family": "adr",
+      "status": "accepted",
+      "sha256": "4d75142d8abf6c355f0ce86e73fbb3a95077e65e6579711c08af45aea9e8301d",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/adr/ADR-031-stakeholder-engagement-plan-standard.md": {
+      "family": "adr",
+      "status": "accepted",
+      "sha256": "90a34e68d7b674e1a4081c4a2fb6cd37a511a79fbfb842951ac2f6cf24e91176",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/adr/ADR-032-communications-management-plan-standard.md": {
+      "family": "adr",
+      "status": "accepted",
+      "sha256": "8fd2b227ec159082d95ef94da9c4e795f81148e8ce92476bfc4d4b7dfba06382",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/adr/ADR-033-procurement-management-plan-standard.md": {
+      "family": "adr",
+      "status": "accepted",
+      "sha256": "c56b421f970d99956b4d21654c10f0a6b2b84c319990ed21df63416010dd7b05",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/adr/ADR-034-pmbok-tooling-decommissioning-and-lightweight-learningstore-convergence.md": {
+      "family": "adr",
+      "status": "accepted",
+      "sha256": "d47a3ec9f6afc2214608ab1bf84407f40a6d916659573e58ddb55545689dfdf3",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/adr/ADR-035-cycle-identification-and-cross-cycle-artifact-traceability.md": {
+      "family": "adr",
+      "status": "accepted",
+      "sha256": "ee8ae6dcd5980a2056414dbc363079a81805509ba4eda4fbeba3a5fe3b7c9857",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/adr/ADR-036-learning-methodology-examples-ledger-and-review-triage-loop.md": {
+      "family": "adr",
+      "status": "accepted",
+      "sha256": "f3d9079071fab096510377c562399c31d1ea3a39e6d910932790231408e3c0b0",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/adr/ADR-037-design-time-baseline-feedback-loop.md": {
+      "family": "adr",
+      "status": "accepted",
+      "sha256": "d8d3fc826b13a1071d4affe40f5919c2c95636363f526deb424856559967bd96",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/adr/ADR-038-packaged-contextual-learning.md": {
+      "family": "adr",
+      "status": "accepted",
+      "sha256": "9cb01f845581e1b158cf768691926cbe208fa7c0f8c1988d2c80be678a4f9628",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/project-docs/Business-Requirements/BRD-001-reinforce-authority-boundary-enforcement.md": {
+      "family": "brd",
+      "status": "approved",
+      "sha256": "f4d85b82c4750b8e146307bc5b24cd2989ce425b9ba55034ad714aefd31d147c",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/project-docs/Business-Requirements/BRD-002-cosmos-active-policy-optimistic-concurrency.md": {
+      "family": "brd",
+      "status": "approved",
+      "sha256": "8b2c516739060374f2f23b409484fad934a6d32b1f46b66cddfd05d92353f407",
+      "approval_episode": "6820c1b5",
+      "amendments": []
+    },
+    "docs/project-docs/Business-Requirements/BRD-003-tier-specific-autonomy-overrides.md": {
+      "family": "brd",
+      "status": "approved",
+      "sha256": "aa74ca465747869420ec9388f336bd778f7b90338be371f3ff1543776fcfc92b",
+      "approval_episode": "d9c8a66b",
+      "amendments": []
+    },
+    "docs/project-docs/Business-Requirements/BRD-004-authority-migration-diagnostic-snapshot.md": {
+      "family": "brd",
+      "status": "approved",
+      "sha256": "d75508f1c5f428817e2b8e7b2f2648e7ed883325135e3c210b47310d6e6eeb9e",
+      "approval_episode": "ee36273a",
+      "amendments": [
+        {
+          "date": "2026-11-05",
+          "episode": "a6216071",
+          "stage": 16
+        }
+      ]
+    },
+    "docs/project-docs/Business-Requirements/BRD-006-opt-in-lightweight-evidence-capture-for-low-authority.md": {
+      "family": "brd",
+      "status": "approved",
+      "sha256": "69449b402c5623c1e2ee1b8947ddfaaa3352ac6d8b78fdbf842f919f6cd0ffd5",
+      "approval_episode": "4b7e2806",
+      "amendments": []
+    },
+    "docs/project-docs/Business-Requirements/BRD-009-intent-refinement-and-cognitive-feedback-loop.md": {
+      "family": "brd",
+      "status": "accepted",
+      "sha256": "31ba5660ac9dc3674116f5c93a910b08ae73b473ceeff3c6851b04a98cbb5a91",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/project-docs/Business-Requirements/BRD-010-lessons-learned-crystallization-and-register.md": {
+      "family": "brd",
+      "status": "approved",
+      "sha256": "8e1c8852770984b37f03da76bd7c0fde9bc93e0adc1eca4bebb825e478971f24",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/project-docs/Business-Requirements/BRD-011-project-tailoring-and-route-decision.md": {
+      "family": "brd",
+      "status": "approved",
+      "sha256": "9df0341a90d6405facda74d2b438d32bc89f7efa2be39c85777747778872c77f",
+      "approval_episode": "c460e297",
+      "amendments": []
+    },
+    "docs/project-docs/Business-Requirements/BRD-012-subsidiary-management-plan-standards-and-content-contracts.md": {
+      "family": "brd",
+      "status": "approved",
+      "sha256": "d1dadc9add7c42d387f2084d399e955509eba37106f2cdbbe36f7474c7eefcb3",
+      "approval_episode": "53722d17",
+      "amendments": []
+    },
+    "docs/project-docs/Business-Requirements/BRD-013-subsidiary-plan-approval-gates-before-pmp-formalization.md": {
+      "family": "brd",
+      "status": "approved",
+      "sha256": "b80ab1aec74d8acdb8b59d12a07458214cd5d49e6b3f278ccb1ec16bfd4db2d8",
+      "approval_episode": "76353af5",
+      "amendments": []
+    },
+    "docs/project-docs/Business-Requirements/BRD-014-critique-to-evidence-ingestion.md": {
+      "family": "brd",
+      "status": "approved",
+      "sha256": "d6631831b71a1ed481f4bcf4bfbc8932eade45cce57a6527b41c7f24a7be3631",
+      "approval_episode": "821c7e52",
+      "amendments": []
+    },
+    "docs/project-docs/Business-Requirements/BRD-015-bayesian-bandit-posterior-sampling.md": {
+      "family": "brd",
+      "status": "approved",
+      "sha256": "a488c89d27494c69ed944d6956c2f1d44acb1817c81b1bd1fc64ccc3fe173744",
+      "approval_episode": "4017d16c",
+      "amendments": []
+    },
+    "docs/project-docs/Business-Requirements/BRD-016-deterministic-ucb-decision-policy.md": {
+      "family": "brd",
+      "status": "approved",
+      "sha256": "92e861de530277b32ed563178c577630336ea7a155f99d260c543a704624419e",
+      "approval_episode": "fac58260",
+      "amendments": []
+    },
+    "docs/project-docs/Business-Requirements/BRD-017-scheduled-epsilon-greedy-policy.md": {
+      "family": "brd",
+      "status": "approved",
+      "sha256": "3324b025c605effa46566d1b2e27398c4def6179024d76ea96e30d49b702c3ae",
+      "approval_episode": "63a9fc4d",
+      "amendments": []
+    },
+    "docs/project-docs/Business-Requirements/BRD-018-pairwise-preference-optimization.md": {
+      "family": "brd",
+      "status": "approved",
+      "sha256": "e9278b97e1ac893cfd8525aab7846ff6d81cfe28641d04e260aa179e0dcce2ce",
+      "approval_episode": "1a8a82dc",
+      "amendments": []
+    },
+    "docs/project-docs/Business-Requirements/BRD-019-hierarchical-meta-prior-compilation.md": {
+      "family": "brd",
+      "status": "approved",
+      "sha256": "3bf457797bc0fcca3b0f3fc9a4e012b163c29102140843ed39aadf838a0e3d4e",
+      "approval_episode": "7c750fae",
+      "amendments": []
+    },
+    "docs/project-docs/Business-Requirements/BRD-020-explicit-policy-prior-warm-starting.md": {
+      "family": "brd",
+      "status": "approved",
+      "sha256": "6c9a4ed9362a5f15e685a04fc9cadbfa6a75e2b12a8fc8ee4531108410c73cfa",
+      "approval_episode": "a16c1f37",
+      "amendments": []
+    },
+    "docs/project-docs/Business-Requirements/BRD-021-contextual-authority-ensemble-routing.md": {
+      "family": "brd",
+      "status": "approved",
+      "sha256": "3b8cd85f5e4b3dde0e90226dd9eca13fea019a1df17fecf5e0e0e4295abe085e",
+      "approval_episode": "f7d8b1b7",
+      "amendments": []
+    },
+    "docs/project-docs/Business-Requirements/BRD-022-scored-search-decision-configuration-compilation.md": {
+      "family": "brd",
+      "status": "approved",
+      "sha256": "e9c2b93907b6d6c18fd11f9f53490968e2ff37bd200de713772a5071a0d667d1",
+      "approval_episode": "29259b94",
+      "amendments": []
+    },
+    "docs/project-docs/Business-Requirements/BRD-025-scope-management-plan-standard-and-baseline-contract.md": {
+      "family": "brd",
+      "status": "approved",
+      "sha256": "d27534093484fb704a87b762cd6c570ba5fbc5b9afd81acd97f93375c2a7ebf8",
+      "approval_episode": "78ec7505",
+      "amendments": []
+    },
+    "docs/project-docs/Business-Requirements/BRD-026-schedule-management-plan-standard-and-baseline-contract.md": {
+      "family": "brd",
+      "status": "approved",
+      "sha256": "4e69a5bae362d3fc60686382380f0a57d67ad57fe9e6719e453bbde3b07ce824",
+      "approval_episode": "6f500ffb",
+      "amendments": []
+    },
+    "docs/project-docs/Business-Requirements/BRD-027-cost-management-plan-standard-and-baseline-contract.md": {
+      "family": "brd",
+      "status": "approved",
+      "sha256": "4e2daf6c206965bcd6a974cfc66b090c5a8a34843bcdc29eed2aca045f569e8e",
+      "approval_episode": "e870c2c1",
+      "amendments": []
+    },
+    "docs/project-docs/Business-Requirements/BRD-028-risk-management-plan-standard.md": {
+      "family": "brd",
+      "status": "approved",
+      "sha256": "85a87eeddb64e7a549bf6f89b838979fb62cb4e984364d3dfd1474ba5568f25c",
+      "approval_episode": "fcb319f9",
+      "amendments": []
+    },
+    "docs/project-docs/Business-Requirements/BRD-029-quality-management-plan-standard.md": {
+      "family": "brd",
+      "status": "approved",
+      "sha256": "fa556224a4b6026a085dc7d7b45d3e9e546d6821a168a9cbf01b18a04287bda7",
+      "approval_episode": "009851b2",
+      "amendments": []
+    },
+    "docs/project-docs/Business-Requirements/BRD-030-resource-management-plan-standard.md": {
+      "family": "brd",
+      "status": "approved",
+      "sha256": "8861160a3536110deefa606577e1c4d9cd9662e4a13d00214bcb6eeba212be55",
+      "approval_episode": "6da696cf",
+      "amendments": []
+    },
+    "docs/project-docs/Business-Requirements/BRD-031-stakeholder-engagement-plan-standard.md": {
+      "family": "brd",
+      "status": "approved",
+      "sha256": "84add77876be2a40e20668585e89c4d0cac8a4d12915138389c95d6e13b08e3d",
+      "approval_episode": "f2592a73",
+      "amendments": []
+    },
+    "docs/project-docs/Business-Requirements/BRD-032-communications-management-plan-standard.md": {
+      "family": "brd",
+      "status": "approved",
+      "sha256": "2841c426c93456fb2e75dfe1e3076817f0278747dc1fa8d51b3e1809df1070e9",
+      "approval_episode": "75af2055",
+      "amendments": []
+    },
+    "docs/project-docs/Business-Requirements/BRD-033-procurement-management-plan-standard.md": {
+      "family": "brd",
+      "status": "approved",
+      "sha256": "6725ee640d932859b994db5bbd19f40bc31c30d8450c00a3805d40aed4b8840e",
+      "approval_episode": "05e3d9be",
+      "amendments": []
+    },
+    "docs/project-docs/Business-Requirements/BRD-034-pmbok-tooling-decommissioning-and-lightweight-learningstore-convergence.md": {
+      "family": "brd",
+      "status": "approved",
+      "sha256": "40e7484c6f0a8c21516c85221caa1816f9db9bd4e2b0f5c06d1631bee883ca2a",
+      "approval_episode": "aaedbb4e",
+      "amendments": []
+    },
+    "docs/project-docs/Business-Requirements/BRD-035-cycle-identification-and-cross-cycle-artifact-traceability.md": {
+      "family": "brd",
+      "status": "approved",
+      "sha256": "cb37cbc7f6420960f0d65a4c87e8209f31baedcfdbe30ab5512fc22c4b78169f",
+      "approval_episode": "572c3556",
+      "amendments": []
+    },
+    "docs/project-docs/Business-Requirements/BRD-036-learning-methodology-examples-ledger-and-review-triage-loop.md": {
+      "family": "brd",
+      "status": "approved",
+      "sha256": "29bdea0b281737c7c2d0fbf08b173c812bc1375038378a031c4026f419b1f924",
+      "approval_episode": "d3e5e596",
+      "amendments": []
+    },
+    "docs/project-docs/Business-Requirements/BRD-037-design-time-baseline-feedback-loop.md": {
+      "family": "brd",
+      "status": "approved",
+      "sha256": "301e312c83179de4b95e6e507d508199eb3fc973ce5969924ef397d01c68b2d0",
+      "approval_episode": "edee6d79",
+      "amendments": []
+    },
+    "docs/project-docs/Business-Requirements/BRD-038-packaged-contextual-learning.md": {
+      "family": "brd",
+      "status": "approved",
+      "sha256": "fcf8f312f436bdc4742735cf1b8ce7669792f2f26b93d09a8142b12597a19ac6",
+      "approval_episode": "c61347e0",
+      "amendments": []
+    },
+    "docs/project-docs/Functional-Design/FDD-001-reinforce-authority-boundary-enforcement.md": {
+      "family": "fdd",
+      "status": "approved",
+      "sha256": "0e3f7cf54883cf275061fd25730dc4575c38b3616c0796c71e5d99a46189754b",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/project-docs/Functional-Design/FDD-002-cosmos-active-policy-optimistic-concurrency.md": {
+      "family": "fdd",
+      "status": "approved",
+      "sha256": "4363a03ced816b0e765314c7e18ffae3429b38532c59269352c767e2370d3a0c",
+      "approval_episode": "7c938899",
+      "amendments": []
+    },
+    "docs/project-docs/Functional-Design/FDD-003-tier-specific-autonomy-overrides.md": {
+      "family": "fdd",
+      "status": "approved",
+      "sha256": "5bfd1a06f87deeb2e9a5e0a65e016f6df9ac2d381ffc437a62cc88823cc254f9",
+      "approval_episode": "1686efdb",
+      "amendments": []
+    },
+    "docs/project-docs/Functional-Design/FDD-004-authority-migration-diagnostic-snapshot.md": {
+      "family": "fdd",
+      "status": "approved",
+      "sha256": "4310f3a6d9ea7ca90d64e6d9cad6fc33d53c3b5fd11e13c8dcd6e6b9983ea81d",
+      "approval_episode": "2bb6e21c",
+      "amendments": [
+        {
+          "date": "2026-11-05",
+          "episode": "2516ec2e",
+          "stage": 16
+        }
+      ]
+    },
+    "docs/project-docs/Functional-Design/FDD-006-opt-in-lightweight-evidence-capture-for-low-authority.md": {
+      "family": "fdd",
+      "status": "approved",
+      "sha256": "cb123bfdcce84bca926407071d7f9653c56c636bbfee93fa06c3c20155858eb9",
+      "approval_episode": "e018b727",
+      "amendments": []
+    },
+    "docs/project-docs/Functional-Design/FDD-009-intent-refinement-and-cognitive-feedback-loop.md": {
+      "family": "fdd",
+      "status": "accepted",
+      "sha256": "611f9f2abb230e10f278e364926bf6abdd642881283d31ac3cc50b6abcc99dfd",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/project-docs/Functional-Design/FDD-010-lessons-learned-crystallization-and-register.md": {
+      "family": "fdd",
+      "status": "approved",
+      "sha256": "da6579c45ad04ba9e2bf0186fab63c7589d7f754393db88e5a51914c812bff26",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/project-docs/Functional-Design/FDD-011-project-tailoring-and-route-decision.md": {
+      "family": "fdd",
+      "status": "approved",
+      "sha256": "f42d093f771b638057b5bf6975bde84645eb3fd1444c7e893d2ba689faab1962",
+      "approval_episode": "21d26da7",
+      "amendments": []
+    },
+    "docs/project-docs/Functional-Design/FDD-012-subsidiary-management-plan-standards-and-content-contracts.md": {
+      "family": "fdd",
+      "status": "approved",
+      "sha256": "56fd52481a5bcf4ac0d8fa9e6462cb91b93ddb5844b22edb3c0d6c013c7f16d6",
+      "approval_episode": "efd38564",
+      "amendments": []
+    },
+    "docs/project-docs/Functional-Design/FDD-013-subsidiary-plan-approval-gates-before-pmp-formalization.md": {
+      "family": "fdd",
+      "status": "approved",
+      "sha256": "92ca4e071e995f6fb36a64c50c9498ec81daf47f6d4f224fb9693dd09bba6546",
+      "approval_episode": "bda74e1b",
+      "amendments": []
+    },
+    "docs/project-docs/Functional-Design/FDD-014-critique-to-evidence-ingestion.md": {
+      "family": "fdd",
+      "status": "approved",
+      "sha256": "c39fa05863aaa16d836681fe76426f75cf2bdb8138d78686bbb7ba6a836e2b05",
+      "approval_episode": "d3157763",
+      "amendments": []
+    },
+    "docs/project-docs/Functional-Design/FDD-015-bayesian-bandit-posterior-sampling.md": {
+      "family": "fdd",
+      "status": "approved",
+      "sha256": "33d362303d11350a7b44f134c3c2e13f9aa5bf51dd6d8ac604295630466fb408",
+      "approval_episode": "166b1b67",
+      "amendments": []
+    },
+    "docs/project-docs/Functional-Design/FDD-016-deterministic-ucb-decision-policy.md": {
+      "family": "fdd",
+      "status": "approved",
+      "sha256": "45a269534dd6e9f53e04b78dce739311b67c3a7d8e4b2402ecc4ffdfff7be0c1",
+      "approval_episode": "ea37755a",
+      "amendments": []
+    },
+    "docs/project-docs/Functional-Design/FDD-017-scheduled-epsilon-greedy-policy.md": {
+      "family": "fdd",
+      "status": "approved",
+      "sha256": "9faeec4986217e5cd273e1e5ff852df4b689b46b060fee4e1d5a58f1a8e3c51c",
+      "approval_episode": "956b167a",
+      "amendments": []
+    },
+    "docs/project-docs/Functional-Design/FDD-018-pairwise-preference-optimization.md": {
+      "family": "fdd",
+      "status": "approved",
+      "sha256": "58eb3b44b2b0a8ef31232029e661699b35c0addf87df674e6daf432e19074aca",
+      "approval_episode": "4c3037cb",
+      "amendments": []
+    },
+    "docs/project-docs/Functional-Design/FDD-019-hierarchical-meta-prior-compilation.md": {
+      "family": "fdd",
+      "status": "approved",
+      "sha256": "24cb73c7fe8317a0c7f329c3e46c17e4565d0f70286c8a9b76355e0aca21b81a",
+      "approval_episode": "36384424",
+      "amendments": []
+    },
+    "docs/project-docs/Functional-Design/FDD-020-explicit-policy-prior-warm-starting.md": {
+      "family": "fdd",
+      "status": "approved",
+      "sha256": "38430b4e08c1b43c78b6089d5e1cbff29de4c14b4ccfefdb5c6c4218b29905d3",
+      "approval_episode": "50914a5d",
+      "amendments": []
+    },
+    "docs/project-docs/Functional-Design/FDD-021-contextual-authority-ensemble-routing.md": {
+      "family": "fdd",
+      "status": "approved",
+      "sha256": "1597f27b0912aa481d174d79d510cb20a6537b44690eb6ea139a51074aa91d25",
+      "approval_episode": "46c77417",
+      "amendments": []
+    },
+    "docs/project-docs/Functional-Design/FDD-022-scored-search-decision-configuration-compilation.md": {
+      "family": "fdd",
+      "status": "approved",
+      "sha256": "ae9a84926e7a73164d14d7041a2723e006c9f9543eb967e67f2189ad5e6953ac",
+      "approval_episode": "c8b4a59f",
+      "amendments": []
+    },
+    "docs/project-docs/Functional-Design/FDD-025-scope-management-plan-standard-and-baseline-contract.md": {
+      "family": "fdd",
+      "status": "approved",
+      "sha256": "36bd417e91361f4be0c9070e9c7d925e59e06d429f38e266006909b2232860a8",
+      "approval_episode": "c59be18e",
+      "amendments": []
+    },
+    "docs/project-docs/Functional-Design/FDD-026-schedule-management-plan-standard-and-baseline-contract.md": {
+      "family": "fdd",
+      "status": "approved",
+      "sha256": "63f1c6c03ae7bb09d2499f4bf430e376b3081cdeed30a9fac1a0ac09d8b40c00",
+      "approval_episode": "50155fa8",
+      "amendments": []
+    },
+    "docs/project-docs/Functional-Design/FDD-027-cost-management-plan-standard-and-baseline-contract.md": {
+      "family": "fdd",
+      "status": "approved",
+      "sha256": "64518f024b0a8c211b22da048bf7a7d872b9b9d1305184be8b209eaee3965186",
+      "approval_episode": "85195db2",
+      "amendments": []
+    },
+    "docs/project-docs/Functional-Design/FDD-028-risk-management-plan-standard.md": {
+      "family": "fdd",
+      "status": "approved",
+      "sha256": "033a6f4b8d8c967113a95605c519f1070580e2dfa7a8c29181a7b1049c79ebb5",
+      "approval_episode": "ce184e87",
+      "amendments": []
+    },
+    "docs/project-docs/Functional-Design/FDD-029-quality-management-plan-standard.md": {
+      "family": "fdd",
+      "status": "approved",
+      "sha256": "6de548a2aca2c635a42999b9f15d1008d20a1eac7dca350522d70a86874a599c",
+      "approval_episode": "d191d9d0",
+      "amendments": []
+    },
+    "docs/project-docs/Functional-Design/FDD-030-resource-management-plan-standard.md": {
+      "family": "fdd",
+      "status": "approved",
+      "sha256": "2ef0f9a24e3ffd025ac9cddd3a3f9102c7a95a716f69ad1b72efaf9bcd0931b1",
+      "approval_episode": "9f9ec26b",
+      "amendments": []
+    },
+    "docs/project-docs/Functional-Design/FDD-031-stakeholder-engagement-plan-standard.md": {
+      "family": "fdd",
+      "status": "approved",
+      "sha256": "41a83ae3c7d40516e70c3531d72ec93d391b5d0b9526c708a413d9d8804cf90b",
+      "approval_episode": "77093bb8",
+      "amendments": []
+    },
+    "docs/project-docs/Functional-Design/FDD-032-communications-management-plan-standard.md": {
+      "family": "fdd",
+      "status": "approved",
+      "sha256": "5ef5a2396234de043ffc7b39da1df4a655cda1af06e5d7bfbaaece2553c6138d",
+      "approval_episode": "70229651",
+      "amendments": []
+    },
+    "docs/project-docs/Functional-Design/FDD-033-procurement-management-plan-standard.md": {
+      "family": "fdd",
+      "status": "approved",
+      "sha256": "c58c1482f7e1bd51688e0d5906cafbbd3cb51fc777f27054a49356eb1256d092",
+      "approval_episode": "c9fab544",
+      "amendments": []
+    },
+    "docs/project-docs/Functional-Design/FDD-034-pmbok-tooling-decommissioning-and-lightweight-learningstore-convergence.md": {
+      "family": "fdd",
+      "status": "approved",
+      "sha256": "a188bf0c3b9ee8023914f1caadda0c0091082d319f406b7f12a1ca88a16ba521",
+      "approval_episode": "1b234e07",
+      "amendments": []
+    },
+    "docs/project-docs/Functional-Design/FDD-035-cycle-identification-and-cross-cycle-artifact-traceability.md": {
+      "family": "fdd",
+      "status": "approved",
+      "sha256": "026dd49c05beb98c76abd857b1a5193e5f1c705f2ca8025b4b24310533c0661d",
+      "approval_episode": "27bfc646",
+      "amendments": []
+    },
+    "docs/project-docs/Functional-Design/FDD-036-learning-methodology-examples-ledger-and-review-triage-loop.md": {
+      "family": "fdd",
+      "status": "approved",
+      "sha256": "970d11914911b5b46ed3bbe323c78e4785c1801e4bcc4541e3baff768f5731a9",
+      "approval_episode": "4f0e2583",
+      "amendments": []
+    },
+    "docs/project-docs/Functional-Design/FDD-037-design-time-baseline-feedback-loop.md": {
+      "family": "fdd",
+      "status": "approved",
+      "sha256": "c87b8e60639716e0e1e768fbcf551c0ac5395b7f5d7c9d0a7c98d00b403a092f",
+      "approval_episode": "df57a4c8",
+      "amendments": []
+    },
+    "docs/project-docs/Functional-Design/FDD-038-packaged-contextual-learning.md": {
+      "family": "fdd",
+      "status": "approved",
+      "sha256": "cc6d005cdb46b6a1e139bed53b7c31853f34267e249e6a384cc4354c005f66ff",
+      "approval_episode": "3e68b518",
+      "amendments": []
+    },
+    "docs/user-stories/epic-1-decision-authority-enforcement.md": {
+      "family": "story",
+      "status": "completed",
+      "sha256": "bde8d9d59e53cf173a971bf376d6abb0f6055ae099cb8d617ec7be8b9965b8a1",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/user-stories/epic-10-lessons-learned-crystallization-and-register.md": {
+      "family": "story",
+      "status": "completed",
+      "sha256": "67d44b18d8c5e23294f4f957ec6af315ad7dd71ffc91729b1a3059521d20d0fe",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/user-stories/epic-11-project-tailoring-and-route-decision.md": {
+      "family": "story",
+      "status": "approved",
+      "sha256": "336a53f71dd95f7405196cc16b6ff016acb16536176ddf6e32437834ae29db8d",
+      "approval_episode": "2782c8e3",
+      "amendments": []
+    },
+    "docs/user-stories/epic-12-subsidiary-management-plan-standards-and-content-contracts.md": {
+      "family": "story",
+      "status": "approved",
+      "sha256": "7469f8ce424dd23d648613ade9857d729e48fe389172fcc7273e23f9ea6ec236",
+      "approval_episode": "d90bceb7",
+      "amendments": []
+    },
+    "docs/user-stories/epic-13-subsidiary-plan-approval-gates-before-pmp-formalization.md": {
+      "family": "story",
+      "status": "approved",
+      "sha256": "53e48470c7ecb2e8bd2d2dd45a0c4482e2f76d4d9abb699d171ada556e2b1c0c",
+      "approval_episode": "6f9c55a8",
+      "amendments": []
+    },
+    "docs/user-stories/epic-14-critique-to-evidence-ingestion.md": {
+      "family": "story",
+      "status": "approved",
+      "sha256": "8eb3d17049e2bc697c4c666d44021b0824cb3a2f2508dbffa365e6deaeb2f141",
+      "approval_episode": "bd32d840",
+      "amendments": []
+    },
+    "docs/user-stories/epic-15-bayesian-bandit-posterior-sampling.md": {
+      "family": "story",
+      "status": "approved",
+      "sha256": "8fb10d3797c6aa4700a5e01b3849c90be92c5716d5b443c65e3908caae52fd33",
+      "approval_episode": "8080a56f",
+      "amendments": []
+    },
+    "docs/user-stories/epic-16-deterministic-ucb-decision-policy.md": {
+      "family": "story",
+      "status": "approved",
+      "sha256": "7ccd9cf5cd6d8454d308a5bc2a2cb1165f145a9c7aa4549735edefd48dfacd17",
+      "approval_episode": "7a3c966d",
+      "amendments": []
+    },
+    "docs/user-stories/epic-17-scheduled-epsilon-greedy-policy.md": {
+      "family": "story",
+      "status": "approved",
+      "sha256": "9f722f5e1d3b7b1e0b2b2aee4e5c76bb189b5bdb361b7da758b45a867490239d",
+      "approval_episode": "4e6a04e1",
+      "amendments": []
+    },
+    "docs/user-stories/epic-18-pairwise-preference-optimization.md": {
+      "family": "story",
+      "status": "approved",
+      "sha256": "2bcc3f0894fef38272c8ff198b94849ff613773084199eca0f245aa4244f23fe",
+      "approval_episode": "42460cf3",
+      "amendments": []
+    },
+    "docs/user-stories/epic-19-hierarchical-meta-prior-compilation.md": {
+      "family": "story",
+      "status": "approved",
+      "sha256": "2babf8018fc65852ff1e6b9c6f0a21eedfea0a56f04d77f064be3a440c51d308",
+      "approval_episode": "13fbf581",
+      "amendments": []
+    },
+    "docs/user-stories/epic-2-cosmos-active-policy-optimistic-concurrency.md": {
+      "family": "story",
+      "status": "completed",
+      "sha256": "86fe1572d356822be334925babd0ba7ff3ef93cc8c746de81c396cd71f1a12a4",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/user-stories/epic-20-explicit-policy-prior-warm-starting.md": {
+      "family": "story",
+      "status": "approved",
+      "sha256": "75f5e23b50a4dee11263a7829fe21c379e059ed6ec6ca49f5a313ae89c71adde",
+      "approval_episode": "9d327883",
+      "amendments": []
+    },
+    "docs/user-stories/epic-21-contextual-authority-ensemble-routing.md": {
+      "family": "story",
+      "status": "approved",
+      "sha256": "1ce6cbe1b72aac8561cfdac7e81738c4c82f4151ed2c1b61ddee73168a745e81",
+      "approval_episode": "5a905107",
+      "amendments": []
+    },
+    "docs/user-stories/epic-22-scored-search-decision-configuration-compilation.md": {
+      "family": "story",
+      "status": "approved",
+      "sha256": "f1af1655516376c796871c3bae29ea6542948eb02d267f7dd900bc15d0e7bcd8",
+      "approval_episode": "cc1804ea",
+      "amendments": []
+    },
+    "docs/user-stories/epic-25-scope-management-plan-standard-and-baseline-contract.md": {
+      "family": "story",
+      "status": "approved",
+      "sha256": "55493802680c855112991edfdd89a9c8b5ccac157ca6a14140b6d6445fa50d03",
+      "approval_episode": "d33834f1",
+      "amendments": []
+    },
+    "docs/user-stories/epic-26-schedule-management-plan-standard-and-baseline-contract.md": {
+      "family": "story",
+      "status": "approved",
+      "sha256": "475a913926ba838a73f295ed71c031298ad2843115ec2e1096481e3850fbb046",
+      "approval_episode": "d95c487e",
+      "amendments": []
+    },
+    "docs/user-stories/epic-27-cost-management-plan-standard-and-baseline-contract.md": {
+      "family": "story",
+      "status": "approved",
+      "sha256": "1088f9880a893932edb87347e4f457152f3ad821ceaa22a5c86a2f1776675918",
+      "approval_episode": "a487f349",
+      "amendments": []
+    },
+    "docs/user-stories/epic-28-risk-management-plan-standard.md": {
+      "family": "story",
+      "status": "approved",
+      "sha256": "49544b524f7ea643c07123fd0deeca2d54597f67c0269c6b878b45bcd7d2ae0d",
+      "approval_episode": "3ae2aa80",
+      "amendments": []
+    },
+    "docs/user-stories/epic-29-quality-management-plan-standard.md": {
+      "family": "story",
+      "status": "approved",
+      "sha256": "909cd77a5a18c3ba1d7afaee1fb2b57182a5f904c07543118cb95bc03db10d4f",
+      "approval_episode": "cf56f558",
+      "amendments": []
+    },
+    "docs/user-stories/epic-3-tier-specific-autonomy-overrides.md": {
+      "family": "story",
+      "status": "approved",
+      "sha256": "7eb6b325009cfaa95fd44b95e29e3cb796a809a181903f8b91953f28cfd3a14b",
+      "approval_episode": "9e0b9639",
+      "amendments": []
+    },
+    "docs/user-stories/epic-30-resource-management-plan-standard.md": {
+      "family": "story",
+      "status": "approved",
+      "sha256": "de23f8e7fa3f5b731f8800a2cc2d1e0f8c2b37a307d663bceb891798aef1f320",
+      "approval_episode": "742976ba",
+      "amendments": []
+    },
+    "docs/user-stories/epic-31-stakeholder-engagement-plan-standard.md": {
+      "family": "story",
+      "status": "approved",
+      "sha256": "388a712619804dc35f4f8a583aba8f8332c6daccecf611645e5161b3bb481c97",
+      "approval_episode": "abe0a61f",
+      "amendments": []
+    },
+    "docs/user-stories/epic-32-communications-management-plan-standard.md": {
+      "family": "story",
+      "status": "approved",
+      "sha256": "ad36f8ed7b256062204fbc16b7063d9ddd0a5d93bc588a0686d6357acf31eb8f",
+      "approval_episode": "3ed0f25e",
+      "amendments": []
+    },
+    "docs/user-stories/epic-33-procurement-management-plan-standard.md": {
+      "family": "story",
+      "status": "approved",
+      "sha256": "ff1fe354c245762fd4abf0af74ab80f778e6dfce97bc4a770ab788d7ab5b3684",
+      "approval_episode": "cb743658",
+      "amendments": []
+    },
+    "docs/user-stories/epic-34-pmbok-tooling-decommissioning-and-lightweight-learningstore-convergence.md": {
+      "family": "story",
+      "status": "approved",
+      "sha256": "ffaab9baf23c599410b1d7ecf82fcbfcec764276aa41fc75771cbb6e47de868d",
+      "approval_episode": "dd78f67b",
+      "amendments": []
+    },
+    "docs/user-stories/epic-35-cycle-identification-and-cross-cycle-artifact-traceability.md": {
+      "family": "story",
+      "status": "approved",
+      "sha256": "485b977882c0a748778e0b808bbedcdeb8be5ef23cb8c9e26dec11541d3fbad5",
+      "approval_episode": "16bb54c2",
+      "amendments": []
+    },
+    "docs/user-stories/epic-36-learning-methodology-examples-ledger-and-review-triage-loop.md": {
+      "family": "story",
+      "status": "approved",
+      "sha256": "a6cc2f15bb36766bddb7a58b5396654f5b7addc80c9ec3502b87d6f798c28906",
+      "approval_episode": "80fe8a45",
+      "amendments": []
+    },
+    "docs/user-stories/epic-37-design-time-baseline-feedback-loop.md": {
+      "family": "story",
+      "status": "approved",
+      "sha256": "5f210ced73feaa2db878e1fb725e77a8ed2c684539666a851abac319306a0458",
+      "approval_episode": "40cca3f4",
+      "amendments": []
+    },
+    "docs/user-stories/epic-38-packaged-contextual-learning.md": {
+      "family": "story",
+      "status": "approved",
+      "sha256": "9600731b32b1e0e749cc25f28721db5285ec07fe021f8c9788b60f4c758bd540",
+      "approval_episode": "3da3bcdf",
+      "amendments": []
+    },
+    "docs/user-stories/epic-4-authority-migration-diagnostic-snapshot.md": {
+      "family": "story",
+      "status": "approved",
+      "sha256": "37c9a3f32f2450213d1815e0116fea8114c35711f601c19fb4fd2caaf05fd89e",
+      "approval_episode": "fb2fab25",
+      "amendments": [
+        {
+          "date": "2026-11-05",
+          "episode": "47c99634",
+          "stage": 16
+        }
+      ]
+    },
+    "docs/user-stories/epic-5-decision-progress-comparison.md": {
+      "family": "story",
+      "status": "completed",
+      "sha256": "b8ec14895eaf7f692516d946689914294bb53fa67287e4c2eddc776dd2da8936",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/user-stories/epic-6-opt-in-lightweight-evidence-capture-for-low-authority.md": {
+      "family": "story",
+      "status": "approved",
+      "sha256": "1bb1086d93000eaf08119f6bd12551cb3e6dd55f1bcd0fec0c772f6d99734c60",
+      "approval_episode": "206bf95d",
+      "amendments": []
+    },
+    "docs/user-stories/epic-7-governance-change-paired-diff-classification-and-escalation.md": {
+      "family": "story",
+      "status": "completed",
+      "sha256": "f48c9430cd14b54b148baaa9d8641b174611b3a9853de16870dfb1b0f25790b7",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/user-stories/epic-8-pmbok-lifecycle-orchestration-and-pmp-adaptation-loop.md": {
+      "family": "story",
+      "status": "superseded",
+      "sha256": "1b7c03795a6d2128d3ff039599cbb66161043a2b0158ce1fb8451b22538ffbd3",
+      "approval_episode": null,
+      "amendments": []
+    },
+    "docs/user-stories/epic-9-intent-refinement-and-cognitive-feedback-loop.md": {
+      "family": "story",
+      "status": "completed",
+      "sha256": "8abafbc1777f4084d21be3096486e2fd6758714ebc457e33ad183225a9478aaf",
+      "approval_episode": null,
+      "amendments": []
+    }
+  }
+}

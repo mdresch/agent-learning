@@ -13,9 +13,9 @@ import json
 from pathlib import Path
 import pytest
 
-from agent_learning import DecisionResult
+from agent_learning_ext import DecisionResult
 from agent_learning.comparison import ClassificationType, PairwiseComparison
-from agent_learning.decision import (
+from agent_learning_ext.decision import (
     Action,
     DecisionAuthority,
     DecisionFrame,

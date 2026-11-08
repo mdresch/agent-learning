@@ -11,7 +11,7 @@ from enum import Enum
 from typing import Any, Mapping, Sequence
 
 from .comparison import ClassificationType, PairwiseComparison, compare_decision_results
-from .decision import (
+from agent_learning_ext.decision import (
     Action,
     DecisionAuthority,
     DecisionFrame,

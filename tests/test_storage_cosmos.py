@@ -16,7 +16,7 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 import pytest
 from agent_learning.config import CosmosConfig
-from agent_learning.storage.cosmos import (
+from agent_learning_ext.storage.cosmos import (
     CosmosAccessConditionFailedError,
     CosmosResourceExistsError,
     CosmosResourceNotFoundError,

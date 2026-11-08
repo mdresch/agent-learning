@@ -15,22 +15,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from agent_learning import (
-    Action,
-    AuditStatus,
-    Episode,
-    LearnerConfig,
-    LearningRunner,
-    LocalFileStore,
-    MetricName,
-    MetricResult,
-    RewardShaper,
-    RewardWriter,
-    ShapingConfig,
-    SoftmaxPolicy,
-    ToolCall,
-    audit_run,
-)
+from agent_learning import Action, Episode, LearnerConfig, LocalFileStore, MetricName, MetricResult, RewardShaper, RewardWriter, ShapingConfig, SoftmaxPolicy, ToolCall
+from agent_learning_ext import AuditStatus, LearningRunner, audit_run
 
 
 def create_demo(root: Path) -> dict[str, object]:

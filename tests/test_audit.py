@@ -14,12 +14,12 @@ from typing import Any
 
 import pytest
 
-from agent_learning import AuditStatus, audit_run
+from agent_learning_ext import AuditStatus, audit_run
 from agent_learning.config import LearnerConfig
-from agent_learning.learners import ReinforceLearner
+from agent_learning_ext.learners.reinforce import ReinforceLearner
 from agent_learning.policy import SoftmaxPolicy
 from agent_learning.storage import CosmosStore, InMemoryStore, LocalFileStore
-from agent_learning.training import LearningRunner
+from agent_learning_ext.training import LearningRunner
 from agent_learning.types import (
     Action,
     ConsumedInput,
@@ -97,7 +97,7 @@ def test_fresh_process_replay_after_rescore_is_read_only(
     env["AGENT_LEARNING_SCORE_TIER"] = "llm"
     env["AGENT_LEARNING_STORE_BACKEND"] = "cosmos"
     script = (
-        "import json,sys; from agent_learning import audit_run,LocalFileStore; "
+        "import json,sys; from agent_learning import LocalFileStore; from agent_learning_ext import audit_run; "
         "print(json.dumps(audit_run(LocalFileStore(sys.argv[1]),'agent',sys.argv[2]).to_dict(),allow_nan=False))"
     )
     result = subprocess.run(
@@ -328,7 +328,7 @@ def test_ac_3_and_4_audit_attribute_full_authority_warning_and_exclusion(
     store, run = trained
     policy_before = store.get_policy(run.policy_id, "agent")
     assert policy_before is not None
-    from agent_learning.audit import AuditReport, _attribute, _configuration, _projection
+    from agent_learning_ext.audit import AuditReport, _attribute, _configuration, _projection
     config, limit = _configuration(run)
     report = AuditReport(agent_id="agent", run_id=run.id)
     report.input_policy = _projection(policy_before)

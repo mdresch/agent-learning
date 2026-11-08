@@ -1,0 +1,289 @@
+{
+  "$comment": "Single source of truth for the 18-stage Intent-to-Outcome chain. Mirrors docs/intent-to-outcome-chain-coverage.md (sections 2 and 4). Read by bot/lib/stages.ts and dashboard/server.mjs. If the two disagree, the coverage document wins; fix this file.",
+  "defaultAgentId": "agent-learning-governance",
+  "$startSignal": "A stage with startSignal: true waits for the human to press Ready to start on the dashboard, once per phase. Only stage 1 has it. Every other stage starts by itself when its predecessors are done.",
+  "gateModes": {
+    "policy": "A registered approve-* TaskPolicy; every listed gate needs a human-approved approval.",
+    "pipeline": "Stage 16 paired pipeline (classify-diff-type FULL, escalate-diff-response LOW). Done needs evidence and no pending or rejected approval.",
+    "evidence": "No approval policy. Done needs evidence references (commits, test runs, episodes).",
+    "human_review": "No registered policy in this repository. One human sign-off on the stage report."
+  },
+  "stages": [
+    {
+      "id": 1, "key": "intent", "name": "Intent", "group": "Initiating",
+      "pmbok": "Pre-Project: Strategic Need Identification", "subagent": "stage-initiating",
+      "after": [], "gateMode": "policy",
+      "touchpoints": {"kind":"fixed","count":1,"label":"approve-ideation"},
+      "model": "sonnet",
+      "startSignal": true,
+      "gates": [{ "taskId": "approve-ideation", "authority": "full" }],
+      "artifacts": ["docs/project-docs/Spark-Capture.md", "docs/project-docs/Ideation-Document.md"],
+      "writes": ["docs/project-docs/Spark-Capture.md", "docs/project-docs/Ideation-Document.md"],
+      "requirements": [
+        "Spark Capture states the trigger and the strategic driver.",
+        "Ideation Document states objectives (section 1.2) and methodologies (section 2.1).",
+        "approve-ideation run prospectively on the current version."
+      ]
+    },
+    {
+      "id": 3, "key": "hypothesis", "name": "Hypothesis", "group": "Initiating",
+      "pmbok": "Pre-Project: Design Assumption Formulation", "subagent": "stage-initiating",
+      "after": [1], "gateMode": "policy",
+      "touchpoints": {"kind":"fixed","count":1,"label":"classify-hypothesis-status"},
+      "model": "sonnet",
+      "gates": [{ "taskId": "classify-hypothesis-status", "authority": "full" }],
+      "artifacts": ["docs/project-docs/Ideation-Document.md"],
+      "writes": ["docs/project-docs/Ideation-Document.md"],
+      "requirements": [
+        "Every HYP-* has a testable statement and a named evidence source.",
+        "Status (testing, validated, invalidated) is justified by evidence, not by authoring-time labels."
+      ]
+    },
+    {
+      "id": 4, "key": "benefit", "name": "Benefit", "group": "Initiating",
+      "pmbok": "Business Documents: Benefits Realization Planning", "subagent": "stage-initiating",
+      "after": [3], "gateMode": "policy",
+      "touchpoints": {"kind":"fixed","count":1,"label":"approve-business-case"},
+      "model": "sonnet",
+      "gates": [{ "taskId": "approve-business-case", "authority": "full" }],
+      "artifacts": ["docs/project-docs/Business-Case.md", "docs/project-docs/Benefits-Management-Plan.md"],
+      "writes": ["docs/project-docs/Business-Case.md", "docs/project-docs/Benefits-Management-Plan.md"],
+      "requirements": [
+        "Value proposition, problems and gap matrix are stated.",
+        "Benefits Statement is an input to the Charter, so it is approved before the Charter."
+      ]
+    },
+    {
+      "id": 2, "key": "objective", "name": "Objective", "group": "Initiating",
+      "pmbok": "4.1 Develop Project Charter", "subagent": "stage-initiating",
+      "after": [4], "gateMode": "policy",
+      "touchpoints": {"kind":"fixed","count":1,"label":"approve-charter"},
+      "model": "sonnet",
+      "gates": [{ "taskId": "approve-charter", "authority": "full" }],
+      "artifacts": ["docs/project-docs/Project-Charter.md"],
+      "writes": ["docs/project-docs/Project-Charter.md"],
+      "requirements": [
+        "Measurable objectives, sponsor and approval-limit thresholds are present.",
+        "Built on the approved Business Case and Benefits Statement."
+      ]
+    },
+    {
+      "id": 5, "key": "pillars", "name": "Pillars & Architecture", "group": "Planning",
+      "pmbok": "Pillars Exercise (post-Charter decomposition)", "subagent": "stage-specification",
+      "after": [2], "gateMode": "policy",
+      "touchpoints": {"kind":"variable","minimum":2,"label":"approve-project-pillars, then one approve-adr per high-level ADR"},
+      "model": "sonnet",
+      "gates": [
+        { "taskId": "approve-project-pillars", "authority": "full" },
+        { "taskId": "approve-adr", "authority": "full" }
+      ],
+      "artifacts": ["docs/project-docs/Project-Pillars.md", "docs/adr/"],
+      "writes": ["docs/project-docs/Project-Pillars.md", "docs/adr/"],
+      "requirements": [
+        "Pillars are the smallest set that covers every objective, named gap and target benefit, each cited to a source section.",
+        "Every high-level ADR has exactly one primary topic pillar. BRD, ADR, FDD and Stories are document layers, not pillars."
+      ]
+    },
+    {
+      "id": 6, "key": "requirement", "name": "Requirement", "group": "Planning",
+      "pmbok": "5.2 Collect Requirements, 5.3 Define Scope, 5.4 Create WBS", "subagent": "stage-specification",
+      "after": [5], "gateMode": "policy",
+      "touchpoints": {"kind":"per_epic","label":"one request per epic: its ADR, BRD, FDD and stories"},
+      "model": "sonnet",
+      "gates": [
+        { "taskId": "approve-adr", "authority": "full" },
+        { "taskId": "approve-brd", "authority": "full" },
+        { "taskId": "approve-fdd", "authority": "full" },
+        { "taskId": "approve-user-stories", "authority": "full" }
+      ],
+      "artifacts": ["docs/adr/", "docs/project-docs/Business-Requirements/", "docs/project-docs/Functional-Design/", "docs/user-stories/"],
+      "writes": ["docs/adr/", "docs/project-docs/Business-Requirements/", "docs/project-docs/Functional-Design/", "docs/user-stories/"],
+      "requirements": [
+        "Hierarchy holds: ADR over BRD and FDD over Story.",
+        "Every Story acceptance criterion is testable as one contract test.",
+        "Every path a story calls committed is tracked by git (git ls-files)."
+      ]
+    },
+    {
+      "id": 7, "key": "project", "name": "Project (PMP & Baselines)", "group": "Planning",
+      "pmbok": "4.2 Develop Project Management Plan", "subagent": "stage-baseline",
+      "after": [6], "gateMode": "policy",
+      "touchpoints": {"kind":"fixed","count":10,"label":"9 subsidiary plans, then approve-pmp"},
+      "model": "sonnet",
+      "gates": [
+        { "taskId": "approve-subsidiary-plan", "authority": "full" },
+        { "taskId": "approve-pmp", "authority": "full" }
+      ],
+      "artifacts": ["docs/project-docs/management-plans/", "docs/project-docs/Project-Management-Plan.md"],
+      "writes": [],
+      "requirements": [
+        "Plans are produced by the pmbok-planning tooling, never hand-written or patched.",
+        "Every subsidiary plan passes approve-subsidiary-plan before approve-pmp (ADR-013).",
+        "Baseline is recorded as PMP-BL-vX.Y.Z.",
+        "Foundational document baseline is recorded with the PMP baseline: Spark Capture, Ideation Document (with its Stakeholder Register, section 3.1), Business Case, Benefits Management Plan (the Benefits Statement) and the Project Charter. Each is approved and unchanged since its approval, and the PMP cites each by section. A change to any of them goes to Stage 16 and a Baseline Revision Package, not an edit."
+      ]
+    },
+    {
+      "id": 8, "key": "readiness", "name": "Implementation Readiness", "group": "Planning to Executing",
+      "pmbok": "5.4 WBS and Execution Authorization Gate", "subagent": "stage-baseline",
+      "after": [7], "gateMode": "policy",
+      "touchpoints": {"kind":"per_epic","label":"one validate-intent-foundation request per epic, covering its stories"},
+      "model": "haiku",
+      "gates": [{ "taskId": "validate-intent-foundation", "authority": "full" }],
+      "artifacts": ["docs/user-stories/"],
+      "writes": [],
+      "requirements": [
+        "BRD, FDD and Stories are approved, not only marked Ready by their author.",
+        "The story names the contract test it will add, the environment can be provisioned, and the baseline is reconciled before a worktree is provisioned. No test suite is run at this gate."
+      ]
+    },
+    {
+      "id": 9, "key": "deliverable", "name": "Deliverable", "group": "Executing",
+      "pmbok": "4.3 Direct and Manage Project Work", "subagent": "stage-delivery",
+      "after": [8], "gateMode": "evidence",
+      "touchpoints": {"kind":"external","label":"you merge each story PR on GitHub, not on the dashboard"},
+      "model": "sonnet",
+      "gates": [],
+      "artifacts": ["implementation-log.md"],
+      "writes": [],
+      "requirements": [
+        "Implemented through the implement-story skill; the orchestrator hands off and verifies, it does not write code.",
+        "A branch or worktree that already exists means a run was started: inspect it read-only, do not adopt it.",
+        "PR review recommendation follows the PR complexity rubric. Merge stays human."
+      ]
+    },
+    {
+      "id": 10, "key": "verification", "name": "Verification Evidence", "group": "Monitoring and Controlling",
+      "pmbok": "8.3 Control Quality", "subagent": "stage-delivery",
+      "after": [9], "gateMode": "evidence",
+      "touchpoints": {"kind":"none","label":"no approval"},
+      "model": "haiku",
+      "gates": [],
+      "artifacts": ["tests/"],
+      "writes": [],
+      "requirements": [
+        "Contract tests observed RED then GREEN.",
+        "The full suite (uv run pytest, nothing excluded) is run once and its real count recorded. A failing test goes to the heal-contract-failure skill, run by the human. An environment error (tests/test_spark.py needs Java) is reported, not healed."
+      ]
+    },
+    {
+      "id": 11, "key": "audit", "name": "Audit Record", "group": "Monitoring and Controlling",
+      "pmbok": "8.2 Manage Quality Audits", "subagent": "stage-assurance",
+      "after": [10], "gateMode": "policy",
+      "touchpoints": {"kind":"variable","minimum":1,"label":"one approve-audit-record per audit entry"},
+      "model": "sonnet",
+      "gates": [{ "taskId": "approve-audit-record", "authority": "full" }],
+      "artifacts": ["docs/registers/Audit-Register.md"],
+      "writes": ["docs/registers/Audit-Register.md"],
+      "requirements": [
+        "Audit findings cite deliverables and verification logs.",
+        "Non-conformances carry a corrective action."
+      ]
+    },
+    {
+      "id": 12, "key": "outcome", "name": "Actual Outcome", "group": "Monitoring and Controlling",
+      "pmbok": "5.5 Validate Scope and Value Realization", "subagent": "stage-assurance",
+      "after": [11], "gateMode": "evidence",
+      "touchpoints": {"kind":"none","label":"no approval"},
+      "model": "haiku",
+      "gates": [],
+      "artifacts": ["docs/project-docs/Benefits-Management-Plan.md"],
+      "writes": [],
+      "requirements": [
+        "Realized value is compared with the Benefits Statement using observed data only.",
+        "No invented measurements."
+      ]
+    },
+    {
+      "id": 13, "key": "observation", "name": "Observation", "group": "Monitoring and Controlling",
+      "pmbok": "4.5 Monitor and Control Project Work", "subagent": "stage-assurance",
+      "after": [11], "gateMode": "evidence",
+      "touchpoints": {"kind":"none","label":"no approval"},
+      "model": "haiku",
+      "gates": [],
+      "artifacts": ["implementation-log.md"],
+      "writes": [],
+      "requirements": [
+        "Records only what was seen: what ran, when, the evidence. No interpretation and no fix."
+      ]
+    },
+    {
+      "id": 14, "key": "insight", "name": "Insight", "group": "Monitoring and Controlling",
+      "pmbok": "4.4 Manage Project Knowledge (Synthesis)", "subagent": "stage-knowledge",
+      "after": [13], "gateMode": "human_review",
+      "touchpoints": {"kind":"fixed","count":1,"label":"sign-off on the insight report"},
+      "model": "sonnet",
+      "gates": [],
+      "artifacts": [],
+      "writes": [],
+      "note": "resolve-kb-conflict has no recorded decision or declared shape in this repository (coverage doc section 3.2). A human decides every proposal. Do not fabricate episodes.",
+      "requirements": [
+        "Each insight cites the observations it synthesizes.",
+        "The knowledge base never supersedes an accepted project document."
+      ]
+    },
+    {
+      "id": 15, "key": "lesson", "name": "Lesson Learned", "group": "Monitoring and Controlling",
+      "pmbok": "4.4 Manage Project Knowledge (Lessons Learned Register)", "subagent": "stage-knowledge",
+      "after": [14], "gateMode": "human_review",
+      "touchpoints": {"kind":"fixed","count":1,"label":"sign-off on the lessons; you accept every LL entry"},
+      "model": "sonnet",
+      "gates": [],
+      "artifacts": ["docs/project-docs/Lessons-Learned-Register.md", "docs/project-docs/Continuous-Improvement-Register.md"],
+      "writes": ["docs/project-docs/Lessons-Learned-Register.md", "docs/project-docs/Continuous-Improvement-Register.md"],
+      "note": "The ADR-010 recap is a light once-per-epic recap, not the formal Stage 15 review. Entries are drafted by an agent and accepted by a human.",
+      "requirements": [
+        "LL-### entries carry Title, Trap, Root Cause, Rule, Tier 2/3 target (may read Tier 1 only), Epic/Story.",
+        "Append-only. A wrong entry gets a dated correction entry."
+      ]
+    },
+    {
+      "id": 16, "key": "governance", "name": "Governance Change", "group": "Monitoring and Controlling",
+      "pmbok": "4.6 Perform Integrated Change Control", "subagent": "stage-change-control",
+      "after": [15], "gateMode": "pipeline",
+      "touchpoints": {"kind":"variable","minimum":0,"label":"only when the pipeline stops: a 0.05 tie, a frozen change type, or escalate_to_human"},
+      "model": "opus",
+      "gates": [
+        { "taskId": "classify-diff-type", "authority": "full" },
+        { "taskId": "escalate-diff-response", "authority": "low" }
+      ],
+      "artifacts": [],
+      "writes": [],
+      "note": "execution evidence_basis only. The design-time route (ADR-037) is Proposed and inert.",
+      "requirements": [
+        "Diff is classified against the frozen baseline before any escalation decision.",
+        "new_superseding_adr, pending_supersession_note and supersession_update always go to a human.",
+        "Margin of 0.05 or less halts for a human tie-break."
+      ]
+    },
+    {
+      "id": 17, "key": "adaptation", "name": "Adaptation Plan", "group": "Closing and Adaptive Feedback",
+      "pmbok": "4.6 Perform Integrated Change Control (Tailoring)", "subagent": "stage-change-control",
+      "after": [16], "gateMode": "policy",
+      "touchpoints": {"kind":"fixed","count":1,"label":"approve-adaptation-plan"},
+      "model": "sonnet",
+      "gates": [{ "taskId": "approve-adaptation-plan", "authority": "full" }],
+      "artifacts": ["docs/project-docs/Adaptation-Plan.md"],
+      "writes": ["docs/project-docs/Adaptation-Plan.md"],
+      "requirements": [
+        "Operationalizes a validated Stage 16 change into skills, workflows and tailored PMP updates.",
+        "PMP updates are regenerated by tooling, not hand-edited."
+      ]
+    },
+    {
+      "id": 18, "key": "refinement", "name": "Intent Refinement", "group": "Closing and Strategic Feedback",
+      "pmbok": "4.7 Close Project or Phase (Cognitive Feedback)", "subagent": "stage-closing",
+      "after": [17], "gateMode": "policy",
+      "touchpoints": {"kind":"fixed","count":1,"label":"approve-intent-refinement"},
+      "model": "sonnet",
+      "gates": [{ "taskId": "approve-intent-refinement", "authority": "full" }],
+      "artifacts": ["docs/project-docs/Intent-Refinement-Proposal.md"],
+      "writes": ["docs/project-docs/Intent-Refinement-Proposal.md"],
+      "requirements": [
+        "Phase Close readiness is evaluated from crystallized lessons and adjudicated hypotheses.",
+        "IMP entries dispositioned 'Rolled into Phase Next Intent Refinement' are harvested.",
+        "Output is the catalyst for the next Spark Capture; a Phase 2 go/no-go is a recorded human decision."
+      ]
+    }
+  ]
+}

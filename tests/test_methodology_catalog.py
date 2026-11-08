@@ -223,7 +223,7 @@ def test_ac4_module_imports_nothing_from_storage() -> None:
 
 def test_package_exports_the_public_names() -> None:
     """FDD-036 section 1.4: the public names are re-exported from agent_learning."""
-    import agent_learning
+    import agent_learning_ext as agent_learning
 
     for name in ("CatalogEntry", "ExampleClass", "derive_class", "parse_catalog", "validate_catalog"):
         assert hasattr(agent_learning, name), name

@@ -18,8 +18,9 @@ Interpretations not stated verbatim in the acceptance criteria (LL-011):
   zero UTC offset.
 - I5: "never overwritten or mutated" (AC_3) is tested by comparing deep copies of earlier records
   with the same records after later transitions.
-- I6: AC_4 is tested on the docstring text: the claim that `context_features` lets a learner replay
-  the decision is gone, and the replacement points to ADR-004.
+- I6: AC_4 (amended at Stage 16, 2026-11-05) is tested on the documentation, not on Microsoft's docstring: ADR-004 §3
+  states the corrected behaviour, `types.py` still matches the upstream pin, no document we own claims replay except
+  as a quoted defect, and the story, BRD-004 and FDD-004 agree.
 - I7: AC_5 is tested by what the migration does not do: it stores no second snapshot, adds no key
   other than `migration_records` to the metadata it already updates, and `PolicySnapshot` keeps its
   fields. The CLI builds only `SoftmaxPolicy` snapshots, so a contextual snapshot is out of scope.
@@ -29,15 +30,17 @@ from __future__ import annotations
 
 import copy
 import dataclasses
+import hashlib
 import json
 from datetime import datetime, timedelta
+from pathlib import Path
 
 import pytest
 
-from agent_learning import cli
+from agent_learning_ext import cli
 from agent_learning.policy import SoftmaxPolicy
 from agent_learning.storage import InMemoryStore
-from agent_learning.types import Action, Episode, PolicySnapshot
+from agent_learning.types import Action, PolicySnapshot
 
 RECORD_KEYS = {
     "policy_version_at_migration",
@@ -215,15 +218,64 @@ def test_a_snapshot_without_migration_records_reads_as_an_empty_list(store: InMe
     assert _records(store) == []
 
 
-# --- AC_4: the docstring ------------------------------------------------------------------------------
+# --- AC_4 (amended at Stage 16, 2026-11-05): the replay claim is corrected in documentation -------------------
+
+ROOT = Path(__file__).resolve().parents[1]
+ADR_004 = ROOT / "docs" / "adr" / "ADR-004-authority-migration-comparison-not-replay.md"
+QUOTING_THE_DEFECT = ("ADR-004", "BRD-004", "FDD-004")
 
 
-def test_ac4_the_context_features_docstring_no_longer_claims_replay() -> None:
-    doc = " ".join((Episode.__doc__ or "").split())
-    assert "replay the decision" not in doc
-    assert "replay" not in doc.lower()
-    assert "not consumed by non-contextual bandit action selection" in doc
-    assert "ADR-004" in doc
+def _text(path: Path) -> str:
+    return " ".join(path.read_text(encoding="utf-8").split())
+
+
+def _the_one(pattern: str) -> Path:
+    hits = list(ROOT.glob(pattern))
+    assert len(hits) == 1, (pattern, hits)
+    return hits[0]
+
+
+def _owned_documents() -> list[Path]:
+    return [*ROOT.glob("docs/**/*.md"), ROOT / "README.md", ROOT / "PYPI.md"]
+
+
+def test_ac4a_adr_004_states_the_corrected_behaviour() -> None:
+    text = _text(ADR_004)
+    for required in ("materially incorrect", "non-contextual", "reward shaping", "not decision evidence"):
+        assert required in text, f"ADR-004 no longer says {required!r}"
+
+
+def test_ac4b_types_py_is_microsofts_unedited_version() -> None:
+    manifest = json.loads((ROOT / "tests" / "upstream_manifest.json").read_text(encoding="utf-8"))
+    path = "src/agent_learning/types.py"
+    digest = hashlib.sha256((ROOT / path).read_bytes().replace(b"\r\n", b"\n")).hexdigest()
+    assert digest == manifest["files"][path], "types.py differs from the pinned upstream version"
+    assert path not in manifest["known_edited"]
+
+
+def test_ac4c_no_owned_document_claims_replay_except_as_a_quoted_defect() -> None:
+    hits = [p for p in _owned_documents() if "can replay the decision" in _text(p).lower()]
+    stray = [p.name for p in hits if not p.name.startswith(QUOTING_THE_DEFECT)]
+    assert not stray, f"documents that claim replay: {stray}"
+    still_quoting = {prefix for prefix in QUOTING_THE_DEFECT if any(p.name.startswith(prefix) for p in hits)}
+    assert still_quoting == set(QUOTING_THE_DEFECT), "ADR-004, BRD-004 and FDD-004 must each still name the defect"
+
+
+def test_ac4d_story_brd_and_fdd_agree_and_none_still_demands_the_docstring_edit() -> None:
+    story = _text(_the_one("docs/user-stories/epic-4-*.md"))
+    brd = _text(_the_one("docs/project-docs/Business-Requirements/BRD-004-*.md"))
+    fdd = _text(_the_one("docs/project-docs/Functional-Design/FDD-004-*.md"))
+    parts = {
+        "Story 4.1 AC_4": story[story.index("$AC_4$"):story.index("$AC_5$")],
+        "BRD-004 BRU-004-05": brd[brd.index("**BRU-004-05**"):brd.index("**BRU-004-05**") + 900],
+        "FDD-004 Design 3": fdd[fdd.index("## Design 3"):fdd.index("## Error Handling")],
+    }
+    for name, text in parts.items():
+        assert "amended at Stage 16" in text, name
+        assert "ADR-004" in text and "types.py" in text and "fork rule" in text, name
+    demands = ("docstring in `src/agent_learning/types.py` is updated", "`types.py` must be updated")
+    stray = [(p.name, d) for p in _owned_documents() for d in demands if d in _text(p)]
+    assert not stray, stray
 
 
 # --- AC_5: no new record type ---------------------------------------------------------------------------

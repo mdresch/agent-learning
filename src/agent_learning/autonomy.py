@@ -6,9 +6,8 @@ import math
 from dataclasses import dataclass
 from typing import Any
 
-from .config import AutonomyConfig, AutonomyTier, validate_autonomy_monotonicity
+from .config import AutonomyConfig, AutonomyTier
 from .policy.softmax_bandit import SoftmaxPolicy
-from .policy.thompson import ThompsonPolicy
 from .storage.base import LearningStore
 from .types import Episode, PolicySnapshot, RewardSource
 
@@ -253,31 +252,8 @@ def _latest_aggregate(store: LearningStore, episode: Episode) -> float | None:
     return max(rewards, key=lambda reward: reward.created_at).value
 
 
-def _has_posterior(snapshot: PolicySnapshot) -> bool:
-    return "posterior_parameters" in snapshot.metadata
-
-
-def _action_probabilities(snapshot: PolicySnapshot) -> list[float]:
-    """The action probabilities the gate reads, in snapshot order (ADR-003 4.6).
-
-    A snapshot that holds ``posterior_parameters`` keeps its logits at zero, so its probabilities are
-    the posterior means ``alpha / (alpha + beta)`` normalised over the actions (an action missing from
-    the mapping reads as the prior, mean 0.5). That is a softmax over ``ln(mean)``; those logits are
-    never stored. Any other snapshot is read from its logits. A malformed posterior raises ``ValueError``.
-    """
-    if not _has_posterior(snapshot):
-        return SoftmaxPolicy.from_snapshot(snapshot).probabilities()
-    posterior = ThompsonPolicy.from_snapshot(snapshot).posterior()
-    means = [
-        posterior["alpha"][action.id] / (posterior["alpha"][action.id] + posterior["beta"][action.id])
-        for action in snapshot.actions
-    ]
-    total = sum(means)
-    return [mean / total for mean in means]
-
-
 def _recommended_action(snapshot: PolicySnapshot) -> tuple[str, float, float]:
-    probabilities = _action_probabilities(snapshot)
+    probabilities = SoftmaxPolicy.from_snapshot(snapshot).probabilities()
     winner_index = max(range(len(probabilities)), key=probabilities.__getitem__)
     winner_probability = probabilities[winner_index]
     runner_up = max(
@@ -294,7 +270,7 @@ def _recommended_action(snapshot: PolicySnapshot) -> tuple[str, float, float]:
 def _action_confidence(
     snapshot: PolicySnapshot, action_id: str
 ) -> tuple[float, float]:
-    probabilities = _action_probabilities(snapshot)
+    probabilities = SoftmaxPolicy.from_snapshot(snapshot).probabilities()
     action_index = next(
         index for index, action in enumerate(snapshot.actions) if action.id == action_id
     )
@@ -387,33 +363,6 @@ def _stable_snapshot_count(
     return stable
 
 
-def _is_full_authority(snapshot: PolicySnapshot) -> bool:
-    return str(snapshot.metadata.get("decision_authority", "low")).lower() == "full"
-
-
-def _mark_probability_criteria_not_applicable(
-    criteria: dict[str, dict[str, Any]],
-    action_probability: float,
-    probability_margin: float,
-) -> None:
-    """Full authority uses reasoned resolution, so frozen logits are not a gate (ADR-003 4.5)."""
-    reason = (
-        "full decision authority uses reasoned resolution, not learned policy logits "
-        "(ADR-003 section 4.5)"
-    )
-    for name, actual in (
-        ("action_probability", action_probability),
-        ("probability_margin", probability_margin),
-    ):
-        criteria[name] = {
-            "actual": actual,
-            "required": None,
-            "status": "not_applicable",
-            "reason": reason,
-            "met": True,
-        }
-
-
 def assess_autonomy(
     store: LearningStore,
     snapshot: PolicySnapshot,
@@ -421,10 +370,7 @@ def assess_autonomy(
 ) -> AutonomyAssessment:
     """Assess whether the active policy has enough evidence for autonomy."""
     complexity = complexity_for_snapshot(snapshot)
-    if config is None:
-        validate_autonomy_monotonicity()
-        config = AutonomyConfig.for_tier(complexity.tier)
-    full_authority = _is_full_authority(snapshot)
+    config = config or AutonomyConfig.for_tier(complexity.tier)
     recommended_action_id, action_probability, probability_margin = (
         _recommended_action(snapshot)
     )
@@ -522,26 +468,14 @@ def assess_autonomy(
             "met": user_feedback_status != "rejected",
         },
     }
-    if full_authority:
-        _mark_probability_criteria_not_applicable(
-            criteria, action_probability, probability_margin
-        )
-    elif _has_posterior(snapshot):
-        # Say which reading produced the two numbers (ADR-003 4.6).
-        criteria["action_probability"]["basis"] = "posterior_mean"
-        criteria["probability_margin"]["basis"] = "posterior_mean"
-    statistically_eligible = not full_authority and all(
-        criterion["met"] for criterion in criteria.values()
-    )
+    statistically_eligible = all(criterion["met"] for criterion in criteria.values())
     explicitly_approved = (
         user_feedback_status == "accepted"
         and not complexity.profile.requires_human_approval
     )
     eligible = explicitly_approved or statistically_eligible
     authorization_basis = (
-        "human_adjudication"
-        if full_authority
-        else "user_acceptance"
+        "user_acceptance"
         if explicitly_approved
         else "statistical_evidence"
         if statistically_eligible

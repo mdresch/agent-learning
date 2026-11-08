@@ -38,9 +38,9 @@ from pathlib import Path
 
 import pytest
 
-from agent_learning import cli
-from agent_learning.autonomy import assess_autonomy
-from agent_learning.config import AutonomyConfig
+from agent_learning_ext import cli
+from agent_learning_ext.autonomy import assess_autonomy
+from agent_learning_ext.config import AutonomyConfig
 from agent_learning.meta_prior import FamilyMember
 from agent_learning.storage import InMemoryStore
 from agent_learning.storage.local import LocalFileStore

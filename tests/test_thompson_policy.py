@@ -203,9 +203,9 @@ def test_the_policy_is_a_policy_with_the_action_space_in_snapshot_order() -> Non
 
 
 def test_the_policy_is_exported_from_the_package_roots() -> None:
-    import agent_learning
-    import agent_learning.policy as policy_package
+    import agent_learning_ext as agent_learning
+    import agent_learning_ext.policy as policy_package
 
     assert agent_learning.ThompsonPolicy is ThompsonPolicy
-    assert policy_package.ThompsonPolicy is ThompsonPolicy
+    assert policy_package.ThompsonPolicy is ThompsonPolicy  # exported from the extension, not Microsoft's package
     assert "ThompsonPolicy" in agent_learning.__all__

@@ -11,10 +11,11 @@ import pytest
 
 from agent_learning import __version__
 from agent_learning.config import LearnerConfig
-from agent_learning.learners import Learner, LearnerResult, ReinforceLearner
+from agent_learning.learners import Learner, LearnerResult
+from agent_learning_ext.learners.reinforce import ReinforceLearner
 from agent_learning.policy import Policy, SoftmaxPolicy
 from agent_learning.storage import InMemoryStore, LocalFileStore
-from agent_learning.training import LearningRunner
+from agent_learning_ext.training import LearningRunner
 from agent_learning.types import (
     Action,
     ConsumedInput,

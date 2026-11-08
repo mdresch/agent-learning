@@ -30,7 +30,7 @@ import uuid
 import pytest
 
 import agent_learning.warm_start
-from agent_learning import VALID_DONOR_KINDS
+from agent_learning_ext import VALID_DONOR_KINDS
 from agent_learning.types import Action, PolicySnapshot
 from agent_learning.warm_start import provenance
 

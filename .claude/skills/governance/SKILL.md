@@ -51,3 +51,17 @@ description: Automated governance change pipeline (Stage 16) and the ADR-010 Bre
 - `agent_learning/__init__.py`: re-exports `parse_lessons_learned_markdown`, `load_lessons_learned_register`, `filter_crystallized_lessons`, `LessonsLearnedEntry`, and governance pipeline symbols.
 - `agent_learning/lessons_learned.py`: markdown parser and schema validator.
 - `agent_learning/governance.py`: core diff classification pipeline and taxonomy constants.
+
+## 3. Amending an approved document (`scripts/stage16_amend.py`)
+
+An approved ADR, BRD, FDD or user story changes only through Stage 16. `tests/test_governance_baseline.py` fails otherwise (fingerprints in `tests/governance_baseline.json`; epic `**Status:**` lines are not fingerprinted).
+
+1. Edit the document and leave the edit uncommitted. Commit each amendment before starting the next one on the same document: the diff is measured against `HEAD`.
+2. `uv run python scripts/stage16_amend.py propose <document>` measures the diff, builds the frame from the measurements, runs `task-policy-decide`, and saves frame, result and measurements under `docs/policy-shapes/`. It registers nothing.
+3. A human reads the classification. Disagreement means change the edit and `propose` again, or revert it. `new_superseding_adr` and the lifecycle actions mean the change is more than an amendment: stop and use the ADR route.
+4. `uv run python scripts/stage16_amend.py accept <document> --by "<name>" --summary "<what changed>"` is run only on the human's explicit instruction. It refuses if the document changed since `propose`, then adjudicates `accept`, registers the episode, appends `Amended <date> at Stage 16 ... episode `<id>`` to the Status line, and refreshes the baseline through `scripts/governance_baseline.py`.
+5. Commit the document, the manifest and the new `docs/policy-shapes/` files together.
+
+- An agent never runs `accept` on its own and never edits `tests/governance_baseline.json` by hand.
+- The classifier's human-approval gate halts before `escalate-diff-response`, so that policy gets no episode from this route.
+- The rubric (`IDEAL` in the script) is a fixed table for every document; the measurements, not the author's view, decide the frame. Tests: `tests/test_stage16_amend.py`.

@@ -56,6 +56,7 @@
 | [LL-043](#ll-043--a-closing-stages-tooling-may-sit-outside-what-ci-runs) | A Closing Stage's Tooling May Sit Outside What CI Runs | Phase 1 Close / Stage 18 | Universal Process | 2026-11-04 |
 | [LL-044](#ll-044--the-monolithic-ideation-trap-decoupling-deep-exploratory-research-into-a-dedicated-library) | The Monolithic Ideation Trap: Decoupling Deep Exploratory Research into a Dedicated Library | Phase 1 Close / Stage 1 Initiation | Universal Governance & Process | 2026-11-06 |
 | [LL-045](#ll-045--pre-flight-specification-gaps-in-replay-engines-auditing-empty-collection-and-none-safety-contracts) | Pre-Flight Specification Gaps in Replay Engines: Auditing Empty-Collection and None-Safety Contracts | Epic 14 / Story 14.5 | Universal Design & Testing | 2026-11-08 |
+| [LL-046](#ll-046--continuous-domain-widening-in-statistical-bounds-must-be-guarded-against-classical-integer-reversion) | Continuous-Domain Widening in Statistical Bounds Must Be Guarded Against Classical Integer Reversion | Epic 16 / Stories 16.1–16.6 | Universal Design & Testing | 2026-11-08 |
 
 ---
 
@@ -650,5 +651,21 @@
 - **The Root Cause:** Drafting test contracts directly against anticipated positive datasets without running an adversarial specification audit to identify edge cases, boundary conditions, and None-safety gaps upfront.
 - **Actionable Invariant:** Run the Pre-Flight Specification Gate (`scripts/spec_gate.py <X.Y>`) before drafting any RED contracts. The gate audits four orthogonal criteria (specification completeness, testability, Invariant 6 upstream fork purity, architectural boundaries), identifies unstated None-safety and empty collection requirements, and derives recommended contract interpretations ($I_1, I_2, \dots$) to be included in test docstrings.
 - **Verification Gate:** Step 1b of `implement-story` runs `scripts/spec_gate.py <X.Y>` and requires robust utility margin $\ge +0.05$ before RED test drafting begins.
+
+---
+
+### LL-046 — Continuous-Domain Widening in Statistical Bounds Must Be Guarded Against Classical Integer Reversion
+- **Identifier:** `LL-046`
+- **Date:** 2026-11-08
+- **Epic / Story:** Epic 16 / Stories 16.1–16.6 (commits `0251d71`, `eda14c4`, `b1ae8ab`, `48d1fd5`, `fbfb611`, `b8fe5cb`)
+- **Scope:** Universal Design & Testing / Statistical Policies
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/ucb/SKILL.md` & `scripts/spec_gate.py`; Tier 3: `sidpa-template` (proposed, needs human approval before any cross-repo change)
+- **The Trap:** When classical discrete mathematical primitives (such as the Wilson score interval or binomial proportion bounds) are deliberately widened to accept continuous pseudo-successes ($r = (\text{value} + 1)/2 \in [0, 1]$ per FDD-016 §3 E3), external review agents or static analysis tools trained on classical textbook definitions may flag fractional cumulative rewards as bugs and strongly recommend integer-only type guards. In Story 16.3 (PR #126), reviewer critique urged enforcing integer constraints on `cumulative_reward`, which would have silently broken continuous partial reward accumulation ($0.0 \mapsto 0.5$) in downstream Story 16.4.
+- **The Root Cause:** Relying solely on internal functional design departure notes (FDD-016 §4 E3) without explicitly encoding the continuous-widening rationale in the public docstring, component skill, and pre-flight specification gate.
+- **Actionable Invariant:** When extending classical discrete formulations to continuous domains:
+  1. Explicitly document the domain widening, its bound preservation, and its downstream requirements (e.g., continuous reward mapping) in the function docstring and component skill.
+  2. Implement bidirectional mathematical symmetry tests across a continuous grid (e.g., $1 - \text{wilson\_lower\_bound}(N - k, N) = \text{wilson\_upper\_bound}(k, N)$).
+  3. Pre-flight specification gates must document any domain-widening departures in the generated contract interpretations ($I_1, I_2, \dots$) so review triage can cite design intent immediately.
+
 
 

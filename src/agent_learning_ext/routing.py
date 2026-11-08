@@ -57,8 +57,8 @@ class RoutingConfig:
             ("tau_deesc", self.tau_deesc),
             ("eps_margin", self.eps_margin),
         ]:
-            if not isinstance(val, (int, float)) or not math.isfinite(val):
-                raise ValueError(f"{name} must be finite: {val}")
+            if isinstance(val, bool) or not isinstance(val, (int, float)) or not math.isfinite(val):
+                raise ValueError(f"{name} must be finite number (not bool): {val}")
 
         if self.tau_deesc < 0.0:
             raise ValueError(f"tau_deesc must be non-negative: {self.tau_deesc}")
@@ -195,7 +195,10 @@ def route(
         if (
             probs
             and all(
-                isinstance(p, (int, float)) and math.isfinite(p) and p >= 0.0
+                not isinstance(p, bool)
+                and isinstance(p, (int, float))
+                and math.isfinite(p)
+                and p >= 0.0
                 for p in probs
             )
             and abs(sum(probs) - 1.0) <= 1e-6
@@ -221,7 +224,7 @@ def route(
         )
 
     for p in probs:
-        if not isinstance(p, (int, float)) or not math.isfinite(p):
+        if isinstance(p, bool) or not isinstance(p, (int, float)) or not math.isfinite(p):
             return RouteDecision(
                 authority=DecisionAuthority.FULL,
                 entropy_bits=None,

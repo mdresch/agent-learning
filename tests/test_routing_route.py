@@ -77,13 +77,19 @@ def test_ac0_config_validation() -> None:
     with pytest.raises(ValueError, match="negative"):
         RoutingConfig(tau_esc=0.5, tau_deesc=-0.1)
 
-    # 5. Non-finite values raise ValueError
+    # 5. Non-finite values or booleans raise ValueError
     with pytest.raises(ValueError, match="finite"):
         RoutingConfig(tau_esc=float("nan"), tau_deesc=0.7)
     with pytest.raises(ValueError, match="finite"):
         RoutingConfig(tau_esc=1.0, tau_deesc=float("inf"))
     with pytest.raises(ValueError, match="finite"):
         RoutingConfig(tau_esc=1.0, tau_deesc=0.7, eps_margin=float("nan"))
+    with pytest.raises(ValueError, match="not bool"):
+        RoutingConfig(tau_esc=True, tau_deesc=0.7)  # type: ignore[arg-type]
+    with pytest.raises(ValueError, match="not bool"):
+        RoutingConfig(tau_esc=1.0, tau_deesc=False)  # type: ignore[arg-type]
+    with pytest.raises(ValueError, match="not bool"):
+        RoutingConfig(tau_esc=1.0, tau_deesc=0.7, eps_margin=True)  # type: ignore[arg-type]
 
     # 6. eps_margin of 0 or above 1 raises ValueError
     with pytest.raises(ValueError, match="eps_margin"):
@@ -309,6 +315,7 @@ def test_ac6_fail_safe(base_config: RoutingConfig) -> None:
         ([-0.1, 1.1], "negative probability: -0.1"),
         ([0.45, 0.45], "probabilities sum to 0.9"),  # Sums to 0.9
         ([0.60, 0.50], "probabilities sum to 1.1"),  # Sums to 1.1
+        ([True, False], "non-finite probability: true"),  # Booleans are rejected
     ]
 
     for probs, expected_anomaly_sub in anomaly_cases:

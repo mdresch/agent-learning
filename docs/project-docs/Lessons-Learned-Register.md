@@ -57,6 +57,7 @@
 | [LL-044](#ll-044--the-monolithic-ideation-trap-decoupling-deep-exploratory-research-into-a-dedicated-library) | The Monolithic Ideation Trap: Decoupling Deep Exploratory Research into a Dedicated Library | Phase 1 Close / Stage 1 Initiation | Universal Governance & Process | 2026-11-06 |
 | [LL-045](#ll-045--pre-flight-specification-gaps-in-replay-engines-auditing-empty-collection-and-none-safety-contracts) | Pre-Flight Specification Gaps in Replay Engines: Auditing Empty-Collection and None-Safety Contracts | Epic 14 / Story 14.5 | Universal Design & Testing | 2026-11-08 |
 | [LL-046](#ll-046--continuous-domain-widening-in-statistical-bounds-must-be-guarded-against-classical-integer-reversion) | Continuous-Domain Widening in Statistical Bounds Must Be Guarded Against Classical Integer Reversion | Epic 16 / Stories 16.1–16.6 | Universal Design & Testing | 2026-11-08 |
+| [LL-047](#ll-047--enforce-explicit-numerical-tolerances-and-non-tautological-contract-assertions) | Enforce Explicit Numerical Tolerances and Non-Tautological Contract Assertions | Epic 18 / Stories 18.1–18.6 | Universal Testing & ML | 2026-11-08 |
 
 ---
 
@@ -666,6 +667,22 @@
   1. Explicitly document the domain widening, its bound preservation, and its downstream requirements (e.g., continuous reward mapping) in the function docstring and component skill.
   2. Implement bidirectional mathematical symmetry tests across a continuous grid (e.g., $1 - \text{wilson\_lower\_bound}(N - k, N) = \text{wilson\_upper\_bound}(k, N)$).
   3. Pre-flight specification gates must document any domain-widening departures in the generated contract interpretations ($I_1, I_2, \dots$) so review triage can cite design intent immediately.
+
+---
+
+### LL-047 — Enforce Explicit Numerical Tolerances and Non-Tautological Contract Assertions
+- **Identifier:** `LL-047`
+- **Date:** 2026-11-08
+- **Epic / Story:** Epic 18 / Stories 18.1–18.6 (commits `174e3ff`, `1113d57`, `b57ca2d`, `b9665a8`, `8c39f1f`)
+- **Scope:** Universal Design & Testing / Pairwise Preference & Convex Optimization
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/pairwise-preference/SKILL.md` & `scripts/spec_gate.py`; Tier 3: `sidpa-template` (proposed, needs human approval before cross-repo change)
+- **The Trap:** When verifying numerical convergence and parameter invariance in convex regularized models (e.g., Bradley-Terry logit optimization with L2 anchor), relying on standard library default tolerances (such as `math.isclose` with default `rel_tol=1e-9`) silently allows relative errors 1,000× looser than tight mathematical contracts ($10^{-12}$), masking floating-point drift. Similarly, test assertions that construct local assertion strings rather than inspecting the system under test's actual outputs (e.g. `LearnerResult` counts and docstring contracts) produce tautological passes that verify developer authoring rather than implementation behavior.
+- **The Root Cause:** Loose floating-point comparison defaults and disconnecting contract verification from real learner state machines and returned result structures.
+- **Actionable Invariant:** 
+  1. For tight mathematical contracts, always enforce absolute tolerances explicitly (`abs(a - b) <= 1e-12` and `math.isclose(a, b, rel_tol=0.0, abs_tol=1e-12)`).
+  2. Anchor all boundary and contract assertions directly to runtime outputs (`result.episodes_used`, `result.extra['pairs']`, `policy.snapshot().logits`) and verified docstrings.
+- **Verification Gate:** Pre-flight spec gates and automated PR gatekeeper reviews check for explicit numerical tolerances and verify that contract assertions target runtime state objects.
+
 
 
 

@@ -1,0 +1,17 @@
+[
+  {
+    "id": "approve_routing_thresholds",
+    "description": "The proposed routing thresholds are valid, satisfy MIN_GAP_BITS and margin requirements, and preserve fail-safe escalation -- approve them",
+    "parameters": {}
+  },
+  {
+    "id": "reject_routing_thresholds",
+    "description": "The proposed routing thresholds violate safety bounds or lack calibration evidence -- reject them outright",
+    "parameters": {}
+  },
+  {
+    "id": "request_revision_before_decision",
+    "description": "The proposed routing thresholds need re-calibration or parameter adjustment before decision",
+    "parameters": {}
+  }
+]

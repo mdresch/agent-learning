@@ -2682,3 +2682,31 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-136-9 | crash risk | verified: yes | decision: accepted | Return RouteDecision with reason="anomaly" on invalid previous string/type instead of raising ValueError | fix: 2005086`
   - `Q-136-10 | logic error | verified: yes | decision: accepted | Retain computed entropy_bits and margin in RouteDecision when cfg=None anomaly occurs | fix: 2005086`
   - `Q-136-11 | documentation | verified: yes | decision: accepted | Remove unused constant SEED_DAMPING_DEFAULT deferred to Story 21.5 | fix: 978fb32`
+
+---
+
+## Story 21.3 — Pinned Gates
+- **Commit:** `873b98f`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-21.3`
+- **Source ADR / BRD / FDD:** ADR-021 (§4.1), BRD-021, FDD-021 (§1 item 3, §2.1)
+- **Pre-Flight Spec Gate:** Proceed utility 0.6072, margin +0.0858 (>= +0.05), episode `spec-21_3-024c5cf2`.
+- **Files Modified/Created:**
+  - `docs/policy-shapes/approve-routing-thresholds.actions.json` (action list for `approve-routing-thresholds`)
+  - `docs/policy-shapes/approve-routing-bucket.actions.json` (action list for `approve-routing-bucket`)
+  - `tests/test_routing_pinning.py` (contract tests for $AC_0$ through $AC_4$, interpretations $I_1$ to $I_3$)
+  - `docs/user-stories/epic-21-contextual-authority-ensemble-routing.md` (Story 21.3 marked Completed)
+- **Contracts:**
+  - `tests/test_routing_pinning.py`
+  - Contract run: 6 passed in 0.98s
+  - Cumulative suite: 16 passed across Epic 21 (`test_routing_signals.py`, `test_routing_route.py`, `test_routing_pinning.py`)
+- **Validation:**
+  - $AC_0$: `PINNED_FULL` equals the eleven tasks of FDD-021 §2.1 (`approve-charter`, `approve-adr`, `approve-brd`, `approve-fdd`, `approve-user-stories`, `approve-pmp`, `approve-adaptation-plan`, `approve-subsidiary-plan`, `retrospective`, `approve-routing-thresholds`, `approve-routing-bucket`).
+  - $AC_1$: For each pinned task, over a grid of distributions (entropy from ~0.08 to 1.0 bits, margin from 0.0 to 0.98), tiers (`low`, `standard`, `high`, `critical`), `previous` values (`None`, `LOW`, `FULL`, `"low"`, `"full"`), and `approved_for_low` (`True`, `False`), `route` returns `FULL` with reason `"pinned"`.
+  - $AC_2$: Declared pin: an unpinned task called with `requires_human_approval=True` routes `FULL` with reason `"pinned"`; the same task with `False` and an approved bucket routes `LOW` with reason `"low"`.
+  - $AC_3$: Pin beats invalid input: a pinned task with invalid probabilities (empty, NaN, inf, negative, bad sum, boolean) routes `FULL` with reason `"pinned"` (not `"anomaly"`).
+  - $AC_4$: Policy shape files `docs/policy-shapes/approve-routing-thresholds.actions.json` and `approve-routing-bucket.actions.json` each hold the three actions `approve_*`, `reject_*`, and `request_revision_before_decision`, and both task ids are in `PINNED_FULL`.
+  - Observed RED first: `AssertionError: Policy shape file missing: .../docs/policy-shapes/approve-routing-thresholds.actions.json`.
+  - Upstream fork untouched: 8/8 passed in `tests/test_upstream_untouched.py`.
+  - Governance baseline: 18/18 passed in `tests/test_governance_baseline.py`.
+

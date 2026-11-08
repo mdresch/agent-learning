@@ -28,7 +28,7 @@ Fixture used by the criteria below ("the base set"): three actions `x`, `y` and 
 
 ## Story 18.2 — The Loss and Its Gradient
 
-**Status:** Ready  
+**Status:** Completed  
 **As** an auditor, **I want** the Bradley-Terry loss and its gradient written as plain arithmetic, **so that** a logit update can be checked by hand.
 
 ### Acceptance Criteria:

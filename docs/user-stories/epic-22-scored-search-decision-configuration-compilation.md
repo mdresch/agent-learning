@@ -44,7 +44,7 @@ Fixtures used by the criteria below. "The toy frame": criteria `c1`, `c2`, optio
 
 ## Story 22.3 — The Coordinate Ascent
 
-**Status:** Ready  
+**Status:** Completed (2026-11-08)  
 **As** a maintainer, **I want** a deterministic search that keeps the weights valid, **so that** a result can be reproduced and trusted.
 
 ### Acceptance Criteria:

@@ -21,12 +21,12 @@ from agent_learning_ext.policy.ucb import C_DEFAULT, SELECTION_BASIS, WILSON_Z, 
 
 __all__ = [
     "ADVICE_TASK_ID",
-    "ActionStats",
     "C_DEFAULT",
     "DECISION_KINDS",
     "GATE_TASK_ID",
     "SELECTION_BASIS",
     "WILSON_Z",
+    "ActionStats",
     "ContextualSoftmaxPolicy",
     "Policy",
     "ScopeRecommendation",

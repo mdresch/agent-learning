@@ -2988,3 +2988,24 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Also in this PR (outside the story scope, at Menno's request):** `afca3e8` fixes `scripts/pr_gate.py` and `scripts/spec_gate.py` crashing with `UnicodeEncodeError` on their emoji verdict line on a cp1252 Windows console (seen on PR #146). `main()` now calls `ensure_utf8_stdout()`. Contract `tests/test_gate_console_encoding.py` was observed RED first (6 failed, the 2 cp1252 control tests passed) and now passes 8/8.
 - **Orchestrator validation (implemented by a delegated agent, Steps 0 to 7):** independently re-ran the Epic 21 contracts with `tests/test_weight_adopt.py` and `tests/test_upstream_untouched.py` (141 passed) and the full suite after the gate fix (2325 passed, 1 skipped; same exclusions). Hand-checked `seed_prior` against K5 for `(18, 3, 1)`. Checked `_approval_episode_error` against FDD-021 §3 item 10. Accepted the open question below as consistent with ADR-021 §4.4: the router uses the seeded prior for the entropy and margin tests.
 - **Open questions (not blocking):** BRU-021-12 / ADR-021 §4.4 "if the seeded distribution still fails the entropy or margin test, the bucket stays on full" is a routing-time rule (the router uses the prior); 21.5 stores the prior and does not check it against the thresholds at approval. `--approve-bucket` does not require thresholds to be set.
+---
+## Review record — PR #149 (ADR-023 downstream docs: BRD-023, FDD-023, Epic 23)
+- **Date:** 2026-11-09
+- **Branch:** `docs/adr-023-downstream` (draft `30c6043`, triage `60565fc`, `f972391`, `f9a7fee`)
+- **Scope:** Draft specifications only, with no code or tests. Recorded so that every Amazon Q finding, and the answer to it, is training data for the review learners and the PR gatekeeper. This follows Menno's instruction of 2026-11-09 to include all findings.
+- **Review (Q rounds 1 to 3):**
+  - `Q-149-1 | documentation | verified: yes | decision: accepted | BRU-023-04 stated 50 ms as settled while FDD-023 R4 is open at 98 ms measured; the rule now says the bound is open and holds a provisional 5 s | fix: 60565fc`
+  - `Q-149-2 | test gap | verified: yes | decision: accepted | Story 23.1 AC_8 had no number to assert; it now asserts a median under a provisional 5 s tied to R4 | fix: 60565fc`
+  - `Q-149-3 | test gap | verified: yes | decision: accepted | Story 23.6 AC_1 asserted an outcome measured on an uncommitted prototype; it now asserts only the bound and a terminal status other than exposure_unmet, and the exact result is measured at Ingest | fix: 60565fc`
+  - `Q-149-4 | logic error | verified: yes | decision: accepted | converged raised ValueError on a precondition never stated, and replayed comparisons can reach that path; new R11 (return false and report exposure_unmet proposed) | fix: 60565fc`
+  - `Q-149-5 | documentation | verified: partial | decision: accepted | The two gradient figures are from two different N = 100 draws, not a contradiction; both are now recorded | fix: 60565fc`
+  - `Q-149-6 | documentation | verified: partial | decision: accepted | About 2000 steps referred to 2e-15, not tol 1e-8; recomputed as 1017 and 1245 steps | fix: 60565fc`
+  - `Q-149-7 | logic error | verified: no | decision: declined | converged is already checked before budget_exhausted and converged() returns a bool, so the two cannot disagree; only the wording was made explicit | fix: none`
+  - `Q-149-8 | crash risk | verified: no | decision: declined | A dataclass field reached as fit.converged binds no module-level name, so it cannot collide with the function converged | fix: none`
+  - `Q-149-9 | documentation | verified: yes | decision: accepted | max(variances) on a dict compares keys; converged now uses max(variances.values()) | fix: 60565fc`
+  - `Q-149-10 | documentation | verified: yes | decision: accepted | Same dict notation fix in tournament_state | fix: 60565fc`
+  - `Q-149-11 | logic error | verified: partial | decision: accepted | tournament_state now validates through converged(); delegating the status itself would hide budget_exhausted because converged() is also true on a spent budget | fix: f972391`
+  - `Q-149-12 | documentation | verified: yes | decision: accepted | fit_bradley_terry section 3.1 now states that an unknown id in a comparison raises ValueError, matching section 5 | fix: f9a7fee`
+  - `Q-149-13 | documentation | verified: yes | decision: accepted | comparisons_from_episodes deduplicates by the Episode.id value; different ids recording the same pair are two answers | fix: f9a7fee`
+  - `Q-149-14 | logic error | verified: yes | decision: accepted | tournament_state raises ValueError when fit.utilities or variances keys are not exactly items; row added to the section 5 error table | fix: f9a7fee`
+- **Q verdicts:** after round 2, Q confirmed Q-149-1 to 10 resolved at `60565fc`. After round 3, it confirmed Q-149-11 resolved at `f972391`. Round 4 was requested at `f9a7fee`.

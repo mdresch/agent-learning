@@ -889,8 +889,12 @@ def _cmd_decide_task_policy(args: argparse.Namespace) -> int:
                 file=sys.stderr,
             )
             return 2
+        feature_dim = snapshot.metadata.get("feature_dim")
+        if isinstance(feature_dim, bool) or not isinstance(feature_dim, int) or feature_dim < 1:
+            print("This contextual softmax policy has no valid feature_dim in its metadata.", file=sys.stderr)
+            return 2
         try:
-            features = _parse_feature_vector(args.features, int(snapshot.metadata["feature_dim"]))
+            features = _parse_feature_vector(args.features, feature_dim)
         except ValueError as exc:
             print(str(exc), file=sys.stderr)
             return 2

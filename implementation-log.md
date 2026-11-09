@@ -3076,6 +3076,35 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **PR #150:**
   - `Q-150-1 | logic error | verified: yes | decision: accepted | FDD-024 §2.2 says the first eligible row is the recommendation, but D9 and the worked fixture make recommended_id the first primary row (id 3, not adjunct id 6) | fix: none`
 
+---
+## Story 38.1 — The Weight-Row Update
+- **Commit:** `e95d88a`
+- **Date:** 2026-11-09
+- **Branch:** `feat/story-38.1` (worktree `../agent-learning-story-38.1`)
+- **Source ADR / BRD / FDD:** ADR-038 (§4.1), BRD-038 (BRU-038-02, BRU-038-06), FDD-038 (§1, §2.1, §3, D6)
+- **Pre-Flight Spec Gate:** `uv run python scripts/spec_gate.py 38.1 --no-persist` PASSED, robust margin +0.1774. `--no-persist` because `AGENT_LEARNING_LOCAL_STORE_DIR` on this machine points at another project's store (LL-040). Interpretations I1 (None-safety), I2 (empty base case), I3 (non-finite rejection) from the gate, plus I4 to I6 added in the test docstring.
+- **Worktree deviation:** nothing is merged between the Epic 38 stories, so 38.1 forks from `main` (`19d18ee`) as usual, but 38.2 forks from the tip of `feat/story-38.1` and 38.3 from the tip of `feat/story-38.2`. They form one stacked chain and must merge in order.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/learners/contextual_reinforce.py` (new)
+  - `src/agent_learning_ext/learners/__init__.py`, `src/agent_learning_ext/__init__.py` (export, `_EXPORTS`)
+  - `tests/test_contextual_learner.py` (new; AC_0 to AC_4 plus an export test)
+  - `.claude/skills/contextual-learning/SKILL.md` (new component skill)
+  - `docs/user-stories/epic-38-packaged-contextual-learning.md` (Story 38.1 Status line)
+- **Contracts:**
+  - RED observed first: 6 failed (5 acceptance tests and the export test; `ContextualReinforceLearner` did not exist).
+  - `tests/test_contextual_learner.py`: 6 passed. `tests/test_upstream_untouched.py` passed.
+  - Full suite with `--ignore=tests/test_spark.py --ignore=tests/pmbok`: 2337 passed, 2 skipped. Not the entire suite (Spark needs a JVM; `tests/pmbok` cannot be collected from a clean install, ADR-034, LL-013).
+  - `ruff check` clean on the four touched source and test files (`--fix` only on the two files this story created).
+- **Notes:**
+  - The 38.1 implementation covers only the used-episode path. Skip counters (38.2) and the class wall (38.3) are added in their own stories so that each contract is observed RED.
+  - The worktree's first `uv sync` did not install `numpy`; `uv sync --extra dev` was needed before the tests could import `agent_learning`.
+  - Not touched, by instruction: `docs/project-docs/Project-Status-Register.md` (the orchestrator updates it once after validation, to avoid a merge conflict with the Stories 38.4 to 38.6 branch).
+- **Amazon Q review (PR #153):** two rounds on `/q review`, then `/q confirm` on head `1369f23`. Q's reply on the head says no earlier finding is unresolved and lists only later stories as open. Accepted and fixed in `1369f23` (new commit, tests observed RED first): the empty-batch division and the missing-`feature_vector` read. Declined with reasons in the PR triage comment: the `test_ac1` baseline-decay remark and the `parents[1]` path remark.
+  - `Q-153-1 | crash risk | verified: yes | decision: accepted | ZeroDivisionError when no episode is usable (reported twice) | fix: 1369f23`
+  - `Q-153-2 | crash risk | verified: yes | decision: accepted | KeyError or TypeError reading feature_vector from missing metadata (reported twice) | fix: 1369f23`
+  - `Q-153-3 | logic error | verified: no | decision: declined | AC_1 fixes only the learning rate and the baseline stays 0 for any decay because the rewards cancel | fix: none`
+  - `Q-153-4 | logic error | verified: no | decision: declined | LEARNER_FILE resolves from __file__ not the working directory and 28 other tests use the same pattern | fix: none`
+
 ## Story 38.4 — Init Can Create The Contextual Policy
 - **Commit:** `74e324d`
 - **Date:** 2026-11-09
@@ -3099,6 +3128,30 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - Environment: `uv sync` alone installs no pytest or ruff in the worktree venv, so `uv run pytest` fell through to a global pytest without numpy; `uv sync --extra dev` fixed it (not `--all-extras`, LL-003).
 - **Status register:** `docs/project-docs/Project-Status-Register.md` not edited here; the orchestrator updates it once after validation to avoid a merge conflict with the Stories 38.1 to 38.3 agent.
 ---
+- **Amazon Q review (PR #154):** `/q review`, then `/q confirm` on head `b7e232d`. Q's reply says all five acceptance criteria are resolved and lists the payload rule as owned by Story 38.6. One finding, declined with a reason in the PR triage comment.
+  - `Q-154-1 | crash risk | verified: no | decision: declined | _policy_payload does not crash on a contextual snapshot and the printed payload is Story 38.6 AC_2 (interpretation I8) | fix: none`
+
+---
+## Story 38.2 — Skipped Episodes Are Counted
+- **Commit:** `8c44e13`
+- **Date:** 2026-11-09
+- **Branch:** `feat/story-38.2` (worktree `../agent-learning-story-38.2`), forked from the tip of `feat/story-38.1` (`5a5c895`), not from `main`: nothing is merged between the Epic 38 stories. It merges after 38.1.
+- **Source ADR / BRD / FDD:** ADR-038 (§4.2, invariants 2 to 4), BRD-038 (BRU-038-03, BRU-038-04, BRU-038-05), FDD-038 (§2.1 table, §3 items 2 and 6)
+- **Pre-Flight Spec Gate:** `uv run python scripts/spec_gate.py 38.2 --no-persist` PASSED, robust margin +0.1829 (`--no-persist`: LL-040). Gate interpretations (storage decoupling, None-safety, empty base case) recorded as G1 to G3 in the test docstring; I7 to I9 added (all seven counter keys always present; `inf` is non-finite; no-reward case is an episode with no reward at all).
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/learners/contextual_reinforce.py` (episode classification, counters, nothing-to-apply return, reward validation)
+  - `tests/test_contextual_learner.py` (Story 38.2 section appended)
+  - `.claude/skills/contextual-learning/SKILL.md` (counters, nothing-to-apply, bad reward)
+  - `docs/user-stories/epic-38-packaged-contextual-learning.md` (Story 38.2 Status line)
+- **Contracts:**
+  - RED observed first: 21 failed, 7 passed. The 7 passing were the 6 Story 38.1 tests and AC_3 (supplied zeros), which the 38.1 implementation already satisfied.
+  - `tests/test_contextual_learner.py`: 28 passed. `tests/test_upstream_untouched.py` passed.
+  - Full suite with `--ignore=tests/test_spark.py --ignore=tests/pmbok`: 2359 passed, 2 skipped. Not the entire suite (Spark needs a JVM; `tests/pmbok` cannot be collected from a clean install, ADR-034, LL-013).
+  - `ruff check` clean (`--fix` only on files this branch created).
+- **Notes:**
+  - AC_3 was green before this story's implementation because the 38.1 code already treats a supplied zero vector as a vector. It still stands as its own test.
+  - `Project-Status-Register.md` not touched, by instruction (the orchestrator updates it once).
+- **Amazon Q review (PR #155):** `/q review` on head `ae7a23e`. Q reports no blocking defect, no finding and no inline comment, and says the PR is ready to merge from a code-correctness standpoint. No findings to triage.
 
 ## Story 38.5 — Decide Requires The Feature List
 - **Commit:** `a8dd499`
@@ -3123,6 +3176,8 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `ruff check` clean on `cli.py` and the test file; `git diff --stat` on `cli.py` was 102 insertions, 0 deletions (the branch before the log edit).
 - **Status register:** `docs/project-docs/Project-Status-Register.md` not edited here; the orchestrator updates it once after validation.
 ---
+- **Amazon Q review (PR #156):** `/q review` on head `7eff72d`; one finding (reported twice). Accepted as hardening for a hand-made snapshot and fixed in `4caa219` (new commit, test observed RED first). `/q confirm` follows on the new head.
+  - `Q-156-1 | crash risk | verified: yes | decision: accepted | KeyError on a contextual snapshot with no feature_dim, reachable only through a hand-made snapshot because init always writes it (reported twice) | fix: 4caa219`
 
 ## Story 38.6 — Scalar Commands Leave The Weight Rows Alone
 - **Commit:** `dd84864`

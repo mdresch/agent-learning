@@ -422,6 +422,18 @@ def test_38_5_scalar_decide_without_features_still_runs(store, capsys) -> None:
     assert "autonomy" in payload and "feature_vector" not in payload
 
 
+def test_38_5_review_contextual_snapshot_without_feature_dim_is_refused(store, capsys) -> None:
+    """Q-156 review: a hand-made contextual snapshot with no feature_dim exits 2, not a KeyError."""
+    snapshot = _contextual(store)
+    del snapshot.metadata["feature_dim"]
+    store.store_policy(snapshot)
+    before = _fingerprint(store)
+    capsys.readouterr()
+    assert _decide("--features", "[1.0, 0.0]") == 2
+    assert "feature_dim" in capsys.readouterr().err
+    assert _fingerprint(store) == before
+
+
 # --- Story 38.6 -------------------------------------------------------------------------------------
 
 WEIGHTS = {"a": [0.5, -0.5], "b": [1.0, 2.0]}
@@ -558,3 +570,4 @@ def test_38_6_ac3_a_scalar_snapshot_is_trained_not_skipped(store, capsys) -> Non
     result = json.loads(capsys.readouterr().out)
     assert len(result["runs"]) == 1
     assert not any("ContextualReinforceLearner" in item["reason"] for item in result["skipped"])
+

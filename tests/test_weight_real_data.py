@@ -84,7 +84,7 @@ def _resolve_label(stem: str) -> tuple[str | None, str | None, str | None, list[
             task_id = data.get("task_id")
             if kind == "episode":
                 label = (data.get("metadata") or {}).get("correct_action_id") or data.get("action_id")
-                labeled_at = data.get("created_at")
+                labeled_at = data.get("created_at") or _DEFAULT_LABELED_AT
             else:
                 label = (data.get("selected_action") or {}).get("id")
                 labeled_at = data.get("adjudicated_at") or data.get("created_at") or _DEFAULT_LABELED_AT
@@ -242,6 +242,7 @@ def test_ac2_no_improvement_on_real_data_and_json_roundtrip() -> None:
 
     frames_by_task = _load_real_labeled_frames()
     min_required = 2 * MIN_PART
+    tested_tasks = 0
 
     for task_id, items in sorted(frames_by_task.items()):
         if len(items) < min_required:
@@ -286,6 +287,9 @@ def test_ac2_no_improvement_on_real_data_and_json_roundtrip() -> None:
         serialized = json.dumps(proposal_dict)
         deserialized = json.loads(serialized)
         assert deserialized == proposal_dict
+        tested_tasks += 1
+
+    assert tested_tasks >= 1, f"No task had >= {min_required} homogeneous frames; propose() was never called"
 
 
 def test_ac3_committed_files_untouched_and_storage_decoupled() -> None:
@@ -392,3 +396,20 @@ def test_ac3_storage_import_detector_sees_every_import_form(source: str, expecte
     """AC_3 (Nothing Written): the detector behind the storage-decoupling check catches the package
     import form `from agent_learning import storage` as well as dotted module imports."""
     assert _imports_storage(source) is expected
+
+
+def test_ac0_episode_without_created_at_gets_the_default_timestamp(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """AC_0 (Real Source), I3 None-safety: a resolved label never carries a None timestamp, whichever
+    source supplied it, so a direct caller of `_resolve_label` cannot hand `LabeledFrame` a None."""
+    import sys
+
+    module = sys.modules[__name__]
+    episodes = tmp_path / "episodes"
+    episodes.mkdir()
+    monkeypatch.setattr(module, "EPISODES_DIR", episodes)
+    monkeypatch.setattr(module, "RESULTS_DIR", tmp_path / "results")
+
+    (episodes / "f3-episode.json").write_text(
+        json.dumps({"task_id": "t", "metadata": {"correct_action_id": "a"}}), encoding="utf-8"
+    )
+    assert _resolve_label("f3") == ("t", "a", _DEFAULT_LABELED_AT, [])

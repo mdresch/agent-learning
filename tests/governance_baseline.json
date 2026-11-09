@@ -148,9 +148,15 @@
     "docs/adr/ADR-018-pairwise-preference-optimization.md": {
       "family": "adr",
       "status": "accepted",
-      "sha256": "e913a921f4a4fa2809635ac32bb7b1d123be15f9092031ee0c11ff8efcb5388a",
+      "sha256": "484bfb4d9c1a0d0f4e349f07dd9fb18661ac2bb036b06336f1aa5801a88fdcd7",
       "approval_episode": null,
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "2557a684",
+          "stage": 16
+        }
+      ]
     },
     "docs/adr/ADR-019-hierarchical-meta-prior-compilation.md": {
       "family": "adr",

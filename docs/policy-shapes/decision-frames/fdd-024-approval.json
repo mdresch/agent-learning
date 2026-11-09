@@ -1,0 +1,133 @@
+{
+  "task": "FDD-024: approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "traceability_and_coverage",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "FDD-024 implements the accepted ADR-024 and BRD-024 behavior, including D1-D14 confirmations and the related repository contracts."
+    },
+    {
+      "id": "architecture_and_boundaries",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Module placement, dependencies, purity, episode metadata, upstream isolation, and autonomy boundaries are technically coherent and compatible with existing code."
+    },
+    {
+      "id": "contract_precision",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Data structures, validation, filtering, ranking, decision validation, serialization, seed cases, and tests are described precisely enough to implement."
+    },
+    {
+      "id": "open_items_honestly_bounded",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Unresolved catalog and Ideation updates, human-owned seed declarations, baseline scope, ADR wording, and other remaining questions are disclosed and not represented as approved or completed."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_fdd",
+      "evidence": [
+        {
+          "criterion_id": "traceability_and_coverage",
+          "source": "direct_doc_read:FDD-024 §§1-7 cross-checked with BRD-024 and accepted ADR-024; D1-D14 decisions are marked confirmed",
+          "support": 0.87,
+          "confidence": 0.84
+        },
+        {
+          "criterion_id": "architecture_and_boundaries",
+          "source": "direct_doc_read:FDD-024 places pure module in src/agent_learning_ext, reuses catalog and ComplexityProfile, avoids storage/routing/weight compiler imports, and protects src/agent_learning",
+          "support": 0.85,
+          "confidence": 0.82
+        },
+        {
+          "criterion_id": "contract_precision",
+          "source": "direct_doc_read:FDD-024 §§2-3 specify strict schemas, validation errors, deterministic ranking, decision kinds, episode metadata, Ideation consistency, and synthetic checks",
+          "support": 0.89,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "open_items_honestly_bounded",
+          "source": "direct_doc_read:FDD-024 status and §7 disclose unresolved D5 catalog/Ideation state, Appendix A review, D10 human profiles, PMP scope, and stale ADR wording",
+          "support": 0.86,
+          "confidence": 0.83
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_fdd",
+      "evidence": [
+        {
+          "criterion_id": "traceability_and_coverage",
+          "source": "direct_doc_read:FDD-024 cites BRD-024 and accepted ADR-024",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "architecture_and_boundaries",
+          "source": "direct_doc_read:FDD-024 states explicit import and storage boundaries",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "contract_precision",
+          "source": "direct_doc_read:FDD-024 provides typed records and numbered behavior contracts",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "open_items_honestly_bounded",
+          "source": "direct_doc_read:FDD-024 plainly marks unresolved items as open",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "traceability_and_coverage",
+          "source": "direct_doc_read:FDD-024 covers the accepted ADR and BRD; remaining human decisions are identified rather than silently assumed",
+          "support": 0.24,
+          "confidence": 0.78
+        },
+        {
+          "criterion_id": "architecture_and_boundaries",
+          "source": "direct_doc_read:FDD-024 still flags baseline scope and the separate D5 state update as unresolved implementation prerequisites",
+          "support": 0.28,
+          "confidence": 0.78
+        },
+        {
+          "criterion_id": "contract_precision",
+          "source": "direct_doc_read:FDD-024 Appendix A and seed profiles require human review/declaration before implementation",
+          "support": 0.28,
+          "confidence": 0.78
+        },
+        {
+          "criterion_id": "open_items_honestly_bounded",
+          "source": "direct_doc_read:FDD-024 discloses all listed unresolved questions; no FDD-level contradiction identified",
+          "support": 0.22,
+          "confidence": 0.78
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

@@ -1,0 +1,133 @@
+{
+  "task": "BRD-023: approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "traceable_to_adr",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Business rules trace to Accepted ADR-023 and the confirmed design decisions."
+    },
+    {
+      "id": "honest_metrics",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Success measures are measurable and current prototype limitations are disclosed."
+    },
+    {
+      "id": "out_of_scope_accurate",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Scope boundaries and non-goals are explicit and consistent with the ADR and FDD."
+    },
+    {
+      "id": "rules_actionable",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Business rules are specific enough to guide implementation and verification."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_brd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_adr",
+          "source": "direct_doc_read:BRD-023 business rules checked against Accepted ADR-023 and confirmed R1-R11 choices in FDD-023",
+          "support": 0.9,
+          "confidence": 0.88
+        },
+        {
+          "criterion_id": "honest_metrics",
+          "source": "direct_doc_read:BRD-023 BRU-023-04 and stakeholder time metric disclose the 5 ms target and measured 98 ms prototype",
+          "support": 0.96,
+          "confidence": 0.95
+        },
+        {
+          "criterion_id": "out_of_scope_accurate",
+          "source": "direct_doc_read:BRD-023 scope and non-goals checked against FDD-023 sections 6-7",
+          "support": 0.86,
+          "confidence": 0.84
+        },
+        {
+          "criterion_id": "rules_actionable",
+          "source": "direct_doc_read:BRD-023 BRU-023-01 through BRU-023-14 checked for measurable behavior and traceability",
+          "support": 0.88,
+          "confidence": 0.86
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_brd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_adr",
+          "source": "direct_doc_read:BRD-023 source ADR and FDD references",
+          "support": 0.08,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "honest_metrics",
+          "source": "direct_doc_read:BRD-023 explicitly states the prototype misses the selected performance target",
+          "support": 0.08,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "out_of_scope_accurate",
+          "source": "direct_doc_read:BRD-023 explicit scope and non-goals",
+          "support": 0.08,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "rules_actionable",
+          "source": "direct_doc_read:BRD-023 numbered business rules",
+          "support": 0.08,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_adr",
+          "source": "direct_doc_read:BRD-023 traceability references",
+          "support": 0.18,
+          "confidence": 0.78
+        },
+        {
+          "criterion_id": "honest_metrics",
+          "source": "direct_doc_read:BRD-023 names the unmet 5 ms target without replacing it with a looser bound",
+          "support": 0.12,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "out_of_scope_accurate",
+          "source": "direct_doc_read:BRD-023 identifies the baseline scope change as separate from approval",
+          "support": 0.18,
+          "confidence": 0.78
+        },
+        {
+          "criterion_id": "rules_actionable",
+          "source": "direct_doc_read:BRD-023 measurable business rules",
+          "support": 0.16,
+          "confidence": 0.78
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

@@ -2,7 +2,8 @@
 
 **Source ADR:** [ADR-024](../../adr/ADR-024-learning-methodology-selection-chain.md) — Accepted (2026-10-26, Menno); Episode `f99f1078-db8f-4575-9bb4-77a95ef73b97`. Open questions resolved by Menno on 2026-10-28 (ADR-024 §7).  
 **Governing Baseline:** `PMP-BL-v1.1.0` (Phase 2). Epic 24 is not in the baseline's authorized execution bands (Band C: Epics 14, 18; Band D: Epics 16, 21, 22, 38), so building it needs a scope decision first (FDD-024 §7 item 5). Drafting the requirements does not.  
-**Status:** Draft — derived from Accepted ADR-024. Awaiting human approval through `approve-brd`. Not approved, not scored.  
+**Status:** Approved (2026-11-09, Menno) — derived from Accepted ADR-024; adjudicated via `approve-brd` (robust utility 0.805, episode `994c2be9-ec82-4de7-9cc3-35f642f7a170`). Epic 24 remains outside the authorized PMP-BL-v1.1.0 scope; this approval does not authorize implementation.
+
 **Stakeholders:** Menno (Sponsor/PM/maintainer, who declares profiles and decides); agents and maintainers who create a `TaskPolicy` and today read `.claude/skills/learning-methodology-selection/SKILL.md` by hand; auditors who must see why one methodology was chosen and why the others were not  
 
 ## Business Need

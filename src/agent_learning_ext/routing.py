@@ -18,7 +18,7 @@ from __future__ import annotations
 import math
 from collections.abc import Sequence
 from dataclasses import dataclass
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from agent_learning.autonomy import wilson_lower_bound
@@ -482,7 +482,7 @@ def agreement(
     episodes: Sequence[Any],
     bucket: str,
     now: datetime | str,
-    max_evidence_age_days: int | float | None,
+    max_evidence_age_days: float | None,
 ) -> dict[str, Any]:
     """Count scored full-routed episodes of the bucket within the evidence window (FDD-021 §3.6).
 
@@ -519,7 +519,7 @@ def agreement(
     elif isinstance(now, datetime):
         ref_dt = now
     else:
-        raise ValueError(f"now must be datetime or ISO string: {now!r}")
+        raise TypeError(f"now must be datetime or ISO string: {now!r}")
 
     if ref_dt.tzinfo is None:
         ref_dt = ref_dt.replace(tzinfo=timezone.utc)

@@ -56,7 +56,7 @@ Fixture used by the criteria below ("the base config"): `tau_esc` 1.0, `tau_dees
 
 ## Story 21.4 — The Shadow Record and the Agreement Gate
 
-**Status:** Ready  
+**Status:** Completed  
 **As** an approver, **I want** the evidence that a bucket is ready for the fast path presented with its base rate, **so that** I can see whether the learned policy agrees more than chance.
 
 ### Acceptance Criteria:

@@ -31,7 +31,10 @@ Contract Interpretations (LL-011):
 - I3: Numerical Precision Tolerances: Floating-point assertions use math.isclose or pytest.approx with
   explicit absolute tolerance (1e-4 for the worked Wilson values and 1e-9 for probabilities/means).
   The gate itself compares the unrounded wilson_lower_bound(k, n) (AC_4 "equals"); rounding before
-  the comparison would admit a bound just below the gate.
+  the comparison would admit a bound just below the gate. Two assertions are exact by design: the
+  reported bound against wilson_lower_bound(k, n) (identity of the same deterministic function, as
+  AC_4 "equals" requires) and the AC_6 logits of two identical learner runs (any difference at all
+  means the shadow field leaked into the update). Spec gate episode: spec-21_4-8ad60e3c.
 - I4: File name follows the epic (tests/test_routing_guard.py), as Stories 21.1 to 21.3 do.
 - I5: "a final action" (FDD-021 §3.6) is required for an episode to count: an episode with neither
   correct_action_id nor action_id is dropped, not counted under a placeholder action.
@@ -49,7 +52,7 @@ from __future__ import annotations
 import ast
 import json
 import math
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -359,8 +362,14 @@ def test_ac6_reinforce_learner_invariance_to_shadow_low_action(learner_cls: Any)
     for i in range(10):
         ep_id = f"ep-{i}"
         act = "approve" if i % 2 == 0 else "reject"
-        common = dict(id=ep_id, agent_id="test-agent", user_input="input", assistant_output="output",
-                      action_id=act, action_logprob=math.log(0.5))
+        common: dict[str, Any] = {
+            "id": ep_id,
+            "agent_id": "test-agent",
+            "user_input": "input",
+            "assistant_output": "output",
+            "action_id": act,
+            "action_logprob": math.log(0.5),
+        }
         episodes_clean.append(Episode(**common, metadata={"feedback_status": "accepted"}))
         episodes_shadow.append(
             Episode(

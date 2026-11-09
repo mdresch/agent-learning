@@ -761,5 +761,56 @@
   2. On single-class historical corpora, coordinate ascent must strictly enforce boundary floors ($w_c \ge \text{step}$) to prevent degenerate vertex collapse until multi-class counterfactual examples (e.g. Red Team defect fixtures) are introduced.
 - **Verification Gate:** `tests/test_weight_real_data.py`; IMP-035 and IMP-036.
 
+---
 
+### LL-053 — Approved Documents Named Microsoft-Module Placement Again
+- **Identifier:** `LL-053`
+- **Date:** 2026-11-09
+- **Epic / Story:** Epic 38 / Stories 38.1–38.6 (PRs #152–#159)
+- **Scope:** Specification Authoring / Fork Rule
+- **Tier 2/3 Propagation Target:** Tier 1 only (a Tier 2 edit to `.claude/skills/implement-story/SKILL.md` is proposed in IMP-044 and needs a human decision)
+- **The Trap:** ADR-038 §4.1 and FDD-038 §1 put the new learner and its export in `src/agent_learning/learners/` and `agent_learning`, and the CLI flags in `agent-learn`. All of those are Microsoft files under `tests/upstream_manifest.json`, so all six stories would have failed `tests/test_upstream_untouched.py`. It was caught at Step 1 before any code, and fixed by two Stage 16 correction notes (episodes `89ca6a26`, `f16469bd`).
+- **The Root Cause:** LL-050 put the check at Step 1 for code paths a story names, but the same documents were written and approved without comparing their paths to the upstream manifest, so the error reached ADR, BRD, FDD and stories.
+- **Actionable Invariant:** When drafting an ADR or FDD that names a code path, a new module or an export, check the path against `tests/upstream_manifest.json` first. New modules, exports and CLI commands go in `agent_learning_ext` (reached through `agent-learn-ext`). Step 1 of `implement-story` remains the second check.
+- **Verification Gate:** `tests/test_upstream_untouched.py`; `tests/test_governance_baseline.py`.
 
+---
+
+### LL-054 — Stacked Story Branches Conflict in the Append-Only Log at Every Merge
+- **Identifier:** `LL-054`
+- **Date:** 2026-11-09
+- **Epic / Story:** Epic 38 / Stories 38.1–38.6 (PRs #152–#159)
+- **Scope:** Delivery / Git Workflow
+- **Tier 2/3 Propagation Target:** Tier 1 only (IMP-043 proposes a merge driver)
+- **The Trap:** Because the stories were implemented before any was merged, each branch forked from the previous one. Every PR after the first needed `main` merged into it, and `implementation-log.md` conflicted five times (the tail is where every story appends). Each reconciliation also changed the head commit, so CI and the Q confirm ran again.
+- **The Root Cause:** The loop expects one merge per story before the next story starts. Implementing a chain ahead of its merges keeps the appended entries in competition for the same lines.
+- **Actionable Invariant:** When stacking, merge in order and reconcile `main` into the next branch right after each merge. Resolve the log by keeping both blocks, the block from `main` first, and re-run the story and baseline tests before pushing. Treat the reconciliation merge as a new head and ask Q to confirm it.
+- **Verification Gate:** `git merge-tree --write-tree` between two story branches before opening the later PR; `tests/test_review_triage.py` and `tests/test_critique_replay.py` after any log edit.
+
+---
+
+### LL-055 — A Fresh Worktree Misses the Dev and Examples Extras, and a Recorded Exclusion Hid the Cause
+- **Identifier:** `LL-055`
+- **Date:** 2026-11-09
+- **Epic / Story:** Epic 38 / Stories 38.1–38.6 (PRs #152–#159)
+- **Scope:** Environment / Test Suite
+- **Tier 2/3 Propagation Target:** Tier 1 only (IMP-044 proposes the skill change)
+- **The Trap:** In every Epic 38 worktree a plain `uv sync` left `pytest` and `numpy` out of the environment, so `uv run pytest` silently used a global `pytest` that could not import `agent_learning`. Separately, `tests/pmbok` was excluded from every run under ADR-034 and LL-013 as not collectable; on 2026-11-09 it failed only with `No module named 'yaml'`, and with the extras installed the whole suite passed (2498 passed, 3 skipped, 0 failed).
+- **The Root Cause:** PyYAML belongs to the `examples` extra and the test tools to `dev`. The exclusion recorded under LL-013 described a missing dependency as a property of the tests.
+- **Actionable Invariant:** In a new worktree run `uv sync --extra dev --extra examples` (not `--all-extras`, LL-003) and run a plain `uv run pytest` with no `--ignore`. Read a RED's message before accepting it. If a test cannot be collected, record the missing module, not an exclusion.
+- **Verification Gate:** `uv run pytest` with no flags reports 0 errors; Spark tests may skip without a JVM and the report says so.
+
+---
+
+### LL-056 — Q Findings Repeat and Re-Anchor After a Fix, and a Stacked First Story Ships Latent Crash Paths
+- **Identifier:** `LL-056`
+- **Date:** 2026-11-09
+- **Epic / Story:** Epic 38 / Stories 38.1–38.6 (PRs #152–#159)
+- **Scope:** Review Workflow / Specification Order
+- **Tier 2/3 Propagation Target:** Tier 1 only
+- **The Trap:** (1) Q posted each finding twice, and after a fix GitHub re-anchored the old inline comments to the new head commit, so a monitor keyed on `commit_id` reported the same six comments as new. (2) Story 38.1 deliberately left the empty-batch and missing-vector guards to Story 38.2 so that 38.2's contract could be seen RED. On its own diff the learner divided by zero and raised `KeyError`, and Q flagged both. Fixed in `1369f23` and merged forward.
+- **The Root Cause:** Comments carry `original_commit_id` apart from `commit_id`, and the loop's RED-first order treats a deferred guard as scope. A deferred guard is still a crash on the first merged commit.
+- **Actionable Invariant:** Tell new Q output from old by review or comment id and `created_at`, not by `commit_id`. In the first story of a stack, add the obvious crash guards (empty input, missing key) even when the counting of skipped inputs comes later, and say so in the interpretations.
+- **Verification Gate:** `gh api repos/<repo>/pulls/<n>/comments` shows `original_commit_id`; the 38.1 review tests `test_review_no_usable_episode_leaves_the_policy_unchanged` and `test_review_episode_without_a_feature_vector_is_skipped_not_raised`.
+
+---

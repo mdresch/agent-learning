@@ -810,6 +810,9 @@ def routed_episode_metadata(
 
     Round-trips cleanly through json.dumps and json.loads.
     Holds route, entropy, margin, reason, thresholds, bucket, anomaly, and shadow info.
+
+    The shadow record is a closed set (FDD-021 section 2.3): only ``shadow_low_action`` and
+    ``shadow_entropy_bits`` are copied, and any other key in ``shadow`` is ignored.
     """
     thresholds_dict: dict[str, Any] | None = None
     if config is not None:

@@ -469,3 +469,27 @@ def test_review_episode_without_logprob_is_still_counted_as_excluded() -> None:
     assert result.episodes_used == 0
     assert result.extra.get("full_authority_excluded") == 1
 
+def test_review_authority_strings_are_case_and_space_insensitive() -> None:
+    """Q-157 review: policy_for_route strips and lowercases an authority string, like route() does."""
+    snap = _sample_snapshot(task_id="unpinned-task", authority="low")
+    assert policy_for_route(snap, " FULL ").authority == DecisionAuthority.FULL
+    assert policy_for_route(snap, "Low").authority == DecisionAuthority.LOW
+    with pytest.raises(ValueError, match="Unknown authority"):
+        policy_for_route(snap, "medium")
+
+
+def test_review_shadow_record_is_a_closed_set() -> None:
+    """Q-157 review: only the two FDD-021 2.3 shadow keys are recorded; other keys are ignored."""
+    from agent_learning_ext.routing import RouteDecision, routed_episode_metadata
+
+    decision = RouteDecision(authority=DecisionAuthority.FULL, entropy_bits=0.9, margin=0.1, reason="test")
+    meta = routed_episode_metadata(
+        decision,
+        "bucket-a",
+        shadow={"shadow_low_action": "opt_a", "shadow_entropy_bits": 0.9, "surprise_key": "dropped"},
+    )
+    assert meta["shadow_low_action"] == "opt_a"
+    assert meta["shadow_entropy_bits"] == 0.9
+    assert "surprise_key" not in meta
+    assert json.loads(json.dumps(meta)) == meta
+

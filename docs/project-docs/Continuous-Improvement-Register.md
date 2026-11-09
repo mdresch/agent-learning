@@ -11,9 +11,17 @@
 
 The Lessons Learned Register takes a defensive posture: traps, defects and root causes. This register takes the positive one. It captures improvement ideas, architectural simplifications, developer-experience boosts and product opportunities while the knowledge from an epic is fresh.
 
-### The mandatory per-epic cadence question
+### The mandatory per-epic cadence questions
 
-At the epic's last story (Step 9):
+At the epic's last story (Step 9), ask the code question first, then the improvement question.
+
+**1. The code question** (answered in the epic's *Code & Methodology Recap*, section 3):
+
+> *"What did this epic's code implement (which methodology, which modules and public names), what in the code is worth reusing, where is it weakest, where in this project could it be applied, and what would a demonstration show?"*
+
+Answer it from the merged code and the review record, not from the plan: name files and public names, count review findings per module from the `Q-<PR>-<n>` lines with the project's parser, and say what is measured and what is only claimed. Procedural lessons (git, environment, review workflow) are not the subject of this question; they go to the Lessons Learned Register.
+
+**2. The improvement question:**
 
 > *"What improvement ideas, architectural simplifications, developer-experience boosts, or product opportunities emerged during this Epic that could add value to upcoming Epics or roll into the Intent Refinement Proposal for the next phase?"*
 
@@ -86,9 +94,20 @@ One entry per epic recap, appended in the order held. Format:
 ```
 ### Epic <N>: <title>
 - **Cadence Date:** <YYYY-MM-DD>
+- **Code & Methodology Recap:**
+  - **Methodology:** <name, catalog number, governing ADR, catalog state and hypothesis status (recorded, not changed by the recap)>
+  - **Code delivered:** <modules, public names, CLI commands, contract test files>
+  - **Design worth keeping:** <what the code does well, with the file and the rule>
+  - **Review findings by module:** <counts per module and claim type from the Q-<PR>-<n> lines, with the accepted ones named>
+  - **Known gaps in the code:** <what is not handled, with IMP ids>
+  - **Where it could apply:** <policies or decisions in this project, and the data volume that limits them>
+  - **Demonstration:** <what a runnable example should show, labelled synthetic where it is>
+  - **Evidence status:** <what is verified by tests or measurement, and what is only claimed>
 - **Defensive Review (LL-###):** <LL ids or no-new-lessons>
 - **Positive Improvement Harvest:** <IMP ids, or "Epic <N> Recap: No new improvement ideas identified.">
 ```
+
+An entry made before this format (Epics 14 to 22) has no code recap and is not rewritten; the register is append-only.
 
 ---
 
@@ -150,6 +169,15 @@ One entry per epic recap, appended in the order held. Format:
 
 ### Epic 38: Packaged Contextual Learning
 - **Cadence Date:** 2026-11-09
+- **Code & Methodology Recap:**
+  - **Methodology:** Contextual bandit (catalog #4), a softmax policy over per-action weight rows applied to a caller-supplied feature vector, trained by REINFORCE with a baseline. ADR-038. The catalog still marks #4 `example_only` and HYP-AL-004 is still Testing; this recap changes neither (BRU-038-10).
+  - **Code delivered:** `src/agent_learning_ext/learners/contextual_reinforce.py` (`ContextualReinforceLearner`, exported from `agent_learning_ext.learners` and `agent_learning_ext`); in `src/agent_learning_ext/cli.py` the flags `task-policy-init --feature-dim` and `task-policy-decide --features`, a `train` skip and an authority-set refusal for contextual snapshots. Contract tests: `tests/test_contextual_learner.py` and `tests/test_contextual_cli.py`.
+  - **Design worth keeping:** one update rule for a batch: each action's row moves by the learning rate times the mean over used episodes of (R minus baseline) times (1 if chosen else 0, minus its probability) times the feature vector, with every episode scored on the weights the call started with; clipping and the version bump stay in `apply_update`. Seven skip counters in `extra`, one per unusable episode by first match, make a silent no-op visible. The learner reads `metadata["feature_vector"]` and never `context_features`. Every refusal path is tested by a before and after fingerprint of the store.
+  - **Review findings by module:** 7 logged Q findings (3 accepted, 3 declined, 1 deferred), counted by `review_triage` from `Q-153-1` to `Q-159-1`. Learner: two accepted crash guards (an empty batch divided by zero; an episode with no `feature_vector` raised `KeyError`), two declined (a test-decay remark and a test path remark). CLI: one accepted hardening (a contextual snapshot with no `feature_dim` raised `KeyError`), one declined (a payload claim that did not crash), one deferred (`task-policy-authority-set` from full to low on a hand-made snapshot). Stories 38.2 and 38.3 had none. Both accepted learner findings were guards missing from the first story of the stack.
+  - **Known gaps in the code:** no CLI path trains a contextual policy (IMP-037); the caller must copy the vector onto the episode (IMP-038); the `autonomy` block still reads the unused logits and the full-to-low authority-set case is unspecified (IMP-039).
+  - **Where it could apply:** `escalate-diff-response`, using the Stage 16 measurements (change ratio, terms kept, downstream references) as features (IMP-041); `route-review-finding`, against the claim-type baseline of ADR-039 once Epic 39 is built (IMP-042). Both have very few real episodes today, so each is a shadow comparison, never authority.
+  - **Demonstration:** demo 04 rewritten on `task-policy-init --feature-dim`, `decide --features` and the learner, with simulated rewards labelled synthetic, showing a policy that picks different actions in different contexts (IMP-040, extending IMP-023 and IMP-029).
+  - **Evidence status:** the update rule is verified against hand-computed worked cases (a one-episode update, a two-episode batch mean, clipping) within 1e-9, and the contract fails when the advantage sign or the baseline update is changed. There is no evidence from real project data that a contextual policy does better than a plain softmax; HYP-AL-004 is unchanged.
 - **Defensive Review (LL-###):** LL-053 (Approved documents named Microsoft-module placement again), LL-054 (Stacked story branches conflict in the log at every merge), LL-055 (A fresh worktree misses the dev and examples extras), LL-056 (Q findings repeat and re-anchor after a fix, and stacked stories ship latent crash paths)
 - **Positive Improvement Harvest:** IMP-037, IMP-038, IMP-039, IMP-040, IMP-041, IMP-042, IMP-043, IMP-044
 

@@ -967,10 +967,16 @@
     },
     "docs/user-stories/epic-18-pairwise-preference-optimization.md": {
       "family": "story",
-      "status": "approved",
-      "sha256": "62e845001601f0d9241471ba5d8a9899345a3117c027b0e774b0a01312ab166b",
+      "status": "completed",
+      "sha256": "a7379b95977d4dd4917af645c43459360d730a666793988e97edfb27035ca143",
       "approval_episode": "42460cf3",
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "e671b42f",
+          "stage": 16
+        }
+      ]
     },
     "docs/user-stories/epic-19-hierarchical-meta-prior-compilation.md": {
       "family": "story",

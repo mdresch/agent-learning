@@ -2,16 +2,16 @@
 
 **Source ADR:** [ADR-038](../../adr/ADR-038-packaged-contextual-learning.md) — Accepted (2026-10-30, Menno); Episode `f745c77b-0a2c-4e97-82d4-6f6936b2acd9`  
 **Source BRD:** [BRD-038](../Business-Requirements/BRD-038-packaged-contextual-learning.md)  
-**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-038 and BRD-038; adjudicated via `approve-fdd` (robust utility 0.745, episode `3e68b518-9bf7-4107-873b-9bfdc59b2711`). Menno confirmed D1–D6 and the three ADR open questions on 2026-10-30. Each confirmation is option A in §4 and §7.
+**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-038 and BRD-038; adjudicated via `approve-fdd` (robust utility 0.745, episode `3e68b518-9bf7-4107-873b-9bfdc59b2711`). Menno confirmed D1–D6 and the three ADR open questions on 2026-10-30. Each confirmation is option A in §4 and §7. Amended 2026-11-09 at Stage 16: Place ContextualReinforceLearner and the CLI flags in src/agent_learning_ext (fork rule) instead of Microsoft's agent_learning, classified `correction_note` (robust utility 0.965, episode `f16469bd...`) and accepted by Menno.
 
 ---
 
 ## 1. Architecture and Component Placement
 
-1. **New module** `src/agent_learning/learners/contextual_reinforce.py`. It defines `ContextualReinforceLearner(Learner)`. It uses the standard library (`math`) and the existing learner and policy types. It imports `numpy` from nowhere, and it imports nothing from `agent_learning.storage`. No new package is added.
-2. **Export.** `ContextualReinforceLearner` is re-exported from `agent_learning.learners` and from `agent_learning`.
+1. **New module** `src/agent_learning_ext/learners/contextual_reinforce.py` (the fork rule: no Microsoft module is edited). It defines `ContextualReinforceLearner(Learner)`. It uses the standard library (`math`) and the existing learner and policy types. It imports `numpy` from nowhere, and it imports nothing from `agent_learning.storage`. No new package is added.
+2. **Export.** `ContextualReinforceLearner` is re-exported from `agent_learning_ext.learners` and from `agent_learning_ext`, which maps its name to the module in its `_EXPORTS`. `agent_learning.learners` and `agent_learning` are not edited.
 3. **Policy class stays.** `ContextualSoftmaxPolicy` already stores `metadata["feature_dim"]`, `metadata["context_weights"]`, `metadata["policy_kind"] = "contextual_softmax"`, and a zero `logits` map. This design adds no snapshot key.
-4. **CLI.** `task-policy-init` gains `--feature-dim`. `task-policy-decide` gains `--features`. `train` and `task-policy-authority-set` gain a refusal for this policy kind. `ReinforceLearner`, `LearningRunner`, and ADR-003 are not edited.
+4. **CLI.** In `src/agent_learning_ext/cli.py`, reached through `agent-learn-ext`, `task-policy-init` gains `--feature-dim`. `task-policy-decide` gains `--features`. `train` and `task-policy-authority-set` gain a refusal for this policy kind. `ReinforceLearner`, `LearningRunner`, and ADR-003 are not edited.
 5. **Caller owns the episode.** The learner reads episodes. It does not construct them. `task-policy-decide` does not store one (D1).
 
 ---

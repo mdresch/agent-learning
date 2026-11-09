@@ -3075,3 +3075,171 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-148-6 | style | verified: partial | decision: accepted | No NameError risk: this is spec pseudocode, and the repo modules use from __future__ import annotations. PrerequisiteStatus is moved above SelectionRuleTable anyway | fix: 6f06b47`
 - **PR #150:**
   - `Q-150-1 | logic error | verified: yes | decision: accepted | FDD-024 §2.2 says the first eligible row is the recommendation, but D9 and the worked fixture make recommended_id the first primary row (id 3, not adjunct id 6) | fix: none`
+
+---
+## Story 38.1 — The Weight-Row Update
+- **Commit:** `e95d88a`
+- **Date:** 2026-11-09
+- **Branch:** `feat/story-38.1` (worktree `../agent-learning-story-38.1`)
+- **Source ADR / BRD / FDD:** ADR-038 (§4.1), BRD-038 (BRU-038-02, BRU-038-06), FDD-038 (§1, §2.1, §3, D6)
+- **Pre-Flight Spec Gate:** `uv run python scripts/spec_gate.py 38.1 --no-persist` PASSED, robust margin +0.1774. `--no-persist` because `AGENT_LEARNING_LOCAL_STORE_DIR` on this machine points at another project's store (LL-040). Interpretations I1 (None-safety), I2 (empty base case), I3 (non-finite rejection) from the gate, plus I4 to I6 added in the test docstring.
+- **Worktree deviation:** nothing is merged between the Epic 38 stories, so 38.1 forks from `main` (`19d18ee`) as usual, but 38.2 forks from the tip of `feat/story-38.1` and 38.3 from the tip of `feat/story-38.2`. They form one stacked chain and must merge in order.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/learners/contextual_reinforce.py` (new)
+  - `src/agent_learning_ext/learners/__init__.py`, `src/agent_learning_ext/__init__.py` (export, `_EXPORTS`)
+  - `tests/test_contextual_learner.py` (new; AC_0 to AC_4 plus an export test)
+  - `.claude/skills/contextual-learning/SKILL.md` (new component skill)
+  - `docs/user-stories/epic-38-packaged-contextual-learning.md` (Story 38.1 Status line)
+- **Contracts:**
+  - RED observed first: 6 failed (5 acceptance tests and the export test; `ContextualReinforceLearner` did not exist).
+  - `tests/test_contextual_learner.py`: 6 passed. `tests/test_upstream_untouched.py` passed.
+  - Full suite with `--ignore=tests/test_spark.py --ignore=tests/pmbok`: 2337 passed, 2 skipped. Not the entire suite (Spark needs a JVM; `tests/pmbok` cannot be collected from a clean install, ADR-034, LL-013).
+  - `ruff check` clean on the four touched source and test files (`--fix` only on the two files this story created).
+- **Notes:**
+  - The 38.1 implementation covers only the used-episode path. Skip counters (38.2) and the class wall (38.3) are added in their own stories so that each contract is observed RED.
+  - The worktree's first `uv sync` did not install `numpy`; `uv sync --extra dev` was needed before the tests could import `agent_learning`.
+  - Not touched, by instruction: `docs/project-docs/Project-Status-Register.md` (the orchestrator updates it once after validation, to avoid a merge conflict with the Stories 38.4 to 38.6 branch).
+- **Amazon Q review (PR #153):** two rounds on `/q review`, then `/q confirm` on head `1369f23`. Q's reply on the head says no earlier finding is unresolved and lists only later stories as open. Accepted and fixed in `1369f23` (new commit, tests observed RED first): the empty-batch division and the missing-`feature_vector` read. Declined with reasons in the PR triage comment: the `test_ac1` baseline-decay remark and the `parents[1]` path remark.
+  - `Q-153-1 | crash risk | verified: yes | decision: accepted | ZeroDivisionError when no episode is usable (reported twice) | fix: 1369f23`
+  - `Q-153-2 | crash risk | verified: yes | decision: accepted | KeyError or TypeError reading feature_vector from missing metadata (reported twice) | fix: 1369f23`
+  - `Q-153-3 | logic error | verified: no | decision: declined | AC_1 fixes only the learning rate and the baseline stays 0 for any decay because the rewards cancel | fix: none`
+  - `Q-153-4 | logic error | verified: no | decision: declined | LEARNER_FILE resolves from __file__ not the working directory and 28 other tests use the same pattern | fix: none`
+
+## Story 38.4 — Init Can Create The Contextual Policy
+- **Commit:** `74e324d`
+- **Date:** 2026-11-09
+- **Branch:** `feat/story-38.4` (worktree `../agent-learning-story-38.4`)
+- **Deviation recorded (Step 0):** Epic 38 Stories 38.4 to 38.6 run in one delegated session with nothing merged between them, so 38.4 forks from `main` (`19d18ee`) but 38.5 forks from the tip of `feat/story-38.4` and 38.6 from the tip of `feat/story-38.5`. Their PRs must be opened and merged in that order.
+- **Source ADR / BRD / FDD:** ADR-038 (§4.3, Invariants 6 and 7), BRD-038 (BRU-038-07), FDD-038 (§2.2, §3.1)
+- **Pre-Flight Spec Gate:** PASSED, Proceed utility 0.6188, margin +0.0975 (>= +0.05), run with `--no-persist` because this machine's `AGENT_LEARNING_LOCAL_STORE_DIR` points at another project's store (LL-040), so there is no gate episode. I1 to I4 are the gate's; they are in the contract docstring with their applicability (I2 and I3 mostly do not apply to an init with an int flag). I5 to I8 are this story's own.
+- **Intent:** `task-policy-init --feature-dim N` stores a low-authority contextual snapshot. Out of scope: `task-policy-decide --features` (38.5), the `train` and authority-set refusals and the printed payload rule (38.6), the learner (38.1 to 38.3). The printed payload of a contextual init is still built by `_policy_payload` from the unused logits until 38.6 AC_2 changes it.
+- **Code-path check (Step 1):** `git ls-files` confirmed `src/agent_learning_ext/cli.py`, `src/agent_learning_ext/__main__.py` and `src/agent_learning/policy/contextual_softmax.py` are tracked. The story does not depend on `ContextualReinforceLearner`. No Microsoft module was edited.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/cli.py` (`--feature-dim` on `task-policy-init`, the two refusals, the `ContextualSoftmaxPolicy.from_actions` branch)
+  - `tests/test_contextual_cli.py` (new; Story 38.4 tests, one per criterion, `InMemoryStore` patched in through `cli.get_default_store`)
+  - `.claude/skills/contextual-cli/SKILL.md` (new component skill)
+  - `docs/user-stories/epic-38-packaged-contextual-learning.md` (Story 38.4 marked Completed)
+- **Contracts:**
+  - `tests/test_contextual_cli.py`: observed RED first, 7 failed and 3 passed (the 3 are the AC_4 omitted-flag cases, which describe behaviour that already holds). The first run showed 4 failed and 6 passed because the refusals passed only through argparse's "unrecognized arguments" exit 2; the AC_3 tests now also assert the error is not "unrecognized", and then failed RED.
+  - Contract run after implementing: 10 passed
+- **Validation:**
+  - Full suite: 2341 passed, 2 skipped (`uv run pytest --ignore=tests/test_spark.py --ignore=tests/pmbok`; `test_spark.py` needs a JVM, `tests/pmbok` cannot be collected from a clean install, ADR-034, LL-013). Includes `tests/test_upstream_untouched.py`.
+  - `ruff check` clean on `cli.py` and the new test file; `git diff --stat` on `cli.py` was 31 insertions and 6 deletions, no churn.
+  - Environment: `uv sync` alone installs no pytest or ruff in the worktree venv, so `uv run pytest` fell through to a global pytest without numpy; `uv sync --extra dev` fixed it (not `--all-extras`, LL-003).
+- **Status register:** `docs/project-docs/Project-Status-Register.md` not edited here; the orchestrator updates it once after validation to avoid a merge conflict with the Stories 38.1 to 38.3 agent.
+---
+- **Amazon Q review (PR #154):** `/q review`, then `/q confirm` on head `b7e232d`. Q's reply says all five acceptance criteria are resolved and lists the payload rule as owned by Story 38.6. One finding, declined with a reason in the PR triage comment.
+  - `Q-154-1 | crash risk | verified: no | decision: declined | _policy_payload does not crash on a contextual snapshot and the printed payload is Story 38.6 AC_2 (interpretation I8) | fix: none`
+
+---
+## Story 38.2 — Skipped Episodes Are Counted
+- **Commit:** `8c44e13`
+- **Date:** 2026-11-09
+- **Branch:** `feat/story-38.2` (worktree `../agent-learning-story-38.2`), forked from the tip of `feat/story-38.1` (`5a5c895`), not from `main`: nothing is merged between the Epic 38 stories. It merges after 38.1.
+- **Source ADR / BRD / FDD:** ADR-038 (§4.2, invariants 2 to 4), BRD-038 (BRU-038-03, BRU-038-04, BRU-038-05), FDD-038 (§2.1 table, §3 items 2 and 6)
+- **Pre-Flight Spec Gate:** `uv run python scripts/spec_gate.py 38.2 --no-persist` PASSED, robust margin +0.1829 (`--no-persist`: LL-040). Gate interpretations (storage decoupling, None-safety, empty base case) recorded as G1 to G3 in the test docstring; I7 to I9 added (all seven counter keys always present; `inf` is non-finite; no-reward case is an episode with no reward at all).
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/learners/contextual_reinforce.py` (episode classification, counters, nothing-to-apply return, reward validation)
+  - `tests/test_contextual_learner.py` (Story 38.2 section appended)
+  - `.claude/skills/contextual-learning/SKILL.md` (counters, nothing-to-apply, bad reward)
+  - `docs/user-stories/epic-38-packaged-contextual-learning.md` (Story 38.2 Status line)
+- **Contracts:**
+  - RED observed first: 21 failed, 7 passed. The 7 passing were the 6 Story 38.1 tests and AC_3 (supplied zeros), which the 38.1 implementation already satisfied.
+  - `tests/test_contextual_learner.py`: 28 passed. `tests/test_upstream_untouched.py` passed.
+  - Full suite with `--ignore=tests/test_spark.py --ignore=tests/pmbok`: 2359 passed, 2 skipped. Not the entire suite (Spark needs a JVM; `tests/pmbok` cannot be collected from a clean install, ADR-034, LL-013).
+  - `ruff check` clean (`--fix` only on files this branch created).
+- **Notes:**
+  - AC_3 was green before this story's implementation because the 38.1 code already treats a supplied zero vector as a vector. It still stands as its own test.
+  - `Project-Status-Register.md` not touched, by instruction (the orchestrator updates it once).
+- **Amazon Q review (PR #155):** `/q review` on head `ae7a23e`. Q reports no blocking defect, no finding and no inline comment, and says the PR is ready to merge from a code-correctness standpoint. No findings to triage.
+
+## Story 38.5 — Decide Requires The Feature List
+- **Commit:** `a8dd499`
+- **Date:** 2026-11-09
+- **Branch:** `feat/story-38.5` (worktree `../agent-learning-story-38.5`)
+- **Deviation recorded (Step 0):** forked from the tip of `feat/story-38.4` (`f704839`), not from `main`, because nothing is merged between Epic 38 Stories 38.4 to 38.6 in this delegated session. The PR for 38.4 must merge first.
+- **Source ADR / BRD / FDD:** ADR-038 (§4.3, Invariant 7), BRD-038 (BRU-038-08, BRU-038-09), FDD-038 (§2.3, §3.2, D1, D3)
+- **Pre-Flight Spec Gate:** PASSED, Proceed utility 0.7177, margin +0.1963 (>= +0.05), run with `--no-persist` (LL-040), so there is no gate episode. 38.5-I1 to I3 are the gate's, 38.5-I4 to I10 are this story's own; all are in the contract docstring.
+- **Intent:** `task-policy-decide --features` on a contextual snapshot parses and validates the vector, chooses from pi(. | features) (sampled or `--greedy`) without the scalar autonomy gate, prints the vector and stores nothing. Out of scope: `train` and authority-set refusals and the payload rule of `task-policy`/init/authority-set (38.6), the learner (38.1 to 38.3), recording the episode (the caller does, D1).
+- **Code-path check (Step 1):** `git ls-files` confirmed `src/agent_learning_ext/cli.py` and `src/agent_learning/policy/contextual_softmax.py` are tracked. The story does not depend on `ContextualReinforceLearner`. No Microsoft module was edited.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/cli.py` (`--features`, `_is_contextual_policy`, `_parse_feature_vector`, `_print_contextual_decision`, the contextual branch in `_cmd_decide_task_policy`)
+  - `tests/test_contextual_cli.py` (Story 38.5 tests appended; docstring gained the 38.5 interpretations)
+  - `.claude/skills/contextual-cli/SKILL.md` (constraints 5 to 7)
+  - `docs/user-stories/epic-38-packaged-contextual-learning.md` (Story 38.5 marked Completed)
+- **Contracts:**
+  - `tests/test_contextual_cli.py`: Story 38.5 tests observed RED first, 24 failed (the 10 Story 38.4 tests and the scalar-decide control passed, 11 in all). The first RED run showed 23 failed because one ordering test passed only through argparse's "unrecognized arguments: --features" text; it now also asserts that text and the evidence message are absent, and then failed RED.
+  - Contract run after implementing: 35 passed (10 for 38.4, 25 for 38.5).
+- **Interpretation worth a look:** a contextual snapshot stored with `full` authority is refused before the `--features` check, with a message naming `full` and `contextual`; FDD-038 §3.2 states the refusal but not its order relative to step 1.
+- **Validation:**
+  - Full suite: 2366 passed, 2 skipped (`uv run pytest --ignore=tests/test_spark.py --ignore=tests/pmbok`; `test_spark.py` needs a JVM, `tests/pmbok` cannot be collected from a clean install, ADR-034, LL-013). Includes `tests/test_upstream_untouched.py`.
+  - `ruff check` clean on `cli.py` and the test file; `git diff --stat` on `cli.py` was 102 insertions, 0 deletions (the branch before the log edit).
+- **Status register:** `docs/project-docs/Project-Status-Register.md` not edited here; the orchestrator updates it once after validation.
+---
+- **Amazon Q review (PR #156):** `/q review` on head `7eff72d`; one finding (reported twice). Accepted as hardening for a hand-made snapshot and fixed in `4caa219` (new commit, test observed RED first). `/q confirm` follows on the new head.
+  - `Q-156-1 | crash risk | verified: yes | decision: accepted | KeyError on a contextual snapshot with no feature_dim, reachable only through a hand-made snapshot because init always writes it (reported twice) | fix: 4caa219`
+
+---
+## Story 38.3 — One Learner, One Policy Class
+- **Commit:** `5cfd832`
+- **Date:** 2026-11-09
+- **Branch:** `feat/story-38.3` (worktree `../agent-learning-story-38.3`), forked from the tip of `feat/story-38.2` (`f72d457`), not from `main`. The Epic 38 learner chain is `main` <- 38.1 <- 38.2 <- 38.3 and merges in that order.
+- **Source ADR / BRD / FDD:** ADR-038 (invariant 1), BRD-038 (BRU-038-01), FDD-038 (§3 item 1, §5)
+- **Pre-Flight Spec Gate:** `uv run python scripts/spec_gate.py 38.3 --no-persist` PASSED, robust margin +0.1256 (`--no-persist`: LL-040). Gate interpretations recorded as H1 to H4 in the test docstring; I10 to I12 added (both `ReinforceLearner` classes; "does not read feature_vector" checked with a metadata guard; TypeError text compared for equality).
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/learners/contextual_reinforce.py` (class check at the top of `update`)
+  - `tests/test_contextual_learner.py` (Story 38.3 section appended)
+  - `.claude/skills/contextual-learning/SKILL.md` (class wall)
+  - `docs/user-stories/epic-38-packaged-contextual-learning.md` (Story 38.3 Status line)
+- **Contracts:**
+  - RED observed first: 1 failed, 30 passed. Only AC_0 failed (`KeyError: 'feature_dim'` on a `SoftmaxPolicy`). The two AC_1 tests were green before this story's code: `ReinforceLearner` (ours and Microsoft's) already raises `TypeError` for a `ContextualSoftmaxPolicy` and updates a `SoftmaxPolicy`, so they guard existing behaviour and could not be observed RED.
+  - `tests/test_contextual_learner.py`: 31 passed (the story's three plus the 38.1 and 38.2 tests). `tests/test_upstream_untouched.py` passed.
+  - Full suite with `--ignore=tests/test_spark.py --ignore=tests/pmbok`: 2362 passed, 2 skipped. Not the entire suite (Spark needs a JVM; `tests/pmbok` cannot be collected from a clean install, ADR-034, LL-013).
+  - `ruff check` clean (`--fix` only on files this branch created).
+- **Notes:**
+  - Epic 38 learner stories 38.1 to 38.3 are complete on three stacked branches; nothing is pushed, merged, or reviewed yet (Steps 8 and 9 not run, by instruction). Story 38.6 is not the learner chain, so the Step 9 recap belongs to whichever branch closes the epic.
+  - `Project-Status-Register.md` not touched, by instruction (the orchestrator updates it once).
+- **Amazon Q review (PR #158):** `/q review` on head `aea4917`. Q reports the implementation correct and complete, no blocking defect, no finding and no inline comment. No findings to triage.
+
+## Story 38.6 — Scalar Commands Leave The Weight Rows Alone
+- **Commit:** `dd84864`
+- **Date:** 2026-11-09
+- **Branch:** `feat/story-38.6` (worktree `../agent-learning-story-38.6`)
+- **Deviation recorded (Step 0):** forked from the tip of `feat/story-38.5` (`60889f4`), not from `main`, because nothing is merged between Epic 38 Stories 38.4 to 38.6 in this delegated session. PRs must merge in the order 38.4, 38.5, 38.6.
+- **Source ADR / BRD / FDD:** ADR-038 (Invariants 1 and 7), BRD-038 (BRU-038-11), FDD-038 (§3.3, §3.4, D2, D4, D5)
+- **Pre-Flight Spec Gate:** PASSED, Proceed utility 0.6188, margin +0.0975 (>= +0.05), run with `--no-persist` (LL-040), so there is no gate episode. 38.6-I1 to I4 are the gate's, 38.6-I5 to I10 are this story's own; all are in the contract docstring.
+- **Intent:** `train` skips a contextual snapshot; `task-policy-authority-set --authority full` refuses it; the printed payload of a contextual snapshot has no `action_probabilities`. Out of scope: teaching `train` or `LearningRunner` to call `ContextualReinforceLearner`, the learner itself (38.1 to 38.3).
+- **Code-path check (Step 1):** `git ls-files` confirmed `src/agent_learning_ext/cli.py`, `src/agent_learning/policy/contextual_softmax.py` and `src/agent_learning/learners/reinforce.py` are tracked. The story depends on the name `ContextualReinforceLearner` only inside a skip-reason string, not on the class, so nothing here imports it. No Microsoft module was edited.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/cli.py` (`_cmd_train` skip, `_cmd_set_task_policy_authority` refusal, `_policy_payload` branch, `_policy_difference` guard)
+  - `tests/test_contextual_cli.py` (Story 38.6 tests appended; docstring gained the 38.6 interpretations)
+  - `.claude/skills/contextual-cli/SKILL.md` (constraints 8 to 10)
+  - `docs/user-stories/epic-38-packaged-contextual-learning.md` (Story 38.6 marked Completed)
+- **Contracts:**
+  - `tests/test_contextual_cli.py`: Story 38.6 tests observed RED first, 7 failed (37 passed: the 35 earlier tests plus two positive controls, a scalar `train` and a scalar payload).
+  - Contract run after implementing: 44 passed (10 for 38.4, 25 for 38.5, 9 for 38.6).
+- **Beyond the criteria, needed by D5:** removing `action_probabilities` from a contextual payload made `_policy_difference` (used by `task-policy` when a previous policy version exists) read a missing key, so it now returns `None` when either snapshot is contextual (38.6-I10, covered by a test).
+- **Confirmed by Menno (2026-11-09):** the `_policy_difference` guard above, so `task-policy` returns no distribution difference for a contextual snapshot, is approved as part of Story 38.6.
+- **Known gaps left open (not in any criterion):** `task-policy` still prints an `autonomy` block computed from the unused logits for a contextual snapshot; `task-policy-authority-set` from a hand-made `full` contextual snapshot to `low` would record a migration distribution from the unused logits. Both are for a later decision.
+- **Validation:**
+  - Full suite: 2375 passed, 2 skipped (`uv run pytest --ignore=tests/test_spark.py --ignore=tests/pmbok`; `test_spark.py` needs a JVM, `tests/pmbok` cannot be collected from a clean install, ADR-034, LL-013). Includes `tests/test_upstream_untouched.py`.
+  - `ruff check` clean on `cli.py` and the test file; `git diff --stat` on `cli.py` was 22 insertions and 3 deletions of this story's own lines.
+- **Status register:** `docs/project-docs/Project-Status-Register.md` not edited here; the orchestrator updates it once after validation.
+- **Not run (by instruction):** Step 8 (PR, Q review, gate, merge) and Step 9 (breakout recap, Lessons Learned and Continuous Improvement registers). Story 38.6 is the epic's last story, so Step 9 is held for the human-led recap.
+---
+- **Amazon Q review (PR #159):** `/q review` on head `38b8457`; one finding (reported twice, once as a blocking issue, once as a documented known gap). Deferred to the maintainer: FDD-038 D4 and section 3.3 specify only the refusal to `full`, the reverse move on a hand-made full-authority contextual snapshot is unspecified, and the maintainer left it for a later decision. Q's crash claim does not hold: `SoftmaxPolicy.from_snapshot` runs on a contextual snapshot (Story 38.4 AC_0 exercises it); the effect is a migration record built from the unused logits. `/q confirm` follows.
+  - `Q-159-1 | crash risk | verified: partial | decision: deferred | full to low authority-set on a hand-made full-authority contextual snapshot records a migration distribution from the unused logits and does not crash; unspecified by FDD-038 D4 and left for the maintainer | fix: none`
+
+## Epic 14 relocation — critique-to-evidence engine moved into agent_learning_ext
+- **Commit:** `c5c2dd0`
+- **Date:** 2026-11-09
+- **Branch:** `refactor/epic-14-into-agent-learning-ext`
+- **Source ADR / BRD / FDD:** ADR-014, BRD-014, FDD-014 (Epic 14, Stories 14.1 to 14.6). No approved ADR, BRD, FDD or story body is changed; ADR-014, BRD-014 and FDD-014 do not name the old folder.
+- **Why:** Epic 14 was built in `agent-training-ext/` (and, per the old import fallbacks, first as `agent_learning.critique_evidence` inside Microsoft's package). Everything we add belongs in `src/agent_learning_ext/` under the fork rule. The upstream manifest's `known_edited` list is empty and `tests/test_upstream_untouched.py` passes, so no Microsoft file carries Epic 14 code today.
+- **Moved (`git mv`, history kept):** `agent-training-ext/critique_evidence.py` to `src/agent_learning_ext/critique_evidence.py`; `agent-training-ext/triage_replay.py` to `src/agent_learning_ext/triage_replay.py`; `agent-training-ext/tests/test_critique_{apply,metadata,parse,rubric}.py` to `tests/`.
+- **Removed:** the `agent_training_ext` shim package (its `critique_evidence` forwarder and an unused `dpo_preference` re-export of `agent_learning_ext.learners.pairwise`, which nothing imported), the folder README, and the empty folder.
+- **Changed:** `scripts/spec_gate.py` and `scripts/pr_gate.py` (one import from `agent_learning_ext.critique_evidence`, the `agent-training-ext` path insert and its mention in two messages removed); the import chains in the five critique tests collapsed to one; `pyproject.toml` `testpaths` and `pythonpath`; `src/agent_learning_ext/__init__.py` exports eleven names (not `to_episode_metadata`, which the root already maps to `agent_learning.tailoring`); the `critique-evidence`, `pairwise-preference` and `ucb` skills.
+- **Contracts:** behaviour unchanged. `tests/test_critique_*.py` and `tests/test_upstream_untouched.py`: 47 passed. `scripts/spec_gate.py 38.1 --no-persist` passes; `scripts/pr_gate.py` imports cleanly. Full suite with no `--ignore` flags: 2518 passed, 2 skipped.
+- **Not changed, for a human decision:** the 36 generated plan documents and the PMP still name `agent-training-ext/` (they are tool-generated and are not edited by hand; regenerate them); the `**Status:**` lines of `docs/user-stories/epic-14-critique-to-evidence-ingestion.md` still read "completed in agent-training-ext" as history; FDD-023 §3 and §8 quote the PMP's `agent-training-ext/` invariant; comments in older tests mention the folder.
+- **Not touched, by scope:** `docs/project-docs/Project-Status-Register.md`.
+- **Amazon Q review (PR #162):** `/q review` on head `a9a523d`. Two reviews, both reporting a clean mechanical refactor with no blocking defect, no finding and no inline comment, and confirming the eleven exports, the collapsed imports and the removed shim. No findings to triage.

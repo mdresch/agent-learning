@@ -1,0 +1,31 @@
+{
+  "id": "0f89d6f3-1eaa-46c0-b49a-2b47f86f94c6",
+  "agent_id": "agent-learning-governance",
+  "task_id": "classify-diff-type",
+  "user_input": "Classify the diff to FDD-016-deterministic-ucb-decision-policy.md under Stage 16: CR-20261109-002: correct the module path to src/agent_learning_ext",
+  "assistant_output": "correction_note: robust utility 0.965",
+  "intent_summary": "CR-20261109-002: correct the module path to src/agent_learning_ext",
+  "action_type": "recommendation",
+  "action_name": "Correction note",
+  "target": "FDD-016-deterministic-ucb-decision-policy.md",
+  "input_summary": "Candidate diff of docs/project-docs/Functional-Design/FDD-016-deterministic-ucb-decision-policy.md against HEAD bfe18e4: 2 changed lines, change ratio 0.01. Gate frame built from measurements of the diff by scripts/stage16_amend.py (terms kept 16/19, requirement inverted False, downstream references 0, status line changed False).",
+  "expected_outcome": "Menno explicit ACCEPT of this classification",
+  "execution_status": "completed",
+  "result_summary": "Accepted by Menno, 2026-11-09 (Stage 16 classify-diff-type), prospectively at the time of acceptance; not backdated.",
+  "policy_id": "51458125-b218-4e26-a94b-9baf17137ccc",
+  "policy_version": 0,
+  "action_id": "correction_note",
+  "metadata": {
+    "feedback_status": "adjudicated",
+    "decision_disposition": "accepted",
+    "selection_basis": "bayesian_decision",
+    "correct_action_id": "correction_note",
+    "task_completed": true,
+    "robust_utility": 0.9646266106604537,
+    "expected_utility": 0.9769037399651914,
+    "decision_margin": 0.101,
+    "artifact_commit": "bfe18e4",
+    "stage": 16,
+    "amendment": "CR-20261109-002: correct the module path to src/agent_learning_ext"
+  }
+}

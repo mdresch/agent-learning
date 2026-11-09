@@ -1,0 +1,26 @@
+{
+  "document": "docs/user-stories/epic-17-scheduled-epsilon-greedy-policy.md",
+  "tag": "cr002b",
+  "base_commit": "bfe18e4",
+  "candidate_sha256": "57b5661594b3fafea46f88d67dad40cd6f06b67397e2e4dea8ef6d845d640133",
+  "features": {
+    "lines": 2,
+    "terms_removed": 10,
+    "terms_kept": 7,
+    "goal_preserved": false,
+    "requirement_inverted": false,
+    "normative_touched": false,
+    "status_line_changed": false,
+    "downstream_refs": 0,
+    "change_ratio": 0.1
+  },
+  "observed": [
+    0.05,
+    0.9,
+    0.1,
+    0.1
+  ],
+  "proposed_action": "correction_note",
+  "accepted": true,
+  "episode": "89231749"
+}

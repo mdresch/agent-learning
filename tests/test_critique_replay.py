@@ -7,7 +7,7 @@ Governing Specifications:
 - BRD/FDD: BRD-014, FDD-014 §4 (D1-D5), §7, §8
 
 Pre-Flight Interpretations (from scripts/spec_gate.py):
-- I1 (Upstream Fork Purity): Replay harness and contracts reside in agent-training-ext/ and tests/,
+- I1 (Upstream Fork Purity): Replay harness resides in src/agent_learning_ext/ and its contracts in tests/,
   leaving src/agent_learning/ completely pristine per Invariant 6.
 - I2 (Storage Decoupling): Replay report and records serialize cleanly to JSON and round-trip
   without coupling to storage subsystems or custom codecs.
@@ -49,18 +49,12 @@ from agent_learning.decision import (
 )
 from agent_learning.review_triage import TriageRecord, find_triage_lines, parse_triage_line
 
-try:
-    from triage_replay import (
-        ReplayFinding,
-        TriageReplayReport,
-        load_and_replay_log,
-        replay_triage_records,
-    )
-except ImportError:
-    from agent_training_ext.triage_replay import (  # type: ignore
-        load_and_replay_log,
-        replay_triage_records,
-    )
+from agent_learning_ext.triage_replay import (
+    ReplayFinding,
+    TriageReplayReport,
+    load_and_replay_log,
+    replay_triage_records,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 LOG_PATH = ROOT / "implementation-log.md"

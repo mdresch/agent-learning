@@ -25,7 +25,6 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-sys.path.insert(0, str(ROOT / "agent-training-ext"))
 
 from agent_learning.decision import (
     Action,
@@ -40,20 +39,12 @@ from agent_learning.decision import (
 from agent_learning.storage.local import LocalFileStore
 from agent_learning.types import Episode
 
-try:
-    from agent_training_ext.critique_evidence import (
-        CritiqueDelta,
-        apply_critique,
-        parse_critique,
-        to_episode_metadata,
-    )
-except ImportError:
-    from critique_evidence import (  # type: ignore
-        CritiqueDelta,
-        apply_critique,
-        parse_critique,
-        to_episode_metadata,
-    )
+from agent_learning_ext.critique_evidence import (
+    CritiqueDelta,
+    apply_critique,
+    parse_critique,
+    to_episode_metadata,
+)
 
 
 def fetch_pr_data(pr_number: int) -> dict[str, Any]:
@@ -409,7 +400,7 @@ def evaluate_pr(
     if upstream_violations:
         reason = (
             f"Invariant 6 Violation: Pull request modifies upstream files: {', '.join(upstream_violations)}. "
-            "All customizations must reside in src/agent_learning_ext/ or agent-training-ext/."
+            "All customizations must reside in src/agent_learning_ext/."
         )
         ep_id = None
         if persist_episode:

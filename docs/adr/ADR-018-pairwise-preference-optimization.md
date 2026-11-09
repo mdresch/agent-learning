@@ -6,7 +6,7 @@ In human-in-the-loop decision governance (ADR-001, ADR-003), human adjudications
 This ADR introduces **Pairwise Preference Optimization for Discrete Action Logits** (Methodology #13 from `Ideation-Document.md` §2.1). Inspired by Direct Preference Optimization (DPO) and grounded in the classical Bradley-Terry preference model, this learner optimizes discrete action logits directly from observed human preference pairs $(a_w \succ a_l)$ without intermediate reward modeling, hyperparameter instability, or GPU infrastructure.
 
 ## 2. Status
-**Accepted (2026-10-28, Menno)** — Derived from `Ideation-Document.md` §2.1 (Methodology #13). Approved as a design through `approve-adr` (robust utility 0.677, expected utility 0.757; Episode `63bf5225-a320-46d8-bc54-b26d84a1ea46`). Amazon Q reviewed this text in PR #37. Nothing is built; the gaps named in the code-design section stay open.
+**Accepted (2026-10-28, Menno)** — Derived from `Ideation-Document.md` §2.1 (Methodology #13). Approved as a design through `approve-adr` (robust utility 0.677, expected utility 0.757; Episode `63bf5225-a320-46d8-bc54-b26d84a1ea46`). Amazon Q reviewed this text in PR #37. Nothing is built; the gaps named in the code-design section stay open. Amended 2026-11-09 at Stage 16: CR-20261109-002: correct the module path to src/agent_learning_ext, classified `correction_note` (robust utility 0.687, episode `2557a684...`) and accepted by Menno.
 
 ## 3. Context & Problem Statement
 - **The Qualitative Preference Signal:** When a human adjudicator rejects an agent's proposal and selects an alternative, the true signal is ordinal ($a_{\text{selected}} \succ a_{\text{proposed}}$), not cardinal ($r = +1.0, r = -1.0$).
@@ -39,7 +39,7 @@ Zero manual labeling or new database records are required.
 
 ### 4.4 Code design and test data
 Design only: nothing below is built, and the signatures are the contract an FDD must confirm or change.
-Module `src/agent_learning/learners/pairwise.py`, with `PairwiseLearner(Learner)` acting on a `SoftmaxPolicy`.
+Module `src/agent_learning_ext/learners/pairwise.py`, with `PairwiseLearner(Learner)` acting on a `SoftmaxPolicy`.
 
 ```python
 @dataclass(frozen=True)

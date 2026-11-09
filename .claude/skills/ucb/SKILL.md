@@ -23,7 +23,7 @@ The Deterministic Upper Confidence Bound (UCB) decision policy guarantees 100% d
 
 ## Load-Bearing Constraints & Invariants
 1. **Absolute Determinism:** Zero random numbers are generated. Static checks enforce that `policy/ucb.py` and `learners/ucb.py` contain no `import random` or calls into `random`.
-2. **Upstream Fork Purity (Invariant 6):** All custom classes, policies, and learners reside under `src/agent_learning_ext/` (or `agent-training-ext/`), leaving `src/agent_learning/` completely pristine (0 lines diff against upstream).
+2. **Upstream Fork Purity (Invariant 6):** All custom classes, policies, and learners reside under `src/agent_learning_ext/`, leaving `src/agent_learning/` completely pristine (0 lines diff against upstream).
 3. **Standard Library Purity (Invariant 4):** Standard library modules only (`math`, `dataclasses`, `typing`, `collections.abc`, `json`, `ast`). Zero imports from `agent_learning.storage` or external dependencies.
 4. **Scoring Variants:**
    - `standard`: $\bar{X}_a + c \sqrt{\frac{2 \ln t}{N_a}}$ with $c = \sqrt{2}$ default (`C_DEFAULT`). Total $t=1$ gives bonus 0.

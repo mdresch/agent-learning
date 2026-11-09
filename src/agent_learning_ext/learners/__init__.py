@@ -8,6 +8,7 @@ from __future__ import annotations
 from agent_learning.learners import Learner, LearnerResult
 from agent_learning.learners.thompson import ThompsonLearner
 
+from .contextual_reinforce import ContextualReinforceLearner
 from .epsilon_greedy import EpsilonGreedyLearner
 from .pairwise import (
     CLAMP,
@@ -33,6 +34,7 @@ __all__ = [
     "LR_DEFAULT",
     "STEPS_DEFAULT",
     "TOL_DEFAULT",
+    "ContextualReinforceLearner",
     "EpsilonGreedyLearner",
     "FitResult",
     "Learner",

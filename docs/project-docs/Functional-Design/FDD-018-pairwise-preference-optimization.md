@@ -2,13 +2,13 @@
 
 **Source ADR:** [ADR-018](../../adr/ADR-018-pairwise-preference-optimization.md) — Accepted (2026-10-28)  
 **Source BRD:** [BRD-018](../Business-Requirements/BRD-018-pairwise-preference-optimization.md)  
-**Status:** Approved (2026-10-29, Menno) — derived from Accepted ADR-018 and BRD-018; adjudicated via `approve-fdd` (robust utility 0.726, episode `4c3037cb-336b-4811-8cf9-f6917cce00bd`). Section 4 lists where this design departs from ADR-018 §4.2 to §4.4. Menno confirmed the departures G1 to G7 on 2026-10-29 (G1 keeping the 2,000-step cap, G3 as `feedback_status`, G5 accepted with its forgetting disclosed) and ADR-018 §4.2, §4.3, §4.4 and §6 were amended to match.  
+**Status:** Approved (2026-10-29, Menno) — derived from Accepted ADR-018 and BRD-018; adjudicated via `approve-fdd` (robust utility 0.726, episode `4c3037cb-336b-4811-8cf9-f6917cce00bd`). Section 4 lists where this design departs from ADR-018 §4.2 to §4.4. Menno confirmed the departures G1 to G7 on 2026-10-29 (G1 keeping the 2,000-step cap, G3 as `feedback_status`, G5 accepted with its forgetting disclosed) and ADR-018 §4.2, §4.3, §4.4 and §6 were amended to match.   Amended 2026-11-09 at Stage 16: CR-20261109-002: correct the module path to src/agent_learning_ext, classified `correction_note` (robust utility 0.965, episode `14a70187...`) and accepted by Menno.
 
 ---
 
 ## 1. Architecture & Component Placement
 
-1. **New module** `src/agent_learning/learners/pairwise.py` holding `PreferencePair`, `FitResult`, `pairs_from_episodes`, `fit_logits` and `PairwiseLearner(Learner)`. It uses `numpy` (already a dependency of `SoftmaxPolicy`) and the standard library, reads `Episode` and `PolicySnapshot` from `agent_learning.types` and `SoftmaxPolicy` from `agent_learning.policy`. It imports nothing from `agent_learning.storage`, uses no random number and does no file I/O.
+1. **New module** `src/agent_learning_ext/learners/pairwise.py` holding `PreferencePair`, `FitResult`, `pairs_from_episodes`, `fit_logits` and `PairwiseLearner(Learner)`. It uses `numpy` (already a dependency of `SoftmaxPolicy`) and the standard library, reads `Episode` and `PolicySnapshot` from `agent_learning.types` and `SoftmaxPolicy` from `agent_learning.policy`. It imports nothing from `agent_learning.storage`, uses no random number and does no file I/O.
 2. **Package export:** `PairwiseLearner`, `PreferencePair`, `FitResult`, `pairs_from_episodes` and `fit_logits` are re-exported from `agent_learning/__init__.py` and from the `learners` package.
 3. **The policy is the existing `SoftmaxPolicy`.** No new policy class: this learner changes only its logits, through `SoftmaxPolicy.apply_update`.
 4. **State in the snapshot** (BRU-018-09): `PolicySnapshot.metadata["pairwise_reference_logits"]` holds `theta_ref` (G4). Nothing else is stored; pairs are derived from episodes at training time.

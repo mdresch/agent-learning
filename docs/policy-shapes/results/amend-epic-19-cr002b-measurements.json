@@ -1,0 +1,26 @@
+{
+  "document": "docs/user-stories/epic-19-hierarchical-meta-prior-compilation.md",
+  "tag": "cr002b",
+  "base_commit": "bfe18e4",
+  "candidate_sha256": "5781bcfc5938347fdbb18adb7debe4c3c32f2fd71d855a08cd8e4b633ef51b2b",
+  "features": {
+    "lines": 2,
+    "terms_removed": 17,
+    "terms_kept": 17,
+    "goal_preserved": true,
+    "requirement_inverted": false,
+    "normative_touched": false,
+    "status_line_changed": false,
+    "downstream_refs": 0,
+    "change_ratio": 0.01
+  },
+  "observed": [
+    0.05,
+    0.1,
+    0.1,
+    0.1
+  ],
+  "proposed_action": "correction_note",
+  "accepted": true,
+  "episode": "65062e31"
+}

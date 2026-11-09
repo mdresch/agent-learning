@@ -3152,3 +3152,29 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - AC_3 was green before this story's implementation because the 38.1 code already treats a supplied zero vector as a vector. It still stands as its own test.
   - `Project-Status-Register.md` not touched, by instruction (the orchestrator updates it once).
 - **Amazon Q review (PR #155):** `/q review` on head `ae7a23e`. Q reports no blocking defect, no finding and no inline comment, and says the PR is ready to merge from a code-correctness standpoint. No findings to triage.
+
+## Story 38.5 — Decide Requires The Feature List
+- **Commit:** `a8dd499`
+- **Date:** 2026-11-09
+- **Branch:** `feat/story-38.5` (worktree `../agent-learning-story-38.5`)
+- **Deviation recorded (Step 0):** forked from the tip of `feat/story-38.4` (`f704839`), not from `main`, because nothing is merged between Epic 38 Stories 38.4 to 38.6 in this delegated session. The PR for 38.4 must merge first.
+- **Source ADR / BRD / FDD:** ADR-038 (§4.3, Invariant 7), BRD-038 (BRU-038-08, BRU-038-09), FDD-038 (§2.3, §3.2, D1, D3)
+- **Pre-Flight Spec Gate:** PASSED, Proceed utility 0.7177, margin +0.1963 (>= +0.05), run with `--no-persist` (LL-040), so there is no gate episode. 38.5-I1 to I3 are the gate's, 38.5-I4 to I10 are this story's own; all are in the contract docstring.
+- **Intent:** `task-policy-decide --features` on a contextual snapshot parses and validates the vector, chooses from pi(. | features) (sampled or `--greedy`) without the scalar autonomy gate, prints the vector and stores nothing. Out of scope: `train` and authority-set refusals and the payload rule of `task-policy`/init/authority-set (38.6), the learner (38.1 to 38.3), recording the episode (the caller does, D1).
+- **Code-path check (Step 1):** `git ls-files` confirmed `src/agent_learning_ext/cli.py` and `src/agent_learning/policy/contextual_softmax.py` are tracked. The story does not depend on `ContextualReinforceLearner`. No Microsoft module was edited.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/cli.py` (`--features`, `_is_contextual_policy`, `_parse_feature_vector`, `_print_contextual_decision`, the contextual branch in `_cmd_decide_task_policy`)
+  - `tests/test_contextual_cli.py` (Story 38.5 tests appended; docstring gained the 38.5 interpretations)
+  - `.claude/skills/contextual-cli/SKILL.md` (constraints 5 to 7)
+  - `docs/user-stories/epic-38-packaged-contextual-learning.md` (Story 38.5 marked Completed)
+- **Contracts:**
+  - `tests/test_contextual_cli.py`: Story 38.5 tests observed RED first, 24 failed (the 10 Story 38.4 tests and the scalar-decide control passed, 11 in all). The first RED run showed 23 failed because one ordering test passed only through argparse's "unrecognized arguments: --features" text; it now also asserts that text and the evidence message are absent, and then failed RED.
+  - Contract run after implementing: 35 passed (10 for 38.4, 25 for 38.5).
+- **Interpretation worth a look:** a contextual snapshot stored with `full` authority is refused before the `--features` check, with a message naming `full` and `contextual`; FDD-038 §3.2 states the refusal but not its order relative to step 1.
+- **Validation:**
+  - Full suite: 2366 passed, 2 skipped (`uv run pytest --ignore=tests/test_spark.py --ignore=tests/pmbok`; `test_spark.py` needs a JVM, `tests/pmbok` cannot be collected from a clean install, ADR-034, LL-013). Includes `tests/test_upstream_untouched.py`.
+  - `ruff check` clean on `cli.py` and the test file; `git diff --stat` on `cli.py` was 102 insertions, 0 deletions (the branch before the log edit).
+- **Status register:** `docs/project-docs/Project-Status-Register.md` not edited here; the orchestrator updates it once after validation.
+---
+- **Amazon Q review (PR #156):** `/q review` on head `7eff72d`; one finding (reported twice). Accepted as hardening for a hand-made snapshot and fixed in `4caa219` (new commit, test observed RED first). `/q confirm` follows on the new head.
+  - `Q-156-1 | crash risk | verified: yes | decision: accepted | KeyError on a contextual snapshot with no feature_dim, reachable only through a hand-made snapshot because init always writes it (reported twice) | fix: 4caa219`

@@ -71,7 +71,7 @@ Fixture for 38.1 and 38.2 ("the zero policy"): actions `a` then `b`, `feature_di
 
 ## Story 38.5 — Decide Requires The Feature List
 
-**Status:** Ready — D1 and D3 confirmed 2026-10-30  
+**Status:** Completed (2026-11-09, commit `a8dd499`)  
 **As** an operator, **I want** a contextual decide to take the vector on the command line and refuse a bad one, **so that** the choice I record is the choice `choose` made.
 
 ### Acceptance Criteria

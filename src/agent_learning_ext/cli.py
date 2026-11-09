@@ -68,6 +68,7 @@ logger = logging.getLogger(__name__)
 
 _MAX_EPISODES = 500
 _DECISION_POLICY_SCOPE = "delegated_decision"
+_CONTEXTUAL_POLICY_KIND = "contextual_softmax"
 
 
 def _episode_limit(value: str) -> int:
@@ -215,6 +216,10 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     decide.add_argument(
         "--decision-frame",
         help="JSON evidence frame required by policies with full decision authority.",
+    )
+    decide.add_argument(
+        "--features",
+        help='Inline JSON list of numbers (for example "[1.0, 0.0]") for a contextual softmax policy.',
     )
 
     adjudicate = sub.add_parser(
@@ -766,6 +771,84 @@ def _cmd_show_task_policy(args: argparse.Namespace) -> int:
     return 0
 
 
+def _is_contextual_policy(snapshot: PolicySnapshot) -> bool:
+    return snapshot.metadata.get("policy_kind") == _CONTEXTUAL_POLICY_KIND
+
+
+def _parse_feature_vector(text: str | None, feature_dim: int) -> list[float]:
+    """Parse --features into a list of finite floats of length feature_dim (ValueError names --features)."""
+    if text is None:
+        raise ValueError(f"--features is required: a JSON list of {feature_dim} numbers")
+    try:
+        parsed = json.loads(text)
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"--features is not valid JSON: {exc}") from exc
+    if not isinstance(parsed, list):
+        raise ValueError("--features must be a JSON list of numbers")
+    if len(parsed) != feature_dim:
+        raise ValueError(f"--features has {len(parsed)} elements; this policy needs {feature_dim}")
+    vector: list[float] = []
+    for element in parsed:
+        if isinstance(element, bool) or not isinstance(element, (int, float)):
+            raise ValueError("--features elements must be numbers")
+        try:
+            value = float(element)
+        except OverflowError:
+            value = math.inf
+        if not math.isfinite(value):
+            raise ValueError("--features elements must be finite")
+        vector.append(value)
+    return vector
+
+
+def _print_contextual_decision(
+    task_policy: TaskPolicy,
+    features: list[float],
+    *,
+    greedy: bool,
+    rng: random.Random | None,
+) -> int:
+    """Choose from pi(. | features); ADR-003's scalar autonomy gate reads unused logits and is not used (FDD-038 D3)."""
+    snapshot = task_policy.snapshot()
+    policy = ContextualSoftmaxPolicy.from_snapshot(snapshot, rng=rng)
+    probabilities = policy.probabilities(features)
+    if greedy:
+        index = max(range(len(probabilities)), key=probabilities.__getitem__)
+        logprob = math.log(max(probabilities[index], 1e-12))
+        mode = "greedy"
+    else:
+        decision = policy.choose(features)
+        index = next(i for i, action in enumerate(snapshot.actions) if action.id == decision.action.id)
+        logprob = decision.logprob
+        mode = "sampled"
+    selected = snapshot.actions[index]
+    print(
+        json.dumps(
+            {
+                "agent_id": snapshot.agent_id,
+                "task_id": snapshot.task_id,
+                "decision_context": snapshot.metadata.get("decision_context"),
+                "decision_authority": task_policy.authority.value,
+                "policy_id": snapshot.id,
+                "policy_version": snapshot.version,
+                "selection_mode": mode,
+                "feature_vector": features,
+                "selected_action": {
+                    **selected.to_dict(),
+                    "probability": probabilities[index],
+                    "logprob": logprob,
+                },
+                "action_probabilities": {
+                    action.id: probability
+                    for action, probability in zip(snapshot.actions, probabilities)
+                },
+            },
+            indent=2,
+        )
+    )
+    return 0
+
+
 def _cmd_decide_task_policy(args: argparse.Namespace) -> int:
     store = get_default_store()
     snapshot = store.get_active_policy(args.agent_id, args.task_id)
@@ -782,6 +865,27 @@ def _cmd_decide_task_policy(args: argparse.Namespace) -> int:
             "Questions, reporting tasks, and agent-learning automation are not eligible.",
             file=sys.stderr,
         )
+        return 2
+    contextual = _is_contextual_policy(snapshot)
+    features: list[float] = []
+    if contextual:
+        if TaskPolicy(snapshot).authority is DecisionAuthority.FULL:
+            print(
+                "A contextual softmax policy cannot have full decision authority.",
+                file=sys.stderr,
+            )
+            return 2
+        feature_dim = snapshot.metadata.get("feature_dim")
+        if isinstance(feature_dim, bool) or not isinstance(feature_dim, int) or feature_dim < 1:
+            print("This contextual softmax policy has no valid feature_dim in its metadata.", file=sys.stderr)
+            return 2
+        try:
+            features = _parse_feature_vector(args.features, feature_dim)
+        except ValueError as exc:
+            print(str(exc), file=sys.stderr)
+            return 2
+    elif args.features is not None:
+        print("--features is only valid for a contextual softmax policy.", file=sys.stderr)
         return 2
     rng = random.Random(args.seed) if args.seed is not None else None
     task_policy = TaskPolicy(snapshot, rng=rng)
@@ -868,6 +972,8 @@ def _cmd_decide_task_policy(args: argparse.Namespace) -> int:
             file=sys.stderr,
         )
         return 2
+    if contextual:
+        return _print_contextual_decision(task_policy, features, greedy=args.greedy, rng=rng)
 
     autonomy_assessment = assess_autonomy(store, snapshot)
     recommended_index = next(

@@ -717,9 +717,15 @@
     "docs/project-docs/Functional-Design/FDD-019-hierarchical-meta-prior-compilation.md": {
       "family": "fdd",
       "status": "approved",
-      "sha256": "24cb73c7fe8317a0c7f329c3e46c17e4565d0f70286c8a9b76355e0aca21b81a",
+      "sha256": "1cca07b7569ec566ba63f6ebe3c15cfd46fd257df95cca7c4adee32ac1a9f3c9",
       "approval_episode": "36384424",
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "38acc86c",
+          "stage": 16
+        }
+      ]
     },
     "docs/project-docs/Functional-Design/FDD-020-explicit-policy-prior-warm-starting.md": {
       "family": "fdd",

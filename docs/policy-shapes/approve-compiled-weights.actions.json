@@ -1,0 +1,17 @@
+[
+  {
+    "id": "approve_compiled_weights",
+    "description": "The compiled criteria weights demonstrate validated hold-out improvement and sound methodology -- approve them for deployment",
+    "parameters": {}
+  },
+  {
+    "id": "reject_compiled_weights",
+    "description": "The compiled criteria weights exhibit overfitting, unstable behavior, or unsound methodology -- reject them outright",
+    "parameters": {}
+  },
+  {
+    "id": "request_revision_before_decision",
+    "description": "The weight compilation proposal requires revision, additional validation frames, or modified hyperparameters before a final decision",
+    "parameters": {}
+  }
+]

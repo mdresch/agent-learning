@@ -678,9 +678,15 @@
     "docs/project-docs/Functional-Design/FDD-016-deterministic-ucb-decision-policy.md": {
       "family": "fdd",
       "status": "approved",
-      "sha256": "45a269534dd6e9f53e04b78dce739311b67c3a7d8e4b2402ecc4ffdfff7be0c1",
+      "sha256": "a4908839730affa78789303af211fe90dfc0591a3e5623f6a4ae4fd7a3b072fa",
       "approval_episode": "ea37755a",
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "0f89d6f3",
+          "stage": 16
+        }
+      ]
     },
     "docs/project-docs/Functional-Design/FDD-017-scheduled-epsilon-greedy-policy.md": {
       "family": "fdd",

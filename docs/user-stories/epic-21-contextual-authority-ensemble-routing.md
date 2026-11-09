@@ -72,7 +72,7 @@ Fixture used by the criteria below ("the base config"): `tau_esc` 1.0, `tau_dees
 
 ## Story 21.5 — Human Decisions and the Promotion Seed
 
-**Status:** Ready  
+**Status:** Completed  
 **As** a maintainer, **I want** thresholds and bucket approvals to change only through a recorded human decision, **so that** the fast path is never granted silently.
 
 ### Acceptance Criteria:

@@ -28,6 +28,7 @@ from agent_learning.decision import DecisionAuthority
 # Constants specified in FDD-021 §2.1
 MIN_GAP_BITS: float = 0.15
 EPS_MARGIN_DEFAULT: float = 0.20
+SEED_DAMPING_DEFAULT: float = 0.70
 VALID_TIERS: tuple[str, ...] = ("low", "standard", "high", "critical")
 PINNED_FULL: tuple[str, ...] = (
     "approve-charter",
@@ -676,3 +677,72 @@ def propose_bucket(
         "mean_shadow_entropy_bits": mean_shadow_entropy_bits,
         "reason": reason,
     }
+
+
+def seed_prior(
+    counts: dict[str, int],
+    action_ids: Sequence[str],
+    *,
+    damping: float = SEED_DAMPING_DEFAULT,
+) -> dict[str, float]:
+    """Seed a bucket's prior from its final action counts (FDD-021 §3 item 8, K5).
+
+    With ``f_a = (n_a + 1) / (N + |A|)`` the logit is ``damping * (ln f_a - mean over b of ln f_b)``,
+    so the logits sum to 0. The result follows the order of ``action_ids``. The Laplace smoothing
+    gives an action never seen a finite logit. The seed is not scored outcomes (ADR-021 §4.4).
+
+    Raises ValueError for damping outside (0, 1], a negative or non-integer count, a duplicate
+    action id, or an action id missing from ``counts`` or from ``action_ids``. Empty input gives {}.
+    """
+    if (
+        isinstance(damping, bool)
+        or not isinstance(damping, (int, float))
+        or not math.isfinite(damping)
+        or not (0.0 < damping <= 1.0)
+    ):
+        raise ValueError(f"damping must be in (0, 1]: {damping!r}")
+
+    ids = list(action_ids)
+    if len(set(ids)) != len(ids):
+        raise ValueError(f"duplicate action id in {ids!r}")
+    missing_counts = [a for a in ids if a not in counts]
+    if missing_counts:
+        raise ValueError(f"action ids missing from counts: {missing_counts!r}")
+    missing_ids = [a for a in counts if a not in ids]
+    if missing_ids:
+        raise ValueError(f"counts name actions missing from action_ids: {missing_ids!r}")
+    for action, n_a in counts.items():
+        if isinstance(n_a, bool) or not isinstance(n_a, int) or n_a < 0:
+            raise ValueError(f"count for {action!r} must be a non-negative integer: {n_a!r}")
+
+    if not ids:
+        return {}
+
+    total = sum(counts[a] for a in ids)
+    size = len(ids)
+    logs = [math.log((counts[a] + 1) / (total + size)) for a in ids]
+    mean_log = sum(logs) / size
+    return {a: damping * (lf - mean_log) for a, lf in zip(ids, logs)}
+
+
+def is_routed(snapshot: Any) -> bool:
+    """A task is routed only if its snapshot carries routing_state (FDD-021 §1 item 5)."""
+    metadata = getattr(snapshot, "metadata", None)
+    return isinstance(metadata, dict) and isinstance(metadata.get("routing_state"), dict)
+
+
+def approved_for_low(snapshot: Any, bucket: str) -> bool:
+    """The approved_for_low value the router receives for a bucket (FDD-021 §2.4, §3 item 10).
+
+    True only when the snapshot is routed, the bucket is approved and it is not awaiting
+    revalidation after a threshold change (BRU-021-13). Anything else is False (fail closed).
+    """
+    if not is_routed(snapshot):
+        return False
+    buckets = snapshot.metadata["routing_state"].get("buckets")
+    if not isinstance(buckets, dict):
+        return False
+    entry = buckets.get(bucket)
+    if not isinstance(entry, dict):
+        return False
+    return entry.get("approved") is True and entry.get("revalidate") is not True

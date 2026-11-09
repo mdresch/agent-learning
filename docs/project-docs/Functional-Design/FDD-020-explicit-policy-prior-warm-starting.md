@@ -2,14 +2,14 @@
 
 **Source ADR:** [ADR-020](../../adr/ADR-020-explicit-policy-prior-warm-starting.md) — Accepted (2026-10-28)  
 **Source BRD:** [BRD-020](../Business-Requirements/BRD-020-explicit-policy-prior-warm-starting.md)  
-**Status:** Approved (2026-10-29, Menno) — derived from Accepted ADR-020 and BRD-020; adjudicated via `approve-fdd` (robust utility 0.726, episode `50914a5d-1fd7-405c-ba9c-8a412fc60049`). Section 4 lists where this design departs from ADR-020 §4.1 to §4.4. Menno confirmed the departures J1 to J6 on 2026-10-29 (J1 as record-but-do-not-block, J5 as the same command with a default damping of 1.0) and ADR-020 §4.1, §4.2, §4.3 and §4.4 were amended to match.  
+**Status:** Approved (2026-10-29, Menno) — derived from Accepted ADR-020 and BRD-020; adjudicated via `approve-fdd` (robust utility 0.726, episode `50914a5d-1fd7-405c-ba9c-8a412fc60049`). Section 4 lists where this design departs from ADR-020 §4.1 to §4.4. Menno confirmed the departures J1 to J6 on 2026-10-29 (J1 as record-but-do-not-block, J5 as the same command with a default damping of 1.0) and ADR-020 §4.1, §4.2, §4.3 and §4.4 were amended to match.   Amended 2026-11-09 at Stage 16: CR-20261109-002: correct the CLI location or name to agent-learn-ext, classified `correction_note` (robust utility 0.965, episode `639a5329...`) and accepted by Menno.
 
 ---
 
 ## 1. Architecture & Component Placement
 
 1. **Pure module** `src/agent_learning/warm_start.py` holding `warm_start_logits` and `provenance`. Standard library only: no `numpy`, no `random`, nothing from `agent_learning.storage`, no file I/O.
-2. **CLI wiring** in `src/agent_learning/cli.py`: `task-policy-warm-start`, which does every read and write, in the manner of `task-policy-authority-set`. It reads the target and the donor with `get_active_policy`, and writes one new snapshot with `store_policy`.
+2. **CLI wiring** in `src/agent_learning_ext/cli.py`: `task-policy-warm-start`, which does every read and write, in the manner of `task-policy-authority-set`. It reads the target and the donor with `get_active_policy`, and writes one new snapshot with `store_policy`.
 3. **Package export:** `warm_start_logits` and `provenance` are re-exported from `agent_learning/__init__.py`.
 4. **State in the snapshot** (BRU-020-07): the transfer is recorded in `PolicySnapshot.metadata` only (section 2.2).
 5. **The store moves the active pointer on every `store_policy`.** Both `LocalFileStore` and `CosmosStore` set the active-policy pointer of the stored snapshot's task, and the Cosmos store refuses to move it to a lower version. A new version of the target is therefore made active simply by storing it. Nothing else is stored, so the donor is never written.

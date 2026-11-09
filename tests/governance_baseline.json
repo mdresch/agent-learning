@@ -730,9 +730,15 @@
     "docs/project-docs/Functional-Design/FDD-020-explicit-policy-prior-warm-starting.md": {
       "family": "fdd",
       "status": "approved",
-      "sha256": "38430b4e08c1b43c78b6089d5e1cbff29de4c14b4ccfefdb5c6c4218b29905d3",
+      "sha256": "e9014d43da94e03e1f886fbacf13124077ea9b9f6832dae60b1472babf5e4e64",
       "approval_episode": "50914a5d",
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "639a5329",
+          "stage": 16
+        }
+      ]
     },
     "docs/project-docs/Functional-Design/FDD-021-contextual-authority-ensemble-routing.md": {
       "family": "fdd",

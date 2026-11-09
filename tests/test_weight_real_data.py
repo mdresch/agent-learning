@@ -40,6 +40,8 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
+import pytest
+
 from agent_learning.decision import DecisionFrame
 from agent_learning.types import Action, PolicySnapshot
 from agent_learning_ext.weight_compiler import (
@@ -58,84 +60,88 @@ RESULTS_DIR = REPO_ROOT / "docs" / "policy-shapes" / "results"
 SHAPES_DIR = REPO_ROOT / "docs" / "policy-shapes"
 
 
-_SKIPPED: list[str] = []  # frames the last load could not use, with the reason
+_LOAD_ERRORS = (OSError, ValueError, KeyError, TypeError, AttributeError)
+_DEFAULT_LABELED_AT = "2026-10-29T00:00:00Z"
 
 
-def _load_real_labeled_frames() -> dict[str, list[LabeledFrame]]:
-    """Load loadable real decision frames grouped by task id with their labels."""
-    if not FRAMES_DIR.is_dir():
-        return {}
+def _resolve_label(stem: str) -> tuple[str | None, str | None, str | None, list[str]]:
+    """Return (task_id, label, labeled_at, errors) from the first usable source for a frame.
 
+    Sources in priority order: episode, adjudication result, decision result. A source that is
+    missing, malformed, or parses without naming both a task and a label does not stop the search.
+    """
+    errors: list[str] = []
+    sources = (
+        ("episode", EPISODES_DIR / f"{stem}-episode.json"),
+        ("adjudication", RESULTS_DIR / f"{stem}-adjudication-result.json"),
+        ("decision", RESULTS_DIR / f"{stem}-decision-result.json"),
+    )
+    for kind, path in sources:
+        if not path.is_file():
+            continue
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+            task_id = data.get("task_id")
+            if kind == "episode":
+                label = (data.get("metadata") or {}).get("correct_action_id") or data.get("action_id")
+                labeled_at = data.get("created_at")
+            else:
+                label = (data.get("selected_action") or {}).get("id")
+                labeled_at = data.get("adjudicated_at") or data.get("created_at") or _DEFAULT_LABELED_AT
+        except _LOAD_ERRORS as exc:
+            errors.append(f"{path.name}: {exc}")
+            continue
+        if task_id and label:
+            return task_id, label, labeled_at, errors
+    return None, None, None, errors
+
+
+def _load_with_skips() -> tuple[dict[str, list[LabeledFrame]], list[str]]:
+    """Load loadable real decision frames grouped by task id, and list every frame not used."""
     by_task: dict[str, list[LabeledFrame]] = {}
-    _SKIPPED.clear()
+    skipped: list[str] = []
+    if not FRAMES_DIR.is_dir():
+        return by_task, skipped
 
     for frame_file in sorted(FRAMES_DIR.glob("*.json")):
         stem = frame_file.stem
-        ep_file = EPISODES_DIR / f"{stem}-episode.json"
-        adj_file = RESULTS_DIR / f"{stem}-adjudication-result.json"
-        dec_file = RESULTS_DIR / f"{stem}-decision-result.json"
-
-        task_id: str | None = None
-        label: str | None = None
-        labeled_at: str | None = None
-
-        if ep_file.is_file():
-            try:
-                ep_data = json.loads(ep_file.read_text(encoding="utf-8"))
-                task_id = ep_data.get("task_id")
-                meta = ep_data.get("metadata") or {}
-                label = meta.get("correct_action_id") or ep_data.get("action_id")
-                labeled_at = ep_data.get("created_at")
-            except (OSError, ValueError, KeyError, TypeError, AttributeError) as exc:
-                _SKIPPED.append(f"{stem}: {exc}")
-        elif adj_file.is_file():
-            try:
-                adj_data = json.loads(adj_file.read_text(encoding="utf-8"))
-                task_id = adj_data.get("task_id")
-                sel = adj_data.get("selected_action") or {}
-                label = sel.get("id")
-                labeled_at = adj_data.get("adjudicated_at") or adj_data.get("created_at") or "2026-10-29T00:00:00Z"
-            except (OSError, ValueError, KeyError, TypeError, AttributeError) as exc:
-                _SKIPPED.append(f"{stem}: {exc}")
-        elif dec_file.is_file():
-            try:
-                dec_data = json.loads(dec_file.read_text(encoding="utf-8"))
-                task_id = dec_data.get("task_id")
-                sel = dec_data.get("selected_action") or {}
-                label = sel.get("id")
-                labeled_at = dec_data.get("created_at") or "2026-10-29T00:00:00Z"
-            except (OSError, ValueError, KeyError, TypeError, AttributeError) as exc:
-                _SKIPPED.append(f"{stem}: {exc}")
-
+        task_id, label, labeled_at, errors = _resolve_label(stem)
         if not task_id or not label:
-            _SKIPPED.append(f"{stem}: no task id or label in episode or results")
+            detail = "; ".join(errors) or "no task id and label in episode or results"
+            skipped.append(f"{stem}: {detail}")
             continue
 
         actions_file = SHAPES_DIR / f"{task_id}.actions.json"
         if not actions_file.is_file():
-            _SKIPPED.append(f"{stem}: no actions file for task {task_id}")
+            skipped.append(f"{stem}: no actions file for task {task_id}")
             continue
 
         try:
-            actions_raw = json.loads(actions_file.read_text(encoding="utf-8"))
-            actions = [Action.from_dict(a) for a in actions_raw]
+            actions = [Action.from_dict(a) for a in json.loads(actions_file.read_text(encoding="utf-8"))]
             raw_frame = json.loads(frame_file.read_text(encoding="utf-8"))
             df = DecisionFrame.from_dict(raw_frame, actions)
-            item = LabeledFrame(frame=df, label=label, labeled_at=labeled_at or "2026-10-29T00:00:00Z")
-            by_task.setdefault(task_id, []).append(item)
-        except (OSError, ValueError, KeyError, TypeError, AttributeError) as exc:
+        except _LOAD_ERRORS as exc:
             # Unparseable or synthetic demo frame: skipped, but counted and reported by AC_0.
-            _SKIPPED.append(f"{stem}: {exc}")
+            skipped.append(f"{stem}: {exc}")
             continue
+        by_task.setdefault(task_id, []).append(
+            LabeledFrame(frame=df, label=label, labeled_at=labeled_at or _DEFAULT_LABELED_AT)
+        )
 
-    return by_task
+    return by_task, skipped
+
+
+def _load_real_labeled_frames() -> dict[str, list[LabeledFrame]]:
+    """Load loadable real decision frames grouped by task id with their labels."""
+    return _load_with_skips()[0]
 
 
 def _get_snapshot_for_task(task_id: str) -> PolicySnapshot:
     """Construct a PolicySnapshot for the given task from its policy shape actions."""
     actions_file = SHAPES_DIR / f"{task_id}.actions.json"
-    actions_raw = json.loads(actions_file.read_text(encoding="utf-8"))
-    actions = [Action.from_dict(a) for a in actions_raw]
+    assert actions_file.is_file(), f"missing policy-shape actions file: {actions_file}"
+    actions = [Action.from_dict(a) for a in json.loads(actions_file.read_text(encoding="utf-8"))]
+    assert actions, f"policy shape for task {task_id} declares no actions"
     return PolicySnapshot(
         id=f"policy-{task_id}",
         agent_id="agent-learning-governance",
@@ -155,11 +161,11 @@ def test_ac0_real_source_frames_grouped_by_task(record_property: Callable[[str, 
     recorded in the test using record_property (asserting no fixed number). Handling an
     empty collection or tasks with 0 pairs/episodes returns empty list without raising.
     """
-    frames_by_task = _load_real_labeled_frames()
+    frames_by_task, skipped = _load_with_skips()
     counts = {task: len(items) for task, items in frames_by_task.items()}
 
     record_property("real_decision_frames_by_task", json.dumps(counts, sort_keys=True))
-    record_property("real_decision_frames_skipped", json.dumps(sorted(_SKIPPED)))
+    record_property("real_decision_frames_skipped", json.dumps(sorted(skipped)))
     total_frames = sum(counts.values())
     record_property("total_real_labeled_frames", total_frames)
 
@@ -173,9 +179,6 @@ def test_ac0_real_source_frames_grouped_by_task(record_property: Callable[[str, 
     assert "approve-fdd" in frames_by_task
     assert "approve-user-stories" in frames_by_task
 
-    # Empty collection base case contract
-    empty_result = [it for it in []]
-    assert len(empty_result) == 0
 
 
 def test_ac1_baseline_is_perfect_on_real_history() -> None:
@@ -323,3 +326,42 @@ def test_ac4_result_labelled_with_documented_gap() -> None:
     assert "missing data" in docstring.lower()
     assert "disagreed with the resolver" in docstring.lower()
     assert "BRU-022-12" in docstring
+
+
+def test_ac0_empty_and_missing_collections_return_empty(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """AC_0 (Real Source), empty collection base case (I4): the real loader, pointed at a missing
+    or empty frames directory, returns an empty result and an empty skip list without raising."""
+    import sys
+
+    module = sys.modules[__name__]
+    for directory in (tmp_path / "does-not-exist", tmp_path):
+        monkeypatch.setattr(module, "FRAMES_DIR", directory)
+        by_task, skipped = _load_with_skips()
+        assert by_task == {}
+        assert skipped == []
+        assert _load_real_labeled_frames() == {}
+
+
+def test_ac0_label_falls_back_to_next_usable_source(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """AC_0 (Real Source): an episode that parses but names no task or label does not hide a usable
+    adjudicated result for the same frame; a malformed source is reported once and the next is tried."""
+    import sys
+
+    module = sys.modules[__name__]
+    episodes, results = tmp_path / "episodes", tmp_path / "results"
+    episodes.mkdir()
+    results.mkdir()
+    monkeypatch.setattr(module, "EPISODES_DIR", episodes)
+    monkeypatch.setattr(module, "RESULTS_DIR", results)
+
+    (episodes / "f1-episode.json").write_text("{}", encoding="utf-8")
+    (results / "f1-adjudication-result.json").write_text(
+        json.dumps({"task_id": "t", "selected_action": {"id": "a"}, "adjudicated_at": "2026-11-01T00:00:00Z"}),
+        encoding="utf-8",
+    )
+    assert _resolve_label("f1") == ("t", "a", "2026-11-01T00:00:00Z", [])
+
+    (episodes / "f2-episode.json").write_text("{not json", encoding="utf-8")
+    task_id, label, _, errors = _resolve_label("f2")
+    assert (task_id, label) == (None, None)
+    assert len(errors) == 1 and errors[0].startswith("f2-episode.json")

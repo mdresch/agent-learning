@@ -1,0 +1,26 @@
+{
+  "document": "docs/project-docs/Functional-Design/FDD-038-packaged-contextual-learning.md",
+  "tag": "2026-11-09",
+  "base_commit": "6c46a37",
+  "candidate_sha256": "76ada38ed4511fc6982675bd9cce91d90ea0784130c9ba90ff9c897d5064804c",
+  "features": {
+    "lines": 6,
+    "terms_removed": 17,
+    "terms_kept": 16,
+    "goal_preserved": true,
+    "requirement_inverted": false,
+    "normative_touched": false,
+    "status_line_changed": false,
+    "downstream_refs": 0,
+    "change_ratio": 0.2
+  },
+  "observed": [
+    0.05,
+    0.1,
+    0.1,
+    0.1
+  ],
+  "proposed_action": "correction_note",
+  "accepted": true,
+  "episode": "f16469bd"
+}

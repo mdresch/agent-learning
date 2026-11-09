@@ -772,9 +772,15 @@
     "docs/project-docs/Functional-Design/FDD-038-packaged-contextual-learning.md": {
       "family": "fdd",
       "status": "approved",
-      "sha256": "cc6d005cdb46b6a1e139bed53b7c31853f34267e249e6a384cc4354c005f66ff",
+      "sha256": "1b27464b7f33abc569be8de7c97f338bbd98423822637453955bd80e1352759e",
       "approval_episode": "3e68b518",
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "f16469bd",
+          "stage": 16
+        }
+      ]
     },
     "docs/user-stories/epic-1-decision-authority-enforcement.md": {
       "family": "story",

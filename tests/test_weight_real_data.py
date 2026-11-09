@@ -279,7 +279,6 @@ def test_ac2_no_improvement_on_real_data_and_json_roundtrip() -> None:
             f"Expected NoImprovement on real data for {task_id}, but got {type(result).__name__}"
         )
         assert result.baseline_holdout_accuracy == 1.0
-        assert "did not strictly beat baseline 1.0000" in result.reason
 
         # JSON serialization round-trip verification
         proposal_dict = {

@@ -704,9 +704,15 @@
     "docs/project-docs/Functional-Design/FDD-018-pairwise-preference-optimization.md": {
       "family": "fdd",
       "status": "approved",
-      "sha256": "58eb3b44b2b0a8ef31232029e661699b35c0addf87df674e6daf432e19074aca",
+      "sha256": "96b2aabfddc6c620d5bb06a3c0687f52a4b38a80cf39e3d4ebf042a35a9eccce",
       "approval_episode": "4c3037cb",
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "14a70187",
+          "stage": 16
+        }
+      ]
     },
     "docs/project-docs/Functional-Design/FDD-019-hierarchical-meta-prior-compilation.md": {
       "family": "fdd",

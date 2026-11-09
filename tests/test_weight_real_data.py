@@ -36,10 +36,10 @@ from __future__ import annotations
 import ast
 import hashlib
 import json
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
-import pytest
 from agent_learning.decision import DecisionFrame
 from agent_learning.types import Action, PolicySnapshot
 from agent_learning_ext.weight_compiler import (
@@ -58,12 +58,16 @@ RESULTS_DIR = REPO_ROOT / "docs" / "policy-shapes" / "results"
 SHAPES_DIR = REPO_ROOT / "docs" / "policy-shapes"
 
 
+_SKIPPED: list[str] = []  # frames the last load could not use, with the reason
+
+
 def _load_real_labeled_frames() -> dict[str, list[LabeledFrame]]:
     """Load loadable real decision frames grouped by task id with their labels."""
     if not FRAMES_DIR.is_dir():
         return {}
 
     by_task: dict[str, list[LabeledFrame]] = {}
+    _SKIPPED.clear()
 
     for frame_file in sorted(FRAMES_DIR.glob("*.json")):
         stem = frame_file.stem
@@ -82,8 +86,8 @@ def _load_real_labeled_frames() -> dict[str, list[LabeledFrame]]:
                 meta = ep_data.get("metadata") or {}
                 label = meta.get("correct_action_id") or ep_data.get("action_id")
                 labeled_at = ep_data.get("created_at")
-            except Exception:
-                pass
+            except (OSError, ValueError, KeyError, TypeError, AttributeError) as exc:
+                _SKIPPED.append(f"{stem}: {exc}")
         elif adj_file.is_file():
             try:
                 adj_data = json.loads(adj_file.read_text(encoding="utf-8"))
@@ -91,8 +95,8 @@ def _load_real_labeled_frames() -> dict[str, list[LabeledFrame]]:
                 sel = adj_data.get("selected_action") or {}
                 label = sel.get("id")
                 labeled_at = adj_data.get("adjudicated_at") or adj_data.get("created_at") or "2026-10-29T00:00:00Z"
-            except Exception:
-                pass
+            except (OSError, ValueError, KeyError, TypeError, AttributeError) as exc:
+                _SKIPPED.append(f"{stem}: {exc}")
         elif dec_file.is_file():
             try:
                 dec_data = json.loads(dec_file.read_text(encoding="utf-8"))
@@ -100,14 +104,16 @@ def _load_real_labeled_frames() -> dict[str, list[LabeledFrame]]:
                 sel = dec_data.get("selected_action") or {}
                 label = sel.get("id")
                 labeled_at = dec_data.get("created_at") or "2026-10-29T00:00:00Z"
-            except Exception:
-                pass
+            except (OSError, ValueError, KeyError, TypeError, AttributeError) as exc:
+                _SKIPPED.append(f"{stem}: {exc}")
 
         if not task_id or not label:
+            _SKIPPED.append(f"{stem}: no task id or label in episode or results")
             continue
 
         actions_file = SHAPES_DIR / f"{task_id}.actions.json"
         if not actions_file.is_file():
+            _SKIPPED.append(f"{stem}: no actions file for task {task_id}")
             continue
 
         try:
@@ -117,8 +123,9 @@ def _load_real_labeled_frames() -> dict[str, list[LabeledFrame]]:
             df = DecisionFrame.from_dict(raw_frame, actions)
             item = LabeledFrame(frame=df, label=label, labeled_at=labeled_at or "2026-10-29T00:00:00Z")
             by_task.setdefault(task_id, []).append(item)
-        except Exception:
-            # Skip unparseable or synthetic demo frames
+        except (OSError, ValueError, KeyError, TypeError, AttributeError) as exc:
+            # Unparseable or synthetic demo frame: skipped, but counted and reported by AC_0.
+            _SKIPPED.append(f"{stem}: {exc}")
             continue
 
     return by_task
@@ -152,6 +159,7 @@ def test_ac0_real_source_frames_grouped_by_task(record_property: Callable[[str, 
     counts = {task: len(items) for task, items in frames_by_task.items()}
 
     record_property("real_decision_frames_by_task", json.dumps(counts, sort_keys=True))
+    record_property("real_decision_frames_skipped", json.dumps(sorted(_SKIPPED)))
     total_frames = sum(counts.values())
     record_property("total_real_labeled_frames", total_frames)
 
@@ -277,9 +285,8 @@ def test_ac3_committed_files_untouched_and_storage_decoupled() -> None:
         if isinstance(node, ast.Import):
             for alias in node.names:
                 assert "agent_learning.storage" not in alias.name
-        elif isinstance(node, ast.ImportFrom):
-            if node.module:
-                assert "agent_learning.storage" not in node.module
+        elif isinstance(node, ast.ImportFrom) and node.module:
+            assert "agent_learning.storage" not in node.module
 
     # 2. Record hashes of policy-shapes before and after
     def compute_shapes_digest() -> dict[str, str]:

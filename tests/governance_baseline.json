@@ -1000,10 +1000,16 @@
     },
     "docs/user-stories/epic-20-explicit-policy-prior-warm-starting.md": {
       "family": "story",
-      "status": "approved",
-      "sha256": "75f5e23b50a4dee11263a7829fe21c379e059ed6ec6ca49f5a313ae89c71adde",
+      "status": "completed",
+      "sha256": "2a17574db56b6482d347d2b8dcef35430fa84d24d7870ba467b8e6b32f4823b8",
       "approval_episode": "9d327883",
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "f6d6aba4",
+          "stage": 16
+        }
+      ]
     },
     "docs/user-stories/epic-21-contextual-authority-ensemble-routing.md": {
       "family": "story",

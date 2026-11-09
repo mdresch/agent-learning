@@ -1130,9 +1130,15 @@
     "docs/user-stories/epic-5-decision-progress-comparison.md": {
       "family": "story",
       "status": "completed",
-      "sha256": "b8ec14895eaf7f692516d946689914294bb53fa67287e4c2eddc776dd2da8936",
+      "sha256": "ed4684c8a6c6c0ecae3ac2e833d42401c016271f73466fa3fe4afafa300b4845",
       "approval_episode": null,
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "92e0fd0a",
+          "stage": 16
+        }
+      ]
     },
     "docs/user-stories/epic-6-opt-in-lightweight-evidence-capture-for-low-authority.md": {
       "family": "story",

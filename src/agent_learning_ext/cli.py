@@ -541,6 +541,17 @@ def _cmd_train(args: argparse.Namespace) -> int:
         if snapshot is None:
             skipped.append({"task_id": task_id, "reason": "no active policy"})
             continue
+        if _is_contextual_policy(snapshot):
+            skipped.append(
+                {
+                    "task_id": task_id,
+                    "reason": (
+                        "contextual softmax policy: train would update its unused logits; "
+                        "use ContextualReinforceLearner"
+                    ),
+                }
+            )
+            continue
         if args.decision_only and not _is_decision_policy(snapshot):
             skipped.append({"task_id": task_id, "reason": "not a delegated decision policy"})
             continue
@@ -615,6 +626,9 @@ def _cmd_score(args: argparse.Namespace) -> int:
 
 def _policy_payload(snapshot: PolicySnapshot) -> dict[str, Any]:
     payload = snapshot.to_dict()
+    if _is_contextual_policy(snapshot):
+        # A distribution needs a feature vector; probabilities(None) is uniform for any weights (FDD-038 D5).
+        return payload
     policy = SoftmaxPolicy.from_snapshot(snapshot)
     payload["action_probabilities"] = {
         action.id: probability
@@ -709,7 +723,7 @@ def _decision_feedback(
 def _policy_difference(
     current: PolicySnapshot, previous: PolicySnapshot | None
 ) -> dict[str, Any] | None:
-    if previous is None:
+    if previous is None or _is_contextual_policy(current) or _is_contextual_policy(previous):
         return None
     current_payload = _policy_payload(current)
     previous_payload = _policy_payload(previous)
@@ -1227,6 +1241,12 @@ def _cmd_set_task_policy_authority(args: argparse.Namespace) -> int:
         return 2
     current_authority = TaskPolicy(snapshot).authority.value
     target_authority = args.authority.lower()
+    if _is_contextual_policy(snapshot) and target_authority == DecisionAuthority.FULL.value:
+        print(
+            "A contextual softmax policy cannot be given full decision authority.",
+            file=sys.stderr,
+        )
+        return 2
     if current_authority != target_authority:
         # Diagnostic snapshot of the converged distribution at the moment authority changes
         # (ADR-004, FDD-004 design 2). Append only: earlier records are never touched.

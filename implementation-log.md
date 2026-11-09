@@ -3075,3 +3075,27 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-148-6 | style | verified: partial | decision: accepted | No NameError risk: this is spec pseudocode, and the repo modules use from __future__ import annotations. PrerequisiteStatus is moved above SelectionRuleTable anyway | fix: 6f06b47`
 - **PR #150:**
   - `Q-150-1 | logic error | verified: yes | decision: accepted | FDD-024 §2.2 says the first eligible row is the recommendation, but D9 and the worked fixture make recommended_id the first primary row (id 3, not adjunct id 6) | fix: none`
+
+## Story 38.4 — Init Can Create The Contextual Policy
+- **Commit:** `74e324d`
+- **Date:** 2026-11-09
+- **Branch:** `feat/story-38.4` (worktree `../agent-learning-story-38.4`)
+- **Deviation recorded (Step 0):** Epic 38 Stories 38.4 to 38.6 run in one delegated session with nothing merged between them, so 38.4 forks from `main` (`19d18ee`) but 38.5 forks from the tip of `feat/story-38.4` and 38.6 from the tip of `feat/story-38.5`. Their PRs must be opened and merged in that order.
+- **Source ADR / BRD / FDD:** ADR-038 (§4.3, Invariants 6 and 7), BRD-038 (BRU-038-07), FDD-038 (§2.2, §3.1)
+- **Pre-Flight Spec Gate:** PASSED, Proceed utility 0.6188, margin +0.0975 (>= +0.05), run with `--no-persist` because this machine's `AGENT_LEARNING_LOCAL_STORE_DIR` points at another project's store (LL-040), so there is no gate episode. I1 to I4 are the gate's; they are in the contract docstring with their applicability (I2 and I3 mostly do not apply to an init with an int flag). I5 to I8 are this story's own.
+- **Intent:** `task-policy-init --feature-dim N` stores a low-authority contextual snapshot. Out of scope: `task-policy-decide --features` (38.5), the `train` and authority-set refusals and the printed payload rule (38.6), the learner (38.1 to 38.3). The printed payload of a contextual init is still built by `_policy_payload` from the unused logits until 38.6 AC_2 changes it.
+- **Code-path check (Step 1):** `git ls-files` confirmed `src/agent_learning_ext/cli.py`, `src/agent_learning_ext/__main__.py` and `src/agent_learning/policy/contextual_softmax.py` are tracked. The story does not depend on `ContextualReinforceLearner`. No Microsoft module was edited.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/cli.py` (`--feature-dim` on `task-policy-init`, the two refusals, the `ContextualSoftmaxPolicy.from_actions` branch)
+  - `tests/test_contextual_cli.py` (new; Story 38.4 tests, one per criterion, `InMemoryStore` patched in through `cli.get_default_store`)
+  - `.claude/skills/contextual-cli/SKILL.md` (new component skill)
+  - `docs/user-stories/epic-38-packaged-contextual-learning.md` (Story 38.4 marked Completed)
+- **Contracts:**
+  - `tests/test_contextual_cli.py`: observed RED first, 7 failed and 3 passed (the 3 are the AC_4 omitted-flag cases, which describe behaviour that already holds). The first run showed 4 failed and 6 passed because the refusals passed only through argparse's "unrecognized arguments" exit 2; the AC_3 tests now also assert the error is not "unrecognized", and then failed RED.
+  - Contract run after implementing: 10 passed
+- **Validation:**
+  - Full suite: 2341 passed, 2 skipped (`uv run pytest --ignore=tests/test_spark.py --ignore=tests/pmbok`; `test_spark.py` needs a JVM, `tests/pmbok` cannot be collected from a clean install, ADR-034, LL-013). Includes `tests/test_upstream_untouched.py`.
+  - `ruff check` clean on `cli.py` and the new test file; `git diff --stat` on `cli.py` was 31 insertions and 6 deletions, no churn.
+  - Environment: `uv sync` alone installs no pytest or ruff in the worktree venv, so `uv run pytest` fell through to a global pytest without numpy; `uv sync --extra dev` fixed it (not `--all-extras`, LL-003).
+- **Status register:** `docs/project-docs/Project-Status-Register.md` not edited here; the orchestrator updates it once after validation to avoid a merge conflict with the Stories 38.1 to 38.3 agent.
+---

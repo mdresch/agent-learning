@@ -135,9 +135,15 @@
     "docs/adr/ADR-017-scheduled-epsilon-greedy-policy.md": {
       "family": "adr",
       "status": "accepted",
-      "sha256": "7762abfcbfe12c15c794982d58dedce12d11dced521fbc9c7dc2df7238031625",
+      "sha256": "42dab6086e18d4e2c2601b6f94823812d9968645b5fdafc94330bcb9fa8bbf65",
       "approval_episode": null,
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "6acd859f",
+          "stage": 16
+        }
+      ]
     },
     "docs/adr/ADR-018-pairwise-preference-optimization.md": {
       "family": "adr",

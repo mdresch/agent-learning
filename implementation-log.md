@@ -2841,8 +2841,44 @@ This log records completed user stories in accordance with the SIDPA `implement-
 
 ---
 
+## Story 21.3 — Pinned Gates
+- **Commit:** `873b98f` (review fixes `41a2106`)
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-21.3`
+- **Source ADR / BRD / FDD:** ADR-021 (§4.1), BRD-021, FDD-021 (§1 item 3, §2.1)
+- **Pre-Flight Spec Gate:** Proceed utility 0.6072, margin +0.0858 (>= +0.05), episode `spec-21_3-024c5cf2`.
+- **Files Modified/Created:**
+  - `docs/policy-shapes/approve-routing-thresholds.actions.json` (action list for `approve-routing-thresholds`)
+  - `docs/policy-shapes/approve-routing-bucket.actions.json` (action list for `approve-routing-bucket`)
+  - `tests/test_routing_pinning.py` (contract tests for $AC_0$ through $AC_4$, interpretations $I_1$ to $I_3$)
+  - `docs/user-stories/epic-21-contextual-authority-ensemble-routing.md` (Story 21.3 marked Completed)
+- **Contracts:**
+  - `tests/test_routing_pinning.py`
+  - Contract run: 6 passed in 0.98s
+  - Cumulative suite: 16 passed across Epic 21 (`test_routing_signals.py`, `test_routing_route.py`, `test_routing_pinning.py`)
+- **Validation:**
+  - $AC_0$: `PINNED_FULL` equals the eleven tasks of FDD-021 §2.1 (`approve-charter`, `approve-adr`, `approve-brd`, `approve-fdd`, `approve-user-stories`, `approve-pmp`, `approve-adaptation-plan`, `approve-subsidiary-plan`, `retrospective`, `approve-routing-thresholds`, `approve-routing-bucket`).
+  - $AC_1$: For each pinned task, over a grid of distributions (entropy from ~0.08 to 1.0 bits, margin from 0.0 to 0.98), tiers (`low`, `standard`, `high`, `critical`), `previous` values (`None`, `LOW`, `FULL`, `"low"`, `"full"`), and `approved_for_low` (`True`, `False`), `route` returns `FULL` with reason `"pinned"`.
+  - $AC_2$: Declared pin: an unpinned task called with `requires_human_approval=True` routes `FULL` with reason `"pinned"`; the same task with `False` and an approved bucket routes `LOW` with reason `"low"`.
+  - $AC_3$: Pin beats invalid input: a pinned task with invalid probabilities (empty, NaN, inf, negative, bad sum, boolean) routes `FULL` with reason `"pinned"` (not `"anomaly"`).
+  - $AC_4$: Policy shape files `docs/policy-shapes/approve-routing-thresholds.actions.json` and `approve-routing-bucket.actions.json` each hold the three actions `approve_*`, `reject_*`, and `request_revision_before_decision`, and both task ids are in `PINNED_FULL`.
+  - Observed RED first: `AssertionError: Policy shape file missing: .../docs/policy-shapes/approve-routing-thresholds.actions.json`.
+  - Upstream fork untouched: 8/8 passed in `tests/test_upstream_untouched.py`.
+  - Governance baseline: 18/18 passed in `tests/test_governance_baseline.py`.
+- **Review (Step 8):** Amazon Q reviewed PR #142. All findings addressed:
+  - `Q-142-1 | crash risk | verified: yes | decision: accepted | Validate action object schema before extracting action IDs in test_ac4_shape_files | fix: c2e49a1`
+  - `Q-142-2 | logic error | verified: yes | decision: accepted | Enforce exact action IDs without fallback in test_ac4_shape_files | fix: c2e49a1`
+  - `Q-142-3 | crash risk | verified: yes | decision: accepted | Add hasattr guard on spec.loader.exec_module in test_governance_baseline_passes | fix: c2e49a1`
+  - `Q-142-4 | test gap | verified: yes | decision: accepted | Replace magic slice prefix[8:] with named prefix constant and assertion in test_ac4_shape_files | fix: f4b1b9d`
+  - `Q-142-5 | test gap | verified: yes | decision: accepted | Align AC_1 assertions strictly to AC_1 contract (authority==FULL and reason=='pinned') | fix: f4b1b9d`
+  - `Q-142-6 | crash risk | verified: yes | decision: accepted | Wrap spec.loader.exec_module in try/except with pytest.fail in test_governance_baseline_passes | fix: e9a2c34`
+  - `Q-142-7 | crash risk | verified: yes | decision: accepted | Move gb.MANIFEST and gb.find_problems inside try/except block in test_governance_baseline_passes | fix: e2c70a1`
+  - `Q-142-8 | crash risk | verified: yes | decision: accepted | Initialize problems list and assert inside try block while re-raising AssertionError in test_governance_baseline_passes | fix: d49b01f`
+
+---
+
 ## Story 22.6 — Adopting a Proposal by a Human Decision
-- **Commit:** `7784f49`
+- **Commit:** `7784f49` (review fixes `0566e0b`)
 - **Date:** 2026-11-09
 - **Branch:** `feat/story-22.6`
 - **Source ADR / BRD / FDD:** ADR-022 (§4.1), BRD-022 (BRU-022-12, BRU-022-13, BRU-022-14), FDD-022 (§1 item 4, §3.8, §4 L2)
@@ -2869,4 +2905,7 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - $AC_2$: Adoption fails with exit code 2 when proposal or approval payload is missing, unadjudicated, or not accepted.
   - $AC_3$: Target policy is saved via `save_policy_snapshot` with new version; previous version remains untouched in history.
   - $AC_4$: Direct resolution of toy frame with updated snapshot produces expected winning option under adopted weights.
-
+- **Review (Step 8):** Amazon Q reviewed PR #145. All findings addressed:
+  - `Q-145-1 | crash risk | verified: yes | decision: accepted | Fix store.get_episode arity to (id, agent_id) with --approval-agent-id and governance fallback | fix: 0566e0b`
+  - `Q-145-2 | auditability | verified: yes | decision: accepted | Compute proposal SHA-256 directly on raw file bytes for exact sha256sum parity | fix: 0566e0b`
+  - `Q-145-3 | test gap | verified: yes | decision: accepted | Update test mocks and assertions for 2-argument get_episode and raw bytes hash | fix: 0566e0b`

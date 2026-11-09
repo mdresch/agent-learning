@@ -56,7 +56,7 @@ Fixture for 38.1 and 38.2 ("the zero policy"): actions `a` then `b`, `feature_di
 
 ## Story 38.4 — Init Can Create The Contextual Policy
 
-**Status:** Ready — init rule in ADR-038 §4.3, confirmed with this draft on 2026-10-30  
+**Status:** Completed (2026-11-09, commit `74e324d`)  
 **As** an operator, **I want** `task-policy-init --feature-dim` to store a low-authority contextual snapshot, **so that** I can create this policy without writing the weight rows myself.
 
 ### Acceptance Criteria

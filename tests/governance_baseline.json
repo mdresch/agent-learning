@@ -264,9 +264,15 @@
     "docs/adr/ADR-038-packaged-contextual-learning.md": {
       "family": "adr",
       "status": "accepted",
-      "sha256": "9cb01f845581e1b158cf768691926cbe208fa7c0f8c1988d2c80be678a4f9628",
+      "sha256": "4e069a05f6c2e356cb6060f80bf9faa8e487c27f2b39bba4ea170926fcc4fcd2",
       "approval_episode": null,
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "89ca6a26",
+          "stage": 16
+        }
+      ]
     },
     "docs/project-docs/Business-Requirements/BRD-001-reinforce-authority-boundary-enforcement.md": {
       "family": "brd",

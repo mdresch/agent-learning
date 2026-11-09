@@ -268,6 +268,13 @@
       "approval_episode": null,
       "amendments": []
     },
+    "docs/adr/ADR-039-shadow-gate-learning-and-review-finding-corpus.md": {
+      "family": "adr",
+      "status": "accepted",
+      "sha256": "49f543755920213f84c709f5ca85e791e128e0102e4bdaf9d9c83e637e693638",
+      "approval_episode": "6b98f377",
+      "amendments": []
+    },
     "docs/project-docs/Business-Requirements/BRD-001-reinforce-authority-boundary-enforcement.md": {
       "family": "brd",
       "status": "approved",
@@ -517,6 +524,13 @@
       "status": "approved",
       "sha256": "fcf8f312f436bdc4742735cf1b8ce7669792f2f26b93d09a8142b12597a19ac6",
       "approval_episode": "c61347e0",
+      "amendments": []
+    },
+    "docs/project-docs/Business-Requirements/BRD-039-shadow-gate-learning-and-review-finding-corpus.md": {
+      "family": "brd",
+      "status": "approved",
+      "sha256": "2ee2ac6779a500a57c5e4bfa0ee64826dd89cf41df9ca5e6fb8f1a8256e7ad80",
+      "approval_episode": "169fcc02",
       "amendments": []
     },
     "docs/project-docs/Functional-Design/FDD-001-reinforce-authority-boundary-enforcement.md": {
@@ -770,6 +784,13 @@
       "approval_episode": "3e68b518",
       "amendments": []
     },
+    "docs/project-docs/Functional-Design/FDD-039-shadow-gate-learning-and-review-finding-corpus.md": {
+      "family": "fdd",
+      "status": "approved",
+      "sha256": "6015ec3b2f3b60e568e8c0fa3d469986a720987c4ee46c57a9ff9f38bb9e3bf2",
+      "approval_episode": "51350399",
+      "amendments": []
+    },
     "docs/user-stories/epic-1-decision-authority-enforcement.md": {
       "family": "story",
       "status": "completed",
@@ -998,6 +1019,13 @@
       "status": "approved",
       "sha256": "9600731b32b1e0e749cc25f28721db5285ec07fe021f8c9788b60f4c758bd540",
       "approval_episode": "3da3bcdf",
+      "amendments": []
+    },
+    "docs/user-stories/epic-39-shadow-gate-learning-and-review-finding-corpus.md": {
+      "family": "story",
+      "status": "approved",
+      "sha256": "58aec5a2497114c5c3e8497e2c9cd204dce0a1daf0c28a1993076d8c8ff7a6e3",
+      "approval_episode": "434556ab",
       "amendments": []
     },
     "docs/user-stories/epic-4-authority-migration-diagnostic-snapshot.md": {

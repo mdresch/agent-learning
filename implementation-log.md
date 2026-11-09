@@ -2912,7 +2912,7 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - Correction 2026-11-09 (heal-contract-failure): Q-145-2 was first logged with claim type auditability, which is not in review_triage.CLAIM_TYPES, so the triage parser rejected the log. Recorded as logic error (the hash differed from sha256sum output). The parser was not loosened.
 
 ## Story 22.7 — The Real-Data Regression Check
-- **Commit:** `eef95f4` (loader fix `d0a909c`)
+- **Commit:** `eef95f4` (loader fix `d0a909c`, review fixes `ac7513f`)
 - **Date:** 2026-11-09
 - **Branch:** `feat/story-22.7`
 - **Source ADR / BRD / FDD:** ADR-022 (§4.4 test data), BRD-022 (BRU-022-12), FDD-022
@@ -2925,8 +2925,8 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `tests/governance_baseline.json` (re-fingerprinted by `scripts/governance_baseline.py` through `scripts/stage16_amend.py accept`)
   - `implementation-log.md` (correction below), `.claude/skills/implement-story/SKILL.md` (Tier 2 for LL-049 and LL-050)
 - **Contracts:**
-  - `tests/test_weight_real_data.py`: 5 passed
-  - Full suite, nothing ignored: 2301 passed, 2 skipped (`uv run pytest`). With `--ignore=tests/test_spark.py --ignore=tests/pmbok`: 2210 passed, 1 skipped.
+  - `tests/test_weight_real_data.py`: 7 passed (after review fixes)
+  - Full suite, nothing ignored: 2303 passed, 2 skipped (`uv run pytest`). With `--ignore=tests/test_spark.py --ignore=tests/pmbok`: 2210 passed, 1 skipped.
 - **Notes:**
   - Real-data result: 179 of 188 frame files were used, grouped over 13 tasks. 9 approval frames carry no label in any episode or result and are skipped by name (`adr-005-regressed-demo`, `adr-008-approval`, `adr-012-approval-v2`, `adr-025-approval-v1`, `adr-034-approval`, `epic11-approval`, `implementation-readiness-phase2`, `pmp-approval-phase2`, `stakeholder-plan-approval-phase2`). Baseline accuracy is 1.0 on every task with at least `2 * MIN_PART` labelled frames, so `propose` returns `NoImprovement`. This is not evidence that compiled weights are better (BRU-022-12).
   - Heal pass (heal-contract-failure): `test_ac4_result_labelled_with_documented_gap` was RED because the module docstring did not cite BRU-022-12; the contract was right, the docstring was fixed. The first loader swallowed every exception and silently dropped unlabelled frames; fixed in `d0a909c` so each skipped frame is counted and reported.
@@ -2934,5 +2934,13 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - Foreign contract: three tests failed on `main` since PR #145 because the Story 22.6 review line `Q-145-2` used claim type `auditability`. Corrected in that entry above; the parser was not loosened.
   - Open: ADR-022, FDD-022 and the Epic 22 file name `src/agent_learning/weight_compiler.py`; the module is `src/agent_learning_ext/weight_compiler.py`. Correcting an approved document needs a Stage 16 `correction_note`, not yet run.
   - Interpretations $I_1$ to $I_4$ in the test docstring (fork purity, storage decoupling, None-safety, empty-collection base case) are recorded there.
-- **Review (Step 8):** pending.
+- **Review (Step 8):** Amazon Q reviewed PR #147 (round 1, head `392fa4d`: two reviews and 10 inline comments, several repeating the same point). Triaged against the code and data:
+  - `Q-147-1 | logic error | verified: partial | decision: accepted | Loader took the first existing label source, not the first usable one; latent only, none of the 9 skipped frames has a usable adjudication or decision file | fix: ac7513f`
+  - `Q-147-2 | logic error | verified: partial | decision: accepted | Missing continue did not run the other branches (elif chain) but counted one failure twice in the skip list; reasons are now merged once | fix: ac7513f`
+  - `Q-147-3 | logic error | verified: partial | decision: accepted | Module-level skip list shared across tests; skips are now returned by the loader (the xdist race claim is wrong, workers do not share memory) | fix: ac7513f`
+  - `Q-147-4 | crash risk | verified: partial | decision: accepted | Snapshot helper read the actions file unguarded; it now fails with a message naming the file and rejects an empty action list | fix: ac7513f`
+  - `Q-147-5 | test gap | verified: yes | decision: accepted | The empty-collection assertion iterated an empty literal and never touched the loader; replaced by tests on the real loader and checked with a mutant | fix: ac7513f`
+  - `Q-147-6 | logic error | verified: no | decision: declined | The comment's own reasoning concludes the digest check passes; amendment files are in both snapshots, so nothing is defective | fix: none`
+  - `Q-147-7 | test gap | verified: partial | decision: declined | AC_3 says the test imports nothing from storage directly; a relative storage import in a flat tests module is not plausible and a transitive check is out of scope | fix: none`
+  - Correction to the Notes above: the first version of the test did not cover the amended AC_0 empty-collection wording (Q-147-5); it does from `ac7513f`.
 

@@ -743,9 +743,15 @@
     "docs/project-docs/Functional-Design/FDD-021-contextual-authority-ensemble-routing.md": {
       "family": "fdd",
       "status": "approved",
-      "sha256": "1597f27b0912aa481d174d79d510cb20a6537b44690eb6ea139a51074aa91d25",
+      "sha256": "1d00119f3644a3bea84c5088065bf048d21bfd55b252020e47fa3dfe0e4c447d",
       "approval_episode": "46c77417",
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "0ebf33c8",
+          "stage": 16
+        }
+      ]
     },
     "docs/project-docs/Functional-Design/FDD-022-scored-search-decision-configuration-compilation.md": {
       "family": "fdd",

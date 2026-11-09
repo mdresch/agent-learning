@@ -4,7 +4,7 @@
 `ContextualSoftmaxPolicy` is already in the SDK. It turns a caller-supplied feature vector into action probabilities and stores a weight row per action. The trainable learner is not in the SDK. The example at `examples/methodologies/04-contextual-bandit/` writes that update by hand, and `task-policy-init` cannot create this policy. Ideation §1.2 objective 4 names that gap. HYP-AL-004, which says the unpackaged example may not yet be worth exporting, stays Testing. This ADR decides to package the learner and the CLI path. It does not decide that the hypothesis is confirmed.
 
 ## 2. Status
-**Accepted (2026-10-30, Menno)** — Design only. Episode: `f745c77b-0a2c-4e97-82d4-6f6936b2acd9`. Nothing in this ADR is built. The gaps in §7 stay open.
+**Accepted (2026-10-30, Menno)** — Design only. Episode: `f745c77b-0a2c-4e97-82d4-6f6936b2acd9`. Nothing in this ADR is built. The gaps in §7 stay open. Amended 2026-11-09 at Stage 16: Place ContextualReinforceLearner in src/agent_learning_ext (fork rule) instead of Microsoft's agent_learning, classified `correction_note` (robust utility 0.965, episode `89ca6a26...`) and accepted by Menno.
 
 ## 3. Context & Problem Statement
 - **The policy is packaged. The learner is not.** `ContextualSoftmaxPolicy` is exported from `agent_learning.policy` and from `agent_learning`. `ReinforceLearner.update` accepts only a `SoftmaxPolicy`. A caller who wants the contextual policy to learn copies the loop in the example.
@@ -15,7 +15,7 @@
 ## 4. Decision
 
 ### 4.1 Package the learner that the example already writes
-Add `ContextualReinforceLearner` in `src/agent_learning/learners/contextual_reinforce.py` and export it beside `ReinforceLearner`. It accepts only a `ContextualSoftmaxPolicy`. `ReinforceLearner` continues to raise `TypeError` unless the policy is a `SoftmaxPolicy`.
+Add `ContextualReinforceLearner` in `src/agent_learning_ext/learners/contextual_reinforce.py` and export it beside `ReinforceLearner` from `agent_learning_ext.learners` and `agent_learning_ext` (the fork rule: Microsoft's `agent_learning.learners` and `agent_learning` are not edited). It accepts only a `ContextualSoftmaxPolicy`. `ReinforceLearner` continues to raise `TypeError` unless the policy is a `SoftmaxPolicy`.
 
 For one episode with reward \(R\), baseline \(b\), feature vector \(\phi\), and probabilities \(\pi(\cdot \mid \phi)\), the weight-row update is the update the example applies by hand:
 

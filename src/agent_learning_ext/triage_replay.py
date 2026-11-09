@@ -24,18 +24,11 @@ from agent_learning.decision import (
 )
 from agent_learning.review_triage import TriageRecord, find_triage_lines, parse_triage_line
 
-try:
-    from critique_evidence import (
-        CritiqueDelta,
-        apply_critique,
-        rubric_delta,
-    )
-except ImportError:
-    from agent_training_ext.critique_evidence import (  # type: ignore
-        CritiqueDelta,
-        apply_critique,
-        rubric_delta,
-    )
+from agent_learning_ext.critique_evidence import (
+    CritiqueDelta,
+    apply_critique,
+    rubric_delta,
+)
 
 DISCLAIMER_TEXT = (
     "This report is an internal consistency check on reviewer triage tagging "

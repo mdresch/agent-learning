@@ -62,6 +62,9 @@ An entry records only what the epic's work actually surfaced. Do not seed this r
 | IMP-027 | Epic 17 | Dual-Access Invocation Pattern (Callable Property Wrapper) for Extension Policies | Architectural simplification / Developer experience | Standardize `CallableSnapshot` and `CallableActionList` into a shared utility (`agent_learning_ext.policy.base_compat`) so that any custom policy implementing upstream `Policy` abstract methods can be seamlessly accessed as both methods (`policy.snapshot()`, `policy.actions()`) and attributes (`policy.snapshot.metadata`, `policy.actions`). | Eliminates calling convention mismatches between upstream runner harnesses and modern test assertions across all future extension policies. | In-Flight Candidate |
 | IMP-028 | Epic 17 | Automated Action Space Reversibility Linter and Declarative Registry | Developer experience / Governance | Build an automated linter and CLI command (`task-policy-lint-reversibility`) that scans `docs/policy-shapes/*.actions.json`, validates strict boolean typing of `"parameters": {"reversible": bool}`, and flags unflagged action definitions where human maintenance could safely enable bounded exploratory probing. | Gives maintainers an explicit inventory of candidate reversible actions, allowing scheduled exploration to be deliberately unblocked without risking destructive actions. | In-Flight Candidate |
 | IMP-029 | Epic 17 | Multi-Policy Offline Benchmarking Harness with Synthetic Failure Injection | Product opportunity / Research | Implement the out-of-scope benchmark comparing REINFORCE, UCB, Thompson sampling, and Scheduled Epsilon-Greedy on simulated task environments with known failure modes and controlled non-positive rewards, evaluating regret, convergence speed, and safety violation rates. | Empirically proves or disproves HYP-AL-009 on heterogeneous reward landscapes rather than purely positive-only history. | Rolled into Phase Next Intent Refinement |
+| IMP-030 | Epic 22 | Check review-triage lines inside the PR gate | Developer experience / Governance | `scripts/pr_gate.py` runs `review_triage.parse_triage_line` over the triage lines added by the PR and halts on any claim type, verification or decision outside the vocabulary. | A line like `Q-145-2, auditability` (LL-049) is caught before merge instead of failing three foreign contracts on `main`. | In-Flight Candidate |
+| IMP-031 | Epic 22 | Backfill Tier 2 targets for LL-045 to LL-048 and script the LL-041 check | Governance / Process | The Step 9 propagation check found no LL-045, LL-046, LL-047 or LL-048 id in any named Tier 2 target (`implement-story`, `pairwise-preference`, `ucb`, `critique-evidence` skills, `scripts/spec_gate.py`, `src/agent_learning_ext/policy/`). Add the rules to those targets and turn the grep into a small script that lists missing ids. | Lessons reach the files agents actually read, and the check stops depending on a person remembering it. | In-Flight Candidate |
+| IMP-032 | Epic 22 | Generate the Project Status Register's repository facts from git | Developer experience | The register's last base commit, merged-PR state and next-story line were three facts stale one day after they were written. Derive them in `scripts/phase_rollup.py` (or a sibling) and leave only the narrative by hand. | Resuming after a session limit never starts from a wrong position. | Rolled into Phase Next Intent Refinement |
 
 ---
 
@@ -124,6 +127,13 @@ One entry per epic recap, appended in the order held. Format:
 - **Cadence Date:** 2026-11-08
 - **Defensive Review (LL-###):** LL-048 (Dual Invocation Compatibility Patterns and Action Space Safety Mask Lock-In)
 - **Positive Improvement Harvest:** IMP-027, IMP-028, IMP-029
+
+---
+
+### Epic 22: Scored-Search Decision Configuration Compilation
+- **Cadence Date:** 2026-11-09
+- **Defensive Review (LL-###):** LL-049 (A Review Line Outside the Triage Vocabulary Breaks Foreign Contracts After Merge), LL-050 (Approved Documents Can Name Code That Is Not There, and Criteria Edited After the Contract Trip the Baseline)
+- **Positive Improvement Harvest:** IMP-030, IMP-031, IMP-032
 
 ---
 

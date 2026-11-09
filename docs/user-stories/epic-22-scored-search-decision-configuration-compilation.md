@@ -103,7 +103,7 @@ Fixtures used by the criteria below. "The toy frame": criteria `c1`, `c2`, optio
 
 ## Story 22.7 — The Real-Data Regression Check
 
-**Status:** Ready  
+**Status:** Completed (2026-11-09)  
 **As** a maintainer, **I want** the compiler run over the recorded decisions, **so that** the absence of any real disagreement is shown, not assumed.
 
 ### Acceptance Criteria:

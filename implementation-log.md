@@ -2907,5 +2907,32 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - $AC_4$: Direct resolution of toy frame with updated snapshot produces expected winning option under adopted weights.
 - **Review (Step 8):** Amazon Q reviewed PR #145. All findings addressed:
   - `Q-145-1 | crash risk | verified: yes | decision: accepted | Fix store.get_episode arity to (id, agent_id) with --approval-agent-id and governance fallback | fix: 0566e0b`
-  - `Q-145-2 | auditability | verified: yes | decision: accepted | Compute proposal SHA-256 directly on raw file bytes for exact sha256sum parity | fix: 0566e0b`
+  - `Q-145-2 | logic error | verified: yes | decision: accepted | Compute proposal SHA-256 directly on raw file bytes for exact sha256sum parity | fix: 0566e0b`
   - `Q-145-3 | test gap | verified: yes | decision: accepted | Update test mocks and assertions for 2-argument get_episode and raw bytes hash | fix: 0566e0b`
+  - Correction 2026-11-09 (heal-contract-failure): Q-145-2 was first logged with claim type auditability, which is not in review_triage.CLAIM_TYPES, so the triage parser rejected the log. Recorded as logic error (the hash differed from sha256sum output). The parser was not loosened.
+
+## Story 22.7 — The Real-Data Regression Check
+- **Commit:** `eef95f4` (loader fix `d0a909c`)
+- **Date:** 2026-11-09
+- **Branch:** `feat/story-22.7`
+- **Source ADR / BRD / FDD:** ADR-022 (§4.4 test data), BRD-022 (BRU-022-12), FDD-022
+- **Pre-Flight Spec Gate:** NOT run before the contract was written. Recorded as a gap, not backfilled: scoring the specification now, after its contract exists, would not show what was true when the gate was due.
+- **Files Modified/Created:**
+  - `tests/test_weight_real_data.py` (contract tests for $AC_0$ through $AC_4$; no production code, the story's deliverable is the check)
+  - `.claude/skills/weight-compiler/SKILL.md` (constraint 14)
+  - `docs/user-stories/epic-22-scored-search-decision-configuration-compilation.md` (AC_0 to AC_3 wording amended at Stage 16; Story 22.7 marked Completed)
+  - `docs/policy-shapes/` (Stage 16 frame, result, measurements, adjudication and episode for the amendment)
+  - `tests/governance_baseline.json` (re-fingerprinted by `scripts/governance_baseline.py` through `scripts/stage16_amend.py accept`)
+  - `implementation-log.md` (correction below), `.claude/skills/implement-story/SKILL.md` (Tier 2 for LL-049 and LL-050)
+- **Contracts:**
+  - `tests/test_weight_real_data.py`: 5 passed
+  - Full suite, nothing ignored: 2301 passed, 2 skipped (`uv run pytest`). With `--ignore=tests/test_spark.py --ignore=tests/pmbok`: 2210 passed, 1 skipped.
+- **Notes:**
+  - Real-data result: 179 of 188 frame files were used, grouped over 13 tasks. 9 approval frames carry no label in any episode or result and are skipped by name (`adr-005-regressed-demo`, `adr-008-approval`, `adr-012-approval-v2`, `adr-025-approval-v1`, `adr-034-approval`, `epic11-approval`, `implementation-readiness-phase2`, `pmp-approval-phase2`, `stakeholder-plan-approval-phase2`). Baseline accuracy is 1.0 on every task with at least `2 * MIN_PART` labelled frames, so `propose` returns `NoImprovement`. This is not evidence that compiled weights are better (BRU-022-12).
+  - Heal pass (heal-contract-failure): `test_ac4_result_labelled_with_documented_gap` was RED because the module docstring did not cite BRU-022-12; the contract was right, the docstring was fixed. The first loader swallowed every exception and silently dropped unlabelled frames; fixed in `d0a909c` so each skipped frame is counted and reported.
+  - Stage 16: AC_0 to AC_3 were edited in the working tree to match the test, which failed `tests/test_governance_baseline.py`. Classified `amendment_log_entry`, accepted by Menno Drescher 2026-11-09, episode `59440d8c`.
+  - Foreign contract: three tests failed on `main` since PR #145 because the Story 22.6 review line `Q-145-2` used claim type `auditability`. Corrected in that entry above; the parser was not loosened.
+  - Open: ADR-022, FDD-022 and the Epic 22 file name `src/agent_learning/weight_compiler.py`; the module is `src/agent_learning_ext/weight_compiler.py`. Correcting an approved document needs a Stage 16 `correction_note`, not yet run.
+  - Interpretations $I_1$ to $I_4$ in the test docstring (fork purity, storage decoupling, None-safety, empty-collection base case) are recorded there.
+- **Review (Step 8):** pending.
+

@@ -701,6 +701,29 @@
   2. Always explicitly document and test safety mask boundaries: when $A_{\text{safe}} = \emptyset$, assert that $\epsilon_t = 0.0$ across all $t$, that every decision is exploitation, and that lock-in onto positive-reward actions is expected, desired behavior under human safety governance.
 - **Verification Gate:** Pre-flight spec gates audit action property signatures and verify that test docstrings explicitly document safety mask lock-in tradeoffs.
 
+---
 
+### LL-049 — A Review Line Outside the Triage Vocabulary Breaks Foreign Contracts After Merge
+- **Identifier:** `LL-049`
+- **Date:** 2026-11-09
+- **Epic / Story:** Epic 22 / Stories 22.6–22.7 (commits `0566e0b`, `eef95f4`, `d0a909c`)
+- **Scope:** Review Triage / Audit Log
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/implement-story/SKILL.md` (Step 8.7); Tier 3: `sidpa-template` (proposed, needs human approval before cross-repo change)
+- **The Trap:** The Story 22.6 review was logged as `Q-145-2 | auditability | ...`. `auditability` is not in `review_triage.CLAIM_TYPES`, so `tests/test_review_triage.py` and two `tests/test_critique_replay.py` tests failed on `main` after PR #145 merged. Nothing flagged it until the next story ran the full suite.
+- **The Root Cause:** The triage vocabulary (five claim types plus `unknown`) is enforced only by a parser that runs inside unrelated tests, and the review lines are written after the story contract and after the last suite run. A reviewer's own category word was copied into the line.
+- **Actionable Invariant:** Use only the five claim types or `unknown`; a finding that fits none is `unknown`, never a new word. After writing or editing triage lines, run `uv run pytest tests/test_review_triage.py tests/test_critique_replay.py` before the commit. Fix a bad line by correcting the record with a dated note; do not widen the parser to accept it.
+- **Verification Gate:** `tests/test_review_triage.py::test_ac0_every_recorded_line_in_the_implementation_log_parses`; IMP-030 proposes making `scripts/pr_gate.py` check it.
 
+---
+
+### LL-050 — Approved Documents Can Name Code That Is Not There, and Criteria Edited After the Contract Trip the Baseline
+- **Identifier:** `LL-050`
+- **Date:** 2026-11-09
+- **Epic / Story:** Epic 22 / Stories 22.1–22.7 (commits `eef95f4`, `d0a909c`; Stage 16 episode `59440d8c`)
+- **Scope:** Specification Ingest / Governance Baseline
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/implement-story/SKILL.md` (Step 1); Tier 3: `sidpa-template` (proposed, needs human approval before cross-repo change)
+- **The Trap:** (1) ADR-022, FDD-022 and the Epic 22 file name `src/agent_learning/weight_compiler.py`, but the module is `src/agent_learning_ext/weight_compiler.py` under the fork rule; seven stories were built without the path being corrected. (2) In Story 22.7 the AC_0 to AC_3 wording was edited in the working tree to match what the test did, after the contract existed; `tests/test_governance_baseline.py` failed and a Stage 16 episode was needed afterwards. (3) The pre-flight spec gate was not run before the 22.7 contract, so that gap stands in the record.
+- **The Root Cause:** Step 1 checks that data sources are tracked (LL-037) but not that the code paths a document names exist, and nothing tells an author to amend criteria before the contract rather than after.
+- **Actionable Invariant:** At Step 1 run `git ls-files` on every code path the ADR, FDD and story name; a wrong path is an open question, corrected through `scripts/stage16_amend.py propose` (`correction_note`) before Step 3. Amend acceptance criteria through Stage 16 before the contract is written; a behaviour the criteria do not state is an interpretation in the test docstring (LL-011), not an edit to the story. A gate that was not run is recorded as a gap, not backfilled.
+- **Verification Gate:** `tests/test_governance_baseline.py`; `scripts/spec_gate.py` before Step 3.
 

@@ -38,7 +38,22 @@ Interpretations added for this contract:
      never consumed), and an invalid aggregate reward is rejected even when its episode is not in the call.
   I9 The "no aggregate reward" case is an episode with an otherwise usable vector and action and no reward at all.
 
-Story 38.3 tests are appended below in their own section.
+Story 38.3 (One Learner, One Policy Class): AC_0 the contextual learner rejects a SoftmaxPolicy, AC_1 the scalar learner
+rejects a ContextualSoftmaxPolicy and still updates a SoftmaxPolicy. Governing: ADR-038 invariant 1, BRU-038-01, FDD-038
+section 3 item 1 and section 5.
+Interpretations from ``scripts/spec_gate.py 38.3`` (PASSED, robust margin +0.1256), renamed H1 to H4 here:
+  H1 storage decoupling and JSON round-trip: pinned by Story 38.1 AC_4; a rejected call leaves ``snapshot().to_dict()``
+     equal to its value before the call.
+  H2 empty base case: not relevant to the wall (the class check runs before any episode is read).
+  H3 non-finite rejection: pinned by Story 38.2 AC_4.
+  H4 tolerances: no floating-point comparison is made in this story; the one numeric check is a sign (the scalar
+     update raises the logit of the rewarded action above 0).
+Interpretations added for this contract:
+  I10 "ReinforceLearner" means both ``agent_learning_ext.learners.ReinforceLearner`` and Microsoft's
+      ``agent_learning.learners.ReinforceLearner``; both already raise TypeError for a ContextualSoftmaxPolicy, so those
+      tests guard existing behaviour and are green before this story's code (recorded as such in the log).
+  I11 "does not read feature_vector" is checked with an episode whose metadata fails the test on any key lookup.
+  I12 The TypeError text is compared for equality, so the message in FDD-038 section 3 item 1 is the contract.
 """
 
 from __future__ import annotations
@@ -50,7 +65,7 @@ from pathlib import Path
 import pytest
 
 from agent_learning.config import LearnerConfig
-from agent_learning.policy import ContextualSoftmaxPolicy
+from agent_learning.policy import ContextualSoftmaxPolicy, SoftmaxPolicy
 from agent_learning.types import Action, Episode, Reward, RewardSource
 
 LEARNER_FILE = Path(__file__).resolve().parents[1] / "src" / "agent_learning_ext" / "learners" / "contextual_reinforce.py"
@@ -298,3 +313,56 @@ def test_story382_g3_empty_episode_list_is_a_clean_no_op():
     _unchanged(policy, before)
     assert result.episodes_used == 0
     assert result.extra["weight_deltas"] == {}
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Story 38.3 - One Learner, One Policy Class
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+class _VectorGuard(dict):
+    """Episode metadata that fails the test if anything reads ``feature_vector``."""
+
+    def _blocked(self, *args, **kwargs):
+        raise AssertionError("the scalar learner must not read feature_vector")
+
+    __getitem__ = get = pop = setdefault = __contains__ = _blocked
+
+
+def _scalar_policy() -> SoftmaxPolicy:
+    return SoftmaxPolicy.from_actions([Action(id="a"), Action(id="b")])
+
+
+def test_story383_ac0_contextual_learner_rejects_a_softmax_policy():
+    policy = _scalar_policy()
+    before = policy.snapshot().to_dict()
+    episode = _episode([1.0, 0.0])
+    with pytest.raises(TypeError) as raised:
+        _learner().update(policy, [episode], [_reward(episode, 1.0)])
+    assert str(raised.value) == "ContextualReinforceLearner requires a ContextualSoftmaxPolicy"
+    assert policy.snapshot().to_dict() == before
+    assert policy.snapshot().logits == {"a": 0.0, "b": 0.0}
+
+
+def test_story383_ac1_scalar_learner_rejects_a_contextual_policy():
+    from agent_learning.learners import ReinforceLearner as MicrosoftReinforceLearner
+    from agent_learning_ext.learners import ReinforceLearner
+
+    for learner_class in (ReinforceLearner, MicrosoftReinforceLearner):
+        policy = _zero_policy()
+        before = policy.snapshot().to_dict()
+        episode = _episode([1.0, 0.0])
+        with pytest.raises(TypeError):
+            learner_class().update(policy, [episode], [_reward(episode, 1.0)])
+        assert policy.snapshot().to_dict() == before
+        assert policy.snapshot().metadata["context_weights"] == {"a": [0.0, 0.0], "b": [0.0, 0.0]}
+
+
+def test_story383_ac1_scalar_learner_still_updates_a_softmax_policy_without_reading_the_vector():
+    from agent_learning_ext.learners import ReinforceLearner
+
+    policy = _scalar_policy()
+    episode = Episode(metadata=_VectorGuard({"feature_vector": [1.0, 0.0]}), action_id="a", action_logprob=HALF)
+    result = ReinforceLearner().update(policy, [episode], [_reward(episode, 1.0)])
+    assert result.episodes_used == 1
+    assert policy.snapshot().logits["a"] > 0.0

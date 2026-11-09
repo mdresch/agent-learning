@@ -3178,3 +3178,25 @@ This log records completed user stories in accordance with the SIDPA `implement-
 ---
 - **Amazon Q review (PR #156):** `/q review` on head `7eff72d`; one finding (reported twice). Accepted as hardening for a hand-made snapshot and fixed in `4caa219` (new commit, test observed RED first). `/q confirm` follows on the new head.
   - `Q-156-1 | crash risk | verified: yes | decision: accepted | KeyError on a contextual snapshot with no feature_dim, reachable only through a hand-made snapshot because init always writes it (reported twice) | fix: 4caa219`
+
+---
+## Story 38.3 — One Learner, One Policy Class
+- **Commit:** `5cfd832`
+- **Date:** 2026-11-09
+- **Branch:** `feat/story-38.3` (worktree `../agent-learning-story-38.3`), forked from the tip of `feat/story-38.2` (`f72d457`), not from `main`. The Epic 38 learner chain is `main` <- 38.1 <- 38.2 <- 38.3 and merges in that order.
+- **Source ADR / BRD / FDD:** ADR-038 (invariant 1), BRD-038 (BRU-038-01), FDD-038 (§3 item 1, §5)
+- **Pre-Flight Spec Gate:** `uv run python scripts/spec_gate.py 38.3 --no-persist` PASSED, robust margin +0.1256 (`--no-persist`: LL-040). Gate interpretations recorded as H1 to H4 in the test docstring; I10 to I12 added (both `ReinforceLearner` classes; "does not read feature_vector" checked with a metadata guard; TypeError text compared for equality).
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/learners/contextual_reinforce.py` (class check at the top of `update`)
+  - `tests/test_contextual_learner.py` (Story 38.3 section appended)
+  - `.claude/skills/contextual-learning/SKILL.md` (class wall)
+  - `docs/user-stories/epic-38-packaged-contextual-learning.md` (Story 38.3 Status line)
+- **Contracts:**
+  - RED observed first: 1 failed, 30 passed. Only AC_0 failed (`KeyError: 'feature_dim'` on a `SoftmaxPolicy`). The two AC_1 tests were green before this story's code: `ReinforceLearner` (ours and Microsoft's) already raises `TypeError` for a `ContextualSoftmaxPolicy` and updates a `SoftmaxPolicy`, so they guard existing behaviour and could not be observed RED.
+  - `tests/test_contextual_learner.py`: 31 passed (the story's three plus the 38.1 and 38.2 tests). `tests/test_upstream_untouched.py` passed.
+  - Full suite with `--ignore=tests/test_spark.py --ignore=tests/pmbok`: 2362 passed, 2 skipped. Not the entire suite (Spark needs a JVM; `tests/pmbok` cannot be collected from a clean install, ADR-034, LL-013).
+  - `ruff check` clean (`--fix` only on files this branch created).
+- **Notes:**
+  - Epic 38 learner stories 38.1 to 38.3 are complete on three stacked branches; nothing is pushed, merged, or reviewed yet (Steps 8 and 9 not run, by instruction). Story 38.6 is not the learner chain, so the Step 9 recap belongs to whichever branch closes the epic.
+  - `Project-Status-Register.md` not touched, by instruction (the orchestrator updates it once).
+- **Amazon Q review (PR #158):** `/q review` on head `aea4917`. Q reports the implementation correct and complete, no blocking defect, no finding and no inline comment. No findings to triage.

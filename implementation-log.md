@@ -3075,3 +3075,27 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-148-6 | style | verified: partial | decision: accepted | No NameError risk: this is spec pseudocode, and the repo modules use from __future__ import annotations. PrerequisiteStatus is moved above SelectionRuleTable anyway | fix: 6f06b47`
 - **PR #150:**
   - `Q-150-1 | logic error | verified: yes | decision: accepted | FDD-024 §2.2 says the first eligible row is the recommendation, but D9 and the worked fixture make recommended_id the first primary row (id 3, not adjunct id 6) | fix: none`
+
+---
+## Story 38.1 — The Weight-Row Update
+- **Commit:** `e95d88a`
+- **Date:** 2026-11-09
+- **Branch:** `feat/story-38.1` (worktree `../agent-learning-story-38.1`)
+- **Source ADR / BRD / FDD:** ADR-038 (§4.1), BRD-038 (BRU-038-02, BRU-038-06), FDD-038 (§1, §2.1, §3, D6)
+- **Pre-Flight Spec Gate:** `uv run python scripts/spec_gate.py 38.1 --no-persist` PASSED, robust margin +0.1774. `--no-persist` because `AGENT_LEARNING_LOCAL_STORE_DIR` on this machine points at another project's store (LL-040). Interpretations I1 (None-safety), I2 (empty base case), I3 (non-finite rejection) from the gate, plus I4 to I6 added in the test docstring.
+- **Worktree deviation:** nothing is merged between the Epic 38 stories, so 38.1 forks from `main` (`19d18ee`) as usual, but 38.2 forks from the tip of `feat/story-38.1` and 38.3 from the tip of `feat/story-38.2`. They form one stacked chain and must merge in order.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/learners/contextual_reinforce.py` (new)
+  - `src/agent_learning_ext/learners/__init__.py`, `src/agent_learning_ext/__init__.py` (export, `_EXPORTS`)
+  - `tests/test_contextual_learner.py` (new; AC_0 to AC_4 plus an export test)
+  - `.claude/skills/contextual-learning/SKILL.md` (new component skill)
+  - `docs/user-stories/epic-38-packaged-contextual-learning.md` (Story 38.1 Status line)
+- **Contracts:**
+  - RED observed first: 6 failed (5 acceptance tests and the export test; `ContextualReinforceLearner` did not exist).
+  - `tests/test_contextual_learner.py`: 6 passed. `tests/test_upstream_untouched.py` passed.
+  - Full suite with `--ignore=tests/test_spark.py --ignore=tests/pmbok`: 2337 passed, 2 skipped. Not the entire suite (Spark needs a JVM; `tests/pmbok` cannot be collected from a clean install, ADR-034, LL-013).
+  - `ruff check` clean on the four touched source and test files (`--fix` only on the two files this story created).
+- **Notes:**
+  - The 38.1 implementation covers only the used-episode path. Skip counters (38.2) and the class wall (38.3) are added in their own stories so that each contract is observed RED.
+  - The worktree's first `uv sync` did not install `numpy`; `uv sync --extra dev` was needed before the tests could import `agent_learning`.
+  - Not touched, by instruction: `docs/project-docs/Project-Status-Register.md` (the orchestrator updates it once after validation, to avoid a merge conflict with the Stories 38.4 to 38.6 branch).

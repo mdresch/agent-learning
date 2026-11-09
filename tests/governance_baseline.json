@@ -102,9 +102,15 @@
     "docs/adr/ADR-014-critique-to-evidence-ingestion.md": {
       "family": "adr",
       "status": "accepted",
-      "sha256": "5d7769569ca063b53db295ae71c8f9fad99895751458d4cab1879a53ec37ef35",
+      "sha256": "38fa40fa4bffebd5bdfaa4e6b9db95655304ac61c47bf16f808bd26069def13d",
       "approval_episode": null,
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "4e3e709d",
+          "stage": 16
+        }
+      ]
     },
     "docs/adr/ADR-015-bayesian-bandit-posterior-sampling.md": {
       "family": "adr",

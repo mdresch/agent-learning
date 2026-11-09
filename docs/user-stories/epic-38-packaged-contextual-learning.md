@@ -14,7 +14,7 @@ Fixture for 38.1 and 38.2 ("the zero policy"): actions `a` then `b`, `feature_di
 
 ## Story 38.1 — The Weight-Row Update
 
-**Status:** Ready — D6 confirmed 2026-10-30  
+**Status:** Completed (2026-11-09, commit `e95d88a`)  
 **As** a maintainer, **I want** one exported learner to apply the example's update to a contextual policy, **so that** I no longer copy that loop by hand.
 
 ### Acceptance Criteria

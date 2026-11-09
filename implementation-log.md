@@ -2996,6 +2996,9 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-147-12 | crash risk | verified: no | decision: accepted | An uncaught exception propagates and cannot reach the later return, so the alleged unbound-local path is unreachable; initialized labeled_at per source anyway as defensive clarity, with no behavior change | fix: a5aeeb1`
   - Round 6 (`/q review`, head `5aaeb5d`): one assertion was over-specified.
   - `Q-147-13 | logic error | verified: yes | decision: accepted | AC_2 requires NoImprovement and the documented accuracy/JSON round-trip, not diagnostic wording or precision; a temporary precision mutation reproduced a false failure while the result type and accuracy remained correct; removed the hard-coded reason substring and documented the contract boundary | fix: 74e3518`
+  - Round 7 (`/q review`, head `a370599`): two findings.
+  - `Q-147-14 | logic error | verified: no | decision: accepted with modification | Caught load errors continue and uncaught errors propagate, so the alleged return-with-None path is unreachable; initialize labeled_at to the default regardless, making the fallback explicit | fix: 8ea5093`
+  - `Q-147-15 | crash risk | verified: yes | decision: accepted | AST source inspection now resolves cached bytecode paths to .py with importlib.util.source_from_cache and asserts the source exists; regression test observed RED before the helper was added | fix: 8ea5093`
 ## Story 21.5 — Human Decisions and the Promotion Seed
 - **Commit:** `e1047b5`
 - **Date:** 2026-11-09

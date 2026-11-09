@@ -3142,6 +3142,7 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `tests/test_contextual_cli.py`: Story 38.6 tests observed RED first, 7 failed (37 passed: the 35 earlier tests plus two positive controls, a scalar `train` and a scalar payload).
   - Contract run after implementing: 44 passed (10 for 38.4, 25 for 38.5, 9 for 38.6).
 - **Beyond the criteria, needed by D5:** removing `action_probabilities` from a contextual payload made `_policy_difference` (used by `task-policy` when a previous policy version exists) read a missing key, so it now returns `None` when either snapshot is contextual (38.6-I10, covered by a test).
+- **Confirmed by Menno (2026-11-09):** the `_policy_difference` guard above, so `task-policy` returns no distribution difference for a contextual snapshot, is approved as part of Story 38.6.
 - **Known gaps left open (not in any criterion):** `task-policy` still prints an `autonomy` block computed from the unused logits for a contextual snapshot; `task-policy-authority-set` from a hand-made `full` contextual snapshot to `low` would record a migration distribution from the unused logits. Both are for a later decision.
 - **Validation:**
   - Full suite: 2375 passed, 2 skipped (`uv run pytest --ignore=tests/test_spark.py --ignore=tests/pmbok`; `test_spark.py` needs a JVM, `tests/pmbok` cannot be collected from a clean install, ADR-034, LL-013). Includes `tests/test_upstream_untouched.py`.

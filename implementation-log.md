@@ -3099,3 +3099,24 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - The 38.1 implementation covers only the used-episode path. Skip counters (38.2) and the class wall (38.3) are added in their own stories so that each contract is observed RED.
   - The worktree's first `uv sync` did not install `numpy`; `uv sync --extra dev` was needed before the tests could import `agent_learning`.
   - Not touched, by instruction: `docs/project-docs/Project-Status-Register.md` (the orchestrator updates it once after validation, to avoid a merge conflict with the Stories 38.4 to 38.6 branch).
+
+---
+## Story 38.2 — Skipped Episodes Are Counted
+- **Commit:** `8c44e13`
+- **Date:** 2026-11-09
+- **Branch:** `feat/story-38.2` (worktree `../agent-learning-story-38.2`), forked from the tip of `feat/story-38.1` (`5a5c895`), not from `main`: nothing is merged between the Epic 38 stories. It merges after 38.1.
+- **Source ADR / BRD / FDD:** ADR-038 (§4.2, invariants 2 to 4), BRD-038 (BRU-038-03, BRU-038-04, BRU-038-05), FDD-038 (§2.1 table, §3 items 2 and 6)
+- **Pre-Flight Spec Gate:** `uv run python scripts/spec_gate.py 38.2 --no-persist` PASSED, robust margin +0.1829 (`--no-persist`: LL-040). Gate interpretations (storage decoupling, None-safety, empty base case) recorded as G1 to G3 in the test docstring; I7 to I9 added (all seven counter keys always present; `inf` is non-finite; no-reward case is an episode with no reward at all).
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/learners/contextual_reinforce.py` (episode classification, counters, nothing-to-apply return, reward validation)
+  - `tests/test_contextual_learner.py` (Story 38.2 section appended)
+  - `.claude/skills/contextual-learning/SKILL.md` (counters, nothing-to-apply, bad reward)
+  - `docs/user-stories/epic-38-packaged-contextual-learning.md` (Story 38.2 Status line)
+- **Contracts:**
+  - RED observed first: 21 failed, 7 passed. The 7 passing were the 6 Story 38.1 tests and AC_3 (supplied zeros), which the 38.1 implementation already satisfied.
+  - `tests/test_contextual_learner.py`: 28 passed. `tests/test_upstream_untouched.py` passed.
+  - Full suite with `--ignore=tests/test_spark.py --ignore=tests/pmbok`: 2359 passed, 2 skipped. Not the entire suite (Spark needs a JVM; `tests/pmbok` cannot be collected from a clean install, ADR-034, LL-013).
+  - `ruff check` clean (`--fix` only on files this branch created).
+- **Notes:**
+  - AC_3 was green before this story's implementation because the 38.1 code already treats a supplied zero vector as a vector. It still stands as its own test.
+  - `Project-Status-Register.md` not touched, by instruction (the orchestrator updates it once).

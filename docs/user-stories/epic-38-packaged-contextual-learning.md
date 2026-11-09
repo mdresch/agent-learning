@@ -29,7 +29,7 @@ Fixture for 38.1 and 38.2 ("the zero policy"): actions `a` then `b`, `feature_di
 
 ## Story 38.2 — Skipped Episodes Are Counted
 
-**Status:** Ready — D6 confirmed 2026-10-30  
+**Status:** Completed (2026-11-09, commit `8c44e13`)  
 **As** an auditor, **I want** a missing or unusable vector to leave the weights alone, **so that** a hole is never trained as a zero vector.
 
 ### Acceptance Criteria

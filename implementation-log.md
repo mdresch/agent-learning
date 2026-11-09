@@ -2939,7 +2939,10 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - Full suite: 2211 passed, 2 skipped before merging `origin/main` (Story 22.6); 2236 passed, 1 skipped after the merge and the Q-145-2 correction (`uv run pytest --ignore=tests/test_spark.py --ignore=tests/pmbok`; `test_spark.py` needs a JVM, `tests/pmbok` cannot be collected from a clean install, ADR-034, LL-013).
   - `ruff check` clean on the touched files (`main`'s `routing.py` was clean before the story).
   - Upstream fork untouched (I1).
-- **Flagged, not fixed:** `mean_shadow_entropy_bits` divides by `n`, so an episode with a shadow action but no `shadow_entropy_bits` lowers the mean; harmless while `shadow_record` always writes both fields together.
+- **Flagged during the heal, fixed in review:** `mean_shadow_entropy_bits` divided by `n`, so an episode with a shadow action but no finite `shadow_entropy_bits` lowered the mean (Q-146-1/Q-146-2 below).
+- **Review (Step 8):** Amazon Q reviewed PR #146 (round 1, head `278a07a`; two review summaries reporting the same defect). Finding addressed:
+  - `Q-146-1 | logic error | verified: yes | decision: accepted | mean_shadow_entropy_bits divided by n instead of the count of episodes carrying a finite shadow_entropy_bits | fix: f9aea3d`
+  - `Q-146-2 | test gap | verified: yes | decision: accepted | No contract case had a counted episode without shadow_entropy_bits; added test_ac5_mean_entropy_only_over_episodes_carrying_it (RED 0.375 vs 0.75 first) | fix: f9aea3d`
 - **Trap note (for the Epic 21 recap):** an abandoned run's tests can be green and still unable to fail (wrong reward source); a heal must show each contract can go RED, not only that it passes.
 
 ---

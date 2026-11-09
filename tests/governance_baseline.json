@@ -658,9 +658,15 @@
     "docs/project-docs/Functional-Design/FDD-014-critique-to-evidence-ingestion.md": {
       "family": "fdd",
       "status": "approved",
-      "sha256": "c39fa05863aaa16d836681fe76426f75cf2bdb8138d78686bbb7ba6a836e2b05",
+      "sha256": "ff7e9b557de96c78d140cc9d95cd22777bc4c098ba5462ebd66db089156938c5",
       "approval_episode": "d3157763",
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "921cc8a0",
+          "stage": 16
+        }
+      ]
     },
     "docs/project-docs/Functional-Design/FDD-015-bayesian-bandit-posterior-sampling.md": {
       "family": "fdd",

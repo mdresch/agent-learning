@@ -2994,6 +2994,8 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-147-11 | crash risk | verified: yes | decision: accepted with modification | ast.parse in the storage-import detector raised a bare SyntaxError; it now raises an AssertionError naming the problem, not the suggested return False, which would report no storage import for a file nobody could inspect | fix: e97975a`
   - Round 5 (`/q review`, head `8c219cb`): Q recommended initializing `labeled_at` before the `try`.
   - `Q-147-12 | crash risk | verified: no | decision: accepted | An uncaught exception propagates and cannot reach the later return, so the alleged unbound-local path is unreachable; initialized labeled_at per source anyway as defensive clarity, with no behavior change | fix: a5aeeb1`
+  - Round 6 (`/q review`, head `5aaeb5d`): one assertion was over-specified.
+  - `Q-147-13 | logic error | verified: yes | decision: accepted | AC_2 requires NoImprovement and the documented accuracy/JSON round-trip, not diagnostic wording or precision; a temporary precision mutation reproduced a false failure while the result type and accuracy remained correct; removed the hard-coded reason substring and documented the contract boundary | fix: 74e3518`
 ## Story 21.5 — Human Decisions and the Promotion Seed
 - **Commit:** `e1047b5`
 - **Date:** 2026-11-09

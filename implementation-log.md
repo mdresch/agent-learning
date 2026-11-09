@@ -3154,3 +3154,5 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `ruff check` clean on `cli.py` and the test file; `git diff --stat` on `cli.py` was 102 insertions, 0 deletions (the branch before the log edit).
 - **Status register:** `docs/project-docs/Project-Status-Register.md` not edited here; the orchestrator updates it once after validation.
 ---
+- **Amazon Q review (PR #156):** `/q review` on head `7eff72d`; one finding (reported twice). Accepted as hardening for a hand-made snapshot and fixed in `4caa219` (new commit, test observed RED first). `/q confirm` follows on the new head.
+  - `Q-156-1 | crash risk | verified: yes | decision: accepted | KeyError on a contextual snapshot with no feature_dim, reachable only through a hand-made snapshot because init always writes it (reported twice) | fix: 4caa219`

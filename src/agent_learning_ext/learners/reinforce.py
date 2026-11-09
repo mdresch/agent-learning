@@ -1,7 +1,7 @@
 # ext-source: src/agent_learning/learners/reinforce.py sha256:ec3bc489b4bcf75c9bc1aae543c787529b6b073c3167333206231ca4a51ae433
 # ruff: noqa  (kept faithful to Microsoft's code and style so upstream changes merge in cleanly)
 # Copy of Microsoft's module for agent_learning_ext (fork rule: Microsoft's file is never edited).
-# EXT: ReinforceLearner.update() skips an episode whose action_logprob is None (a full-authority decision was not sampled from the softmax policy) and reports the count as extra['full_authority_excluded'] (Story 1.1, ADR-001 4.5).
+# EXT: ReinforceLearner.update() skips an episode whose action_logprob is None (Story 1.1, ADR-001 4.5) or whose routed_authority is 'full' (Story 21.6, ADR-021 4.3) and reports the count as extra['full_authority_excluded'].
 # When the upstream pin moves and the source file changes, merge that change here and update the hash above.
 """REINFORCE-style policy gradient learner with an EMA value baseline.
 
@@ -79,11 +79,28 @@ class ReinforceLearner(Learner):
         full_authority_excluded = 0
 
         for episode in episode_list:
+            # Story 21.6 (AC_3): Full-routed decisions are reasoned, not sampled from policy.
+            # They must be excluded from policy gradients even if they carry an action_logprob.
+            meta = getattr(episode, "metadata", None) or {}
+            routed_auth_raw = meta.get("routed_authority") if isinstance(meta, dict) else None
+            if hasattr(routed_auth_raw, "value"):
+                routed_auth = str(routed_auth_raw.value).strip().lower()
+            elif routed_auth_raw is not None:
+                routed_auth = str(routed_auth_raw).strip().lower()
+            else:
+                routed_auth = ""
+
+            if routed_auth == "full":
+                full_authority_excluded += 1
+                continue
+
             if (
                 episode.action_id is None
                 or episode.action_id not in action_index
                 or episode.action_logprob is None
             ):
+                # Unchanged from Story 1.1 (ADR-001 4.5): an episode with no log-probability is a
+                # full-authority decision, skipped and counted. Story 21.6 adds only the routed-full check above.
                 if episode.action_logprob is None and episode.action_id is not None:
                     full_authority_excluded += 1
                 continue

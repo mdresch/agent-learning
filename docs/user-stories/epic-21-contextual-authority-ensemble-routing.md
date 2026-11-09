@@ -88,7 +88,7 @@ Fixture used by the criteria below ("the base config"): `tau_esc` 1.0, `tau_dees
 
 ## Story 21.6 — Dispatch and Gradient Exclusion
 
-**Status:** Ready — changes `learners/reinforce.py`; see FDD-021 §7 item 2.  
+**Status:** Completed  
 **As** a maintainer, **I want** the chosen route dispatched without touching the stored policy, and full-routed episodes kept out of training, **so that** reasoned decisions never contaminate the learned policy.
 
 ### Acceptance Criteria:

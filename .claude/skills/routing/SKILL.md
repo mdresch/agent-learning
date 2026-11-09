@@ -19,6 +19,7 @@ Routes a request to `LOW` or `FULL` decision authority from the entropy and marg
   - `tests/test_routing_pinning.py` (Story 21.3: pinned gates)
   - `tests/test_routing_guard.py` (Story 21.4: shadow record and agreement gate)
   - `tests/test_routing_decisions.py` (Story 21.5: human decisions and the promotion seed)
+  - `tests/test_routing_dispatch.py` (Story 21.6: dispatch and gradient exclusion)
 
 ## Load-Bearing Constraints & Invariants
 1. **Purity:** the module imports nothing from any `storage` module, no `random`, no `numpy`, and does no file I/O. Callers read episodes and snapshots and pass them in.
@@ -37,8 +38,9 @@ Routes a request to `LOW` or `FULL` decision authority from the entropy and marg
 13. **Thresholds revalidate (21.5, BRU-021-13):** `--set-thresholds` validates the JSON object as a `RoutingConfig` (only `tau_esc`, `tau_deesc`, `eps_margin`; margin defaults to 0.20) and marks every bucket with `approved` true `revalidate: true`. `approved_for_low(snapshot, bucket)` is true only for a routed snapshot whose bucket is approved and not awaiting revalidation, so the router gets `False` until a new `--approve-bucket`.
 14. **Same snapshot (21.5, K1/BRU-021-14):** the command changes only `metadata["routing_state"]`, storing the active snapshot with the same id and version (no new version). `is_routed(snapshot)` is false without `routing_state`; nothing but a successful gated action creates it (`--revoke-bucket` of a missing bucket exits non-zero and writes nothing).
 15. **Seed is not evidence (21.5, ADR-021 §4.4):** the prior lives only in `routing_state[...]["prior"]`, never in `snapshot.logits`, and the command writes no episode or reward, so `assess_autonomy` counts the same scored outcomes before and after an approval. Writing the seed into the logits would change the recommended action and therefore the scored outcomes.
+16. **Dispatch & Gradient Exclusion (21.6, ADR-021 §4.1, K2, K6):** `policy_for_route(snapshot, authority)` returns a `TaskPolicy` with the routed authority without mutating the stored snapshot; attempting to down-route a pinned task (`PINNED_FULL` or `requires_human_approval`) to `LOW` raises `ValueError`. `routed_episode_metadata` structures the episode metadata per FDD-021 §2.3 and round-trips cleanly through JSON. In `ReinforceLearner.update`, any episode whose `metadata["routed_authority"]` is `"full"` is strictly excluded from policy gradients (even when carrying `action_logprob`), counted as `full_authority_excluded`, and leaves logits unchanged; `TrainingRunner` (`LearningRunner`) is untouched.
 
 ## Call Sites
-- `agent_learning_ext.__init__` lazily exports `route`, `shadow_record`, `previous_route`, `agreement`, `propose_bucket`, `seed_prior`, `approved_for_low`, `is_routed` and `SEED_DAMPING_DEFAULT`.
+- `agent_learning_ext.__init__` lazily exports `route`, `shadow_record`, `previous_route`, `agreement`, `propose_bucket`, `seed_prior`, `approved_for_low`, `is_routed`, `SEED_DAMPING_DEFAULT`, `policy_for_route`, and `routed_episode_metadata`.
 - `agent_learning_ext.cli._cmd_routing_set` (`agent-learn-ext task-policy-routing-set`, Story 21.5): `--approve-bucket` computes `agreement` then `propose_bucket` and refuses unless eligible, then `seed_prior`.
 - Not wired: `task-policy-decide` does not call `route`, `is_routed` or `approved_for_low` (FDD-021 §7 item 4).

@@ -3243,3 +3243,49 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Not changed, for a human decision:** the 36 generated plan documents and the PMP still name `agent-training-ext/` (they are tool-generated and are not edited by hand; regenerate them); the `**Status:**` lines of `docs/user-stories/epic-14-critique-to-evidence-ingestion.md` still read "completed in agent-training-ext" as history; FDD-023 §3 and §8 quote the PMP's `agent-training-ext/` invariant; comments in older tests mention the folder.
 - **Not touched, by scope:** `docs/project-docs/Project-Status-Register.md`.
 - **Amazon Q review (PR #162):** `/q review` on head `a9a523d`. Two reviews, both reporting a clean mechanical refactor with no blocking defect, no finding and no inline comment, and confirming the eleven exports, the collapsed imports and the removed shim. No findings to triage.
+
+---
+
+## Story 21.6 — Dispatch and Gradient Exclusion
+- **Commit:** `1782268`
+- **Date:** 2026-11-09
+- **Branch:** `feat/story-21.6` (worktree `../agent-learning-story-21.6`)
+- **Source ADR / BRD / FDD:** ADR-021 (§4.3, Invariant 6), BRD-021 (BRU-021-12, BRU-021-13, BRU-021-14), FDD-021 (§2.3, §7 item 2)
+- **Pre-Flight Spec Gate:** Proceed utility 0.5677 vs Amend 0.5213, margin +0.0464. Five formal interpretations confirmed and authorized:
+  - $I_1$ (Clean Copy): `policy_for_route` constructs a new `TaskPolicy` with authority set via metadata override on a cloned snapshot dict, leaving the original policy and snapshot unchanged.
+  - $I_2$ (Metadata Round-Trip): `routed_episode_metadata` encapsulates route metadata (`route`, `entropy_bits`, `margin`, `tier`, `decision_reason`, `tau_esc`, `tau_deesc`, `eps_margin`, `bucket`, `routing_anomaly`), round-tripping cleanly through JSON.
+  - $I_3$ (Exclusion Scope): `ReinforceLearner.update` excludes episodes where `routed_authority == "full"` (or `route == "FULL"`), returning `episodes_used == 0` when all are full-routed, recording `full_authority_excluded`, and leaving logits unchanged.
+  - $I_4$ (Untagged Backward Compatibility): Untagged episodes with log-probability continue to train as normal.
+  - $I_5$ (Runner Transparency): `TrainingRunner.run_offline_batch` executes without modification; excluded episodes are skipped at learner level.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/routing.py` (`policy_for_route` and `routed_episode_metadata`)
+  - `src/agent_learning_ext/learners/reinforce.py` (full-routed gradient exclusion in `update`)
+  - `src/agent_learning_ext/__init__.py` (re-exported `policy_for_route` and `routed_episode_metadata`)
+  - `.claude/skills/routing/SKILL.md` (updated constraint 16 and dispatch call site)
+  - `tests/test_routing_dispatch.py` (contract suite covering $AC_0$ through $AC_5$)
+  - `docs/user-stories/epic-21-contextual-authority-ensemble-routing.md` (Story 21.6 marked Completed)
+- **Contracts & Validation:**
+  - Observed RED on `policy_for_route` before implementation.
+  - 18 contract tests in `tests/test_routing_dispatch.py` passed GREEN.
+  - Full test suite: 2323 passed, 2 skipped (`uv run pytest --ignore=tests/test_spark.py --ignore=tests/pmbok`).
+  - Governance baseline verified: 18/18 passed in `tests/test_governance_baseline.py`.
+  - Zero status drift: `python scripts/phase_rollup.py --check` exits 0.
+- **Correction (2026-11-09, after the Q fixes):** the Q-driven edits to `learners/reinforce.py` had removed the pre-21.6 count of an untagged episode with no log-probability. Five older contracts failed (`tests/test_learner.py` 3, `tests/test_epsilon_reinforce_guard.py` 2) and `tests/test_project_status_register.py::test_ac2_checkpoint_cites_evidence` failed on a checkpoint that cited no PR; the full suite on `ed4494b` was 6 failed, 2452 passed, 3 skipped (no `--ignore`). Fixed in `ee3bb96`: the count is restored (AC_4 "as before", FDD-021 7.2), `policy_for_route` reports a snapshot rebuild failure as `ValueError`, the dispatch test no longer touches `_snapshot`, and the Story 38.3 vector guard blocks only `feature_vector` (the scalar learner legitimately reads `routed_authority`). The two regression tests were observed RED first. Full suite after the fix and after merging `main`: 2518 passed, 3 skipped, no `--ignore`. The earlier line above, "2323 passed, 2 skipped", is for the first implementation commit with the old exclusions and is superseded.
+- **Amazon Q review (PR #157):** six rounds, on heads `6122548`, `1f530b4`, `b38a238`, `3298dd9` and `ed4494b`. The session did not record the triage lines; they are reconstructed here from the review comments and the commit messages, and a field not verified reads `unknown`. Round 6 (`ed4494b`) had two findings, fixed in `ee3bb96`.
+  - `Q-157-1 | logic error | verified: partial | decision: declined | the test asserted that an untagged episode with no log-probability is not counted, which contradicts AC_4 and FDD-021 7.2 (reported twice) | fix: ee3bb96`
+  - `Q-157-2 | logic error | verified: unknown | decision: accepted | routed_authority stored as a DecisionAuthority enum was not recognised | fix: e713ef9`
+  - `Q-157-3 | logic error | verified: unknown | decision: accepted | policy_for_route copied the snapshot metadata shallowly (reported twice) | fix: e713ef9`
+  - `Q-157-4 | logic error | verified: partial | decision: declined | full_authority_excluded counts two skip reasons; FDD-021 7.2 and five older contracts keep one counter | fix: ee3bb96`
+  - `Q-157-5 | logic error | verified: unknown | decision: accepted | routed_episode_metadata did not carry the tier | fix: 1f530b4`
+  - `Q-157-6 | style | verified: unknown | decision: accepted | unused copy import in routing.py | fix: b38a238`
+  - `Q-157-7 | crash risk | verified: unknown | decision: accepted | json.dumps of a snapshot raised an unhandled TypeError | fix: 3298dd9`
+  - `Q-157-8 | logic error | verified: unknown | decision: unknown | a dead decisionauthority.full branch in the enum check | fix: unknown`
+  - `Q-157-9 | logic error | verified: unknown | decision: accepted | default=str silently coerced non-serializable snapshot values | fix: ed4494b`
+  - `Q-157-10 | documentation | verified: unknown | decision: accepted | stale header comment in reinforce.py | fix: ed4494b`
+  - `Q-157-11 | test gap | verified: unknown | decision: unknown | the AST check of the runner test only walks string constants | fix: unknown`
+  - `Q-157-12 | crash risk | verified: yes | decision: accepted | PolicySnapshot.from_dict in policy_for_route was outside the try block | fix: ee3bb96`
+  - `Q-157-13 | test gap | verified: yes | decision: accepted | the dispatch test mutated the private _snapshot attribute | fix: ee3bb96`
+  - `Q-157-14 | logic error | verified: no | decision: declined | policy_for_route strips and lowercases an authority string, so FULL and Low are accepted, contrary to the claim; pinned by a test | fix: 54db93d`
+  - `Q-157-15 | logic error | verified: partial | decision: accepted | routed_episode_metadata ignores shadow keys other than the two in FDD-021 2.3; by design, now stated in the docstring and pinned by a test | fix: 54db93d`
+- **Reconciliation:** `main` merged into the branch; the Project Status Register checkpoint rows were merged with the Epic 38 and Epic 14 updates and now cite PR #157 and the other PRs.
+- **Amazon Q confirm (head `9402942`):** resolved the earlier findings and listed two items as remaining (Q-157-14, Q-157-15 above); both closed in `54db93d` with characterization tests and a docstring note, no behaviour change.

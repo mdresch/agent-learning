@@ -955,9 +955,15 @@
     "docs/user-stories/epic-17-scheduled-epsilon-greedy-policy.md": {
       "family": "story",
       "status": "approved",
-      "sha256": "9f722f5e1d3b7b1e0b2b2aee4e5c76bb189b5bdb361b7da758b45a867490239d",
+      "sha256": "65bfe9288552831dd243fa102ef5190799672e01e84dfa0817f49e5b614ab7aa",
       "approval_episode": "4e6a04e1",
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "89231749",
+          "stage": 16
+        }
+      ]
     },
     "docs/user-stories/epic-18-pairwise-preference-optimization.md": {
       "family": "story",

@@ -79,6 +79,7 @@ def _resolve_label(stem: str) -> tuple[str | None, str | None, str | None, list[
     for kind, path in sources:
         if not path.is_file():
             continue
+        labeled_at: str | None = None
         try:
             data = json.loads(path.read_text(encoding="utf-8"))
             task_id = data.get("task_id")

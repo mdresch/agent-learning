@@ -843,9 +843,15 @@
     "docs/user-stories/epic-22-scored-search-decision-configuration-compilation.md": {
       "family": "story",
       "status": "approved",
-      "sha256": "f1af1655516376c796871c3bae29ea6542948eb02d267f7dd900bc15d0e7bcd8",
+      "sha256": "774bbf6dbb6445adff3b112941d5146e57dd3ee837f1d00194dfc18c32f5ab69",
       "approval_episode": "cc1804ea",
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "59440d8c",
+          "stage": 16
+        }
+      ]
     },
     "docs/user-stories/epic-25-scope-management-plan-standard-and-baseline-contract.md": {
       "family": "story",

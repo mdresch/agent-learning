@@ -71,3 +71,8 @@ This skill governs Scored-Search Decision Configuration Compilation (`src/agent_
     - `task-policy-weights-adopt` enforces an adjudicated and accepted episode belonging to `approve-compiled-weights`.
     - Stores new policy version with `criteria_weights` and `compiled_weights_provenance` (proposal hash, seed, accuracies, split sizes, label time range, approval episode id, adoption time).
     - Store gains no new record type; earlier policy versions remain unchanged.
+14. **Real-Data Regression Check (Story 22.7 AC_0 to AC_4, BRU-022-12):**
+    - `tests/test_weight_real_data.py` runs the compiler over the committed `docs/policy-shapes/decision-frames/` and the adjudicated results; it records the counts it ran on and asserts no fixed number.
+    - On tasks with at least `2 * MIN_PART` labelled frames the baseline accuracy is 1.0, so `propose` returns `NoImprovement`. This is a statement that the history holds no disagreement, never evidence that compiled weights are better.
+    - Missing data to show an improvement: decisions where a human disagreed with the resolver, with the label recorded before the proposal.
+    - The check writes nothing (policy-shape files unchanged) and the test imports nothing from `agent_learning.storage`. Empty collections return empty results without raising.

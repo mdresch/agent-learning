@@ -4,14 +4,14 @@ change_request_id: "CR-20261109-002"
 stage: "16"
 evidence_basis: "design_time"
 current_baseline: "PMP-BL-v1.1.0"
-status: "draft_pending_sponsor_decision"
+status: "sponsor_approved_amendments_in_progress"
 date: "2026-11-09"
 requested_by: "Menno Drescher"
 ---
 
 # Manual Change Request: Align Approved Documents With Where Implemented Code and Commands Live
 
-> **Status:** Draft for sponsor decision. This request bundles 26 corrections into one change request. It does not edit an approved document by itself; each document is amended through `scripts/stage16_amend.py`, one at a time, and accepted by a human.
+> **Status:** Approved by the Project Sponsor on 2026-11-09 (section 8). This request bundles 26 corrections into one change request. Each document is amended through `scripts/stage16_amend.py`, one at a time, and accepted by the Sponsor's instruction recorded in section 8; an agent runs the steps but never decides.
 
 ## 1. Request
 
@@ -35,7 +35,7 @@ Approved ADRs, BRDs, FDDs and user stories change only through Stage 16 (ADR-007
 | Primary diff type | `correction_note` for all 26 documents (measured by `classify-diff-type` through `stage16_amend.py propose`, margin 0.089 to 0.101; evidence under `docs/policy-shapes/` with the tag `cr002b`) |
 | Overall impact | Low: wording only, no requirement, interface or baseline change |
 | Proposed escalation | Project Sponsor |
-| Decision status | Pending; no acceptance or governance episode recorded |
+| Decision status | Sponsor approved 2026-11-09; each amendment records its own governance episode when accepted |
 
 ## 4. The documents
 
@@ -91,6 +91,6 @@ For each document in section 4, in order: apply the correction, run `stage16_ame
 
 | Role | Decision | Date |
 |---|---|---|
-| Project Sponsor | Pending | — |
+| Project Sponsor | Approved: accept the 26 `correction_note` amendments listed in section 4 | 2026-11-09 |
 
-Until the Sponsor decides, the 26 documents are unchanged.
+The decision was given by Menno Drescher in the working session of 2026-11-09 ("yes i accept please run the 26 amendments") and is recorded here from that statement. Each amendment's own acceptance is recorded by `stage16_amend.py accept` as a governance episode in the amended document's Status line, with this request cited in its summary. Section 6 items stay held.

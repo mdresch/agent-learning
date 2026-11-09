@@ -17,6 +17,7 @@ from collections.abc import Iterable
 from agent_learning.config import LearnerConfig
 from agent_learning.learners import Learner, LearnerResult
 from agent_learning.policy.base import Policy
+from agent_learning.policy.contextual_softmax import ContextualSoftmaxPolicy
 from agent_learning.types import ConsumedInput, Episode, Reward, RewardSource
 
 _SKIP_KEYS = (
@@ -60,6 +61,9 @@ class ContextualReinforceLearner(Learner):
         episodes: Iterable[Episode],
         rewards: Iterable[Reward],
     ) -> LearnerResult:
+        if not isinstance(policy, ContextualSoftmaxPolicy):
+            raise TypeError("ContextualReinforceLearner requires a ContextualSoftmaxPolicy")
+
         aggregate_rewards: dict[str, Reward] = {}
         for r in rewards:
             if r.source != RewardSource.AGGREGATE:

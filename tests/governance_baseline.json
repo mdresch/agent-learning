@@ -1014,9 +1014,15 @@
     "docs/user-stories/epic-21-contextual-authority-ensemble-routing.md": {
       "family": "story",
       "status": "approved",
-      "sha256": "1ce6cbe1b72aac8561cfdac7e81738c4c82f4151ed2c1b61ddee73168a745e81",
+      "sha256": "0df2eaec25e562a4c762950fc019a43f04a2e74b243c6ec3db99532b268b26d9",
       "approval_episode": "5a905107",
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "e49f2eb2",
+          "stage": 16
+        }
+      ]
     },
     "docs/user-stories/epic-22-scored-search-decision-configuration-compilation.md": {
       "family": "story",

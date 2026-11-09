@@ -1,0 +1,26 @@
+{
+  "document": "docs/adr/ADR-017-scheduled-epsilon-greedy-policy.md",
+  "tag": "cr002b",
+  "base_commit": "bfe18e4",
+  "candidate_sha256": "81fdb8bf5a4cae47c54a7d8d8ec78399f2cc9cd3aa8470ebaea19d81cd285bac",
+  "features": {
+    "lines": 2,
+    "terms_removed": 5,
+    "terms_kept": 4,
+    "goal_preserved": true,
+    "requirement_inverted": false,
+    "normative_touched": false,
+    "status_line_changed": false,
+    "downstream_refs": 0,
+    "change_ratio": 0.01
+  },
+  "observed": [
+    0.05,
+    0.1,
+    0.1,
+    0.1
+  ],
+  "proposed_action": "correction_note",
+  "accepted": true,
+  "episode": "6acd859f"
+}

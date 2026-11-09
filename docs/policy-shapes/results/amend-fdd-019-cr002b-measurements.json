@@ -1,0 +1,26 @@
+{
+  "document": "docs/project-docs/Functional-Design/FDD-019-hierarchical-meta-prior-compilation.md",
+  "tag": "cr002b",
+  "base_commit": "bfe18e4",
+  "candidate_sha256": "11c8549391794c2e66c055bb6aa86822029f30f48dd8231fe4f5c412f5f49b07",
+  "features": {
+    "lines": 2,
+    "terms_removed": 7,
+    "terms_kept": 6,
+    "goal_preserved": true,
+    "requirement_inverted": false,
+    "normative_touched": false,
+    "status_line_changed": false,
+    "downstream_refs": 0,
+    "change_ratio": 0.01
+  },
+  "observed": [
+    0.05,
+    0.1,
+    0.1,
+    0.1
+  ],
+  "proposed_action": "correction_note",
+  "accepted": true,
+  "episode": "38acc86c"
+}

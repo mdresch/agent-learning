@@ -6,7 +6,7 @@ As autonomous governance expands across the 18-stage lifecycle (ADR-008, ADR-009
 This ADR introduces **Hierarchical Meta-Prior Compilation Across Task Families** (Methodology #14 from `Ideation-Document.md` §2.1). Grounded in Empirical Bayes hierarchical modeling, this offline compilation utility aggregates parameter vectors across family members into a robust meta-prior distribution, providing accelerated cold-start convergence for newly instantiated family members without cross-task contamination.
 
 ## 2. Status
-**Accepted (2026-10-28, Menno)** — Derived from `Ideation-Document.md` §2.1 (Methodology #14). Approved as a design through `approve-adr` (robust utility 0.677, expected utility 0.757; Episode `f3a99dcf-b62b-4810-b043-1c1c0dfb0289`). Amazon Q reviewed this text in PR #36. Nothing is built; the gaps named in the code-design section stay open.
+**Accepted (2026-10-28, Menno)** — Derived from `Ideation-Document.md` §2.1 (Methodology #14). Approved as a design through `approve-adr` (robust utility 0.677, expected utility 0.757; Episode `f3a99dcf-b62b-4810-b043-1c1c0dfb0289`). Amazon Q reviewed this text in PR #36. Nothing is built; the gaps named in the code-design section stay open. Amended 2026-11-09 at Stage 16: CR-20261109-002: correct the CLI location or name to agent-learn-ext, classified `correction_note` (robust utility 0.965, episode `6f510aae...`) and accepted by Menno.
 
 ## 3. Context & Problem Statement
 - **The Limits of 1-to-1 Transfer (ADR-020):** 1-to-1 prior transfer is vulnerable to donor-specific idiosyncrasies or localized overfitting. If the selected donor policy converged on a skewed distribution, that bias is transferred directly to the target.
@@ -51,7 +51,7 @@ The compiled meta-prior is stored as a template snapshot in `LearningStore`: a `
 
 ### 4.4 Code design and test data
 Design only: nothing below is built, and the signatures are the contract an FDD must confirm or change.
-Module `src/agent_learning/meta_prior.py`, pure and standard library only; the CLI wiring (`task-policy-meta-compile`) lives in `cli.py` and does the storage reads.
+Module `src/agent_learning/meta_prior.py`, pure and standard library only; the CLI wiring (`task-policy-meta-compile`) lives in `src/agent_learning_ext/cli.py` and does the storage reads.
 
 ```python
 @dataclass(frozen=True)

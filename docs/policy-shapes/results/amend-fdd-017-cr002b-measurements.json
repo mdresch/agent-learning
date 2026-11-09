@@ -1,0 +1,26 @@
+{
+  "document": "docs/project-docs/Functional-Design/FDD-017-scheduled-epsilon-greedy-policy.md",
+  "tag": "cr002b",
+  "base_commit": "bfe18e4",
+  "candidate_sha256": "e3da765208bd8a04090d70141c5e9c01afb26cfceca8067cededf10b262a3ef0",
+  "features": {
+    "lines": 2,
+    "terms_removed": 15,
+    "terms_kept": 12,
+    "goal_preserved": true,
+    "requirement_inverted": false,
+    "normative_touched": false,
+    "status_line_changed": false,
+    "downstream_refs": 0,
+    "change_ratio": 0.01
+  },
+  "observed": [
+    0.05,
+    0.1,
+    0.1,
+    0.1
+  ],
+  "proposed_action": "correction_note",
+  "accepted": true,
+  "episode": "a8f93363"
+}

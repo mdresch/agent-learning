@@ -266,7 +266,7 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         help="Create a low-authority contextual softmax policy over feature vectors of this length (>= 1).",
     )
 
-    complexity =sub.add_parser(
+    complexity = sub.add_parser(
         "task-policy-complexity-set",
         help="Configure complexity for an existing delegated decision policy.",
     )

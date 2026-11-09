@@ -1,10 +1,12 @@
 """Contract tests for the contextual-policy CLI changes in `agent_learning_ext.cli`.
 
+Stories 38.4, 38.5 and 38.6 share this file; each story's interpretations are labelled with its number.
+
 Story 38.4 (docs/user-stories/epic-38-packaged-contextual-learning.md)
 ADR-038 sections 4.3 and 7 (docs/adr/ADR-038-packaged-contextual-learning.md)
 BRD-038 BRU-038-07, FDD-038 sections 2.2 and 3.1 (docs/project-docs/...)
 
-Interpretations (LL-011; I1 to I4 come from `scripts/spec_gate.py 38.4 --no-persist`, verdict
+Interpretations for 38.4 (LL-011; I1 to I4 come from `scripts/spec_gate.py 38.4 --no-persist`, verdict
 PASSED, robust margin +0.0975; I5 to I8 are this story's own):
 - I1 (gate): the stored snapshot survives json.dumps / json.loads without a custom decoder.
 - I2 (gate): empty-collection case. Not applicable to the init command (no episodes); the nearest
@@ -21,16 +23,41 @@ PASSED, robust margin +0.0975; I5 to I8 are this story's own):
   `action_probabilities` rule), so nothing here asserts it beyond the command exiting 0 with JSON.
 - Stores are `InMemoryStore` objects patched in through `cli.get_default_store`; the real
   LearningStore is never touched.
+
+Story 38.5 (same documents; ADR-038 4.3, BRD-038 BRU-038-08 and BRU-038-09, FDD-038 2.3, 3.2, D1, D3).
+Interpretations (LL-011; 38.5-I1 to 38.5-I3 come from `scripts/spec_gate.py 38.5 --no-persist`, verdict
+PASSED, robust margin +0.1963; 38.5-I4 onward are this story's own):
+- 38.5-I1 (gate): the printed payload survives json.loads (it is parsed from stdout in every test).
+- 38.5-I2 (gate): empty-collection case. The nearest case is the empty list `[]`, which has the wrong
+  length for any `feature_dim` >= 1 and is refused.
+- 38.5-I3 (gate): probabilities are compared with `pytest.approx(abs=1e-9)`.
+- 38.5-I4: "unchanged store" means the stored policy list (every version, as JSON) is identical before and
+  after and `query_episodes` still returns nothing. A refusal and a successful decide both write nothing.
+- 38.5-I5: "a JSON object" is `{"a": 1.0}`; other refused inputs are non-JSON text, a JSON scalar, a string
+  element, `true`, `NaN`, `Infinity`, `-Infinity`, an overflowing literal, and a list of the wrong length
+  (`[]`, 1 and 3 elements).
+- 38.5-I6: `selection_mode` is `greedy` with `--greedy` and `sampled` without it; `--seed` makes the sampled draw
+  repeatable and changes nothing under `--greedy` (FDD-038 3.2 step 4).
+- 38.5-I7: "the command's existing evidence message" is the text containing `capture_decision_evidence` and
+  `audit_evidence` that the scalar path prints today.
+- 38.5-I8: a contextual snapshot whose stored authority is `full` exits 2 and writes nothing (FDD-038 3.2, last
+  paragraph; init cannot create the pair). Its stderr names `full` and `contextual`.
+- 38.5-I9: `--decision-frame` on a contextual snapshot is refused as it is for any low-authority policy, after
+  the `--features` check (FDD-038 3.2 steps 1 and 2).
+- 38.5-I10: "no autonomy block" is the absence of the key `autonomy` in the payload.
 """
 
 from __future__ import annotations
 
 import json
+import math
 from pathlib import Path
 
 import pytest
 
+from agent_learning.policy import ContextualSoftmaxPolicy, SoftmaxPolicy
 from agent_learning.storage import InMemoryStore
+from agent_learning.types import Action
 from agent_learning_ext import cli
 
 AGENT = "agent-1"
@@ -147,3 +174,237 @@ def test_38_4_ac4_omitted_flag_stores_no_contextual_keys(
     assert "context_weights" not in meta
     assert "feature_dim" not in meta
     assert "policy_kind" not in meta
+
+
+# --- Story 38.5 -------------------------------------------------------------------------------------
+
+
+def _decision_meta(snapshot, *, authority: str = "low", evidence: bool = False):
+    snapshot.metadata.update(
+        {
+            "policy_scope": cli._DECISION_POLICY_SCOPE,
+            "decision_context": "Choose a region",
+            "decision_authority": authority,
+            "decision_authority_source": "configured",
+        }
+    )
+    if evidence:
+        snapshot.metadata["capture_decision_evidence"] = True
+    return snapshot
+
+
+def _contextual(
+    store: InMemoryStore,
+    *,
+    weights: dict[str, list[float]] | None = None,
+    logits: dict[str, float] | None = None,
+    authority: str = "low",
+    evidence: bool = False,
+):
+    policy = ContextualSoftmaxPolicy.from_actions(
+        [Action(id="a"), Action(id="b")],
+        feature_dim=2,
+        agent_id=AGENT,
+        task_id=TASK,
+        initial_weights=weights,
+    )
+    snapshot = _decision_meta(policy.snapshot(), authority=authority, evidence=evidence)
+    if logits is not None:
+        snapshot.logits = dict(logits)
+    store.store_policy(snapshot)
+    return snapshot
+
+
+def _scalar(store: InMemoryStore):
+    snapshot = SoftmaxPolicy.from_actions(
+        [Action(id="a"), Action(id="b")], agent_id=AGENT, task_id=TASK
+    ).snapshot()
+    store.store_policy(_decision_meta(snapshot))
+    return snapshot
+
+
+def _fingerprint(store: InMemoryStore) -> str:
+    policies = [p.to_dict() for p in store.list_policies(AGENT, TASK)]
+    episodes = store.query_episodes(AGENT, task_id=TASK, limit=50)
+    return json.dumps(
+        {"policies": policies, "episodes": [e.to_dict() for e in episodes]}, sort_keys=True
+    )
+
+
+def _decide(*extra: str) -> int:
+    return _run(["task-policy-decide", "--agent-id", AGENT, "--task-id", TASK, *extra])
+
+
+def _decide_ok(capsys, *extra: str) -> dict:
+    capsys.readouterr()
+    assert _decide(*extra) == 0
+    return json.loads(capsys.readouterr().out)
+
+
+REFUSED_FEATURES = [
+    pytest.param('{"a": 1.0}', id="object"),
+    pytest.param("[1.0]", id="too-short"),
+    pytest.param("[1.0, 0.0, 2.0]", id="too-long"),
+    pytest.param("[]", id="empty"),
+    pytest.param("[true, 0.0]", id="bool-element"),
+    pytest.param('["1", "0"]', id="string-elements"),
+    pytest.param("[NaN, 0.0]", id="nan"),
+    pytest.param("[Infinity, 0.0]", id="inf"),
+    pytest.param("[1.0, -Infinity]", id="neg-inf"),
+    pytest.param("[1e999, 0.0]", id="overflow-float"),
+    pytest.param("1.0", id="scalar"),
+    pytest.param("not json", id="not-json"),
+]
+
+
+def test_38_5_ac0_missing_features_is_refused(store, capsys) -> None:
+    _contextual(store)
+    before = _fingerprint(store)
+    capsys.readouterr()
+    assert _decide() == 2
+    assert "--features" in capsys.readouterr().err
+    assert _fingerprint(store) == before
+
+
+@pytest.mark.parametrize("text", REFUSED_FEATURES)
+def test_38_5_ac0_unusable_features_are_refused(store, capsys, text: str) -> None:
+    _contextual(store)
+    before = _fingerprint(store)
+    capsys.readouterr()
+    assert _decide("--features", text) == 2
+    err = capsys.readouterr().err
+    assert "--features" in err and "unrecognized" not in err
+    assert _fingerprint(store) == before
+
+
+def test_38_5_ac0_features_on_a_scalar_snapshot_is_refused(store, capsys) -> None:
+    _scalar(store)
+    before = _fingerprint(store)
+    capsys.readouterr()
+    assert _decide("--features", "[1.0, 0.0]") == 2
+    err = capsys.readouterr().err
+    assert "--features" in err and "unrecognized" not in err
+    assert _fingerprint(store) == before
+
+
+def test_38_5_ac1_payload(store, capsys) -> None:
+    snapshot = _contextual(store)
+    before = _fingerprint(store)
+    payload = _decide_ok(capsys, "--features", "[1.0, 0.0]")
+    assert payload["feature_vector"] == [1.0, 0.0]
+    assert payload["selection_mode"] in {"sampled", "greedy"}
+    expected = ContextualSoftmaxPolicy.from_snapshot(snapshot).probabilities([1.0, 0.0])
+    assert payload["action_probabilities"] == pytest.approx(dict(zip(["a", "b"], expected)), abs=1e-9)
+    assert payload["selected_action"]["id"] in {"a", "b"}
+    assert _fingerprint(store) == before  # no episode, no new policy version
+
+
+def test_38_5_ac1_integer_elements_are_printed_as_floats(store, capsys) -> None:
+    _contextual(store)
+    payload = _decide_ok(capsys, "--features", "[1, 0]")
+    assert payload["feature_vector"] == [1.0, 0.0]
+    assert all(isinstance(x, float) for x in payload["feature_vector"])
+
+
+def test_38_5_ac2_greedy_takes_the_unique_maximum(store, capsys) -> None:
+    snapshot = _contextual(store, weights={"a": [0.0, 0.0], "b": [2.0, 0.0]})
+    payload = _decide_ok(capsys, "--features", "[1.0, 0.0]", "--greedy")
+    probs = ContextualSoftmaxPolicy.from_snapshot(snapshot).probabilities([1.0, 0.0])
+    assert payload["selection_mode"] == "greedy"
+    assert payload["selected_action"]["id"] == "b"
+    assert payload["selected_action"]["probability"] == pytest.approx(probs[1], abs=1e-9)
+    assert payload["selected_action"]["logprob"] == pytest.approx(math.log(probs[1]), abs=1e-9)
+
+
+def test_38_5_ac2_greedy_tie_keeps_the_earlier_action(store, capsys) -> None:
+    _contextual(store)
+    payload = _decide_ok(capsys, "--features", "[1.0, 0.0]", "--greedy")
+    assert payload["selected_action"]["id"] == "a"
+    assert payload["selected_action"]["logprob"] == pytest.approx(math.log(0.5), abs=1e-9)
+
+
+def test_38_5_ac3_greedy_ignores_the_scalar_logits(store, capsys) -> None:
+    _contextual(store, weights={"a": [0.0, 0.0], "b": [2.0, 0.0]}, logits={"a": 5.0, "b": 0.0})
+    payload = _decide_ok(capsys, "--features", "[1.0, 0.0]", "--greedy")
+    assert payload["selected_action"]["id"] == "b"
+    assert "autonomy" not in payload
+
+
+def test_38_5_ac3_seed_changes_only_the_sampled_draw(store, capsys) -> None:
+    _contextual(store, weights={"a": [0.0, 0.0], "b": [0.3, 0.0]})
+    greedy = [
+        _decide_ok(capsys, "--features", "[1.0, 0.0]", "--greedy", "--seed", str(seed))
+        for seed in (1, 2, 3)
+    ]
+    assert all(p == greedy[0] for p in greedy)
+    draws = {
+        seed: _decide_ok(capsys, "--features", "[1.0, 0.0]", "--seed", str(seed))
+        for seed in range(40)
+    }
+    repeat = _decide_ok(capsys, "--features", "[1.0, 0.0]", "--seed", "7")
+    assert repeat == draws[7]
+    assert {p["selected_action"]["id"] for p in draws.values()} == {"a", "b"}
+    for payload in draws.values():
+        assert payload["selection_mode"] == "sampled"
+        assert payload["action_probabilities"] == draws[0]["action_probabilities"]
+        assert payload["feature_vector"] == [1.0, 0.0]
+
+
+def test_38_5_ac4_evidence_opt_in_is_refused(store, capsys) -> None:
+    _contextual(store, evidence=True)
+    before = _fingerprint(store)
+    capsys.readouterr()
+    assert _decide("--features", "[1.0, 0.0]") == 2
+    err = capsys.readouterr().err
+    assert "capture_decision_evidence" in err and "audit_evidence" in err
+    assert _fingerprint(store) == before
+
+
+def test_38_5_features_check_runs_before_the_evidence_refusal(store, capsys) -> None:
+    _contextual(store, evidence=True)
+    capsys.readouterr()
+    assert _decide("--features", "[1.0]") == 2
+    err = capsys.readouterr().err
+    assert "--features" in err and "unrecognized" not in err
+    assert "audit_evidence" not in err
+
+
+def test_38_5_decision_frame_is_refused_on_a_contextual_snapshot(
+    store, capsys, tmp_path: Path
+) -> None:
+    _contextual(store)
+    before = _fingerprint(store)
+    frame = tmp_path / "frame.json"
+    frame.write_text("{}", encoding="utf-8")
+    capsys.readouterr()
+    assert _decide("--features", "[1.0, 0.0]", "--decision-frame", str(frame)) == 2
+    assert "--decision-frame" in capsys.readouterr().err
+    assert _fingerprint(store) == before
+
+
+def test_38_5_full_authority_contextual_snapshot_is_refused(store, capsys) -> None:
+    _contextual(store, authority="full")
+    before = _fingerprint(store)
+    capsys.readouterr()
+    assert _decide("--features", "[1.0, 0.0]") == 2
+    err = capsys.readouterr().err
+    assert "full" in err and "contextual" in err
+    assert _fingerprint(store) == before
+
+
+def test_38_5_scalar_decide_without_features_still_runs(store, capsys) -> None:
+    _scalar(store)
+    payload = _decide_ok(capsys, "--greedy")
+    assert "autonomy" in payload and "feature_vector" not in payload
+
+
+def test_38_5_review_contextual_snapshot_without_feature_dim_is_refused(store, capsys) -> None:
+    """Q-156 review: a hand-made contextual snapshot with no feature_dim exits 2, not a KeyError."""
+    snapshot = _contextual(store)
+    del snapshot.metadata["feature_dim"]
+    store.store_policy(snapshot)
+    before = _fingerprint(store)
+    capsys.readouterr()
+    assert _decide("--features", "[1.0, 0.0]") == 2
+    assert "feature_dim" in capsys.readouterr().err
+    assert _fingerprint(store) == before

@@ -33,9 +33,15 @@
     "docs/adr/ADR-005-decision-progress-comparison.md": {
       "family": "adr",
       "status": "accepted",
-      "sha256": "a942237da99c6f359779acd70763883727fc7efdc80de443e61316c0916bd2b3",
+      "sha256": "44cf9b5425dff6679b8414e74ae3a9fb1229c26459052e4903e0726a0a3b8309",
       "approval_episode": null,
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "3ebaf3c5",
+          "stage": 16
+        }
+      ]
     },
     "docs/adr/ADR-006-opt-in-lightweight-evidence-capture-for-low-authority.md": {
       "family": "adr",

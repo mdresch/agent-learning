@@ -7,25 +7,12 @@ and performs no file or network I/O.
 
 import pytest
 
-try:
-    from agent_training_ext.critique_evidence import (
-        CritiqueDelta,
-        parse_critique,
-        rubric_delta,
-    )
-except ImportError:
-    try:
-        from critique_evidence import (
-            CritiqueDelta,
-            parse_critique,
-            rubric_delta,
-        )
-    except ImportError:
-        from agent_learning.critique_evidence import (
-            CritiqueDelta,
-            parse_critique,
-            rubric_delta,
-        )
+from agent_learning_ext.critique_evidence import (
+    CritiqueDelta,
+    parse_critique,
+    rubric_delta,
+
+)
 
 
 # ==============================================================================
@@ -181,13 +168,7 @@ def test_ac4_finding_id_retention_and_ordinal_generation():
 # ==============================================================================
 
 def test_ac5_module_is_pure_and_has_no_storage_dependency():
-    try:
-        import agent_training_ext.critique_evidence as ce
-    except ImportError:
-        try:
-            import critique_evidence as ce
-        except ImportError:
-            import agent_learning.critique_evidence as ce
+    import agent_learning_ext.critique_evidence as ce
     import sys
 
     # Assert no storage modules imported by critique_evidence

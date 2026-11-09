@@ -32,7 +32,6 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-sys.path.insert(0, str(ROOT / "agent-training-ext"))
 
 from agent_learning.decision import (
     Action,
@@ -47,20 +46,12 @@ from agent_learning.decision import (
 from agent_learning.storage.local import LocalFileStore
 from agent_learning.types import Episode
 
-try:
-    from critique_evidence import (
-        AppliedCritique,
-        CritiqueDelta,
-        apply_critique,
-        to_episode_metadata,
-    )
-except ImportError:
-    from agent_training_ext.critique_evidence import (  # type: ignore
-        AppliedCritique,
-        CritiqueDelta,
-        apply_critique,
-        to_episode_metadata,
-    )
+from agent_learning_ext.critique_evidence import (
+    AppliedCritique,
+    CritiqueDelta,
+    apply_critique,
+    to_episode_metadata,
+)
 
 
 # ==============================================================================
@@ -354,7 +345,7 @@ def audit_story_spec(spec: StorySpec) -> tuple[list[CritiqueDelta], list[Interpr
                 support_delta=-0.25,
                 rationale=(
                     f"Specification mentions upstream path '{target_path}'. "
-                    "Custom code must reside in 'src/agent_learning_ext/' or 'agent-training-ext/' "
+                    "Custom code must reside in 'src/agent_learning_ext/' "
                     "to preserve Invariant 6 (Upstream Fork Purity)."
                 ),
                 finding_id=finding_id,
@@ -368,7 +359,7 @@ def audit_story_spec(spec: StorySpec) -> tuple[list[CritiqueDelta], list[Interpr
             text=(
                 f"Specification references upstream path '{target_path}'. "
                 "Per Invariant 6, all custom classes, learners, and helpers must be created under "
-                f"'{ext_target}' (or 'agent-training-ext/'), "
+                f"'{ext_target}', "
                 "leaving the upstream 'src/agent_learning/' tree completely pristine."
             ),
         )

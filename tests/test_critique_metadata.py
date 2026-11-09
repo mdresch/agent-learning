@@ -17,31 +17,14 @@ from agent_learning.decision import (
     PolicySnapshot,
 )
 
-try:
-    from agent_training_ext.critique_evidence import (
-        AppliedCritique,
-        CritiqueDelta,
-        apply_critique,
-        to_episode_metadata,
-        parse_critique,
-    )
-except ImportError:
-    try:
-        from critique_evidence import (
-            AppliedCritique,
-            CritiqueDelta,
-            apply_critique,
-            to_episode_metadata,
-            parse_critique,
-        )
-    except ImportError:
-        from agent_learning.critique_evidence import (
-            AppliedCritique,
-            CritiqueDelta,
-            apply_critique,
-            to_episode_metadata,
-            parse_critique,
-        )
+from agent_learning_ext.critique_evidence import (
+    AppliedCritique,
+    CritiqueDelta,
+    apply_critique,
+    to_episode_metadata,
+    parse_critique,
+
+)
 
 
 def _make_base_frame():

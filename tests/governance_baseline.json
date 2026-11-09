@@ -980,10 +980,16 @@
     },
     "docs/user-stories/epic-19-hierarchical-meta-prior-compilation.md": {
       "family": "story",
-      "status": "approved",
-      "sha256": "2babf8018fc65852ff1e6b9c6f0a21eedfea0a56f04d77f064be3a440c51d308",
+      "status": "completed",
+      "sha256": "c3f8cd678c79a4db1af54f0cde121847a3c2c199728d06e57807f332abbed9aa",
       "approval_episode": "13fbf581",
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "65062e31",
+          "stage": 16
+        }
+      ]
     },
     "docs/user-stories/epic-2-cosmos-active-policy-optimistic-concurrency.md": {
       "family": "story",

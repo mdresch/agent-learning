@@ -6,7 +6,7 @@ When initializing a new delegated decision policy (`TaskPolicy`) under `Decision
 This ADR introduces **Explicit Policy Prior Warm-Starting** (Methodology #15 from `Ideation-Document.md` §2.1, addressing `HYP-AL-008`). It specifies an operational CLI and SDK mechanism allowing a new policy to transfer converged parameters from an existing donor policy, applying confidence damping to prevent premature convergence in order to reduce the supervision a new policy needs (the effect size is to be measured under HYP-AL-008, and the ADR-003 evidence gate is unchanged).
 
 ## 2. Status
-**Accepted (2026-10-28, Menno)** — Derived from `Ideation-Document.md` §2.1 (Methodology #15) and `HYP-AL-008`. Approved as a design through `approve-adr` (robust utility 0.661, expected utility 0.743; Episode `0b67ee72-67f8-4db6-8775-aa62094f1a58`). Amazon Q reviewed this text in PR #37. Nothing is built; the gaps named in the code-design section stay open.
+**Accepted (2026-10-28, Menno)** — Derived from `Ideation-Document.md` §2.1 (Methodology #15) and `HYP-AL-008`. Approved as a design through `approve-adr` (robust utility 0.661, expected utility 0.743; Episode `0b67ee72-67f8-4db6-8775-aa62094f1a58`). Amazon Q reviewed this text in PR #37. Nothing is built; the gaps named in the code-design section stay open. Amended 2026-11-09 at Stage 16: CR-20261109-002: correct the CLI location or name to agent-learn-ext, classified `correction_note` (robust utility 0.965, episode `3f51c947...`) and accepted by Menno.
 
 ## 3. Context & Problem Statement
 - **Cold-Start Latency:** A standard policy requires at least 20 scored outcomes and a Wilson lower bound $\ge 0.90$ to earn autonomous execution (ADR-003). Starting from zero knowledge requires substantial initial human supervision.
@@ -57,7 +57,7 @@ The target must be a new policy: low authority, no update applied, no episodes s
 
 ### 4.4 Code design and test data
 Design only: nothing below is built, and the signatures are the contract an FDD must confirm or change.
-Module `src/agent_learning/warm_start.py`, pure; `task-policy-warm-start` in `cli.py` does the reads and writes.
+Module `src/agent_learning/warm_start.py`, pure; `task-policy-warm-start` in `src/agent_learning_ext/cli.py` does the reads and writes.
 
 ```python
 def warm_start_logits(donor_logits: Mapping[str, float], action_map: Mapping[str, str],

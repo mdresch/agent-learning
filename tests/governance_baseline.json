@@ -33,9 +33,15 @@
     "docs/adr/ADR-005-decision-progress-comparison.md": {
       "family": "adr",
       "status": "accepted",
-      "sha256": "a942237da99c6f359779acd70763883727fc7efdc80de443e61316c0916bd2b3",
+      "sha256": "44cf9b5425dff6679b8414e74ae3a9fb1229c26459052e4903e0726a0a3b8309",
       "approval_episode": null,
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "3ebaf3c5",
+          "stage": 16
+        }
+      ]
     },
     "docs/adr/ADR-006-opt-in-lightweight-evidence-capture-for-low-authority.md": {
       "family": "adr",
@@ -96,9 +102,15 @@
     "docs/adr/ADR-014-critique-to-evidence-ingestion.md": {
       "family": "adr",
       "status": "accepted",
-      "sha256": "5d7769569ca063b53db295ae71c8f9fad99895751458d4cab1879a53ec37ef35",
+      "sha256": "38fa40fa4bffebd5bdfaa4e6b9db95655304ac61c47bf16f808bd26069def13d",
       "approval_episode": null,
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "4e3e709d",
+          "stage": 16
+        }
+      ]
     },
     "docs/adr/ADR-015-bayesian-bandit-posterior-sampling.md": {
       "family": "adr",
@@ -110,51 +122,93 @@
     "docs/adr/ADR-016-deterministic-ucb-decision-policy.md": {
       "family": "adr",
       "status": "accepted",
-      "sha256": "82d038513f22ec5cc395b96634ce8961038ee4c10909016ae5f36fe111cf0223",
+      "sha256": "73d13811f017b830de5552fc73ed061986ccad123cc56b5e9f4e5a0e2f28fdd2",
       "approval_episode": null,
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "247e774e",
+          "stage": 16
+        }
+      ]
     },
     "docs/adr/ADR-017-scheduled-epsilon-greedy-policy.md": {
       "family": "adr",
       "status": "accepted",
-      "sha256": "7762abfcbfe12c15c794982d58dedce12d11dced521fbc9c7dc2df7238031625",
+      "sha256": "42dab6086e18d4e2c2601b6f94823812d9968645b5fdafc94330bcb9fa8bbf65",
       "approval_episode": null,
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "6acd859f",
+          "stage": 16
+        }
+      ]
     },
     "docs/adr/ADR-018-pairwise-preference-optimization.md": {
       "family": "adr",
       "status": "accepted",
-      "sha256": "e913a921f4a4fa2809635ac32bb7b1d123be15f9092031ee0c11ff8efcb5388a",
+      "sha256": "484bfb4d9c1a0d0f4e349f07dd9fb18661ac2bb036b06336f1aa5801a88fdcd7",
       "approval_episode": null,
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "2557a684",
+          "stage": 16
+        }
+      ]
     },
     "docs/adr/ADR-019-hierarchical-meta-prior-compilation.md": {
       "family": "adr",
       "status": "accepted",
-      "sha256": "730542822e6223edfba9bb25c33d4b088bc33cbb0607b6fce30b32a968a73bb9",
+      "sha256": "07c000aa526ffed13a144bf9e3e14c0b0545ea8194583174e7eec18d2dd8ca1a",
       "approval_episode": null,
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "6f510aae",
+          "stage": 16
+        }
+      ]
     },
     "docs/adr/ADR-020-explicit-policy-prior-warm-starting.md": {
       "family": "adr",
       "status": "accepted",
-      "sha256": "a4c147a4dcbbaa6148ab0913348b2860328e79311d51ae054ef00b2731eaba7d",
+      "sha256": "1ee4ec8a9b82734e56b033cc6af329c9481460ca458814fdec9e22f727aefdb5",
       "approval_episode": null,
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "3f51c947",
+          "stage": 16
+        }
+      ]
     },
     "docs/adr/ADR-021-contextual-authority-ensemble-routing.md": {
       "family": "adr",
       "status": "accepted",
-      "sha256": "f787a4e37d25f89945122ba9123cbe2eeb4a86e73b842fb5a121bbb8de0ee5f9",
+      "sha256": "e83806f1961ed44195745075f03c5a6b37da4d856df2ad9edccbeb12ea8b1a9d",
       "approval_episode": null,
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "ba06bde4",
+          "stage": 16
+        }
+      ]
     },
     "docs/adr/ADR-022-scored-search-decision-compilation.md": {
       "family": "adr",
       "status": "accepted",
-      "sha256": "6db34018411b82f16de558e30ab063cfe81da23d73dcc43ed2d64ece8201bb6e",
+      "sha256": "91d9255c799498e78c16e21bfd23c3b34960d183d63ab5bfe9368c268a344308",
       "approval_episode": null,
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "9494399d",
+          "stage": 16
+        }
+      ]
     },
     "docs/adr/ADR-023-active-dueling-bandit-ranking-engine.md": {
       "family": "adr",
@@ -604,9 +658,15 @@
     "docs/project-docs/Functional-Design/FDD-014-critique-to-evidence-ingestion.md": {
       "family": "fdd",
       "status": "approved",
-      "sha256": "c39fa05863aaa16d836681fe76426f75cf2bdb8138d78686bbb7ba6a836e2b05",
+      "sha256": "ff7e9b557de96c78d140cc9d95cd22777bc4c098ba5462ebd66db089156938c5",
       "approval_episode": "d3157763",
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "921cc8a0",
+          "stage": 16
+        }
+      ]
     },
     "docs/project-docs/Functional-Design/FDD-015-bayesian-bandit-posterior-sampling.md": {
       "family": "fdd",
@@ -618,51 +678,93 @@
     "docs/project-docs/Functional-Design/FDD-016-deterministic-ucb-decision-policy.md": {
       "family": "fdd",
       "status": "approved",
-      "sha256": "45a269534dd6e9f53e04b78dce739311b67c3a7d8e4b2402ecc4ffdfff7be0c1",
+      "sha256": "a4908839730affa78789303af211fe90dfc0591a3e5623f6a4ae4fd7a3b072fa",
       "approval_episode": "ea37755a",
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "0f89d6f3",
+          "stage": 16
+        }
+      ]
     },
     "docs/project-docs/Functional-Design/FDD-017-scheduled-epsilon-greedy-policy.md": {
       "family": "fdd",
       "status": "approved",
-      "sha256": "9faeec4986217e5cd273e1e5ff852df4b689b46b060fee4e1d5a58f1a8e3c51c",
+      "sha256": "54014d1781e46cd8c1a8bbf129d52afa58009642707c88873205bb337ad9e2fd",
       "approval_episode": "956b167a",
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "a8f93363",
+          "stage": 16
+        }
+      ]
     },
     "docs/project-docs/Functional-Design/FDD-018-pairwise-preference-optimization.md": {
       "family": "fdd",
       "status": "approved",
-      "sha256": "58eb3b44b2b0a8ef31232029e661699b35c0addf87df674e6daf432e19074aca",
+      "sha256": "96b2aabfddc6c620d5bb06a3c0687f52a4b38a80cf39e3d4ebf042a35a9eccce",
       "approval_episode": "4c3037cb",
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "14a70187",
+          "stage": 16
+        }
+      ]
     },
     "docs/project-docs/Functional-Design/FDD-019-hierarchical-meta-prior-compilation.md": {
       "family": "fdd",
       "status": "approved",
-      "sha256": "24cb73c7fe8317a0c7f329c3e46c17e4565d0f70286c8a9b76355e0aca21b81a",
+      "sha256": "1cca07b7569ec566ba63f6ebe3c15cfd46fd257df95cca7c4adee32ac1a9f3c9",
       "approval_episode": "36384424",
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "38acc86c",
+          "stage": 16
+        }
+      ]
     },
     "docs/project-docs/Functional-Design/FDD-020-explicit-policy-prior-warm-starting.md": {
       "family": "fdd",
       "status": "approved",
-      "sha256": "38430b4e08c1b43c78b6089d5e1cbff29de4c14b4ccfefdb5c6c4218b29905d3",
+      "sha256": "e9014d43da94e03e1f886fbacf13124077ea9b9f6832dae60b1472babf5e4e64",
       "approval_episode": "50914a5d",
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "639a5329",
+          "stage": 16
+        }
+      ]
     },
     "docs/project-docs/Functional-Design/FDD-021-contextual-authority-ensemble-routing.md": {
       "family": "fdd",
       "status": "approved",
-      "sha256": "1597f27b0912aa481d174d79d510cb20a6537b44690eb6ea139a51074aa91d25",
+      "sha256": "1d00119f3644a3bea84c5088065bf048d21bfd55b252020e47fa3dfe0e4c447d",
       "approval_episode": "46c77417",
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "0ebf33c8",
+          "stage": 16
+        }
+      ]
     },
     "docs/project-docs/Functional-Design/FDD-022-scored-search-decision-configuration-compilation.md": {
       "family": "fdd",
       "status": "approved",
-      "sha256": "ae9a84926e7a73164d14d7041a2723e006c9f9543eb967e67f2189ad5e6953ac",
+      "sha256": "c989e6cb4150d4bcdc6f81dbcb6b181cb4d2a27b871da7383ff2715c9c7d9761",
       "approval_episode": "c8b4a59f",
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "df4e632a",
+          "stage": 16
+        }
+      ]
     },
     "docs/project-docs/Functional-Design/FDD-023-active-dueling-bandit-ranking-engine.md": {
       "family": "fdd",
@@ -819,10 +921,16 @@
     },
     "docs/user-stories/epic-14-critique-to-evidence-ingestion.md": {
       "family": "story",
-      "status": "approved",
-      "sha256": "445689d0a72bf9a57e59ca000af1449fdea78e8f2655ef20bdc706f5318970c4",
+      "status": "completed",
+      "sha256": "724fd8a83154a244fa2f70bcb7693ab07cd7fe491d1789404accbdef3f0abb15",
       "approval_episode": "bd32d840",
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "5916f150",
+          "stage": 16
+        }
+      ]
     },
     "docs/user-stories/epic-15-bayesian-bandit-posterior-sampling.md": {
       "family": "story",
@@ -834,30 +942,54 @@
     "docs/user-stories/epic-16-deterministic-ucb-decision-policy.md": {
       "family": "story",
       "status": "approved",
-      "sha256": "7ccd9cf5cd6d8454d308a5bc2a2cb1165f145a9c7aa4549735edefd48dfacd17",
+      "sha256": "d06478df306af164da8bf605200faa1ff474b2c6a93813d26c97945319e2a893",
       "approval_episode": "7a3c966d",
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "d79a3ab9",
+          "stage": 16
+        }
+      ]
     },
     "docs/user-stories/epic-17-scheduled-epsilon-greedy-policy.md": {
       "family": "story",
       "status": "approved",
-      "sha256": "9f722f5e1d3b7b1e0b2b2aee4e5c76bb189b5bdb361b7da758b45a867490239d",
+      "sha256": "65bfe9288552831dd243fa102ef5190799672e01e84dfa0817f49e5b614ab7aa",
       "approval_episode": "4e6a04e1",
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "89231749",
+          "stage": 16
+        }
+      ]
     },
     "docs/user-stories/epic-18-pairwise-preference-optimization.md": {
       "family": "story",
-      "status": "approved",
-      "sha256": "62e845001601f0d9241471ba5d8a9899345a3117c027b0e774b0a01312ab166b",
+      "status": "completed",
+      "sha256": "a7379b95977d4dd4917af645c43459360d730a666793988e97edfb27035ca143",
       "approval_episode": "42460cf3",
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "e671b42f",
+          "stage": 16
+        }
+      ]
     },
     "docs/user-stories/epic-19-hierarchical-meta-prior-compilation.md": {
       "family": "story",
-      "status": "approved",
-      "sha256": "2babf8018fc65852ff1e6b9c6f0a21eedfea0a56f04d77f064be3a440c51d308",
+      "status": "completed",
+      "sha256": "c3f8cd678c79a4db1af54f0cde121847a3c2c199728d06e57807f332abbed9aa",
       "approval_episode": "13fbf581",
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "65062e31",
+          "stage": 16
+        }
+      ]
     },
     "docs/user-stories/epic-2-cosmos-active-policy-optimistic-concurrency.md": {
       "family": "story",
@@ -868,27 +1000,44 @@
     },
     "docs/user-stories/epic-20-explicit-policy-prior-warm-starting.md": {
       "family": "story",
-      "status": "approved",
-      "sha256": "75f5e23b50a4dee11263a7829fe21c379e059ed6ec6ca49f5a313ae89c71adde",
+      "status": "completed",
+      "sha256": "2a17574db56b6482d347d2b8dcef35430fa84d24d7870ba467b8e6b32f4823b8",
       "approval_episode": "9d327883",
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "f6d6aba4",
+          "stage": 16
+        }
+      ]
     },
     "docs/user-stories/epic-21-contextual-authority-ensemble-routing.md": {
       "family": "story",
       "status": "approved",
-      "sha256": "1ce6cbe1b72aac8561cfdac7e81738c4c82f4151ed2c1b61ddee73168a745e81",
+      "sha256": "0df2eaec25e562a4c762950fc019a43f04a2e74b243c6ec3db99532b268b26d9",
       "approval_episode": "5a905107",
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "e49f2eb2",
+          "stage": 16
+        }
+      ]
     },
     "docs/user-stories/epic-22-scored-search-decision-configuration-compilation.md": {
       "family": "story",
       "status": "approved",
-      "sha256": "774bbf6dbb6445adff3b112941d5146e57dd3ee837f1d00194dfc18c32f5ab69",
+      "sha256": "417e58af719dd7ed75545e49512c25796083836a447e50124fc809818ccaebbc",
       "approval_episode": "cc1804ea",
       "amendments": [
         {
           "date": "2026-11-09",
           "episode": "59440d8c",
+          "stage": 16
+        },
+        {
+          "date": "2026-11-09",
+          "episode": "c3a965bd",
           "stage": 16
         }
       ]
@@ -1028,9 +1177,15 @@
     "docs/user-stories/epic-5-decision-progress-comparison.md": {
       "family": "story",
       "status": "completed",
-      "sha256": "b8ec14895eaf7f692516d946689914294bb53fa67287e4c2eddc776dd2da8936",
+      "sha256": "ed4684c8a6c6c0ecae3ac2e833d42401c016271f73466fa3fe4afafa300b4845",
       "approval_episode": null,
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "92e0fd0a",
+          "stage": 16
+        }
+      ]
     },
     "docs/user-stories/epic-6-opt-in-lightweight-evidence-capture-for-low-authority.md": {
       "family": "story",

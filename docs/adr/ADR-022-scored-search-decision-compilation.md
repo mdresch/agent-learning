@@ -6,7 +6,7 @@ In Bayesian multi-criteria decision reasoning (`DecisionResolver`, ADR-001), dec
 This ADR introduces **Scored-Search Decision Configuration Compilation** (Methodology #22 from `Ideation-Document.md` §2.1, addressing `HYP-AL-010`). Inspired by DSPy's teleprompter compilers (BootstrapFewShot, MIPROv2) and grounded in derivative-free black-box optimization, this offline utility optimizes criteria weights and threshold parameters against a labeled validation suite of past decision episodes, then **freezes** the compiled configuration for zero-overhead runtime deployment.
 
 ## 2. Status
-**Accepted (2026-10-28, Menno)** — Derived from `Ideation-Document.md` §2.1 (Methodology #22) and `HYP-AL-010`. Approved as a design through `approve-adr` (robust utility 0.650, expected utility 0.734; Episode `032469aa-a602-4ee5-a47c-df789986893f`). Amazon Q reviewed this text in PR #37. Nothing is built; the gaps named in the code-design section stay open.
+**Accepted (2026-10-28, Menno)** — Derived from `Ideation-Document.md` §2.1 (Methodology #22) and `HYP-AL-010`. Approved as a design through `approve-adr` (robust utility 0.650, expected utility 0.734; Episode `032469aa-a602-4ee5-a47c-df789986893f`). Amazon Q reviewed this text in PR #37. Nothing is built; the gaps named in the code-design section stay open. Amended 2026-11-09 at Stage 16: CR-20261109-002: correct the module path and the CLI location to src/agent_learning_ext, classified `correction_note` (robust utility 0.687, episode `9494399d...`) and accepted by Menno.
 
 ## 3. Context & Problem Statement
 - **The Heuristic Weight Trap:** In ADR-001 through ADR-011, criteria weights were set manually by authors. While transparent, manual weights cannot guarantee that the resulting decision margin $\Delta \mathcal{U}$ is maximized or that edge-case ties are properly resolved.
@@ -48,7 +48,7 @@ Execution runs on standard CPU hardware in $<10 \text{ seconds}$ for validation 
 
 ### 4.4 Code design and test data
 Design only: nothing below is built, and the signatures are the contract an FDD must confirm or change.
-Module `src/agent_learning/weight_compiler.py`, pure (frames and labels in, weights out); `policy-compile-weights` in `cli.py` does the file and snapshot work. It reuses `DecisionResolver` so the compiled weights are scored by the real resolver.
+Module `src/agent_learning_ext/weight_compiler.py`, pure (frames and labels in, weights out); `policy-compile-weights` in `src/agent_learning_ext/cli.py` does the file and snapshot work. It reuses `DecisionResolver` so the compiled weights are scored by the real resolver.
 
 ```python
 @dataclass(frozen=True)

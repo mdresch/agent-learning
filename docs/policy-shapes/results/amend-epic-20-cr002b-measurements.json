@@ -1,0 +1,26 @@
+{
+  "document": "docs/user-stories/epic-20-explicit-policy-prior-warm-starting.md",
+  "tag": "cr002b",
+  "base_commit": "bfe18e4",
+  "candidate_sha256": "86b32a3f594a98cfc34a58653e302e96df417659c78312734707238fb9aee2a4",
+  "features": {
+    "lines": 2,
+    "terms_removed": 10,
+    "terms_kept": 10,
+    "goal_preserved": true,
+    "requirement_inverted": false,
+    "normative_touched": false,
+    "status_line_changed": false,
+    "downstream_refs": 0,
+    "change_ratio": 0.02
+  },
+  "observed": [
+    0.05,
+    0.1,
+    0.1,
+    0.1
+  ],
+  "proposed_action": "correction_note",
+  "accepted": true,
+  "episode": "f6d6aba4"
+}

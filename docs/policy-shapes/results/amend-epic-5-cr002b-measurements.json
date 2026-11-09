@@ -1,0 +1,26 @@
+{
+  "document": "docs/user-stories/epic-5-decision-progress-comparison.md",
+  "tag": "cr002b",
+  "base_commit": "bfe18e4",
+  "candidate_sha256": "08441d69fc03f2ffbee84f82d9f9cb02c2b13e2028c349be330d8cb0bb825385",
+  "features": {
+    "lines": 2,
+    "terms_removed": 2,
+    "terms_kept": 2,
+    "goal_preserved": true,
+    "requirement_inverted": false,
+    "normative_touched": false,
+    "status_line_changed": false,
+    "downstream_refs": 40,
+    "change_ratio": 0.01
+  },
+  "observed": [
+    0.05,
+    0.1,
+    0.1,
+    0.1
+  ],
+  "proposed_action": "correction_note",
+  "accepted": true,
+  "episode": "92e0fd0a"
+}

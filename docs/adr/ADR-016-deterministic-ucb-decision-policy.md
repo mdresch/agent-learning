@@ -6,7 +6,7 @@ In mission-critical autonomous governance, regulatory compliance and audit repea
 This ADR introduces the **Deterministic Upper Confidence Bound (UCB) Decision Policy** (Methodology #10 from `Ideation-Document.md` §2.1, addressing `HYP-AL-009`). By combining empirical mean rewards with deterministic confidence bounds (integrating with the repo's existing Wilson score calculator), UCB guarantees optimal balance of exploration and exploitation without gradient hyperparameters, entropy tuning, or stochastic seed dependencies.
 
 ## 2. Status
-**Accepted (2026-10-28, Menno)** — Derived from `Ideation-Document.md` §2.1 (Methodology #10) and `HYP-AL-009`. Approved as a design through `approve-adr` (robust utility 0.697, expected utility 0.774; Episode `dcf700e1-6a3d-4e90-877b-0c2661b10878`). Amazon Q reviewed this text in PR #37. Nothing is built; the gaps named in the code-design section stay open.
+**Accepted (2026-10-28, Menno)** — Derived from `Ideation-Document.md` §2.1 (Methodology #10) and `HYP-AL-009`. Approved as a design through `approve-adr` (robust utility 0.697, expected utility 0.774; Episode `dcf700e1-6a3d-4e90-877b-0c2661b10878`). Amazon Q reviewed this text in PR #37. Nothing is built; the gaps named in the code-design section stay open. Amended 2026-11-09 at Stage 16: CR-20261109-002: correct the module path to src/agent_learning_ext, classified `correction_note` (robust utility 0.687, episode `247e774e...`) and accepted by Menno.
 
 ## 3. Context & Problem Statement
 - **The Audit Replay Liability of Stochastic Sampling:** In safety-critical agent systems, an auditor must be able to replay a historical decision and observe the exact same action chosen. When policies use softmax exploration ($\pi(a) \propto e^{\theta_a / \tau}$) or random draws, determinism requires preserving and restoring PRNG states across sessions.
@@ -55,7 +55,7 @@ The policy state is stored within standard `PolicySnapshot.metadata`:
 
 ### 4.4 Code design and test data
 Design only: nothing below is built, and the signatures are the contract an FDD must confirm or change.
-Module `src/agent_learning/policy/ucb.py`, implementing `Policy`, plus `UCBLearner(Learner)`.
+Module `src/agent_learning_ext/policy/ucb.py`, implementing `Policy`, plus `UCBLearner(Learner)`.
 
 ```python
 def ucb_scores(stats: Mapping[str, ActionStats], total: int, *,

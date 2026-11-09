@@ -122,9 +122,15 @@
     "docs/adr/ADR-016-deterministic-ucb-decision-policy.md": {
       "family": "adr",
       "status": "accepted",
-      "sha256": "82d038513f22ec5cc395b96634ce8961038ee4c10909016ae5f36fe111cf0223",
+      "sha256": "73d13811f017b830de5552fc73ed061986ccad123cc56b5e9f4e5a0e2f28fdd2",
       "approval_episode": null,
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "247e774e",
+          "stage": 16
+        }
+      ]
     },
     "docs/adr/ADR-017-scheduled-epsilon-greedy-policy.md": {
       "family": "adr",

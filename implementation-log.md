@@ -2909,7 +2909,48 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-145-1 | crash risk | verified: yes | decision: accepted | Fix store.get_episode arity to (id, agent_id) with --approval-agent-id and governance fallback | fix: 0566e0b`
   - `Q-145-2 | logic error | verified: yes | decision: accepted | Compute proposal SHA-256 directly on raw file bytes for exact sha256sum parity | fix: 0566e0b`
   - `Q-145-3 | test gap | verified: yes | decision: accepted | Update test mocks and assertions for 2-argument get_episode and raw bytes hash | fix: 0566e0b`
-  - Correction 2026-11-09 (heal-contract-failure): Q-145-2 was first logged with claim type auditability, which is not in review_triage.CLAIM_TYPES, so the triage parser rejected the log. Recorded as logic error (the hash differed from sha256sum output). The parser was not loosened.
+
+---
+
+## Story 21.4 — The Shadow Record and the Agreement Gate
+- **Commit:** `02597cf` (lint and status `4d20c9c`)
+- **Date:** 2026-11-09
+- **Branch:** `feat/story-21.4`
+- **Source ADR / BRD / FDD:** ADR-021 (§4.1, §4.4), BRD-021 (BRU-021-11), FDD-021 (§1 items 4 to 7, §2.3, §3, §4 K1 and K7, §5)
+- **Pre-Flight Spec Gate:** PASSED, Proceed utility 0.7327, margin +0.2113 (>= +0.05), episode `spec-21_4-8ad60e3c`. The gate was run after the contract was healed (see heal pass below); its I1 to I3 match the contract docstring.
+- **Heal pass (LL-042, `heal-contract-failure`):** an `implement-story` run for this story was started and abandoned with uncommitted work in `../agent-learning-story-21.4` (no commits, no PR); Menno confirmed it abandoned. The leftovers were re-walked from Intent as evidence, not adopted. Attempt 1 of 3, healed:
+  - Contract file was `tests/test_routing_agreement.py`; renamed to the epic-declared `tests/test_routing_guard.py` (I4).
+  - AC_6 crashed (`SoftmaxPolicy(actions=...)`) and was vacuous (`CRITIQUE` rewards, which `ReinforceLearner` never consumes); now `AGGREGATE` rewards, asserts the logits moved, and runs both the upstream and extension learner (I6).
+  - AC_4 gated on `round(wilson, 4)`: 35 of 35 (0.901096) passed a 0.9011 gate. Now the reported bound equals `wilson_lower_bound(k, n)` and the unrounded value is compared (I3).
+  - AC_2 counted an episode without a final action under a placeholder `"unknown"` action; now dropped (FDD-021 §3.6, I5).
+  - AC_5 now also built from episodes through `agreement`.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/routing.py` (`shadow_record`, `previous_route`, `agreement`, `propose_bucket`)
+  - `src/agent_learning_ext/__init__.py` (lazy exports `agreement`, `previous_route`, `propose_bucket`, `shadow_record`)
+  - `tests/test_routing_guard.py` (contract tests for $AC_0$ through $AC_6$, interpretations $I_1$ to $I_6$)
+  - `.claude/skills/routing/SKILL.md` (new; the component skill was missing since Story 21.1 and now covers Stories 21.1 to 21.4)
+  - `docs/user-stories/epic-21-contextual-authority-ensemble-routing.md` (Story 21.4 marked Completed)
+- **Contracts:**
+  - `tests/test_routing_guard.py`
+  - Observed RED first (against the leftover code): 7 failed (`test_ac2_agreement_drops_episode_without_final_action`, five `test_ac4_reported_bound_equals_wilson_lower_bound` cases, `test_ac4_gate_compares_unrounded_bound`); AC_6 shown able to fail by mutating the extension `ReinforceLearner` to train on `shadow_low_action` (2 failed; mutation reverted, nothing committed).
+  - Contract run: 31 passed
+  - Epic 21 contracts plus `tests/test_upstream_untouched.py`: 55 passed
+- **Validation:**
+  - Full suite: 2211 passed, 2 skipped before merging `origin/main` (Story 22.6); 2236 passed, 1 skipped after the merge and the Q-145-2 correction (`uv run pytest --ignore=tests/test_spark.py --ignore=tests/pmbok`; `test_spark.py` needs a JVM, `tests/pmbok` cannot be collected from a clean install, ADR-034, LL-013).
+  - `ruff check` clean on the touched files (`main`'s `routing.py` was clean before the story).
+  - Upstream fork untouched (I1).
+- **Flagged during the heal, fixed in review:** `mean_shadow_entropy_bits` divided by `n`, so an episode with a shadow action but no finite `shadow_entropy_bits` lowered the mean (Q-146-1/Q-146-2 below).
+- **Review (Step 8):** Amazon Q reviewed PR #146 (round 1, head `278a07a`; two review summaries reporting the same defect). Finding addressed:
+  - `Q-146-1 | logic error | verified: yes | decision: accepted | mean_shadow_entropy_bits divided by n instead of the count of episodes carrying a finite shadow_entropy_bits | fix: f9aea3d`
+  - `Q-146-2 | test gap | verified: yes | decision: accepted | No contract case had a counted episode without shadow_entropy_bits; added test_ac5_mean_entropy_only_over_episodes_carrying_it (RED 0.375 vs 0.75 first) | fix: f9aea3d`
+- **Trap note (for the Epic 21 recap):** an abandoned run's tests can be green and still unable to fail (wrong reward source); a heal must show each contract can go RED, not only that it passes.
+
+---
+
+## Correction (2026-11-09) — Story 22.6 review line Q-145-2
+- `Q-145-2` was recorded with claim type `auditability`, which is not one of the fixed claim types (logic error, crash risk, test gap, documentation, style; `implement-story` Step 8.7). `agent_learning.review_triage` rejects it, so `tests/test_review_triage.py` and `tests/test_critique_replay.py` failed on `main` after PR #145. The finding (proposal SHA-256 not computed on the raw file bytes) is reclassified as `logic error` in place; nothing else in the line changed. Found during Story 21.4 validation (cross-epic regression, attributed to PR #145, not to Story 21.4's diff).
+
+---
 
 ## Story 22.7 — The Real-Data Regression Check
 - **Commit:** `eef95f4` (loader fix `d0a909c`, review fixes `ac7513f`)
@@ -2926,12 +2967,12 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `implementation-log.md` (correction below), `.claude/skills/implement-story/SKILL.md` (Tier 2 for LL-049 and LL-050)
 - **Contracts:**
   - `tests/test_weight_real_data.py`: 7 passed (after review fixes)
-  - Full suite, nothing ignored: 2303 passed, 2 skipped (`uv run pytest`). With `--ignore=tests/test_spark.py --ignore=tests/pmbok`: 2210 passed, 1 skipped.
+  - Full suite, nothing ignored: 2303 passed, 2 skipped (`uv run pytest`); 2335 passed, 2 skipped after merging `origin/main` (Story 21.4, PR #146). With `--ignore=tests/test_spark.py --ignore=tests/pmbok`: 2210 passed, 1 skipped.
 - **Notes:**
   - Real-data result: 179 of 188 frame files were used, grouped over 13 tasks. 9 approval frames carry no label in any episode or result and are skipped by name (`adr-005-regressed-demo`, `adr-008-approval`, `adr-012-approval-v2`, `adr-025-approval-v1`, `adr-034-approval`, `epic11-approval`, `implementation-readiness-phase2`, `pmp-approval-phase2`, `stakeholder-plan-approval-phase2`). Baseline accuracy is 1.0 on every task with at least `2 * MIN_PART` labelled frames, so `propose` returns `NoImprovement`. This is not evidence that compiled weights are better (BRU-022-12).
   - Heal pass (heal-contract-failure): `test_ac4_result_labelled_with_documented_gap` was RED because the module docstring did not cite BRU-022-12; the contract was right, the docstring was fixed. The first loader swallowed every exception and silently dropped unlabelled frames; fixed in `d0a909c` so each skipped frame is counted and reported.
   - Stage 16: AC_0 to AC_3 were edited in the working tree to match the test, which failed `tests/test_governance_baseline.py`. Classified `amendment_log_entry`, accepted by Menno Drescher 2026-11-09, episode `59440d8c`.
-  - Foreign contract: three tests failed on `main` since PR #145 because the Story 22.6 review line `Q-145-2` used claim type `auditability`. Corrected in that entry above; the parser was not loosened.
+  - Foreign contract: three tests failed on `main` since PR #145 because the Story 22.6 review line `Q-145-2` used claim type `auditability`. Found independently during Story 21.4 validation and corrected on `main` by `9dc009b` (see the correction entry above); this branch made the same one-token fix and the merge kept `main`'s. The parser was not loosened.
   - Open: ADR-022, FDD-022 and the Epic 22 file name `src/agent_learning/weight_compiler.py`; the module is `src/agent_learning_ext/weight_compiler.py`. Correcting an approved document needs a Stage 16 `correction_note`, not yet run.
   - Interpretations $I_1$ to $I_4$ in the test docstring (fork purity, storage decoupling, None-safety, empty-collection base case) are recorded there.
 - **Review (Step 8):** Amazon Q reviewed PR #147 (round 1, head `392fa4d`: two reviews and 10 inline comments, several repeating the same point). Triaged against the code and data:
@@ -2943,4 +2984,3 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-147-6 | logic error | verified: no | decision: declined | The comment's own reasoning concludes the digest check passes; amendment files are in both snapshots, so nothing is defective | fix: none`
   - `Q-147-7 | test gap | verified: partial | decision: declined | AC_3 says the test imports nothing from storage directly; a relative storage import in a flat tests module is not plausible and a transitive check is out of scope | fix: none`
   - Correction to the Notes above: the first version of the test did not cover the amended AC_0 empty-collection wording (Q-147-5); it does from `ac7513f`.
-

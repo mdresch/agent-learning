@@ -18,7 +18,11 @@ from __future__ import annotations
 import math
 from collections.abc import Sequence
 from dataclasses import dataclass
+from datetime import datetime, timedelta, timezone
+from typing import Any
 
+from agent_learning.autonomy import wilson_lower_bound
+from agent_learning.config import AutonomyConfig
 from agent_learning.decision import DecisionAuthority
 
 # Constants specified in FDD-021 §2.1
@@ -389,3 +393,286 @@ def route(
         reason="anomaly",
         anomaly=f"unknown DecisionAuthority variant: {norm_prev}",
     )
+
+
+def shadow_record(low_action_id: str, entropy_bits: float) -> dict[str, Any]:
+    """Record shadow action and entropy for a full route (FDD-021 §1 item 4, §3.4).
+
+    Returns a dict with 'shadow_low_action' and 'shadow_entropy_bits'.
+    Raises ValueError for empty action id or non-finite entropy.
+    Contains no reward key.
+    """
+    if not isinstance(low_action_id, str) or not low_action_id.strip():
+        raise ValueError(f"action id must be a non-empty string: {low_action_id!r}")
+    if isinstance(entropy_bits, bool) or not isinstance(entropy_bits, (int, float)) or not math.isfinite(entropy_bits):
+        raise ValueError(f"entropy must be a finite number: {entropy_bits!r}")
+
+    return {
+        "shadow_low_action": low_action_id.strip(),
+        "shadow_entropy_bits": float(entropy_bits),
+    }
+
+
+def previous_route(episodes: Sequence[Any], bucket: str) -> DecisionAuthority | None:
+    """Return the route of the newest episode of the bucket by created_at (FDD-021 §3.5).
+
+    Ignores other buckets and untagged episodes. Returns None if there is none.
+    """
+    if not episodes or not bucket:
+        return None
+
+    def _parse_created_at(ep: Any) -> datetime:
+        raw = getattr(ep, "created_at", None)
+        if raw is None and hasattr(ep, "metadata") and isinstance(ep.metadata, dict):
+            raw = ep.metadata.get("created_at")
+        if isinstance(raw, datetime):
+            if raw.tzinfo is None:
+                return raw.replace(tzinfo=timezone.utc)
+            return raw
+        if isinstance(raw, str):
+            clean = raw.replace("Z", "+00:00")
+            try:
+                dt = datetime.fromisoformat(clean)
+                if dt.tzinfo is None:
+                    return dt.replace(tzinfo=timezone.utc)
+                return dt
+            except ValueError:
+                return datetime.min.replace(tzinfo=timezone.utc)
+        return datetime.min.replace(tzinfo=timezone.utc)
+
+    matching: list[tuple[datetime, Any]] = []
+    for ep in episodes:
+        meta = getattr(ep, "metadata", None)
+        if not isinstance(meta, dict):
+            continue
+        ep_bucket = meta.get("routing_bucket")
+        if not ep_bucket and isinstance(meta.get("routing"), dict):
+            ep_bucket = meta["routing"].get("bucket")
+        if ep_bucket != bucket:
+            continue
+
+        route_val = meta.get("routed_authority")
+        if not route_val and isinstance(meta.get("routing"), dict):
+            route_val = meta["routing"].get("route")
+        if not route_val:
+            continue
+
+        dt = _parse_created_at(ep)
+        matching.append((dt, route_val))
+
+    if not matching:
+        return None
+
+    # Sort newest first by created_at
+    matching.sort(key=lambda item: item[0], reverse=True)
+    newest_route = matching[0][1]
+
+    if isinstance(newest_route, DecisionAuthority):
+        return newest_route
+    if isinstance(newest_route, str):
+        val = newest_route.strip().lower()
+        if val == "low":
+            return DecisionAuthority.LOW
+        elif val == "full":
+            return DecisionAuthority.FULL
+    return None
+
+
+def agreement(
+    episodes: Sequence[Any],
+    bucket: str,
+    now: datetime | str,
+    max_evidence_age_days: float | None,
+) -> dict[str, Any]:
+    """Count scored full-routed episodes of the bucket within the evidence window (FDD-021 §3.6).
+
+    An episode counts when it has:
+    1. bucket matching `bucket`
+    2. full route (routed_authority == "full")
+    3. shadow_low_action present
+    4. feedback_status in ("accepted", "rejected")
+    5. created_at inside [now - timedelta(days=max_evidence_age_days), now]
+
+    The final action is correct_action_id when present, else action_id.
+    Returns:
+        n: total qualifying episodes
+        k: count where shadow_low_action == final_action
+        final_action_counts: mapping of action_id -> count of occurrences as final action
+        modal_action: most frequent final action (None if n == 0)
+        base_rate: share of the most frequent final action
+        mean_shadow_entropy_bits: mean of shadow_entropy_bits across qualifying episodes
+    """
+    if max_evidence_age_days is None:
+        raise ValueError("max_evidence_age_days must be set (fail closed)")
+    if (
+        isinstance(max_evidence_age_days, bool)
+        or not isinstance(max_evidence_age_days, (int, float))
+        or not math.isfinite(max_evidence_age_days)
+        or max_evidence_age_days <= 0
+    ):
+        raise ValueError(f"max_evidence_age_days must be positive finite number: {max_evidence_age_days!r}")
+
+    # Parse reference time `now`
+    if isinstance(now, str):
+        clean_now = now.replace("Z", "+00:00")
+        ref_dt = datetime.fromisoformat(clean_now)
+    elif isinstance(now, datetime):
+        ref_dt = now
+    else:
+        raise TypeError(f"now must be datetime or ISO string: {now!r}")
+
+    if ref_dt.tzinfo is None:
+        ref_dt = ref_dt.replace(tzinfo=timezone.utc)
+
+    window_start = ref_dt - timedelta(days=float(max_evidence_age_days))
+
+    def _get_dt(ep: Any) -> datetime | None:
+        raw = getattr(ep, "created_at", None)
+        if raw is None and hasattr(ep, "metadata") and isinstance(ep.metadata, dict):
+            raw = ep.metadata.get("created_at")
+        if isinstance(raw, datetime):
+            return raw if raw.tzinfo is not None else raw.replace(tzinfo=timezone.utc)
+        if isinstance(raw, str):
+            clean = raw.replace("Z", "+00:00")
+            try:
+                dt = datetime.fromisoformat(clean)
+                return dt if dt.tzinfo is not None else dt.replace(tzinfo=timezone.utc)
+            except ValueError:
+                return None
+        return None
+
+    n = 0
+    k = 0
+    final_action_counts: dict[str, int] = {}
+    entropy_sum = 0.0
+    entropy_n = 0  # episodes carrying a finite shadow_entropy_bits (Q-146-1)
+
+    for ep in episodes:
+        meta = getattr(ep, "metadata", None)
+        if not isinstance(meta, dict):
+            continue
+
+        # 1. Bucket check
+        ep_bucket = meta.get("routing_bucket")
+        if not ep_bucket and isinstance(meta.get("routing"), dict):
+            ep_bucket = meta["routing"].get("bucket")
+        if ep_bucket != bucket:
+            continue
+
+        # 2. Full route check
+        route_val = meta.get("routed_authority")
+        if not route_val and isinstance(meta.get("routing"), dict):
+            route_val = meta["routing"].get("route")
+        if isinstance(route_val, DecisionAuthority):
+            is_full = route_val == DecisionAuthority.FULL
+        elif isinstance(route_val, str):
+            is_full = route_val.strip().lower() == "full"
+        else:
+            is_full = False
+        if not is_full:
+            continue
+
+        # 3. Shadow action present
+        shadow_action = meta.get("shadow_low_action")
+        if not shadow_action or not isinstance(shadow_action, str):
+            continue
+
+        # 4. Scored feedback status in ("accepted", "rejected")
+        feedback_status = getattr(ep, "feedback_status", None) or meta.get("feedback_status")
+        if not feedback_status or str(feedback_status).strip().lower() not in ("accepted", "rejected"):
+            continue
+
+        # 5. Evidence window check
+        ep_dt = _get_dt(ep)
+        if ep_dt is None or ep_dt < window_start or ep_dt > ref_dt:
+            continue
+
+        # Determine final action
+        correct_act = getattr(ep, "correct_action_id", None) or meta.get("correct_action_id")
+        if correct_act and isinstance(correct_act, str) and correct_act.strip():
+            final_act = correct_act.strip()
+        else:
+            final_act = getattr(ep, "action_id", None) or meta.get("action_id")
+            if not isinstance(final_act, str) or not final_act.strip():
+                # FDD-021 §3.6: an episode without a final action does not count.
+                continue
+            final_act = final_act.strip()
+
+        n += 1
+        if shadow_action == final_act:
+            k += 1
+
+        final_action_counts[final_act] = final_action_counts.get(final_act, 0) + 1
+
+        ent = meta.get("shadow_entropy_bits")
+        if isinstance(ent, (int, float)) and not isinstance(ent, bool) and math.isfinite(ent):
+            entropy_sum += float(ent)
+            entropy_n += 1
+
+    if n > 0:
+        # Determine modal action (sort ties deterministically)
+        modal_action = max(sorted(final_action_counts.keys()), key=lambda a: final_action_counts[a])
+        base_rate = round(final_action_counts[modal_action] / n, 9)
+        mean_shadow_entropy_bits = round(entropy_sum / entropy_n, 9) if entropy_n > 0 else 0.0
+    else:
+        modal_action = None
+        base_rate = 0.0
+        mean_shadow_entropy_bits = 0.0
+
+    return {
+        "n": n,
+        "k": k,
+        "final_action_counts": final_action_counts,
+        "modal_action": modal_action,
+        "base_rate": base_rate,
+        "mean_shadow_entropy_bits": mean_shadow_entropy_bits,
+    }
+
+
+def propose_bucket(
+    agreement_result: dict[str, Any],
+    cfg_gate: AutonomyConfig | Any = None,
+) -> dict[str, Any]:
+    """Propose bucket promotion based on agreement counts and standard tier autonomy gate (FDD-021 §3.7).
+
+    Compares wilson_lower_bound(k, n) against the gate's lower bound (standard tier: 0.90)
+    and n against the gate's minimum outcomes (standard tier: 20).
+    Reports base_rate, modal_action, n, k, and mean_shadow_entropy_bits.
+    """
+    n = int(agreement_result.get("n", 0))
+    k = int(agreement_result.get("k", 0))
+    base_rate = float(agreement_result.get("base_rate", 0.0))
+    modal_action = agreement_result.get("modal_action")
+    mean_shadow_entropy_bits = float(agreement_result.get("mean_shadow_entropy_bits", 0.0))
+
+    if cfg_gate is None:
+        cfg_gate = AutonomyConfig()
+
+    min_outcomes = getattr(cfg_gate, "min_outcomes", 20)
+    lower_bound_req = getattr(cfg_gate, "min_correctness_lower_bound", 0.90)
+    wilson_z = getattr(cfg_gate, "wilson_z", 1.96)
+
+    # Unrounded: AC_4 "equals wilson_lower_bound(k, n)"; rounding first would admit a
+    # bound just below the gate (e.g. 0.901096 rounded to 0.9011).
+    w_lower = wilson_lower_bound(k, n, z=wilson_z)
+
+    if n < min_outcomes:
+        eligible = False
+        reason = f"outcomes {n} below minimum required {min_outcomes}"
+    elif w_lower < lower_bound_req:
+        eligible = False
+        reason = f"wilson lower bound {w_lower:.4f} below required {lower_bound_req:.4f}"
+    else:
+        eligible = True
+        reason = "eligible: agreement meets standard tier autonomy gate"
+
+    return {
+        "eligible": eligible,
+        "n": n,
+        "k": k,
+        "wilson_lower": w_lower,
+        "base_rate": base_rate,
+        "modal_action": modal_action,
+        "mean_shadow_entropy_bits": mean_shadow_entropy_bits,
+        "reason": reason,
+    }

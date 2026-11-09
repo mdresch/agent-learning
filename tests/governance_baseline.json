@@ -1027,12 +1027,17 @@
     "docs/user-stories/epic-22-scored-search-decision-configuration-compilation.md": {
       "family": "story",
       "status": "approved",
-      "sha256": "774bbf6dbb6445adff3b112941d5146e57dd3ee837f1d00194dfc18c32f5ab69",
+      "sha256": "417e58af719dd7ed75545e49512c25796083836a447e50124fc809818ccaebbc",
       "approval_episode": "cc1804ea",
       "amendments": [
         {
           "date": "2026-11-09",
           "episode": "59440d8c",
+          "stage": 16
+        },
+        {
+          "date": "2026-11-09",
+          "episode": "c3a965bd",
           "stage": 16
         }
       ]

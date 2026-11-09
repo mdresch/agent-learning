@@ -3099,3 +3099,5 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - Environment: `uv sync` alone installs no pytest or ruff in the worktree venv, so `uv run pytest` fell through to a global pytest without numpy; `uv sync --extra dev` fixed it (not `--all-extras`, LL-003).
 - **Status register:** `docs/project-docs/Project-Status-Register.md` not edited here; the orchestrator updates it once after validation to avoid a merge conflict with the Stories 38.1 to 38.3 agent.
 ---
+- **Amazon Q review (PR #154):** `/q review`, then `/q confirm` on head `b7e232d`. Q's reply says all five acceptance criteria are resolved and lists the payload rule as owned by Story 38.6. One finding, declined with a reason in the PR triage comment.
+  - `Q-154-1 | crash risk | verified: no | decision: declined | _policy_payload does not crash on a contextual snapshot and the printed payload is Story 38.6 AC_2 (interpretation I8) | fix: none`

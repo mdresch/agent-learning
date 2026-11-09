@@ -3061,3 +3061,17 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-149-13 | documentation | verified: yes | decision: accepted | comparisons_from_episodes deduplicates by the Episode.id value; different ids recording the same pair are two answers | fix: f9a7fee`
   - `Q-149-14 | logic error | verified: yes | decision: accepted | tournament_state raises ValueError when fit.utilities or variances keys are not exactly items; row added to the section 5 error table | fix: f9a7fee`
 - **Q verdicts:** after round 2, Q confirmed Q-149-1 to 10 resolved at `60565fc`. After round 3, it confirmed Q-149-11 resolved at `f972391`. Round 4 was requested at `f9a7fee`.
+
+---
+
+## Spec PR triage backfill — PRs #148 and #150
+- **Source:** Human triage of Amazon Q findings, recorded 2026-11-09. PR #149's triage is recorded in the review record above.
+- **PR #148 (round 1; fixed in `6f06b47`):**
+  - `Q-148-1 | logic error | verified: partial | decision: accepted | select_methodology already runs validate_selection_rules on its own inputs, but the FDD did not say so. FDD §3 item 5 now states it. Story 24.3 AC_4 is split into a blocked case and a separate candidate fixture. New D13: whether blocked should add its own state reason | fix: 6f06b47`
+  - `Q-148-2 | logic error | verified: yes | decision: accepted | decided_by_human added to FDD §2.5, §3 item 7, BRU-024-11 and Story 24.5 AC_3 | fix: 6f06b47`
+  - `Q-148-3 | documentation | verified: partial | decision: accepted | P3 now gives #30's cost: 3 (implemented, low), 30 (candidate, medium). Recomputed | fix: 6f06b47`
+  - `Q-148-4 | logic error | verified: yes | decision: accepted | The value of diverged when nothing is recommended is a design choice, so it is new row D14 (option A, null, proposed). Story 24.5 is now blocked on D14 | fix: 6f06b47`
+  - `Q-148-5 | documentation | verified: yes | decision: accepted | BRU-024-09 and its success metric now also name declined | fix: 6f06b47`
+  - `Q-148-6 | style | verified: partial | decision: accepted | No NameError risk: this is spec pseudocode, and the repo modules use from __future__ import annotations. PrerequisiteStatus is moved above SelectionRuleTable anyway | fix: 6f06b47`
+- **PR #150:**
+  - `Q-150-1 | logic error | verified: yes | decision: accepted | FDD-024 §2.2 says the first eligible row is the recommendation, but D9 and the worked fixture make recommended_id the first primary row (id 3, not adjunct id 6) | fix: none`

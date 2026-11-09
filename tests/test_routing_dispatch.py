@@ -342,11 +342,24 @@ def test_ac4_untagged_episodes_train_normally() -> None:
 def test_ac5_training_runner_ast_unchanged() -> None:
     """AST check: runner.py has no references to routed_authority or routing."""
     runner_file = ROOT / "src" / "agent_learning_ext" / "training" / "runner.py"
-    tree = ast.parse(runner_file.read_text(encoding="utf-8"))
+    runner_text = runner_file.read_text(encoding="utf-8")
+    assert "routed_authority" not in runner_text, "runner.py source must not reference routed_authority"
+    assert "shadow_low_action" not in runner_text, "runner.py source must not reference shadow_low_action"
+
+    tree = ast.parse(runner_text)
     for node in ast.walk(tree):
         if isinstance(node, ast.Constant) and isinstance(node.value, str):
             assert "routed_authority" not in node.value, "runner.py must not reference routed_authority"
             assert "shadow_low_action" not in node.value, "runner.py must not reference shadow_low_action"
+        elif isinstance(node, ast.Attribute):
+            assert node.attr != "routed_authority"
+            assert node.attr != "shadow_low_action"
+        elif isinstance(node, ast.Name):
+            assert "routed_authority" not in node.id
+            assert "shadow_low_action" not in node.id
+        elif isinstance(node, ast.keyword) and node.arg:
+            assert "routed_authority" not in node.arg
+            assert "shadow_low_action" not in node.arg
 
 
 def test_ac5_learning_runner_run_offline_batch_mixed_set() -> None:

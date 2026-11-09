@@ -785,7 +785,7 @@ def policy_for_route(
 
     # Deep copy the snapshot via json serialization to guarantee complete data isolation
     try:
-        snap_dict = json.loads(json.dumps(snapshot.to_dict(), default=str))
+        snap_dict = json.loads(json.dumps(snapshot.to_dict()))
     except (TypeError, ValueError) as exc:
         raise TypeError(f"snapshot contains non-serializable data: {exc}") from exc
     meta = snap_dict.get("metadata") or {}

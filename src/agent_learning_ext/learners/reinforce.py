@@ -1,7 +1,7 @@
 # ext-source: src/agent_learning/learners/reinforce.py sha256:ec3bc489b4bcf75c9bc1aae543c787529b6b073c3167333206231ca4a51ae433
 # ruff: noqa  (kept faithful to Microsoft's code and style so upstream changes merge in cleanly)
 # Copy of Microsoft's module for agent_learning_ext (fork rule: Microsoft's file is never edited).
-# EXT: ReinforceLearner.update() skips an episode whose action_logprob is None (a full-authority decision was not sampled from the softmax policy) and reports the count as extra['full_authority_excluded'] (Story 1.1, ADR-001 4.5).
+# EXT: ReinforceLearner.update() skips an episode whose action_logprob is None (Story 1.1, ADR-001 4.5) or whose routed_authority is 'full' (Story 21.6, ADR-021 4.3) and reports the count as extra['full_authority_excluded'].
 # When the upstream pin moves and the source file changes, merge that change here and update the hash above.
 """REINFORCE-style policy gradient learner with an EMA value baseline.
 

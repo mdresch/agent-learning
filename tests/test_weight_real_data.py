@@ -37,6 +37,7 @@ import ast
 import hashlib
 import importlib.util
 import json
+import py_compile
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
@@ -120,11 +121,16 @@ def _load_with_skips() -> tuple[dict[str, list[LabeledFrame]], list[str]]:
 
         try:
             actions = [Action.from_dict(a) for a in json.loads(actions_file.read_text(encoding="utf-8"))]
+        except _LOAD_ERRORS as exc:
+            skipped.append(f"{stem}: actions file {actions_file.name}: {exc}")
+            continue
+
+        try:
             raw_frame = json.loads(frame_file.read_text(encoding="utf-8"))
             df = DecisionFrame.from_dict(raw_frame, actions)
         except _LOAD_ERRORS as exc:
             # Unparseable or synthetic demo frame: skipped, but counted and reported by AC_0.
-            skipped.append(f"{stem}: {exc}")
+            skipped.append(f"{stem}: decision frame {frame_file.name}: {exc}")
             continue
         by_task.setdefault(task_id, []).append(
             LabeledFrame(frame=df, label=label, labeled_at=labeled_at or _DEFAULT_LABELED_AT)
@@ -145,19 +151,51 @@ def _source_path_for_module(module_file: Path) -> Path:
 
 
 def _imports_storage(source: str) -> bool:
-    """True if the source imports agent_learning.storage in any form, including `from agent_learning import storage`."""
+    """Detect regular and literal dynamic imports of agent_learning.storage."""
     try:
         tree = ast.parse(source)
     except SyntaxError as exc:
         raise AssertionError(f"cannot check storage imports, source does not parse: {exc}") from exc
+
+    def is_storage_module(name: str) -> bool:
+        return name == "agent_learning.storage" or name.startswith("agent_learning.storage.")
+
+    importlib_names: set[str] = set()
+    import_module_names: set[str] = set()
     for node in ast.walk(tree):
-        if isinstance(node, ast.Import) and any("agent_learning.storage" in alias.name for alias in node.names):
-            return True
-        if isinstance(node, ast.ImportFrom):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                if is_storage_module(alias.name):
+                    return True
+                if alias.name == "importlib":
+                    importlib_names.add(alias.asname or "importlib")
+        elif isinstance(node, ast.ImportFrom):
             module = node.module or ""
-            if "agent_learning.storage" in module:
+            if is_storage_module(module):
                 return True
             if module == "agent_learning" and any(alias.name == "storage" for alias in node.names):
+                return True
+            if module == "importlib":
+                import_module_names.update(
+                    alias.asname or alias.name for alias in node.names if alias.name == "import_module"
+                )
+
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call) or not node.args:
+            continue
+        function = node.func
+        is_dynamic_import = isinstance(function, ast.Name) and (
+            function.id == "__import__" or function.id in import_module_names
+        )
+        is_importlib_call = (
+            isinstance(function, ast.Attribute)
+            and function.attr == "import_module"
+            and isinstance(function.value, ast.Name)
+            and function.value.id in importlib_names
+        )
+        if (is_dynamic_import or is_importlib_call) and isinstance(node.args[0], ast.Constant):
+            module_name = node.args[0].value
+            if isinstance(module_name, str) and is_storage_module(module_name):
                 return True
     return False
 
@@ -367,6 +405,54 @@ def test_ac0_empty_and_missing_collections_return_empty(tmp_path: Path, monkeypa
         assert _load_real_labeled_frames() == {}
 
 
+@pytest.mark.parametrize(
+    ("failed_file", "expected_reason"),
+    [
+        ("actions", "actions file task.actions.json"),
+        ("frame", "decision frame f1.json"),
+    ],
+)
+def test_ac0_loader_reports_which_file_failed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, failed_file: str, expected_reason: str
+) -> None:
+    """AC_0 (Real Source): a read error names whether the actions file or decision frame was unreadable."""
+    import sys
+
+    module = sys.modules[__name__]
+    frames, episodes, shapes = (tmp_path / name for name in ("frames", "episodes", "shapes"))
+    frames.mkdir()
+    episodes.mkdir()
+    shapes.mkdir()
+    monkeypatch.setattr(module, "FRAMES_DIR", frames)
+    monkeypatch.setattr(module, "EPISODES_DIR", episodes)
+    monkeypatch.setattr(module, "RESULTS_DIR", tmp_path / "results")
+    monkeypatch.setattr(module, "SHAPES_DIR", shapes)
+
+    frame_file = frames / "f1.json"
+    actions_file = shapes / "task.actions.json"
+    (episodes / "f1-episode.json").write_text(
+        json.dumps({"task_id": "task", "action_id": "action"}), encoding="utf-8"
+    )
+    frame_file.write_text("{}", encoding="utf-8")
+    actions_file.write_text("[]", encoding="utf-8")
+    original_read_text = Path.read_text
+    failing_path = actions_file if failed_file == "actions" else frame_file
+
+    def read_text(path: Path, *args: Any, **kwargs: Any) -> str:
+        if path == failing_path:
+            raise OSError("permission denied")
+        if path == actions_file and failed_file == "frame":
+            return "[]"
+        return original_read_text(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "read_text", read_text)
+    by_task, skipped = _load_with_skips()
+    assert by_task == {}
+    assert len(skipped) == 1
+    assert expected_reason in skipped[0]
+    assert "permission denied" in skipped[0]
+
+
 def test_ac0_label_falls_back_to_next_usable_source(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     """AC_0 (Real Source): an episode that parses but names no task or label does not hide a usable
     adjudicated result for the same frame; a malformed source is reported once and the next is tried."""
@@ -401,14 +487,19 @@ def test_ac0_label_falls_back_to_next_usable_source(tmp_path: Path, monkeypatch:
         ("from agent_learning.storage.local import LocalFileStore", True),
         ("from agent_learning import storage", True),
         ("from agent_learning import decision, storage as s", True),
+        ("__import__('agent_learning.storage')", True),
+        ("import importlib\nimportlib.import_module('agent_learning.storage')", True),
+        ("import importlib as il\nil.import_module('agent_learning.storage.local')", True),
+        ("from importlib import import_module as load\nload('agent_learning.storage')", True),
         ("from agent_learning import decision", False),
         ("from agent_learning.decision import DecisionFrame", False),
+        ("import importlib\nimportlib.import_module('agent_learning.decision')", False),
         ("import json", False),
     ],
 )
-def test_ac3_storage_import_detector_sees_every_import_form(source: str, expected: bool) -> None:
+def test_ac3_storage_import_detector_sees_regular_and_literal_dynamic_imports(source: str, expected: bool) -> None:
     """AC_3 (Nothing Written): the detector behind the storage-decoupling check catches the package
-    import form `from agent_learning import storage` as well as dotted module imports."""
+    import form `from agent_learning import storage`, dotted imports, and literal dynamic imports."""
     assert _imports_storage(source) is expected
 
 
@@ -438,6 +529,7 @@ def test_ac3_storage_import_detector_fails_loudly_on_unparseable_source() -> Non
 
 def test_ac3_source_file_resolution_handles_bytecode_path(tmp_path: Path) -> None:
     source_path = tmp_path / "test_module.py"
-    source_path.touch()
-    bytecode_path = tmp_path / "__pycache__" / "test_module.cpython-311.pyc"
+    source_path.write_text("value = 1\n", encoding="utf-8")
+    bytecode_path = Path(py_compile.compile(str(source_path), doraise=True))
+    assert bytecode_path.is_file()
     assert _source_path_for_module(bytecode_path) == source_path.resolve()

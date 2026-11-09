@@ -200,9 +200,15 @@
     "docs/adr/ADR-022-scored-search-decision-compilation.md": {
       "family": "adr",
       "status": "accepted",
-      "sha256": "6db34018411b82f16de558e30ab063cfe81da23d73dcc43ed2d64ece8201bb6e",
+      "sha256": "91d9255c799498e78c16e21bfd23c3b34960d183d63ab5bfe9368c268a344308",
       "approval_episode": null,
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "9494399d",
+          "stage": 16
+        }
+      ]
     },
     "docs/adr/ADR-023-active-dueling-bandit-ranking-engine.md": {
       "family": "adr",

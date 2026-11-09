@@ -2966,8 +2966,8 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `tests/governance_baseline.json` (re-fingerprinted by `scripts/governance_baseline.py` through `scripts/stage16_amend.py accept`)
   - `implementation-log.md` (correction below), `.claude/skills/implement-story/SKILL.md` (Tier 2 for LL-049 and LL-050)
 - **Contracts:**
-  - `tests/test_weight_real_data.py`: 17 passed (after review fixes)
-  - Full suite, nothing ignored: 2303 passed, 2 skipped (`uv run pytest`); 2345 passed, 2 skipped after merging `origin/main` (Story 21.4, PR #146) and the review fixes. With `--ignore=tests/test_spark.py --ignore=tests/pmbok`: 2210 passed, 1 skipped.
+  - `tests/test_weight_real_data.py`: 18 passed (after review fixes)
+  - Full suite, nothing ignored: 2303 passed, 2 skipped (`uv run pytest`); 2346 passed, 2 skipped after merging `origin/main` (Story 21.4, PR #146) and the review fixes. With `--ignore=tests/test_spark.py --ignore=tests/pmbok`: 2210 passed, 1 skipped.
 - **Notes:**
   - Real-data result: 179 of 188 frame files were used, grouped over 13 tasks. 9 approval frames carry no label in any episode or result and are skipped by name (`adr-005-regressed-demo`, `adr-008-approval`, `adr-012-approval-v2`, `adr-025-approval-v1`, `adr-034-approval`, `epic11-approval`, `implementation-readiness-phase2`, `pmp-approval-phase2`, `stakeholder-plan-approval-phase2`). Baseline accuracy is 1.0 on every task with at least `2 * MIN_PART` labelled frames, so `propose` returns `NoImprovement`. This is not evidence that compiled weights are better (BRU-022-12).
   - Heal pass (heal-contract-failure): `test_ac4_result_labelled_with_documented_gap` was RED because the module docstring did not cite BRU-022-12; the contract was right, the docstring was fixed. The first loader swallowed every exception and silently dropped unlabelled frames; fixed in `d0a909c` so each skipped frame is counted and reported.
@@ -2990,3 +2990,5 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - Round 3 (`/q review`, head `3744d07`): the third round, so the loop asked the human (Menno) before continuing; Menno asked for both findings to be taken.
   - `Q-147-9 | logic error | verified: partial | decision: accepted | _resolve_label returned None for labeled_at on an episode without created_at; harmless today because the only caller applied the default, now applied inside the resolver and tested | fix: ea86428`
   - `Q-147-10 | test gap | verified: yes | decision: accepted | test_ac2 could pass without calling propose() if every task were filtered out; 4 tasks reach it today (approve-adr, approve-brd, approve-fdd, approve-user-stories), a tested_tasks counter now asserts at least one does and a mutant that filters all tasks fails it | fix: ea86428`
+  - Round 4 (`/q review`, head `b2adc31`, CI green, merge state CLEAN): one finding.
+  - `Q-147-11 | crash risk | verified: yes | decision: accepted with modification | ast.parse in the storage-import detector raised a bare SyntaxError; it now raises an AssertionError naming the problem, not the suggested return False, which would report no storage import for a file nobody could inspect | fix: e97975a`

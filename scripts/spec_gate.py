@@ -933,7 +933,21 @@ def evaluate_story_spec(
 # CLI Entry Point
 # ==============================================================================
 
+def ensure_utf8_stdout() -> None:
+    """Make stdout/stderr UTF-8 so the emoji verdict lines print on a cp1252 console.
+
+    Without it, Windows consoles raised UnicodeEncodeError on the verdict line after the
+    verdict was computed (seen with pr_gate.py on PR #146). Streams without `reconfigure`
+    (captured or replaced ones) are left alone.
+    """
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is not None:
+            reconfigure(encoding="utf-8", errors="replace")
+
+
 def main(argv: Sequence[str] | None = None) -> int:
+    ensure_utf8_stdout()
     parser = argparse.ArgumentParser(
         description="Pre-Flight Specification & Contract Readiness Gatekeeper (Epic 14 Bayesian Ingestion)"
     )

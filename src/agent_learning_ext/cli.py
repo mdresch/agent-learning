@@ -44,6 +44,13 @@ from agent_learning_ext.decision import (
 from agent_learning.meta_prior import FamilyMember, MetaPrior, compile_meta_prior, seed_values
 from agent_learning.policy.softmax_bandit import SoftmaxPolicy
 from agent_learning.policy.thompson import ThompsonPolicy
+from agent_learning_ext.routing import (
+    SEED_DAMPING_DEFAULT,
+    RoutingConfig,
+    agreement,
+    propose_bucket,
+    seed_prior,
+)
 from agent_learning_ext.storage.cosmos import get_default_store
 from agent_learning_ext.training.runner import LearningRunner
 from agent_learning_ext.weight_compiler import (
@@ -391,6 +398,43 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         "--approval-agent-id",
         default=None,
         help="Agent identifier for the approval episode (defaults to --agent-id).",
+    )
+
+    routing_set = sub.add_parser(
+        "task-policy-routing-set",
+        help="Apply a recorded human decision to the routing state of a task policy (ADR-021, FDD-021 K4).",
+    )
+    routing_set.add_argument("--agent-id", required=True)
+    routing_set.add_argument("--task-id", required=True)
+    routing_action = routing_set.add_mutually_exclusive_group(required=True)
+    routing_action.add_argument(
+        "--set-thresholds",
+        metavar="JSON",
+        help='Routing thresholds as a JSON object, e.g. {"tau_esc": 1.0, "tau_deesc": 0.7, "eps_margin": 0.2}.',
+    )
+    routing_action.add_argument(
+        "--set-max-evidence-age-days",
+        metavar="N",
+        help="Days after which shadow agreement evidence is dropped (no default; required to approve a bucket).",
+    )
+    routing_action.add_argument("--approve-bucket", metavar="NAME", help="Approve a context bucket for low routing.")
+    routing_action.add_argument(
+        "--revoke-bucket", metavar="NAME", help="Revoke a bucket's approval (needs no approval episode)."
+    )
+    routing_set.add_argument(
+        "--approval-episode",
+        help="Adjudicated, accepted approve-routing-thresholds or approve-routing-bucket episode ID.",
+    )
+    routing_set.add_argument(
+        "--approval-agent-id",
+        default=None,
+        help="Agent identifier for the approval episode (defaults to --agent-id).",
+    )
+    routing_set.add_argument(
+        "--damping",
+        type=_damping_factor,
+        default=SEED_DAMPING_DEFAULT,
+        help=f"Seed damping in (0, 1.0] for --approve-bucket (default: {SEED_DAMPING_DEFAULT}).",
     )
 
     return parser
@@ -1892,6 +1936,38 @@ def _cmd_compile_weights(args: argparse.Namespace) -> int:
     return 0
 
 
+def _approval_episode_error(store: Any, args: argparse.Namespace, expected_task: str) -> str | None:
+    """Why ``args.approval_episode`` cannot authorize a change, or ``None`` when it can.
+
+    The episode must exist (under ``--approval-agent-id``, default ``--agent-id``, then
+    ``agent-learning-governance``), belong to ``expected_task`` and carry ``feedback_status``
+    ``adjudicated`` with ``decision_disposition`` ``accepted``. Shared by every approval-gated
+    command (``task-policy-weights-adopt``, ``task-policy-routing-set``).
+    """
+    if not getattr(args, "approval_episode", None):
+        return "Approval episode ID is required"
+
+    approval_agent = getattr(args, "approval_agent_id", None) or args.agent_id
+    episode = store.get_episode(args.approval_episode, approval_agent)
+    if episode is None and approval_agent != "agent-learning-governance":
+        episode = store.get_episode(args.approval_episode, "agent-learning-governance")
+    if episode is None:
+        return f"Approval episode {args.approval_episode!r} not found"
+
+    if getattr(episode, "task_id", None) != expected_task:
+        return f"Approval episode belongs to {getattr(episode, 'task_id', None)!r}, expected {expected_task!r}"
+
+    ep_meta = getattr(episode, "metadata", {}) or {}
+    fb_status = getattr(episode, "feedback_status", None) or ep_meta.get("feedback_status")
+    disp = getattr(episode, "decision_disposition", None) or ep_meta.get("decision_disposition")
+    if fb_status != "adjudicated" or disp != "accepted":
+        return (
+            "Approval episode is not adjudicated and accepted "
+            f"(feedback_status={fb_status!r}, decision_disposition={disp!r})"
+        )
+    return None
+
+
 def _cmd_adopt_weights(args: argparse.Namespace) -> int:
     store = get_default_store()
     snapshot = store.get_active_policy(args.agent_id, args.task_id)
@@ -1899,33 +1975,9 @@ def _cmd_adopt_weights(args: argparse.Namespace) -> int:
         print(f"Active policy not found for {args.agent_id} / {args.task_id}", file=sys.stderr)
         return 2
 
-    if not args.approval_episode:
-        print("Approval episode ID is required", file=sys.stderr)
-        return 2
-
-    approval_agent = getattr(args, "approval_agent_id", None) or args.agent_id
-    episode = store.get_episode(args.approval_episode, approval_agent)
-    if episode is None and approval_agent != "agent-learning-governance":
-        episode = store.get_episode(args.approval_episode, "agent-learning-governance")
-    if episode is None:
-        print(f"Approval episode {args.approval_episode!r} not found", file=sys.stderr)
-        return 2
-
-    if getattr(episode, "task_id", None) != "approve-compiled-weights":
-        print(
-            f"Approval episode belongs to {getattr(episode, 'task_id', None)!r}, expected 'approve-compiled-weights'",
-            file=sys.stderr,
-        )
-        return 2
-
-    ep_meta = getattr(episode, "metadata", {}) or {}
-    fb_status = getattr(episode, "feedback_status", None) or ep_meta.get("feedback_status")
-    disp = getattr(episode, "decision_disposition", None) or ep_meta.get("decision_disposition")
-    if fb_status != "adjudicated" or disp != "accepted":
-        print(
-            f"Approval episode is not adjudicated and accepted (feedback_status={fb_status!r}, decision_disposition={disp!r})",
-            file=sys.stderr,
-        )
+    approval_error = _approval_episode_error(store, args, "approve-compiled-weights")
+    if approval_error is not None:
+        print(approval_error, file=sys.stderr)
         return 2
 
     prop_path = Path(args.proposal)
@@ -1998,6 +2050,141 @@ def _cmd_adopt_weights(args: argparse.Namespace) -> int:
     return 0
 
 
+_ROUTING_THRESHOLD_KEYS = ("tau_esc", "tau_deesc", "eps_margin")
+
+
+def _parse_routing_thresholds(text: str) -> dict[str, float]:
+    """Parse and validate ``--set-thresholds`` as a ``RoutingConfig`` (FDD-021 §2.2); raises ``ValueError``."""
+    try:
+        raw = json.loads(text)
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"--set-thresholds is not valid JSON: {exc}") from exc
+    if not isinstance(raw, dict):
+        raise ValueError("--set-thresholds must be a JSON object")
+    unknown = sorted(set(raw) - set(_ROUTING_THRESHOLD_KEYS))
+    if unknown:
+        raise ValueError(f"--set-thresholds has unknown keys: {unknown}")
+    try:
+        cfg = RoutingConfig(**raw)
+    except TypeError as exc:  # a missing tau_esc / tau_deesc: neither has a default
+        raise ValueError(f"--set-thresholds is not a valid RoutingConfig: {exc}") from exc
+    return {"tau_esc": cfg.tau_esc, "tau_deesc": cfg.tau_deesc, "eps_margin": cfg.eps_margin}
+
+
+def _parse_evidence_age_days(text: str) -> int | float:
+    try:
+        days = float(text)
+    except ValueError as exc:
+        raise ValueError(f"--set-max-evidence-age-days must be a number, got {text!r}") from exc
+    if not math.isfinite(days) or days <= 0:
+        raise ValueError(f"--set-max-evidence-age-days must be a positive finite number, got {text!r}")
+    return int(days) if days.is_integer() else days
+
+
+def _cmd_routing_set(args: argparse.Namespace) -> int:
+    """Apply a recorded human decision to ``routing_state`` (FDD-021 §3 item 10, K4).
+
+    Every action except ``--revoke-bucket`` needs an adjudicated, accepted approval episode of
+    ``approve-routing-thresholds`` (thresholds, evidence age) or ``approve-routing-bucket`` (bucket).
+    Only ``metadata["routing_state"]`` changes; the snapshot keeps its id and version, as in
+    ``task-policy-authority-set``. Every check runs before the one write, so a refusal writes nothing.
+    """
+    store = get_default_store()
+    snapshot = store.get_active_policy(args.agent_id, args.task_id)
+    if snapshot is None or not _is_decision_policy(snapshot):
+        print("Routing configuration requires an active delegated decision policy.", file=sys.stderr)
+        return 2
+
+    if args.revoke_bucket is None:
+        expected_task = "approve-routing-bucket" if args.approve_bucket is not None else "approve-routing-thresholds"
+        approval_error = _approval_episode_error(store, args, expected_task)
+        if approval_error is not None:
+            print(approval_error, file=sys.stderr)
+            return 2
+
+    existing = snapshot.metadata.get("routing_state")
+    if existing is not None and not isinstance(existing, dict):
+        print("routing_state of the active policy is not an object; refusing to change it.", file=sys.stderr)
+        return 2
+    state: dict[str, Any] = copy.deepcopy(existing) if isinstance(existing, dict) else {}
+    buckets = state.get("buckets", {})
+    if not isinstance(buckets, dict):
+        print("routing_state.buckets of the active policy is not an object; refusing to change it.", file=sys.stderr)
+        return 2
+    state["buckets"] = buckets
+
+    if args.set_thresholds is not None:
+        try:
+            state["thresholds"] = _parse_routing_thresholds(args.set_thresholds)
+        except ValueError as exc:
+            print(str(exc), file=sys.stderr)
+            return 2
+        # BRU-021-13: a threshold change re-checks every approved bucket.
+        for entry in buckets.values():
+            if isinstance(entry, dict) and entry.get("approved") is True:
+                entry["revalidate"] = True
+    elif args.set_max_evidence_age_days is not None:
+        try:
+            state["max_evidence_age_days"] = _parse_evidence_age_days(args.set_max_evidence_age_days)
+        except ValueError as exc:
+            print(str(exc), file=sys.stderr)
+            return 2
+    elif args.approve_bucket is not None:
+        bucket = args.approve_bucket
+        max_age = state.get("max_evidence_age_days")
+        if max_age is None:
+            print(
+                "routing_state.max_evidence_age_days is unset; no bucket can be approved until a human sets it.",
+                file=sys.stderr,
+            )
+            return 2
+        now = datetime.now(timezone.utc)
+        episodes = store.query_episodes(args.agent_id, task_id=args.task_id, limit=_MAX_EPISODES)
+        try:
+            counted = agreement(episodes, bucket, now, max_age)
+        except (TypeError, ValueError) as exc:
+            print(f"Agreement could not be computed: {exc}", file=sys.stderr)
+            return 2
+        proposal = propose_bucket(counted, AutonomyConfig.for_tier("standard"))
+        if not proposal["eligible"]:
+            print(
+                f"Bucket {bucket!r} is not eligible: {proposal['reason']} "
+                f"(n={proposal['n']}, k={proposal['k']}, base_rate={proposal['base_rate']})",
+                file=sys.stderr,
+            )
+            return 2
+        action_ids = [action.id for action in snapshot.actions]
+        final_counts = dict(counted["final_action_counts"])
+        seed_counts = {action_id: final_counts.pop(action_id, 0) for action_id in action_ids}
+        seed_counts.update(final_counts)  # a final action outside the policy: seed_prior refuses it
+        try:
+            prior = seed_prior(seed_counts, action_ids, damping=args.damping)
+        except ValueError as exc:
+            print(f"Seed prior could not be computed: {exc}", file=sys.stderr)
+            return 2
+        buckets[bucket] = {
+            "approved": True,
+            "revalidate": False,
+            "approval_episode_id": args.approval_episode,
+            "approved_at": now.isoformat(),
+            "prior": prior,
+            "prior_provenance": {"damping": args.damping, "counts": seed_counts},
+        }
+    else:
+        bucket = args.revoke_bucket
+        entry = buckets.get(bucket)
+        if existing is None or not isinstance(entry, dict):
+            print(f"Bucket {bucket!r} is not in the routing state; nothing to revoke.", file=sys.stderr)
+            return 2
+        entry["approved"] = False
+        entry["revoked_at"] = datetime.now(timezone.utc).isoformat()
+
+    snapshot.metadata["routing_state"] = state
+    store.store_policy(snapshot)
+    print(json.dumps({"policy_id": snapshot.id, "version": snapshot.version, "routing_state": state}, indent=2))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s - %(message)s")
     parser = _build_arg_parser()
@@ -2025,6 +2212,7 @@ def main(argv: list[str] | None = None) -> int:
         "task-policy-warm-start": _cmd_warm_start_task_policy,
         "policy-compile-weights": _cmd_compile_weights,
         "task-policy-weights-adopt": _cmd_adopt_weights,
+        "task-policy-routing-set": _cmd_routing_set,
     }
     handler = dispatch[args.command]
     return handler(args)

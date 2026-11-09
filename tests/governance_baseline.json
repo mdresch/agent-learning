@@ -942,9 +942,15 @@
     "docs/user-stories/epic-16-deterministic-ucb-decision-policy.md": {
       "family": "story",
       "status": "approved",
-      "sha256": "7ccd9cf5cd6d8454d308a5bc2a2cb1165f145a9c7aa4549735edefd48dfacd17",
+      "sha256": "d06478df306af164da8bf605200faa1ff474b2c6a93813d26c97945319e2a893",
       "approval_episode": "7a3c966d",
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "d79a3ab9",
+          "stage": 16
+        }
+      ]
     },
     "docs/user-stories/epic-17-scheduled-epsilon-greedy-policy.md": {
       "family": "story",

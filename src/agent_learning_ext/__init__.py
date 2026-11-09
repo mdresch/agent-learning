@@ -37,6 +37,7 @@ _EXPORTS: dict[str, str] = {
     "ComplexityProfile": "agent_learning_ext.autonomy",
     "CompiledWeights": "agent_learning_ext.weight_compiler",
     "CoordinateAscentResult": "agent_learning_ext.weight_compiler",
+    "ContextualReinforceLearner": "agent_learning_ext.learners.contextual_reinforce",
     "CosmosStore": "agent_learning_ext.storage.cosmos",
     "CriterionAssessment": "agent_learning_ext.decision",
     "CyclicDependencyError": "agent_learning.pmbok",

@@ -3200,3 +3200,32 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - Epic 38 learner stories 38.1 to 38.3 are complete on three stacked branches; nothing is pushed, merged, or reviewed yet (Steps 8 and 9 not run, by instruction). Story 38.6 is not the learner chain, so the Step 9 recap belongs to whichever branch closes the epic.
   - `Project-Status-Register.md` not touched, by instruction (the orchestrator updates it once).
 - **Amazon Q review (PR #158):** `/q review` on head `aea4917`. Q reports the implementation correct and complete, no blocking defect, no finding and no inline comment. No findings to triage.
+
+## Story 38.6 — Scalar Commands Leave The Weight Rows Alone
+- **Commit:** `dd84864`
+- **Date:** 2026-11-09
+- **Branch:** `feat/story-38.6` (worktree `../agent-learning-story-38.6`)
+- **Deviation recorded (Step 0):** forked from the tip of `feat/story-38.5` (`60889f4`), not from `main`, because nothing is merged between Epic 38 Stories 38.4 to 38.6 in this delegated session. PRs must merge in the order 38.4, 38.5, 38.6.
+- **Source ADR / BRD / FDD:** ADR-038 (Invariants 1 and 7), BRD-038 (BRU-038-11), FDD-038 (§3.3, §3.4, D2, D4, D5)
+- **Pre-Flight Spec Gate:** PASSED, Proceed utility 0.6188, margin +0.0975 (>= +0.05), run with `--no-persist` (LL-040), so there is no gate episode. 38.6-I1 to I4 are the gate's, 38.6-I5 to I10 are this story's own; all are in the contract docstring.
+- **Intent:** `train` skips a contextual snapshot; `task-policy-authority-set --authority full` refuses it; the printed payload of a contextual snapshot has no `action_probabilities`. Out of scope: teaching `train` or `LearningRunner` to call `ContextualReinforceLearner`, the learner itself (38.1 to 38.3).
+- **Code-path check (Step 1):** `git ls-files` confirmed `src/agent_learning_ext/cli.py`, `src/agent_learning/policy/contextual_softmax.py` and `src/agent_learning/learners/reinforce.py` are tracked. The story depends on the name `ContextualReinforceLearner` only inside a skip-reason string, not on the class, so nothing here imports it. No Microsoft module was edited.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/cli.py` (`_cmd_train` skip, `_cmd_set_task_policy_authority` refusal, `_policy_payload` branch, `_policy_difference` guard)
+  - `tests/test_contextual_cli.py` (Story 38.6 tests appended; docstring gained the 38.6 interpretations)
+  - `.claude/skills/contextual-cli/SKILL.md` (constraints 8 to 10)
+  - `docs/user-stories/epic-38-packaged-contextual-learning.md` (Story 38.6 marked Completed)
+- **Contracts:**
+  - `tests/test_contextual_cli.py`: Story 38.6 tests observed RED first, 7 failed (37 passed: the 35 earlier tests plus two positive controls, a scalar `train` and a scalar payload).
+  - Contract run after implementing: 44 passed (10 for 38.4, 25 for 38.5, 9 for 38.6).
+- **Beyond the criteria, needed by D5:** removing `action_probabilities` from a contextual payload made `_policy_difference` (used by `task-policy` when a previous policy version exists) read a missing key, so it now returns `None` when either snapshot is contextual (38.6-I10, covered by a test).
+- **Confirmed by Menno (2026-11-09):** the `_policy_difference` guard above, so `task-policy` returns no distribution difference for a contextual snapshot, is approved as part of Story 38.6.
+- **Known gaps left open (not in any criterion):** `task-policy` still prints an `autonomy` block computed from the unused logits for a contextual snapshot; `task-policy-authority-set` from a hand-made `full` contextual snapshot to `low` would record a migration distribution from the unused logits. Both are for a later decision.
+- **Validation:**
+  - Full suite: 2375 passed, 2 skipped (`uv run pytest --ignore=tests/test_spark.py --ignore=tests/pmbok`; `test_spark.py` needs a JVM, `tests/pmbok` cannot be collected from a clean install, ADR-034, LL-013). Includes `tests/test_upstream_untouched.py`.
+  - `ruff check` clean on `cli.py` and the test file; `git diff --stat` on `cli.py` was 22 insertions and 3 deletions of this story's own lines.
+- **Status register:** `docs/project-docs/Project-Status-Register.md` not edited here; the orchestrator updates it once after validation.
+- **Not run (by instruction):** Step 8 (PR, Q review, gate, merge) and Step 9 (breakout recap, Lessons Learned and Continuous Improvement registers). Story 38.6 is the epic's last story, so Step 9 is held for the human-led recap.
+---
+- **Amazon Q review (PR #159):** `/q review` on head `38b8457`; one finding (reported twice, once as a blocking issue, once as a documented known gap). Deferred to the maintainer: FDD-038 D4 and section 3.3 specify only the refusal to `full`, the reverse move on a hand-made full-authority contextual snapshot is unspecified, and the maintainer left it for a later decision. Q's crash claim does not hold: `SoftmaxPolicy.from_snapshot` runs on a contextual snapshot (Story 38.4 AC_0 exercises it); the effect is a migration record built from the unused logits. `/q confirm` follows.
+  - `Q-159-1 | crash risk | verified: partial | decision: deferred | full to low authority-set on a hand-made full-authority contextual snapshot records a migration distribution from the unused logits and does not crash; unspecified by FDD-038 D4 and left for the maintainer | fix: none`

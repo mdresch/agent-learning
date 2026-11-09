@@ -86,7 +86,7 @@ Fixture for 38.1 and 38.2 ("the zero policy"): actions `a` then `b`, `feature_di
 
 ## Story 38.6 — Scalar Commands Leave The Weight Rows Alone
 
-**Status:** Ready — D2, D4, and D5 confirmed 2026-10-30  
+**Status:** Completed (2026-11-09, commit `dd84864`)  
 **As** a maintainer, **I want** `train` and a full-authority change to refuse a contextual snapshot, **so that** the unused logits are not trained by mistake.
 
 ### Acceptance Criteria

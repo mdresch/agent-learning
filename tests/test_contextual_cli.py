@@ -45,6 +45,30 @@ PASSED, robust margin +0.1963; 38.5-I4 onward are this story's own):
 - 38.5-I9: `--decision-frame` on a contextual snapshot is refused as it is for any low-authority policy, after
   the `--features` check (FDD-038 3.2 steps 1 and 2).
 - 38.5-I10: "no autonomy block" is the absence of the key `autonomy` in the payload.
+
+Story 38.6 (same documents; ADR-038 7, BRD-038 BRU-038-11, FDD-038 3.3, 3.4, D2, D4, D5).
+Interpretations (LL-011; 38.6-I1 to 38.6-I4 come from `scripts/spec_gate.py 38.6 --no-persist`, verdict
+PASSED, robust margin +0.0975; 38.6-I5 onward are this story's own):
+- 38.6-I1 (gate): the printed payloads and stored snapshots are parsed from JSON in every test.
+- 38.6-I2 (gate): empty-collection case. A contextual task whose batch has no episodes is still skipped with
+  the contextual reason (the check precedes the episode-count checks), so no empty batch reaches a learner.
+- 38.6-I3 (gate): non-finite floats. Not applicable to train or authority-set (no float argument).
+- 38.6-I4 (gate): the unchanged weights and logits are compared as exact JSON (nothing is computed on them).
+- 38.6-I5: "skips that task with a reason that names ContextualReinforceLearner" is an entry in the `skipped`
+  list of the printed result whose `reason` contains that name. With every task skipped the command exits 2
+  (FDD-038 3.3), which also writes the usual "No task policies were trained" line to stderr.
+- 38.6-I6: "does not construct a SoftmaxPolicy from that snapshot" is observed by making
+  `SoftmaxPolicy.from_snapshot` and `cli.LearningRunner` raise during the train call.
+- 38.6-I7: the contextual task has a full episode with an aggregate reward, so a scalar `train` would have
+  trained it (a positive control: the same fixture on a scalar snapshot trains, AC_3).
+- 38.6-I8: "does not change the snapshot or its migration_records" is the stored policy list (every version,
+  as JSON) being identical, and no `migration_records` key appearing.
+- 38.6-I9: `task-policy-authority-set --authority low` on a contextual snapshot (its authority already
+  `low`) stays the idempotent no-op it is for a scalar one and prints a payload without `action_probabilities`.
+- 38.6-I10: the printed payload of a contextual snapshot is checked on `task-policy` (`current_policy` and
+  `previous_policy`), `task-policy-init --feature-dim` and `task-policy-authority-set`. With a previous policy
+  version present `task-policy` must still work, so `_policy_difference` returns `None` for a contextual
+  snapshot instead of reading the removed key (a consequence of D5, not a separate criterion).
 """
 
 from __future__ import annotations
@@ -57,7 +81,7 @@ import pytest
 
 from agent_learning.policy import ContextualSoftmaxPolicy, SoftmaxPolicy
 from agent_learning.storage import InMemoryStore
-from agent_learning.types import Action
+from agent_learning.types import Action, Episode, Reward, RewardSource
 from agent_learning_ext import cli
 
 AGENT = "agent-1"
@@ -408,3 +432,142 @@ def test_38_5_review_contextual_snapshot_without_feature_dim_is_refused(store, c
     assert _decide("--features", "[1.0, 0.0]") == 2
     assert "feature_dim" in capsys.readouterr().err
     assert _fingerprint(store) == before
+
+
+# --- Story 38.6 -------------------------------------------------------------------------------------
+
+WEIGHTS = {"a": [0.5, -0.5], "b": [1.0, 2.0]}
+LOGITS = {"a": 0.3, "b": -0.3}
+
+
+def _register_trainable_episode(store: InMemoryStore, snapshot) -> None:
+    episode = Episode(
+        agent_id=AGENT,
+        task_id=TASK,
+        policy_id=snapshot.id,
+        action_id="a",
+        action_logprob=-0.7,
+        intent_summary="pick a region",
+        expected_outcome="a good region",
+        execution_status="completed",
+        result_summary="picked a",
+    )
+    store.store_episode(episode)
+    store.store_reward(
+        Reward(episode_id=episode.id, agent_id=AGENT, source=RewardSource.AGGREGATE, value=0.8)
+    )
+
+
+def _train(*extra: str) -> int:
+    return _run(["train", "--agent-id", AGENT, "--task-id", TASK, "--skip-scoring", *extra])
+
+
+def _authority_set(authority: str) -> int:
+    return _run(
+        ["task-policy-authority-set", "--agent-id", AGENT, "--task-id", TASK, "--authority", authority]
+    )
+
+
+def test_38_6_ac0_train_skips_a_contextual_snapshot(store, capsys, monkeypatch) -> None:
+    snapshot = _contextual(store, weights=WEIGHTS, logits=LOGITS)
+    _register_trainable_episode(store, snapshot)
+    before = _fingerprint(store)
+
+    def _forbidden(*_args, **_kwargs):
+        raise AssertionError("a contextual snapshot must not reach the scalar learner path")
+
+    monkeypatch.setattr(SoftmaxPolicy, "from_snapshot", classmethod(_forbidden))
+    monkeypatch.setattr(cli, "LearningRunner", _forbidden)
+    capsys.readouterr()
+    code = _train()
+    captured = capsys.readouterr()
+    assert code == 2
+    result = json.loads(captured.out)
+    assert result["runs"] == []
+    assert len(result["skipped"]) == 1
+    assert result["skipped"][0]["task_id"] == TASK
+    assert "ContextualReinforceLearner" in result["skipped"][0]["reason"]
+    assert _fingerprint(store) == before
+    stored = store.get_active_policy(AGENT, TASK)
+    assert stored.metadata["context_weights"] == WEIGHTS
+    assert stored.logits == LOGITS
+
+
+def test_38_6_ac0_train_skips_a_contextual_snapshot_without_episodes(store, capsys) -> None:
+    _contextual(store, weights=WEIGHTS, logits=LOGITS)
+    capsys.readouterr()
+    assert _train() == 2
+    result = json.loads(capsys.readouterr().out)
+    assert "ContextualReinforceLearner" in result["skipped"][0]["reason"]
+
+
+def test_38_6_ac1_authority_full_is_refused(store, capsys) -> None:
+    _contextual(store, weights=WEIGHTS, logits=LOGITS)
+    before = _fingerprint(store)
+    capsys.readouterr()
+    code = _authority_set("full")
+    err = capsys.readouterr().err
+    assert code == 2
+    assert "full" in err and "contextual" in err and "unrecognized" not in err
+    assert _fingerprint(store) == before
+    assert "migration_records" not in store.get_active_policy(AGENT, TASK).metadata
+
+
+def test_38_6_ac1_authority_low_stays_a_no_op(store, capsys) -> None:
+    _contextual(store, weights=WEIGHTS, logits=LOGITS)
+    before = _fingerprint(store)
+    capsys.readouterr()
+    assert _authority_set("low") == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert "action_probabilities" not in payload["current_policy"]
+    assert _fingerprint(store) == before
+
+
+def test_38_6_ac2_contextual_payload_has_no_action_probabilities(store, capsys) -> None:
+    _contextual(store, weights=WEIGHTS, logits=LOGITS)
+    capsys.readouterr()
+    assert _run(["task-policy", "--agent-id", AGENT, "--task-id", TASK]) == 0
+    shown = json.loads(capsys.readouterr().out)
+    assert "action_probabilities" not in shown["current_policy"]
+    assert shown["current_policy"]["metadata"]["context_weights"] == WEIGHTS
+
+
+def test_38_6_ac2_init_with_feature_dim_prints_no_action_probabilities(
+    store, actions_file: Path, capsys
+) -> None:
+    capsys.readouterr()
+    assert _init(actions_file, "--feature-dim", "2") == 0
+    assert "action_probabilities" not in json.loads(capsys.readouterr().out)
+
+
+def test_38_6_ac2_a_previous_contextual_version_does_not_break_task_policy(store, capsys) -> None:
+    first = _contextual(store, weights=WEIGHTS, logits=LOGITS)
+    second = first.__class__.from_dict(first.to_dict())
+    second.id = "second-version"
+    second.version = first.version + 1
+    store.store_policy(second)
+    capsys.readouterr()
+    assert _run(["task-policy", "--agent-id", AGENT, "--task-id", TASK]) == 0
+    shown = json.loads(capsys.readouterr().out)
+    assert shown["previous_policy"] is not None
+    assert "action_probabilities" not in shown["previous_policy"]
+    assert shown["difference"] is None
+
+
+def test_38_6_ac2_scalar_payload_keeps_action_probabilities(store, capsys) -> None:
+    _scalar(store)
+    capsys.readouterr()
+    assert _run(["task-policy", "--agent-id", AGENT, "--task-id", TASK]) == 0
+    shown = json.loads(capsys.readouterr().out)
+    assert set(shown["current_policy"]["action_probabilities"]) == {"a", "b"}
+
+
+def test_38_6_ac3_a_scalar_snapshot_is_trained_not_skipped(store, capsys) -> None:
+    snapshot = _scalar(store)
+    _register_trainable_episode(store, snapshot)
+    capsys.readouterr()
+    assert _train() == 0
+    result = json.loads(capsys.readouterr().out)
+    assert len(result["runs"]) == 1
+    assert not any("ContextualReinforceLearner" in item["reason"] for item in result["skipped"])
+

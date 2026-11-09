@@ -9,8 +9,10 @@ from __future__ import annotations
 
 import argparse
 import copy
+import hashlib
 import json
 import logging
+import math
 import random
 import sys
 import time
@@ -376,6 +378,20 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     compile_weights.add_argument("--seed", type=int, required=True, help="Integer seed for hold-out split.")
     compile_weights.add_argument("--proposed-at", help="Proposal timestamp (ISO 8601). Defaults to current UTC time.")
     compile_weights.add_argument("--output-proposal", required=True, help="Output proposal JSON file path.")
+
+    adopt_weights = sub.add_parser(
+        "task-policy-weights-adopt",
+        help="Adopt an improved criteria weight proposal following human adjudication.",
+    )
+    adopt_weights.add_argument("--agent-id", required=True, help="Agent identifier.")
+    adopt_weights.add_argument("--task-id", required=True, help="Task identifier.")
+    adopt_weights.add_argument("--proposal", required=True, help="Proposal JSON file path.")
+    adopt_weights.add_argument("--approval-episode", required=True, help="Adjudicated approval episode ID.")
+    adopt_weights.add_argument(
+        "--approval-agent-id",
+        default=None,
+        help="Agent identifier for the approval episode (defaults to --agent-id).",
+    )
 
     return parser
 
@@ -1876,6 +1892,112 @@ def _cmd_compile_weights(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_adopt_weights(args: argparse.Namespace) -> int:
+    store = get_default_store()
+    snapshot = store.get_active_policy(args.agent_id, args.task_id)
+    if snapshot is None:
+        print(f"Active policy not found for {args.agent_id} / {args.task_id}", file=sys.stderr)
+        return 2
+
+    if not args.approval_episode:
+        print("Approval episode ID is required", file=sys.stderr)
+        return 2
+
+    approval_agent = getattr(args, "approval_agent_id", None) or args.agent_id
+    episode = store.get_episode(args.approval_episode, approval_agent)
+    if episode is None and approval_agent != "agent-learning-governance":
+        episode = store.get_episode(args.approval_episode, "agent-learning-governance")
+    if episode is None:
+        print(f"Approval episode {args.approval_episode!r} not found", file=sys.stderr)
+        return 2
+
+    if getattr(episode, "task_id", None) != "approve-compiled-weights":
+        print(
+            f"Approval episode belongs to {getattr(episode, 'task_id', None)!r}, expected 'approve-compiled-weights'",
+            file=sys.stderr,
+        )
+        return 2
+
+    ep_meta = getattr(episode, "metadata", {}) or {}
+    fb_status = getattr(episode, "feedback_status", None) or ep_meta.get("feedback_status")
+    disp = getattr(episode, "decision_disposition", None) or ep_meta.get("decision_disposition")
+    if fb_status != "adjudicated" or disp != "accepted":
+        print(
+            f"Approval episode is not adjudicated and accepted (feedback_status={fb_status!r}, decision_disposition={disp!r})",
+            file=sys.stderr,
+        )
+        return 2
+
+    prop_path = Path(args.proposal)
+    if not prop_path.is_file():
+        print(f"Proposal file not found: {args.proposal}", file=sys.stderr)
+        return 2
+
+    try:
+        prop_data = json.loads(prop_path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        print(f"Failed to read proposal JSON: {exc}", file=sys.stderr)
+        return 2
+
+    if not prop_data.get("improved"):
+        print("Proposal did not improve over baseline", file=sys.stderr)
+        return 2
+
+    if prop_data.get("policy_id") != snapshot.id or prop_data.get("policy_version") != snapshot.version:
+        print(
+            f"Proposal is for policy {prop_data.get('policy_id')} v{prop_data.get('policy_version')}, "
+            f"active policy is {snapshot.id} v{snapshot.version}",
+            file=sys.stderr,
+        )
+        return 2
+
+    weights = prop_data.get("weights")
+    if not isinstance(weights, dict) or not weights:
+        print("Proposal missing valid weights dictionary", file=sys.stderr)
+        return 2
+
+    for cid, w in weights.items():
+        if not isinstance(w, (int, float)) or isinstance(w, bool) or not math.isfinite(w) or w <= 0.0:
+            print(f"Invalid weight for {cid}: {w!r}", file=sys.stderr)
+            return 2
+
+    if abs(sum(weights.values()) - 1.0) >= 1e-9:
+        print(f"Weights do not sum to 1.0 (sum={sum(weights.values())})", file=sys.stderr)
+        return 2
+
+    raw_bytes = prop_path.read_bytes()
+    proposal_hash = hashlib.sha256(raw_bytes).hexdigest()
+    adopted_at = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+
+    provenance = {
+        "proposal_hash": proposal_hash,
+        "seed": prop_data.get("seed"),
+        "train_accuracy": prop_data.get("train_accuracy"),
+        "holdout_accuracy": prop_data.get("holdout_accuracy"),
+        "baseline_holdout_accuracy": prop_data.get("baseline_holdout_accuracy"),
+        "holdout_margin": prop_data.get("holdout_margin"),
+        "split_sizes": {
+            "dataset_size": prop_data.get("dataset_size"),
+            "train_size": prop_data.get("train_size"),
+            "holdout_size": prop_data.get("holdout_size"),
+        },
+        "label_time_range": {
+            "earliest": prop_data.get("earliest_labeled_at"),
+            "latest": prop_data.get("latest_labeled_at"),
+        },
+        "approval_episode_id": args.approval_episode,
+        "adopted_at": adopted_at,
+    }
+
+    new_snapshot = PolicySnapshot.from_dict(snapshot.to_dict())
+    new_snapshot.metadata["criteria_weights"] = dict(weights)
+    new_snapshot.metadata["compiled_weights_provenance"] = provenance
+    new_snapshot.advance_version()
+    store.store_policy(new_snapshot)
+    print(json.dumps(_policy_payload(new_snapshot), indent=2))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s - %(message)s")
     parser = _build_arg_parser()
@@ -1902,6 +2024,7 @@ def main(argv: list[str] | None = None) -> int:
         "task-policy-compare": _cmd_compare_task_policy,
         "task-policy-warm-start": _cmd_warm_start_task_policy,
         "policy-compile-weights": _cmd_compile_weights,
+        "task-policy-weights-adopt": _cmd_adopt_weights,
     }
     handler = dispatch[args.command]
     return handler(args)

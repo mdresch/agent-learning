@@ -65,3 +65,9 @@ This skill governs Scored-Search Decision Configuration Compilation (`src/agent_
     - Returns frame unchanged when snapshot lacks `criteria_weights`.
     - `task-policy-decide` applies weights transparently at runtime; zero search overhead online (`coordinate_ascent` calls = 0).
     - `DecisionResolver` remains 100% untouched without reference to `criteria_weights`.
+13. **Human-Adjudicated Adoption (AC_0, AC_1, AC_2, AC_3, AC_4, FDD L6):**
+    - `docs/policy-shapes/approve-compiled-weights.actions.json` defines `approve_compiled_weights`, `reject_compiled_weights`, `request_revision_before_decision`.
+    - Profile declares `requires_human_approval: true`, ensuring router pins task to FULL.
+    - `task-policy-weights-adopt` enforces an adjudicated and accepted episode belonging to `approve-compiled-weights`.
+    - Stores new policy version with `criteria_weights` and `compiled_weights_provenance` (proposal hash, seed, accuracies, split sizes, label time range, approval episode id, adoption time).
+    - Store gains no new record type; earlier policy versions remain unchanged.

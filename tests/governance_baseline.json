@@ -174,9 +174,15 @@
     "docs/adr/ADR-020-explicit-policy-prior-warm-starting.md": {
       "family": "adr",
       "status": "accepted",
-      "sha256": "a4c147a4dcbbaa6148ab0913348b2860328e79311d51ae054ef00b2731eaba7d",
+      "sha256": "1ee4ec8a9b82734e56b033cc6af329c9481460ca458814fdec9e22f727aefdb5",
       "approval_episode": null,
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "3f51c947",
+          "stage": 16
+        }
+      ]
     },
     "docs/adr/ADR-021-contextual-authority-ensemble-routing.md": {
       "family": "adr",

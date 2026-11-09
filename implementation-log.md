@@ -3130,3 +3130,31 @@ This log records completed user stories in accordance with the SIDPA `implement-
 ---
 - **Amazon Q review (PR #154):** `/q review`, then `/q confirm` on head `b7e232d`. Q's reply says all five acceptance criteria are resolved and lists the payload rule as owned by Story 38.6. One finding, declined with a reason in the PR triage comment.
   - `Q-154-1 | crash risk | verified: no | decision: declined | _policy_payload does not crash on a contextual snapshot and the printed payload is Story 38.6 AC_2 (interpretation I8) | fix: none`
+
+
+---
+
+## Story 21.6 — Dispatch and Gradient Exclusion
+- **Commit:** `1782268`
+- **Date:** 2026-11-09
+- **Branch:** `feat/story-21.6` (worktree `../agent-learning-story-21.6`)
+- **Source ADR / BRD / FDD:** ADR-021 (§4.3, Invariant 6), BRD-021 (BRU-021-12, BRU-021-13, BRU-021-14), FDD-021 (§2.3, §7 item 2)
+- **Pre-Flight Spec Gate:** Proceed utility 0.5677 vs Amend 0.5213, margin +0.0464. Five formal interpretations confirmed and authorized:
+  - $I_1$ (Clean Copy): `policy_for_route` constructs a new `TaskPolicy` with authority set via metadata override on a cloned snapshot dict, leaving the original policy and snapshot unchanged.
+  - $I_2$ (Metadata Round-Trip): `routed_episode_metadata` encapsulates route metadata (`route`, `entropy_bits`, `margin`, `tier`, `decision_reason`, `tau_esc`, `tau_deesc`, `eps_margin`, `bucket`, `routing_anomaly`), round-tripping cleanly through JSON.
+  - $I_3$ (Exclusion Scope): `ReinforceLearner.update` excludes episodes where `routed_authority == "full"` (or `route == "FULL"`), returning `episodes_used == 0` when all are full-routed, recording `full_authority_excluded`, and leaving logits unchanged.
+  - $I_4$ (Untagged Backward Compatibility): Untagged episodes with log-probability continue to train as normal.
+  - $I_5$ (Runner Transparency): `TrainingRunner.run_offline_batch` executes without modification; excluded episodes are skipped at learner level.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/routing.py` (`policy_for_route` and `routed_episode_metadata`)
+  - `src/agent_learning_ext/learners/reinforce.py` (full-routed gradient exclusion in `update`)
+  - `src/agent_learning_ext/__init__.py` (re-exported `policy_for_route` and `routed_episode_metadata`)
+  - `.claude/skills/routing/SKILL.md` (updated constraint 16 and dispatch call site)
+  - `tests/test_routing_dispatch.py` (contract suite covering $AC_0$ through $AC_5$)
+  - `docs/user-stories/epic-21-contextual-authority-ensemble-routing.md` (Story 21.6 marked Completed)
+- **Contracts & Validation:**
+  - Observed RED on `policy_for_route` before implementation.
+  - 18 contract tests in `tests/test_routing_dispatch.py` passed GREEN.
+  - Full test suite: 2323 passed, 2 skipped (`uv run pytest --ignore=tests/test_spark.py --ignore=tests/pmbok`).
+  - Governance baseline verified: 18/18 passed in `tests/test_governance_baseline.py`.
+  - Zero status drift: `python scripts/phase_rollup.py --check` exits 0.

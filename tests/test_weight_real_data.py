@@ -138,7 +138,11 @@ def _load_real_labeled_frames() -> dict[str, list[LabeledFrame]]:
 
 def _imports_storage(source: str) -> bool:
     """True if the source imports agent_learning.storage in any form, including `from agent_learning import storage`."""
-    for node in ast.walk(ast.parse(source)):
+    try:
+        tree = ast.parse(source)
+    except SyntaxError as exc:
+        raise AssertionError(f"cannot check storage imports, source does not parse: {exc}") from exc
+    for node in ast.walk(tree):
         if isinstance(node, ast.Import) and any("agent_learning.storage" in alias.name for alias in node.names):
             return True
         if isinstance(node, ast.ImportFrom):
@@ -413,3 +417,10 @@ def test_ac0_episode_without_created_at_gets_the_default_timestamp(tmp_path: Pat
         json.dumps({"task_id": "t", "metadata": {"correct_action_id": "a"}}), encoding="utf-8"
     )
     assert _resolve_label("f3") == ("t", "a", _DEFAULT_LABELED_AT, [])
+
+
+def test_ac3_storage_import_detector_fails_loudly_on_unparseable_source() -> None:
+    """AC_3: a source the detector cannot parse is a failed check with a clear message, never a pass
+    (returning False would report 'no storage import' for a file nobody could inspect)."""
+    with pytest.raises(AssertionError, match="does not parse"):
+        _imports_storage("def (")

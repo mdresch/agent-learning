@@ -2874,3 +2874,35 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-142-6 | crash risk | verified: yes | decision: accepted | Wrap spec.loader.exec_module in try/except with pytest.fail in test_governance_baseline_passes | fix: e9a2c34`
   - `Q-142-7 | crash risk | verified: yes | decision: accepted | Move gb.MANIFEST and gb.find_problems inside try/except block in test_governance_baseline_passes | fix: e2c70a1`
   - `Q-142-8 | crash risk | verified: yes | decision: accepted | Initialize problems list and assert inside try block while re-raising AssertionError in test_governance_baseline_passes | fix: d49b01f`
+
+---
+
+## Story 21.4 — The Shadow Record and the Agreement Gate
+- **Commit:** `02597cf` (lint and status `4d20c9c`)
+- **Date:** 2026-11-09
+- **Branch:** `feat/story-21.4`
+- **Source ADR / BRD / FDD:** ADR-021 (§4.1, §4.4), BRD-021 (BRU-021-11), FDD-021 (§1 items 4 to 7, §2.3, §3, §4 K1 and K7, §5)
+- **Pre-Flight Spec Gate:** PASSED, Proceed utility 0.7327, margin +0.2113 (>= +0.05), episode `spec-21_4-8ad60e3c`. The gate was run after the contract was healed (see heal pass below); its I1 to I3 match the contract docstring.
+- **Heal pass (LL-042, `heal-contract-failure`):** an `implement-story` run for this story was started and abandoned with uncommitted work in `../agent-learning-story-21.4` (no commits, no PR); Menno confirmed it abandoned. The leftovers were re-walked from Intent as evidence, not adopted. Attempt 1 of 3, healed:
+  - Contract file was `tests/test_routing_agreement.py`; renamed to the epic-declared `tests/test_routing_guard.py` (I4).
+  - AC_6 crashed (`SoftmaxPolicy(actions=...)`) and was vacuous (`CRITIQUE` rewards, which `ReinforceLearner` never consumes); now `AGGREGATE` rewards, asserts the logits moved, and runs both the upstream and extension learner (I6).
+  - AC_4 gated on `round(wilson, 4)`: 35 of 35 (0.901096) passed a 0.9011 gate. Now the reported bound equals `wilson_lower_bound(k, n)` and the unrounded value is compared (I3).
+  - AC_2 counted an episode without a final action under a placeholder `"unknown"` action; now dropped (FDD-021 §3.6, I5).
+  - AC_5 now also built from episodes through `agreement`.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/routing.py` (`shadow_record`, `previous_route`, `agreement`, `propose_bucket`)
+  - `src/agent_learning_ext/__init__.py` (lazy exports `agreement`, `previous_route`, `propose_bucket`, `shadow_record`)
+  - `tests/test_routing_guard.py` (contract tests for $AC_0$ through $AC_6$, interpretations $I_1$ to $I_6$)
+  - `.claude/skills/routing/SKILL.md` (new; the component skill was missing since Story 21.1 and now covers Stories 21.1 to 21.4)
+  - `docs/user-stories/epic-21-contextual-authority-ensemble-routing.md` (Story 21.4 marked Completed)
+- **Contracts:**
+  - `tests/test_routing_guard.py`
+  - Observed RED first (against the leftover code): 7 failed (`test_ac2_agreement_drops_episode_without_final_action`, five `test_ac4_reported_bound_equals_wilson_lower_bound` cases, `test_ac4_gate_compares_unrounded_bound`); AC_6 shown able to fail by mutating the extension `ReinforceLearner` to train on `shadow_low_action` (2 failed; mutation reverted, nothing committed).
+  - Contract run: 31 passed
+  - Epic 21 contracts plus `tests/test_upstream_untouched.py`: 55 passed
+- **Validation:**
+  - Full suite: 2211 passed, 2 skipped (`uv run pytest --ignore=tests/test_spark.py --ignore=tests/pmbok`; `test_spark.py` needs a JVM, `tests/pmbok` cannot be collected from a clean install, ADR-034, LL-013).
+  - `ruff check` clean on the touched files (`main`'s `routing.py` was clean before the story).
+  - Upstream fork untouched (I1).
+- **Flagged, not fixed:** `mean_shadow_entropy_bits` divides by `n`, so an episode with a shadow action but no `shadow_entropy_bits` lowers the mean; harmless while `shadow_record` always writes both fields together.
+- **Trap note (for the Epic 21 recap):** an abandoned run's tests can be green and still unable to fail (wrong reward source); a heal must show each contract can go RED, not only that it passes.

@@ -59,6 +59,10 @@
 | [LL-046](#ll-046--continuous-domain-widening-in-statistical-bounds-must-be-guarded-against-classical-integer-reversion) | Continuous-Domain Widening in Statistical Bounds Must Be Guarded Against Classical Integer Reversion | Epic 16 / Stories 16.1–16.6 | Universal Design & Testing | 2026-11-08 |
 | [LL-047](#ll-047--enforce-explicit-numerical-tolerances-and-non-tautological-contract-assertions) | Enforce Explicit Numerical Tolerances and Non-Tautological Contract Assertions | Epic 18 / Stories 18.1–18.6 | Universal Testing & ML | 2026-11-08 |
 | [LL-048](#ll-048--dual-invocation-compatibility-patterns-and-action-space-safety-mask-lock-in) | Dual Invocation Compatibility Patterns and Action Space Safety Mask Lock-In | Epic 17 / Stories 17.1–17.6 | Universal Design & RL Prototyping | 2026-11-08 |
+| [LL-049](#ll-049--a-review-line-outside-the-triage-vocabulary-breaks-foreign-contracts-after-merge) | A Review Line Outside the Triage Vocabulary Breaks Foreign Contracts After Merge | Epic 22 / Stories 22.6–22.7 | Universal Process | 2026-11-09 |
+| [LL-050](#ll-050--approved-documents-can-name-code-that-is-not-there-and-criteria-edited-after-the-contract-trip-the-baseline) | Approved Documents Can Name Code That Is Not There, and Criteria Edited After the Contract Trip the Baseline | Epic 22 / Stories 22.1–22.7 | Universal Process | 2026-11-09 |
+| [LL-051](#ll-051--pr-gate-stale-review-parsing-and-confirmation-recognition) | PR Gate Stale Review Parsing and Confirmation Recognition | Epic 22 / Story 22.7 | Universal Process & Tooling | 2026-11-09 |
+| [LL-052](#ll-052--pareto-dominance-margin-collapse-and-simplex-corner-collapse-in-scored-search-compilation) | Pareto-Dominance Margin Collapse and Simplex Corner Collapse in Scored-Search Compilation | Epic 22 / Stories 22.1–22.7 | Universal ML & Governance Decision Theory | 2026-11-09 |
 
 ---
 
@@ -701,6 +705,61 @@
   2. Always explicitly document and test safety mask boundaries: when $A_{\text{safe}} = \emptyset$, assert that $\epsilon_t = 0.0$ across all $t$, that every decision is exploitation, and that lock-in onto positive-reward actions is expected, desired behavior under human safety governance.
 - **Verification Gate:** Pre-flight spec gates audit action property signatures and verify that test docstrings explicitly document safety mask lock-in tradeoffs.
 
+---
+
+### LL-049 — A Review Line Outside the Triage Vocabulary Breaks Foreign Contracts After Merge
+- **Identifier:** `LL-049`
+- **Date:** 2026-11-09
+- **Epic / Story:** Epic 22 / Stories 22.6–22.7 (commits `0566e0b`, `eef95f4`, `d0a909c`)
+- **Scope:** Review Triage / Audit Log
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/implement-story/SKILL.md` (Step 8.7); Tier 3: `sidpa-template` (proposed, needs human approval before cross-repo change)
+- **The Trap:** The Story 22.6 review was logged as `Q-145-2 | auditability | ...`. `auditability` is not in `review_triage.CLAIM_TYPES`, so `tests/test_review_triage.py` and two `tests/test_critique_replay.py` tests failed on `main` after PR #145 merged. Nothing flagged it until the next story ran the full suite.
+- **The Root Cause:** The triage vocabulary (five claim types plus `unknown`) is enforced only by a parser that runs inside unrelated tests, and the review lines are written after the story contract and after the last suite run. A reviewer's own category word was copied into the line.
+- **Actionable Invariant:** Use only the five claim types or `unknown`; a finding that fits none is `unknown`, never a new word. After writing or editing triage lines, run `uv run pytest tests/test_review_triage.py tests/test_critique_replay.py` before the commit. Fix a bad line by correcting the record with a dated note; do not widen the parser to accept it.
+- **Verification Gate:** `tests/test_review_triage.py::test_ac0_every_recorded_line_in_the_implementation_log_parses`; IMP-030 proposes making `scripts/pr_gate.py` check it.
+
+---
+
+### LL-050 — Approved Documents Can Name Code That Is Not There, and Criteria Edited After the Contract Trip the Baseline
+- **Identifier:** `LL-050`
+- **Date:** 2026-11-09
+- **Epic / Story:** Epic 22 / Stories 22.1–22.7 (commits `eef95f4`, `d0a909c`; Stage 16 episode `59440d8c`)
+- **Scope:** Specification Ingest / Governance Baseline
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/implement-story/SKILL.md` (Step 1); Tier 3: `sidpa-template` (proposed, needs human approval before cross-repo change)
+- **The Trap:** (1) ADR-022, FDD-022 and the Epic 22 file name `src/agent_learning/weight_compiler.py`, but the module is `src/agent_learning_ext/weight_compiler.py` under the fork rule; seven stories were built without the path being corrected. (2) In Story 22.7 the AC_0 to AC_3 wording was edited in the working tree to match what the test did, after the contract existed; `tests/test_governance_baseline.py` failed and a Stage 16 episode was needed afterwards. (3) The pre-flight spec gate was not run before the 22.7 contract, so that gap stands in the record.
+- **The Root Cause:** Step 1 checks that data sources are tracked (LL-037) but not that the code paths a document names exist, and nothing tells an author to amend criteria before the contract rather than after.
+- **Actionable Invariant:** At Step 1 run `git ls-files` on every code path the ADR, FDD and story name; a wrong path is an open question, corrected through `scripts/stage16_amend.py propose` (`correction_note`) before Step 3. Amend acceptance criteria through Stage 16 before the contract is written; a behaviour the criteria do not state is an interpretation in the test docstring (LL-011), not an edit to the story. A gate that was not run is recorded as a gap, not backfilled.
+- **Verification Gate:** `tests/test_governance_baseline.py`; `scripts/spec_gate.py` before Step 3.
+
+---
+
+### LL-051 — PR Gate Stale Review Parsing and Confirmation Recognition
+- **Identifier:** `LL-051`
+- **Date:** 2026-11-09
+- **Epic / Story:** Epic 22 / Story 22.7 (PR #147, commit `79fab91`)
+- **Scope:** Universal Process & Tooling (`scripts/pr_gate.py`)
+- **Tier 2/3 Propagation Target:** Tier 2: `scripts/pr_gate.py`; Tier 3: `sidpa-template` (proposed)
+- **The Trap:** When an automated reviewer (e.g. Amazon Q Developer) confirms all issues resolved in response to a `/q confirm` command, the confirmation body may not contain traditional review headers such as "Review Summary" or "Blocking Issues". In that case, `scripts/pr_gate.py`'s regex filter selected an obsolete earlier review round that still contained blocking issues, evaluating the PR as failing (-0.045 margin) despite 100% resolved findings.
+- **The Root Cause:** The PR gate parser's review-body filter expected traditional review summary headers and did not recognize formal confirmation or resolution statements (`"confirmed resolved"`, `"nothing remaining"`) posted by automated reviewers during interactive review resolution.
+- **Actionable Invariant:** `scripts/pr_gate.py` must include confirmation markers (`confirmed resolved`, `nothing remaining`, `status check`) in its reviewer body selector and translate explicit zero-open confirmations into positive confirmation evidence (`REV1-CONFIRM`) instead of falling back to obsolete review rounds.
+- **Verification Gate:** `python scripts/pr_gate.py <PR>` on clean confirmation produces positive margin ($\ge +0.05$); verified in PR #147 with decision margin +0.270.
+
+---
+
+### LL-052 — Pareto-Dominance Margin Collapse and Simplex Corner Collapse in Scored-Search Compilation
+- **Identifier:** `LL-052`
+- **Date:** 2026-11-09
+- **Epic / Story:** Epic 22 / Stories 22.1–22.7 (PR #147)
+- **Scope:** Universal ML & Governance Decision Theory (`weight_compiler.py`, `DecisionResolver`)
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/weight-compiler/SKILL.md`; Tier 3: `sidpa-template` (proposed)
+- **The Trap:** When running the scored-search coordinate ascent compiler over the repository's 188 real decision frames, the multi-objective search gradient flattened to zero ($\text{Objective}(w) = N$), preventing the compiler from discovering criteria weight adjustments.
+- **The Root Cause:** Two interacting mathematical phenomena in real-world governance corpora:
+  1. *Pareto-Dominance Margin Collapse:* In vetted architecture frames, the human-accepted action (`approve_*`) overwhelmingly dominates runner-up options across all criteria. In `weight_compiler.py`, `evaluate()` filtered `viable = [a for a in assessments if a.feasible and not a.ruled_out_by]`. Because runner-ups had `ruled_out_by=('pareto_dominated_by:approve_*',)`, `len(viable)` dropped to 1, forcing `margin = 0.0` despite true robust utility gaps exceeding $+0.80$. The more decisively an option won, the smaller its recorded margin became.
+  2. *Single-Class Simplex Corner Collapse:* Because the audited historical corpus holds only positive approvals ($P(Y = \text{approve}) = 1.0$), unconstrained margin optimization without counterfactual negative examples creates a degenerate gradient that drives 100% of the weight onto whichever criterion has the highest raw template support, collapsing the weight simplex into an extreme vertex.
+- **Actionable Invariant:** 
+  1. Feasibility in margin calculation must be defined strictly by constraint satisfaction (`assessment.feasible`), not Pareto dominance (`ruled_out_by`). The robust utility gap between the leading feasible option and its feasible runner-up measures decision confidence and must not be masked by Pareto pruning.
+  2. On single-class historical corpora, coordinate ascent must strictly enforce boundary floors ($w_c \ge \text{step}$) to prevent degenerate vertex collapse until multi-class counterfactual examples (e.g. Red Team defect fixtures) are introduced.
+- **Verification Gate:** `tests/test_weight_real_data.py`; IMP-035 and IMP-036.
 
 
 

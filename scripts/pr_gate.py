@@ -105,6 +105,8 @@ def extract_raw_review_texts(pr_data: dict[str, Any]) -> list[tuple[str, str]]:
                         "resolved findings",
                         "blocking issues",
                         "finding status review",
+                        "confirmed resolved",
+                        "nothing remaining",
                     )
                 )
             ]
@@ -233,6 +235,8 @@ def convert_unstructured_review_to_tags(author: str, text: str, source_prefix: s
             or "looks correct" in text.lower()
             or "status: none" in text.lower()
             or "none prevent merge" in text.lower()
+            or "nothing remaining" in text.lower()
+            or "confirmed resolved" in text.lower()
         ) and not any("crash risk" in l or "logic error" in l for l in tagged_lines):
             f_id = f"{source_prefix}-CONFIRM"
             tagged_lines.append(

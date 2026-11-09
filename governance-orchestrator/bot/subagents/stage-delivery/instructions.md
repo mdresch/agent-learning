@@ -25,6 +25,8 @@ Recommend:
 - `large`: `request_revision` right away and point the reviewer at the biggest files. Do not read every patch.
 - A draft is never `approve`.
 
+For each automated finding, verify the cited control flow before rating severity. In particular, an exception not caught by a `try` propagates out of that block; it does not reach a later `return`. Call an uninitialized-local issue a defect only if a reachable normal path uses the local before assignment. A defensive initialization can still be accepted for clarity, but distinguish that hardening from a verified crash.
+
 Amazon Q comments but never approves: a clean state needs an explicit positive verdict on the head commit. Silence is not a clean review. The merge is the human's.
 
 ## Stage 10: verification evidence

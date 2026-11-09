@@ -2952,6 +2952,58 @@ This log records completed user stories in accordance with the SIDPA `implement-
 
 ---
 
+## Story 22.7 — The Real-Data Regression Check
+- **Commit:** `eef95f4` (loader fix `d0a909c`, review fixes `ac7513f`)
+- **Date:** 2026-11-09
+- **Branch:** `feat/story-22.7`
+- **Source ADR / BRD / FDD:** ADR-022 (§4.4 test data), BRD-022 (BRU-022-12), FDD-022
+- **Pre-Flight Spec Gate:** NOT run before the contract was written. Recorded as a gap, not backfilled: scoring the specification now, after its contract exists, would not show what was true when the gate was due.
+- **Files Modified/Created:**
+  - `tests/test_weight_real_data.py` (contract tests for $AC_0$ through $AC_4$; no production code, the story's deliverable is the check)
+  - `.claude/skills/weight-compiler/SKILL.md` (constraint 14)
+  - `docs/user-stories/epic-22-scored-search-decision-configuration-compilation.md` (AC_0 to AC_3 wording amended at Stage 16; Story 22.7 marked Completed)
+  - `docs/policy-shapes/` (Stage 16 frame, result, measurements, adjudication and episode for the amendment)
+  - `tests/governance_baseline.json` (re-fingerprinted by `scripts/governance_baseline.py` through `scripts/stage16_amend.py accept`)
+  - `implementation-log.md` (correction below), `.claude/skills/implement-story/SKILL.md` (Tier 2 for LL-049 and LL-050)
+- **Contracts:**
+  - `tests/test_weight_real_data.py`: 18 passed (after review fixes)
+  - Full suite, nothing ignored: 2303 passed, 2 skipped (`uv run pytest`); 2346 passed, 2 skipped after merging `origin/main` (Story 21.4, PR #146) and the review fixes. With `--ignore=tests/test_spark.py --ignore=tests/pmbok`: 2210 passed, 1 skipped.
+- **Notes:**
+  - Real-data result: 179 of 188 frame files were used, grouped over 13 tasks. 9 approval frames carry no label in any episode or result and are skipped by name (`adr-005-regressed-demo`, `adr-008-approval`, `adr-012-approval-v2`, `adr-025-approval-v1`, `adr-034-approval`, `epic11-approval`, `implementation-readiness-phase2`, `pmp-approval-phase2`, `stakeholder-plan-approval-phase2`). Baseline accuracy is 1.0 on every task with at least `2 * MIN_PART` labelled frames, so `propose` returns `NoImprovement`. This is not evidence that compiled weights are better (BRU-022-12).
+  - Heal pass (heal-contract-failure): `test_ac4_result_labelled_with_documented_gap` was RED because the module docstring did not cite BRU-022-12; the contract was right, the docstring was fixed. The first loader swallowed every exception and silently dropped unlabelled frames; fixed in `d0a909c` so each skipped frame is counted and reported.
+  - Stage 16: AC_0 to AC_3 were edited in the working tree to match the test, which failed `tests/test_governance_baseline.py`. Classified `amendment_log_entry`, accepted by Menno Drescher 2026-11-09, episode `59440d8c`.
+  - Foreign contract: three tests failed on `main` since PR #145 because the Story 22.6 review line `Q-145-2` used claim type `auditability`. Found independently during Story 21.4 validation and corrected on `main` by `9dc009b` (see the correction entry above); this branch made the same one-token fix and the merge kept `main`'s. The parser was not loosened.
+  - Open: ADR-022, FDD-022 and the Epic 22 file name `src/agent_learning/weight_compiler.py`; the module is `src/agent_learning_ext/weight_compiler.py`. Correcting an approved document needs a Stage 16 `correction_note`, not yet run.
+  - Interpretations $I_1$ to $I_4$ in the test docstring (fork purity, storage decoupling, None-safety, empty-collection base case) are recorded there.
+- **Review (Step 8):** Amazon Q reviewed PR #147 (round 1, head `392fa4d`: two reviews and 10 inline comments, several repeating the same point). Triaged against the code and data:
+  - `Q-147-1 | logic error | verified: partial | decision: accepted | Loader took the first existing label source, not the first usable one; latent only, none of the 9 skipped frames has a usable adjudication or decision file | fix: ac7513f`
+  - `Q-147-2 | logic error | verified: partial | decision: accepted | Missing continue did not run the other branches (elif chain) but counted one failure twice in the skip list; reasons are now merged once | fix: ac7513f`
+  - `Q-147-3 | logic error | verified: partial | decision: accepted | Module-level skip list shared across tests; skips are now returned by the loader (the xdist race claim is wrong, workers do not share memory) | fix: ac7513f`
+  - `Q-147-4 | crash risk | verified: partial | decision: accepted | Snapshot helper read the actions file unguarded; it now fails with a message naming the file and rejects an empty action list | fix: ac7513f`
+  - `Q-147-5 | test gap | verified: yes | decision: accepted | The empty-collection assertion iterated an empty literal and never touched the loader; replaced by tests on the real loader and checked with a mutant | fix: ac7513f`
+  - `Q-147-6 | logic error | verified: no | decision: declined | The comment's own reasoning concludes the digest check passes; amendment files are in both snapshots, so nothing is defective | fix: none`
+  - `Q-147-7 | test gap | verified: partial | decision: declined | AC_3 says the test imports nothing from storage directly; a relative storage import in a flat tests module is not plausible and a transitive check is out of scope | fix: none`
+  - Correction to the Notes above: the first version of the test did not cover the amended AC_0 empty-collection wording (Q-147-5); it does from `ac7513f`.
+  - Round 1 confirmation (`/q confirm`, head `4e724fa` and again `7e22def`): Q marked Q-147-1 to Q-147-5 resolved, Q-147-6 and Q-147-7 declined with reasons accepted, and reported no unresolved blocking finding. `scripts/pr_gate.py 147` still HALTED (margin -0.072) because it scores the latest comment containing a review keyword, which was the round-1 review of `392fa4d`; the confirmation comments carry none of those keywords (IMP-033). It was not overridden; a fresh `/q review` was requested instead.
+  - Round 2 (`/q review`, head `7e22def`):
+  - `Q-147-8 | logic error | verified: yes | decision: accepted | The storage-import check matched node.module only, so from agent_learning import storage passed undetected; replaced by a detector that also reads the imported names, with tests for nine import forms (two RED under a mutant) | fix: 04c8b7a`
+  - Round 3 (`/q review`, head `3744d07`): the third round, so the loop asked the human (Menno) before continuing; Menno asked for both findings to be taken.
+  - `Q-147-9 | logic error | verified: partial | decision: accepted | _resolve_label returned None for labeled_at on an episode without created_at; harmless today because the only caller applied the default, now applied inside the resolver and tested | fix: ea86428`
+  - `Q-147-10 | test gap | verified: yes | decision: accepted | test_ac2 could pass without calling propose() if every task were filtered out; 4 tasks reach it today (approve-adr, approve-brd, approve-fdd, approve-user-stories), a tested_tasks counter now asserts at least one does and a mutant that filters all tasks fails it | fix: ea86428`
+  - Round 4 (`/q review`, head `b2adc31`, CI green, merge state CLEAN): one finding.
+  - `Q-147-11 | crash risk | verified: yes | decision: accepted with modification | ast.parse in the storage-import detector raised a bare SyntaxError; it now raises an AssertionError naming the problem, not the suggested return False, which would report no storage import for a file nobody could inspect | fix: e97975a`
+  - Round 5 (`/q review`, head `8c219cb`): Q recommended initializing `labeled_at` before the `try`.
+  - `Q-147-12 | crash risk | verified: no | decision: accepted | An uncaught exception propagates and cannot reach the later return, so the alleged unbound-local path is unreachable; initialized labeled_at per source anyway as defensive clarity, with no behavior change | fix: a5aeeb1`
+  - Round 6 (`/q review`, head `5aaeb5d`): one assertion was over-specified.
+  - `Q-147-13 | logic error | verified: yes | decision: accepted | AC_2 requires NoImprovement and the documented accuracy/JSON round-trip, not diagnostic wording or precision; a temporary precision mutation reproduced a false failure while the result type and accuracy remained correct; removed the hard-coded reason substring and documented the contract boundary | fix: 74e3518`
+  - Round 7 (`/q review`, head `a370599`): two findings.
+  - `Q-147-14 | logic error | verified: no | decision: accepted with modification | Caught load errors continue and uncaught errors propagate, so the alleged return-with-None path is unreachable; initialize labeled_at to the default regardless, making the fallback explicit | fix: 8ea5093`
+  - `Q-147-15 | crash risk | verified: yes | decision: accepted | AST source inspection now resolves cached bytecode paths to .py with importlib.util.source_from_cache and asserts the source exists; regression test observed RED before the helper was added | fix: 8ea5093`
+  - Round 8 (`/q review`, head `20c3c5f`): three findings; all accepted at Menno Drescher's direction on 2026-11-09.
+  - `Q-147-16 | test gap | verified: partial | decision: accepted | The bytecode-path test used a fabricated cache path; it now compiles a real source file and resolves the generated bytecode path | fix: ff97c91`
+  - `Q-147-17 | logic error | verified: partial | decision: accepted | Read errors already included the failing path but not its role; action-file and decision-frame failures now have distinct audit reasons | fix: ff97c91`
+  - `Q-147-18 | test gap | verified: yes | decision: accepted | The detector missed literal __import__ and importlib.import_module calls; it now covers those forms and aliases, with computed module names documented as out of static scope | fix: ff97c91`
+  - Post-Q validation: `tests/test_weight_real_data.py` 26 passed; Ruff passed; the available suite with `--ignore=tests/test_spark.py --ignore=tests/pmbok` passed 2351 tests with 1 skipped. This is not the entire suite.
 ## Story 21.5 — Human Decisions and the Promotion Seed
 - **Commit:** `e1047b5`
 - **Date:** 2026-11-09

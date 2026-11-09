@@ -407,6 +407,20 @@
       "approval_episode": "29259b94",
       "amendments": []
     },
+    "docs/project-docs/Business-Requirements/BRD-023-active-dueling-bandit-ranking-engine.md": {
+      "family": "brd",
+      "status": "approved",
+      "sha256": "bc9a09721d05022941f63ab678a608beab9d5487d6480458b2751599348d8a19",
+      "approval_episode": "28dada1f",
+      "amendments": []
+    },
+    "docs/project-docs/Business-Requirements/BRD-024-learning-methodology-selection-chain.md": {
+      "family": "brd",
+      "status": "approved",
+      "sha256": "72c2f6ca4320a13a11edd194c8c65fbaee9c59f8d7bcab07a6fe9e07a589509b",
+      "approval_episode": "994c2be9",
+      "amendments": []
+    },
     "docs/project-docs/Business-Requirements/BRD-025-scope-management-plan-standard-and-baseline-contract.md": {
       "family": "brd",
       "status": "approved",
@@ -644,6 +658,20 @@
       "approval_episode": "c8b4a59f",
       "amendments": []
     },
+    "docs/project-docs/Functional-Design/FDD-023-active-dueling-bandit-ranking-engine.md": {
+      "family": "fdd",
+      "status": "approved",
+      "sha256": "90cb64b8d25889f45e8ccad6b3e4e968328c54d980ae1a4777263c23570a7f90",
+      "approval_episode": "a7518909",
+      "amendments": []
+    },
+    "docs/project-docs/Functional-Design/FDD-024-learning-methodology-selection-chain.md": {
+      "family": "fdd",
+      "status": "approved",
+      "sha256": "0c473d71efe73c1c88bcdbc16352cf4c3dc9bbc45848ba955017c54f253ba3b0",
+      "approval_episode": "f8eec8ca",
+      "amendments": []
+    },
     "docs/project-docs/Functional-Design/FDD-025-scope-management-plan-standard-and-baseline-contract.md": {
       "family": "fdd",
       "status": "approved",
@@ -843,8 +871,28 @@
     "docs/user-stories/epic-22-scored-search-decision-configuration-compilation.md": {
       "family": "story",
       "status": "approved",
-      "sha256": "f1af1655516376c796871c3bae29ea6542948eb02d267f7dd900bc15d0e7bcd8",
+      "sha256": "774bbf6dbb6445adff3b112941d5146e57dd3ee837f1d00194dfc18c32f5ab69",
       "approval_episode": "cc1804ea",
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "59440d8c",
+          "stage": 16
+        }
+      ]
+    },
+    "docs/user-stories/epic-23-active-dueling-bandit-ranking-engine.md": {
+      "family": "story",
+      "status": "approved",
+      "sha256": "83b91bf1edd3be9a1c64c8626aa404e6c222382a1808d7c27dd9191169cfa81b",
+      "approval_episode": "774761c3",
+      "amendments": []
+    },
+    "docs/user-stories/epic-24-learning-methodology-selection-chain.md": {
+      "family": "story",
+      "status": "approved",
+      "sha256": "6302dc717311e95fd7fffc2437653fb1f26c4a496c3ba9ea750cb8d85cf582a9",
+      "approval_episode": "fa64cdb6",
       "amendments": []
     },
     "docs/user-stories/epic-25-scope-management-plan-standard-and-baseline-contract.md": {

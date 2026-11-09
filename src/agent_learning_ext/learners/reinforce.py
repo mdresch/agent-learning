@@ -90,7 +90,7 @@ class ReinforceLearner(Learner):
             else:
                 routed_auth = ""
 
-            if routed_auth in ("full", "decisionauthority.full"):
+            if routed_auth == "full":
                 full_authority_excluded += 1
                 continue
 

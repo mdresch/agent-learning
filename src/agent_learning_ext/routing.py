@@ -784,7 +784,10 @@ def policy_for_route(
         raise ValueError(f"task '{task_id}' is pinned to FULL and cannot be routed to LOW")
 
     # Deep copy the snapshot via json serialization to guarantee complete data isolation
-    snap_dict = json.loads(json.dumps(snapshot.to_dict()))
+    try:
+        snap_dict = json.loads(json.dumps(snapshot.to_dict(), default=str))
+    except (TypeError, ValueError) as exc:
+        raise TypeError(f"snapshot contains non-serializable data: {exc}") from exc
     meta = snap_dict.get("metadata") or {}
     meta["decision_authority"] = norm_auth.value
     snap_dict["metadata"] = meta

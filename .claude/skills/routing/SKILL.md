@@ -28,7 +28,7 @@ Routes a request to `LOW` or `FULL` decision authority from the entropy and marg
 6. **Agreement counting (21.4):** an episode counts only if it is in the bucket, full-routed, has `shadow_low_action`, a `feedback_status` of `accepted`/`rejected`, a **final action** (`correct_action_id`, else `action_id`; an episode with neither is dropped, never counted under a placeholder), and `created_at` inside `[now - max_evidence_age_days, now]`.
 7. **Fail closed (21.4, BRU-021-11):** `agreement` with `max_evidence_age_days` of `None` (or non-positive / non-finite) raises `ValueError`.
 8. **Gate (21.4, K7):** `propose_bucket` reports `wilson_lower` as exactly `wilson_lower_bound(k, n)` and compares that **unrounded** value with the standard-tier `min_correctness_lower_bound`; rounding before the comparison would admit a bound just below the gate. `n` below `min_outcomes` is never eligible. The 20-outcome floor is not binding: 35 of 35 (0.9011) is the first perfect run to pass 0.90.
-9. **Base rate beside, not a gate (ADR-021 §4.4):** `base_rate`, `modal_action` and `mean_shadow_entropy_bits` are reported next to the bound so an approver can see whether agreement exceeds chance.
+9. **Base rate beside, not a gate (ADR-021 §4.4):** `base_rate`, `modal_action` and `mean_shadow_entropy_bits` are reported next to the bound so an approver can see whether agreement exceeds chance. The mean entropy is taken only over counted episodes that carry a finite `shadow_entropy_bits` (an episode without one still counts in `n` and `k`); with none it is 0.0 (Q-146-1).
 
 ## Call Sites
 - `agent_learning_ext.__init__` lazily exports `route`, `shadow_record`, `previous_route`, `agreement`, `propose_bucket`.

@@ -545,6 +545,7 @@ def agreement(
     k = 0
     final_action_counts: dict[str, int] = {}
     entropy_sum = 0.0
+    entropy_n = 0  # episodes carrying a finite shadow_entropy_bits (Q-146-1)
 
     for ep in episodes:
         meta = getattr(ep, "metadata", None)
@@ -606,12 +607,13 @@ def agreement(
         ent = meta.get("shadow_entropy_bits")
         if isinstance(ent, (int, float)) and not isinstance(ent, bool) and math.isfinite(ent):
             entropy_sum += float(ent)
+            entropy_n += 1
 
     if n > 0:
         # Determine modal action (sort ties deterministically)
         modal_action = max(sorted(final_action_counts.keys()), key=lambda a: final_action_counts[a])
         base_rate = round(final_action_counts[modal_action] / n, 9)
-        mean_shadow_entropy_bits = round(entropy_sum / n, 9)
+        mean_shadow_entropy_bits = round(entropy_sum / entropy_n, 9) if entropy_n > 0 else 0.0
     else:
         modal_action = None
         base_rate = 0.0

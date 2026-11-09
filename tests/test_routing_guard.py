@@ -81,7 +81,7 @@ def _make_episode(
     bucket: str | None = "ctx-17",
     route: str | DecisionAuthority | None = "full",
     shadow_action: str | None = "approve_plan",
-    shadow_entropy: float = 1.2955,
+    shadow_entropy: float | None = 1.2955,
     action_id: str | None = "approve_plan",
     correct_action_id: str | None = None,
     feedback_status: str | None = "accepted",
@@ -97,7 +97,8 @@ def _make_episode(
         meta["routed_authority"] = str(route).lower() if isinstance(route, (str, DecisionAuthority)) else route
     if shadow_action is not None:
         meta["shadow_low_action"] = shadow_action
-        meta["shadow_entropy_bits"] = shadow_entropy
+        if shadow_entropy is not None:
+            meta["shadow_entropy_bits"] = shadow_entropy
     if feedback_status is not None:
         meta["feedback_status"] = feedback_status
     if correct_action_id is not None:
@@ -209,6 +210,22 @@ def test_ac2_agreement_counts_only_qualifying_episodes() -> None:
     assert res["modal_action"] == "approve"
     assert res["base_rate"] == pytest.approx(2 / 3, abs=1e-9)
     assert res["mean_shadow_entropy_bits"] == pytest.approx(1.2955, abs=1e-9)
+
+
+def test_ac5_mean_entropy_only_over_episodes_carrying_it() -> None:
+    """Q-146-1/2: an episode without a finite shadow_entropy_bits still counts in n and k but is
+    left out of the mean, so it cannot pull mean_shadow_entropy_bits towards 0."""
+    now = datetime(2026, 11, 10, 0, 0, tzinfo=timezone.utc)
+    episodes = [
+        _make_episode("ep1", shadow_action="approve", action_id="approve", shadow_entropy=1.0, created_at="2026-11-08T00:00:00Z"),
+        _make_episode("ep2", shadow_action="approve", action_id="approve", shadow_entropy=0.5, created_at="2026-11-08T00:00:00Z"),
+        _make_episode("ep3", shadow_action="approve", action_id="approve", shadow_entropy=None, created_at="2026-11-08T00:00:00Z"),
+        _make_episode("ep4", shadow_action="approve", action_id="approve", shadow_entropy=float("nan"), created_at="2026-11-08T00:00:00Z"),
+    ]
+    res = agreement(episodes, "ctx-17", now=now, max_evidence_age_days=10)
+    assert res["n"] == 4
+    assert res["k"] == 4
+    assert res["mean_shadow_entropy_bits"] == pytest.approx(0.75, abs=1e-9)
 
 
 def test_ac2_agreement_drops_episode_without_final_action() -> None:

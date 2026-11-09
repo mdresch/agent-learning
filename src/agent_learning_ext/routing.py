@@ -792,7 +792,10 @@ def policy_for_route(
     meta["decision_authority"] = norm_auth.value
     snap_dict["metadata"] = meta
 
-    routed_snapshot = PolicySnapshot.from_dict(snap_dict)
+    try:
+        routed_snapshot = PolicySnapshot.from_dict(snap_dict)
+    except (KeyError, TypeError, ValueError) as exc:
+        raise ValueError(f"snapshot cannot be rebuilt for routing: {exc}") from exc
     return TaskPolicy(routed_snapshot)
 
 

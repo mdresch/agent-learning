@@ -321,12 +321,34 @@ def test_story382_g3_empty_episode_list_is_a_clean_no_op():
 
 
 class _VectorGuard(dict):
-    """Episode metadata that fails the test if anything reads ``feature_vector``."""
+    """Episode metadata that fails the test if anything reads ``feature_vector``.
 
-    def _blocked(self, *args, **kwargs):
-        raise AssertionError("the scalar learner must not read feature_vector")
+    Other keys stay readable: the scalar learner reads ``routed_authority`` (Story 21.6, ADR-021 4.3).
+    """
 
-    __getitem__ = get = pop = setdefault = __contains__ = _blocked
+    def _check(self, key):
+        if key == "feature_vector":
+            raise AssertionError("the scalar learner must not read feature_vector")
+
+    def __getitem__(self, key):
+        self._check(key)
+        return super().__getitem__(key)
+
+    def get(self, key, default=None):
+        self._check(key)
+        return super().get(key, default)
+
+    def pop(self, key, *args):
+        self._check(key)
+        return super().pop(key, *args)
+
+    def setdefault(self, key, default=None):
+        self._check(key)
+        return super().setdefault(key, default)
+
+    def __contains__(self, key):
+        self._check(key)
+        return super().__contains__(key)
 
 
 def _scalar_policy() -> SoftmaxPolicy:

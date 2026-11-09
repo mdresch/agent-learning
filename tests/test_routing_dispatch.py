@@ -98,8 +98,12 @@ def test_ac0_policy_for_route_dispatch() -> None:
     assert isinstance(policy_full, TaskPolicy)
     assert policy_full.authority == DecisionAuthority.FULL
 
-    # Mutate nested metadata on the returned policy to test deepcopy isolation
-    policy_full._snapshot.metadata["nested_config"]["sub_key"] = "mutated_val"
+    # Mutating the stored snapshot afterwards must not reach the routed policies (deep-copy isolation),
+    # checked through the public snapshot() accessor only.
+    snap.metadata["nested_config"]["sub_key"] = "mutated_after_routing"
+    assert policy_full.snapshot().metadata["nested_config"]["sub_key"] == "original_val"
+    assert policy_low.snapshot().metadata["nested_config"]["sub_key"] == "original_val"
+    snap.metadata["nested_config"]["sub_key"] = "original_val"
 
     # Route using string values
     policy_low_str = policy_for_route(snap, "low")
@@ -218,8 +222,8 @@ def test_ac3_full_routed_episodes_skipped_in_reinforce() -> None:
         )
         for i in range(5)
     ]
-    # Add 1 episode with missing action_id and 1 unlogged untagged episode
-    # Neither should increment full_authority_excluded
+    # Add 1 episode with a missing action_id (not counted) and 1 untagged episode with no log-probability.
+    # The latter is skipped and counted as before Story 21.6 (AC_4, FDD-021 7.2, Stories 1.1 and 15.5 to 17.5).
     episodes.append(
         Episode(
             id="no-action-id",
@@ -251,8 +255,8 @@ def test_ac3_full_routed_episodes_skipped_in_reinforce() -> None:
 
     # episodes_used must be 0
     assert result.episodes_used == 0
-    # extra must record strictly full_authority_excluded count (the 5 full-routed ones)
-    assert result.extra.get("full_authority_excluded") == 5
+    # extra counts the 5 full-routed episodes plus the 1 untagged episode with no log-probability (6)
+    assert result.extra.get("full_authority_excluded") == 6
     # policy probabilities/logits must be completely unchanged (Interpretation I5)
     updated_probs = policy.probabilities()
     for idx in range(len(actions)):
@@ -327,7 +331,8 @@ def test_ac4_untagged_episodes_train_normally() -> None:
     # Both must use exactly 3 episodes
     assert res_mixed.episodes_used == 3
     assert res_clean.episodes_used == 3
-    assert res_mixed.extra.get("full_authority_excluded") == 2  # exactly the 2 full-routed episodes
+    # the 2 full-routed episodes plus the 1 untagged episode with no log-probability, counted as before
+    assert res_mixed.extra.get("full_authority_excluded") == 3
 
     # Resulting probabilities must match identically (Interpretation I5)
     probs_mixed = policy_mixed.probabilities()
@@ -441,3 +446,26 @@ def test_ac5_learning_runner_run_offline_batch_mixed_set() -> None:
     # Exactly 4 episodes used (2 low + 2 untagged)
     assert run.metrics.get("episodes_used") == 4
     assert run.metrics.get("extra", {}).get("full_authority_excluded") == 2
+
+def test_review_snapshot_that_cannot_be_rebuilt_raises_value_error(monkeypatch) -> None:
+    """Q-157 review: a snapshot that fails PolicySnapshot.from_dict is reported as a ValueError, not raised raw."""
+    from agent_learning_ext import routing as routing_module
+
+    def _boom(_data):
+        raise KeyError("id")
+
+    snap = _sample_snapshot(task_id="unpinned-task", authority="low")
+    monkeypatch.setattr(routing_module.PolicySnapshot, "from_dict", staticmethod(_boom))
+    with pytest.raises(ValueError, match="cannot be rebuilt"):
+        policy_for_route(snap, DecisionAuthority.FULL)
+
+
+def test_review_episode_without_logprob_is_still_counted_as_excluded() -> None:
+    """Story 21.6 AC_4 ("skipped as before") and FDD-021 7.2: the pre-21.6 count of an episode with no
+    log-probability is kept, so the three pre-existing full-authority exclusion contracts stay valid."""
+    policy = SoftmaxPolicy(_sample_snapshot(actions=["a", "b"]))
+    unlogged = Episode(action_id="a", action_logprob=None, metadata={})
+    result = ReinforceLearner().update(policy, [unlogged], [Reward(episode_id=unlogged.id, source=RewardSource.AGGREGATE, value=1.0)])
+    assert result.episodes_used == 0
+    assert result.extra.get("full_authority_excluded") == 1
+

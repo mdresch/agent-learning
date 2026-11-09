@@ -99,6 +99,10 @@ class ReinforceLearner(Learner):
                 or episode.action_id not in action_index
                 or episode.action_logprob is None
             ):
+                # Unchanged from Story 1.1 (ADR-001 4.5): an episode with no log-probability is a
+                # full-authority decision, skipped and counted. Story 21.6 adds only the routed-full check above.
+                if episode.action_logprob is None and episode.action_id is not None:
+                    full_authority_excluded += 1
                 continue
             reward = aggregate_rewards.get(episode.id)
             if reward is None:

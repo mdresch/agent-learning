@@ -756,9 +756,15 @@
     "docs/project-docs/Functional-Design/FDD-022-scored-search-decision-configuration-compilation.md": {
       "family": "fdd",
       "status": "approved",
-      "sha256": "ae9a84926e7a73164d14d7041a2723e006c9f9543eb967e67f2189ad5e6953ac",
+      "sha256": "c989e6cb4150d4bcdc6f81dbcb6b181cb4d2a27b871da7383ff2715c9c7d9761",
       "approval_episode": "c8b4a59f",
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "df4e632a",
+          "stage": 16
+        }
+      ]
     },
     "docs/project-docs/Functional-Design/FDD-023-active-dueling-bandit-ranking-engine.md": {
       "family": "fdd",

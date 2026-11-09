@@ -921,10 +921,16 @@
     },
     "docs/user-stories/epic-14-critique-to-evidence-ingestion.md": {
       "family": "story",
-      "status": "approved",
-      "sha256": "445689d0a72bf9a57e59ca000af1449fdea78e8f2655ef20bdc706f5318970c4",
+      "status": "completed",
+      "sha256": "724fd8a83154a244fa2f70bcb7693ab07cd7fe491d1789404accbdef3f0abb15",
       "approval_episode": "bd32d840",
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "5916f150",
+          "stage": 16
+        }
+      ]
     },
     "docs/user-stories/epic-15-bayesian-bandit-posterior-sampling.md": {
       "family": "story",

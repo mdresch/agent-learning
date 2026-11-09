@@ -78,3 +78,4 @@ This skill governs Scored-Search Decision Configuration Compilation (`src/agent_
     - The check writes nothing (policy-shape files unchanged) and the test imports nothing from `agent_learning.storage`. Empty collections return empty results without raising.
     - `_resolve_label` initializes `labeled_at` for each candidate source before parsing, then replaces it for recognized source types. This is defensive clarity for the value returned on successful paths; an exception not caught by `_LOAD_ERRORS` still propagates and does not fall through to the return.
     - Contract tests assert the `NoImprovement` type and specified accuracy fields, not free-form `reason` wording or precision unless the acceptance criteria or FDD make that format contractual.
+    - The storage-import source check resolves cached bytecode paths with `importlib.util.source_from_cache` and asserts it has a readable `.py` source before parsing.

@@ -35,6 +35,7 @@ from __future__ import annotations
 
 import ast
 import hashlib
+import importlib.util
 import json
 from collections.abc import Callable
 from pathlib import Path
@@ -79,7 +80,7 @@ def _resolve_label(stem: str) -> tuple[str | None, str | None, str | None, list[
     for kind, path in sources:
         if not path.is_file():
             continue
-        labeled_at: str | None = None
+        labeled_at: str | None = _DEFAULT_LABELED_AT
         try:
             data = json.loads(path.read_text(encoding="utf-8"))
             task_id = data.get("task_id")
@@ -135,6 +136,12 @@ def _load_with_skips() -> tuple[dict[str, list[LabeledFrame]], list[str]]:
 def _load_real_labeled_frames() -> dict[str, list[LabeledFrame]]:
     """Load loadable real decision frames grouped by task id with their labels."""
     return _load_with_skips()[0]
+
+
+def _source_path_for_module(module_file: Path) -> Path:
+    if module_file.suffix == ".pyc":
+        module_file = Path(importlib.util.source_from_cache(str(module_file)))
+    return module_file.resolve()
 
 
 def _imports_storage(source: str) -> bool:
@@ -303,7 +310,10 @@ def test_ac3_committed_files_untouched_and_storage_decoupled() -> None:
     after the run; test imports nothing from agent_learning.storage directly.
     """
     # 1. Verify this test module has zero imports from agent_learning.storage
-    test_file = Path(__file__)
+    test_file = _source_path_for_module(Path(__file__))
+    assert test_file.is_file() and test_file.suffix == ".py", (
+        f"test source file not found (resolved: {test_file})"
+    )
     assert not _imports_storage(test_file.read_text(encoding="utf-8")), "this module imports agent_learning.storage"
 
     # 2. Record hashes of policy-shapes before and after
@@ -424,3 +434,10 @@ def test_ac3_storage_import_detector_fails_loudly_on_unparseable_source() -> Non
     (returning False would report 'no storage import' for a file nobody could inspect)."""
     with pytest.raises(AssertionError, match="does not parse"):
         _imports_storage("def (")
+
+
+def test_ac3_source_file_resolution_handles_bytecode_path(tmp_path: Path) -> None:
+    source_path = tmp_path / "test_module.py"
+    source_path.touch()
+    bytecode_path = tmp_path / "__pycache__" / "test_module.cpython-311.pyc"
+    assert _source_path_for_module(bytecode_path) == source_path.resolve()

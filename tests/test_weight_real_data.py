@@ -136,6 +136,20 @@ def _load_real_labeled_frames() -> dict[str, list[LabeledFrame]]:
     return _load_with_skips()[0]
 
 
+def _imports_storage(source: str) -> bool:
+    """True if the source imports agent_learning.storage in any form, including `from agent_learning import storage`."""
+    for node in ast.walk(ast.parse(source)):
+        if isinstance(node, ast.Import) and any("agent_learning.storage" in alias.name for alias in node.names):
+            return True
+        if isinstance(node, ast.ImportFrom):
+            module = node.module or ""
+            if "agent_learning.storage" in module:
+                return True
+            if module == "agent_learning" and any(alias.name == "storage" for alias in node.names):
+                return True
+    return False
+
+
 def _get_snapshot_for_task(task_id: str) -> PolicySnapshot:
     """Construct a PolicySnapshot for the given task from its policy shape actions."""
     actions_file = SHAPES_DIR / f"{task_id}.actions.json"
@@ -282,14 +296,7 @@ def test_ac3_committed_files_untouched_and_storage_decoupled() -> None:
     """
     # 1. Verify this test module has zero imports from agent_learning.storage
     test_file = Path(__file__)
-    tree = ast.parse(test_file.read_text(encoding="utf-8"), filename=str(test_file))
-
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Import):
-            for alias in node.names:
-                assert "agent_learning.storage" not in alias.name
-        elif isinstance(node, ast.ImportFrom) and node.module:
-            assert "agent_learning.storage" not in node.module
+    assert not _imports_storage(test_file.read_text(encoding="utf-8")), "this module imports agent_learning.storage"
 
     # 2. Record hashes of policy-shapes before and after
     def compute_shapes_digest() -> dict[str, str]:
@@ -365,3 +372,23 @@ def test_ac0_label_falls_back_to_next_usable_source(tmp_path: Path, monkeypatch:
     task_id, label, _, errors = _resolve_label("f2")
     assert (task_id, label) == (None, None)
     assert len(errors) == 1 and errors[0].startswith("f2-episode.json")
+
+
+@pytest.mark.parametrize(
+    ("source", "expected"),
+    [
+        ("import agent_learning.storage", True),
+        ("import agent_learning.storage as s", True),
+        ("from agent_learning.storage import LocalFileStore", True),
+        ("from agent_learning.storage.local import LocalFileStore", True),
+        ("from agent_learning import storage", True),
+        ("from agent_learning import decision, storage as s", True),
+        ("from agent_learning import decision", False),
+        ("from agent_learning.decision import DecisionFrame", False),
+        ("import json", False),
+    ],
+)
+def test_ac3_storage_import_detector_sees_every_import_form(source: str, expected: bool) -> None:
+    """AC_3 (Nothing Written): the detector behind the storage-decoupling check catches the package
+    import form `from agent_learning import storage` as well as dotted module imports."""
+    assert _imports_storage(source) is expected

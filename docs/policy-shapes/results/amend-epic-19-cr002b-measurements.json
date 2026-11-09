@@ -1,12 +1,12 @@
 {
-  "document": "docs/adr/ADR-017-scheduled-epsilon-greedy-policy.md",
-  "tag": "cr002",
-  "base_commit": "96129cd",
-  "candidate_sha256": "81fdb8bf5a4cae47c54a7d8d8ec78399f2cc9cd3aa8470ebaea19d81cd285bac",
+  "document": "docs/user-stories/epic-19-hierarchical-meta-prior-compilation.md",
+  "tag": "cr002b",
+  "base_commit": "bfe18e4",
+  "candidate_sha256": "5781bcfc5938347fdbb18adb7debe4c3c32f2fd71d855a08cd8e4b633ef51b2b",
   "features": {
     "lines": 2,
-    "terms_removed": 5,
-    "terms_kept": 4,
+    "terms_removed": 17,
+    "terms_kept": 17,
     "goal_preserved": true,
     "requirement_inverted": false,
     "normative_touched": false,

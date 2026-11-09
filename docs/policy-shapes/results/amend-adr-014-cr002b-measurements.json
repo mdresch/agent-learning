@@ -1,12 +1,12 @@
 {
-  "document": "docs/user-stories/epic-16-deterministic-ucb-decision-policy.md",
-  "tag": "cr002",
-  "base_commit": "96129cd",
-  "candidate_sha256": "989f2c13789f1aa9f8ba648572aec109901cde99ec067cbc9c02b5455d994430",
+  "document": "docs/adr/ADR-014-critique-to-evidence-ingestion.md",
+  "tag": "cr002b",
+  "base_commit": "bfe18e4",
+  "candidate_sha256": "9bd32195725231cdf346acaa0db3c4f406d4d65919ec31c86211c11e7aaed911",
   "features": {
     "lines": 2,
-    "terms_removed": 11,
-    "terms_kept": 8,
+    "terms_removed": 2,
+    "terms_kept": 1,
     "goal_preserved": false,
     "requirement_inverted": false,
     "normative_touched": false,

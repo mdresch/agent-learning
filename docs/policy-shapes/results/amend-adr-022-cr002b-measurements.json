@@ -1,18 +1,18 @@
 {
-  "document": "docs/adr/ADR-016-deterministic-ucb-decision-policy.md",
-  "tag": "cr002",
-  "base_commit": "96129cd",
-  "candidate_sha256": "8ac4f86c63d21649ab02c9dc477b28f4f89427673cb1b90d972bd519d8b53e24",
+  "document": "docs/adr/ADR-022-scored-search-decision-compilation.md",
+  "tag": "cr002b",
+  "base_commit": "bfe18e4",
+  "candidate_sha256": "18b3a15693d16740f70859d7060750bf2d07f1c16a2238b290033c0aef34d0c8",
   "features": {
     "lines": 2,
-    "terms_removed": 3,
-    "terms_kept": 2,
+    "terms_removed": 4,
+    "terms_kept": 3,
     "goal_preserved": false,
     "requirement_inverted": false,
     "normative_touched": false,
     "status_line_changed": false,
     "downstream_refs": 0,
-    "change_ratio": 0.02
+    "change_ratio": 0.05
   },
   "observed": [
     0.05,

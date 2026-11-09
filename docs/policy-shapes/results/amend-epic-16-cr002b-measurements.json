@@ -1,18 +1,18 @@
 {
-  "document": "docs/adr/ADR-018-pairwise-preference-optimization.md",
-  "tag": "cr002",
-  "base_commit": "96129cd",
-  "candidate_sha256": "43693056842ddaf84451ce292b77058853642916c4b9f46fd0322bf0226591f6",
+  "document": "docs/user-stories/epic-16-deterministic-ucb-decision-policy.md",
+  "tag": "cr002b",
+  "base_commit": "bfe18e4",
+  "candidate_sha256": "989f2c13789f1aa9f8ba648572aec109901cde99ec067cbc9c02b5455d994430",
   "features": {
     "lines": 2,
-    "terms_removed": 3,
-    "terms_kept": 2,
+    "terms_removed": 11,
+    "terms_kept": 8,
     "goal_preserved": false,
     "requirement_inverted": false,
     "normative_touched": false,
     "status_line_changed": false,
     "downstream_refs": 0,
-    "change_ratio": 0.02
+    "change_ratio": 0.01
   },
   "observed": [
     0.05,

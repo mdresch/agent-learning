@@ -1,8 +1,8 @@
 {
-  "document": "docs/project-docs/Functional-Design/FDD-014-critique-to-evidence-ingestion.md",
-  "tag": "cr002",
-  "base_commit": "96129cd",
-  "candidate_sha256": "1cb9c553f728cc3f9045e39ed9d2d38a6dac6932b1e89f3f493a52cf669c18ba",
+  "document": "docs/project-docs/Functional-Design/FDD-019-hierarchical-meta-prior-compilation.md",
+  "tag": "cr002b",
+  "base_commit": "bfe18e4",
+  "candidate_sha256": "11c8549391794c2e66c055bb6aa86822029f30f48dd8231fe4f5c412f5f49b07",
   "features": {
     "lines": 2,
     "terms_removed": 7,

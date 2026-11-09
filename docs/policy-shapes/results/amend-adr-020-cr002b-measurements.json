@@ -1,18 +1,18 @@
 {
-  "document": "docs/user-stories/epic-21-contextual-authority-ensemble-routing.md",
-  "tag": "cr002",
-  "base_commit": "96129cd",
-  "candidate_sha256": "5ceba518e52bca3c0af32e5a69bbab542201136c9903d686dc834944d3a1a1f4",
+  "document": "docs/adr/ADR-020-explicit-policy-prior-warm-starting.md",
+  "tag": "cr002b",
+  "base_commit": "bfe18e4",
+  "candidate_sha256": "ae7134062ff95e6465648adb5b0c2581de0c4b72f114e84db453cd0eae6c4eed",
   "features": {
     "lines": 2,
-    "terms_removed": 12,
-    "terms_kept": 11,
+    "terms_removed": 3,
+    "terms_kept": 3,
     "goal_preserved": true,
     "requirement_inverted": false,
     "normative_touched": false,
     "status_line_changed": false,
     "downstream_refs": 0,
-    "change_ratio": 0.0
+    "change_ratio": 0.09
   },
   "observed": [
     0.05,

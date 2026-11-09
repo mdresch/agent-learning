@@ -68,6 +68,6 @@ This skill governs Scored-Search Decision Configuration Compilation (`src/agent_
 13. **Human-Adjudicated Adoption (AC_0, AC_1, AC_2, AC_3, AC_4, FDD L6):**
     - `docs/policy-shapes/approve-compiled-weights.actions.json` defines `approve_compiled_weights`, `reject_compiled_weights`, `request_revision_before_decision`.
     - Profile declares `requires_human_approval: true`, ensuring router pins task to FULL.
-    - `task-policy-weights-adopt` enforces an adjudicated and accepted episode belonging to `approve-compiled-weights`.
+    - `task-policy-weights-adopt` enforces an adjudicated and accepted episode belonging to `approve-compiled-weights`, through `cli._approval_episode_error`, the helper it shares with `task-policy-routing-set` (Story 21.5); keep the two commands on the one check.
     - Stores new policy version with `criteria_weights` and `compiled_weights_provenance` (proposal hash, seed, accuracies, split sizes, label time range, approval episode id, adoption time).
     - Store gains no new record type; earlier policy versions remain unchanged.

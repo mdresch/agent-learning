@@ -2952,6 +2952,43 @@ This log records completed user stories in accordance with the SIDPA `implement-
 
 ---
 
+## Story 21.5 — Human Decisions and the Promotion Seed
+- **Commit:** `e1047b5`
+- **Date:** 2026-11-09
+- **Branch:** `feat/story-21.5`
+- **Source ADR / BRD / FDD:** ADR-021 (§4.1 threshold ownership, §4.4 promotion seed and evidence expiry, Invariant 9), BRD-021 (BRU-021-05, BRU-021-11 to BRU-021-14), FDD-021 (§1 items 2 and 5, §2.1, §2.4, §3 items 8 and 10, §4 K1, K4, K5, §5)
+- **Pre-Flight Spec Gate:** PASSED, Proceed utility 0.7154, margin +0.1941 (>= +0.05), episode `spec-21_5-ae035296`. Its I1 to I3 are in the contract docstring; I4 to I10 are this story's own interpretations (LL-011).
+- **Intent:** thresholds, the evidence age and bucket approvals change only through `task-policy-routing-set` citing an adjudicated, accepted approval episode; an approved bucket is seeded with the K5 prior and its provenance; the seed never counts as evidence. Out of scope: wiring `route`/`approved_for_low` into `task-policy-decide`, using the seed prior inside the router (Story 21.6 dispatch and later), calibrating thresholds.
+- **Interpretations recorded in the contract:**
+  - I4: one approval-episode helper, `cli._approval_episode_error`, extracted from `task-policy-weights-adopt` (same messages and lookup order) and shared by both commands; `approve-routing-thresholds` for thresholds and age, `approve-routing-bucket` for a bucket.
+  - I5: "the router receives `approved_for_low` false" is `routing.approved_for_low(snapshot, bucket)` (routed, approved, not `revalidate`); "never routed" is `routing.is_routed(snapshot)` (false without `routing_state`). Neither is wired into `task-policy-decide`.
+  - I6: `--set-thresholds` marks only buckets with `approved` true; unknown JSON keys are an invalid config.
+  - I7: `--approve-bucket` reads at most 500 of the task's episodes (newest first; an undercount only makes a bucket less eligible), uses now = current UTC and the `standard` tier gate; seed counts span every policy action (unseen ones 0); a final action outside the policy makes `seed_prior` raise and nothing is written.
+  - I8: `--revoke-bucket` of a bucket not in `routing_state` exits non-zero and never creates `routing_state`.
+  - I9: AC_6 is non-vacuous by construction (stored logits recommend `revise_plan`, the seed's modal action is `approve_plan`, every episode has an `AGGREGATE` reward); checked with the extension and upstream `assess_autonomy` over all four tiers.
+  - I10: every AC_0 number recomputed from the formula in the test as well as against the literals.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/routing.py` (`SEED_DAMPING_DEFAULT`, `seed_prior`, `is_routed`, `approved_for_low`)
+  - `src/agent_learning_ext/cli.py` (`task-policy-routing-set`, `_cmd_routing_set`, `_approval_episode_error` shared with `_cmd_adopt_weights`)
+  - `src/agent_learning_ext/__init__.py` (lazy exports `SEED_DAMPING_DEFAULT`, `seed_prior`, `is_routed`, `approved_for_low`)
+  - `tests/test_routing_decisions.py` (contract tests for $AC_0$ through $AC_6$, interpretations $I_1$ to $I_{10}$)
+  - `.claude/skills/routing/SKILL.md` (constraints 10 to 15, contract file, call sites); `.claude/skills/weight-compiler/SKILL.md` (the shared approval check)
+  - `docs/user-stories/epic-21-contextual-authority-ensemble-routing.md` (Story 21.5 marked Completed)
+- **Contracts:**
+  - `tests/test_routing_decisions.py`
+  - Observed RED first: 79 failed, 1 passed (`seed_prior` missing, `task-policy-routing-set` an invalid argparse choice, `is_routed`/`approved_for_low`/`_approval_episode_error` missing). The 17 refusal tests that first passed RED only because argparse rejected the unknown command were given positive controls (a valid call on the same store must succeed) and then failed RED too; the one remaining pass is the routing.py purity guard, shown able to fail by a mutation (`import random`).
+  - Mutations (each reverted, nothing committed): seed written into the stored logits (3 failed, incl. both AC_6 tests); no `revalidate` marking (1 failed); approval check skipped (20 failed); eligibility ignored (5 failed); a new version on write (4 failed).
+  - Trap found while writing the contract: `InMemoryStore.to_dict`/`from_dict` share the metadata dict, so a "before" picture taken by `to_dict()` changed with the later write; the contract deep-copies through JSON.
+  - Contract run: 80 passed
+  - Epic 21 contracts (`test_routing_signals`, `test_routing_route`, `test_routing_pinning`, `test_routing_guard`, `test_routing_decisions`) plus `tests/test_upstream_untouched.py`: 136 passed; `tests/test_weight_adopt.py` (refactored helper): 5 passed
+- **Validation:**
+  - Full suite: 2317 passed, 1 skipped (`uv run pytest --ignore=tests/test_spark.py --ignore=tests/pmbok`; `test_spark.py` needs a JVM, `tests/pmbok` cannot be collected from a clean install, ADR-034, LL-013).
+  - `ruff check --fix` on the new test file; `ruff check` clean on `routing.py`, `cli.py`, `__init__.py`.
+  - Upstream fork untouched (I1).
+- **Also in this PR (outside the story scope, at Menno's request):** `afca3e8` fixes `scripts/pr_gate.py` and `scripts/spec_gate.py` crashing with `UnicodeEncodeError` on their emoji verdict line on a cp1252 Windows console (seen on PR #146). `main()` now calls `ensure_utf8_stdout()`. Contract `tests/test_gate_console_encoding.py` was observed RED first (6 failed, the 2 cp1252 control tests passed) and now passes 8/8.
+- **Orchestrator validation (implemented by a delegated agent, Steps 0 to 7):** independently re-ran the Epic 21 contracts with `tests/test_weight_adopt.py` and `tests/test_upstream_untouched.py` (141 passed) and the full suite after the gate fix (2325 passed, 1 skipped; same exclusions). Hand-checked `seed_prior` against K5 for `(18, 3, 1)`. Checked `_approval_episode_error` against FDD-021 §3 item 10. Accepted the open question below as consistent with ADR-021 §4.4: the router uses the seeded prior for the entropy and margin tests.
+- **Open questions (not blocking):** BRU-021-12 / ADR-021 §4.4 "if the seeded distribution still fails the entropy or margin test, the bucket stays on full" is a routing-time rule (the router uses the prior); 21.5 stores the prior and does not check it against the thresholds at approval. `--approve-bucket` does not require thresholds to be set.
+---
 ## Review record — PR #149 (ADR-023 downstream docs: BRD-023, FDD-023, Epic 23)
 - **Date:** 2026-11-09
 - **Branch:** `docs/adr-023-downstream` (draft `30c6043`, triage `60565fc`, `f972391`, `f9a7fee`)

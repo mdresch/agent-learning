@@ -2936,7 +2936,7 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - Contract run: 31 passed
   - Epic 21 contracts plus `tests/test_upstream_untouched.py`: 55 passed
 - **Validation:**
-  - Full suite: 2211 passed, 2 skipped (`uv run pytest --ignore=tests/test_spark.py --ignore=tests/pmbok`; `test_spark.py` needs a JVM, `tests/pmbok` cannot be collected from a clean install, ADR-034, LL-013).
+  - Full suite: 2211 passed, 2 skipped before merging `origin/main` (Story 22.6); 2236 passed, 1 skipped after the merge and the Q-145-2 correction (`uv run pytest --ignore=tests/test_spark.py --ignore=tests/pmbok`; `test_spark.py` needs a JVM, `tests/pmbok` cannot be collected from a clean install, ADR-034, LL-013).
   - `ruff check` clean on the touched files (`main`'s `routing.py` was clean before the story).
   - Upstream fork untouched (I1).
 - **Flagged, not fixed:** `mean_shadow_entropy_bits` divides by `n`, so an episode with a shadow action but no `shadow_entropy_bits` lowers the mean; harmless while `shadow_record` always writes both fields together.

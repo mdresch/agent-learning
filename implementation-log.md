@@ -2907,7 +2907,7 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - $AC_4$: Direct resolution of toy frame with updated snapshot produces expected winning option under adopted weights.
 - **Review (Step 8):** Amazon Q reviewed PR #145. All findings addressed:
   - `Q-145-1 | crash risk | verified: yes | decision: accepted | Fix store.get_episode arity to (id, agent_id) with --approval-agent-id and governance fallback | fix: 0566e0b`
-  - `Q-145-2 | auditability | verified: yes | decision: accepted | Compute proposal SHA-256 directly on raw file bytes for exact sha256sum parity | fix: 0566e0b`
+  - `Q-145-2 | logic error | verified: yes | decision: accepted | Compute proposal SHA-256 directly on raw file bytes for exact sha256sum parity | fix: 0566e0b`
   - `Q-145-3 | test gap | verified: yes | decision: accepted | Update test mocks and assertions for 2-argument get_episode and raw bytes hash | fix: 0566e0b`
 
 ---
@@ -2941,3 +2941,8 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - Upstream fork untouched (I1).
 - **Flagged, not fixed:** `mean_shadow_entropy_bits` divides by `n`, so an episode with a shadow action but no `shadow_entropy_bits` lowers the mean; harmless while `shadow_record` always writes both fields together.
 - **Trap note (for the Epic 21 recap):** an abandoned run's tests can be green and still unable to fail (wrong reward source); a heal must show each contract can go RED, not only that it passes.
+
+---
+
+## Correction (2026-11-09) — Story 22.6 review line Q-145-2
+- `Q-145-2` was recorded with claim type `auditability`, which is not one of the fixed claim types (logic error, crash risk, test gap, documentation, style; `implement-story` Step 8.7). `agent_learning.review_triage` rejects it, so `tests/test_review_triage.py` and `tests/test_critique_replay.py` failed on `main` after PR #145. The finding (proposal SHA-256 not computed on the raw file bytes) is reclassified as `logic error` in place; nothing else in the line changed. Found during Story 21.4 validation (cross-epic regression, attributed to PR #145, not to Story 21.4's diff).

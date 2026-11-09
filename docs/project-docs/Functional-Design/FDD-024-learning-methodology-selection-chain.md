@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-024](../../adr/ADR-024-learning-methodology-selection-chain.md) — Accepted (2026-10-26, Menno); Episode `f99f1078-db8f-4575-9bb4-77a95ef73b97`. Open questions resolved 2026-10-28 (ADR-024 §7).  
 **Source BRD:** [BRD-024](../Business-Requirements/BRD-024-learning-methodology-selection-chain.md) (Draft)  
-**Status:** Draft — derived from Accepted ADR-024 and Draft BRD-024. Awaiting human approval through `approve-fdd`. Section 4 lists twelve points where ADR-024 is silent or ambiguous; each is marked **Needs Menno's choice** and none is decided here. Every option marked "proposed" is a recommendation, not a decision.  
+**Status:** Draft — derived from Accepted ADR-024 and Draft BRD-024. Awaiting human approval through `approve-fdd`. Section 4 lists fourteen points where ADR-024 is silent or ambiguous; each is marked **Needs Menno's choice** and none is decided here. Every option marked "proposed" is a recommendation, not a decision.  
 
 ---
 
@@ -76,16 +76,16 @@ class SelectionRule:
     role: str = "primary"                          # only if D9 option A is chosen: "primary" or "adjunct"
 
 @dataclass(frozen=True)
-class SelectionRuleTable:
-    version: str
-    prerequisites: Mapping[str, PrerequisiteStatus]
-    rules: tuple[SelectionRule, ...]
-
-@dataclass(frozen=True)
 class PrerequisiteStatus:
     satisfied_by: str        # "repository" or "profile"
     present: bool | None     # hand-judged for "repository"; None for "profile"
     evidence: str            # non-blank for "repository"
+
+@dataclass(frozen=True)
+class SelectionRuleTable:
+    version: str
+    prerequisites: Mapping[str, PrerequisiteStatus]
+    rules: tuple[SelectionRule, ...]
 
 @dataclass(frozen=True)
 class RejectionReason:
@@ -171,6 +171,7 @@ A `profile` prerequisite is satisfied by `action_probabilities_logged` (the only
     "decision_kind": "build_request",
     "diverged": true,
     "decided_by_role": "maintainer",
+    "decided_by_human": true,
     "rationale": "..."
   }
 }
@@ -193,7 +194,7 @@ Which policies are seed cases and their profiles are D10. The file contains no e
 2. **`parse_selection_rules(payload) -> SelectionRuleTable`** (BRU-024-02, 13). Strict: an unknown or missing key, a key in `requires` outside `REQUIRE_KEYS`, a value outside that key's closed list (`has_hard_constraints` takes `true` or `false`), an empty allowed list, a prerequisite outside `PREREQUISITES`, a `prerequisites` map whose keys are not exactly `PREREQUISITES`, a cost outside `COST_ORDER`, a blank `source` or `version`, a `repository` prerequisite with `present` not a boolean or a blank `evidence`, or a `profile` prerequisite other than `logged_action_probability` each raise `ValueError` naming the row id and the key.
 3. **`validate_selection_rules(table, catalog_entries) -> None`** (BRU-024-04, 13). Raises `ValueError` listing every problem: a rule id that is duplicated, or the set of rule ids differing from the set of catalog ids (naming the missing and the extra ids); a catalog entry with state `blocked` whose rule has no prerequisite that is missing in the table (a `repository` prerequisite with `present` false, or `logged_action_probability`). The 32-row check is this function applied to the real catalog, which `validate_catalog` already requires to hold ids 1 to 32.
 4. **`maturity_of(entry: CatalogEntry) -> str | None`** (BRU-024-07; D4). Proposed mapping: `implemented` gives `implemented`; `example_only`, `partial` and `practiced` give `example_only`; `candidate` with an `adr` gives `drafted`; `candidate` without an `adr`, and `blocked`, give `candidate`; `excluded`, `not_applicable` and `declined` give `None` (they never reach the ranking, item 5). Maturity is derived from the catalog state; the rule table holds none (D5).
-5. **`select_methodology(profile, table, catalog_entries) -> MethodologySelection`** (BRU-024-04 to 08). It calls `validate_selection_rules` first. For each rule, in ascending id, it collects every reason, in this order:
+5. **`select_methodology(profile, table, catalog_entries) -> MethodologySelection`** (BRU-024-04 to 08). It calls `validate_selection_rules` on the same rule table and catalog entries it then filters, and raises before filtering if they fail. That call is the guard that keeps a `blocked` methodology out of the eligible list: a validated table always has a missing prerequisite for it, so step 3 rejects it. There is no path through `select_methodology` that skips the validator. Whether `blocked` should also give a state reason of its own is D13. For each rule, in ascending id, it collects every reason, in this order:
    1. **State.** Catalog state `excluded` or `not_applicable` gives `premise_violated` with detail `state <state>: <catalog reason>`; `declined` gives `declined` with the catalog reason (D3).
    2. **Premises.** For each key of `REQUIRE_KEYS` in order, present in `requires`, whose profile value is not in the allowed list: `premise_violated` with detail `<key> <value> not in <allowed>`. `has_hard_constraints` is `bool(profile.hard_constraints)`. A `None` polarity is not in any allowed list.
    3. **Prerequisites.** For each prerequisite of the row, in row order, that is missing: `prerequisite_missing` with the prerequisite's name. A `repository` prerequisite is missing when `present` is false; `logged_action_probability` is missing when the profile's `action_probabilities_logged` is false.
@@ -204,7 +205,7 @@ Which policies are seed cases and their profiles are D10. The file contains no e
    - `decided_id` rejected, and every reason `prerequisite_missing`: `kind` must be `build_request`.
    - `decided_id` rejected with any `premise_violated` or `declined` reason, or not in the selection: `ValueError`.
    It returns the decision unchanged.
-7. **`selection_episode_metadata(profile, selection, decision) -> dict`** (BRU-024-11). Validates the decision (item 6) and returns the plain dict of §2.5. `diverged` is `decided_id != recommended_id`, and true when `recommended_id` is `None`. The profile is written back with `complexity_profile` as its `to_dict()`. The dict round-trips through `json.dumps` and `json.loads` unchanged.
+7. **`selection_episode_metadata(profile, selection, decision) -> dict`** (BRU-024-11). Validates the decision (item 6) and returns the plain dict of §2.5. `diverged` is `decided_id != recommended_id` when there is a recommendation. When `recommended_id` is `None` its value is D14: proposed `null` (option A), so that `true` always means a recommendation was overridden. The record also carries `decided_by_human` from the decision, so the human-decision rule can be checked from `Episode.metadata` alone. The profile is written back with `complexity_profile` as its `to_dict()`. The dict round-trips through `json.dumps` and `json.loads` unchanged.
 8. **No autonomy** (BRU-024-12). No function takes a store, a `PolicySnapshot`, an `AutonomyConfig` or a `TaskPolicy`. The returned metadata holds no top-level `feedback_status`, `decision_disposition` or `correct_action_id`; those belong to the Episode of the selection task (D8), never to the profiled task.
 9. **The Ideation check** (BRU-024-14). The test reads `docs/project-docs/Ideation-Document.md` inside the test (LL-023), takes the text from the line `#### 2.1 Learning Methodologies Landscape` to the next line starting `##### 2.1.1`, and collects the integers of the lines matching `^\| (\d+) \| `. These must equal the rule ids, and each rule's `source` must contain `#<id>`. The table's `ideation_version` must equal the Ideation header's `Version`. Run on the current Ideation Document (v1.14), the extraction returns ids 1 to 32 in order.
 10. **The seed cases** (BRU-024-15). For each case, `parse_use_case_profile` must accept the profile with `retroactive` true, and `select_methodology` on the seed table and the real catalog must either make `known_methodology_id` eligible or reject it; the test records which, and a case whose known methodology is rejected is reported by id and reason, not hidden. The check reads no store and writes nothing.
@@ -212,10 +213,10 @@ Which policies are seed cases and their profiles are D10. The file contains no e
 **Worked checks (run on a scratch implementation of items 4 and 5 on 2026-11-09; to be re-run through the real functions at Ingest, LL-036).** Fixture catalog (synthetic): #1 `excluded`, #2 `implemented`, #3 `implemented`, #9 `candidate` with ADR-015, #10 `candidate` with ADR-016, #25 `blocked`, #30 `candidate` without an ADR. Fixture rules: #1 none; #2 the row of §2.3, cost low; #3 `action_space` discrete, cost low; #9 and #10 the #2 row without `outcome_polarity`, cost medium and low; #25 prerequisite `episode_trace_id` (missing), cost high; #30 `drift` drifting and `episode_volume` recurring, cost medium. Base profile P1: discrete, `binary_outcome`, `positive_only`, global, recurring, stationary, no hard constraints, probabilities not logged.
 - **P1:** eligible `3 (implemented, low)`, `10 (drafted, low)`, `9 (drafted, medium)`; recommendation 3. Rejected: 1 `premise_violated` (state excluded), 2 `premise_violated` (`outcome_polarity positive_only not in [contrastive]`), 25 `prerequisite_missing` (`episode_trace_id`), 30 `premise_violated` (`drift stationary not in [drifting]`). 3 eligible + 4 rejected = 7.
 - **P2** (P1 with `contrastive`): eligible `2, 3, 10, 9`; recommendation 2. #2 and #3 tie on maturity and cost, and the lower id wins.
-- **P3** (P2 with `drifting`): eligible `3 (implemented)`, `30 (candidate)`; #2, #9 and #10 rejected on `drift`.
+- **P3** (P2 with `drifting`): eligible `3 (implemented, low)`, `30 (candidate, medium)`; #2, #9 and #10 rejected on `drift`.
 - **P4** (P1 with `feedback_type` none, polarity `None`, `one_off`): eligible only 3. #2 carries three reasons in key order: `feedback_type`, `outcome_polarity`, `episode_volume`.
 - **P5** (`ranking`, `ordinal_preference`, contrastive): nothing eligible, `recommended_id` `None`; #3 rejected on `action_space`.
-- **Decisions on P1:** choosing 3 with `apply` is valid and not diverged; choosing 10 with `build_request` is valid and diverged; choosing 10 with `apply` raises; choosing 2 raises (premise); choosing 25 with `build_request` is valid only under D7 option A.
+- **Decisions on P1:** choosing 3 with `apply` is valid and not diverged; on P5 (no recommendation), choosing 25 with `build_request` gives `diverged` `null` under D14 option A and `true` under option B; choosing 10 with `build_request` is valid and diverged; choosing 10 with `apply` raises; choosing 2 raises (premise); choosing 25 with `build_request` is valid only under D7 option A.
 - **Adjunct (D9 option A only):** with #3's cost set to `medium` and an `adjunct` row #6 (`implemented`, AS discrete, cost low) added, P1 ranks `6, 3, 10, 9` and recommends 3, the first `primary` row.
 - **Layers:** a profile P6 (P2 with `per_instance`) and a drafted row #17 (AS discrete, EV recurring, CD `per_instance`, cost high) give eligible `3, 17`; #2, #9 and #10 are rejected on `context_dependence`.
 - **Profile prerequisite:** a row #29 with prerequisite `logged_action_probability` is rejected with `prerequisite_missing` when the profile's flag is false and eligible when it is true.
@@ -241,6 +242,8 @@ Each row is a place where ADR-024 is silent or ambiguous and code needs an answe
 | D10 | Real, already-built policies are profiled as seed cases, flagged `retroactive`; no episodes invented | Menno declares the seed profiles (Invariant 4 forbids an agent doing it). Proposed candidates from the committed shapes: `approve-adr` (full authority, #3), `classify-diff-type` (#20), `escalate-diff-response` (#21), `triage-review-finding` (#3), `route-review-finding` (#2), `validate-intent-foundation`. They live in the seed cases file only and are not written as Episodes | Also write one retroactive selection Episode per case | A retroactive Episode would record a decision on a date it was not made. `validate-intent-foundation`'s known answer is itself contested (REINFORCE plateaued, full authority was the workaround, UCB later crossed the gate), and its 146 episodes are in the git-ignored store (LL-037). **Needs Menno's choice** of the cases, their profiles, and whether they become Episodes | 24.7 |
 | D11 | The profile includes "the existing complexity profile"; selecting grants no autonomy | Recorded only; no rule may test it (`REQUIRE_KEYS` excludes it) | `requires_human_approval: true` removes the low-authority learners, as step 1 of the skill's decision tree does | Filtering on it mixes the complexity axis into the methodology choice, which `docs/decision-making.md` keeps separate; not filtering means the skill's step 1 is not encoded. **Needs Menno's choice** | 24.1 |
 | D12 | The table "starts from the Ideation Document"; the skill is "guidance, not a mechanism" | Once the seed table is committed it is authoritative for the selection; the skill's decision tree is replaced by a pointer to the table and to this chain, in the same change (LL-007) | Keep both, with the skill as a summary that may lag | The approval frame named "which source is authoritative between the rule table and the skill". **Needs Menno's choice** | 24.6 |
+| D13 | Every rejection has a reason (Invariant 2); nothing says how a `blocked` state is reported | `select_methodology` validates its own inputs (§3 item 5), and a `blocked` methodology is rejected only through its missing prerequisite; the state adds no reason of its own | `blocked` also adds a state reason (`prerequisite_missing`, detail `state blocked: <catalog reason>`), so the filter keeps it out even without the validator | Option B duplicates the prerequisite reason for every blocked row; option A relies on the validator, which the function always calls. Raised by review Q-148-1. **Needs Menno's choice** | 24.3 |
+| D14 | Recommendation and decision are both recorded, and whether they differ is derivable (the ADR-011 shape) | `diverged` is `null` when there is no recommendation | `diverged` is `true` when there is no recommendation (the first draft of this FDD) | With nothing eligible there is nothing to depart from, so `true` misreads as an override; `null` adds a third value a reader must handle. Raised by review Q-148-4. **Needs Menno's choice** | 24.5 |
 
 ---
 
@@ -277,7 +280,7 @@ A learned selector; inferring a profile; changing a methodology's catalog or Ide
 
 ## 7. Decisions and Open Questions
 
-1. **Open: D1 to D12.** All twelve need Menno's choice. The epic's stories are Draft and name the rows they wait on.
+1. **Open: D1 to D14.** All fourteen need Menno's choice. The epic's stories are Draft and name the rows they wait on.
 2. **Open: the catalog is out of date (D5).** Seven methodologies with completed epics, and two with partly built epics, are still `candidate` in the catalog, its test fixture and Ideation §2.1, while Ideation §2.2 marks HYP-AL-008 and HYP-AL-009 Validated. Until the states are corrected, a selection ranks those methodologies as `drafted`, which understates them. Correcting the states is a separate change to the catalog, the fixture `tests/fixtures/methodology_catalog/ideation_states.json` and Ideation §2.1, made together (LL-007).
 3. **Open: scope authorization.** `PMP-BL-v1.1.0` authorizes Bands C and D (Epics 14, 16, 18, 21, 22, 38). Epic 24 is in neither, so implementing it needs a scope decision (a governance change or a baseline increment) after these specs are approved. Drafting and approving them does not.
 4. **Open: ADR-024 §2 is stale.** It says ADR-014 to ADR-023 are "none built"; most are now built. Whether to amend the ADR's context is Menno's call; the decision in §3 is not affected.

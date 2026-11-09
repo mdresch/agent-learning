@@ -6,7 +6,7 @@
 
 Seven stories build `src/agent_learning_ext/methodology_selection.py`, the seed rule table, the seed cases file, and the policy shape of the selection task. Nothing under `src/agent_learning/` is edited. Each rule sits in exactly one story's criteria (LL-012). Contract tests are `tests/test_methodology_selection_profile.py` (24.1), `tests/test_methodology_selection_rules.py` (24.2), `tests/test_methodology_selection_filter.py` (24.3), `tests/test_methodology_selection_ranking.py` (24.4), `tests/test_methodology_selection_decision.py` (24.5), `tests/test_methodology_selection_seed_table.py` (24.6) and `tests/test_methodology_selection_seed_cases.py` (24.7). A learned selector, building a requested methodology, and changing a methodology's catalog state are not stories (BRD-024 Out of Scope).
 
-**Every story is blocked.** Each waits on one or more choices in FDD-024 §4 (D1 to D12), named in its status line, and on approval of the three documents (LL-010). Implementing Epic 24 also needs a scope decision, because `PMP-BL-v1.1.0` does not authorize it (FDD-024 §7 item 3). The criteria below are written against the options FDD-024 proposes (option A); a different choice changes the criteria that name that row.
+**Every story is blocked.** Each waits on one or more choices in FDD-024 §4 (D1 to D14), named in its status line, and on approval of the three documents (LL-010). Implementing Epic 24 also needs a scope decision, because `PMP-BL-v1.1.0` does not authorize it (FDD-024 §7 item 3). The criteria below are written against the options FDD-024 proposes (option A); a different choice changes the criteria that name that row.
 
 Fixtures used by the criteria below are those of FDD-024 §3, "Worked checks", built in the tests and labelled synthetic: "the fixture catalog" (#1 `excluded`, #2 and #3 `implemented`, #9 `candidate` with ADR-015, #10 `candidate` with ADR-016, #25 `blocked`, #30 `candidate` without an ADR), "the fixture rules" (version `test-1`), and the profiles P1 to P6.
 
@@ -45,7 +45,7 @@ Fixtures used by the criteria below are those of FDD-024 §3, "Worked checks", b
 
 ## Story 24.3 — Hard Filters That Give A Reason
 
-**Status:** Draft — blocked on FDD-024 D2 and D3  
+**Status:** Draft — blocked on FDD-024 D2, D3 and D13  
 **As** an auditor, **I want** every methodology a selection sets aside to carry its reason, **so that** nothing is dropped silently.
 
 ### Acceptance Criteria:
@@ -53,7 +53,7 @@ Fixtures used by the criteria below are those of FDD-024 §3, "Worked checks", b
 - **$AC_1$ (State Reasons):** #1 is rejected for every profile with code `premise_violated` and a detail starting `state excluded:` that contains the catalog reason; a fixture entry with state `not_applicable` gives `premise_violated`; one with state `declined` gives code `declined` with the catalog reason (FDD-024 D3).
 - **$AC_2$ (Premise Reasons):** for P1, #2 has exactly one reason, `premise_violated`, whose detail names `outcome_polarity` and `positive_only`; for P3, #2, #9 and #10 are rejected with a detail naming `drift`; for P4, #2 has three reasons, in the order `feedback_type`, `outcome_polarity`, `episode_volume`; for P5, #3 is rejected on `action_space`.
 - **$AC_3$ (Hard Constraints):** a rule requiring `has_hard_constraints` `true` rejects P1 (`hard_constraints` `[]`) with a detail naming `has_hard_constraints`, and makes the methodology eligible for P1 with `hard_constraints` `["no_deploy_friday"]`.
-- **$AC_4$ (Prerequisites):** #25 is rejected with `prerequisite_missing` and detail `episode_trace_id` for every profile, and with no other reason; a rule #29 requiring `logged_action_probability` is rejected with `prerequisite_missing` for P1 and is eligible for P1 with `action_probabilities_logged` true; setting `episode_trace_id` `present` true (with #25 no longer `blocked`) leaves #25 with no reason.
+- **$AC_4$ (Prerequisites):** with the fixture catalog (#25 `blocked`), #25 is rejected with `prerequisite_missing` and detail `episode_trace_id` for every profile, and with no other reason (D13 option A). A rule #29 requiring `logged_action_probability` is rejected with `prerequisite_missing` for P1 and is eligible for P1 with `action_probabilities_logged` true. A repository prerequisite that is present adds no reason: with a separate fixture where catalog #25 has state `candidate` (no ADR) and `episode_trace_id` is `present` true, #25 is eligible for P1 with maturity `candidate` and cost `high`, last in the order `3, 10, 9, 25`. The blocked-state guard itself is the check of Story 24.2 $AC_4$, which `select_methodology` runs first.
 - **$AC_5$ (Coded And Explained):** across P1 to P6, every rejection has at least one reason, every code is in `REASON_CODES`, and every detail is non-blank.
 - **$AC_6$ (Inputs Unchanged):** the profile, the rule table and the catalog entries equal their deep copies after each call.
 
@@ -77,14 +77,14 @@ Fixtures used by the criteria below are those of FDD-024 §3, "Worked checks", b
 
 ## Story 24.5 — The Human Decision and the Episode Record
 
-**Status:** Draft — blocked on FDD-024 D7 and D8  
+**Status:** Draft — blocked on FDD-024 D7, D8 and D14  
 **As** an auditor, **I want** the recommendation, the decision and its rationale stored together on an ordinary episode, **so that** I can later see what was recommended, what was decided, why, and whether the two differed, and so that no autonomy follows from it.
 
 ### Acceptance Criteria:
 - **$AC_0$ (A Human, A Role, A Rationale):** `validate_selection_decision` raises `ValueError` for `decided_by_human` false, a blank `decided_by_role`, a blank `rationale`, and a `kind` of `adopt`.
 - **$AC_1$ (Apply Only What Is Built):** on P1, deciding 3 with `apply` is returned unchanged; 3 with `build_request` raises; 10 with `build_request` is returned unchanged; 10 with `apply` raises.
 - **$AC_2$ (What Cannot Be Chosen):** on P1, deciding 2 (rejected on a premise) raises with either kind; 25 (rejected only for a missing prerequisite) with `build_request` is returned unchanged and with `apply` raises (FDD-024 D7); a methodology rejected as `declined` raises; id 99 raises.
-- **$AC_3$ (The Record):** `selection_episode_metadata` for P1 and the decision 10 `build_request` returns the dict of FDD-024 §2.5 with `rule_table_version` `test-1`, the eligible list `3, 10, 9` with maturity and cost, every rejection with its codes and details, `recommended_id` 3, `decided_id` 10, `decision_kind` `build_request`, `diverged` true, the profile as declared and `policy_task_id` from the profile; the decision 3 `apply` gives `diverged` false; P5 with 25 `build_request` gives `recommended_id` `null` and `diverged` true. Each dict equals `json.loads(json.dumps(dict))`.
+- **$AC_3$ (The Record):** `selection_episode_metadata` for P1 and the decision 10 `build_request` returns the dict of FDD-024 §2.5 with `rule_table_version` `test-1`, the eligible list `3, 10, 9` with maturity and cost, every rejection with its codes and details, `recommended_id` 3, `decided_id` 10, `decision_kind` `build_request`, `diverged` true, `decided_by_role` and `decided_by_human` true from the decision, the profile as declared and `policy_task_id` from the profile; the decision 3 `apply` gives `diverged` false; P5 with 25 `build_request` gives `recommended_id` `null` and `diverged` `null` (FDD-024 D14 option A; `true` under option B). Each dict equals `json.loads(json.dumps(dict))`.
 - **$AC_4$ (No Autonomy):** the record has no top-level `feedback_status`, `decision_disposition`, `correct_action_id` or `decision_authority`; no public function of the module has a parameter annotated as a store, `PolicySnapshot`, `TaskPolicy` or `AutonomyConfig`; the `complexity_profile` inside the record equals the declared one's `to_dict()`.
 - **$AC_5$ (Its Own Task, D8 option A):** `docs/policy-shapes/select-learning-methodology.actions.json` holds exactly `accept_recommendation`, `choose_other_eligible` and `request_build`, and `select-learning-methodology.profile.json` parses with `ComplexityProfile.from_dict` and has `requires_human_approval` true, so `agent_learning_ext.routing.route` returns full with reason `pinned` for that task.
 

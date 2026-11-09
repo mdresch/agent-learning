@@ -41,9 +41,7 @@ from __future__ import annotations
 
 import ast
 import json
-import math
 from pathlib import Path
-from typing import Any
 
 import pytest
 

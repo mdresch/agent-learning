@@ -15,7 +15,6 @@ uses no random number generator (no random), and uses no numpy. All arithmetic i
 
 from __future__ import annotations
 
-import copy
 import json
 import math
 from collections.abc import Sequence

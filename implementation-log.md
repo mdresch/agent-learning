@@ -3285,4 +3285,7 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-157-11 | test gap | verified: unknown | decision: unknown | the AST check of the runner test only walks string constants | fix: unknown`
   - `Q-157-12 | crash risk | verified: yes | decision: accepted | PolicySnapshot.from_dict in policy_for_route was outside the try block | fix: ee3bb96`
   - `Q-157-13 | test gap | verified: yes | decision: accepted | the dispatch test mutated the private _snapshot attribute | fix: ee3bb96`
+  - `Q-157-14 | logic error | verified: no | decision: declined | policy_for_route strips and lowercases an authority string, so FULL and Low are accepted, contrary to the claim; pinned by a test | fix: 54db93d`
+  - `Q-157-15 | logic error | verified: partial | decision: accepted | routed_episode_metadata ignores shadow keys other than the two in FDD-021 2.3; by design, now stated in the docstring and pinned by a test | fix: 54db93d`
 - **Reconciliation:** `main` merged into the branch; the Project Status Register checkpoint rows were merged with the Epic 38 and Epic 14 updates and now cite PR #157 and the other PRs.
+- **Amazon Q confirm (head `9402942`):** resolved the earlier findings and listed two items as remaining (Q-157-14, Q-157-15 above); both closed in `54db93d` with characterization tests and a docstring note, no behaviour change.

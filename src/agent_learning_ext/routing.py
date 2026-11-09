@@ -24,6 +24,8 @@ from typing import Any
 from agent_learning.autonomy import wilson_lower_bound
 from agent_learning.config import AutonomyConfig
 from agent_learning.decision import DecisionAuthority
+from agent_learning.types import PolicySnapshot
+from agent_learning_ext.decision import TaskPolicy
 
 # Constants specified in FDD-021 §2.1
 MIN_GAP_BITS: float = 0.15
@@ -746,3 +748,82 @@ def approved_for_low(snapshot: Any, bucket: str) -> bool:
     if not isinstance(entry, dict):
         return False
     return entry.get("approved") is True and entry.get("revalidate") is not True
+
+
+def policy_for_route(
+    snapshot: PolicySnapshot,
+    authority: DecisionAuthority | str,
+) -> TaskPolicy:
+    """Return a TaskPolicy built from a copy of the snapshot with routed authority (FDD-021 §3.9).
+
+    The stored snapshot is not changed (K2).
+    For a pinned task (or requires_human_approval), raises ValueError if asked for LOW.
+    """
+    if isinstance(authority, DecisionAuthority):
+        norm_auth = authority
+    elif isinstance(authority, str):
+        val = authority.strip().lower()
+        if val == "low":
+            norm_auth = DecisionAuthority.LOW
+        elif val == "full":
+            norm_auth = DecisionAuthority.FULL
+        else:
+            raise ValueError(f"Unknown authority string: {authority!r}")
+    else:
+        raise TypeError(f"authority must be DecisionAuthority or str, got {type(authority)}")
+
+    # Check pinned tasks and human approval requirements
+    task_id = getattr(snapshot, "task_id", "")
+    metadata = getattr(snapshot, "metadata", None) or {}
+    requires_human_approval = False
+    if isinstance(metadata, dict):
+        requires_human_approval = bool(metadata.get("requires_human_approval", False))
+
+    if (task_id in PINNED_FULL or requires_human_approval) and norm_auth == DecisionAuthority.LOW:
+        raise ValueError(f"task '{task_id}' is pinned to FULL and cannot be routed to LOW")
+
+    # Deep copy the snapshot via to_dict / from_dict without mutating original snapshot
+    snap_dict = snapshot.to_dict()
+    meta = dict(snap_dict.get("metadata") or {})
+    meta["decision_authority"] = norm_auth.value
+    snap_dict["metadata"] = meta
+
+    routed_snapshot = PolicySnapshot.from_dict(snap_dict)
+    return TaskPolicy(routed_snapshot)
+
+
+def routed_episode_metadata(
+    decision: RouteDecision,
+    bucket: str,
+    config: RoutingConfig | None = None,
+    shadow: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Format episode metadata for a routed decision per FDD-021 §2.3.
+
+    Round-trips cleanly through json.dumps and json.loads.
+    Holds route, entropy, margin, reason, thresholds, bucket, anomaly, and shadow info.
+    """
+    thresholds_dict: dict[str, Any] | None = None
+    if config is not None:
+        thresholds_dict = {
+            "tau_esc": config.tau_esc,
+            "tau_deesc": config.tau_deesc,
+            "eps_margin": config.eps_margin,
+        }
+
+    meta: dict[str, Any] = {
+        "routed_authority": decision.authority.value,
+        "routing": {
+            "bucket": bucket,
+            "route": decision.authority.value,
+            "entropy_bits": decision.entropy_bits,
+            "margin": decision.margin,
+            "reason": decision.reason,
+            "thresholds": thresholds_dict,
+        },
+        "routing_anomaly": decision.anomaly,
+        "shadow_low_action": shadow.get("shadow_low_action") if shadow else None,
+        "shadow_entropy_bits": shadow.get("shadow_entropy_bits") if shadow else None,
+    }
+    return meta
+

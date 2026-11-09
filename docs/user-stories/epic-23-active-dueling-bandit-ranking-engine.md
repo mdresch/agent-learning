@@ -6,7 +6,7 @@
 
 Seven stories build `src/agent_learning_ext/dueling.py` (FDD-023 R1). The module reuses `bt_loss` and `bt_gradient` of `agent_learning_ext.learners.pairwise` (Epic 18). Each rule sits in exactly one story's criteria (LL-012). Contract tests are `tests/test_dueling_fit.py` (23.1), `tests/test_dueling_variance.py` (23.2), `tests/test_dueling_next_pair.py` (23.3), `tests/test_dueling_converged.py` (23.4), `tests/test_dueling_state.py` (23.5), `tests/test_dueling_synthetic.py` (23.6) and `tests/test_dueling_real_data.py` (23.7). Measuring HYP-AL-015, a command that presents pairs to a human, and rewriting the walkthrough sketch are not stories (BRD-023 Out of Scope; FDD-023 §7 items 3 and 7).
 
-**Every story is blocked.** FDD-023 §4 lists ten departures (R1 to R10), and none is confirmed. The criteria below are written with the option FDD-023 recommends. A story stays Draft until Menno confirms the departures it names, and its numbers are re-checked if he chooses another option. Building any of them also needs Epic 23 brought into the baseline's scope (FDD-023 §7 item 1). No story depends on another epic. Epic 18's `pairwise.py` is reused unchanged.
+**Every story is blocked.** FDD-023 §4 lists eleven departures (R1 to R11), and none is confirmed. The criteria below are written with the option FDD-023 recommends. A story stays Draft until Menno confirms the departures it names, and its numbers are re-checked if he chooses another option. Building any of them also needs Epic 23 brought into the baseline's scope (FDD-023 §7 item 1). No story depends on another epic. Epic 18's `pairwise.py` is reused unchanged.
 
 Fixtures used by the criteria below. "The base items" are `a`, `b`, `c`, `d` in that order, with `lam` 0.01 and `k_min` 2. A comparison `(w, l)` means `w` beat `l`. "The N = 100 set": `random.Random(20261026)` draws 100 truths with `gauss(0, 1)` for items `x000` to `x099`. Then, 1,328 times, it picks `i, j = rng.sample(range(100), 2)`, and `i` wins when `rng.random() < sigma(t_i - t_j)`. "The N = 20 set" is the same, with truths `2.0 - 0.2 k` for items `y00` to `y19`, 172 comparisons, and no `gauss` draw. All are built in the tests and labelled synthetic. The worked numbers come from FDD-023 §3. They were recomputed on 2026-11-09 with the real `bt_loss` and `bt_gradient` and must be re-run through the real functions at Ingest (LL-036).
 
@@ -26,7 +26,7 @@ Fixtures used by the criteria below. "The base items" are `a`, `b`, `c`, `d` in 
 - **$AC_5$ (Honest Convergence):** on the N = 100 set at `iters = 200` the result has `converged` false, `iterations` 200 and a `stationarity` above `tol` (measured: 6.3e-3). At `iters = 2000` it has `converged` true, `stationarity` at or below 1e-8, and fewer than 2,000 iterations (measured: 1,245). With no comparisons the utilities are all 0, `converged` is true and `iterations` is 0.
 - **$AC_6$ (Reuses ADR-018 Code):** `log_likelihood` equals `-bt_loss(utilities, W, zeros, items, lam=lam)` within 1e-12. At a converged fit, `bt_gradient` there is at most `tol` in every entry. `dueling.py` imports `bt_loss` and `bt_gradient` from `agent_learning_ext.learners.pairwise` and defines no Bradley-Terry loss of its own.
 - **$AC_7$ (Pure And Deterministic):** the same arguments give identical results on repeated calls. The inputs are equal to their copies after the call. `dueling.py` imports nothing from `agent_learning.storage` and no `random` module.
-- **$AC_8$ (Time):** the test fits the N = 100 set at the default cap five times and records the median. It asserts the bound Menno chooses in FDD-023 R4. The FDD-023 prototype measured 98 ms on 2026-11-09, so a 50 ms bound fails today.
+- **$AC_8$ (Time):** the test fits the N = 100 set at the default cap five times and records the median. It asserts a median below 5 s. That bound is *provisional (R4)*: it is taken from Story 18.3 AC_8 so the criterion is testable now, and it is replaced by the bound Menno chooses in FDD-023 R4 before this story is approved. The FDD-023 prototype measured 98 ms at the default cap on 2026-11-09 (920 ms at 2,000 steps), so 5 s passes and a 50 ms bound would fail today.
 
 ---
 
@@ -62,27 +62,27 @@ Fixtures used by the criteria below. "The base items" are `a`, `b`, `c`, `d` in 
 
 ## Story 23.4 — Termination and Budget
 
-**Status:** Draft — blocked on FDD-023 R9.  
+**Status:** Draft — blocked on FDD-023 R9 and R11.  
 **As** a maintainer, **I want** a tournament to stop on a declared confidence or a bounded budget, never before every item is exposed, **so that** the effort is capped and no item is ranked unseen.
 
 ### Acceptance Criteria:
-- **$AC_0$ (Budget Range):** for five variances, budgets of 9 and 24 raise `ValueError` and 10 and 23 are accepted. For two, only 4 is accepted (3 and 5 raise). For three, 9 is accepted and 10 raises (`2 * 3 * log2 3 = 9.51`). For twenty, 39 and 173 raise and 40 and 172 are accepted.
+- **$AC_0$ (Budget Range):** for a dict of five variances (as `laplace_variance` returns), budgets of 9 and 24 raise `ValueError` and 10 and 23 are accepted. For two, only 4 is accepted (3 and 5 raise). For three, 9 is accepted and 10 raises (`2 * 3 * log2 3 = 9.51`). For twenty, 39 and 173 raise and 40 and 172 are accepted.
 - **$AC_1$ (Declared Threshold):** `tau` of 0, -1, NaN and infinity each raise `ValueError`, and `tau` has no default.
-- **$AC_2$ (Variance Stop):** five variances with maximum 0.30, `used` 12, budget 23 and `min_exposure` 2 give true at `tau` 0.30 and false at `tau` 0.2999.
+- **$AC_2$ (Variance Stop):** a dict of five variances whose largest value is 0.30, with `used` 12, budget 23 and `min_exposure` 2 give true at `tau` 0.30 and false at `tau` 0.2999.
 - **$AC_3$ (Budget Stop):** a maximum variance of 5.0 at `tau` 0.30 with `used` 23, budget 23 and `min_exposure` 2 gives true. `used` 24 raises `ValueError`.
-- **$AC_4$ (Exposure Before Any Stop):** `min_exposure` 1 with maximum variance 0.30 at `tau` 0.30 and `used` 12 gives false. `min_exposure` 1 with `used` equal to the budget raises `ValueError`.
+- **$AC_4$ (Exposure Before Any Stop):** `min_exposure` 1 with maximum variance 0.30 at `tau` 0.30 and `used` 12 gives false. `min_exposure` 1 with `used` equal to the budget (23) also gives false and raises nothing (R11 option B), because comparisons replayed from records need not have come from `next_pair`.
 - **$AC_5$ (Other Validation):** fewer than two variances, a negative or NaN variance, a negative `used`, and `k_min` of 1 each raise `ValueError`.
 
 ---
 
 ## Story 23.5 — Tournament State and Answer Episodes
 
-**Status:** Draft — blocked on FDD-023 R8 and R10.  
+**Status:** Draft — blocked on FDD-023 R8, R10 and R11.  
 **As** an auditor, **I want** the tournament state stored in the policy snapshot and every human answer kept as an ordinary episode, **so that** a ranking can be recomputed from what was asked and answered, with no new kind of record.
 
 ### Acceptance Criteria:
 - **$AC_0$ (Fields):** `tournament_state` over `feat-auth`, `feat-storage`, `feat-caching` with three comparisons between `feat-auth` and `feat-storage` (two won by `feat-storage`) returns `item_ids`, `comparison_counts` of `{"feat-auth::feat-storage": 3}`, `latent_utilities`, `ranking_status`, `parameters` and `comparisons_used` 3. The key follows `item_ids` order, not the winner, and a pair never asked has no key.
-- **$AC_1$ (Status):** the status is `converged` when every exposure is at least 2 and the maximum variance is at or below `tau`. It is `budget_exhausted` when the comparisons reach the budget first, `no_informative_pair` when `exhausted` is true and neither applies, and `in_progress` otherwise. The exposure condition is Story 23.4's rule and is not re-asserted here.
+- **$AC_1$ (Status):** the status is the first that holds, in this order: `converged` (every exposure at least 2 and the largest variance at or below `tau`), `exposure_unmet` (comparisons at the budget with an exposure below 2), `budget_exhausted` (comparisons at the budget), `no_informative_pair` (`exhausted` true), and `in_progress`. A state that reaches the budget with every exposure at least 2 and the largest variance at or below `tau` is `converged`. Over the three items above with budget 6, six comparisons between `feat-auth` and `feat-storage` leave `feat-caching` at exposure 0, and the status is `exposure_unmet`.
 - **$AC_2$ (Separator Refused):** an item id `"x::y"` raises `ValueError`.
 - **$AC_3$ (Storage Boundary):** the dict survives `json.dumps` and `json.loads` unchanged. A `PolicySnapshot` carrying it in `metadata["dueling_bandit"]` round-trips through an `InMemoryStore` with no new record type.
 - **$AC_4$ (Answers From Episodes):** `comparisons_from_episodes` turns an episode whose `dueling_comparison` has this tournament, `pair` `[a, b]` and `winner` `b` into `(b, a)`. An episode of another tournament, with an unknown item, with a winner outside its pair, with a pair of one id twice, or with no `dueling_comparison` is skipped without error. An episode id offered twice gives one comparison. The order is first appearance, and the episodes are equal to their copies afterwards.
@@ -97,7 +97,7 @@ Fixtures used by the criteria below. "The base items" are `a`, `b`, `c`, `d` in 
 
 ### Acceptance Criteria:
 - **$AC_0$ (Labelled):** the test module's docstring and its recorded output say `SYNTHETIC` and `NOT EVIDENCE`. They name HYP-AL-015 as untested (ADR-036; BRU-023-14).
-- **$AC_1$ (The Loop):** the test repeats fit, variance, status and `next_pair` until the status is not `in_progress`. Answers come from `random.Random(20261026)`, one draw per comparison, and the first item of the pair wins when the draw is below `sigma` of its true utility minus the other's. Items `i1` to `i5` have true utilities `(1.5, 0.5, 0.0, -0.8, -1.2)`, with budget 23 and `tau` 1.0. The run ends `no_informative_pair` after 11 comparisons in the order `i1` to `i5` (measured with the FDD-023 prototype).
+- **$AC_1$ (The Loop):** the test repeats fit, variance, status and `next_pair` until the status is not `in_progress`. Answers come from `random.Random(20261026)`, one draw per comparison, and the first item of the pair wins when the draw is below `sigma` of its true utility minus the other's. Items `i1` to `i5` have true utilities `(1.5, 0.5, 0.0, -0.8, -1.2)`, with budget 23 and `tau` 1.0. The test asserts that the run ends in a status other than `in_progress` within 23 comparisons and that it never reaches `exposure_unmet`. It records the terminal status, the comparisons used and the fitted order. The expected status and count are not asserted from the prototype. Once R2 to R9 are confirmed, they are measured with the real module at Ingest and written into this criterion before approval. For reference only, the FDD-023 prototype of the recommended options ended `no_informative_pair` after 11 comparisons in the order `i1` to `i5`.
 - **$AC_2$ (Invariants Over Seeds):** for seeds 0 to 199 no run uses more than 23 comparisons, no run ends while an item has fewer than 2, and each run repeated gives the identical sequence of pairs. The test records, and does not assert, how often each status occurs and how often the fitted order equals the true order (measured: 181 `budget_exhausted`, 19 `no_informative_pair`, true order in 50 of 200).
 - **$AC_3$ (No Saving Claimed):** the recorded output shows the comparisons used beside `N(N-1)/2` (10 for five items) and `floor(2 N log2 N)` (23). It states that a run using more than 10 comparisons saved nothing against the exhaustive count.
 

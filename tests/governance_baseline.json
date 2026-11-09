@@ -187,9 +187,15 @@
     "docs/adr/ADR-021-contextual-authority-ensemble-routing.md": {
       "family": "adr",
       "status": "accepted",
-      "sha256": "f787a4e37d25f89945122ba9123cbe2eeb4a86e73b842fb5a121bbb8de0ee5f9",
+      "sha256": "e83806f1961ed44195745075f03c5a6b37da4d856df2ad9edccbeb12ea8b1a9d",
       "approval_episode": null,
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "ba06bde4",
+          "stage": 16
+        }
+      ]
     },
     "docs/adr/ADR-022-scored-search-decision-compilation.md": {
       "family": "adr",

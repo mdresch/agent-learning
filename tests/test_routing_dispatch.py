@@ -87,6 +87,7 @@ def _sample_snapshot(
 
 def test_ac0_policy_for_route_dispatch() -> None:
     snap = _sample_snapshot(task_id="unpinned-task", authority="low")
+    snap.metadata["nested_config"] = {"sub_key": "original_val"}
     snap_copy_dict = json.loads(json.dumps(snap.to_dict()))
 
     # Route with LOW authority
@@ -99,13 +100,17 @@ def test_ac0_policy_for_route_dispatch() -> None:
     assert isinstance(policy_full, TaskPolicy)
     assert policy_full.authority == DecisionAuthority.FULL
 
+    # Mutate nested metadata on the returned policy to test deepcopy isolation
+    policy_full._snapshot.metadata["nested_config"]["sub_key"] = "mutated_val"
+
     # Route using string values
     policy_low_str = policy_for_route(snap, "low")
     assert policy_low_str.authority == DecisionAuthority.LOW
     policy_full_str = policy_for_route(snap, "full")
     assert policy_full_str.authority == DecisionAuthority.FULL
 
-    # Original snapshot must remain strictly unchanged
+    # Original snapshot must remain strictly unchanged (K2 invariant)
+    assert snap.metadata["nested_config"]["sub_key"] == "original_val"
     assert snap.to_dict() == snap_copy_dict
     assert snap.metadata.get("decision_authority") == "low"
 
@@ -196,7 +201,8 @@ def test_ac3_full_routed_episodes_skipped_in_reinforce() -> None:
     policy = SoftmaxPolicy(_sample_snapshot(actions=actions))
     initial_probs = policy.probabilities()
 
-    # Create full-routed episodes that carry an action_logprob
+    # Create full-routed episodes that carry an action_logprob:
+    # 3 with string "full", 2 with DecisionAuthority.FULL enum directly in metadata
     episodes = [
         Episode(
             id=f"ep-{i}",
@@ -206,12 +212,35 @@ def test_ac3_full_routed_episodes_skipped_in_reinforce() -> None:
             action_id="opt_a",
             action_logprob=-0.6931,  # has logprob!
             metadata={
-                "routed_authority": "full",
+                "routed_authority": "full" if i < 3 else DecisionAuthority.FULL,
                 "feedback_status": "accepted",
             },
         )
         for i in range(5)
     ]
+    # Add 1 episode with missing action_id and 1 unlogged untagged episode
+    # Neither should increment full_authority_excluded
+    episodes.append(
+        Episode(
+            id="no-action-id",
+            agent_id="test-agent",
+            user_input="test prompt",
+            assistant_output="test output",
+            action_id=None,
+            action_logprob=-0.6931,
+        )
+    )
+    episodes.append(
+        Episode(
+            id="unlogged-untagged",
+            agent_id="test-agent",
+            user_input="test prompt",
+            assistant_output="test output",
+            action_id="opt_a",
+            action_logprob=None,
+        )
+    )
+
     rewards = [
         Reward(episode_id=ep.id, value=1.0, source=RewardSource.AGGREGATE)
         for ep in episodes
@@ -222,7 +251,7 @@ def test_ac3_full_routed_episodes_skipped_in_reinforce() -> None:
 
     # episodes_used must be 0
     assert result.episodes_used == 0
-    # extra must record full_authority_excluded count
+    # extra must record strictly full_authority_excluded count (the 5 full-routed ones)
     assert result.extra.get("full_authority_excluded") == 5
     # policy probabilities/logits must be completely unchanged (Interpretation I5)
     updated_probs = policy.probabilities()
@@ -298,7 +327,7 @@ def test_ac4_untagged_episodes_train_normally() -> None:
     # Both must use exactly 3 episodes
     assert res_mixed.episodes_used == 3
     assert res_clean.episodes_used == 3
-    assert res_mixed.extra.get("full_authority_excluded") == 3  # 2 full + 1 unlogged
+    assert res_mixed.extra.get("full_authority_excluded") == 2  # exactly the 2 full-routed episodes
 
     # Resulting probabilities must match identically (Interpretation I5)
     probs_mixed = policy_mixed.probabilities()

@@ -82,8 +82,15 @@ class ReinforceLearner(Learner):
             # Story 21.6 (AC_3): Full-routed decisions are reasoned, not sampled from policy.
             # They must be excluded from policy gradients even if they carry an action_logprob.
             meta = getattr(episode, "metadata", None) or {}
-            routed_auth = str(meta.get("routed_authority", "")).strip().lower() if isinstance(meta, dict) else ""
-            if routed_auth == "full":
+            routed_auth_raw = meta.get("routed_authority") if isinstance(meta, dict) else None
+            if hasattr(routed_auth_raw, "value"):
+                routed_auth = str(routed_auth_raw.value).strip().lower()
+            elif routed_auth_raw is not None:
+                routed_auth = str(routed_auth_raw).strip().lower()
+            else:
+                routed_auth = ""
+
+            if routed_auth in ("full", "decisionauthority.full"):
                 full_authority_excluded += 1
                 continue
 
@@ -92,8 +99,6 @@ class ReinforceLearner(Learner):
                 or episode.action_id not in action_index
                 or episode.action_logprob is None
             ):
-                if episode.action_logprob is None and episode.action_id is not None:
-                    full_authority_excluded += 1
                 continue
             reward = aggregate_rewards.get(episode.id)
             if reward is None:

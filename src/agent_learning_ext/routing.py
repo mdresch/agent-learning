@@ -15,6 +15,7 @@ uses no random number generator (no random), and uses no numpy. All arithmetic i
 
 from __future__ import annotations
 
+import copy
 import math
 from collections.abc import Sequence
 from dataclasses import dataclass
@@ -783,8 +784,8 @@ def policy_for_route(
         raise ValueError(f"task '{task_id}' is pinned to FULL and cannot be routed to LOW")
 
     # Deep copy the snapshot via to_dict / from_dict without mutating original snapshot
-    snap_dict = snapshot.to_dict()
-    meta = dict(snap_dict.get("metadata") or {})
+    snap_dict = copy.deepcopy(snapshot.to_dict())
+    meta = snap_dict.get("metadata") or {}
     meta["decision_authority"] = norm_auth.value
     snap_dict["metadata"] = meta
 

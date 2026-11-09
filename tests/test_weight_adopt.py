@@ -25,6 +25,7 @@ from typing import Any
 from unittest.mock import patch
 
 import pytest
+
 from agent_learning.types import Action, Episode, PolicySnapshot
 from agent_learning_ext.routing import route
 
@@ -146,6 +147,7 @@ def test_ac1_needs_valid_approval_episode(
         ])
         assert ret1 != 0
         mock_store.store_policy.assert_not_called()
+        mock_store.get_episode.assert_any_call("missing-ep", snapshot.agent_id)
 
     # 2. Episode belongs to another task
     wrong_task_ep = Episode(
@@ -168,6 +170,7 @@ def test_ac1_needs_valid_approval_episode(
         ])
         assert ret2 != 0
         mock_store.store_policy.assert_not_called()
+        mock_store.get_episode.assert_called_with("ep-wrong-task", snapshot.agent_id)
 
     # 3. Episode not accepted (e.g. rejected)
     rejected_ep = Episode(
@@ -190,6 +193,7 @@ def test_ac1_needs_valid_approval_episode(
         ])
         assert ret3 != 0
         mock_store.store_policy.assert_not_called()
+        mock_store.get_episode.assert_called_with("ep-rejected", snapshot.agent_id)
 
 
 def test_ac2_adopts_proposal_into_new_policy_version(
@@ -230,6 +234,7 @@ def test_ac2_adopts_proposal_into_new_policy_version(
             "--approval-episode", valid_approval_episode.id,
         ])
         assert ret == 0
+        mock_store.get_episode.assert_called_with(valid_approval_episode.id, snapshot.agent_id)
 
     assert len(stored_policies) == 1
     new_policy = stored_policies[0]
@@ -242,7 +247,7 @@ def test_ac2_adopts_proposal_into_new_policy_version(
     assert new_policy.metadata["criteria_weights"] == valid_proposal["weights"]
 
     prov = new_policy.metadata["compiled_weights_provenance"]
-    expected_hash = hashlib.sha256(json.dumps(valid_proposal, sort_keys=True).encode("utf-8")).hexdigest()
+    expected_hash = hashlib.sha256(prop_file.read_bytes()).hexdigest()
     assert prov["proposal_hash"] == expected_hash
     assert prov["seed"] == valid_proposal["seed"]
     assert prov["holdout_accuracy"] == valid_proposal["holdout_accuracy"]

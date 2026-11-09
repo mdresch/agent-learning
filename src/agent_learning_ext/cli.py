@@ -387,6 +387,11 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     adopt_weights.add_argument("--task-id", required=True, help="Task identifier.")
     adopt_weights.add_argument("--proposal", required=True, help="Proposal JSON file path.")
     adopt_weights.add_argument("--approval-episode", required=True, help="Adjudicated approval episode ID.")
+    adopt_weights.add_argument(
+        "--approval-agent-id",
+        default=None,
+        help="Agent identifier for the approval episode (defaults to --agent-id).",
+    )
 
     return parser
 
@@ -1898,7 +1903,10 @@ def _cmd_adopt_weights(args: argparse.Namespace) -> int:
         print("Approval episode ID is required", file=sys.stderr)
         return 2
 
-    episode = store.get_episode(args.approval_episode)
+    approval_agent = getattr(args, "approval_agent_id", None) or args.agent_id
+    episode = store.get_episode(args.approval_episode, approval_agent)
+    if episode is None and approval_agent != "agent-learning-governance":
+        episode = store.get_episode(args.approval_episode, "agent-learning-governance")
     if episode is None:
         print(f"Approval episode {args.approval_episode!r} not found", file=sys.stderr)
         return 2
@@ -1957,8 +1965,8 @@ def _cmd_adopt_weights(args: argparse.Namespace) -> int:
         print(f"Weights do not sum to 1.0 (sum={sum(weights.values())})", file=sys.stderr)
         return 2
 
-    raw_json = json.dumps(prop_data, sort_keys=True).encode("utf-8")
-    proposal_hash = hashlib.sha256(raw_json).hexdigest()
+    raw_bytes = prop_path.read_bytes()
+    proposal_hash = hashlib.sha256(raw_bytes).hexdigest()
     adopted_at = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
     provenance = {

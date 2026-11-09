@@ -1,0 +1,25 @@
+{
+  "document": "docs/user-stories/epic-14-critique-to-evidence-ingestion.md",
+  "tag": "cr002",
+  "base_commit": "96129cd",
+  "candidate_sha256": "cf44d838b5d290a86cb169cf0894570f7a4919f3a7b4c00b198ddca27b8f9a09",
+  "features": {
+    "lines": 2,
+    "terms_removed": 6,
+    "terms_kept": 5,
+    "goal_preserved": true,
+    "requirement_inverted": false,
+    "normative_touched": false,
+    "status_line_changed": false,
+    "downstream_refs": 0,
+    "change_ratio": 0.0
+  },
+  "observed": [
+    0.05,
+    0.1,
+    0.1,
+    0.1
+  ],
+  "proposed_action": "correction_note",
+  "accepted": false
+}

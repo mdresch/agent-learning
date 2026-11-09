@@ -1,0 +1,25 @@
+{
+  "document": "docs/user-stories/epic-18-pairwise-preference-optimization.md",
+  "tag": "cr002",
+  "base_commit": "96129cd",
+  "candidate_sha256": "503d244bda2e8642c3fe0948d57222f6ea8b297588c7faae941774d624c4fbb9",
+  "features": {
+    "lines": 2,
+    "terms_removed": 9,
+    "terms_kept": 8,
+    "goal_preserved": true,
+    "requirement_inverted": false,
+    "normative_touched": false,
+    "status_line_changed": false,
+    "downstream_refs": 0,
+    "change_ratio": 0.0
+  },
+  "observed": [
+    0.05,
+    0.1,
+    0.1,
+    0.1
+  ],
+  "proposed_action": "correction_note",
+  "accepted": false
+}

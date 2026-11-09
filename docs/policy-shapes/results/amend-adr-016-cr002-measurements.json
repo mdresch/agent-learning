@@ -1,0 +1,25 @@
+{
+  "document": "docs/adr/ADR-016-deterministic-ucb-decision-policy.md",
+  "tag": "cr002",
+  "base_commit": "96129cd",
+  "candidate_sha256": "8ac4f86c63d21649ab02c9dc477b28f4f89427673cb1b90d972bd519d8b53e24",
+  "features": {
+    "lines": 2,
+    "terms_removed": 3,
+    "terms_kept": 2,
+    "goal_preserved": false,
+    "requirement_inverted": false,
+    "normative_touched": false,
+    "status_line_changed": false,
+    "downstream_refs": 0,
+    "change_ratio": 0.02
+  },
+  "observed": [
+    0.05,
+    0.9,
+    0.1,
+    0.1
+  ],
+  "proposed_action": "correction_note",
+  "accepted": false
+}

@@ -1,0 +1,25 @@
+{
+  "document": "docs/project-docs/Functional-Design/FDD-022-scored-search-decision-configuration-compilation.md",
+  "tag": "cr002",
+  "base_commit": "96129cd",
+  "candidate_sha256": "3fcec2c2fda59039f8689b68113cc60a5c78aabfad49772a2542be18b23e2cb0",
+  "features": {
+    "lines": 2,
+    "terms_removed": 19,
+    "terms_kept": 18,
+    "goal_preserved": true,
+    "requirement_inverted": false,
+    "normative_touched": false,
+    "status_line_changed": false,
+    "downstream_refs": 0,
+    "change_ratio": 0.0
+  },
+  "observed": [
+    0.05,
+    0.1,
+    0.1,
+    0.1
+  ],
+  "proposed_action": "correction_note",
+  "accepted": false
+}

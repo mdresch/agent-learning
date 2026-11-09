@@ -1,0 +1,25 @@
+{
+  "document": "docs/adr/ADR-014-critique-to-evidence-ingestion.md",
+  "tag": "cr002",
+  "base_commit": "96129cd",
+  "candidate_sha256": "9bd32195725231cdf346acaa0db3c4f406d4d65919ec31c86211c11e7aaed911",
+  "features": {
+    "lines": 2,
+    "terms_removed": 2,
+    "terms_kept": 1,
+    "goal_preserved": false,
+    "requirement_inverted": false,
+    "normative_touched": false,
+    "status_line_changed": false,
+    "downstream_refs": 0,
+    "change_ratio": 0.01
+  },
+  "observed": [
+    0.05,
+    0.9,
+    0.1,
+    0.1
+  ],
+  "proposed_action": "correction_note",
+  "accepted": false
+}

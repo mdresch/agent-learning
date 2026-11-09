@@ -1,0 +1,25 @@
+{
+  "document": "docs/user-stories/epic-16-deterministic-ucb-decision-policy.md",
+  "tag": "cr002",
+  "base_commit": "96129cd",
+  "candidate_sha256": "989f2c13789f1aa9f8ba648572aec109901cde99ec067cbc9c02b5455d994430",
+  "features": {
+    "lines": 2,
+    "terms_removed": 11,
+    "terms_kept": 8,
+    "goal_preserved": false,
+    "requirement_inverted": false,
+    "normative_touched": false,
+    "status_line_changed": false,
+    "downstream_refs": 0,
+    "change_ratio": 0.01
+  },
+  "observed": [
+    0.05,
+    0.9,
+    0.1,
+    0.1
+  ],
+  "proposed_action": "correction_note",
+  "accepted": false
+}

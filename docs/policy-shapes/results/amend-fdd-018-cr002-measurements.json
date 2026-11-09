@@ -1,0 +1,25 @@
+{
+  "document": "docs/project-docs/Functional-Design/FDD-018-pairwise-preference-optimization.md",
+  "tag": "cr002",
+  "base_commit": "96129cd",
+  "candidate_sha256": "641fee2033c04dabe2695022393d97d5dfe89d405bad522df4f16d2eecb6c632",
+  "features": {
+    "lines": 2,
+    "terms_removed": 13,
+    "terms_kept": 12,
+    "goal_preserved": true,
+    "requirement_inverted": false,
+    "normative_touched": false,
+    "status_line_changed": false,
+    "downstream_refs": 0,
+    "change_ratio": 0.0
+  },
+  "observed": [
+    0.05,
+    0.1,
+    0.1,
+    0.1
+  ],
+  "proposed_action": "correction_note",
+  "accepted": false
+}

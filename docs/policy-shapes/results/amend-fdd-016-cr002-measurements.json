@@ -1,0 +1,25 @@
+{
+  "document": "docs/project-docs/Functional-Design/FDD-016-deterministic-ucb-decision-policy.md",
+  "tag": "cr002",
+  "base_commit": "96129cd",
+  "candidate_sha256": "b1f0026850dab7b6b8a1fadc285d8f867a88131100be50181653870ac497db1c",
+  "features": {
+    "lines": 2,
+    "terms_removed": 19,
+    "terms_kept": 16,
+    "goal_preserved": true,
+    "requirement_inverted": false,
+    "normative_touched": false,
+    "status_line_changed": false,
+    "downstream_refs": 0,
+    "change_ratio": 0.01
+  },
+  "observed": [
+    0.05,
+    0.1,
+    0.1,
+    0.1
+  ],
+  "proposed_action": "correction_note",
+  "accepted": false
+}

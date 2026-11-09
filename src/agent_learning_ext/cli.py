@@ -42,6 +42,7 @@ from agent_learning_ext.decision import (
     capture_decision_evidence_enabled,
 )
 from agent_learning.meta_prior import FamilyMember, MetaPrior, compile_meta_prior, seed_values
+from agent_learning.policy.contextual_softmax import ContextualSoftmaxPolicy
 from agent_learning.policy.softmax_bandit import SoftmaxPolicy
 from agent_learning.policy.thompson import ThompsonPolicy
 from agent_learning_ext.routing import (
@@ -258,6 +259,11 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         "--decision-authority",
         choices=[authority.value for authority in DecisionAuthority],
         help="Action-selection authority: low uses learned policy evidence; full resolves a decision frame.",
+    )
+    init.add_argument(
+        "--feature-dim",
+        type=int,
+        help="Create a low-authority contextual softmax policy over feature vectors of this length (>= 1).",
     )
 
     complexity = sub.add_parser(
@@ -981,6 +987,17 @@ def _cmd_adjudicate_task_policy(args: argparse.Namespace) -> int:
 
 
 def _cmd_init_task_policy(args: argparse.Namespace) -> int:
+    if args.feature_dim is not None:
+        if args.decision_authority == DecisionAuthority.FULL.value:
+            print(
+                "--feature-dim creates a low-authority contextual policy and cannot be "
+                "combined with --decision-authority full",
+                file=sys.stderr,
+            )
+            return 2
+        if args.feature_dim < 1:
+            print("--feature-dim must be an integer >= 1", file=sys.stderr)
+            return 2
     store = get_default_store()
     if store.get_active_policy(args.agent_id, args.task_id) is not None:
         print(
@@ -1012,11 +1029,19 @@ def _cmd_init_task_policy(args: argparse.Namespace) -> int:
     ):
         print("Decision action ids must be non-empty and unique", file=sys.stderr)
         return 2
-    policy = SoftmaxPolicy.from_actions(
-        actions,
-        agent_id=args.agent_id,
-        task_id=args.task_id,
-    )
+    if args.feature_dim is not None:
+        policy = ContextualSoftmaxPolicy.from_actions(
+            actions,
+            feature_dim=args.feature_dim,
+            agent_id=args.agent_id,
+            task_id=args.task_id,
+        )
+    else:
+        policy = SoftmaxPolicy.from_actions(
+            actions,
+            agent_id=args.agent_id,
+            task_id=args.task_id,
+        )
     snapshot = policy.snapshot()
     try:
         complexity_profile = (

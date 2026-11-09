@@ -1,0 +1,48 @@
+{
+  "id": "43ea80ae-f37e-493b-8f0f-554063f7dae0",
+  "agent_id": "agent-learning-governance",
+  "task_id": "approve-brd",
+  "version": 0,
+  "actions": [
+    {
+      "id": "approve_brd",
+      "description": "The BRD's business rules are traceable to its source ADR, named honestly without inventing unmeasurable success metrics, and its out-of-scope list is accurate -- approve it",
+      "parameters": {}
+    },
+    {
+      "id": "reject_brd",
+      "description": "The BRD has a fundamental, unfixed flaw in its own business rules or traceability -- reject it outright",
+      "parameters": {}
+    },
+    {
+      "id": "request_revision_before_decision",
+      "description": "The BRD's own business rules or scope need a real change before it can be judged -- distinct from a named, deliberately out-of-scope follow-on item the BRD itself already scoped correctly",
+      "parameters": {}
+    }
+  ],
+  "logits": {
+    "approve_brd": 0.0,
+    "reject_brd": 0.0,
+    "request_revision_before_decision": 0.0
+  },
+  "baseline": 0.0,
+  "episodes_seen": 0,
+  "updates_applied": 0,
+  "metadata": {
+    "policy_scope": "delegated_decision",
+    "decision_context": "Stage 6 recommendation on whether BRD-023 is ready for human approval",
+    "decision_authority": "full",
+    "decision_authority_source": "configured",
+    "complexity_profile": {
+      "intent_ambiguity": "low",
+      "context_variability": "variable",
+      "outcome_observability": "direct",
+      "decision_impact": "high",
+      "reversibility": "reversible",
+      "requires_human_approval": true,
+      "rationale": "Baseline governance gates (approve-charter, approve-adr, approve-project-pillars, etc.) require explicit human sign-off per ADR-021."
+    },
+    "complexity_profile_source": "configured"
+  },
+  "created_at": "2026-11-09T02:18:44.548284+00:00"
+}

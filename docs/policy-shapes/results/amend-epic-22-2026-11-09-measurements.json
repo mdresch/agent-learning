@@ -1,0 +1,26 @@
+{
+  "document": "docs/user-stories/epic-22-scored-search-decision-configuration-compilation.md",
+  "tag": "2026-11-09",
+  "base_commit": "62a79d3",
+  "candidate_sha256": "b10378557718bf776a1aaa8beeb6dfdf4d5a6e6a5b3c39c8a29e898d80b33131",
+  "features": {
+    "lines": 8,
+    "terms_removed": 5,
+    "terms_kept": 5,
+    "goal_preserved": true,
+    "requirement_inverted": false,
+    "normative_touched": true,
+    "status_line_changed": false,
+    "downstream_refs": 46,
+    "change_ratio": 0.16
+  },
+  "observed": [
+    0.25,
+    0.1,
+    0.9,
+    0.9
+  ],
+  "proposed_action": "amendment_log_entry",
+  "accepted": true,
+  "episode": "59440d8c"
+}

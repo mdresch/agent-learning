@@ -9,7 +9,7 @@ FDD-013 sections 3.7 and 6 (docs/project-docs/Functional-Design/)
 import ast
 from pathlib import Path
 
-import agent_learning
+import agent_learning_ext as agent_learning
 from agent_learning.pmbok import (
     DRAFT_ORDER,
     Blocker,
@@ -383,8 +383,10 @@ def test_ac5_purity_and_package_exports():
         "check_formalization",
     ]
 
+    import agent_learning.pmbok as agent_learning_pmbok
+
     for sym in epic_13_symbols:
-        assert hasattr(agent_learning.pmbok, sym), f"agent_learning.pmbok missing {sym}"
-        assert sym in agent_learning.pmbok.__all__, f"agent_learning.pmbok.__all__ missing {sym}"
+        assert hasattr(agent_learning_pmbok, sym), f"agent_learning.pmbok missing {sym}"
+        assert sym in agent_learning_pmbok.__all__, f"agent_learning.pmbok.__all__ missing {sym}"
         assert hasattr(agent_learning, sym), f"agent_learning root missing {sym}"
         assert sym in agent_learning.__all__, f"agent_learning.__all__ missing {sym}"

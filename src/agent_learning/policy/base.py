@@ -14,7 +14,7 @@ class Decision:
     """Output of :meth:`Policy.choose`: which action and with what probability."""
 
     action: Action
-    logprob: Optional[float]  # None when the policy has no selection probability (Thompson sampling)
+    logprob: float
     probabilities: List[float]  # Probability assigned to every action (same order as snapshot.actions)
 
 

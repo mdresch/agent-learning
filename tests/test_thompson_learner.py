@@ -36,7 +36,7 @@ import math
 
 import pytest
 
-from agent_learning import LearningRunner
+from agent_learning_ext import LearningRunner
 from agent_learning.learners.base import Learner
 from agent_learning.learners.thompson import ThompsonLearner, reward_to_success
 from agent_learning.policy import SoftmaxPolicy
@@ -331,10 +331,10 @@ def test_ac8_a_late_reward_is_counted_once_when_first_offered_with_it() -> None:
 
 
 def test_the_learner_is_a_learner_and_is_exported() -> None:
-    import agent_learning
-    import agent_learning.learners as learners_package
+    import agent_learning_ext as agent_learning
+    import agent_learning_ext.learners as learners_package
 
     assert issubclass(ThompsonLearner, Learner)
     assert agent_learning.ThompsonLearner is ThompsonLearner
-    assert learners_package.ThompsonLearner is ThompsonLearner
+    assert learners_package.ThompsonLearner is ThompsonLearner  # exported from the extension, not Microsoft's package
     assert "ThompsonLearner" in agent_learning.__all__

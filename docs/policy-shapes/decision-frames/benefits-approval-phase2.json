@@ -1,0 +1,154 @@
+{
+  "task": "Benefits-Management-Plan.md v2.0 (Phase 2 Stage 3): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "benefits_grounded_in_sparks_and_hypotheses",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Target benefits (BEN-P2-001 to BEN-P2-005) trace directly to approved Phase 2 sparks (SPARK-001 to 003) and active research hypotheses (HYP-AL-005, 018, 025, 026, 027)."
+    },
+    {
+      "id": "beneficiaries_and_ownership_clear",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Identifies real human beneficiaries (Reviewers, Maintainers, Auditors, Adopters) without abstract entities; single sponsor ownership extends through M10 and post-phase validation."
+    },
+    {
+      "id": "falsifiable_metrics_and_timeframes",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Milestone timeframes map cleanly to M6-M10 in Project-Charter.md v2.0; metrics use exact mathematical tolerances (10^-9 precision, sample reduction, 0 drift rows)."
+    },
+    {
+      "id": "disbenefits_identified_and_mitigated",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Identifies concrete disbenefits (reviewer bias, extension package indirection, micro-task governance overhead) with viable, built-in monitoring and mitigation mechanisms."
+    },
+    {
+      "id": "sequencing_and_lifecycle_integrity",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Strict compliance with PMBOK 8 Figure 2-3 (authored in Stage 3 alongside Business Case prior to Stage 4 Charter); resolves the Phase 1 retrofit flaw."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_benefits_plan",
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      },
+      "evidence": [
+        {
+          "criterion_id": "benefits_grounded_in_sparks_and_hypotheses",
+          "source": "direct_doc_read:docs/project-docs/Benefits-Management-Plan.md@v2.0",
+          "support": 0.95,
+          "confidence": 0.92
+        },
+        {
+          "criterion_id": "beneficiaries_and_ownership_clear",
+          "source": "direct_doc_read:docs/project-docs/Benefits-Management-Plan.md@v2.0",
+          "support": 0.95,
+          "confidence": 0.95
+        },
+        {
+          "criterion_id": "falsifiable_metrics_and_timeframes",
+          "source": "direct_doc_read:docs/project-docs/Benefits-Management-Plan.md@v2.0",
+          "support": 0.92,
+          "confidence": 0.90
+        },
+        {
+          "criterion_id": "disbenefits_identified_and_mitigated",
+          "source": "direct_doc_read:docs/project-docs/Benefits-Management-Plan.md@v2.0",
+          "support": 0.90,
+          "confidence": 0.90
+        },
+        {
+          "criterion_id": "sequencing_and_lifecycle_integrity",
+          "source": "direct_doc_read:docs/project-docs/Benefits-Management-Plan.md@v2.0",
+          "support": 0.96,
+          "confidence": 0.95
+        }
+      ]
+    },
+    {
+      "action_id": "reject_benefits_plan",
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      },
+      "evidence": [
+        {
+          "criterion_id": "benefits_grounded_in_sparks_and_hypotheses",
+          "source": "direct_doc_read:docs/project-docs/Benefits-Management-Plan.md@v2.0",
+          "support": 0.05,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "beneficiaries_and_ownership_clear",
+          "source": "direct_doc_read:docs/project-docs/Benefits-Management-Plan.md@v2.0",
+          "support": 0.05,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "falsifiable_metrics_and_timeframes",
+          "source": "direct_doc_read:docs/project-docs/Benefits-Management-Plan.md@v2.0",
+          "support": 0.05,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "disbenefits_identified_and_mitigated",
+          "source": "direct_doc_read:docs/project-docs/Benefits-Management-Plan.md@v2.0",
+          "support": 0.05,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "sequencing_and_lifecycle_integrity",
+          "source": "direct_doc_read:docs/project-docs/Benefits-Management-Plan.md@v2.0",
+          "support": 0.05,
+          "confidence": 0.85
+        }
+      ]
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      },
+      "evidence": [
+        {
+          "criterion_id": "benefits_grounded_in_sparks_and_hypotheses",
+          "source": "direct_doc_read:docs/project-docs/Benefits-Management-Plan.md@v2.0",
+          "support": 0.15,
+          "confidence": 0.80
+        },
+        {
+          "criterion_id": "beneficiaries_and_ownership_clear",
+          "source": "direct_doc_read:docs/project-docs/Benefits-Management-Plan.md@v2.0",
+          "support": 0.10,
+          "confidence": 0.80
+        },
+        {
+          "criterion_id": "falsifiable_metrics_and_timeframes",
+          "source": "direct_doc_read:docs/project-docs/Benefits-Management-Plan.md@v2.0",
+          "support": 0.15,
+          "confidence": 0.80
+        },
+        {
+          "criterion_id": "disbenefits_identified_and_mitigated",
+          "source": "direct_doc_read:docs/project-docs/Benefits-Management-Plan.md@v2.0",
+          "support": 0.15,
+          "confidence": 0.80
+        },
+        {
+          "criterion_id": "sequencing_and_lifecycle_integrity",
+          "source": "direct_doc_read:docs/project-docs/Benefits-Management-Plan.md@v2.0",
+          "support": 0.10,
+          "confidence": 0.80
+        }
+      ]
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ]
+}

@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-012](../adr/ADR-012-subsidiary-management-plan-standards-and-content-contracts.md) — Accepted (2026-10-25)  
 **Source BRD/FDD:** [BRD-012](../project-docs/Business-Requirements/BRD-012-subsidiary-management-plan-standards-and-content-contracts.md) / [FDD-012](../project-docs/Functional-Design/FDD-012-subsidiary-management-plan-standards-and-content-contracts.md)  
-**Status:** Approved (2026-10-27, Menno) — stories derived from Accepted ADR-012, BRD-012 and FDD-012; adjudicated via `approve-user-stories` (robust utility 0.698, episode `d90bceb7-53df-43ef-b046-6acb728146ec`).  
+**Status:** Completed (Stories 12.1–12.4 implemented and verified) — stories derived from Accepted ADR-012, BRD-012 and FDD-012; adjudicated via `approve-user-stories` (robust utility 0.698, episode `d90bceb7-53df-43ef-b046-6acb728146ec`).  
 
 Four stories build the pure plan lint in `src/agent_learning/pmbok/`. Each rule sits in exactly one story's criteria (LL-012). Contract tests are `tests/test_plan_parser.py`, `tests/test_plan_metadata.py`, `tests/test_plan_content.py` and `tests/test_plan_next_step.py`. Fixtures that are real artifacts live committed under `tests/fixtures/pmbok/`; the conformance tests also read the real ADR files, anchored to the test file's location (LL-006).
 

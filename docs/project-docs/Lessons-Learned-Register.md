@@ -53,6 +53,16 @@
 | [LL-040](#ll-040--print-the-resolved-store-path-before-a-governance-command) | Print the Resolved Store Path Before a Governance Command | Epic 19 / ADR-003 amendment | Universal Tooling | 2026-11-04 |
 | [LL-041](#ll-041--apply-a-lessons-tier-2-propagation-in-the-same-pr) | Apply a Lesson's Tier 2 Propagation in the Same PR | Epic 20 / Story 20.6 | Universal Process | 2026-11-04 |
 | [LL-042](#ll-042--an-existing-story-branch-means-a-run-was-already-started) | An Existing Story Branch Means a Run Was Already Started | Epic 20 / Story 20.6 | Universal Process | 2026-11-04 |
+| [LL-043](#ll-043--a-closing-stages-tooling-may-sit-outside-what-ci-runs) | A Closing Stage's Tooling May Sit Outside What CI Runs | Phase 1 Close / Stage 18 | Universal Process | 2026-11-04 |
+| [LL-044](#ll-044--the-monolithic-ideation-trap-decoupling-deep-exploratory-research-into-a-dedicated-library) | The Monolithic Ideation Trap: Decoupling Deep Exploratory Research into a Dedicated Library | Phase 1 Close / Stage 1 Initiation | Universal Governance & Process | 2026-11-06 |
+| [LL-045](#ll-045--pre-flight-specification-gaps-in-replay-engines-auditing-empty-collection-and-none-safety-contracts) | Pre-Flight Specification Gaps in Replay Engines: Auditing Empty-Collection and None-Safety Contracts | Epic 14 / Story 14.5 | Universal Design & Testing | 2026-11-08 |
+| [LL-046](#ll-046--continuous-domain-widening-in-statistical-bounds-must-be-guarded-against-classical-integer-reversion) | Continuous-Domain Widening in Statistical Bounds Must Be Guarded Against Classical Integer Reversion | Epic 16 / Stories 16.1–16.6 | Universal Design & Testing | 2026-11-08 |
+| [LL-047](#ll-047--enforce-explicit-numerical-tolerances-and-non-tautological-contract-assertions) | Enforce Explicit Numerical Tolerances and Non-Tautological Contract Assertions | Epic 18 / Stories 18.1–18.6 | Universal Testing & ML | 2026-11-08 |
+| [LL-048](#ll-048--dual-invocation-compatibility-patterns-and-action-space-safety-mask-lock-in) | Dual Invocation Compatibility Patterns and Action Space Safety Mask Lock-In | Epic 17 / Stories 17.1–17.6 | Universal Design & RL Prototyping | 2026-11-08 |
+| [LL-049](#ll-049--a-review-line-outside-the-triage-vocabulary-breaks-foreign-contracts-after-merge) | A Review Line Outside the Triage Vocabulary Breaks Foreign Contracts After Merge | Epic 22 / Stories 22.6–22.7 | Universal Process | 2026-11-09 |
+| [LL-050](#ll-050--approved-documents-can-name-code-that-is-not-there-and-criteria-edited-after-the-contract-trip-the-baseline) | Approved Documents Can Name Code That Is Not There, and Criteria Edited After the Contract Trip the Baseline | Epic 22 / Stories 22.1–22.7 | Universal Process | 2026-11-09 |
+| [LL-051](#ll-051--pr-gate-stale-review-parsing-and-confirmation-recognition) | PR Gate Stale Review Parsing and Confirmation Recognition | Epic 22 / Story 22.7 | Universal Process & Tooling | 2026-11-09 |
+| [LL-052](#ll-052--pareto-dominance-margin-collapse-and-simplex-corner-collapse-in-scored-search-compilation) | Pareto-Dominance Margin Collapse and Simplex Corner Collapse in Scored-Search Compilation | Epic 22 / Stories 22.1–22.7 | Universal ML & Governance Decision Theory | 2026-11-09 |
 
 ---
 
@@ -609,3 +619,198 @@
 - **The Trap:** `git worktree add -b feat/story-20.6` failed because the branch and a worktree with uncommitted tests, skill and FDD edits already existed from a cut-off run. The leftovers were adopted and committed as the new run's own, so RED was never observed and the log had to be corrected afterwards (PR #104).
 - **The Root Cause:** Step 0 described only the clean case. A failing `git worktree add` was read as a nuisance, not as the sign of a started run.
 - **Actionable Invariant:** If the story branch or worktree exists, stop `implement-story` at Step 0, inspect it read-only, tell the human, and continue with `heal-contract-failure` from Intent. Show the contract able to fail (RED, or by reverted mutation where the story has no code) before relying on it, and never adopt uncommitted leftovers without that walk.
+
+---
+
+### LL-043 — A Closing Stage's Tooling May Sit Outside What CI Runs
+- **Identifier:** `LL-043`
+- **Date:** 2026-11-04
+- **Epic / Story:** Phase 1 close / Stage 18 readiness (INSIGHT-003)
+- **Scope:** Universal Process
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/intent-refinement/SKILL.md`; Tier 3: `sidpa-template` (proposed, needs human approval before any cross-repo change)
+- **The Trap:** Stage 18 relies on `evaluate_phase_close_readiness` and `seed-next`, which exist only in the legacy top-level `pmbok/` tree. CI skips that tree's tests (`--ignore=tests/pmbok`) and ADR-034 plans to delete it. This surfaced at phase close, not while the tools were built.
+- **The Root Cause:** ADR-034 retires the tree by stages and nothing lists which later stages still depend on it.
+- **Actionable Invariant:** Before a phase-close stage runs, run its tests under `uv run` in a clean environment, and record which stages depend on code outside `src/`.
+
+---
+
+### LL-044 — The Monolithic Ideation Trap: Decoupling Deep Exploratory Research into a Dedicated Library
+- **Identifier:** `LL-044`
+- **Date:** 2026-11-06
+- **Epic / Story:** Phase 1 Close / Stage 1 Initiation (Phase 2 Transition)
+- **Scope:** Universal Governance & Architecture / Research Process
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/stage-1/SKILL.md` (or `.claude/skills/ideation/SKILL.md`) & `docs/research/ideation/README.md`; Tier 3: `sidpa-template/docs/research/`
+- **The Trap:** Attempting to force an early-stage lifecycle document (`Ideation-Document.md` or `Spark-Capture.md`) to resolve downstream chartering, economic feasibility, stakeholder taxonomy, and technical depth in a single monolithic artifact. The document swells to unmaintainable sizes (over 1,000 lines), conflating exploratory research with governed lifecycle progression, creating friction for reviews and gate checks.
+- **The Root Cause:** Lack of a designated, decoupled research repository for exploratory landscape studies, comparative SDK benchmarks, and architectural investigations. Without an offline research library, all inquiry is forced into the immediate lifecycle document under active governance.
+- **Actionable Invariant:** Decouple deep exploratory inquiry into a dedicated research directory (`docs/research/<domain>/`), while keeping lifecycle artifacts (`Spark-Capture.md`, `Ideation-Document.md`, `Project-Charter.md`) strictly focused on their specific stage gate deliverables. The lifecycle artifact summarizes the synthesized insight, records the hypotheses, and points to the research library for supporting evidence and comprehensive taxonomies.
+- **Verification Gate:** Pre-commit or stage gate checks ensure lifecycle artifacts cite canonical research artifacts in `docs/research/` rather than embedding multi-page comparative surveys and benchmarks inline.
+
+---
+
+### LL-045 — Pre-Flight Specification Gaps in Replay Engines: Auditing Empty-Collection and None-Safety Contracts
+- **Identifier:** `LL-045`
+- **Date:** 2026-11-08
+- **Epic / Story:** Epic 14 / Story 14.5 (commit `f3b3731`, PR #121)
+- **Scope:** Universal Design & Testing / Replay Engines
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/implement-story/SKILL.md` (Step 1b Pre-Flight Spec Gate); Tier 3: `sidpa-template/scripts/spec_gate.py`
+- **The Trap:** Replay engines and log parsers written to process real production history often assume well-formed entries. When stories are drafted without explicit contracts for empty collections (e.g., empty log, 0 matching records) or defensive None-handling on optional fields (e.g., missing comment text, unpopulated metadata), implementations fail abruptly with unhandled `AttributeError` or `KeyError` when exposed to partial data. In Story 14.5, the initial spec was marked blocked on a data gap and completely omitted empty collection / defensive None contracts.
+- **The Root Cause:** Drafting test contracts directly against anticipated positive datasets without running an adversarial specification audit to identify edge cases, boundary conditions, and None-safety gaps upfront.
+- **Actionable Invariant:** Run the Pre-Flight Specification Gate (`scripts/spec_gate.py <X.Y>`) before drafting any RED contracts. The gate audits four orthogonal criteria (specification completeness, testability, Invariant 6 upstream fork purity, architectural boundaries), identifies unstated None-safety and empty collection requirements, and derives recommended contract interpretations ($I_1, I_2, \dots$) to be included in test docstrings.
+- **Verification Gate:** Step 1b of `implement-story` runs `scripts/spec_gate.py <X.Y>` and requires robust utility margin $\ge +0.05$ before RED test drafting begins.
+
+---
+
+### LL-046 — Continuous-Domain Widening in Statistical Bounds Must Be Guarded Against Classical Integer Reversion
+- **Identifier:** `LL-046`
+- **Date:** 2026-11-08
+- **Epic / Story:** Epic 16 / Stories 16.1–16.6 (commits `0251d71`, `eda14c4`, `b1ae8ab`, `48d1fd5`, `fbfb611`, `b8fe5cb`)
+- **Scope:** Universal Design & Testing / Statistical Policies
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/ucb/SKILL.md` & `scripts/spec_gate.py`; Tier 3: `sidpa-template` (proposed, needs human approval before any cross-repo change)
+- **The Trap:** When classical discrete mathematical primitives (such as the Wilson score interval or binomial proportion bounds) are deliberately widened to accept continuous pseudo-successes ($r = (\text{value} + 1)/2 \in [0, 1]$ per FDD-016 §3 E3), external review agents or static analysis tools trained on classical textbook definitions may flag fractional cumulative rewards as bugs and strongly recommend integer-only type guards. In Story 16.3 (PR #126), reviewer critique urged enforcing integer constraints on `cumulative_reward`, which would have silently broken continuous partial reward accumulation ($0.0 \mapsto 0.5$) in downstream Story 16.4.
+- **The Root Cause:** Relying solely on internal functional design departure notes (FDD-016 §4 E3) without explicitly encoding the continuous-widening rationale in the public docstring, component skill, and pre-flight specification gate.
+- **Actionable Invariant:** When extending classical discrete formulations to continuous domains:
+  1. Explicitly document the domain widening, its bound preservation, and its downstream requirements (e.g., continuous reward mapping) in the function docstring and component skill.
+  2. Implement bidirectional mathematical symmetry tests across a continuous grid (e.g., $1 - \text{wilson\_lower\_bound}(N - k, N) = \text{wilson\_upper\_bound}(k, N)$).
+  3. Pre-flight specification gates must document any domain-widening departures in the generated contract interpretations ($I_1, I_2, \dots$) so review triage can cite design intent immediately.
+
+---
+
+### LL-047 — Enforce Explicit Numerical Tolerances and Non-Tautological Contract Assertions
+- **Identifier:** `LL-047`
+- **Date:** 2026-11-08
+- **Epic / Story:** Epic 18 / Stories 18.1–18.6 (commits `174e3ff`, `1113d57`, `b57ca2d`, `b9665a8`, `8c39f1f`)
+- **Scope:** Universal Design & Testing / Pairwise Preference & Convex Optimization
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/pairwise-preference/SKILL.md` & `scripts/spec_gate.py`; Tier 3: `sidpa-template` (proposed, needs human approval before cross-repo change)
+- **The Trap:** When verifying numerical convergence and parameter invariance in convex regularized models (e.g., Bradley-Terry logit optimization with L2 anchor), relying on standard library default tolerances (such as `math.isclose` with default `rel_tol=1e-9`) silently allows relative errors 1,000× looser than tight mathematical contracts ($10^{-12}$), masking floating-point drift. Similarly, test assertions that construct local assertion strings rather than inspecting the system under test's actual outputs (e.g. `LearnerResult` counts and docstring contracts) produce tautological passes that verify developer authoring rather than implementation behavior.
+- **The Root Cause:** Loose floating-point comparison defaults and disconnecting contract verification from real learner state machines and returned result structures.
+- **Actionable Invariant:** 
+  1. For tight mathematical contracts, always enforce absolute tolerances explicitly (`abs(a - b) <= 1e-12` and `math.isclose(a, b, rel_tol=0.0, abs_tol=1e-12)`).
+  2. Anchor all boundary and contract assertions directly to runtime outputs (`result.episodes_used`, `result.extra['pairs']`, `policy.snapshot().logits`) and verified docstrings.
+- **Verification Gate:** Pre-flight spec gates and automated PR gatekeeper reviews check for explicit numerical tolerances and verify that contract assertions target runtime state objects.
+
+---
+
+### LL-048 — Dual Invocation Compatibility Patterns and Action Space Safety Mask Lock-In
+- **Identifier:** `LL-048`
+- **Date:** 2026-11-08
+- **Epic / Story:** Epic 17 / Stories 17.1–17.6 (commits `7928803`, `363a2d6`, `8d39db8`, `1076509`, `ce118aa`, `9c10ec5`)
+- **Scope:** Universal Design & RL Prototyping / Policy Extension Frameworks
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/implement-story/SKILL.md` & `src/agent_learning_ext/policy/`; Tier 3: `sidpa-template` (proposed, needs human approval before cross-repo change)
+- **The Trap:** In implementing RL exploration policies that inherit from abstract upstream base classes (`Policy`), two distinct architectural traps emerge:
+  1. *Dual-Invocation Calling Conventions:* Upstream test runners (`LearningRunner`) invoke `policy.snapshot()` and `policy.actions()` as methods per abstract base class definitions, whereas user stories, interactive scripts, and modern test suites frequently inspect them as properties (`policy.snapshot.metadata`, `policy.actions`). Standard `@property` decorators cause downstream method invocations to fail with `TypeError: 'list' object is not callable` or `'PolicySnapshot' object is not callable`, while raw methods cause property reads to yield uninspected function handles.
+  2. *Safety Mask Exploitation Lock-In:* When exploration is gated by a strict safety mask (exploring only actions declared `reversible: true`), unflagged action definitions force the exploration rate to 0.0 for all $t$. In positive-only replay histories ($r = 1.0$), the policy permanently locks onto the first taken action because unpulled actions remain at neutral mean 0.5. Unless tests explicitly assert and document this lock-in as the *stated price of the safety mask* (BRU-017-03), reviewers and auditors unfamiliar with the domain may misclassify deliberate safety suppression as exploration starvation or a dead-lock bug.
+- **The Root Cause:** Architectural tension between abstract callable signatures and property-access ergonomics, combined with undocumented behavioral consequences of safety constraints on real-world datasets.
+- **Actionable Invariant:**
+  1. Implement transparent dual-invocation wrappers (`CallableSnapshot` and `CallableActionList`) that provide both callable execution (`obj()`) and attribute delegation (`obj.attr` / list iteration), guarding `__getattr__` against infinite recursion on internal attributes (`_target`).
+  2. Always explicitly document and test safety mask boundaries: when $A_{\text{safe}} = \emptyset$, assert that $\epsilon_t = 0.0$ across all $t$, that every decision is exploitation, and that lock-in onto positive-reward actions is expected, desired behavior under human safety governance.
+- **Verification Gate:** Pre-flight spec gates audit action property signatures and verify that test docstrings explicitly document safety mask lock-in tradeoffs.
+
+---
+
+### LL-049 — A Review Line Outside the Triage Vocabulary Breaks Foreign Contracts After Merge
+- **Identifier:** `LL-049`
+- **Date:** 2026-11-09
+- **Epic / Story:** Epic 22 / Stories 22.6–22.7 (commits `0566e0b`, `eef95f4`, `d0a909c`)
+- **Scope:** Review Triage / Audit Log
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/implement-story/SKILL.md` (Step 8.7); Tier 3: `sidpa-template` (proposed, needs human approval before cross-repo change)
+- **The Trap:** The Story 22.6 review was logged as `Q-145-2 | auditability | ...`. `auditability` is not in `review_triage.CLAIM_TYPES`, so `tests/test_review_triage.py` and two `tests/test_critique_replay.py` tests failed on `main` after PR #145 merged. Nothing flagged it until the next story ran the full suite.
+- **The Root Cause:** The triage vocabulary (five claim types plus `unknown`) is enforced only by a parser that runs inside unrelated tests, and the review lines are written after the story contract and after the last suite run. A reviewer's own category word was copied into the line.
+- **Actionable Invariant:** Use only the five claim types or `unknown`; a finding that fits none is `unknown`, never a new word. After writing or editing triage lines, run `uv run pytest tests/test_review_triage.py tests/test_critique_replay.py` before the commit. Fix a bad line by correcting the record with a dated note; do not widen the parser to accept it.
+- **Verification Gate:** `tests/test_review_triage.py::test_ac0_every_recorded_line_in_the_implementation_log_parses`; IMP-030 proposes making `scripts/pr_gate.py` check it.
+
+---
+
+### LL-050 — Approved Documents Can Name Code That Is Not There, and Criteria Edited After the Contract Trip the Baseline
+- **Identifier:** `LL-050`
+- **Date:** 2026-11-09
+- **Epic / Story:** Epic 22 / Stories 22.1–22.7 (commits `eef95f4`, `d0a909c`; Stage 16 episode `59440d8c`)
+- **Scope:** Specification Ingest / Governance Baseline
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/implement-story/SKILL.md` (Step 1); Tier 3: `sidpa-template` (proposed, needs human approval before cross-repo change)
+- **The Trap:** (1) ADR-022, FDD-022 and the Epic 22 file name `src/agent_learning/weight_compiler.py`, but the module is `src/agent_learning_ext/weight_compiler.py` under the fork rule; seven stories were built without the path being corrected. (2) In Story 22.7 the AC_0 to AC_3 wording was edited in the working tree to match what the test did, after the contract existed; `tests/test_governance_baseline.py` failed and a Stage 16 episode was needed afterwards. (3) The pre-flight spec gate was not run before the 22.7 contract, so that gap stands in the record.
+- **The Root Cause:** Step 1 checks that data sources are tracked (LL-037) but not that the code paths a document names exist, and nothing tells an author to amend criteria before the contract rather than after.
+- **Actionable Invariant:** At Step 1 run `git ls-files` on every code path the ADR, FDD and story name; a wrong path is an open question, corrected through `scripts/stage16_amend.py propose` (`correction_note`) before Step 3. Amend acceptance criteria through Stage 16 before the contract is written; a behaviour the criteria do not state is an interpretation in the test docstring (LL-011), not an edit to the story. A gate that was not run is recorded as a gap, not backfilled.
+- **Verification Gate:** `tests/test_governance_baseline.py`; `scripts/spec_gate.py` before Step 3.
+
+---
+
+### LL-051 — PR Gate Stale Review Parsing and Confirmation Recognition
+- **Identifier:** `LL-051`
+- **Date:** 2026-11-09
+- **Epic / Story:** Epic 22 / Story 22.7 (PR #147, commit `79fab91`)
+- **Scope:** Universal Process & Tooling (`scripts/pr_gate.py`)
+- **Tier 2/3 Propagation Target:** Tier 2: `scripts/pr_gate.py`; Tier 3: `sidpa-template` (proposed)
+- **The Trap:** When an automated reviewer (e.g. Amazon Q Developer) confirms all issues resolved in response to a `/q confirm` command, the confirmation body may not contain traditional review headers such as "Review Summary" or "Blocking Issues". In that case, `scripts/pr_gate.py`'s regex filter selected an obsolete earlier review round that still contained blocking issues, evaluating the PR as failing (-0.045 margin) despite 100% resolved findings.
+- **The Root Cause:** The PR gate parser's review-body filter expected traditional review summary headers and did not recognize formal confirmation or resolution statements (`"confirmed resolved"`, `"nothing remaining"`) posted by automated reviewers during interactive review resolution.
+- **Actionable Invariant:** `scripts/pr_gate.py` must include confirmation markers (`confirmed resolved`, `nothing remaining`, `status check`) in its reviewer body selector and translate explicit zero-open confirmations into positive confirmation evidence (`REV1-CONFIRM`) instead of falling back to obsolete review rounds.
+- **Verification Gate:** `python scripts/pr_gate.py <PR>` on clean confirmation produces positive margin ($\ge +0.05$); verified in PR #147 with decision margin +0.270.
+
+---
+
+### LL-052 — Pareto-Dominance Margin Collapse and Simplex Corner Collapse in Scored-Search Compilation
+- **Identifier:** `LL-052`
+- **Date:** 2026-11-09
+- **Epic / Story:** Epic 22 / Stories 22.1–22.7 (PR #147)
+- **Scope:** Universal ML & Governance Decision Theory (`weight_compiler.py`, `DecisionResolver`)
+- **Tier 2/3 Propagation Target:** Tier 2: `.claude/skills/weight-compiler/SKILL.md`; Tier 3: `sidpa-template` (proposed)
+- **The Trap:** When running the scored-search coordinate ascent compiler over the repository's 188 real decision frames, the multi-objective search gradient flattened to zero ($\text{Objective}(w) = N$), preventing the compiler from discovering criteria weight adjustments.
+- **The Root Cause:** Two interacting mathematical phenomena in real-world governance corpora:
+  1. *Pareto-Dominance Margin Collapse:* In vetted architecture frames, the human-accepted action (`approve_*`) overwhelmingly dominates runner-up options across all criteria. In `weight_compiler.py`, `evaluate()` filtered `viable = [a for a in assessments if a.feasible and not a.ruled_out_by]`. Because runner-ups had `ruled_out_by=('pareto_dominated_by:approve_*',)`, `len(viable)` dropped to 1, forcing `margin = 0.0` despite true robust utility gaps exceeding $+0.80$. The more decisively an option won, the smaller its recorded margin became.
+  2. *Single-Class Simplex Corner Collapse:* Because the audited historical corpus holds only positive approvals ($P(Y = \text{approve}) = 1.0$), unconstrained margin optimization without counterfactual negative examples creates a degenerate gradient that drives 100% of the weight onto whichever criterion has the highest raw template support, collapsing the weight simplex into an extreme vertex.
+- **Actionable Invariant:** 
+  1. Feasibility in margin calculation must be defined strictly by constraint satisfaction (`assessment.feasible`), not Pareto dominance (`ruled_out_by`). The robust utility gap between the leading feasible option and its feasible runner-up measures decision confidence and must not be masked by Pareto pruning.
+  2. On single-class historical corpora, coordinate ascent must strictly enforce boundary floors ($w_c \ge \text{step}$) to prevent degenerate vertex collapse until multi-class counterfactual examples (e.g. Red Team defect fixtures) are introduced.
+- **Verification Gate:** `tests/test_weight_real_data.py`; IMP-035 and IMP-036.
+
+---
+
+### LL-053 — Approved Documents Named Microsoft-Module Placement Again
+- **Identifier:** `LL-053`
+- **Date:** 2026-11-09
+- **Epic / Story:** Epic 38 / Stories 38.1–38.6 (PRs #152–#159)
+- **Scope:** Specification Authoring / Fork Rule
+- **Tier 2/3 Propagation Target:** Tier 1 only (a Tier 2 edit to `.claude/skills/implement-story/SKILL.md` is proposed in IMP-044 and needs a human decision)
+- **The Trap:** ADR-038 §4.1 and FDD-038 §1 put the new learner and its export in `src/agent_learning/learners/` and `agent_learning`, and the CLI flags in `agent-learn`. All of those are Microsoft files under `tests/upstream_manifest.json`, so all six stories would have failed `tests/test_upstream_untouched.py`. It was caught at Step 1 before any code, and fixed by two Stage 16 correction notes (episodes `89ca6a26`, `f16469bd`).
+- **The Root Cause:** LL-050 put the check at Step 1 for code paths a story names, but the same documents were written and approved without comparing their paths to the upstream manifest, so the error reached ADR, BRD, FDD and stories.
+- **Actionable Invariant:** When drafting an ADR or FDD that names a code path, a new module or an export, check the path against `tests/upstream_manifest.json` first. New modules, exports and CLI commands go in `agent_learning_ext` (reached through `agent-learn-ext`). Step 1 of `implement-story` remains the second check.
+- **Verification Gate:** `tests/test_upstream_untouched.py`; `tests/test_governance_baseline.py`.
+
+---
+
+### LL-054 — Stacked Story Branches Conflict in the Append-Only Log at Every Merge
+- **Identifier:** `LL-054`
+- **Date:** 2026-11-09
+- **Epic / Story:** Epic 38 / Stories 38.1–38.6 (PRs #152–#159)
+- **Scope:** Delivery / Git Workflow
+- **Tier 2/3 Propagation Target:** Tier 1 only (IMP-043 proposes a merge driver)
+- **The Trap:** Because the stories were implemented before any was merged, each branch forked from the previous one. Every PR after the first needed `main` merged into it, and `implementation-log.md` conflicted five times (the tail is where every story appends). Each reconciliation also changed the head commit, so CI and the Q confirm ran again.
+- **The Root Cause:** The loop expects one merge per story before the next story starts. Implementing a chain ahead of its merges keeps the appended entries in competition for the same lines.
+- **Actionable Invariant:** When stacking, merge in order and reconcile `main` into the next branch right after each merge. Resolve the log by keeping both blocks, the block from `main` first, and re-run the story and baseline tests before pushing. Treat the reconciliation merge as a new head and ask Q to confirm it.
+- **Verification Gate:** `git merge-tree --write-tree` between two story branches before opening the later PR; `tests/test_review_triage.py` and `tests/test_critique_replay.py` after any log edit.
+
+---
+
+### LL-055 — A Fresh Worktree Misses the Dev and Examples Extras, and a Recorded Exclusion Hid the Cause
+- **Identifier:** `LL-055`
+- **Date:** 2026-11-09
+- **Epic / Story:** Epic 38 / Stories 38.1–38.6 (PRs #152–#159)
+- **Scope:** Environment / Test Suite
+- **Tier 2/3 Propagation Target:** Tier 1 only (IMP-044 proposes the skill change)
+- **The Trap:** In every Epic 38 worktree a plain `uv sync` left `pytest` and `numpy` out of the environment, so `uv run pytest` silently used a global `pytest` that could not import `agent_learning`. Separately, `tests/pmbok` was excluded from every run under ADR-034 and LL-013 as not collectable; on 2026-11-09 it failed only with `No module named 'yaml'`, and with the extras installed the whole suite passed (2498 passed, 3 skipped, 0 failed).
+- **The Root Cause:** PyYAML belongs to the `examples` extra and the test tools to `dev`. The exclusion recorded under LL-013 described a missing dependency as a property of the tests.
+- **Actionable Invariant:** In a new worktree run `uv sync --extra dev --extra examples` (not `--all-extras`, LL-003) and run a plain `uv run pytest` with no `--ignore`. Read a RED's message before accepting it. If a test cannot be collected, record the missing module, not an exclusion.
+- **Verification Gate:** `uv run pytest` with no flags reports 0 errors; Spark tests may skip without a JVM and the report says so.
+
+---
+
+### LL-056 — Q Findings Repeat and Re-Anchor After a Fix, and a Stacked First Story Ships Latent Crash Paths
+- **Identifier:** `LL-056`
+- **Date:** 2026-11-09
+- **Epic / Story:** Epic 38 / Stories 38.1–38.6 (PRs #152–#159)
+- **Scope:** Review Workflow / Specification Order
+- **Tier 2/3 Propagation Target:** Tier 1 only
+- **The Trap:** (1) Q posted each finding twice, and after a fix GitHub re-anchored the old inline comments to the new head commit, so a monitor keyed on `commit_id` reported the same six comments as new. (2) Story 38.1 deliberately left the empty-batch and missing-vector guards to Story 38.2 so that 38.2's contract could be seen RED. On its own diff the learner divided by zero and raised `KeyError`, and Q flagged both. Fixed in `1369f23` and merged forward.
+- **The Root Cause:** Comments carry `original_commit_id` apart from `commit_id`, and the loop's RED-first order treats a deferred guard as scope. A deferred guard is still a crash on the first merged commit.
+- **Actionable Invariant:** Tell new Q output from old by review or comment id and `created_at`, not by `commit_id`. In the first story of a stack, add the obvious crash guards (empty input, missing key) even when the counting of skipped inputs comes later, and say so in the interpretations.
+- **Verification Gate:** `gh api repos/<repo>/pulls/<n>/comments` shows `original_commit_id`; the 38.1 review tests `test_review_no_usable_episode_leaves_the_policy_unchanged` and `test_review_episode_without_a_feature_vector_is_skipped_not_raised`.
+
+---

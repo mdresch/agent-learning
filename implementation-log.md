@@ -1765,4 +1765,1481 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Gate:** `agent-learning-governance` / `approve-ideation`. Recommendation `approve_ideation` (robust utility 0.684; request revision 0.174; reject 0.044). Human acceptance by Menno on 2026-11-04. Episode `c882fd98-427f-49e7-ae84-b985fa372230` in the store at `AGENT_LEARNING_LOCAL_STORE_DIR` (socialengage store, LL-040).
 - **Evidence:** both documents read in full at git `29b482c`; the assistant authored the frame scores from that read, so they are an AI assessment accepted by the human, not independent measurement. Frame, decision and adjudication results, and episode: `docs/policy-shapes/{decision-frames/ideation-approval.json, results/ideation-decision-result.json, results/ideation-adjudication-result.json, episodes/ideation-approval-episode.json}`.
 - **Known staleness carried, not hidden:** the `snapshot_accuracy_dated` criterion scored 0.60 because several 2026-10-25 statements are now superseded (§2.1.3 says ADR-014 to ADR-023 are Proposed with no code; Objective 4 "not yet true"; HYP-AL-008/009 still Formulated after Epics 15 and 20). Hypotheses stay open until Stage 18.
-- **Does not change:** `approve-charter` and `approve-business-case` still have zero episodes (recorded gap, not backfilled). `Project-Status-Register.md` still says `approve-ideation` has none; update it after PR #110 merges to avoid a conflict on the same row.
+- **Does not change:** `approve-charter` and `approve-business-case` still have zero episodes (recorded gap, not backfilled); `Project-Status-Register.md` still says `approve-ideation` has none; update it after PR #110 merges to avoid a conflict on the same row.
+
+## Story 9.3 — Low-Pass Outcome Damping and Cumulative Lineage Kernel
+- **Commit:** `105b6ef`
+- **Date:** 2026-10-25
+- **Branch:** `feat/story-9.3`
+- **Source ADR / BRD / FDD:** ADR-009, BRD-009, FDD-009
+- **Files Modified/Created:**
+  - `pmbok/models/intent_refinement.py` (added `StrategicWhiplashError`, `LowPassOutcomeDampingFilter`, `validate_strategic_pivot_capacity()`, `compute_lineage_kernel()`)
+  - `.claude/skills/intent-refinement/SKILL.md` (updated with Story 9.3 constraints and API call sites)
+  - `tests/pmbok/test_intent_refinement.py` (added 3 contract tests for $AC_9, AC_{10}, AC_{11}$)
+  - `docs/user-stories/epic-9-intent-refinement-and-cognitive-feedback-loop.md` (status updated to Completed)
+- **Validation:**
+  - $AC_9$: `LowPassOutcomeDampingFilter` dampens high-frequency outcome noise with momentum $\beta \in [0.6, 0.85]$ and bias-corrected warmup for $N < 3$.
+  - $AC_{10}$: `validate_strategic_pivot_capacity()` enforces S3-S4 homeostatic balance ($\text{Pivots}_{\max} \le \lceil C_{\text{adapt}} / 2 \rceil$), raising `StrategicWhiplashError` on violation.
+  - $AC_{11}$: `compute_lineage_kernel()` computes deterministic hereditary SHA-256 knowledge hash linking generations without epistemic decay.
+  - Full test suite: 26/26 passed in `test_intent_refinement.py` (1.18s); 303/303 passed in `sidpa-template` (29.20s).
+- **Restored 2026-11-04:** this entry was deleted by commit `c97921e` (2026-10-25, a hash-fix for Story 10.1) and is re-added verbatim from `implementation-log.md` at `342880b`. The implementation commit `105b6ef` is on `main`. Found by `phase_rollup.py --check` (AUDIT-006).
+
+
+---
+
+## Story 1.1 — Exclude `full`-authority episodes from `ReinforceLearner`'s training batch
+- **Commit:** `ce9346c`
+- **Date:** 2026-10-25
+- **Branch:** `feat/story-1.1`
+- **Source ADR / BRD / FDD:** ADR-001 §4.5, BRD-001, FDD-001
+- **Files Modified/Created:**
+  - `src/agent_learning/learners/reinforce.py` (excluded `action_logprob is None` episodes from gradient update, counted exclusions in `LearnerResult.extra["full_authority_excluded"]`)
+  - `src/agent_learning/audit.py` (updated stale warning message at line 562-563 to reflect exclusion rather than fallback)
+  - `.claude/skills/learner/SKILL.md` (new component skill documenting REINFORCE decision authority boundary)
+  - `tests/test_learner.py` (added contract tests for $AC_0, AC_1, AC_2, AC_3, AC_4$)
+  - `tests/test_audit.py` (verified audit replay exclusion and warning emission)
+  - `docs/user-stories/epic-1-decision-authority-enforcement.md` (status updated to Completed)
+- **Validation:**
+  - $AC_0$: `ReinforceLearner.update()` skips an episode when `episode.action_logprob is None`; verified with full-authority episode returning 0 `episodes_used` and identical logits.
+  - $AC_1$: `LearnerResult.extra["full_authority_excluded"]` reports exact exclusion count on all update paths, including `0`.
+  - $AC_2$: Low-authority importance sampling is unchanged and reweighted properly when `action_logprob` is set.
+  - $AC_3$: `audit.py` emits updated ADR-001 §4.5 warning when a full-authority episode is present in an audited batch.
+  - $AC_4$: `audit.py`'s direct `ReinforceLearner.update()` call sites (:444 and :503) exclude full-authority episodes without caller-level filtering.
+  - Full test suite: 18/18 passed in `test_learner.py`; 101/101 passed in `test_audit.py`; 442/442 passed across entire core test suite; 303/303 passed in `sidpa-template`. Zero regressions.
+- **Restored 2026-11-04:** this entry was deleted by commit `c97921e` (2026-10-25, a hash-fix for Story 10.1) and is re-added verbatim from `implementation-log.md` at `342880b`. The implementation commit `ce9346c` is on `main`. Found by `phase_rollup.py --check` (AUDIT-006).
+
+
+---
+
+## Records maintenance — Story status drift reconciled (AUDIT-006)
+- **Date:** 2026-11-04
+- **Branch:** `governance/approve-audit-record`
+- **Source:** `python scripts/phase_rollup.py --check` (15 drift rows), AUDIT-006, INSIGHT-002, IMP-011.
+- **Changed:** the status line of Stories 3.1, 4.1, 6.1, 26.1, 34.1, 34.2, 34.3 and 36.1 to 36.6 now starts with `Completed (date, commit, per implementation-log.md)` and keeps the earlier status text after it. The log entries for Stories 1.1 and 9.3 were restored verbatim from `342880b` (deleted by `c97921e`).
+- **Verified:** `phase_rollup.py --check` exits 0 (0 drift rows); group counts are unchanged (58 implemented, 60 Ready, 25 Draft or blocked, 1 superseded).
+- **Not done:** the rule that stops the drift recurring (A3 in `Adaptation-Plan.md`) is still a proposal; this entry is a one-off cleanup, not the fix.
+
+
+
+---
+
+## Governance gate — approve-business-case (Business-Case.md v1.5 with Benefits-Management-Plan.md v1.1)
+- **Date:** 2026-11-04 (prospective: recorded when approved, not backdated)
+- **Branch:** `governance/approve-business-case`
+- **Gate:** `agent-learning-governance` / `approve-business-case`. Recommendation `approve_business_case` (robust utility 0.607; request revision 0.232; reject 0.055). Human acceptance by Menno on 2026-11-04. Episode `50134905-b1c2-46d4-b0e5-82eb3190d2a5` in the store at `AGENT_LEARNING_LOCAL_STORE_DIR` (socialengage store, LL-040).
+- **Context (sponsor statement):** the scores are lower than an upfront approval would give because this is governance catch-up: the Charter was approved first and this gate had no earlier episode. Recorded as `approval_context: governance_catch_up` in the episode metadata.
+- **Evidence:** both documents read in full; frame scores were authored by the assistant and accepted by the human (AI assessment, not independent measurement). Files: `docs/policy-shapes/{decision-frames/business-case-approval.json, results/business-case-decision-result.json, results/business-case-adjudication-result.json, episodes/business-case-approval-episode.json}`.
+- **Weak points carried, not hidden:** no monetary ROI (ordinal proxies, named), benefit quantification deferred, ADR status and Option A dependency are dated snapshots, Benefits Management Plan cites older Ideation and Business Case versions, Approver field in the Business Case still reads "Not yet assigned".
+- **Does not change:** `approve-charter` still has zero episodes (recorded gap, not backfilled).
+
+---
+
+## Governance gate — approve-charter (Project-Charter.md v1.9)
+- **Date:** 2026-11-04 (prospective: recorded when approved, not backdated)
+- **Branch:** `governance/approve-charter`
+- **Gate:** `agent-learning-governance` / `approve-charter`. Recommendation `approve_charter` (robust utility 0.672; request revision 0.187; reject 0.044). Human acceptance by Menno on 2026-11-04, approved with recommendations. Episode `30bf4d8d-9896-42fc-b0d0-8dcd496acec1` in the store at `AGENT_LEARNING_LOCAL_STORE_DIR` (socialengage store, LL-040), `approval_context: governance_catch_up`.
+- **Context:** the Charter's section 12 records a 2026-10-21 self-commitment ("Approved by: Menno") with no earlier gate episode. That text is unchanged; this episode is the first gate record. The Business Case gate (PR #114) was run before this one, the reverse of the template order (Benefit at Stage 4 is a Charter input), and that sequencing is a known catch-up artefact.
+- **Recommendations carried:** refresh the Charter's execution status (header, milestones M1 to M4) to what Epics 15, 19 and 20 delivered at the Phase 1 close; update the cited Ideation and Business Case versions. Not done in this change, so the approved text stays what was scored.
+- **Evidence:** the document was read in full; frame scores were authored by the assistant and accepted by the human (AI assessment, not independent measurement). Files: `docs/policy-shapes/{decision-frames/charter-approval.json, results/charter-decision-result.json, results/charter-adjudication-result.json, episodes/charter-approval-episode.json}`.
+- **Gate state after this:** `approve-ideation`, `approve-business-case`, `approve-charter` all have a first episode. `approve-pmp`, `approve-audit-record`, `approve-adaptation-plan` and `approve-intent-refinement` still have none.
+
+---
+
+## Governance change — Sync template hardening (sidpa-template e97e8a3..adb93f3)
+- **Date:** 2026-11-04
+- **Branch:** `governance/sync-template-hardening`
+- **Source:** sidpa-template `docs/sequence-and-lessons.md` rules 25-34 and the skill changes behind them.
+- **Changed (Tier 2 skills only):** `implement-story` Step 0 (an existing story branch is not proof of abandonment: check liveness, ask the human, never heal a live run; sequential multi-agent pickup order; rules 28 and 29). `heal-contract-failure` (third trigger: dependency-bump PRs, rule 34; resume section waits for confirmed abandonment, rule 29). `pmbok-planning` (Foundation Pack tailoring and planning-round size, rules 30-33).
+- **Effect on LL-042:** LL-042 ("an existing story branch means a run was already started") stays as recorded; the skills now narrow its handoff to heal-contract-failure so it applies only after abandonment is confirmed. No register entry was rewritten.
+- **Not ported:** template rules 25 to 27 (framework-agnostic wording, JS/TS and Rust skeletons: this repo is pytest only) and the rule text itself (kept in the template as the source). Step 6 and the Definition of Done already run the whole suite.
+- **Verified:** `uv run pytest --ignore=tests/test_spark.py --ignore=tests/pmbok`: 1858 passed, 1 skipped (`tests/pmbok` excluded per ADR-034, LL-013).
+
+---
+
+## Governance catch-up — Pillar Code Map for the original microsoft/agent-learning code (Draft)
+- **Date:** 2026-11-04
+- **Branch:** `governance/pillar-code-map`
+- **What:** new `docs/project-docs/Pillar-Code-Map.md` (Draft, not approved) assigning the 54 original `src/**/*.py` files (upstream `476f367`) plus `scripts/estimate_learning_cost.py` to the nine approved pillars, with coverage from Microsoft's shipped tests and the component skill that names each file. New `tests/test_pillar_code_map.py` (3 tests): every mapped file exists, every pillar is an approved pillar, no file is mapped twice.
+- **Finding:** the original code lands in four pillars (48 files in "Frozen-model, in-process learning", 4 in "Earned, auditable autonomy", 2 in "One TaskPolicy ...", 1 in "Packaged contextual learning"). Pillars 6 to 8 are served only by fork code; pillar 9 has no code. 46 of 55 files are named by no component skill. Nine files are under 60% coverage from shipped tests (`classifiers/router.py` 26%, `storage/cosmos.py` 29%, `metrics/intent_resolution.py` 45%, `metrics/task_completion.py` 45%, `spark.py` 46%, `metrics/base.py` 51%, `cli.py` 54%, `metrics/task_adherence.py` 56%, `classifiers/base.py` 57%).
+- **Not done (open):** governed ADR, BRD, FDD and Stories for the original code (to be approved prospectively, no backdating); component skills for uncovered areas; governed contracts starting with the nine low-coverage files; amendment of `Project-Pillars.md` and a prospective `approve-project-pillars` run. The map assigns pillars by module purpose (judgment), not measurement.
+
+
+---
+
+## Governance gate — approve-audit-record (Audit-Register.md AUDIT-001 to AUDIT-006)
+- **Date:** 2026-11-04 (prospective: recorded when approved, not backdated)
+- **Gate:** `agent-learning-governance` / `approve-audit-record`. Recommendation `approve_audit_record` (robust utility 0.682; request revision 0.199; reject 0.044). Human acceptance by Menno on 2026-11-04. Episode `42114091-0ccd-4c45-9b6b-c97046b048bd` in the store at `AGENT_LEARNING_LOCAL_STORE_DIR` (socialengage store, LL-040; 402 files before registration, 403 after).
+- **Evidence:** findings checked against code at git `f86530a`; the assistant authored the frame scores from that read, so they are an AI assessment accepted by the human, not independent measurement. Frame, decision and adjudication results, and episode: `docs/policy-shapes/{decision-frames/audit-record-approval.json, results/audit-record-decision-result.json, results/audit-record-adjudication-result.json, episodes/audit-record-approval-episode.json}`.
+- **Scope carried, not hidden:** a bounded sample (ADR-015, 019, 020, 034 and the story-status drift report). The other ADRs were not audited. Two drift findings stay open: AUDIT-004 (ADR-034 legacy `pmbok/` not yet decommissioned, tracked as Stories 34.4 and 34.5) and AUDIT-006 (15 status-drift stories, not reconciled).
+- **Does not change:** `approve-charter` and `approve-business-case` still have zero episodes (recorded gap, not backfilled).
+
+---
+
+## Governance gate — approve-ideation (Ideation-Document.md v1.14 with Spark-Capture.md v2.0)
+- **Date:** 2026-11-07
+- **Gate:** `agent-learning-governance` / `approve-ideation`. Recommendation `approve_ideation` (robust utility 0.822, expected utility 0.875, winning margin +0.725). Human acceptance by Menno on 2026-11-07. Episode `a8db17b5-9134-4b7c-97f9-80cfe9ade4a1`.
+- **Context:** Phase 2 initiating under `PMP-BL-v1.0.1` targeting `PMP-BL-v1.1.0`. Operationalizes LL-044 ("The Monolithic Ideation Trap") by decoupling empirical research taxonomies to `docs/research/ideation/` and linking `HYP-AL-025`–`027` to `sidpa-template`.
+- **Evidence:** Files: `docs/policy-shapes/{decision-frames/ideation-approval-phase2.json, episodes/ideation-approval-phase2-episode.json}`.
+
+---
+
+## Governance gate — approve-benefits (Benefits-Management-Plan.md v2.0)
+- **Date:** 2026-11-08
+- **Gate:** `agent-learning-governance` / `approve-benefits`. Recommendation `approve_benefits_plan` (robust utility 0.884, expected utility 0.922, winning margin +0.772). Human acceptance by Menno on 2026-11-08. Episode `8cfdbf52-92bc-445f-aa0d-db729ca8667f`.
+- **Context:** Phase 2 Stage 3 under `PMP-BL-v1.0.1` targeting `PMP-BL-v1.1.0`. Strict adherence to PMBOK 8 Figure 2-3 sequencing (Benefits Management Plan authored in Stage 3 prior to Stage 4 Charter, resolving Phase 1 retrofit flaw). Formalizes BEN-P2-001 through BEN-P2-005 tied to M6–M10 milestone timeframes, falsifiable mathematical metrics, and concrete disbenefit mitigations.
+- **Evidence:** Files: `docs/policy-shapes/{approve-benefits.actions.json, decision-frames/benefits-approval-phase2.json, episodes/benefits-approval-phase2-episode.json}`.
+
+---
+
+## Governance gate — approve-business-case (Business-Case.md v2.0 with Benefits-Management-Plan.md v2.0)
+- **Date:** 2026-11-08
+- **Gate:** `agent-learning-governance` / `approve-business-case`. Recommendation `approve_business_case` (robust utility 0.868, expected utility 0.911, winning margin +0.750). Human acceptance by Menno on 2026-11-08. Episode `eca6fc5c-966b-4088-b0f6-157f57e99d52`.
+- **Context:** Phase 2 Stage 3 under `PMP-BL-v1.0.1` targeting `PMP-BL-v1.1.0`. Strict adherence to PMBOK 8 Figure 2-3 sequencing (Benefits Management Plan authored in Stage 3 prior to Stage 4 Charter). Justifies Option 3 (Governed Modular Extension via `agent-training-ext`) to ensure upstream Microsoft fork collision immunity and define target benefits BEN-P2-001 through BEN-P2-005.
+- **Evidence:** Files: `docs/policy-shapes/{approve-business-case.actions.json, decision-frames/business-case-approval-phase2.json, episodes/business-case-approval-phase2-episode.json}`.
+
+---
+
+## Governance gate — approve-charter (Project-Charter.md v2.0)
+- **Date:** 2026-11-08
+- **Gate:** `agent-learning-governance` / `approve-charter`. Recommendation `approve_charter` (robust utility 0.909, expected utility 0.941, winning margin +0.792). Human acceptance by Menno on 2026-11-08. Episode `b6e2fdba-0468-4951-8ceb-e81f08f2ed9b`.
+- **Context:** Phase 2 Stage 4 under `PMP-BL-v1.0.1` targeting `PMP-BL-v1.1.0`. Formally authorizes Milestones M6 through M10 and establishes the `agent-training-ext` packaging boundary to protect against upstream Microsoft merge collisions. Aligns 100% with Phase 2 Target Benefits BEN-P2-001 through BEN-P2-005.
+- **Evidence:** Files: `docs/policy-shapes/{approve-charter.actions.json, decision-frames/charter-approval-phase2.json, episodes/charter-approval-phase2-episode.json}`.
+
+---
+
+## Governance gate — approve-subsidiary-plan (Stakeholder-Engagement-Plan.md v2.0 & Stakeholder-Register.md v2.0)
+- **Date:** 2026-11-08
+- **Gate:** `agent-learning-governance` / `approve-subsidiary-plan`. Recommendation `approve_plan` (robust utility 0.943, expected utility 0.965, winning margin +0.906). Human acceptance by Menno on 2026-11-08. Episode `4ac619dc-8d64-499e-a8d5-9e21cf0fe294`.
+- **Context:** Phase 2 Stage 5 under `PMP-BL-v1.0.1` targeting `PMP-BL-v1.1.0`. Establishes the Master Stakeholder Register contract (`SH-01` through `SH-07`) defining authoritative role vocabulary, engagement gap closures, upstream Microsoft fork protection coordination, and RACI decision rights across all 18 PMBOK 8 stages.
+- **Evidence:** Files: `docs/policy-shapes/{approve-subsidiary-plan.actions.json, decision-frames/stakeholder-plan-approval-phase2.json, episodes/stakeholder-plan-approval-phase2-episode.json}`.
+
+---
+
+## Governance gate — approve-pmp (Project-Management-Plan.md v2.0 for PMP-BL-v1.1.0)
+- **Date:** 2026-11-08
+- **Gate:** `agent-learning-governance` / `approve-pmp`. Recommendation `approve_pmp` (robust utility 0.949, expected utility 0.969, winning margin +0.918). Human acceptance by Menno on 2026-11-08. Episode `31b88dc3-01fc-4e3f-934e-c0be73a8e372`.
+- **Context:** Phase 2 Stage 7 under `PMP-BL-v1.0.1` formally baselining minor increment `PMP-BL-v1.1.0`. Integrates all four foundational packs (Scope, Schedule, Resource, Cost), formalizes Milestones M6–M10, authorizes execution of Bands C & D within `agent-training-ext/`, and enforces strict Upstream Microsoft Fork Collision Protection (0 lines diff on `src/agent_learning`).
+- **Evidence:** Files: `docs/policy-shapes/{approve-pmp.actions.json, decision-frames/pmp-approval-phase2.json, episodes/pmp-approval-phase2-episode.json}`.
+
+---
+
+## Governance audit — Subsidiary Management Plans Validation & Synchronization (Communications, Procurement, Quality, Risk)
+- **Date:** 2026-11-08
+- **Scope:** Complete validation and baseline synchronization of the remaining four subsidiary management plans to Phase 2 (`PMP-BL-v1.1.0`, v2.0.0):
+  - `docs/project-docs/management-plans/Communications-Management-Plan.md` (v2.0.0, hash `3edbda23545b18f0fd84df495067b5dcdbb2351121d1406de992de7d531c74e2`, 2,029 words)
+  - `docs/project-docs/management-plans/Procurement-Management-Plan.md` (v2.0.0, hash `71cbe54099274892ac0c5068239441174503e7acff8252c8c5936ce7667ba44c`, 1,849 words)
+  - `docs/project-docs/management-plans/Quality-Management-Plan.md` (v2.0.0, hash `9dda5facbe7ae1a3e64ba38d7f5ba3030afaa73feb854bb45a41d77e0e6b5fb9`, 1,841 words)
+  - `docs/project-docs/management-plans/Risk-Management-Plan.md` (v2.0.0, hash `45a4e1478ae4e8bb58bad17d0644af837cad7f1ba9b07f3a97833efb7c7e8f39`, 2,276 words)
+- **Validation Results:**
+  - **ADR-012 Conformance:** All plans adhere strictly to the 3-section content contract, mandatory YAML frontmatter grammar, and word count rules (all within 600–5,000 word boundaries; 0 Tier A/B lint flags).
+  - **7-Role Stakeholder Register Alignment:** Integrated `SH-01` through `SH-07` (including `SH-07: Open-Source Ecosystem & Upstream Maintainers`).
+  - **Upstream Microsoft Fork Collision Protection:** Invariant 6 codified across Quality (zero-diff check `git diff upstream/main -- src/agent_learning` = 0 lines), Communications (upstream fork diff notice), Procurement (100% pure standard library in `agent-training-ext/`), and Risk (`RSK-P2-01` High-Severity avoidance).
+  - **Make-or-Buy Analysis:** Re-benchmarked for Phase 2, confirming 100% internal Make sourcing with €36,960.00 direct contractor cost avoidance and >€5,000 cloud GPU rental avoidance.
+  - **PMP Integration:** `Project-Management-Plan.md` v2.0.0 updated with canonical content hashes and refreshed Planning DAG connecting all 9 subsidiary management plans.
+
+---
+
+## Governance gate — validate-intent-foundation (Stage 8: Implementation Readiness Authorization)
+- **Date:** 2026-11-08
+- **Gate:** `agent-learning-governance` / `validate-intent-foundation`. Recommendation `accept_foundation_proceed` (robust utility 0.9547, expected utility 0.9724, winning margin +0.5834 over `flag_for_human_review`). Human acceptance by Menno on 2026-11-08. Episode `1aac1d78-cabb-4411-8c96-8304a95723fd`.
+- **Context:** Phase 2 Stage 8 formally authorizing entry into the implementation pipeline (Milestone M6: Epic 14 Lightweight Critique-to-Evidence Ingestion Engine). Verifies:
+  1. Traceability grounding from accepted ADR-014/018/016/021/022/038 to 143 user stories in WBS dictionary and schedule forecast.
+  2. Deterministic contract testability for story acceptance criteria.
+  3. Strict Upstream Microsoft Fork Collision Protection: dedicated extension package `agent-training-ext/`, 0 lines diff on `src/agent_learning`, and pure standard library purity.
+  4. Schedule and cost envelope alignment (30.0 pd critical path across M6–M10 within 120–160h maintainer capacity, 12.5 pd risk contingency, $\le €100/\text{mo}$ OpEx).
+- **Evidence:** Files: `docs/policy-shapes/{validate-intent-foundation.actions.json, decision-frames/implementation-readiness-phase2.json, episodes/implementation-readiness-phase2-episode.json}`.
+
+
+
+
+
+
+
+
+
+---
+
+## Story 14.1 — The Tag Grammar and Parser
+- **Date:** 2026-11-08
+- **Source ADR / BRD / FDD:** ADR-014, BRD-014, FDD-014 §2.1
+- **Files Modified/Created:**
+  - `agent-training-ext/critique_evidence.py` (implemented `parse_critique`, `CritiqueDelta`, tag parser regexes, and validation)
+  - `agent-training-ext/tests/test_critique_parse.py` (13 contract tests for $AC_0, AC_1, AC_2, AC_3, AC_4, AC_5$)
+  - `docs/user-stories/epic-14-critique-to-evidence-ingestion.md` (status updated to Completed)
+- **Validation:**
+  - $AC_0$: `parse_critique(text, source_id)` returns one `CritiqueDelta` per bullet in line order, keeping rationale verbatim, ignoring non-bullet lines.
+  - $AC_1$: Bullets missing `[criterion: ...]` or signed number/tags raise `ValueError` naming the line number.
+  - $AC_2$: Deltas outside `[-1.0, 1.0]` raise `ValueError`; `-1.00` and `+1.00` pass.
+  - $AC_3$: Empty rationale, invalid finding id, or invalid `source_id` raises `ValueError`.
+  - $AC_4$: Explicit `[finding: ...]` preserved; default `<source_id>#<n>` generated.
+  - $AC_5$: Pure module: standard library only, zero storage imports, zero file/network I/O.
+  - Full suite: 13/13 passed in `test_critique_parse.py`.
+
+---
+
+## Story 14.2 — Moving the Pooled Support by the Delta
+- **Date:** 2026-11-08
+- **Source ADR / BRD / FDD:** ADR-014, BRD-014, FDD-014 §3
+- **Files Modified/Created:**
+  - `agent-training-ext/critique_evidence.py` (implemented `apply_critique`, `AppliedCritique`, log-odds pooling, and shift logic)
+  - `agent-training-ext/tests/test_critique_apply.py` (contract tests for $AC_0, AC_1, AC_2, AC_3$)
+  - `docs/user-stories/epic-14-critique-to-evidence-ingestion.md` (status updated to Completed)
+- **Validation:**
+  - $AC_0$: Delta of -0.20 yields pooled support 0.6666 and +0.10 yields 0.9666, within $10^{-9}$ of `clip(before + delta)`, validated through `DecisionResolver.resolve()`.
+  - $AC_1$: Direction invariance verified across grid: negative delta never raises pooled support, positive delta never lowers, zero delta preserves.
+  - $AC_2$: Deltas of -0.9 and +0.9 land within $10^{-6}$ of 0 and 1; appended point support in $[0, 1]$.
+  - $AC_3$: Sequential composition (-0.20 then -0.10) applied sequentially arrives at `before - 0.30` within $10^{-9}$.
+  - Full suite: 4/4 passed for Story 14.2 criteria in `test_critique_apply.py`.
+
+---
+
+## Story 14.3 — Doubt, Traceability and Validation
+- **Date:** 2026-11-08
+- **Source ADR / BRD / FDD:** ADR-014, BRD-014, FDD-014 §3
+- **Files Modified/Created:**
+  - `agent-training-ext/critique_evidence.py` (implemented uncertainty damping `kappa`, immutable frame generation, validation constraints)
+  - `agent-training-ext/tests/test_critique_apply.py` (contract tests for $AC_0, AC_1, AC_2, AC_3, AC_4$)
+  - `docs/user-stories/epic-14-critique-to-evidence-ingestion.md` (status updated to Completed)
+- **Validation:**
+  - $AC_0$: Confidence set to `max(1 - u_after, 0.05)` with $u_{\text{after}} = \min(1, u + \kappa \cdot \max(0, -\Delta))$; positive delta leaves $u_{\text{after}} = u$.
+  - $AC_1$: Every appended point carries source `critique:<finding_id>`; all input frame points preserved.
+  - $AC_2$: Input frame immutable; output is clean new `DecisionFrame` instance.
+  - $AC_3$: Comprehensive validation: raises `ValueError` on unknown criterion, unknown option, criterion without evidence, duplicate finding id, previously used source, or $\kappa \notin [0.1, 0.5]$.
+  - $AC_4$: `DecisionResolver` validates and accepts all output frames.
+  - Full suite: 5/5 passed for Story 14.3 criteria in `test_critique_apply.py`.
+
+---
+
+## Story 14.4 — Episode Metadata
+- **Date:** 2026-11-08
+- **Source ADR / BRD / FDD:** ADR-014, BRD-014, FDD-014 §2.2
+- **Files Modified/Created:**
+  - `agent-training-ext/critique_evidence.py` (implemented `to_episode_metadata`)
+  - `agent-training-ext/tests/test_critique_metadata.py` (contract tests for $AC_0, AC_1, AC_2, AC_3$)
+  - `docs/user-stories/epic-14-critique-to-evidence-ingestion.md` (status updated to Completed)
+- **Validation:**
+  - $AC_0$: `to_episode_metadata(applied)` returns dictionary containing `critique_adjustments` with full schema (`basis`, `rubric_delta`, `override`, `rubric_version`, etc.).
+  - $AC_1$: JSON round-trip safe via `json.dumps` and `json.loads` without float-to-string corruption.
+  - $AC_2$: `support_after` matches pooled support of output frame within $10^{-9}$; `point_confidence` matches appended point confidence.
+  - $AC_3$: Storage boundary verified: attaches to episode metadata without introducing new record types.
+  - Full suite: 3/3 passed in `test_critique_metadata.py`.
+
+---
+
+## Story 14.6 — The Delta Rubric
+- **Date:** 2026-11-08
+- **Source ADR / BRD / FDD:** ADR-014, BRD-014, FDD-014 §2.4
+- **Files Modified/Created:**
+  - `agent-training-ext/critique_evidence.py` (implemented `rubric_delta`, `RUBRIC_TABLE`, `RUBRIC_VERSION = "1"`)
+  - `agent-training-ext/tests/test_critique_rubric.py` (contract tests for $AC_0, AC_1, AC_2, AC_3, AC_4$)
+  - `docs/user-stories/epic-14-critique-to-evidence-ingestion.md` (status updated to Completed)
+- **Validation:**
+  - $AC_0$: All 18 pairs in FDD-014 §2.4 table verified exactly (e.g. crash risk yes = -0.30, logic error partial = -0.13, style no = 0.0, confirmation partial = +0.05).
+  - $AC_1$: Refuses unknown claim type or verification status with `ValueError`.
+  - $AC_2$: Rubric form parsed with `basis="rubric"` and rubric delta applied.
+  - $AC_3$: Override flag set when explicit delta differs from rubric delta by $> 0.005$; un-tagged explicit deltas have `rubric_delta=None` and `override=False`.
+  - $AC_4$: Every adjustment records `rubric_version = "1"`.
+  - Full suite: 5/5 passed in `test_critique_rubric.py`.
+
+---
+
+## PR #118 — Upstream Fork Guard, Agent Learning Ext Separation, Stage 16 Amendment Pipeline, and Orchestrator Tooling
+- **Merge Commit:** `868218a3d96b9840a47da2ddf9dd489ce7ac1fd0`
+- **Branch:** `feat/upstream-isolation-and-stage16-amend` -> `main`
+- **Date:** 2026-11-08
+- **PR:** #118 (https://github.com/mdresch/agent-learning/pull/118)
+- **Scope:**
+  - Upstream Fork Isolation (Invariant 6): Restored `src/agent_learning/` to 100% byte-for-byte fidelity with upstream Microsoft HEAD; established `tests/upstream_manifest.json` and `tests/test_upstream_untouched.py`.
+  - Extension Namespace Separation: Migrated all custom runners, policies, learners, and storage adapters to `src/agent_learning_ext/`.
+  - Stage 16 Amendment Pipeline: Implemented `scripts/stage16_amend.py` and `scripts/governance_baseline.py` for automated measurement, classification, and prospective baseline amendments.
+  - Governance Orchestration Tooling: Deployed `governance-orchestrator/` with HMAC-signed decision logging, sandboxed CLI execution allowlist, and local web dashboard.
+- **Review & Audit:**
+  - Amazon Q Developer automated review audit completed: all findings (including `DENY_ARG` regex boundary, disk secret persistence removal, `timingSafeEqual` hex-buffer alignment, and input sanitization) resolved and verified clean.
+  - GitHub Actions CI: `build-installer` (SUCCESS, 2m 9s), `test` (SUCCESS, 1m 7s).
+  - Fast-forward merge to `main` verified with 0 phase rollup status drift.
+
+---
+
+## Story 18.1 — Pairs From Episodes
+- **Date:** 2026-11-08
+- **Source ADR / BRD / FDD:** ADR-018, BRD-018 (BRU-018-01, BRU-018-02, BRU-018-07, BRU-018-11), FDD-018 (§2.2, §3 item 1, G3, G5)
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/learners/pairwise.py` (implemented `PreferencePair`, `pairs_from_episodes`)
+  - `src/agent_learning_ext/learners/__init__.py` (re-export `PreferencePair`, `pairs_from_episodes`)
+  - `src/agent_learning_ext/__init__.py` (lazy export registration)
+  - `agent-training-ext/agent_training_ext/dpo_preference.py` (extension package wrapper)
+  - `.claude/skills/pairwise-preference/SKILL.md` (component skill)
+  - `tests/test_pairwise_pairs.py` (contract tests for $AC_0, AC_1, AC_2, AC_3, AC_4$)
+  - `docs/user-stories/epic-18-pairwise-preference-optimization.md` (status updated to Completed)
+- **Validation:**
+  - $AC_0$: Rejected feedback with different `correct_action_id` yields `PreferencePair(winner, loser, source_episode_id)`; `" Rejected "` whitespace and casing handled safely.
+  - $AC_1$: Accepted episodes, missing `correct_action_id`, identical actions, actions outside `action_ids`, and non-string `correct_action_id` yield empty list without error.
+  - $AC_2$: `decision_disposition == "modify"` without `feedback_status == "rejected"` yields no pair (FDD-018 G3).
+  - $AC_3$: Repeated episode IDs yield at most one pair; order of first appearance preserved (FDD-018 G5).
+  - $AC_4$: Episodes are not mutated by the call (`episodes == deepcopy(episodes)`).
+  - Full suite: 5/5 passed in `tests/test_pairwise_pairs.py`. Upstream untouched (8/8) and extension tests (18/18) clean.
+
+---
+
+## Story 18.2 — The Loss and Its Gradient
+- **Commit:** `77ef8f8`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-18.2`
+- **Source ADR / BRD / FDD:** ADR-018 (§4.1, §4.2), BRD-018 (BRU-018-01, BRU-018-03), FDD-018 (§2.4, G1)
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/learners/pairwise.py` (implemented `build_pair_matrix`, `bt_loss`, `bt_gradient`)
+  - `src/agent_learning_ext/learners/__init__.py` (re-exported new loss and gradient primitives)
+  - `src/agent_learning_ext/__init__.py` (registered lazy exports)
+  - `agent-training-ext/agent_training_ext/dpo_preference.py` (extension package wrapper)
+  - `tests/test_pairwise_loss.py` (contract tests for $AC_0, AC_1, AC_2, AC_3$)
+  - `docs/user-stories/epic-18-pairwise-preference-optimization.md` (Story 18.2 marked Completed)
+- **Validation:**
+  - $AC_0$: Term-by-term calculation on the base set ($x > y \times 2, y > z \times 1, \theta = (0.3, -0.2, 0.1), \theta_{\text{ref}} = 0, \lambda = 0.05$) matches analytical value within $10^{-12}$.
+  - $AC_1$: Analytic gradient matches central finite difference of loss within $10^{-6}$ across 5 random parameter vectors and pair topologies.
+  - $AC_2$: Aggregated count matrix form $W$ matches term-by-term pair summation within $10^{-12}$ on pair sets with repeat pairs.
+  - $AC_3$: Single pair $x > y$ verifies gradient at $\theta = (0, 0, 0)$ is $(-0.5, +0.5, 0)$ and gradient norm at stationary point $(1.3235, -1.3235, 0)$ is zero within $10^{-3}$.
+  - Full suite: 4/4 passed in `tests/test_pairwise_loss.py`. 44/44 passed across regression checks.
+- **Review (Step 8):** Amazon Q reviewed PR #119 across 3 rounds. All accepted findings amended:
+  - `Q-119-1 | crash risk | verified: yes | decision: accepted | Add missing key check in _as_vector with explicit ValueError | fix: 5af9cd5`
+  - `Q-119-2 | crash risk | verified: yes | decision: accepted | Validate isinstance(pairs_or_W, np.ndarray) shape (n, n) and reject invalid shapes/types with ValueError | fix: 5af9cd5`
+  - `Q-119-3 | style | verified: yes | decision: accepted | Remove unused import math from pairwise.py | fix: 5af9cd5`
+  - `Q-119-4 | style | verified: yes | decision: accepted | Add test coverage with pytest.raises for error branches | fix: 5af9cd5`
+  - `Q-119-5 | crash risk | verified: yes | decision: accepted | Enforce sequence element type is PreferencePair and reject non-sequences with TypeError | fix: 3ec7afd`
+  - `Q-119-6 | crash risk | verified: yes | decision: accepted | Reject negative lambda parameter in bt_loss and bt_gradient with ValueError | fix: 174e3ff`
+  Amazon Q confirmed all findings resolved; CI checks (build-installer, test) passed green.
+
+---
+
+## Story 18.3 — The Fit
+- **Commit:** `253676d`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-18.3`
+- **Source ADR / BRD / FDD:** ADR-018 (§4.1, §4.2), BRD-018 (BRU-018-04, BRU-018-05, BRU-018-06, BRU-018-07), FDD-018 (§2.1, §2.2, §3 item 2, G1, G2)
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/learners/pairwise.py` (implemented `fit_logits`, `FitResult`, constants `LAMBDA_MIN`, `CLAMP`, `LR_DEFAULT`, `STEPS_DEFAULT`, `TOL_DEFAULT`)
+  - `src/agent_learning_ext/learners/__init__.py` (re-exported `fit_logits`, `FitResult`, constants)
+  - `src/agent_learning_ext/__init__.py` (registered lazy exports for `FitResult` and `fit_logits`)
+  - `agent-training-ext/agent_training_ext/dpo_preference.py` (re-exported new primitives in extension package)
+  - `.claude/skills/pairwise-preference/SKILL.md` (component skill)
+  - `tests/test_pairwise_fit.py` (contract tests for $AC_0$ through $AC_8$)
+  - `docs/user-stories/epic-18-pairwise-preference-optimization.md` (Story 18.3 marked Completed)
+- **Validation:**
+  - $AC_0$: `lam = 0.049` raises `ValueError`, `0.05` accepted; non-finite arguments, `lr <= 0`, `steps < 1`, `clamp <= 0`, action missing from `theta_ref`, and pair naming unknown action raise `ValueError` naming argument.
+  - $AC_1$: With zero pairs, returned logits equal `theta_ref` exactly, `converged` is True, `iterations` is 0, `stationarity` is 0.0.
+  - $AC_2$: Clamps every returned logit into $[-8.0, +8.0]$, including for pairs pushing logits past 8 and `theta_ref` outside box.
+  - $AC_3$: Step size equals $\min(\text{lr}, 1 / (\lambda + 0.5 \cdot \text{max\_degree}))$; matches 0.1 on 18 pairs and $< 0.1$ on 3,000 pairs.
+  - $AC_4$: Regularized loss monotonically non-increasing across iterations for 18, 100, 1,000, and 3,000 pairs (tested via `trace_fn` callback; no step increases loss by $> 10^{-12}$).
+  - $AC_5$: On consistent 3,000 pairs ($x > y \times 1500, x > z \times 900, y > z \times 600$), returned logits strictly preserve $x > y > z$.
+  - $AC_6$: Honest convergence reporting: cap stop has `converged = False` and `stationarity > tol`; early stop has `converged = True` and `stationarity <= tol`; `iterations` equals steps taken.
+  - $AC_7$: Deterministic and standard-library/numpy purity: repeated calls yield identical logits; module imports zero random modules.
+  - $AC_8$: 2,000-step fit on 3 actions with 1,000 pairs executes in under 1.1s (well below 5.0s requirement).
+  - Full suite: 10/10 passed in `tests/test_pairwise_fit.py`. Full test suite: 1,951 passed, 4 skipped.
+- **Review (Step 8):** Amazon Q reviewed PR #120 across 2 rounds. All findings addressed:
+  - `Q-120-1 | logic error | verified: yes | decision: accepted | Replace hardcoded loss=0.0 in no-pairs path with bt_loss(theta, W, r_vec, action_ids, lam=lam) to accurately account for regularizer loss when theta_ref is outside clamp box | fix: 1113d57`
+  - `Q-120-2 | test gap | verified: yes | decision: accepted | Relax fragile assert res.iterations == 2000 to assert 0 < res.iterations <= 2000 in test_ac8 to avoid spurious test failures when early stationarity threshold is hit | fix: 1113d57`
+  Amazon Q confirmed all findings resolved; CI checks (build-installer, test) passed green.
+  Bayesian PR Gatekeeper evaluated PR #120: passed with robust utility 0.746 and margin +0.220 (>= +0.05).
+  Passive learning episode `pr-120-1113d57-9b0bc29f` stored in LearningStore.
+
+---
+
+## Story 14.5 — Replay on the Real Triage Records
+- **Commit:** `f3b3731`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-14.5`
+- **Source ADR / BRD / FDD:** ADR-014 (§4.4), BRD-014, FDD-014 (§2.4, §4, §7, §8)
+- **Files Modified/Created:**
+  - `agent-training-ext/triage_replay.py` (implemented `ReplayFinding`, `TriageReplayReport`, `map_claim_to_criterion`, `replay_triage_finding`, `replay_triage_records`, `load_and_replay_log`, `export_replay_dataset`)
+  - `tests/test_critique_replay.py` (contract tests for $AC_0$ through $AC_5$)
+  - `tests/fixtures/critique_evidence/triage_replay_dataset.json` (committed dataset exporting 139 real review triage records tagged by Menno Drescher)
+  - `.claude/skills/critique-evidence/SKILL.md` (updated component skill with Section 7 review-triage replay engine)
+- **Contracts:**
+  - `tests/test_critique_replay.py`
+  - Contract run: 9 passed in 1.04s
+  - Full suite: 39 passed in `agent-training-ext/tests/` and `tests/test_critique_replay.py`
+- **Notes:**
+  - Pre-flight specification gate (`scripts/spec_gate.py 14.5`) evaluated: passed with robust utility 0.6475 and margin +0.1261 (episode `spec-14_5-1a713dff`).
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Replay engine and contracts reside in `agent-training-ext/` and `tests/`, leaving `src/agent_learning/` pristine.
+    - $I_2$: Storage Decoupling & Serialization Round-Trip: Replay report and records serialize cleanly to JSON without storage subsystem coupling.
+    - $I_3$: Defensive None-Safety: Missing fields or comment text default defensively without raising `AttributeError` when `None`.
+    - $I_4$: Empty Collection Base Case: Zero triage records return empty report without error.
+  - $AC_0$: Findings extracted from `implementation-log.md` using `review_triage.find_triage_lines` (139 real triage records).
+  - $AC_1$: Tagged by a named person (`tagger="Menno Drescher"`), module refuses empty tagger.
+  - $AC_2$: Declined findings have $\Delta s \ge 0$ and never lower pooled support; anomalous negative overrides are detected and flagged inconsistent.
+  - $AC_3$: Accepted findings have $\Delta s < 0$ and lower pooled support by that delta.
+  - $AC_4$: Replay report carries mandatory disclaimer that consistency check on human tagging makes no claim of decision effectiveness (HYP-AL-005 stays open).
+  - $AC_5$: Base case (empty collection) and defensive None handling verified.
+
+---
+
+## Story 18.4 — The Learner
+- **Commit:** `1787aaf`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-18.4`
+- **Source ADR / BRD / FDD:** ADR-018 (§4.1, §4.2), BRD-018 (BRU-018-04, BRU-018-05, BRU-018-08, BRU-018-09, BRU-018-10), FDD-018 (§2.3, §2.4, §3 item 3, G1, G2, G4)
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/learners/pairwise.py` (implemented `PairwiseLearner(Learner)`)
+  - `src/agent_learning_ext/learners/__init__.py` (re-exported `PairwiseLearner`)
+  - `src/agent_learning_ext/__init__.py` (registered lazy exports for `PairwiseLearner`)
+  - `agent-training-ext/agent_training_ext/dpo_preference.py` (re-exported `PairwiseLearner` in extension package)
+  - `.claude/skills/pairwise-preference/SKILL.md` (component skill)
+  - `tests/test_pairwise_learner.py` (contract tests for $AC_0$ through $AC_6$)
+  - `docs/user-stories/epic-18-pairwise-preference-optimization.md` (Story 18.4 marked Completed)
+- **Validation:**
+  - $AC_0$: `update()` validates policy type: raises `TypeError` if policy is not a `SoftmaxPolicy`, and raises `ValueError` if `max_logit_abs` is below instance `clamp`.
+  - $AC_1$: Reference logit freezing: first non-empty update records current policy logits into `policy._snapshot.metadata["pairwise_reference_logits"]`; subsequent updates leave stored reference logits untouched; corrupt stored reference (missing actions or non-finite values) raises `ValueError`.
+  - $AC_2$: Move to fit: updates policy logits to `fit_logits(theta_ref=reference_logits, pairs=pairs)` within $10^{-12}$; returned `LearnerResult.logit_deltas` matches `fitted - before`.
+  - $AC_3$: No-pair early exit: episodes yielding zero pairs do not write reference metadata, do not mutate logits or snapshot version, and return `episodes_used = 0`.
+  - $AC_4$: Idempotence: a second `update()` over the same episodes leaves policy logits identical and leaves `policy._snapshot.episodes_seen` unchanged.
+  - $AC_5$: Strict result envelope: `LearnerResult` contains `episodes_used = len(pairs)`, `mean_reward = 0.0`, `baseline_after == baseline_before`, `consumed_inputs = None`, and `extra` populated with `pairs`, `skipped_episodes`, `converged`, `iterations`, `stationarity`, `step_size`, `loss_before`, `loss_after`, and `reference_logits`; `rewards` argument is completely ignored.
+  - $AC_6$: Storage boundary & isolation: policy snapshot round-trips through `json.dumps`/`json.loads` cleanly and through `InMemoryLearningStore` with no new record types; `pairwise.py` imports zero symbols from `agent_learning.storage`.
+  - Full suite: 7/7 passed in `tests/test_pairwise_learner.py`. 27/27 pairwise tests passing. Upstream untouched and PR gate passing.
+- **Review (Step 8):** Amazon Q reviewed PR #122 across 4 rounds. All findings addressed and confirmed clean:
+  - `Q-122-1 | logic error | verified: yes | decision: accepted | Require persistent _snapshot.metadata explicitly on policy so initial reference logits are never lost to detached copy | fix: ac8b26a`
+  - `Q-122-2 | logic error | verified: yes | decision: accepted | Deduplicate episode IDs via unique set difference so duplicate IDs do not inflate skipped_episodes | fix: ac8b26a`
+  - `Q-122-3 | logic error | verified: yes | decision: accepted | Compute exact regularizer loss via bt_loss in zero-pairs path instead of hardcoding 0.0 | fix: ac8b26a`
+  - `Q-122-4 | test gap | verified: yes | decision: accepted | Add assertions in test_ac1 verifying post_logits != stored_ref and non-aliasing | fix: ac8b26a`
+  - `Q-122-5 | style | verified: yes | decision: accepted | Replace dir() with pw_module.__dict__.values() in storage purity test | fix: ac8b26a`
+  - `Q-122-6 | logic error | verified: yes | decision: accepted | Standardize episode ID extraction to ep.id matching pairs_from_episodes | fix: 8e661b8`
+  - `Q-122-7 | logic error | verified: yes | decision: accepted | Unify reference validation into _validate_or_freeze_reference so corrupt references raise ValueError even on zero pairs | fix: 8e661b8`
+  - `Q-122-8 | logic error | verified: yes | decision: accepted | Populate extra['reference_logits'] with dict(theta_ref) on zero-pairs path so reported loss is always paired with reference vector | fix: eedf86b`
+  - `Q-122-9 | logic error | verified: yes | decision: accepted | Read both metadata and logits directly from policy._snapshot to eliminate dual-source divergence | fix: eedf86b`
+  - `Q-122-10 | test gap | verified: yes | decision: accepted | Inspect symbol names in storage purity test | fix: eedf86b`
+  - `Q-122-11 | logic error | verified: yes | decision: accepted | Enforce instance clamp self.clamp in policy validation instead of hardcoded CLAMP | fix: d8289aa`
+  - `Q-122-12 | logic error | verified: yes | decision: accepted | Validate action presence and math.isfinite on live policy logits in _validate_or_freeze_reference | fix: d8289aa`
+  Amazon Q confirmed all findings resolved; CI checks (build-installer, test) passed green.
+
+---
+
+---
+
+## Story 16.1 — The Scores
+- **Commit:** `cfa05c5`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-16.1`
+- **Source ADR / BRD / FDD:** ADR-016 (§4.1), BRD-016 (BRU-016-01, BRU-016-03), FDD-016 (§2.1, §2.4, §3 item 1, E3, E7)
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/policy/action_statistics.py` (implemented shared `ActionStats` dataclass)
+  - `src/agent_learning_ext/policy/ucb.py` (implemented `ucb_scores`, constants `WILSON_Z`, `C_DEFAULT`, `SELECTION_BASIS`)
+  - `src/agent_learning_ext/learners/ucb.py` (initialized learner stub without RNG)
+  - `src/agent_learning_ext/autonomy.py` (widened `wilson_lower_bound` successes annotation to float per FDD-016 E3)
+  - `src/agent_learning_ext/policy/__init__.py` (re-exported UCB policy symbols and ActionStats)
+  - `.claude/skills/ucb/SKILL.md` (component skill)
+  - `tests/test_ucb_scores.py` (contract tests for $AC_0$ through $AC_5$)
+  - `docs/user-stories/epic-16-deterministic-ucb-decision-policy.md` (Story 16.1 marked Completed)
+- **Contracts:**
+  - `tests/test_ucb_scores.py`
+  - Contract run: 6 passed in 1.07s
+  - Regression suite: 36 passed in `tests/test_ucb_scores.py` and `agent-training-ext/tests/`
+- **Notes:**
+  - Pre-flight specification gate (`scripts/spec_gate.py 16.1`) evaluated: passed with robust utility 0.7367 and margin +0.2153 (episode `spec-16_1-1b37bfc3`).
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Code implemented under `src/agent_learning_ext/` leaving upstream `src/agent_learning/` pristine (0 lines diff).
+    - $I_2$: Storage Decoupling & Serialization: Pure standard library implementation with zero storage coupling.
+  - $AC_0$: Standard UCB1 scores match 1.8408 for `a` and 2.0719 for `b` on base statistics within $10^{-4}$ and match formula within $10^{-12}$.
+  - $AC_1$: Wilson variant scores 1.0 for perfect (10/10) and 0.2775 for zero (0/10) within $10^{-4}$; base statistics match closed form within $10^{-9}$.
+  - $AC_2$: Unexplored action with 0 pulls scores `math.inf` in both variants; `total == 1` gives bonus 0 in standard variant.
+  - $AC_3$: Wilson symmetry $1 - \text{wilson\_lower\_bound}(N - k, N)$ matches score within $10^{-12}$ across grid $N \in [1, 50], k \in [0, N]$; integer invariance verified.
+  - $AC_4$: Validation raises `ValueError` for unknown variant, non-positive or non-finite `c`, `total != sum(pulls)`, negative or non-integer `pull_count`, and cumulative reward outside $[0, \text{pull\_count}]$ or non-finite.
+  - $AC_5$: Static AST check verifies zero imports of `random` and zero references to random attributes in `policy/ucb.py` and `learners/ucb.py`.
+
+---
+
+## Story 16.2 — Choosing Deterministically
+- **Commit:** `56209d1`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-16.2`
+- **Source ADR / BRD / FDD:** ADR-016 (§4.2), BRD-016 (BRU-016-02, BRU-016-04, BRU-016-05, BRU-016-06), FDD-016 (§2.3, §3 item 3, §3 item 4, §3 item 5, E2, E4)
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/policy/ucb.py` (implemented `UCBPolicy(Policy)` with deterministic `choose`, tie-breaking, one-hot probabilities, `None` logprob, and `last_decision_record`)
+  - `src/agent_learning_ext/policy/__init__.py` (re-exported `UCBPolicy`)
+  - `.claude/skills/ucb/SKILL.md` (updated component skill with `UCBPolicy` interface and constraints)
+  - `tests/test_ucb_policy.py` (contract tests for $AC_0$ through $AC_6$)
+  - `docs/user-stories/epic-16-deterministic-ucb-decision-policy.md` (Story 16.2 marked Completed)
+- **Contracts:**
+  - `tests/test_ucb_policy.py`
+  - Contract run: 7 passed in 2.68s
+  - Cumulative suite: 13 passed in `tests/test_ucb_scores.py` and `tests/test_ucb_policy.py`
+- **Notes:**
+  - Pre-flight specification gate (`scripts/spec_gate.py 16.2`) evaluated: passed with robust utility 0.7345 and margin +0.2131 (episode `spec-16_2-8a01198f`).
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Implementation lives under `src/agent_learning_ext/` leaving upstream `src/agent_learning/` pristine (0 lines diff).
+    - $I_2$: Empty Collection Base Case: Empty action space raises `ValueError("policy has no actions")`.
+  - $AC_0$: `choose()` returns action with highest score (`b` on base statistics).
+  - $AC_1$: 100 repeated in-process calls and independent subprocess execution return the exact same action deterministically.
+  - $AC_2$: Equal scores tie-break by higher pull count, then lexicographically smaller `action.id` (`alpha` over `beta`).
+  - $AC_3$: Three unpulled actions explore round-robin by lexicographical id order (`a` then `b` then `c`); once all have 1 pull, none scores `inf`.
+  - $AC_4$: Returned `Decision` has `logprob=None` and one-hot `probabilities` on chosen action.
+  - $AC_5$: `last_decision_record()` returns FDD-016 §2.3 record with `null` for `math.inf`; survives `json.dumps`/`loads` round-trip; defensive copy prevents mutation leakage.
+  - $AC_6$: `apply_update()` raises `TypeError` naming `UCBLearner`; `choose()` leaves snapshot completely unmutated.
+
+---
+
+## Story 18.5 — Through the Runner
+- **Commit:** `17a2b06`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-18.5`
+- **Source ADR / BRD / FDD:** ADR-018 (§4.3), BRD-018 (BRU-018-11), FDD-018 (§2.3, §7 item 2, G7)
+- **Pre-Flight Spec Gate:** Proceed utility 0.7787, margin +0.2574 (>= +0.05), episode `spec-18_5-f26b87c5`.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/training/runner.py` (aliased `TrainingRunner = LearningRunner` to preserve upstream Invariant 6 while adhering to ADR-018/FDD-018 naming)
+  - `src/agent_learning_ext/training/__init__.py` (exported `TrainingRunner`)
+  - `src/agent_learning_ext/__init__.py` (re-exported `TrainingRunner` with `# noqa: PLE0605`)
+  - `agent-training-ext/agent_training_ext/dpo_preference.py` (re-exported `TrainingRunner`)
+  - `tests/test_pairwise_runner.py` (contract tests for $AC_0$ through $AC_4$, interpretations $I_1, I_2$)
+  - `docs/user-stories/epic-18-pairwise-preference-optimization.md` (Story 18.5 marked Completed)
+  - `docs/project-docs/Project-Status-Register.md` (orientation updated, 69 implemented, 0 drift)
+- **Validation:**
+  - $AC_0$: `TrainingRunner(learner=PairwiseLearner())` over store with override episodes completes `run_offline_batch()` with `RunStatus.SUCCEEDED` and `algorithm == "PairwiseLearner"`.
+  - $AC_1$: Two successive `run_offline_batch()` runs over the same stored episodes leave logits unchanged within $10^{-12}$ tolerance.
+  - $AC_2$: Stored episodes remain strictly untouched and identical after offline batch runs.
+  - $AC_3$: Audit replay of `PairwiseLearner` run cleanly returns `AuditStatus.INSUFFICIENT_LINEAGE` without raising, citing FDD-018 §7 item 2.
+  - $AC_4$: Running over store with 0 pairs or empty batch returns `SUCCEEDED` run with 0 episodes used and unchanged logits; non-finite floats (NaN/Inf) raise `ValueError`.
+  - Full suite: 5/5 passed in `tests/test_pairwise_runner.py`. 32/32 pairwise suite tests passing. Governance baseline and phase rollup clean (0 status drift).
+- **Review (Step 8):** Amazon Q reviewed PR #125 across 2 rounds. All findings addressed and confirmed clean:
+  - `Q-125-1 | logic error | verified: yes | decision: accepted | Enforce exact abs diff <= 1e-12 with rel_tol=0.0 in test_ac1 so default rel_tol=1e-9 does not loosen AC_1 tolerance | fix: 3e1521f`
+  - `Q-125-2 | test gap | verified: yes | decision: accepted | Capture baseline episode copies from store.get_episode after store_episode in test_ac2 | fix: 3e1521f`
+  Amazon Q confirmed all findings resolved; CI checks (build-installer, test) passed green.
+
+---
+
+## Story 16.3 — Statistics in the Snapshot
+- **Commit:** `24ed5e3`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-16.3`
+- **Source ADR / BRD / FDD:** ADR-016 (§4.3), BRD-016 (BRU-016-07, BRU-016-08), FDD-016 (§2.2, §2.4, §3 item 2, E5, E7)
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/policy/action_statistics.py` (implemented `read_statistics` with validation for action space boundaries, non-negative pull counts, cumulative reward bounds, mean reward tolerance, and consumed episode uniqueness)
+  - `src/agent_learning_ext/policy/ucb.py` (implemented `UCBPolicy.from_actions` factory and `UCBPolicy.from_snapshot` loader calling `read_statistics`)
+  - `src/agent_learning_ext/policy/__init__.py` (re-exported `read_statistics` and cleaned `__all__`)
+  - `.claude/skills/ucb/SKILL.md` (updated with Snapshot Lifecycle & Delegation section)
+  - `tests/test_action_statistics.py` (7 tests for `read_statistics` contract and edge cases)
+  - `tests/test_ucb_policy.py` (added contract tests for $AC_0$ through $AC_3$)
+  - `docs/user-stories/epic-16-deterministic-ucb-decision-policy.md` (Story 16.3 marked Completed)
+- **Contracts:**
+  - `tests/test_action_statistics.py`, `tests/test_ucb_policy.py`
+  - Contract run: 25 passed in 2.68s
+  - Cumulative suite: 60 passed in `tests/test_action_statistics.py`, `tests/test_ucb_policy.py`, `tests/test_ucb_scores.py`, and `tests/test_thompson_policy.py`
+- **Notes:**
+  - Pre-flight specification gate (`scripts/spec_gate.py 16.3`) evaluated: passed with robust utility 0.7423 and margin +0.2210 (episode `spec-16_3-7be3048e`).
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Implementation lives under `src/agent_learning_ext/` leaving upstream `src/agent_learning/` pristine (0 lines diff).
+    - $I_2$: Defensive None-Safety: Missing or None metadata in `read_statistics` safely treated as empty dictionary without `AttributeError`.
+    - $I_3$: Non-Finite Float Rejection: NaNs/Infs rejected with `ValueError`.
+  - $AC_0$: `UCBPolicy.from_actions` initializes all actions with 0 pulls, 0.0 cumulative, 0.0 mean reward, zero logits, empty `consumed_episode_ids`, and variant/c in metadata.
+  - $AC_1$: `UCBPolicy.from_snapshot` reads FDD-016 §2.2 example; missing action in statistics reads as zero pulls.
+  - $AC_2$: `read_statistics` raises `ValueError` for foreign action id, invalid statistic, unknown variant, duplicate consumed episodes, or mean reward discrepancy > $10^{-9}$. `UCBPolicy.from_snapshot` delegates directly to `read_statistics`.
+  - $AC_3$: Snapshot survives `json.dumps`/`loads` unchanged and round-trips through `InMemoryStore` with zero storage imports in `ucb.py`.
+
+---
+
+## Story 16.4 — Counting Each Episode Once
+- **Commit:** `88adc2f`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-16.4`
+- **Source ADR / BRD / FDD:** ADR-016 (§4.4), BRD-016 (BRU-016-09, BRU-016-10), FDD-016 (§2.4, §3 item 6, E1, E6, E7)
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/policy/action_statistics.py` (implemented `reward_to_r` and `add_rewards` with bounded reward mapping, in-place metadata updates, and deduplication)
+  - `src/agent_learning_ext/policy/ucb.py` (implemented `update_statistics` and `consumed_episode_ids` on `UCBPolicy`)
+  - `src/agent_learning_ext/learners/ucb.py` (implemented `UCBLearner(Learner)` delegating counts to `add_rewards` and advancing snapshot version)
+  - `src/agent_learning_ext/learners/__init__.py`, `src/agent_learning_ext/policy/__init__.py`, `src/agent_learning_ext/__init__.py` (re-exported `UCBLearner`, `add_rewards`, `reward_to_r`)
+  - `.claude/skills/ucb/SKILL.md` (updated component skill with Learner Lifecycle & Ingestion section)
+  - `tests/test_ucb_learner.py` (27 contract tests for $AC_0$ through $AC_7$, interpretations $I_1$ through $I_4$)
+  - `docs/user-stories/epic-16-deterministic-ucb-decision-policy.md` (Story 16.4 marked Completed)
+- **Contracts:**
+  - `tests/test_ucb_learner.py`
+  - Contract run: 27 passed in 1.42s
+  - Cumulative suite: 52 passed across all UCB contract test suites (`test_action_statistics.py`, `test_ucb_policy.py`, `test_ucb_scores.py`, `test_ucb_learner.py`)
+- **Notes:**
+  - Pre-flight specification gate (`scripts/spec_gate.py 16.4`) evaluated: passed with robust utility 0.6447 and margin +0.1233 (episode `spec-16_4-cec1337e`).
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Implementation lives under `src/agent_learning_ext/` leaving upstream `src/agent_learning/` pristine (0 lines diff).
+    - $I_2$: Storage Decoupling & Serialization: `learners/ucb.py` imports nothing from `agent_learning.storage`; updated snapshot roundtrips cleanly via `json.dumps`/`loads`.
+    - $I_3$: Empty Collection Base Case: Empty episodes or rewards returns unmutated snapshot with `episodes_used=0`.
+    - $I_4$: Non-Finite Float Rejection: NaNs, Infs, booleans, and values outside $[-1, 1]$ rejected with `ValueError`.
+  - $AC_0$: Reward values map to $r = (\text{value} + 1)/2$ ($-1 \mapsto 0$, $0 \mapsto 0.5$, $1 \mapsto 1$). Out of range and non-finite values raise `ValueError`.
+  - $AC_1$: Episode 1 with reward 1.0 sets pull=1, cum=1.0, mean=1.0; episode 2 with reward 0.0 adds 1 pull and 0.5 cum (pull=2, cum=1.5, mean=0.75). Only chosen action changes.
+  - $AC_2$: Filters out non-ucb selection basis, foreign action ids, missing rewards; picks newest aggregate reward by `created_at`.
+  - $AC_3$: Repeated episodes in same or subsequent call count once only; `consumed_episode_ids` maintains single occurrence.
+  - $AC_4$: Two successive `run_offline_batch` runs over the same stored episodes produce the statistics of a single pass (first run uses 2 episodes, second uses 0).
+  - $AC_5$: Late reward recorded on earlier episode is counted once when first offered with reward.
+  - $AC_6$: `UCBLearner.update` produces statistics identical to direct `add_rewards` call; static AST check verifies zero inline count arithmetic in `learners/ucb.py`.
+  - $AC_7$: Snapshot version advances, `LearnerResult` contains `episodes_used`, `mean_reward`, `consumed_inputs`, and `extra`; call with no usable episodes returns `episodes_used=0` and leaves snapshot unmutated; `SoftmaxPolicy` raises `TypeError`.
+
+---
+
+## Story 16.5 — Staying Out of REINFORCE
+- **Commit:** `ef2a900`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-16.5`
+- **Source ADR / BRD / FDD:** ADR-016 (§4.4), BRD-016 (BRU-016-08), FDD-016 (§3 item 7, E2)
+- **Files Modified/Created:**
+  - `tests/test_ucb_reinforce_guard.py` (contract tests for $AC_0$, $AC_1$, $AC_2$)
+  - `docs/user-stories/epic-16-deterministic-ucb-decision-policy.md` (Story 16.5 marked Completed)
+- **Contracts:**
+  - `tests/test_ucb_reinforce_guard.py`
+  - Contract run: 3 passed in 1.21s
+  - Cumulative suite: 56 passed across all UCB contract test suites
+- **Notes:**
+  - Pre-flight specification gate (`scripts/spec_gate.py 16.5`) evaluated: passed with robust utility 0.6830 and margin +0.1617 (episode `spec-16_5-8e7bea4f`).
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Zero changes to `src/agent_learning/` and zero changes to `learners/reinforce.py`.
+    - $I_2$: Storage Decoupling & Serialization: Pure capture-path contract testing.
+    - $I_3$: Empty Collection Base Case: Safe handling of skipped episodes.
+    - $I_4$: Non-Finite Float Rejection: Bounded reward handling.
+  - $AC_0$: Captured UCB episodes have `action_logprob = None`. `ReinforceLearner.update` over exclusively UCB episodes returns `episodes_used = 0` and leaves snapshot version, episodes_seen, and logits completely unchanged.
+  - $AC_1$: Over 3 softmax episodes and 3 UCB episodes with rewards, `ReinforceLearner` consumes exactly the 3 softmax episodes (`episodes_used = 3`), producing logits and baseline identical to training on the 3 softmax episodes alone within $10^{-12}$.
+  - $AC_2$: The isolation behavior is provided entirely by existing `action_logprob is None` check in `ReinforceLearner`; zero conditions added to `learners/reinforce.py`.
+
+---
+
+## Story 16.6 — The Positive-Only Check (HYP-AL-009)
+- **Commit:** `713b9f7`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-16.6`
+- **Source ADR / BRD / FDD:** ADR-016 (§4.4), BRD-016 (BRU-016-11), FDD-016 (§3, §8)
+- **Files Modified/Created:**
+  - `tests/test_ucb_positive_only.py` (contract tests for $AC_0$ through $AC_3$, interpretations $I_1$ to $I_3$)
+  - `docs/user-stories/epic-16-deterministic-ucb-decision-policy.md` (Story 16.6 marked Completed)
+- **Contracts:**
+  - `tests/test_ucb_positive_only.py`
+  - Contract run: 6 passed in 1.45s
+  - Cumulative suite: 62 passed across all Epic 16 contract test suites (`test_action_statistics.py`, `test_ucb_policy.py`, `test_ucb_scores.py`, `test_ucb_learner.py`, `test_ucb_reinforce_guard.py`, `test_ucb_positive_only.py`)
+- **Notes:**
+  - Pre-flight specification gate (`scripts/spec_gate.py 16.6`) evaluated: passed with robust utility 0.6752 and margin +0.1538 (episode `spec-16_6-c2b576ee`).
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Zero changes to `src/agent_learning/`.
+    - $I_2$: Storage Decoupling & Serialization: Pure policy replay contract testing.
+    - $I_3$: Empty Collection Base Case: Verified against boundary conditions.
+  - $AC_0$: Replayed real `approve-*` episodes of `agent-learning-governance` from `docs/policy-shapes/episodes/` with $r = 1.0$ for the action taken; episode counts and filenames recorded dynamically via pytest properties.
+  - $AC_1$: After replay, every untaken action maintains 0 pulls and scores `math.inf`, guaranteeing selection before any taken action; taken action's Wilson score is exactly 1.0, and its Wilson lower bound strictly monotonically rises with count $N$, matching `wilson_lower_bound` (ADR-003).
+  - $AC_2$: Replay run twice on the same history produces 100% identical `action_statistics` and deterministic action choices.
+  - $AC_3$: Test suite and properties explicitly label this as a consistency check on a real positive-only history without claiming superiority over alternative bandits without low-authority failure data (BRU-016-11).
+
+---
+
+## Story 18.6 — The Real-Data Check (Zero Pairs)
+- **Commit:** `a7d1bc8`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-18.6`
+- **Source ADR / BRD / FDD:** ADR-018 (§3, §5 item 4), BRD-018 (BRU-018-12), FDD-018 (§6, §7 item 1)
+- **Pre-Flight Spec Gate:** Proceed utility 0.7046, margin +0.1833 (>= +0.05), episode `spec-18_6-b6b87a5e`.
+- **Files Modified/Created:**
+  - `tests/test_pairwise_real_data.py` (contract tests for $AC_0$ through $AC_3$, interpretations $I_1, I_2, I_3$)
+  - `.claude/skills/pairwise-preference/SKILL.md` (updated with Story 18.5 runner integration & Story 18.6 real data boundary)
+  - `docs/user-stories/epic-18-pairwise-preference-optimization.md` (Story 18.6 and Epic 18 marked Completed)
+  - `docs/project-docs/Project-Status-Register.md` (orientation updated, 72 implemented, 0 drift)
+- **Validation:**
+  - $AC_0$: Real source episodes: loaded 177 committed `approve-*` episodes of `agent-learning-governance` from `docs/policy-shapes/episodes/` (well exceeding the >= 76 baseline from 2026-10-29), recorded count and file names.
+  - $AC_1$: `pairs_from_episodes` over the real governance episodes returns exactly 0 preference pairs, because all historical episodes represent accepted approvals with no override rejections.
+  - $AC_2$: `PairwiseLearner.update()` leaves `SoftmaxPolicy`'s logits completely unchanged within 1e-12, writes no reference to metadata, leaves snapshot version unchanged, and returns `episodes_used = 0`.
+  - $AC_3$: Output is explicitly labelled as the real preference data boundary (BRU-018-12), making no claim about learner quality, and specifically documenting the missing data (real human override adjudications) and the unbuilt Red Team pair set.
+  - Full suite: 4/4 passed in `tests/test_pairwise_real_data.py`. 36/36 pairwise suite tests passing. Governance baseline and phase rollup clean (0 status drift).
+- **Review (Step 8):** Amazon Q reviewed PR #128. All 4 findings addressed and confirmed clean:
+  - `Q-128-1 | logic error | verified: yes | decision: accepted | Ground AC_3 assertions on system under test and test docstring rather than tautological local string variable | fix: 818a6d0`
+  - `Q-128-2 | logic error | verified: yes | decision: accepted | Replace inverted guard logic in test_ac1 with explicit check that no episode combines rejected status, valid correct_action_id, and different action | fix: 818a6d0`
+  - `Q-128-3 | test gap | verified: yes | decision: accepted | Add explicit non-empty guard assert len(actions) > 0 in test_ac2 and test_ac3 to prevent silent vacuous pass | fix: 818a6d0`
+  - `Q-128-4 | crash risk | verified: yes | decision: accepted | Add pre-check in _load_real_governance_episodes raising FileNotFoundError if EPISODES_DIR does not exist | fix: 818a6d0`
+  Amazon Q confirmed all findings resolved; CI checks (build-installer, test) passed green.
+
+---
+
+## Story 17.1 — The Schedule
+- **Commit:** `8cced01`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-17.1`
+- **Source ADR / BRD / FDD:** ADR-017 (§4.1), BRD-017 (BRU-017-01), FDD-017 (§3.1, §5)
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/policy/epsilon_greedy.py` (`epsilon_at`, `SELECTION_BASIS`, `NEUTRAL_MEAN`)
+  - `src/agent_learning_ext/policy/__init__.py` (re-export `epsilon_at`)
+  - `src/agent_learning_ext/__init__.py` (lazy export `epsilon_at`)
+  - `tests/test_epsilon_schedule.py` (contract tests for $AC_0$ through $AC_3$, interpretations $I_1$ to $I_3$)
+  - `docs/user-stories/epic-17-scheduled-epsilon-greedy-policy.md` (Story 17.1 marked Completed)
+- **Contracts:**
+  - `tests/test_epsilon_schedule.py`
+  - Contract run: 16 passed in 1.14s
+  - Cumulative suite: 16 passed across Epic 17
+- **Notes:**
+  - Pre-flight specification gate (`scripts/spec_gate.py 17.1`) evaluated: passed with robust utility 0.7154 and margin +0.1941 (episode `spec-17_1-d983df68`).
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Zero changes to `src/agent_learning/`. All exploration policy logic isolated in `src/agent_learning_ext/policy/epsilon_greedy.py`.
+    - $I_2$: Storage Decoupling & Serialization: Pure mathematical exploration schedule calculation without storage coupling or I/O.
+    - $I_3$: Empty Collection Base Case: Verified against boundary conditions.
+  - $AC_0$: `epsilon_at(t, 0.5, 0.05, 0.05)` gives 0.5 for $t=0$, 0.25 for $t=20$, 0.05 for $t=180$, and 0.05 for $t=1000$ (within $10^{-12}$), recomputed directly from closed form $\max(\text{floor}, \epsilon_0 / (1 + \delta \cdot t))$.
+  - $AC_1$: Over $t \in [0, 5000]$, the rate is strictly non-increasing ($\epsilon(t) \ge \epsilon(t+1)$) and never drops below $\text{floor}$.
+  - $AC_2$: With $\text{floor} = \epsilon_0$, rate is constant at $\epsilon_0$; with $\delta = 0$, rate is $\epsilon_0$ for every $t$.
+  - $AC_3$: Explicit `ValueError` naming the offending argument for $\delta < 0$, $\epsilon_0 < \text{floor}$, values outside $[0, 1]$, $t < 0$, booleans, and non-finite arguments (`nan`, `inf`).
+
+
+---
+
+## Story 17.2 — The Safety Mask
+- **Commit:** `b4ef91c`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-17.2`
+- **Source ADR / BRD / FDD:** ADR-017 (§4.1, §4.3), BRD-017 (BRU-017-02, BRU-017-03, BRU-017-04), FDD-017 (§2.1, §3.2, §3.3, §5)
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/policy/epsilon_greedy.py` (`EpsilonGreedyPolicy`, `safe_subset`, `safe_actions`, `exploration_rate_applied`, `_validate_reversible`)
+  - `src/agent_learning_ext/policy/__init__.py` (re-export `EpsilonGreedyPolicy`)
+  - `src/agent_learning_ext/__init__.py` (lazy export `EpsilonGreedyPolicy`)
+  - `tests/test_epsilon_safety_mask.py` (contract tests for $AC_0$ through $AC_3$, interpretations $I_1$ to $I_3$)
+  - `docs/user-stories/epic-17-scheduled-epsilon-greedy-policy.md` (Story 17.2 marked Completed)
+- **Contracts:**
+  - `tests/test_epsilon_safety_mask.py`
+  - Contract run: 18 passed in 1.11s
+  - Cumulative suite: 34 passed across Epic 17 (`test_epsilon_schedule.py`, `test_epsilon_safety_mask.py`)
+- **Notes:**
+  - Pre-flight specification gate (`scripts/spec_gate.py 17.2`) evaluated: passed with robust utility 0.7454 and margin +0.2241 (episode `spec-17_2-f85a03d2`).
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Zero changes to `src/agent_learning/`. All safety masking logic isolated in `src/agent_learning_ext/policy/epsilon_greedy.py`.
+    - $I_2$: Storage Decoupling & Serialization: Pure snapshot validation and JSON round-tripping tested without storage coupling or I/O.
+    - $I_3$: Non-Finite Float Rejection: Rejection of non-finite parameters in schedule checked.
+  - $AC_0$: Safe subset on the base policy is `{a, b}`; actions without `"reversible"` key or with `"reversible": false` are strictly excluded from the safe subset.
+  - $AC_1$: Strict boolean-only validation: non-boolean values (`"true"`, `"false"`, `1`, `0`, `None`, lists, dicts) raise `ValueError` naming the offending action ID, both at policy instantiation (`from_actions`) and snapshot deserialization (`from_snapshot`).
+  - $AC_2$: With an empty safe subset (no reversible actions), the exploration rate applied is forced to 0.0 for every $t \ge 0$, including $t = 0$.
+  - $AC_3$: Policy built from real repository definitions in `docs/policy-shapes/approve-adr.actions.json` has an empty safe subset and applied rate of 0.0 across all $t$.
+
+
+---
+
+## Story 17.3 — Choosing and Replaying
+- **Commit:** `54b10dc`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-17.3`
+- **Source ADR / BRD / FDD:** ADR-017 (§4.1, §4.2, §4.3), BRD-017 (BRU-017-05, BRU-017-06, BRU-017-07), FDD-017 (§2.3, §3.3, §3.4, §3.5, §3.7)
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/policy/epsilon_greedy.py` (`EpsilonGreedyPolicy.choose`, `last_decision_record`, `replay`, `_find_greedy_action`)
+  - `src/agent_learning_ext/policy/__init__.py` (re-export `replay`)
+  - `tests/test_epsilon_policy.py` (contract tests for $AC_0$ through $AC_7$, interpretations $I_1$ to $I_3$)
+  - `docs/user-stories/epic-17-scheduled-epsilon-greedy-policy.md` (Story 17.3 marked Completed)
+- **Contracts:**
+  - `tests/test_epsilon_policy.py`
+  - Contract run: 9 passed in 1.61s
+  - Cumulative suite: 43 passed across Epic 17 (`test_epsilon_schedule.py`, `test_epsilon_safety_mask.py`, `test_epsilon_policy.py`)
+- **Notes:**
+  - Pre-flight specification gate (`scripts/spec_gate.py 17.3`) evaluated: passed with robust utility 0.7040 and margin +0.1827 (episode `spec-17_3-5b41d3c3`).
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Zero changes to `src/agent_learning/`. All exploration policy logic isolated in `src/agent_learning_ext/policy/epsilon_greedy.py`.
+    - $I_2$: Empty Collection Base Case: Verified policy with no actions raises `ValueError("policy has no actions")`.
+    - $I_3$: Non-Finite Float Rejection: Bounded mathematical operations verified.
+  - $AC_0$: When rate is 0.0 (e.g. no safe actions), `choose` strictly picks the greedy action with highest mean; unpulled actions count as 0.5 (neutral mean); ties break by higher pull count then smaller ID; identical deterministic output across 100 calls.
+  - $AC_1$: Branch coin $u = \text{rng.random()}$ drawn from PRNG seeded via `seed_for(snapshot.id, request_id, timestamp)`. Branch is `"exploration"` iff $u < \epsilon$. Over 10,000 distinct request IDs at $t=0$ on the base policy ($\epsilon=0.5$), empirical exploration frequency is $0.5 \pm 0.02$.
+  - $AC_2$: Exploration randomly chooses among the ID-sorted safe action list (`{a, b}`); over 10,000 runs, non-safe action `c` is never picked.
+  - $AC_3$: `last_decision_record()` returns the dict specified in FDD-017 §2.3 with decimal string `prng_seed`, surviving JSON serialization and protecting against external mutation.
+  - $AC_4$: `replay(record, snapshot)` verifies and reproduces recorded decisions across both exploration and exploitation branches; raises `ValueError` on seed mismatch.
+  - $AC_5$: `choose()` without arguments generates random UUID request_id and UTC timestamp, stores record, and successfully replays.
+  - $AC_6$: `Decision.probabilities` match closed-form formula $(1 - \epsilon) \cdot [a=g] + \frac{\epsilon}{|S|} \cdot [a \in S]$, sum to 1 within $10^{-12}$, and `Decision.logprob` is strictly `None`.
+  - $AC_7$: `apply_update` raises `TypeError("use EpsilonGreedyLearner")` and `choose` leaves the snapshot completely unmodified.
+
+
+---
+
+## Story 17.4 — Statistics and the Learner
+- **Commit:** `497c4f9`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-17.4`
+- **Source ADR / BRD / FDD:** ADR-017 (§4.1, §4.3), BRD-017 (BRU-017-08, BRU-017-09, BRU-017-10), FDD-017 (§2.2, §2.4, §3.2, §3.6, §3.7)
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/policy/epsilon_greedy.py` (`consumed_episode_ids`, `update_statistics`, `CallableSnapshot`)
+  - `src/agent_learning_ext/learners/epsilon_greedy.py` (`EpsilonGreedyLearner`)
+  - `src/agent_learning_ext/learners/__init__.py` (re-export `EpsilonGreedyLearner`)
+  - `src/agent_learning_ext/__init__.py` (lazy export `EpsilonGreedyLearner`)
+  - `tests/test_epsilon_learner.py` (contract tests for $AC_0$ through $AC_6$, interpretations $I_1$ to $I_3$)
+  - `docs/user-stories/epic-17-scheduled-epsilon-greedy-policy.md` (Story 17.4 marked Completed)
+- **Contracts:**
+  - `tests/test_epsilon_learner.py`
+  - Contract run: 9 passed in 1.17s
+  - Cumulative suite: 52 passed across Epic 17 (`test_epsilon_schedule.py`, `test_epsilon_safety_mask.py`, `test_epsilon_policy.py`, `test_epsilon_learner.py`)
+- **Notes:**
+  - Pre-flight specification gate (`scripts/spec_gate.py 17.4`) evaluated: passed with robust utility 0.7423 and margin +0.2210 (episode `spec-17_4-4a16a432`).
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Zero changes to `src/agent_learning/`. All learner logic isolated in `src/agent_learning_ext/learners/epsilon_greedy.py`.
+    - $I_2$: Defensive None-Safety for Dictionaries: Defensively guarded dictionary accesses in learner and policy.
+    - $I_3$: Non-Finite Float Rejection: Rejection of non-finite reward values.
+  - $AC_0$: `from_actions` initialises all action counts, cumulative rewards, and means to 0/0.0; `from_snapshot` strictly validates statistics and detects duplicates, non-finite values, and mean discrepancies $> 10^{-9}$.
+  - $AC_1$: `reward_to_r` maps $[-1, 1]$ monotonically to $[0, 1]$ via $(v + 1)/2$; rejects values outside $[-1, 1]$, booleans, and non-finite floats.
+  - $AC_2$: Episode increments `pull_count`, accumulates reward, and updates `mean_reward` solely for the chosen action, keeping unchosen actions pristine.
+  - $AC_3$: Ingestion skips episodes where `selection_basis != "epsilon_greedy"`, action ID is unknown, or aggregate reward is missing; newest aggregate reward per episode is selected.
+  - $AC_4$: Ingestion is strictly idempotent: repeatedly offering previously counted episodes leaves statistics and `episodes_used` at 0; two successive `LearningRunner.run_offline_batch` passes produce identical state to a single pass.
+  - $AC_5$: `EpsilonGreedyLearner` and `UCBLearner` produce identical action statistics for identical episodes by calling the shared `add_rewards` primitive in `action_statistics.py`.
+  - $AC_6$: Successful update advances snapshot version and returns `LearnerResult` with `episodes_used`, `mean_reward`, and `consumed_inputs`; rejects `SoftmaxPolicy` with `TypeError`; zero imports from `agent_learning.storage`.
+
+---
+
+## Story 21.1 — Entropy and Margin
+- **Commit:** `3334537`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-21.1`
+- **Source ADR / BRD / FDD:** ADR-021 (§4.1), BRD-021, FDD-021 (§1, §2)
+- **Pre-Flight Spec Gate:** Proceed utility 0.6978, margin +0.1765 (>= +0.05), episode `spec-21_1-bf6a5de9`.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/routing.py` (new module implementing pure `entropy_bits` and `margin` with boundary handling)
+  - `src/agent_learning_ext/__init__.py` (re-export `entropy`, `entropy_bits`, and `margin`)
+  - `tests/test_routing_signals.py` (contract tests for $AC_0$ through $AC_2$, interpretations $I_1, I_2$)
+  - `docs/user-stories/epic-21-contextual-authority-ensemble-routing.md` (Story 21.1 marked Completed)
+- **Contracts:**
+  - `tests/test_routing_signals.py`
+  - Contract run: 3 passed in 0.09s
+- **Validation:**
+  - $AC_0$: Entropy in bits: verified 2.0 for uniform distribution over 4 actions, 1.0 for `[0.5, 0.5]`, 0.2864 for `[0.95, 0.05]`, 0.7219 for `[0.8, 0.2]`, and 1.4577 for `[0.45, 0.40, 0.15]` within 1e-4; recomputed directly from `-sum p log2 p`; verified that zero probabilities contribute 0; single-action `[1.0]` has entropy 0; empty sequence returns 0.0.
+  - $AC_1$: Decision margin: verified 0.90, 0.60, 0.0, 0.30, and 0.05 for `[0.95, 0.05]`, `[0.8, 0.2]`, `[0.5, 0.5]`, `[0.6, 0.3, 0.1]`, and `[0.45, 0.40, 0.15]` within 1e-4; single-action `[1.0]` has margin 1.0; empty sequence returns 0.0.
+  - $AC_2$: Pure implementation: AST analysis verifies `src/agent_learning_ext/routing.py` imports nothing from `agent_learning.storage`, no `random`, and no `numpy`. Verified that mutable input sequences remain completely identical to their copies after calls.
+  - Observed RED first: `ModuleNotFoundError: No module named 'agent_learning_ext.routing'`.
+  - Upstream fork untouched: 8/8 passed in `tests/test_upstream_untouched.py`.
+  - Governance baseline: 18/18 passed in `tests/test_governance_baseline.py`.
+- **Review (Step 8):** Amazon Q reviewed PR #132. 1 finding addressed:
+  - `Q-132-1 | logic error | verified: yes | decision: accepted | Remove dead code 'np' from forbidden_modules and add alias.asname verification across Import and ImportFrom AST nodes | fix: acd4ac7`
+
+---
+
+## Story 17.5 — Staying Out of REINFORCE
+- **Commit:** `1fab18d`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-17.5`
+- **Source ADR / BRD / FDD:** ADR-017 (§4.1, §4.3), BRD-017 (BRU-017-11, BRU-017-12), FDD-017 (§3.5, §3.7)
+- **Pre-Flight Spec Gate:** Proceed utility 0.6830, margin +0.1617 (>= +0.05), episode `spec-17_5-855ed913`.
+- **Files Modified/Created:**
+  - `tests/test_epsilon_reinforce_guard.py` (contract tests for $AC_0$ through $AC_2$, interpretations $I_1$ to $I_4$)
+  - `docs/user-stories/epic-17-scheduled-epsilon-greedy-policy.md` (Story 17.5 marked Completed)
+- **Contracts:**
+  - `tests/test_epsilon_reinforce_guard.py`
+  - Contract run: 3 passed in 1.42s
+  - Cumulative suite: 55 passed across Epic 17 (`test_epsilon_schedule.py`, `test_epsilon_safety_mask.py`, `test_epsilon_policy.py`, `test_epsilon_learner.py`, `test_epsilon_reinforce_guard.py`)
+- **Notes:**
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Zero changes in `src/agent_learning/`. All logic isolated under `src/agent_learning_ext/`.
+    - $I_2$: Storage Decoupling & Serialization: Policy snapshots and episode records survive JSON serialization without storage dependencies.
+    - $I_3$: Empty Collection Base Case: When passed an empty collection or when all episodes are excluded, `ReinforceLearner` returns `episodes_used=0` and leaves logits unmutated.
+    - $I_4$: Non-Finite Float Rejection: Aggregate rewards must be finite and within $[-1, 1]$, strictly raising `ValueError` on NaN or Inf.
+  - $AC_0$: Episodes generated through `EpsilonGreedyPolicy.choose` and the `EpisodeCapture` path have `action_logprob` strictly `None`; `ReinforceLearner.update` over exclusively epsilon episodes returns `episodes_used = 0`, reports `full_authority_excluded = 3`, and leaves softmax logits and version unchanged.
+  - $AC_1$: Over 3 softmax episodes and 3 epsilon episodes, `ReinforceLearner` uses exactly the 3 softmax episodes (`episodes_used = 3`), excludes the 3 epsilon episodes (`full_authority_excluded = 3`), and resulting logits and baseline equal those from the 3 softmax episodes alone within $10^{-12}$.
+  - $AC_2$: Behavioural verification confirms the guard is powered by the existing check on `action_logprob is None` in `ReinforceLearner`; zero edits or added conditions to `learners/reinforce.py`. Tested empty batch and non-finite float rejection.
+
+---
+
+## Story 17.6 — The Positive-Only Baseline Run
+- **Commit:** `68b1ec3`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-17.6`
+- **Source ADR / BRD / FDD:** ADR-017 (§4.3), BRD-017 (BRU-017-03, BRU-017-13), FDD-017 (§3.8)
+- **Pre-Flight Spec Gate:** Proceed utility 0.7154, margin +0.1941 (>= +0.05), episode `spec-17_6-f6d0db0f`.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/policy/epsilon_greedy.py` (`CallableActionList` supporting both property and method access on `policy.actions`)
+  - `tests/test_epsilon_positive_only.py` (contract tests for $AC_0$ through $AC_3$, interpretations $I_1$ to $I_3$)
+  - `docs/user-stories/epic-17-scheduled-epsilon-greedy-policy.md` (Story 17.6 marked Completed)
+- **Contracts:**
+  - `tests/test_epsilon_positive_only.py`
+  - Contract run: 5 passed in 1.48s
+  - Cumulative suite: 60 passed across Epic 17 (`test_epsilon_schedule.py`, `test_epsilon_safety_mask.py`, `test_epsilon_policy.py`, `test_epsilon_learner.py`, `test_epsilon_reinforce_guard.py`, `test_epsilon_positive_only.py`)
+- **Notes:**
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Zero changes in `src/agent_learning/`. All logic isolated under `src/agent_learning_ext/`.
+    - $I_2$: Storage Decoupling & Serialization: Snapshots survive JSON round-tripping without storage dependencies.
+    - $I_3$: Empty Collection Base Case: Verified clean handling on empty collections.
+  - $AC_0$: History is the real `approve-*` episodes of `agent-learning-governance` loaded from `docs/policy-shapes/episodes/` (177 episodes across 12 governance tasks); all replayed as $r = 1.0$ through `EpsilonGreedyLearner` and `EpsilonGreedyPolicy`; count and file names recorded via `record_property`.
+  - $AC_1$: With existing governance action definitions lacking `reversible` flag, safe subset is strictly empty and exploration rate applied evaluates to 0.0 across all tasks; every decision is exploitation; policy locks onto the taken action with mean reward 1.0; untaken actions remain at neutral mean 0.5 and are never chosen. Documented as the stated price of the safety mask (BRU-017-03).
+  - $AC_2$: Replay run twice yields identical statistics, deterministic decisions, and identical decision records; snapshots serialize cleanly to JSON and round-trip without loss.
+  - $AC_3$: Explicitly labelled as a baseline run on real positive-only history without claims of superiority over REINFORCE, UCB, or Thompson sampling (BRU-017-13); missing data (low-authority policy with failures, declared `reversible` flags) documented in test module docstring.
+
+---
+
+## Story 21.2 — The Route
+- **Commit:** `a34ad95`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-21.2`
+- **Source ADR / BRD / FDD:** ADR-021 (§4.1), BRD-021, FDD-021 (§1, §2, §3)
+- **Pre-Flight Spec Gate:** Proceed utility 0.7457, margin +0.2244 (>= +0.05), episode `spec-21_2-8078d8fb`.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/routing.py` (`MIN_GAP_BITS`, `EPS_MARGIN_DEFAULT`, `VALID_TIERS`, `PINNED_FULL`, `RoutingConfig`, `RouteDecision`, `route`)
+  - `src/agent_learning_ext/__init__.py` (re-export constants, dataclasses, and `route`)
+  - `tests/test_routing_route.py` (contract tests for $AC_0$ through $AC_6$, interpretations $I_1, I_2$)
+  - `docs/user-stories/epic-21-contextual-authority-ensemble-routing.md` (Story 21.2 marked Completed)
+- **Contracts:**
+  - `tests/test_routing_route.py`
+  - Contract run: 7 passed in 2.09s
+  - Cumulative suite: 10 passed across Epic 21 (`test_routing_signals.py`, `test_routing_route.py`)
+- **Validation:**
+  - $AC_0$: `RoutingConfig` enforces valid bounds: raises `ValueError` for gaps under 0.15 bits (including 0.149), inverted thresholds (`tau_esc < tau_deesc`), non-finite values (`nan`, `inf`), negative `tau_deesc`, and `eps_margin <= 0` or `eps_margin > 1.0`; exact gap of 0.15 is accepted.
+  - $AC_1$: Critical tier: requests with `tier="critical"` route `FULL` with reason `"critical"` even with low entropy (`[0.99, 0.01]`) and approved bucket.
+  - $AC_2$: Escalate logic: entropy $\ge 1.0$ routes `FULL` with reason `"entropy"` (when margin $\ge 0.20$); margin $< 0.20$ routes `FULL` with reason `"margin"` even when entropy is below `tau_deesc`.
+  - $AC_3$: Earn Low: entropy $\le 0.70$ and margin $\ge 0.20$ with approved bucket routes `LOW` with reason `"low"`; unapproved bucket routes `FULL` with reason `"not_approved"` for every entropy.
+  - $AC_4$: Hysteresis deadband: inside deadband (`0.70 < H < 1.0` and margin $\ge 0.20$), `[0.8, 0.2]` retains previous route (`LOW` or `FULL`) with reason `"hysteresis"`; revoked/unapproved bucket with previous `LOW` falls back to `FULL` with reason `"not_approved"`; `previous=None` inside deadband gives `FULL` with reason `"no_previous"`.
+  - $AC_5$: No hunting: over a sequence of oscillating entropies strictly within the deadband, the route changes at most once.
+  - $AC_6$: Fail safe: empty list, NaN, infinity, negative probability, sum drifting to 0.9 or 1.1, and unknown tier route `FULL` with reason `"anomaly"`, descriptive anomaly text, and `entropy_bits=None, margin=None`.
+  - Observed RED first: `ImportError: cannot import name 'MIN_GAP_BITS' from 'agent_learning_ext.routing'`.
+  - Upstream fork untouched: 8/8 passed in `tests/test_upstream_untouched.py`.
+  - Governance baseline: 18/18 passed in `tests/test_governance_baseline.py`.
+- **Review (Step 8):** Amazon Q reviewed PR #136. All findings addressed:
+  - `Q-136-1 | logic error | verified: yes | decision: accepted | Replace [0.82, 0.18] in test_ac5_no_hunting with [0.80, 0.20] (0.7219 bits) to ensure strictly within deadband [0.70, 1.0] | fix: c9da326`
+  - `Q-136-2 | logic error | verified: yes | decision: accepted | Replace silent fallthrough in route() with explicit ValueError on unknown DecisionAuthority variant | fix: c9da326`
+  - `Q-136-3 | test gap | verified: yes | decision: accepted | Add explicit reason assertions across all test cases in test_ac3_earn_low | fix: c9da326`
+  - `Q-136-4 | logic error | verified: yes | decision: accepted | Raise ValueError on unrecognized previous route string in route() rather than silently falling through to None | fix: 649ee79`
+  - `Q-136-5 | test gap | verified: yes | decision: accepted | Replace deadband distribution in test_ac3_earn_low with distributions strictly below tau_deesc (0.70) | fix: 649ee79`
+  - `Q-136-6 | logic error | verified: yes | decision: accepted | Return RouteDecision(FULL, ..., reason="anomaly", anomaly="missing routing config") when cfg=None to preserve fail-safe contract | fix: cafc1d9`
+  - `Q-136-7 | logic error | verified: yes | decision: accepted | Disallow bool instances in RoutingConfig and probability inputs across all route validation paths | fix: 05dbaa7`
+  - `Q-136-8 | logic error | verified: yes | decision: accepted | Move previous route normalization into deadband branch to preserve fail-safe escalation for invalid previous values | fix: e183c21`
+  - `Q-136-9 | crash risk | verified: yes | decision: accepted | Return RouteDecision with reason="anomaly" on invalid previous string/type instead of raising ValueError | fix: 2005086`
+  - `Q-136-10 | logic error | verified: yes | decision: accepted | Retain computed entropy_bits and margin in RouteDecision when cfg=None anomaly occurs | fix: 2005086`
+  - `Q-136-11 | documentation | verified: yes | decision: accepted | Remove unused constant SEED_DAMPING_DEFAULT deferred to Story 21.5 | fix: 978fb32`
+
+---
+
+## Story 22.1 — Scoring a Weight Vector With the Real Resolver
+- **Commit:** `88248f0`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-22.1`
+- **Source ADR / BRD / FDD:** ADR-022 (§4.1), BRD-022 (BRU-022-01, BRU-022-02, BRU-022-03), FDD-022 (§2.1, §3.1)
+- **Pre-Flight Spec Gate:** Proceed utility 0.6784, margin +0.1571 (>= +0.05), episode `spec-22_1-d05c4fb4`.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/weight_compiler.py` (`with_weights`, `evaluate`, `objective`, `LabeledFrame`, `CompiledWeights`, `NoImprovement`)
+  - `src/agent_learning_ext/__init__.py` (lazy re-exports of compiler symbols)
+  - `.claude/skills/weight-compiler/SKILL.md` (component skill)
+  - `tests/test_weight_objective.py` (contract tests for $AC_0$ through $AC_6$, interpretations $I_1$ to $I_3$)
+  - `docs/user-stories/epic-22-scored-search-decision-configuration-compilation.md` (Story 22.1 marked Completed)
+- **Contracts:**
+  - `tests/test_weight_objective.py`
+  - Contract run: 16 passed in 0.58s
+  - Cumulative suite: 24 passed (`test_weight_objective.py`, `test_upstream_untouched.py`)
+- **Notes:**
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Zero changes to `src/agent_learning/`. All logic in `src/agent_learning_ext/weight_compiler.py`.
+    - $I_2$: Defensive None-Safety for Dictionaries: Defensively guarded dictionary accesses and fallback lookups.
+    - $I_3$: Empty Collection Base Case: Empty sequence passed to `objective()` cleanly returns `0.0` without error.
+  - $AC_0$: `with_weights` applies weights to frame criteria while preserving constraints, options, and evidence; original frame is untouched.
+  - $AC_1$: `with_weights` raises `ValueError` for mismatched key sets, zero, negative, `nan`, or infinite weights.
+  - $AC_2$: `evaluate` on toy frame gives predicted `A` and margin 0.20 for `(0.7, 0.3)`; `None` and margin 0.0 for `(0.5, 0.5)` (tiebreak); `B` and margin 0.20 for `(0.3, 0.7)` within $10^{-9}$.
+  - $AC_3$: `objective` with label `A` and `beta=0.1` gives 1.02 for `(0.7, 0.3)`, 0.0 for `(0.5, 0.5)`, and 0.02 for `(0.3, 0.7)` within $10^{-9}$; total objective is the sum over all items.
+  - $AC_4$: If an option is ruled out by constraints, `evaluate` never returns it and the margin computation ignores it.
+  - $AC_5$: Replaced `DecisionResolver.resolve` with counting wrapper, confirming exactly one call per `evaluate` through the real resolver.
+  - $AC_6$: AST analysis verifies `weight_compiler.py` imports nothing from `agent_learning.storage` and performs no file I/O.
+
+---
+
+## Story 22.2 — The Split and the Label Rule
+- **Commit:** `4e60ee3`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-22.2`
+- **Source ADR / BRD / FDD:** ADR-022 (§4.1), BRD-022 (BRU-022-05, BRU-022-06, BRU-022-10), FDD-022 (§1 item 1, §2.1, §3.4, §3.6)
+- **Pre-Flight Spec Gate:** Proceed utility 0.6917, margin +0.1704 (>= +0.05), episode `spec-22_2-1926d25b`.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/weight_compiler.py` (`split_holdout`, `validate_label_timing`, `_parse_iso`)
+  - `src/agent_learning_ext/__init__.py` (re-exports `split_holdout`, `validate_label_timing`)
+  - `.claude/skills/weight-compiler/SKILL.md` (updated component skill)
+  - `tests/test_weight_split.py` (contract tests for $AC_0$ through $AC_4$, interpretations $I_1$ to $I_3$)
+  - `docs/user-stories/epic-22-scored-search-decision-configuration-compilation.md` (Story 22.2 marked Completed)
+- **Contracts:**
+  - `tests/test_weight_split.py`
+  - Contract run: 6 passed in 0.58s
+  - Cumulative suite: 30 passed across Epic 22 (`test_weight_objective.py`, `test_weight_split.py`, `test_upstream_untouched.py`)
+- **Notes:**
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Zero edits to `src/agent_learning/`. All logic in `src/agent_learning_ext/weight_compiler.py`.
+    - $I_2$: Storage Decoupling: Zero file I/O or storage dependencies in splitting and validation functions.
+    - $I_3$: Deterministic Ordering: Canonical JSON serialization of frame metadata used as deterministic sort key tiebreaker.
+  - $AC_0$: `split_holdout` with fixed seed returns identical partitions across invocations and separate runs; differing seed produces differing splits; partitions are strictly disjoint and reconstruct full dataset.
+  - $AC_1$: Validates `fraction` bounds `[0.3, 0.5]`, integer seed, and raises `ValueError` if either partition has fewer than `MIN_PART` (5) items.
+  - $AC_2$: Input permutation invariance verified: shuffling input sequence prior to `split_holdout` yields identical splits.
+  - $AC_3$: `validate_label_timing` rejects items where `labeled_at >= proposed_at` with descriptive `ValueError` naming the offending item.
+  - $AC_4$: Offline training search verifies zero evaluation calls against held-out partition during search execution.
+
+---
+
+## Story 22.3 — The Coordinate Ascent
+- **Commit:** `1a05262`
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-22.3`
+- **Source ADR / BRD / FDD:** ADR-022 (§4.1), BRD-022 (BRU-022-03, BRU-022-04, BRU-022-07, BRU-022-10), FDD-022 (§1 item 1, §2.1, §2.2, §3.5, §4 L2, L5)
+- **Pre-Flight Spec Gate:** Proceed utility 0.6191, margin +0.0978 (>= +0.05), episode `spec-22_3-e40bf240`.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/weight_compiler.py` (`coordinate_ascent`, `CoordinateAscentResult`, `_project_to_simplex`)
+  - `src/agent_learning_ext/__init__.py` (re-exports `coordinate_ascent`, `CoordinateAscentResult`)
+  - `.claude/skills/weight-compiler/SKILL.md` (updated component skill)
+  - `tests/test_weight_search.py` (contract tests for $AC_0$ through $AC_5$, interpretations $I_1$ to $I_4$)
+  - `docs/user-stories/epic-22-scored-search-decision-configuration-compilation.md` (Story 22.3 marked Completed)
+- **Contracts:**
+  - `tests/test_weight_search.py`
+  - Contract run: 6 passed in 5.52s
+  - Cumulative suite: 36 passed across Epic 22 (`test_weight_objective.py`, `test_weight_split.py`, `test_weight_search.py`, `test_upstream_untouched.py`)
+- **Notes:**
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Zero edits to `src/agent_learning/`. All logic in `src/agent_learning_ext/weight_compiler.py`.
+    - $I_2$: Storage Decoupling: Zero file I/O or storage dependencies in search routine.
+    - $I_3$: Defensive None-Safety: Defensive dictionary and attribute guards.
+    - $I_4$: Empty Collection Base Case: Passing an empty training sequence raises `ValueError` cleanly.
+  - $AC_0$: Every weight vector evaluated during search and returned in result satisfies strictly positive floor `step=0.05` and sums to 1.0 within $10^{-9}$. Items with mismatched criterion IDs raise `ValueError`.
+  - $AC_1$: Training objective is non-decreasing across accepted candidates and strictly dominates all start points within $10^{-9}$.
+  - $AC_2$: On the synthetic suite, coordinate ascent successfully recovers weights within 0.05 of hidden `(0.6, 0.3, 0.1)` per criterion and achieves 1.0 training accuracy.
+  - $AC_3$: Deterministic repeatability verified across calls and across fresh sub-processes; AST inspection confirms `random` is only imported for hold-out splitting.
+  - $AC_4$: Search bounded by `max_sweeps` sweeps per start point and stops when a sweep accepts no candidate; `restarts=1` utilizes only the mean of frames' own weights; `result.weights` is immutable `MappingProxyType`.
+  - $AC_5$: Execution time measured and recorded via `record_property` (5.52s << 60.0s threshold). Not claimed as a benchmark.
+
+---
+
+## Story 22.4 — Proposing Only a Real Improvement
+- **Commit:** `9fc3149`
+- **Date:** 2026-11-09
+- **Branch:** `feat/story-22.4`
+- **Source ADR / BRD / FDD:** ADR-022 (§4.1), BRD-022 (BRU-022-07, BRU-022-08, BRU-022-09, BRU-022-10), FDD-022 (§1 item 1, §1 item 2, §2.2, §2.3, §2.4, §3.6, §3.8, §4 L4, L6, L7, L8)
+- **Pre-Flight Spec Gate:** Proceed utility 0.6191, margin +0.0978 (>= +0.05), episode `spec-22_4-a71ab4b5`.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/weight_compiler.py` (`propose`)
+  - `src/agent_learning_ext/__init__.py` (re-exports `propose`)
+  - `src/agent_learning_ext/cli.py` (`policy-compile-weights` CLI command and validation)
+  - `.claude/skills/weight-compiler/SKILL.md` (updated component skill)
+  - `tests/test_weight_propose.py` (contract tests for $AC_0$ through $AC_6$, interpretations $I_1$ to $I_5$)
+  - `docs/user-stories/epic-22-scored-search-decision-configuration-compilation.md` (Story 22.4 marked Completed)
+- **Contracts:**
+  - `tests/test_weight_propose.py`
+  - Contract run: 7 passed in 3.37s
+  - Cumulative suite: 43 passed across Epic 22 (`test_weight_objective.py`, `test_weight_split.py`, `test_weight_search.py`, `test_weight_propose.py`, `test_upstream_untouched.py`)
+- **Notes:**
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Zero edits to `src/agent_learning/`. Logic isolated in `src/agent_learning_ext/weight_compiler.py` and `cli.py`.
+    - $I_2$: Storage Decoupling: Zero file I/O in `weight_compiler.py`; `policy-compile-weights` CLI handles dataset file read and proposal file write without touching the store.
+    - $I_3$: Defensive None-Safety: Defensive dictionary guards.
+    - $I_4$: Empty Collection Base Case: Handling empty collections cleanly.
+    - $I_5$: Specific Exception Classes: Verified explicit exception types (`TypeError` on frozen weights mutation).
+  - $AC_0$: `propose` on misaligned synthetic suite returns `CompiledWeights` with `holdout_accuracy` strictly above `baseline_holdout_accuracy`, reporting seed, split sizes, evaluations, sweeps, and restarts.
+  - $AC_1$: When compiled weights tie with baseline on held-out part, `propose` returns `NoImprovement` carrying both accuracies and no weights.
+  - $AC_2$: When compiled weights score lower than baseline on held-out part, `propose` returns `NoImprovement`.
+  - $AC_3$: Baseline computation strictly uses each frame's own authored criteria weights on the held-out items.
+  - $AC_4$: `policy-compile-weights` writes complete proposal JSON object per FDD-022 §2.3 and writes nothing to the store.
+  - $AC_5$: Dataset validation verifies all items have `frame`, `label`, `labeled_at`, and that labels belong to the active policy action space; exits non-zero naming the offending item. `weight_compiler.py` performs no file I/O.
+  - $AC_6$: `CompiledWeights.weights` is immutable `MappingProxyType`; mutating raw input dict leaves stored weights intact, and direct mutation raises `TypeError`.
+
+---
+
+## Story 22.5 — Applying Frozen Weights
+- **Commit:** `b704c8b`
+- **Date:** 2026-11-09
+- **Branch:** `feat/story-22.5`
+- **Source ADR / BRD / FDD:** ADR-022 (§4.1), BRD-022 (BRU-022-10, BRU-022-11), FDD-022 (§1 item 3, §3.7, §4 L1)
+- **Pre-Flight Spec Gate:** Proceed utility 0.6191, margin +0.0978 (>= +0.05), episode `spec-22_5-4112e624`.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/weight_compiler.py` (`apply_compiled_config`)
+  - `src/agent_learning_ext/__init__.py` (re-exports `apply_compiled_config`)
+  - `src/agent_learning_ext/cli.py` (`task-policy-decide` applies compiled config)
+  - `.claude/skills/weight-compiler/SKILL.md` (updated component skill)
+  - `tests/test_weight_apply.py` (contract tests for $AC_0$ through $AC_4$, interpretations $I_1$ to $I_4$)
+  - `docs/user-stories/epic-22-scored-search-decision-configuration-compilation.md` (Story 22.5 marked Completed)
+- **Contracts:**
+  - `tests/test_weight_apply.py`
+  - Contract run: 5 passed in 1.13s
+  - Cumulative suite: 48 passed across Epic 22 (`test_weight_objective.py`, `test_weight_split.py`, `test_weight_search.py`, `test_weight_propose.py`, `test_weight_apply.py`, `test_upstream_untouched.py`)
+- **Notes:**
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Zero edits to `src/agent_learning/`. Logic isolated in `src/agent_learning_ext/weight_compiler.py` and `cli.py`.
+    - $I_2$: Storage Decoupling: Zero file I/O in `apply_compiled_config`.
+    - $I_3$: Defensive None-Safety: Defensive dictionary and metadata guards.
+    - $I_4$: Resolver Inviolability: AST check confirms `DecisionResolver` carries zero references to `criteria_weights`.
+  - $AC_0$: `apply_compiled_config` applies snapshot's `criteria_weights` to frame; returns frame untouched when snapshot metadata lacks `criteria_weights`.
+  - $AC_1$: Snapshot with criteria weights whose keys differ from frame criteria raises `ValueError`.
+  - $AC_2$: `task-policy-decide` resolves with compiled weights when snapshot carries them and with stored weights when absent; matches direct `with_weights` resolution.
+  - $AC_3$: Verified count of calls to `coordinate_ascent` and `propose` during online `task-policy-decide` is strictly zero.
+  - $AC_4$: AST analysis verifies `DecisionResolver` remains pure and has zero references to `criteria_weights`.
+
+---
+
+## Story 21.3 — Pinned Gates
+- **Commit:** `873b98f` (review fixes `41a2106`)
+- **Date:** 2026-11-08
+- **Branch:** `feat/story-21.3`
+- **Source ADR / BRD / FDD:** ADR-021 (§4.1), BRD-021, FDD-021 (§1 item 3, §2.1)
+- **Pre-Flight Spec Gate:** Proceed utility 0.6072, margin +0.0858 (>= +0.05), episode `spec-21_3-024c5cf2`.
+- **Files Modified/Created:**
+  - `docs/policy-shapes/approve-routing-thresholds.actions.json` (action list for `approve-routing-thresholds`)
+  - `docs/policy-shapes/approve-routing-bucket.actions.json` (action list for `approve-routing-bucket`)
+  - `tests/test_routing_pinning.py` (contract tests for $AC_0$ through $AC_4$, interpretations $I_1$ to $I_3$)
+  - `docs/user-stories/epic-21-contextual-authority-ensemble-routing.md` (Story 21.3 marked Completed)
+- **Contracts:**
+  - `tests/test_routing_pinning.py`
+  - Contract run: 6 passed in 0.98s
+  - Cumulative suite: 16 passed across Epic 21 (`test_routing_signals.py`, `test_routing_route.py`, `test_routing_pinning.py`)
+- **Validation:**
+  - $AC_0$: `PINNED_FULL` equals the eleven tasks of FDD-021 §2.1 (`approve-charter`, `approve-adr`, `approve-brd`, `approve-fdd`, `approve-user-stories`, `approve-pmp`, `approve-adaptation-plan`, `approve-subsidiary-plan`, `retrospective`, `approve-routing-thresholds`, `approve-routing-bucket`).
+  - $AC_1$: For each pinned task, over a grid of distributions (entropy from ~0.08 to 1.0 bits, margin from 0.0 to 0.98), tiers (`low`, `standard`, `high`, `critical`), `previous` values (`None`, `LOW`, `FULL`, `"low"`, `"full"`), and `approved_for_low` (`True`, `False`), `route` returns `FULL` with reason `"pinned"`.
+  - $AC_2$: Declared pin: an unpinned task called with `requires_human_approval=True` routes `FULL` with reason `"pinned"`; the same task with `False` and an approved bucket routes `LOW` with reason `"low"`.
+  - $AC_3$: Pin beats invalid input: a pinned task with invalid probabilities (empty, NaN, inf, negative, bad sum, boolean) routes `FULL` with reason `"pinned"` (not `"anomaly"`).
+  - $AC_4$: Policy shape files `docs/policy-shapes/approve-routing-thresholds.actions.json` and `approve-routing-bucket.actions.json` each hold the three actions `approve_*`, `reject_*`, and `request_revision_before_decision`, and both task ids are in `PINNED_FULL`.
+  - Observed RED first: `AssertionError: Policy shape file missing: .../docs/policy-shapes/approve-routing-thresholds.actions.json`.
+  - Upstream fork untouched: 8/8 passed in `tests/test_upstream_untouched.py`.
+  - Governance baseline: 18/18 passed in `tests/test_governance_baseline.py`.
+- **Review (Step 8):** Amazon Q reviewed PR #142. All findings addressed:
+  - `Q-142-1 | crash risk | verified: yes | decision: accepted | Validate action object schema before extracting action IDs in test_ac4_shape_files | fix: c2e49a1`
+  - `Q-142-2 | logic error | verified: yes | decision: accepted | Enforce exact action IDs without fallback in test_ac4_shape_files | fix: c2e49a1`
+  - `Q-142-3 | crash risk | verified: yes | decision: accepted | Add hasattr guard on spec.loader.exec_module in test_governance_baseline_passes | fix: c2e49a1`
+  - `Q-142-4 | test gap | verified: yes | decision: accepted | Replace magic slice prefix[8:] with named prefix constant and assertion in test_ac4_shape_files | fix: f4b1b9d`
+  - `Q-142-5 | test gap | verified: yes | decision: accepted | Align AC_1 assertions strictly to AC_1 contract (authority==FULL and reason=='pinned') | fix: f4b1b9d`
+  - `Q-142-6 | crash risk | verified: yes | decision: accepted | Wrap spec.loader.exec_module in try/except with pytest.fail in test_governance_baseline_passes | fix: e9a2c34`
+  - `Q-142-7 | crash risk | verified: yes | decision: accepted | Move gb.MANIFEST and gb.find_problems inside try/except block in test_governance_baseline_passes | fix: e2c70a1`
+  - `Q-142-8 | crash risk | verified: yes | decision: accepted | Initialize problems list and assert inside try block while re-raising AssertionError in test_governance_baseline_passes | fix: d49b01f`
+
+---
+
+## Story 22.6 — Adopting a Proposal by a Human Decision
+- **Commit:** `7784f49` (review fixes `0566e0b`)
+- **Date:** 2026-11-09
+- **Branch:** `feat/story-22.6`
+- **Source ADR / BRD / FDD:** ADR-022 (§4.1), BRD-022 (BRU-022-12, BRU-022-13, BRU-022-14), FDD-022 (§1 item 4, §3.8, §4 L2)
+- **Pre-Flight Spec Gate:** Proceed utility 0.6128, margin +0.0611 (>= +0.05), episode `spec-22_6-d93f5f09`.
+- **Files Modified/Created:**
+  - `docs/policy-shapes/approve-compiled-weights.actions.json` (policy shape actions: `adjudicated`, `accepted`)
+  - `docs/policy-shapes/approve-compiled-weights.profile.json` (requires_human_approval: true, pins router to FULL)
+  - `src/agent_learning_ext/cli.py` (`task-policy-weights-adopt` subcommand)
+  - `.claude/skills/weight-compiler/SKILL.md` (updated component skill)
+  - `tests/test_weight_adopt.py` (contract tests for $AC_0$ through $AC_4$, interpretations $I_1$ to $I_4$)
+  - `docs/user-stories/epic-22-scored-search-decision-configuration-compilation.md` (Story 22.6 marked Completed)
+- **Contracts:**
+  - `tests/test_weight_adopt.py`
+  - Contract run: 5 passed in 1.15s
+  - Cumulative suite: 53 passed across Epic 22 (`test_weight_objective.py`, `test_weight_split.py`, `test_weight_search.py`, `test_weight_propose.py`, `test_weight_apply.py`, `test_weight_adopt.py`, `test_upstream_untouched.py`)
+- **Notes:**
+  - Interpretations recorded:
+    - $I_1$: Upstream Fork Purity (Invariant 6): Zero edits to `src/agent_learning/`. Logic isolated in `src/agent_learning_ext/cli.py`.
+    - $I_2$: Storage Decoupling: Zero direct storage modification except through standard snapshot store persistence.
+    - $I_3$: Defensive None-Safety: Defensive validation of proposal and approval payloads.
+    - $I_4$: Policy Shape Invariant: `approve-compiled-weights` requires human approval (`requires_human_approval: true`, pinned to `FULL`).
+  - $AC_0$: `approve-compiled-weights` policy shape defines actions `adjudicated` and `accepted`, `requires_human_approval: true`, router pinned to FULL.
+  - $AC_1$: `task-policy-weights-adopt` validates human approval episode and sets `criteria_weights` and `criteria_weights_source` in snapshot metadata, advancing version.
+  - $AC_2$: Adoption fails with exit code 2 when proposal or approval payload is missing, unadjudicated, or not accepted.
+  - $AC_3$: Target policy is saved via `save_policy_snapshot` with new version; previous version remains untouched in history.
+  - $AC_4$: Direct resolution of toy frame with updated snapshot produces expected winning option under adopted weights.
+- **Review (Step 8):** Amazon Q reviewed PR #145. All findings addressed:
+  - `Q-145-1 | crash risk | verified: yes | decision: accepted | Fix store.get_episode arity to (id, agent_id) with --approval-agent-id and governance fallback | fix: 0566e0b`
+  - `Q-145-2 | logic error | verified: yes | decision: accepted | Compute proposal SHA-256 directly on raw file bytes for exact sha256sum parity | fix: 0566e0b`
+  - `Q-145-3 | test gap | verified: yes | decision: accepted | Update test mocks and assertions for 2-argument get_episode and raw bytes hash | fix: 0566e0b`
+
+---
+
+## Story 21.4 — The Shadow Record and the Agreement Gate
+- **Commit:** `02597cf` (lint and status `4d20c9c`)
+- **Date:** 2026-11-09
+- **Branch:** `feat/story-21.4`
+- **Source ADR / BRD / FDD:** ADR-021 (§4.1, §4.4), BRD-021 (BRU-021-11), FDD-021 (§1 items 4 to 7, §2.3, §3, §4 K1 and K7, §5)
+- **Pre-Flight Spec Gate:** PASSED, Proceed utility 0.7327, margin +0.2113 (>= +0.05), episode `spec-21_4-8ad60e3c`. The gate was run after the contract was healed (see heal pass below); its I1 to I3 match the contract docstring.
+- **Heal pass (LL-042, `heal-contract-failure`):** an `implement-story` run for this story was started and abandoned with uncommitted work in `../agent-learning-story-21.4` (no commits, no PR); Menno confirmed it abandoned. The leftovers were re-walked from Intent as evidence, not adopted. Attempt 1 of 3, healed:
+  - Contract file was `tests/test_routing_agreement.py`; renamed to the epic-declared `tests/test_routing_guard.py` (I4).
+  - AC_6 crashed (`SoftmaxPolicy(actions=...)`) and was vacuous (`CRITIQUE` rewards, which `ReinforceLearner` never consumes); now `AGGREGATE` rewards, asserts the logits moved, and runs both the upstream and extension learner (I6).
+  - AC_4 gated on `round(wilson, 4)`: 35 of 35 (0.901096) passed a 0.9011 gate. Now the reported bound equals `wilson_lower_bound(k, n)` and the unrounded value is compared (I3).
+  - AC_2 counted an episode without a final action under a placeholder `"unknown"` action; now dropped (FDD-021 §3.6, I5).
+  - AC_5 now also built from episodes through `agreement`.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/routing.py` (`shadow_record`, `previous_route`, `agreement`, `propose_bucket`)
+  - `src/agent_learning_ext/__init__.py` (lazy exports `agreement`, `previous_route`, `propose_bucket`, `shadow_record`)
+  - `tests/test_routing_guard.py` (contract tests for $AC_0$ through $AC_6$, interpretations $I_1$ to $I_6$)
+  - `.claude/skills/routing/SKILL.md` (new; the component skill was missing since Story 21.1 and now covers Stories 21.1 to 21.4)
+  - `docs/user-stories/epic-21-contextual-authority-ensemble-routing.md` (Story 21.4 marked Completed)
+- **Contracts:**
+  - `tests/test_routing_guard.py`
+  - Observed RED first (against the leftover code): 7 failed (`test_ac2_agreement_drops_episode_without_final_action`, five `test_ac4_reported_bound_equals_wilson_lower_bound` cases, `test_ac4_gate_compares_unrounded_bound`); AC_6 shown able to fail by mutating the extension `ReinforceLearner` to train on `shadow_low_action` (2 failed; mutation reverted, nothing committed).
+  - Contract run: 31 passed
+  - Epic 21 contracts plus `tests/test_upstream_untouched.py`: 55 passed
+- **Validation:**
+  - Full suite: 2211 passed, 2 skipped before merging `origin/main` (Story 22.6); 2236 passed, 1 skipped after the merge and the Q-145-2 correction (`uv run pytest --ignore=tests/test_spark.py --ignore=tests/pmbok`; `test_spark.py` needs a JVM, `tests/pmbok` cannot be collected from a clean install, ADR-034, LL-013).
+  - `ruff check` clean on the touched files (`main`'s `routing.py` was clean before the story).
+  - Upstream fork untouched (I1).
+- **Flagged during the heal, fixed in review:** `mean_shadow_entropy_bits` divided by `n`, so an episode with a shadow action but no finite `shadow_entropy_bits` lowered the mean (Q-146-1/Q-146-2 below).
+- **Review (Step 8):** Amazon Q reviewed PR #146 (round 1, head `278a07a`; two review summaries reporting the same defect). Finding addressed:
+  - `Q-146-1 | logic error | verified: yes | decision: accepted | mean_shadow_entropy_bits divided by n instead of the count of episodes carrying a finite shadow_entropy_bits | fix: f9aea3d`
+  - `Q-146-2 | test gap | verified: yes | decision: accepted | No contract case had a counted episode without shadow_entropy_bits; added test_ac5_mean_entropy_only_over_episodes_carrying_it (RED 0.375 vs 0.75 first) | fix: f9aea3d`
+- **Trap note (for the Epic 21 recap):** an abandoned run's tests can be green and still unable to fail (wrong reward source); a heal must show each contract can go RED, not only that it passes.
+
+---
+
+## Correction (2026-11-09) — Story 22.6 review line Q-145-2
+- `Q-145-2` was recorded with claim type `auditability`, which is not one of the fixed claim types (logic error, crash risk, test gap, documentation, style; `implement-story` Step 8.7). `agent_learning.review_triage` rejects it, so `tests/test_review_triage.py` and `tests/test_critique_replay.py` failed on `main` after PR #145. The finding (proposal SHA-256 not computed on the raw file bytes) is reclassified as `logic error` in place; nothing else in the line changed. Found during Story 21.4 validation (cross-epic regression, attributed to PR #145, not to Story 21.4's diff).
+
+---
+
+## Story 22.7 — The Real-Data Regression Check
+- **Commit:** `eef95f4` (loader fix `d0a909c`, review fixes `ac7513f`)
+- **Date:** 2026-11-09
+- **Branch:** `feat/story-22.7`
+- **Source ADR / BRD / FDD:** ADR-022 (§4.4 test data), BRD-022 (BRU-022-12), FDD-022
+- **Pre-Flight Spec Gate:** NOT run before the contract was written. Recorded as a gap, not backfilled: scoring the specification now, after its contract exists, would not show what was true when the gate was due.
+- **Files Modified/Created:**
+  - `tests/test_weight_real_data.py` (contract tests for $AC_0$ through $AC_4$; no production code, the story's deliverable is the check)
+  - `.claude/skills/weight-compiler/SKILL.md` (constraint 14)
+  - `docs/user-stories/epic-22-scored-search-decision-configuration-compilation.md` (AC_0 to AC_3 wording amended at Stage 16; Story 22.7 marked Completed)
+  - `docs/policy-shapes/` (Stage 16 frame, result, measurements, adjudication and episode for the amendment)
+  - `tests/governance_baseline.json` (re-fingerprinted by `scripts/governance_baseline.py` through `scripts/stage16_amend.py accept`)
+  - `implementation-log.md` (correction below), `.claude/skills/implement-story/SKILL.md` (Tier 2 for LL-049 and LL-050)
+- **Contracts:**
+  - `tests/test_weight_real_data.py`: 18 passed (after review fixes)
+  - Full suite, nothing ignored: 2303 passed, 2 skipped (`uv run pytest`); 2346 passed, 2 skipped after merging `origin/main` (Story 21.4, PR #146) and the review fixes. With `--ignore=tests/test_spark.py --ignore=tests/pmbok`: 2210 passed, 1 skipped.
+- **Notes:**
+  - Real-data result: 179 of 188 frame files were used, grouped over 13 tasks. 9 approval frames carry no label in any episode or result and are skipped by name (`adr-005-regressed-demo`, `adr-008-approval`, `adr-012-approval-v2`, `adr-025-approval-v1`, `adr-034-approval`, `epic11-approval`, `implementation-readiness-phase2`, `pmp-approval-phase2`, `stakeholder-plan-approval-phase2`). Baseline accuracy is 1.0 on every task with at least `2 * MIN_PART` labelled frames, so `propose` returns `NoImprovement`. This is not evidence that compiled weights are better (BRU-022-12).
+  - Heal pass (heal-contract-failure): `test_ac4_result_labelled_with_documented_gap` was RED because the module docstring did not cite BRU-022-12; the contract was right, the docstring was fixed. The first loader swallowed every exception and silently dropped unlabelled frames; fixed in `d0a909c` so each skipped frame is counted and reported.
+  - Stage 16: AC_0 to AC_3 were edited in the working tree to match the test, which failed `tests/test_governance_baseline.py`. Classified `amendment_log_entry`, accepted by Menno Drescher 2026-11-09, episode `59440d8c`.
+  - Foreign contract: three tests failed on `main` since PR #145 because the Story 22.6 review line `Q-145-2` used claim type `auditability`. Found independently during Story 21.4 validation and corrected on `main` by `9dc009b` (see the correction entry above); this branch made the same one-token fix and the merge kept `main`'s. The parser was not loosened.
+  - Open: ADR-022, FDD-022 and the Epic 22 file name `src/agent_learning/weight_compiler.py`; the module is `src/agent_learning_ext/weight_compiler.py`. Correcting an approved document needs a Stage 16 `correction_note`, not yet run.
+  - Interpretations $I_1$ to $I_4$ in the test docstring (fork purity, storage decoupling, None-safety, empty-collection base case) are recorded there.
+- **Review (Step 8):** Amazon Q reviewed PR #147 (round 1, head `392fa4d`: two reviews and 10 inline comments, several repeating the same point). Triaged against the code and data:
+  - `Q-147-1 | logic error | verified: partial | decision: accepted | Loader took the first existing label source, not the first usable one; latent only, none of the 9 skipped frames has a usable adjudication or decision file | fix: ac7513f`
+  - `Q-147-2 | logic error | verified: partial | decision: accepted | Missing continue did not run the other branches (elif chain) but counted one failure twice in the skip list; reasons are now merged once | fix: ac7513f`
+  - `Q-147-3 | logic error | verified: partial | decision: accepted | Module-level skip list shared across tests; skips are now returned by the loader (the xdist race claim is wrong, workers do not share memory) | fix: ac7513f`
+  - `Q-147-4 | crash risk | verified: partial | decision: accepted | Snapshot helper read the actions file unguarded; it now fails with a message naming the file and rejects an empty action list | fix: ac7513f`
+  - `Q-147-5 | test gap | verified: yes | decision: accepted | The empty-collection assertion iterated an empty literal and never touched the loader; replaced by tests on the real loader and checked with a mutant | fix: ac7513f`
+  - `Q-147-6 | logic error | verified: no | decision: declined | The comment's own reasoning concludes the digest check passes; amendment files are in both snapshots, so nothing is defective | fix: none`
+  - `Q-147-7 | test gap | verified: partial | decision: declined | AC_3 says the test imports nothing from storage directly; a relative storage import in a flat tests module is not plausible and a transitive check is out of scope | fix: none`
+  - Correction to the Notes above: the first version of the test did not cover the amended AC_0 empty-collection wording (Q-147-5); it does from `ac7513f`.
+  - Round 1 confirmation (`/q confirm`, head `4e724fa` and again `7e22def`): Q marked Q-147-1 to Q-147-5 resolved, Q-147-6 and Q-147-7 declined with reasons accepted, and reported no unresolved blocking finding. `scripts/pr_gate.py 147` still HALTED (margin -0.072) because it scores the latest comment containing a review keyword, which was the round-1 review of `392fa4d`; the confirmation comments carry none of those keywords (IMP-033). It was not overridden; a fresh `/q review` was requested instead.
+  - Round 2 (`/q review`, head `7e22def`):
+  - `Q-147-8 | logic error | verified: yes | decision: accepted | The storage-import check matched node.module only, so from agent_learning import storage passed undetected; replaced by a detector that also reads the imported names, with tests for nine import forms (two RED under a mutant) | fix: 04c8b7a`
+  - Round 3 (`/q review`, head `3744d07`): the third round, so the loop asked the human (Menno) before continuing; Menno asked for both findings to be taken.
+  - `Q-147-9 | logic error | verified: partial | decision: accepted | _resolve_label returned None for labeled_at on an episode without created_at; harmless today because the only caller applied the default, now applied inside the resolver and tested | fix: ea86428`
+  - `Q-147-10 | test gap | verified: yes | decision: accepted | test_ac2 could pass without calling propose() if every task were filtered out; 4 tasks reach it today (approve-adr, approve-brd, approve-fdd, approve-user-stories), a tested_tasks counter now asserts at least one does and a mutant that filters all tasks fails it | fix: ea86428`
+  - Round 4 (`/q review`, head `b2adc31`, CI green, merge state CLEAN): one finding.
+  - `Q-147-11 | crash risk | verified: yes | decision: accepted with modification | ast.parse in the storage-import detector raised a bare SyntaxError; it now raises an AssertionError naming the problem, not the suggested return False, which would report no storage import for a file nobody could inspect | fix: e97975a`
+  - Round 5 (`/q review`, head `8c219cb`): Q recommended initializing `labeled_at` before the `try`.
+  - `Q-147-12 | crash risk | verified: no | decision: accepted | An uncaught exception propagates and cannot reach the later return, so the alleged unbound-local path is unreachable; initialized labeled_at per source anyway as defensive clarity, with no behavior change | fix: a5aeeb1`
+  - Round 6 (`/q review`, head `5aaeb5d`): one assertion was over-specified.
+  - `Q-147-13 | logic error | verified: yes | decision: accepted | AC_2 requires NoImprovement and the documented accuracy/JSON round-trip, not diagnostic wording or precision; a temporary precision mutation reproduced a false failure while the result type and accuracy remained correct; removed the hard-coded reason substring and documented the contract boundary | fix: 74e3518`
+  - Round 7 (`/q review`, head `a370599`): two findings.
+  - `Q-147-14 | logic error | verified: no | decision: accepted with modification | Caught load errors continue and uncaught errors propagate, so the alleged return-with-None path is unreachable; initialize labeled_at to the default regardless, making the fallback explicit | fix: 8ea5093`
+  - `Q-147-15 | crash risk | verified: yes | decision: accepted | AST source inspection now resolves cached bytecode paths to .py with importlib.util.source_from_cache and asserts the source exists; regression test observed RED before the helper was added | fix: 8ea5093`
+  - Round 8 (`/q review`, head `20c3c5f`): three findings; all accepted at Menno Drescher's direction on 2026-11-09.
+  - `Q-147-16 | test gap | verified: partial | decision: accepted | The bytecode-path test used a fabricated cache path; it now compiles a real source file and resolves the generated bytecode path | fix: ff97c91`
+  - `Q-147-17 | logic error | verified: partial | decision: accepted | Read errors already included the failing path but not its role; action-file and decision-frame failures now have distinct audit reasons | fix: ff97c91`
+  - `Q-147-18 | test gap | verified: yes | decision: accepted | The detector missed literal __import__ and importlib.import_module calls; it now covers those forms and aliases, with computed module names documented as out of static scope | fix: ff97c91`
+  - Post-Q validation: `tests/test_weight_real_data.py` 26 passed; Ruff passed; the available suite with `--ignore=tests/test_spark.py --ignore=tests/pmbok` passed 2351 tests with 1 skipped. This is not the entire suite.
+## Story 21.5 — Human Decisions and the Promotion Seed
+- **Commit:** `e1047b5`
+- **Date:** 2026-11-09
+- **Branch:** `feat/story-21.5`
+- **Source ADR / BRD / FDD:** ADR-021 (§4.1 threshold ownership, §4.4 promotion seed and evidence expiry, Invariant 9), BRD-021 (BRU-021-05, BRU-021-11 to BRU-021-14), FDD-021 (§1 items 2 and 5, §2.1, §2.4, §3 items 8 and 10, §4 K1, K4, K5, §5)
+- **Pre-Flight Spec Gate:** PASSED, Proceed utility 0.7154, margin +0.1941 (>= +0.05), episode `spec-21_5-ae035296`. Its I1 to I3 are in the contract docstring; I4 to I10 are this story's own interpretations (LL-011).
+- **Intent:** thresholds, the evidence age and bucket approvals change only through `task-policy-routing-set` citing an adjudicated, accepted approval episode; an approved bucket is seeded with the K5 prior and its provenance; the seed never counts as evidence. Out of scope: wiring `route`/`approved_for_low` into `task-policy-decide`, using the seed prior inside the router (Story 21.6 dispatch and later), calibrating thresholds.
+- **Interpretations recorded in the contract:**
+  - I4: one approval-episode helper, `cli._approval_episode_error`, extracted from `task-policy-weights-adopt` (same messages and lookup order) and shared by both commands; `approve-routing-thresholds` for thresholds and age, `approve-routing-bucket` for a bucket.
+  - I5: "the router receives `approved_for_low` false" is `routing.approved_for_low(snapshot, bucket)` (routed, approved, not `revalidate`); "never routed" is `routing.is_routed(snapshot)` (false without `routing_state`). Neither is wired into `task-policy-decide`.
+  - I6: `--set-thresholds` marks only buckets with `approved` true; unknown JSON keys are an invalid config.
+  - I7: `--approve-bucket` reads at most 500 of the task's episodes (newest first; an undercount only makes a bucket less eligible), uses now = current UTC and the `standard` tier gate; seed counts span every policy action (unseen ones 0); a final action outside the policy makes `seed_prior` raise and nothing is written.
+  - I8: `--revoke-bucket` of a bucket not in `routing_state` exits non-zero and never creates `routing_state`.
+  - I9: AC_6 is non-vacuous by construction (stored logits recommend `revise_plan`, the seed's modal action is `approve_plan`, every episode has an `AGGREGATE` reward); checked with the extension and upstream `assess_autonomy` over all four tiers.
+  - I10: every AC_0 number recomputed from the formula in the test as well as against the literals.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/routing.py` (`SEED_DAMPING_DEFAULT`, `seed_prior`, `is_routed`, `approved_for_low`)
+  - `src/agent_learning_ext/cli.py` (`task-policy-routing-set`, `_cmd_routing_set`, `_approval_episode_error` shared with `_cmd_adopt_weights`)
+  - `src/agent_learning_ext/__init__.py` (lazy exports `SEED_DAMPING_DEFAULT`, `seed_prior`, `is_routed`, `approved_for_low`)
+  - `tests/test_routing_decisions.py` (contract tests for $AC_0$ through $AC_6$, interpretations $I_1$ to $I_{10}$)
+  - `.claude/skills/routing/SKILL.md` (constraints 10 to 15, contract file, call sites); `.claude/skills/weight-compiler/SKILL.md` (the shared approval check)
+  - `docs/user-stories/epic-21-contextual-authority-ensemble-routing.md` (Story 21.5 marked Completed)
+- **Contracts:**
+  - `tests/test_routing_decisions.py`
+  - Observed RED first: 79 failed, 1 passed (`seed_prior` missing, `task-policy-routing-set` an invalid argparse choice, `is_routed`/`approved_for_low`/`_approval_episode_error` missing). The 17 refusal tests that first passed RED only because argparse rejected the unknown command were given positive controls (a valid call on the same store must succeed) and then failed RED too; the one remaining pass is the routing.py purity guard, shown able to fail by a mutation (`import random`).
+  - Mutations (each reverted, nothing committed): seed written into the stored logits (3 failed, incl. both AC_6 tests); no `revalidate` marking (1 failed); approval check skipped (20 failed); eligibility ignored (5 failed); a new version on write (4 failed).
+  - Trap found while writing the contract: `InMemoryStore.to_dict`/`from_dict` share the metadata dict, so a "before" picture taken by `to_dict()` changed with the later write; the contract deep-copies through JSON.
+  - Contract run: 80 passed
+  - Epic 21 contracts (`test_routing_signals`, `test_routing_route`, `test_routing_pinning`, `test_routing_guard`, `test_routing_decisions`) plus `tests/test_upstream_untouched.py`: 136 passed; `tests/test_weight_adopt.py` (refactored helper): 5 passed
+- **Validation:**
+  - Full suite: 2317 passed, 1 skipped (`uv run pytest --ignore=tests/test_spark.py --ignore=tests/pmbok`; `test_spark.py` needs a JVM, `tests/pmbok` cannot be collected from a clean install, ADR-034, LL-013).
+  - `ruff check --fix` on the new test file; `ruff check` clean on `routing.py`, `cli.py`, `__init__.py`.
+  - Upstream fork untouched (I1).
+- **Also in this PR (outside the story scope, at Menno's request):** `afca3e8` fixes `scripts/pr_gate.py` and `scripts/spec_gate.py` crashing with `UnicodeEncodeError` on their emoji verdict line on a cp1252 Windows console (seen on PR #146). `main()` now calls `ensure_utf8_stdout()`. Contract `tests/test_gate_console_encoding.py` was observed RED first (6 failed, the 2 cp1252 control tests passed) and now passes 8/8.
+- **Orchestrator validation (implemented by a delegated agent, Steps 0 to 7):** independently re-ran the Epic 21 contracts with `tests/test_weight_adopt.py` and `tests/test_upstream_untouched.py` (141 passed) and the full suite after the gate fix (2325 passed, 1 skipped; same exclusions). Hand-checked `seed_prior` against K5 for `(18, 3, 1)`. Checked `_approval_episode_error` against FDD-021 §3 item 10. Accepted the open question below as consistent with ADR-021 §4.4: the router uses the seeded prior for the entropy and margin tests.
+- **Open questions (not blocking):** BRU-021-12 / ADR-021 §4.4 "if the seeded distribution still fails the entropy or margin test, the bucket stays on full" is a routing-time rule (the router uses the prior); 21.5 stores the prior and does not check it against the thresholds at approval. `--approve-bucket` does not require thresholds to be set.
+---
+## Review record — PR #149 (ADR-023 downstream docs: BRD-023, FDD-023, Epic 23)
+- **Date:** 2026-11-09
+- **Branch:** `docs/adr-023-downstream` (draft `30c6043`, triage `60565fc`, `f972391`, `f9a7fee`)
+- **Scope:** Draft specifications only, with no code or tests. Recorded so that every Amazon Q finding, and the answer to it, is training data for the review learners and the PR gatekeeper. This follows Menno's instruction of 2026-11-09 to include all findings.
+- **Review (Q rounds 1 to 3):**
+  - `Q-149-1 | documentation | verified: yes | decision: accepted | BRU-023-04 stated 50 ms as settled while FDD-023 R4 is open at 98 ms measured; the rule now says the bound is open and holds a provisional 5 s | fix: 60565fc`
+  - `Q-149-2 | test gap | verified: yes | decision: accepted | Story 23.1 AC_8 had no number to assert; it now asserts a median under a provisional 5 s tied to R4 | fix: 60565fc`
+  - `Q-149-3 | test gap | verified: yes | decision: accepted | Story 23.6 AC_1 asserted an outcome measured on an uncommitted prototype; it now asserts only the bound and a terminal status other than exposure_unmet, and the exact result is measured at Ingest | fix: 60565fc`
+  - `Q-149-4 | logic error | verified: yes | decision: accepted | converged raised ValueError on a precondition never stated, and replayed comparisons can reach that path; new R11 (return false and report exposure_unmet proposed) | fix: 60565fc`
+  - `Q-149-5 | documentation | verified: partial | decision: accepted | The two gradient figures are from two different N = 100 draws, not a contradiction; both are now recorded | fix: 60565fc`
+  - `Q-149-6 | documentation | verified: partial | decision: accepted | About 2000 steps referred to 2e-15, not tol 1e-8; recomputed as 1017 and 1245 steps | fix: 60565fc`
+  - `Q-149-7 | logic error | verified: no | decision: declined | converged is already checked before budget_exhausted and converged() returns a bool, so the two cannot disagree; only the wording was made explicit | fix: none`
+  - `Q-149-8 | crash risk | verified: no | decision: declined | A dataclass field reached as fit.converged binds no module-level name, so it cannot collide with the function converged | fix: none`
+  - `Q-149-9 | documentation | verified: yes | decision: accepted | max(variances) on a dict compares keys; converged now uses max(variances.values()) | fix: 60565fc`
+  - `Q-149-10 | documentation | verified: yes | decision: accepted | Same dict notation fix in tournament_state | fix: 60565fc`
+  - `Q-149-11 | logic error | verified: partial | decision: accepted | tournament_state now validates through converged(); delegating the status itself would hide budget_exhausted because converged() is also true on a spent budget | fix: f972391`
+  - `Q-149-12 | documentation | verified: yes | decision: accepted | fit_bradley_terry section 3.1 now states that an unknown id in a comparison raises ValueError, matching section 5 | fix: f9a7fee`
+  - `Q-149-13 | documentation | verified: yes | decision: accepted | comparisons_from_episodes deduplicates by the Episode.id value; different ids recording the same pair are two answers | fix: f9a7fee`
+  - `Q-149-14 | logic error | verified: yes | decision: accepted | tournament_state raises ValueError when fit.utilities or variances keys are not exactly items; row added to the section 5 error table | fix: f9a7fee`
+- **Q verdicts:** after round 2, Q confirmed Q-149-1 to 10 resolved at `60565fc`. After round 3, it confirmed Q-149-11 resolved at `f972391`. Round 4 was requested at `f9a7fee`.
+
+---
+
+## Spec PR triage backfill — PRs #148 and #150
+- **Source:** Human triage of Amazon Q findings, recorded 2026-11-09. PR #149's triage is recorded in the review record above.
+- **PR #148 (round 1; fixed in `6f06b47`):**
+  - `Q-148-1 | logic error | verified: partial | decision: accepted | select_methodology already runs validate_selection_rules on its own inputs, but the FDD did not say so. FDD §3 item 5 now states it. Story 24.3 AC_4 is split into a blocked case and a separate candidate fixture. New D13: whether blocked should add its own state reason | fix: 6f06b47`
+  - `Q-148-2 | logic error | verified: yes | decision: accepted | decided_by_human added to FDD §2.5, §3 item 7, BRU-024-11 and Story 24.5 AC_3 | fix: 6f06b47`
+  - `Q-148-3 | documentation | verified: partial | decision: accepted | P3 now gives #30's cost: 3 (implemented, low), 30 (candidate, medium). Recomputed | fix: 6f06b47`
+  - `Q-148-4 | logic error | verified: yes | decision: accepted | The value of diverged when nothing is recommended is a design choice, so it is new row D14 (option A, null, proposed). Story 24.5 is now blocked on D14 | fix: 6f06b47`
+  - `Q-148-5 | documentation | verified: yes | decision: accepted | BRU-024-09 and its success metric now also name declined | fix: 6f06b47`
+  - `Q-148-6 | style | verified: partial | decision: accepted | No NameError risk: this is spec pseudocode, and the repo modules use from __future__ import annotations. PrerequisiteStatus is moved above SelectionRuleTable anyway | fix: 6f06b47`
+- **PR #150:**
+  - `Q-150-1 | logic error | verified: yes | decision: accepted | FDD-024 §2.2 says the first eligible row is the recommendation, but D9 and the worked fixture make recommended_id the first primary row (id 3, not adjunct id 6) | fix: none`
+
+---
+## Story 38.1 — The Weight-Row Update
+- **Commit:** `e95d88a`
+- **Date:** 2026-11-09
+- **Branch:** `feat/story-38.1` (worktree `../agent-learning-story-38.1`)
+- **Source ADR / BRD / FDD:** ADR-038 (§4.1), BRD-038 (BRU-038-02, BRU-038-06), FDD-038 (§1, §2.1, §3, D6)
+- **Pre-Flight Spec Gate:** `uv run python scripts/spec_gate.py 38.1 --no-persist` PASSED, robust margin +0.1774. `--no-persist` because `AGENT_LEARNING_LOCAL_STORE_DIR` on this machine points at another project's store (LL-040). Interpretations I1 (None-safety), I2 (empty base case), I3 (non-finite rejection) from the gate, plus I4 to I6 added in the test docstring.
+- **Worktree deviation:** nothing is merged between the Epic 38 stories, so 38.1 forks from `main` (`19d18ee`) as usual, but 38.2 forks from the tip of `feat/story-38.1` and 38.3 from the tip of `feat/story-38.2`. They form one stacked chain and must merge in order.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/learners/contextual_reinforce.py` (new)
+  - `src/agent_learning_ext/learners/__init__.py`, `src/agent_learning_ext/__init__.py` (export, `_EXPORTS`)
+  - `tests/test_contextual_learner.py` (new; AC_0 to AC_4 plus an export test)
+  - `.claude/skills/contextual-learning/SKILL.md` (new component skill)
+  - `docs/user-stories/epic-38-packaged-contextual-learning.md` (Story 38.1 Status line)
+- **Contracts:**
+  - RED observed first: 6 failed (5 acceptance tests and the export test; `ContextualReinforceLearner` did not exist).
+  - `tests/test_contextual_learner.py`: 6 passed. `tests/test_upstream_untouched.py` passed.
+  - Full suite with `--ignore=tests/test_spark.py --ignore=tests/pmbok`: 2337 passed, 2 skipped. Not the entire suite (Spark needs a JVM; `tests/pmbok` cannot be collected from a clean install, ADR-034, LL-013).
+  - `ruff check` clean on the four touched source and test files (`--fix` only on the two files this story created).
+- **Notes:**
+  - The 38.1 implementation covers only the used-episode path. Skip counters (38.2) and the class wall (38.3) are added in their own stories so that each contract is observed RED.
+  - The worktree's first `uv sync` did not install `numpy`; `uv sync --extra dev` was needed before the tests could import `agent_learning`.
+  - Not touched, by instruction: `docs/project-docs/Project-Status-Register.md` (the orchestrator updates it once after validation, to avoid a merge conflict with the Stories 38.4 to 38.6 branch).
+- **Amazon Q review (PR #153):** two rounds on `/q review`, then `/q confirm` on head `1369f23`. Q's reply on the head says no earlier finding is unresolved and lists only later stories as open. Accepted and fixed in `1369f23` (new commit, tests observed RED first): the empty-batch division and the missing-`feature_vector` read. Declined with reasons in the PR triage comment: the `test_ac1` baseline-decay remark and the `parents[1]` path remark.
+  - `Q-153-1 | crash risk | verified: yes | decision: accepted | ZeroDivisionError when no episode is usable (reported twice) | fix: 1369f23`
+  - `Q-153-2 | crash risk | verified: yes | decision: accepted | KeyError or TypeError reading feature_vector from missing metadata (reported twice) | fix: 1369f23`
+  - `Q-153-3 | logic error | verified: no | decision: declined | AC_1 fixes only the learning rate and the baseline stays 0 for any decay because the rewards cancel | fix: none`
+  - `Q-153-4 | logic error | verified: no | decision: declined | LEARNER_FILE resolves from __file__ not the working directory and 28 other tests use the same pattern | fix: none`
+
+## Story 38.4 — Init Can Create The Contextual Policy
+- **Commit:** `74e324d`
+- **Date:** 2026-11-09
+- **Branch:** `feat/story-38.4` (worktree `../agent-learning-story-38.4`)
+- **Deviation recorded (Step 0):** Epic 38 Stories 38.4 to 38.6 run in one delegated session with nothing merged between them, so 38.4 forks from `main` (`19d18ee`) but 38.5 forks from the tip of `feat/story-38.4` and 38.6 from the tip of `feat/story-38.5`. Their PRs must be opened and merged in that order.
+- **Source ADR / BRD / FDD:** ADR-038 (§4.3, Invariants 6 and 7), BRD-038 (BRU-038-07), FDD-038 (§2.2, §3.1)
+- **Pre-Flight Spec Gate:** PASSED, Proceed utility 0.6188, margin +0.0975 (>= +0.05), run with `--no-persist` because this machine's `AGENT_LEARNING_LOCAL_STORE_DIR` points at another project's store (LL-040), so there is no gate episode. I1 to I4 are the gate's; they are in the contract docstring with their applicability (I2 and I3 mostly do not apply to an init with an int flag). I5 to I8 are this story's own.
+- **Intent:** `task-policy-init --feature-dim N` stores a low-authority contextual snapshot. Out of scope: `task-policy-decide --features` (38.5), the `train` and authority-set refusals and the printed payload rule (38.6), the learner (38.1 to 38.3). The printed payload of a contextual init is still built by `_policy_payload` from the unused logits until 38.6 AC_2 changes it.
+- **Code-path check (Step 1):** `git ls-files` confirmed `src/agent_learning_ext/cli.py`, `src/agent_learning_ext/__main__.py` and `src/agent_learning/policy/contextual_softmax.py` are tracked. The story does not depend on `ContextualReinforceLearner`. No Microsoft module was edited.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/cli.py` (`--feature-dim` on `task-policy-init`, the two refusals, the `ContextualSoftmaxPolicy.from_actions` branch)
+  - `tests/test_contextual_cli.py` (new; Story 38.4 tests, one per criterion, `InMemoryStore` patched in through `cli.get_default_store`)
+  - `.claude/skills/contextual-cli/SKILL.md` (new component skill)
+  - `docs/user-stories/epic-38-packaged-contextual-learning.md` (Story 38.4 marked Completed)
+- **Contracts:**
+  - `tests/test_contextual_cli.py`: observed RED first, 7 failed and 3 passed (the 3 are the AC_4 omitted-flag cases, which describe behaviour that already holds). The first run showed 4 failed and 6 passed because the refusals passed only through argparse's "unrecognized arguments" exit 2; the AC_3 tests now also assert the error is not "unrecognized", and then failed RED.
+  - Contract run after implementing: 10 passed
+- **Validation:**
+  - Full suite: 2341 passed, 2 skipped (`uv run pytest --ignore=tests/test_spark.py --ignore=tests/pmbok`; `test_spark.py` needs a JVM, `tests/pmbok` cannot be collected from a clean install, ADR-034, LL-013). Includes `tests/test_upstream_untouched.py`.
+  - `ruff check` clean on `cli.py` and the new test file; `git diff --stat` on `cli.py` was 31 insertions and 6 deletions, no churn.
+  - Environment: `uv sync` alone installs no pytest or ruff in the worktree venv, so `uv run pytest` fell through to a global pytest without numpy; `uv sync --extra dev` fixed it (not `--all-extras`, LL-003).
+- **Status register:** `docs/project-docs/Project-Status-Register.md` not edited here; the orchestrator updates it once after validation to avoid a merge conflict with the Stories 38.1 to 38.3 agent.
+---
+- **Amazon Q review (PR #154):** `/q review`, then `/q confirm` on head `b7e232d`. Q's reply says all five acceptance criteria are resolved and lists the payload rule as owned by Story 38.6. One finding, declined with a reason in the PR triage comment.
+  - `Q-154-1 | crash risk | verified: no | decision: declined | _policy_payload does not crash on a contextual snapshot and the printed payload is Story 38.6 AC_2 (interpretation I8) | fix: none`
+
+---
+## Story 38.2 — Skipped Episodes Are Counted
+- **Commit:** `8c44e13`
+- **Date:** 2026-11-09
+- **Branch:** `feat/story-38.2` (worktree `../agent-learning-story-38.2`), forked from the tip of `feat/story-38.1` (`5a5c895`), not from `main`: nothing is merged between the Epic 38 stories. It merges after 38.1.
+- **Source ADR / BRD / FDD:** ADR-038 (§4.2, invariants 2 to 4), BRD-038 (BRU-038-03, BRU-038-04, BRU-038-05), FDD-038 (§2.1 table, §3 items 2 and 6)
+- **Pre-Flight Spec Gate:** `uv run python scripts/spec_gate.py 38.2 --no-persist` PASSED, robust margin +0.1829 (`--no-persist`: LL-040). Gate interpretations (storage decoupling, None-safety, empty base case) recorded as G1 to G3 in the test docstring; I7 to I9 added (all seven counter keys always present; `inf` is non-finite; no-reward case is an episode with no reward at all).
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/learners/contextual_reinforce.py` (episode classification, counters, nothing-to-apply return, reward validation)
+  - `tests/test_contextual_learner.py` (Story 38.2 section appended)
+  - `.claude/skills/contextual-learning/SKILL.md` (counters, nothing-to-apply, bad reward)
+  - `docs/user-stories/epic-38-packaged-contextual-learning.md` (Story 38.2 Status line)
+- **Contracts:**
+  - RED observed first: 21 failed, 7 passed. The 7 passing were the 6 Story 38.1 tests and AC_3 (supplied zeros), which the 38.1 implementation already satisfied.
+  - `tests/test_contextual_learner.py`: 28 passed. `tests/test_upstream_untouched.py` passed.
+  - Full suite with `--ignore=tests/test_spark.py --ignore=tests/pmbok`: 2359 passed, 2 skipped. Not the entire suite (Spark needs a JVM; `tests/pmbok` cannot be collected from a clean install, ADR-034, LL-013).
+  - `ruff check` clean (`--fix` only on files this branch created).
+- **Notes:**
+  - AC_3 was green before this story's implementation because the 38.1 code already treats a supplied zero vector as a vector. It still stands as its own test.
+  - `Project-Status-Register.md` not touched, by instruction (the orchestrator updates it once).
+- **Amazon Q review (PR #155):** `/q review` on head `ae7a23e`. Q reports no blocking defect, no finding and no inline comment, and says the PR is ready to merge from a code-correctness standpoint. No findings to triage.
+
+## Story 38.5 — Decide Requires The Feature List
+- **Commit:** `a8dd499`
+- **Date:** 2026-11-09
+- **Branch:** `feat/story-38.5` (worktree `../agent-learning-story-38.5`)
+- **Deviation recorded (Step 0):** forked from the tip of `feat/story-38.4` (`f704839`), not from `main`, because nothing is merged between Epic 38 Stories 38.4 to 38.6 in this delegated session. The PR for 38.4 must merge first.
+- **Source ADR / BRD / FDD:** ADR-038 (§4.3, Invariant 7), BRD-038 (BRU-038-08, BRU-038-09), FDD-038 (§2.3, §3.2, D1, D3)
+- **Pre-Flight Spec Gate:** PASSED, Proceed utility 0.7177, margin +0.1963 (>= +0.05), run with `--no-persist` (LL-040), so there is no gate episode. 38.5-I1 to I3 are the gate's, 38.5-I4 to I10 are this story's own; all are in the contract docstring.
+- **Intent:** `task-policy-decide --features` on a contextual snapshot parses and validates the vector, chooses from pi(. | features) (sampled or `--greedy`) without the scalar autonomy gate, prints the vector and stores nothing. Out of scope: `train` and authority-set refusals and the payload rule of `task-policy`/init/authority-set (38.6), the learner (38.1 to 38.3), recording the episode (the caller does, D1).
+- **Code-path check (Step 1):** `git ls-files` confirmed `src/agent_learning_ext/cli.py` and `src/agent_learning/policy/contextual_softmax.py` are tracked. The story does not depend on `ContextualReinforceLearner`. No Microsoft module was edited.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/cli.py` (`--features`, `_is_contextual_policy`, `_parse_feature_vector`, `_print_contextual_decision`, the contextual branch in `_cmd_decide_task_policy`)
+  - `tests/test_contextual_cli.py` (Story 38.5 tests appended; docstring gained the 38.5 interpretations)
+  - `.claude/skills/contextual-cli/SKILL.md` (constraints 5 to 7)
+  - `docs/user-stories/epic-38-packaged-contextual-learning.md` (Story 38.5 marked Completed)
+- **Contracts:**
+  - `tests/test_contextual_cli.py`: Story 38.5 tests observed RED first, 24 failed (the 10 Story 38.4 tests and the scalar-decide control passed, 11 in all). The first RED run showed 23 failed because one ordering test passed only through argparse's "unrecognized arguments: --features" text; it now also asserts that text and the evidence message are absent, and then failed RED.
+  - Contract run after implementing: 35 passed (10 for 38.4, 25 for 38.5).
+- **Interpretation worth a look:** a contextual snapshot stored with `full` authority is refused before the `--features` check, with a message naming `full` and `contextual`; FDD-038 §3.2 states the refusal but not its order relative to step 1.
+- **Validation:**
+  - Full suite: 2366 passed, 2 skipped (`uv run pytest --ignore=tests/test_spark.py --ignore=tests/pmbok`; `test_spark.py` needs a JVM, `tests/pmbok` cannot be collected from a clean install, ADR-034, LL-013). Includes `tests/test_upstream_untouched.py`.
+  - `ruff check` clean on `cli.py` and the test file; `git diff --stat` on `cli.py` was 102 insertions, 0 deletions (the branch before the log edit).
+- **Status register:** `docs/project-docs/Project-Status-Register.md` not edited here; the orchestrator updates it once after validation.
+---
+- **Amazon Q review (PR #156):** `/q review` on head `7eff72d`; one finding (reported twice). Accepted as hardening for a hand-made snapshot and fixed in `4caa219` (new commit, test observed RED first). `/q confirm` follows on the new head.
+  - `Q-156-1 | crash risk | verified: yes | decision: accepted | KeyError on a contextual snapshot with no feature_dim, reachable only through a hand-made snapshot because init always writes it (reported twice) | fix: 4caa219`
+
+---
+## Story 38.3 — One Learner, One Policy Class
+- **Commit:** `5cfd832`
+- **Date:** 2026-11-09
+- **Branch:** `feat/story-38.3` (worktree `../agent-learning-story-38.3`), forked from the tip of `feat/story-38.2` (`f72d457`), not from `main`. The Epic 38 learner chain is `main` <- 38.1 <- 38.2 <- 38.3 and merges in that order.
+- **Source ADR / BRD / FDD:** ADR-038 (invariant 1), BRD-038 (BRU-038-01), FDD-038 (§3 item 1, §5)
+- **Pre-Flight Spec Gate:** `uv run python scripts/spec_gate.py 38.3 --no-persist` PASSED, robust margin +0.1256 (`--no-persist`: LL-040). Gate interpretations recorded as H1 to H4 in the test docstring; I10 to I12 added (both `ReinforceLearner` classes; "does not read feature_vector" checked with a metadata guard; TypeError text compared for equality).
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/learners/contextual_reinforce.py` (class check at the top of `update`)
+  - `tests/test_contextual_learner.py` (Story 38.3 section appended)
+  - `.claude/skills/contextual-learning/SKILL.md` (class wall)
+  - `docs/user-stories/epic-38-packaged-contextual-learning.md` (Story 38.3 Status line)
+- **Contracts:**
+  - RED observed first: 1 failed, 30 passed. Only AC_0 failed (`KeyError: 'feature_dim'` on a `SoftmaxPolicy`). The two AC_1 tests were green before this story's code: `ReinforceLearner` (ours and Microsoft's) already raises `TypeError` for a `ContextualSoftmaxPolicy` and updates a `SoftmaxPolicy`, so they guard existing behaviour and could not be observed RED.
+  - `tests/test_contextual_learner.py`: 31 passed (the story's three plus the 38.1 and 38.2 tests). `tests/test_upstream_untouched.py` passed.
+  - Full suite with `--ignore=tests/test_spark.py --ignore=tests/pmbok`: 2362 passed, 2 skipped. Not the entire suite (Spark needs a JVM; `tests/pmbok` cannot be collected from a clean install, ADR-034, LL-013).
+  - `ruff check` clean (`--fix` only on files this branch created).
+- **Notes:**
+  - Epic 38 learner stories 38.1 to 38.3 are complete on three stacked branches; nothing is pushed, merged, or reviewed yet (Steps 8 and 9 not run, by instruction). Story 38.6 is not the learner chain, so the Step 9 recap belongs to whichever branch closes the epic.
+  - `Project-Status-Register.md` not touched, by instruction (the orchestrator updates it once).
+- **Amazon Q review (PR #158):** `/q review` on head `aea4917`. Q reports the implementation correct and complete, no blocking defect, no finding and no inline comment. No findings to triage.
+
+## Story 38.6 — Scalar Commands Leave The Weight Rows Alone
+- **Commit:** `dd84864`
+- **Date:** 2026-11-09
+- **Branch:** `feat/story-38.6` (worktree `../agent-learning-story-38.6`)
+- **Deviation recorded (Step 0):** forked from the tip of `feat/story-38.5` (`60889f4`), not from `main`, because nothing is merged between Epic 38 Stories 38.4 to 38.6 in this delegated session. PRs must merge in the order 38.4, 38.5, 38.6.
+- **Source ADR / BRD / FDD:** ADR-038 (Invariants 1 and 7), BRD-038 (BRU-038-11), FDD-038 (§3.3, §3.4, D2, D4, D5)
+- **Pre-Flight Spec Gate:** PASSED, Proceed utility 0.6188, margin +0.0975 (>= +0.05), run with `--no-persist` (LL-040), so there is no gate episode. 38.6-I1 to I4 are the gate's, 38.6-I5 to I10 are this story's own; all are in the contract docstring.
+- **Intent:** `train` skips a contextual snapshot; `task-policy-authority-set --authority full` refuses it; the printed payload of a contextual snapshot has no `action_probabilities`. Out of scope: teaching `train` or `LearningRunner` to call `ContextualReinforceLearner`, the learner itself (38.1 to 38.3).
+- **Code-path check (Step 1):** `git ls-files` confirmed `src/agent_learning_ext/cli.py`, `src/agent_learning/policy/contextual_softmax.py` and `src/agent_learning/learners/reinforce.py` are tracked. The story depends on the name `ContextualReinforceLearner` only inside a skip-reason string, not on the class, so nothing here imports it. No Microsoft module was edited.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/cli.py` (`_cmd_train` skip, `_cmd_set_task_policy_authority` refusal, `_policy_payload` branch, `_policy_difference` guard)
+  - `tests/test_contextual_cli.py` (Story 38.6 tests appended; docstring gained the 38.6 interpretations)
+  - `.claude/skills/contextual-cli/SKILL.md` (constraints 8 to 10)
+  - `docs/user-stories/epic-38-packaged-contextual-learning.md` (Story 38.6 marked Completed)
+- **Contracts:**
+  - `tests/test_contextual_cli.py`: Story 38.6 tests observed RED first, 7 failed (37 passed: the 35 earlier tests plus two positive controls, a scalar `train` and a scalar payload).
+  - Contract run after implementing: 44 passed (10 for 38.4, 25 for 38.5, 9 for 38.6).
+- **Beyond the criteria, needed by D5:** removing `action_probabilities` from a contextual payload made `_policy_difference` (used by `task-policy` when a previous policy version exists) read a missing key, so it now returns `None` when either snapshot is contextual (38.6-I10, covered by a test).
+- **Confirmed by Menno (2026-11-09):** the `_policy_difference` guard above, so `task-policy` returns no distribution difference for a contextual snapshot, is approved as part of Story 38.6.
+- **Known gaps left open (not in any criterion):** `task-policy` still prints an `autonomy` block computed from the unused logits for a contextual snapshot; `task-policy-authority-set` from a hand-made `full` contextual snapshot to `low` would record a migration distribution from the unused logits. Both are for a later decision.
+- **Validation:**
+  - Full suite: 2375 passed, 2 skipped (`uv run pytest --ignore=tests/test_spark.py --ignore=tests/pmbok`; `test_spark.py` needs a JVM, `tests/pmbok` cannot be collected from a clean install, ADR-034, LL-013). Includes `tests/test_upstream_untouched.py`.
+  - `ruff check` clean on `cli.py` and the test file; `git diff --stat` on `cli.py` was 22 insertions and 3 deletions of this story's own lines.
+- **Status register:** `docs/project-docs/Project-Status-Register.md` not edited here; the orchestrator updates it once after validation.
+- **Not run (by instruction):** Step 8 (PR, Q review, gate, merge) and Step 9 (breakout recap, Lessons Learned and Continuous Improvement registers). Story 38.6 is the epic's last story, so Step 9 is held for the human-led recap.
+---
+- **Amazon Q review (PR #159):** `/q review` on head `38b8457`; one finding (reported twice, once as a blocking issue, once as a documented known gap). Deferred to the maintainer: FDD-038 D4 and section 3.3 specify only the refusal to `full`, the reverse move on a hand-made full-authority contextual snapshot is unspecified, and the maintainer left it for a later decision. Q's crash claim does not hold: `SoftmaxPolicy.from_snapshot` runs on a contextual snapshot (Story 38.4 AC_0 exercises it); the effect is a migration record built from the unused logits. `/q confirm` follows.
+  - `Q-159-1 | crash risk | verified: partial | decision: deferred | full to low authority-set on a hand-made full-authority contextual snapshot records a migration distribution from the unused logits and does not crash; unspecified by FDD-038 D4 and left for the maintainer | fix: none`
+
+## Epic 14 relocation — critique-to-evidence engine moved into agent_learning_ext
+- **Commit:** `c5c2dd0`
+- **Date:** 2026-11-09
+- **Branch:** `refactor/epic-14-into-agent-learning-ext`
+- **Source ADR / BRD / FDD:** ADR-014, BRD-014, FDD-014 (Epic 14, Stories 14.1 to 14.6). No approved ADR, BRD, FDD or story body is changed; ADR-014, BRD-014 and FDD-014 do not name the old folder.
+- **Why:** Epic 14 was built in `agent-training-ext/` (and, per the old import fallbacks, first as `agent_learning.critique_evidence` inside Microsoft's package). Everything we add belongs in `src/agent_learning_ext/` under the fork rule. The upstream manifest's `known_edited` list is empty and `tests/test_upstream_untouched.py` passes, so no Microsoft file carries Epic 14 code today.
+- **Moved (`git mv`, history kept):** `agent-training-ext/critique_evidence.py` to `src/agent_learning_ext/critique_evidence.py`; `agent-training-ext/triage_replay.py` to `src/agent_learning_ext/triage_replay.py`; `agent-training-ext/tests/test_critique_{apply,metadata,parse,rubric}.py` to `tests/`.
+- **Removed:** the `agent_training_ext` shim package (its `critique_evidence` forwarder and an unused `dpo_preference` re-export of `agent_learning_ext.learners.pairwise`, which nothing imported), the folder README, and the empty folder.
+- **Changed:** `scripts/spec_gate.py` and `scripts/pr_gate.py` (one import from `agent_learning_ext.critique_evidence`, the `agent-training-ext` path insert and its mention in two messages removed); the import chains in the five critique tests collapsed to one; `pyproject.toml` `testpaths` and `pythonpath`; `src/agent_learning_ext/__init__.py` exports eleven names (not `to_episode_metadata`, which the root already maps to `agent_learning.tailoring`); the `critique-evidence`, `pairwise-preference` and `ucb` skills.
+- **Contracts:** behaviour unchanged. `tests/test_critique_*.py` and `tests/test_upstream_untouched.py`: 47 passed. `scripts/spec_gate.py 38.1 --no-persist` passes; `scripts/pr_gate.py` imports cleanly. Full suite with no `--ignore` flags: 2518 passed, 2 skipped.
+- **Not changed, for a human decision:** the 36 generated plan documents and the PMP still name `agent-training-ext/` (they are tool-generated and are not edited by hand; regenerate them); the `**Status:**` lines of `docs/user-stories/epic-14-critique-to-evidence-ingestion.md` still read "completed in agent-training-ext" as history; FDD-023 §3 and §8 quote the PMP's `agent-training-ext/` invariant; comments in older tests mention the folder.
+- **Not touched, by scope:** `docs/project-docs/Project-Status-Register.md`.
+- **Amazon Q review (PR #162):** `/q review` on head `a9a523d`. Two reviews, both reporting a clean mechanical refactor with no blocking defect, no finding and no inline comment, and confirming the eleven exports, the collapsed imports and the removed shim. No findings to triage.

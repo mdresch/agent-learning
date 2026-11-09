@@ -2,9 +2,9 @@
 
 **Source ADR:** [ADR-014](../adr/ADR-014-critique-to-evidence-ingestion.md) — Accepted (2026-10-28)  
 **Source BRD/FDD:** [BRD-014](../project-docs/Business-Requirements/BRD-014-critique-to-evidence-ingestion.md) / [FDD-014](../project-docs/Functional-Design/FDD-014-critique-to-evidence-ingestion.md)  
-**Status:** Approved (2026-10-30, Menno) — stories derived from Accepted ADR-014, BRD-014 and FDD-014; adjudicated via `approve-user-stories` (robust utility 0.731, episode `bd32d840-ec45-43f4-b0e9-fe20026264e3`). The epic number follows the source ADR number, as Epic 11 follows ADR-011.  
+**Status:** Completed (all stories 14.1–14.6 Completed) — stories derived from Accepted ADR-014, BRD-014 and FDD-014; adjudicated via `approve-user-stories` (robust utility 0.731, episode `bd32d840-ec45-43f4-b0e9-fe20026264e3`). The epic number follows the source ADR number, as Epic 11 follows ADR-011.   Amended 2026-11-09 at Stage 16: CR-20261109-002: correct the module path to src/agent_learning_ext, classified `correction_note` (robust utility 0.965, episode `5916f150...`) and accepted by Menno.
 
-Six stories build the pure module `src/agent_learning/critique_evidence.py`. Each rule sits in exactly one story's criteria (LL-012). Contract tests are `tests/test_critique_parse.py` (14.1), `tests/test_critique_apply.py` (14.2 and 14.3), `tests/test_critique_metadata.py` (14.4) and `tests/test_critique_rubric.py` (14.6). Story 14.5 is data work and has no test file. The long-term learned rubric (FDD-014 §8) is not a story yet.
+Six stories build the pure module `src/agent_learning_ext/critique_evidence.py`. Each rule sits in exactly one story's criteria (LL-012). Contract tests are `tests/test_critique_parse.py` (14.1), `tests/test_critique_apply.py` (14.2 and 14.3), `tests/test_critique_metadata.py` (14.4) and `tests/test_critique_rubric.py` (14.6). Story 14.5 is data work and has no test file. The long-term learned rubric (FDD-014 §8) is not a story yet.
 
 **Stories 14.2 to 14.4 are unblocked.** Menno confirmed FDD-014 §4 (D1 to D5) on 2026-10-28 and ADR-014 was amended to match. ADR-014 §4.4 as first accepted failed BRU-014-03: it made a defect finding raise the pooled support. The stories below build the corrected mechanism of FDD-014 §3.
 
@@ -14,7 +14,7 @@ Fixture used by the criteria below ("the base frame"): one option with two evide
 
 ## Story 14.1 — The Tag Grammar and Parser
 
-**Status:** Ready  
+**Status:** Completed (2026-11-08, agent-training-ext, per implementation-log.md)  
 **As** a reviewer, **I want** my tagged findings read exactly as written, **so that** no number is ever guessed on my behalf.
 
 ### Acceptance Criteria:
@@ -29,7 +29,7 @@ Fixture used by the criteria below ("the base frame"): one option with two evide
 
 ## Story 14.2 — Moving the Pooled Support by the Delta
 
-**Status:** Ready  
+**Status:** Completed (2026-11-08, agent-training-ext, per implementation-log.md)  
 **As** a maintainer, **I want** a finding's delta to move the criterion's pooled support by exactly that delta, **so that** a defect never raises a score and a confirmation never lowers it.
 
 ### Acceptance Criteria:
@@ -42,7 +42,7 @@ Fixture used by the criteria below ("the base frame"): one option with two evide
 
 ## Story 14.3 — Doubt, Traceability and Validation
 
-**Status:** Ready  
+**Status:** Completed (2026-11-08, agent-training-ext, per implementation-log.md)  
 **As** an auditor, **I want** every appended point to name its finding and nothing else to change, **so that** I can trace each score change and trust the rest of the frame.
 
 ### Acceptance Criteria:
@@ -56,7 +56,7 @@ Fixture used by the criteria below ("the base frame"): one option with two evide
 
 ## Story 14.4 — Episode Metadata
 
-**Status:** Ready  
+**Status:** Completed (2026-11-08, agent-training-ext, per implementation-log.md)  
 **As** a maintainer, **I want** the applied adjustments stored as plain metadata on the episode, **so that** the audit trail needs no new record type.
 
 ### Acceptance Criteria:
@@ -69,7 +69,7 @@ Fixture used by the criteria below ("the base frame"): one option with two evide
 
 ## Story 14.5 — Replay on the Real Triage Records
 
-**Status:** Ready — blocked until the original Amazon Q comments are exported from the PR threads (ADR-014 §4.4, test data gap).  
+**Status:** Completed (2026-11-08, agent-training-ext, per implementation-log.md)  
 **As** a maintainer, **I want** the 30 real review-triage records tagged by a person and run through the module, **so that** I can see whether the deltas point the way the human decisions did.
 
 ### Acceptance Criteria:
@@ -78,12 +78,13 @@ Fixture used by the criteria below ("the base frame"): one option with two evide
 - **$AC_2$ (Declined Findings):** a finding the human *declined* in triage is one the human judged not to be a real defect, so its recorded delta is zero or positive and never negative; applying it does not lower the pooled support of the criterion it names. Any declined finding tagged with a negative delta is listed, not hidden.
 - **$AC_3$ (Accepted Findings):** a finding the human *accepted* in triage was a real defect, so its recorded delta is negative, and applying it lowers the pooled support by that delta.
 - **$AC_4$ (Not Evidence Of Effectiveness):** the result is recorded as a consistency check on the tagging. It makes no claim that the method improves decisions (HYP-AL-005 stays open).
+- **$AC_5$ (Empty & Defensive):** passing zero triage records or empty lines returns an empty replay report without error; missing optional fields or comment texts default defensively to None or empty dictionary without raising AttributeError.
 
 ---
 
 ## Story 14.6 — The Delta Rubric
 
-**Status:** Ready  
+**Status:** Completed (2026-11-08, agent-training-ext, per implementation-log.md)  
 **As** a reviewer, **I want** a finding's size to follow from its claim type and verification result, **so that** two reviewers give the same finding the same delta.
 
 ### Acceptance Criteria:

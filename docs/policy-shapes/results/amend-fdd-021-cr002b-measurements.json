@@ -1,0 +1,26 @@
+{
+  "document": "docs/project-docs/Functional-Design/FDD-021-contextual-authority-ensemble-routing.md",
+  "tag": "cr002b",
+  "base_commit": "bfe18e4",
+  "candidate_sha256": "e4f5ba5b39da6a3b962d2ee8a6036036c552c8c85c4488e279ac3ffc304ed09f",
+  "features": {
+    "lines": 4,
+    "terms_removed": 23,
+    "terms_kept": 22,
+    "goal_preserved": true,
+    "requirement_inverted": false,
+    "normative_touched": false,
+    "status_line_changed": false,
+    "downstream_refs": 0,
+    "change_ratio": 0.02
+  },
+  "observed": [
+    0.05,
+    0.1,
+    0.1,
+    0.1
+  ],
+  "proposed_action": "correction_note",
+  "accepted": true,
+  "episode": "0ebf33c8"
+}

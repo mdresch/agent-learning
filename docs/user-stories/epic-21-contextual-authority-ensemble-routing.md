@@ -2,9 +2,9 @@
 
 **Source ADR:** [ADR-021](../adr/ADR-021-contextual-authority-ensemble-routing.md) — Accepted (2026-10-28)  
 **Source BRD/FDD:** [BRD-021](../project-docs/Business-Requirements/BRD-021-contextual-authority-ensemble-routing.md) / [FDD-021](../project-docs/Functional-Design/FDD-021-contextual-authority-ensemble-routing.md)  
-**Status:** Approved (2026-10-29, Menno) — stories derived from Accepted ADR-021, BRD-021 and FDD-021; adjudicated via `approve-user-stories` (robust utility 0.735, episode `5a905107-ff04-4e89-84c5-680fa5716d47`). The epic number follows the source ADR number, as Epic 20 follows ADR-020.  
+**Status:** Approved (2026-10-29, Menno) — stories derived from Accepted ADR-021, BRD-021 and FDD-021; adjudicated via `approve-user-stories` (robust utility 0.735, episode `5a905107-ff04-4e89-84c5-680fa5716d47`). The epic number follows the source ADR number, as Epic 20 follows ADR-020.   Amended 2026-11-09 at Stage 16: CR-20261109-002: correct the module path to src/agent_learning_ext, classified `correction_note` (robust utility 0.965, episode `e49f2eb2...`) and accepted by Menno.
 
-Seven stories build `src/agent_learning/routing.py`, the command `task-policy-routing-set`, the two approval shapes, and one condition in `ReinforceLearner`. Each rule sits in exactly one story's criteria (LL-012). Contract tests are `tests/test_routing_signals.py` (21.1), `tests/test_routing_route.py` (21.2), `tests/test_routing_pinning.py` (21.3), `tests/test_routing_guard.py` (21.4), `tests/test_routing_decisions.py` (21.5), `tests/test_routing_dispatch.py` (21.6) and `tests/test_routing_real_data.py` (21.7). Calibrating the thresholds, measuring savings and wiring the router into `task-policy-decide` are not stories (BRD-021 Out of Scope).
+Seven stories build `src/agent_learning_ext/routing.py`, the command `task-policy-routing-set`, the two approval shapes, and one condition in `ReinforceLearner`. Each rule sits in exactly one story's criteria (LL-012). Contract tests are `tests/test_routing_signals.py` (21.1), `tests/test_routing_route.py` (21.2), `tests/test_routing_pinning.py` (21.3), `tests/test_routing_guard.py` (21.4), `tests/test_routing_decisions.py` (21.5), `tests/test_routing_dispatch.py` (21.6) and `tests/test_routing_real_data.py` (21.7). Calibrating the thresholds, measuring savings and wiring the router into `task-policy-decide` are not stories (BRD-021 Out of Scope).
 
 **Stories 21.1 to 21.7 are unblocked:** Menno confirmed FDD-021 §4 (K1 to K7) on 2026-10-29 and ADR-021 was amended to match. No story depends on another epic. Story 21.6 changes `learners/reinforce.py`; the criteria of Stories 15.5, 16.5 and 17.5 that would have failed on that change were made behavioural first (PR 56; FDD-021 §7 item 2).
 
@@ -14,7 +14,7 @@ Fixture used by the criteria below ("the base config"): `tau_esc` 1.0, `tau_dees
 
 ## Story 21.1 — Entropy and Margin
 
-**Status:** Ready  
+**Status:** Completed  
 **As** an auditor, **I want** the two uncertainty signals computed by plain arithmetic, **so that** a route can be checked by hand.
 
 ### Acceptance Criteria:
@@ -26,7 +26,7 @@ Fixture used by the criteria below ("the base config"): `tau_esc` 1.0, `tau_dees
 
 ## Story 21.2 — The Route
 
-**Status:** Ready  
+**Status:** Completed  
 **As** a maintainer, **I want** a request routed by entropy, margin, tier and the bucket's approval, with no flapping, **so that** unsure requests reach full review and routine ones stay fast.
 
 ### Acceptance Criteria:
@@ -42,7 +42,7 @@ Fixture used by the criteria below ("the base config"): `tau_esc` 1.0, `tau_dees
 
 ## Story 21.3 — Pinned Gates
 
-**Status:** Ready  
+**Status:** Completed  
 **As** an auditor, **I want** the governance gates impossible to route down, **so that** no entropy value can take a human out of a baseline decision.
 
 ### Acceptance Criteria:
@@ -56,7 +56,7 @@ Fixture used by the criteria below ("the base config"): `tau_esc` 1.0, `tau_dees
 
 ## Story 21.4 — The Shadow Record and the Agreement Gate
 
-**Status:** Ready  
+**Status:** Completed  
 **As** an approver, **I want** the evidence that a bucket is ready for the fast path presented with its base rate, **so that** I can see whether the learned policy agrees more than chance.
 
 ### Acceptance Criteria:
@@ -72,7 +72,7 @@ Fixture used by the criteria below ("the base config"): `tau_esc` 1.0, `tau_dees
 
 ## Story 21.5 — Human Decisions and the Promotion Seed
 
-**Status:** Ready  
+**Status:** Completed  
 **As** a maintainer, **I want** thresholds and bucket approvals to change only through a recorded human decision, **so that** the fast path is never granted silently.
 
 ### Acceptance Criteria:

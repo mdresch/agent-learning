@@ -1,0 +1,126 @@
+# Stage 18: Intent Refinement Workflow
+# 
+# This workflow defines the execution flow for Stage 18 of the Intent-to-Outcome chain.
+# It operationalizes GC-001 from LL-043 (Stage 18 Tooling Migration).
+#
+# Created: 2026-11-06
+# Version: 1.1.0
+# Related: ADP-20261106-001, BRP-20261106-001, LL-043, PCD-20261106-001
+
+---
+
+# Workflow Metadata
+name: "Stage 18: Intent Refinement"
+version: "1.1.0"
+description: "Execute Stage 18 Bayesian cognitive feedback gate to close Phase 1 and seed Phase 2"
+skill_id: "stage-18"
+governance_policy: "approve-intent-refinement"
+baseline: "PMP-BL-v1.0.1"
+related_artifacts:
+  - "ADP-20261106-001"
+  - "IRP-20261106-001"
+  - "PCD-20261106-001"
+  - "BRP-20261106-001"
+  - "LL-043"
+  - "INSIGHT-003"
+
+---
+
+# Workflow Configuration
+config:
+  execution:
+    timeout_minutes: 30
+    retry_attempts: 2
+    retry_delay_seconds: 5
+    
+  logging:
+    level: "INFO"
+    format: "%(asctime)s - %(levelname)s - %(message)s"
+    
+  output:
+    directory: "output/stage-18"
+    results_file: "output/stage-18/execution-results.json"
+    
+  validation:
+    strict: true
+    fail_fast: true
+
+---
+
+# Workflow Steps
+steps:
+  # Step 1: Readiness Audit
+  - id: "step-1-readiness-audit"
+    name: "Phase Closure Readiness Audit"
+    description: "Verify deliverables, clean audits, crystallized lessons, and operational adaptations"
+    command: "python scripts/execute_stage_18.py"
+    timeout_minutes: 5
+    outputs:
+      - "output/stage-18/execution-results.json"
+    validation:
+      required: true
+      criteria:
+        - "readiness.is_ready == true"
+        - "readiness.deliverables_accepted >= 6"
+        - "readiness.crystallized_lessons_count >= 46"
+
+  # Step 2: Hypothesis Inventory & Adjudication
+  - id: "step-2-hypothesis-adjudication"
+    name: "Bayesian Hypothesis Adjudication"
+    description: "Adjudicate all cataloged hypotheses to terminal states (Validated / Refuted)"
+    timeout_minutes: 5
+    validation:
+      required: true
+      criteria:
+        - "adjudication.terminal == true"
+        - "adjudication.inconclusive == 0"
+
+  # Step 3: Low-Pass Damping & Strategic Pivot Capacity
+  - id: "step-3-damping-and-capacity"
+    name: "Low-Pass Damping and Pivot Capacity Validation"
+    description: "Apply beta=0.75 damping and verify strategic pivots are within capacity limits"
+    timeout_minutes: 5
+    validation:
+      required: true
+      criteria:
+        - "damping.whiplash_detected == false"
+        - "capacity.within_limits == true"
+
+  # Step 4: Proposal Generation & Documentation Update
+  - id: "step-4-update-documentation"
+    name: "Update Intent Refinement Documentation"
+    description: "Update IRP-20261106-001 and assessment report with execution results"
+    command: "python scripts/update_stage_18_docs.py"
+    timeout_minutes: 5
+    inputs:
+      - "output/stage-18/execution-results.json"
+    outputs:
+      - "docs/governance/irp/IRP-20261106-001-Phase-1-Intent-Refinement-Proposal.md"
+      - "docs/project-docs/Status-Reports/Stage-18-Intent-Refinement-Assessment.md"
+    validation:
+      required: true
+
+  # Step 5: Governance Approval & Phase Close Decision
+  - id: "step-5-approval-gate"
+    name: "Approval Gate & Close Decision Record"
+    description: "Submit to approve-intent-refinement and record PCD-20261106-001"
+    outputs:
+      - "docs/governance/decisions/PCD-20261106-001-Phase-1-Close-Decision.md"
+    validation:
+      required: true
+      criteria:
+        - "decision == 'APPROVE'"
+
+  # Step 6: Phase Seeding & Baseline Rollup Check
+  - id: "step-6-seeding-and-rollup"
+    name: "Seed Phase 2 and Verify Rollup Alignment"
+    description: "Seed Spark-Capture.md and verify zero status drift across backlog"
+    command: "python scripts/phase_rollup.py --check"
+    timeout_minutes: 5
+    outputs:
+      - "docs/project-docs/Spark-Capture.md"
+      - "docs/project-docs/Project-Status-Register.md"
+    validation:
+      required: true
+      criteria:
+        - "exit_code == 0"

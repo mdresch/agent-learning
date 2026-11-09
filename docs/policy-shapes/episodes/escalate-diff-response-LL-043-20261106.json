@@ -1,0 +1,97 @@
+{
+  "episode_id": "b2c3d4e5-f6g7-8901-bcde-f12345678901",
+  "timestamp": "2026-11-06T10:05:00Z",
+  "policy": "escalate-diff-response",
+  "action": "escalate",
+  "lesson_id": "LL-043",
+  "lesson_title": "A Closing Stage's Tooling May Sit Outside What CI Runs",
+  "diff_type": "structural",
+  "subtype": "architectural",
+  "escalation_level": "steering_committee",
+  "action_required": "create_baseline_revision_package",
+  "evidence_basis": "execution",
+  "threshold_exceeded": true,
+  "charter_approval_limit": "exceeded",
+  "required_approvals": [
+    "steering_committee",
+    "project_sponsor"
+  ],
+  "decision_timestamp": "2026-11-06T10:05:00Z",
+  "escalator": "escalate-diff-response",
+  "rationale": "LL-043 requires architectural changes that exceed the Project Charter approval limits. The change involves migrating Stage 18 tooling from the legacy pmbok/ directory to the maintained src/agent_learning/pmbok/ location, which affects the project's architectural structure, build system, and CI configuration. Additionally, this conflicts with ADR-034 which plans to decommission the pmbok/ directory. Such structural changes require Steering Committee approval as they impact the overall project architecture and baseline. The evidence basis is 'execution' as this issue was discovered through executed work and validated lessons learned.",
+  "decision": "Escalate LL-043 to Steering Committee for Baseline Revision Package approval",
+  "decision_maker": "escalate-diff-response (LOW authority, human decides)",
+  "evidence": {
+    "basis": "execution",
+    "artifacts": [
+      "docs/policy-shapes/episodes/classify-diff-type-LL-043-20261106.json",
+      "docs/insights/INSIGHT-003.md",
+      "docs/observations/OBS-002.md",
+      "docs/observations/OBS-006.md",
+      "docs/observations/OBS-009.md",
+      "docs/adr/ADR-034-decommission-pmbok-directory.md",
+      "docs/project-docs/Project-Charter.md"
+    ],
+    "classification_episode": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "impact_assessment": {
+      "technical": {
+        "complexity": "increase",
+        "test_coverage": "new_tests_required",
+        "performance": "neutral",
+        "security": "neutral",
+        "maintainability": "improved"
+      },
+      "process": {
+        "workflow": "changed",
+        "tooling": "modified",
+        "training": "not_required",
+        "documentation": "required"
+      },
+      "governance": {
+        "policy_changes": "not_required",
+        "approval_authority": "changed",
+        "audit_trail": "affected",
+        "compliance": "affected"
+      },
+      "business": {
+        "cost": "neutral",
+        "schedule": "extended",
+        "scope": "unchanged",
+        "risk": "new_risks"
+      }
+    }
+  },
+  "related_episodes": [
+    "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "42114091-0ccd-4c45-9b6b-c97046b048bd"
+  ],
+  "baseline_revision_package": {
+    "package_id": "BRP-20261106-001",
+    "from_version": "PMP-BL-v1.0.0",
+    "to_version": "PMP-BL-v1.0.1",
+    "version_type": "patch",
+    "justification": "Design-time revision per ADR-037 section 4.10 (patch increment for design-time revisions)",
+    "contents": [
+      "Revised Project-Management-Plan.md",
+      "Changed Scope-Management-Plan.md",
+      "Changed Schedule-Management-Plan.md",
+      "Changed Quality-Management-Plan.md",
+      "Standard Set: Spark-Capture.md, Ideation-Document.md, Business-Case.md, Benefits-Statement.md, Stakeholder-Register.md, Project-Charter.md (unchanged)",
+      "Migration plan for Stage 18 tooling",
+      "CI configuration updates",
+      "ADR-034 amendment"
+    ],
+    "status": "prepared",
+    "submission_date": "2026-11-06"
+  },
+  "stage": 16,
+  "pmbok_process": "4.6 Perform Integrated Change Control",
+  "project_phase": "Phase 1",
+  "links": {
+    "lesson": "../project-docs/Lessons-Learned-Register.md#ll-043",
+    "insight": "../insights/INSIGHT-003.md",
+    "classification_episode": "classify-diff-type-LL-043-20261106.json",
+    "assessment": "../project-docs/Status-Reports/Stage-16-Governance-Change-Assessment.md",
+    "methodology": "../project-docs/Methodology/Stage-16-Governance-Change-Methodology.md"
+  }
+}

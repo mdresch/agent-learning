@@ -4,11 +4,29 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 from collections.abc import Iterator
+from pathlib import Path
 
 import pytest
 
 pyspark = pytest.importorskip("pyspark")
+
+
+def _java_available() -> bool:
+    """True when a Java runtime that PySpark can start is installed."""
+    java_home = os.environ.get("JAVA_HOME")
+    if java_home:
+        exe = "java.exe" if os.name == "nt" else "java"
+        if (Path(java_home) / "bin" / exe).exists():
+            return True
+    return shutil.which("java") is not None
+
+
+# A machine without Java skips these tests instead of failing the whole suite. CI installs Java, so there a
+# missing runtime must stay a loud failure and not a silent skip: GitHub Actions sets CI=true.
+if not _java_available() and not os.environ.get("CI"):
+    pytest.skip("Java runtime not found; PySpark needs a JVM", allow_module_level=True)
 
 from pyspark.sql import SparkSession
 

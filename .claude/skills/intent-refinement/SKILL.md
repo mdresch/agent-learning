@@ -6,7 +6,6 @@ description: PMBOK 8 Stage 18 Intent Refinement, Phase Close readiness evaluatio
 # Component: intent-refinement (`pmbok.models.intent_refinement` & `scripts.orchestrate_pmbok`)
 
 **Governing:** ADR-009, BRD-009, FDD-009, Epic 9 (Stories 9.1, 9.2, 9.3).  
-**Contract:** `tests/pmbok/test_intent_refinement.py`.  
 **Baseline:** `PMP-BL-v1.0.0`.
 
 ## Load-bearing constraints
@@ -25,6 +24,9 @@ description: PMBOK 8 Stage 18 Intent Refinement, Phase Close readiness evaluatio
 - **Low-Pass Filter Damping ($AC_9$):** `LowPassOutcomeDampingFilter` smooths rolling outcome deltas using exponential moving average $\mathbf{\Theta}_{N+1} = \beta \mathbf{\Theta}_N + (1 - \beta)\nabla\mathcal{L}$ with $\beta \in [0.6, 0.85]$ and bias-corrected warmup ($\frac{\mathbf{\Theta}_N}{1 - \beta^N}$) for initial generations ($N < 3$) to eliminate strategic whiplash.
 - **S3–S4 Homeostatic Capacity Balance ($AC_{10}$):** `validate_strategic_pivot_capacity()` rate-limits proposed strategic pivots against operational adaptation capacity ($\text{Pivots}_{\max} \le \lceil C_{\text{adapt}} / 2 \rceil$). Violations raise `StrategicWhiplashError`.
 - **Cumulative Lineage Kernel ($AC_{11}$):** `compute_lineage_kernel()` generates an immutable `CumulativeLineageKernel` preserving `root_spark`, `parent_refinement`, `immutable_core_invariants`, and an incremental cryptographic SHA-256 knowledge hash linking project generations without memory decay.
+- **Run location (LL-043):** `evaluate_phase_close_readiness`, `resolve_hypothesis` and `--mode seed-next` live in the legacy top-level `pmbok/` tree and `scripts/orchestrate_pmbok.py`, which CI does not run (ADR-034) and which has no test file. Before a Stage 18 run, confirm in a clean environment that `scripts/orchestrate_pmbok.py` imports and report the result; do not assume the tooling works because CI is green.
+
+- **Run location (LL-043):** `evaluate_phase_close_readiness`, `resolve_hypothesis` and `--mode seed-next` live in the legacy top-level `pmbok/` tree and `scripts/orchestrate_pmbok.py`, and their tests are in `tests/pmbok`, which CI excludes (ADR-034). Before a Stage 18 run, run `uv run pytest tests/pmbok/test_intent_refinement.py` in a clean environment and report the result; do not assume the tooling works because CI is green.
 
 ## Call sites
 

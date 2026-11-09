@@ -1,0 +1,133 @@
+{
+  "task": "BRD-024: approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "traceability_and_rules",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Business rules BRU-024-01 through BRU-024-17 trace to accepted ADR-024, related invariants, confirmed design choices, and existing repository contracts."
+    },
+    {
+      "id": "measurable_and_honest",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Success measures are observable and testable, while the BRD accurately states that there are no recorded selections or evidence of recommendation effectiveness."
+    },
+    {
+      "id": "boundaries_and_authority",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "The BRD preserves human-declared profiles, human decisions, no autonomy grant, no new storage type, and accurately separates out-of-scope work and baseline authorization."
+    },
+    {
+      "id": "requirements_actionability",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Requirements and stakeholder measures are specific enough to guide contract-first implementation and verification."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_brd",
+      "evidence": [
+        {
+          "criterion_id": "traceability_and_rules",
+          "source": "direct_doc_read:BRD-024 BRU-024-01..17 cross-checked with accepted ADR-024 §§3-7 and confirmed D1-D14 in FDD-024",
+          "support": 0.9,
+          "confidence": 0.88
+        },
+        {
+          "criterion_id": "measurable_and_honest",
+          "source": "direct_doc_read:BRD-024 stakeholder success metrics specify measurable rejection, completeness, determinism, storage, and evidence boundaries without efficacy claims",
+          "support": 0.9,
+          "confidence": 0.87
+        },
+        {
+          "criterion_id": "boundaries_and_authority",
+          "source": "direct_doc_read:BRD-024 human decision and no-autonomy rules; implementation scope is distinct from PMP authorization and named non-goals",
+          "support": 0.89,
+          "confidence": 0.86
+        },
+        {
+          "criterion_id": "requirements_actionability",
+          "source": "direct_doc_read:BRD-024 enumerated business rules and measurable stakeholder metrics provide testable implementation obligations",
+          "support": 0.88,
+          "confidence": 0.86
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_brd",
+      "evidence": [
+        {
+          "criterion_id": "traceability_and_rules",
+          "source": "direct_doc_read:BRD-024 maps its rules to ADR-024",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "measurable_and_honest",
+          "source": "direct_doc_read:BRD-024 explicitly states there are no recorded selections or effectiveness claims",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "boundaries_and_authority",
+          "source": "direct_doc_read:BRD-024 states human authority and out-of-scope boundaries",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "requirements_actionability",
+          "source": "direct_doc_read:BRD-024 provides numbered rules and measurable metrics",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "traceability_and_rules",
+          "source": "direct_doc_read:BRD-024 derives from accepted ADR-024; remaining FDD and baseline items are explicitly identified as separate gates",
+          "support": 0.2,
+          "confidence": 0.78
+        },
+        {
+          "criterion_id": "measurable_and_honest",
+          "source": "direct_doc_read:BRD-024 states the absence of real selection evidence rather than claiming success",
+          "support": 0.15,
+          "confidence": 0.78
+        },
+        {
+          "criterion_id": "boundaries_and_authority",
+          "source": "direct_doc_read:BRD-024 explicitly separates document approval from Epic 24 execution authorization",
+          "support": 0.2,
+          "confidence": 0.78
+        },
+        {
+          "criterion_id": "requirements_actionability",
+          "source": "direct_doc_read:BRD-024 rules and metrics are concrete; no BRD-level blocking gap identified",
+          "support": 0.18,
+          "confidence": 0.78
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

@@ -1,44 +1,39 @@
 ---
 artifact_id: schedule-foundation-reserve-register
 parent_plan_id: schedule-management
-baseline_id: PMP-BL-v1.0.0
+baseline_id: PMP-BL-v1.1.0
 route: foundation_artifact
 governance_policy: approve-subsidiary-plan
 substage: "6.B-3"
-version: "1.0.0"
+version: "2.0.0"
 owner_role: "Project Manager"
 depends_on:
   - scope-management
 approval_status: approved
 ---
 
-# Schedule Foundation — Reserve Register (`PMP-BL-v1.0.0`)
+# Schedule Foundation — Reserve Register (`PMP-BL-v1.1.0`)
 
-Buffers and contingency for schedule risk (PMBOK 8 §2.3.5 Table 2-7: sufficient buffers for known-unknowns). Durations in **pd**.
+Schedule buffers and contingency allocations for Phase 2 known-unknowns (PMBOK 8 §2.3.5 Table 2-7). Durations in person-days (**pd**).
 
-## Management reserve (milestone)
+**Historical Baseline Archive:** Frozen Phase 1 reserve register preserved in [`docs/project-docs/history/PMP-BL-v1.0.0/management-plans/schedule-baseline/foundation/Schedule-Reserve-Register.md`](../../history/PMP-BL-v1.0.0/management-plans/schedule-baseline/foundation/Schedule-Reserve-Register.md).
 
-| Reserve id | Amount (pd) | Holder | Purpose | Consumption rule |
-| --- | ---: | --- | --- | --- |
-| **SR-M5-01** | 5 | Project Manager | Bayes recalculation, peer review, M5 synthesis | Log in `implementation-log.md`; Sponsor approves extension beyond 5 pd |
+---
 
-## Contingency (epic triggers)
+## 1. Management Reserves (Phase 2 Milestones)
 
-Contingency is **not** added to every story; it is invoked when the **High** estimate driver materializes.
+| Reserve ID | Amount (pd) | Accountable Holder | Purpose / Allocation Scope | Consumption & Drawdown Rule |
+|---|:---:|---|---|---|
+| **SR-P2-M10** | 5.0 | Project Manager | Close-out synthesis, regression reconciliation, and `PCD-Phase2` preparation. | Log in `implementation-log.md`; Sponsor approval required for drawdown $> 5$ pd. |
 
-| Trigger | Epic / milestone | Contingency (pd) | When to apply |
-| --- | --- | ---: | --- |
-| Legacy test collection | Epic **34** before **M4** | up to **8** (Epic 34 High rollup) | If `tests/pmbok` or legacy tree blocks full suite green |
-| Real-data validation | **14.5**, **18.6**, **19.7**, **20.6** | per story High − Medium | Only when Band C authorized and data available |
-| Schedule slip | Critical path | **SR-M5-01** first | Then `approve-adaptation-plan` or BFI |
+---
 
-## Float summary
+## 2. Schedule Contingency Buffers (Risk Triggers)
 
-| Element | Float note |
-| --- | --- |
-| **M0.5** | Parallel to M1–M4 chain; must complete before **M5** |
-| **Non-critical program epics** | Bands D–E; no calendar float assigned until scheduled |
+| Trigger ID | Associated Risk | Epic / Milestone | Buffer (pd) | Trigger Condition |
+|---|---|---|:---:|---|
+| **CR-P2-01** | Upstream Breaking Refactor | Epics 14, 18 | 3.0 | Upstream Microsoft modifies dataclass signatures, requiring adapter layer. |
+| **CR-P2-02** | Tag Grammar Syntax Edge Cases | Epic 14 (Stories 14.1..14.3) | 2.0 | Complex nested markdown tags in review corpora require parser expansion. |
+| **CR-P2-03** | Contextual Optimization Non-Convergence | Epic 18 (DPO Loss) | 2.5 | DPO loss optimization fails to achieve $>30\%$ sample efficiency threshold. |
 
-## Change control
-
-Adding a new reserve row or increasing **SR-M5-01** requires Schedule plan amendment (Level 2+) and marks Cost / Resource / Risk **STALE_DEPENDENCY** per ADR-013.
+Total Phase 2 Buffer Envelope: **12.5 person-days** (accommodated within overall project schedule float).

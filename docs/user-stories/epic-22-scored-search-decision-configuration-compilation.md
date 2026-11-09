@@ -2,9 +2,9 @@
 
 **Source ADR:** [ADR-022](../adr/ADR-022-scored-search-decision-configuration-compilation.md) — Accepted (2026-10-28)  
 **Source BRD/FDD:** [BRD-022](../project-docs/Business-Requirements/BRD-022-scored-search-decision-configuration-compilation.md) / [FDD-022](../project-docs/Functional-Design/FDD-022-scored-search-decision-configuration-compilation.md)  
-**Status:** Approved (2026-10-30, Menno) — stories derived from Accepted ADR-022, BRD-022 and FDD-022; adjudicated via `approve-user-stories` (robust utility 0.731, episode `cc1804ea-6d96-4b82-8ce5-a3825680a03f`). Menno confirmed FDD-022 §4 (L1 to L8) on 2026-10-30. The epic number follows the source ADR number, as Epic 21 follows ADR-021.  
+**Status:** Approved (2026-10-30, Menno) — stories derived from Accepted ADR-022, BRD-022 and FDD-022; adjudicated via `approve-user-stories` (robust utility 0.731, episode `cc1804ea-6d96-4b82-8ce5-a3825680a03f`). Menno confirmed FDD-022 §4 (L1 to L8) on 2026-10-30. The epic number follows the source ADR number, as Epic 21 follows ADR-021.   Amended 2026-11-09 at Stage 16: Story 22.7 AC_0-AC_3 clarified: empty collections return empty, None-safe lookups, json round-trip, test imports no storage. No requirement changed., classified `amendment_log_entry` (robust utility 0.863, episode `59440d8c...`) and accepted by Menno Drescher. Amended 2026-11-09 at Stage 16: CR-20261109-002: correct the module path to src/agent_learning_ext, classified `correction_note` (robust utility 0.965, episode `c3a965bd...`) and accepted by Menno.
 
-Seven stories build `src/agent_learning/weight_compiler.py`, the commands `policy-compile-weights` and `task-policy-weights-adopt`, the shape `approve-compiled-weights`, and the call in `task-policy-decide`. Each rule sits in exactly one story's criteria (LL-012). Contract tests are `tests/test_weight_objective.py` (22.1), `tests/test_weight_split.py` (22.2), `tests/test_weight_search.py` (22.3), `tests/test_weight_propose.py` (22.4), `tests/test_weight_apply.py` (22.5), `tests/test_weight_adopt.py` (22.6) and `tests/test_weight_real_data.py` (22.7). Searching the uncertainty penalty, the Nelder-Mead surrogate and k-fold validation are not stories (BRD-022 Out of Scope).
+Seven stories build `src/agent_learning_ext/weight_compiler.py`, the commands `policy-compile-weights` and `task-policy-weights-adopt`, the shape `approve-compiled-weights`, and the call in `task-policy-decide`. Each rule sits in exactly one story's criteria (LL-012). Contract tests are `tests/test_weight_objective.py` (22.1), `tests/test_weight_split.py` (22.2), `tests/test_weight_search.py` (22.3), `tests/test_weight_propose.py` (22.4), `tests/test_weight_apply.py` (22.5), `tests/test_weight_adopt.py` (22.6) and `tests/test_weight_real_data.py` (22.7). Searching the uncertainty penalty, the Nelder-Mead surrogate and k-fold validation are not stories (BRD-022 Out of Scope).
 
 **Stories 22.1 to 22.7 follow the confirmed FDD.** Menno confirmed FDD-022 §4 (L1 to L8) on 2026-10-30, with L1 and L6 as the options that FDD states. ADR-022's body is not amended in this approval; FDD-022 §4 records the departures. No story depends on another epic.
 
@@ -14,7 +14,7 @@ Fixtures used by the criteria below. "The toy frame": criteria `c1`, `c2`, optio
 
 ## Story 22.1 — Scoring a Weight Vector With the Real Resolver
 
-**Status:** Ready  
+**Status:** Completed (2026-11-08)  
 **As** an auditor, **I want** a candidate scored by the real resolver and nothing else, **so that** a compiled weight is judged by the rule that will use it.
 
 ### Acceptance Criteria:
@@ -30,7 +30,7 @@ Fixtures used by the criteria below. "The toy frame": criteria `c1`, `c2`, optio
 
 ## Story 22.2 — The Split and the Label Rule
 
-**Status:** Ready  
+**Status:** Completed (2026-11-08)  
 **As** a maintainer, **I want** a reproducible hold-out and labels that predate the proposal, **so that** reported accuracy is honest.
 
 ### Acceptance Criteria:
@@ -44,7 +44,7 @@ Fixtures used by the criteria below. "The toy frame": criteria `c1`, `c2`, optio
 
 ## Story 22.3 — The Coordinate Ascent
 
-**Status:** Ready  
+**Status:** Completed (2026-11-08)  
 **As** a maintainer, **I want** a deterministic search that keeps the weights valid, **so that** a result can be reproduced and trusted.
 
 ### Acceptance Criteria:
@@ -59,7 +59,7 @@ Fixtures used by the criteria below. "The toy frame": criteria `c1`, `c2`, optio
 
 ## Story 22.4 — Proposing Only a Real Improvement
 
-**Status:** Ready  
+**Status:** Completed (2026-11-09)  
 **As** an approver, **I want** a proposal only when the held-out accuracy truly beats the weights in force, **so that** a frozen configuration is never changed for no gain.
 
 ### Acceptance Criteria:
@@ -75,7 +75,7 @@ Fixtures used by the criteria below. "The toy frame": criteria `c1`, `c2`, optio
 
 ## Story 22.5 — Applying Frozen Weights
 
-**Status:** Ready  
+**Status:** Completed (2026-11-09)  
 **As** an operator, **I want** an online decision to use the adopted weights and run no search, **so that** a production decision stays deterministic and fast.
 
 ### Acceptance Criteria:
@@ -89,7 +89,7 @@ Fixtures used by the criteria below. "The toy frame": criteria `c1`, `c2`, optio
 
 ## Story 22.6 — Adopting a Proposal by a Human Decision
 
-**Status:** Ready  
+**Status:** Completed (2026-11-09)  
 **As** a maintainer, **I want** compiled weights to take effect only through a recorded human decision, **so that** a frozen configuration is never changed silently.
 
 ### Acceptance Criteria:
@@ -103,12 +103,12 @@ Fixtures used by the criteria below. "The toy frame": criteria `c1`, `c2`, optio
 
 ## Story 22.7 — The Real-Data Regression Check
 
-**Status:** Ready  
+**Status:** Completed (2026-11-09)  
 **As** a maintainer, **I want** the compiler run over the recorded decisions, **so that** the absence of any real disagreement is shown, not assumed.
 
 ### Acceptance Criteria:
-- **$AC_0$ (Real Source):** the frames are the loadable files of `docs/policy-shapes/decision-frames/` grouped by task, with their labels from the adjudicated results and episodes; the counts per task are recorded in the test (48 frames and 97 results when ADR-022 was written, 106 frame files on 2026-10-29, so the test records what it ran on and asserts no fixed number).
-- **$AC_1$ (Baseline Is Perfect):** for each task with at least `2 * MIN_PART` labelled frames the weights in force reproduce every recorded human-accepted action, so baseline accuracy is 1.0.
-- **$AC_2$ (No Improvement):** `propose` on each such task returns `NoImprovement`, because accuracy cannot exceed 1.0.
-- **$AC_3$ (Nothing Written):** the committed policy-shape files and store are equal to their earlier state after the run.
+- **$AC_0$ (Real Source):** the frames are the loadable files of `docs/policy-shapes/decision-frames/` grouped by task, with their labels from the adjudicated results and episodes; the counts per task are recorded in the test (48 frames and 97 results when ADR-022 was written, 106 frame files on 2026-10-29, so the test records what it ran on and asserts no fixed number). Handling empty collection or tasks with 0 pairs/episodes returns empty list without raising.
+- **$AC_1$ (Baseline Is Perfect):** for each task with at least `2 * MIN_PART` labelled frames the weights in force reproduce every recorded human-accepted action, so baseline accuracy is 1.0. Dictionary lookups use defensive None checks (`or {}`, defaults when none).
+- **$AC_2$ (No Improvement):** `propose` on each such task returns `NoImprovement`, because accuracy cannot exceed 1.0; all inputs and outputs survive json.dumps round-trip.
+- **$AC_3$ (Nothing Written):** the committed policy-shape files and store are untouched and equal to their earlier state after the run; test imports nothing from `agent_learning.storage` directly.
 - **$AC_4$ (Labelled):** the result is recorded as a statement that the real history holds no disagreement and cannot show an improvement. It makes no claim that compiled weights are better (BRU-022-12), and the docstring names the missing data (decisions where a human disagreed with the resolver, with the label recorded before the proposal).

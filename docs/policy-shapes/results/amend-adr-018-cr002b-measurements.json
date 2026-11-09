@@ -1,0 +1,26 @@
+{
+  "document": "docs/adr/ADR-018-pairwise-preference-optimization.md",
+  "tag": "cr002b",
+  "base_commit": "bfe18e4",
+  "candidate_sha256": "43693056842ddaf84451ce292b77058853642916c4b9f46fd0322bf0226591f6",
+  "features": {
+    "lines": 2,
+    "terms_removed": 3,
+    "terms_kept": 2,
+    "goal_preserved": false,
+    "requirement_inverted": false,
+    "normative_touched": false,
+    "status_line_changed": false,
+    "downstream_refs": 0,
+    "change_ratio": 0.02
+  },
+  "observed": [
+    0.05,
+    0.9,
+    0.1,
+    0.1
+  ],
+  "proposed_action": "correction_note",
+  "accepted": true,
+  "episode": "2557a684"
+}

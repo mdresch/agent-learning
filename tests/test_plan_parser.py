@@ -361,7 +361,7 @@ class TestPurity:
     """AC_5"""
 
     def test_public_names_are_exported_from_the_package_and_the_root(self):
-        import agent_learning
+        import agent_learning_ext as agent_learning
         from agent_learning import pmbok
 
         for name in ("LintFlag", "ParsedPlan", "parse_frontmatter"):

@@ -31,7 +31,7 @@ import json
 from pathlib import Path
 import pytest
 
-from agent_learning import cli
+from agent_learning_ext import cli
 from agent_learning.storage.local import LocalFileStore
 from agent_learning.types import Action, Episode, PolicySnapshot
 

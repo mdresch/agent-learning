@@ -1,0 +1,31 @@
+{
+  "id": "2516ec2e-8c28-4d61-8738-b65d0ed90704",
+  "agent_id": "agent-learning-governance",
+  "task_id": "classify-diff-type",
+  "user_input": "Classify the diff to FDD-004-authority-migration-diagnostic-snapshot.md that amends FDD-004 Design 3 under Stage 16",
+  "assistant_output": "amendment_log_entry: robust utility 0.896",
+  "intent_summary": "Decide the structural form of the amendment that moves the Episode.context_features replay-claim correction out of Microsoft's types.py and into documentation (fork rule: Microsoft modules are never edited in place)",
+  "action_type": "recommendation",
+  "action_name": "Amendment log entry",
+  "target": "FDD-004-authority-migration-diagnostic-snapshot.md",
+  "input_summary": "Candidate diff of docs/project-docs/Functional-Design/FDD-004-authority-migration-diagnostic-snapshot.md against HEAD f86530a: 21 changed lines, change ratio 0.9. Gate frame built from measurements of the diff: corrected meaning kept (5/5 anchors), means of the requirement inverted (False), downstream references 3, status line unchanged. Scored by the assistant from the direct read. Negative controls run first: deleting the corrected meaning classified new_superseding_adr, a one-word edit classified correction_note.",
+  "expected_outcome": "Menno explicit ACCEPT of this classification",
+  "execution_status": "completed",
+  "result_summary": "Accepted by Menno, 2026-11-05 (Stage 16 classify-diff-type), prospectively at the time of acceptance; not backdated. The escalation step was not reached: the classifier's human-approval gate halted the pipeline, as ADR-007 requires.",
+  "policy_id": "51458125-b218-4e26-a94b-9baf17137ccc",
+  "policy_version": 0,
+  "action_id": "amendment_log_entry",
+  "metadata": {
+    "feedback_status": "adjudicated",
+    "decision_disposition": "accepted",
+    "selection_basis": "bayesian_decision",
+    "correct_action_id": "amendment_log_entry",
+    "task_completed": true,
+    "robust_utility": 0.896089683106004,
+    "expected_utility": 0.9271024745962303,
+    "decision_margin": 0.1053,
+    "artifact_commit": "f86530a",
+    "stage": 16,
+    "amendment": "Story 4.1 AC_4 with BRD-004 BRU-004-05 and FDD-004 Design 3"
+  }
+}

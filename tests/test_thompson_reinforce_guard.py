@@ -28,9 +28,9 @@ import random
 
 import pytest
 
-from agent_learning.capture import EpisodeCapture
+from agent_learning_ext.capture import EpisodeCapture
 from agent_learning.config import CaptureConfig
-from agent_learning.learners.reinforce import ReinforceLearner
+from agent_learning_ext.learners.reinforce import ReinforceLearner
 from agent_learning.policy import SoftmaxPolicy
 from agent_learning.policy.thompson import SELECTION_BASIS, ThompsonPolicy
 from agent_learning.storage import InMemoryStore

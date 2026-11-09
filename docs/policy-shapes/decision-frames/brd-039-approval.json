@@ -1,0 +1,133 @@
+{
+  "task": "BRD-039 (Shadow-Gate Learning and the Review-Finding Corpus): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "traceable_to_adr",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Each BRU cites the source ADR section or invariant it implements, or the FDD rule it points to."
+    },
+    {
+      "id": "honest_metrics",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Success metrics are checkable counts, exact equalities, or zero-write checks; none is a hand-written estimate."
+    },
+    {
+      "id": "out_of_scope_accurate",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "The out-of-scope list names the neighboring work and the deferred adapters and gate shadow runs."
+    },
+    {
+      "id": "rules_actionable",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "A later story can test each BRU as pass or fail."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_brd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_adr",
+          "source": "16 BRUs checked one by one; three citations added before scoring (BRU-039-05, -06, -11); BRU-039-15 cites the fork test; author-agent review 2026-11-09 against the repo and ADR-039; not a separate reviewer",
+          "support": 0.8,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "honest_metrics",
+          "source": "metrics table; counts come from tooling (BRU-039-16); author-agent review 2026-11-09 against the repo and ADR-039; not a separate reviewer",
+          "support": 0.82,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "out_of_scope_accurate",
+          "source": "out-of-scope section, ADR-039 section 4.7, FDD-039 section 6; author-agent review 2026-11-09 against the repo and ADR-039; not a separate reviewer",
+          "support": 0.82,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "rules_actionable",
+          "source": "stories 39.1 to 39.6 map to BRU-039-01 to -16 except BRU-039-12, which no story trains; author-agent review 2026-11-09 against the repo and ADR-039; not a separate reviewer",
+          "support": 0.76,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_brd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_adr",
+          "source": "no fundamental flaw found",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "honest_metrics",
+          "source": "no fundamental flaw found",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "out_of_scope_accurate",
+          "source": "no fundamental flaw found",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "rules_actionable",
+          "source": "no fundamental flaw found",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_adr",
+          "source": "open points disclosed in the document",
+          "support": 0.22,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "honest_metrics",
+          "source": "open points disclosed in the document",
+          "support": 0.12,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "out_of_scope_accurate",
+          "source": "open points disclosed in the document",
+          "support": 0.12,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "rules_actionable",
+          "source": "open points disclosed in the document",
+          "support": 0.26,
+          "confidence": 0.75
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

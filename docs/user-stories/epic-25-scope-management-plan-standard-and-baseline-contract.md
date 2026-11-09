@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-025](../adr/ADR-025-scope-management-plan-standard-and-baseline-contract.md) — Accepted (2026-10-26, Menno); re-approved 2026-10-29, episode `983c2b87-8309-4414-98fe-93337989b9b5`  
 **Source BRD/FDD:** [BRD-025](../project-docs/Business-Requirements/BRD-025-scope-management-plan-standard-and-baseline-contract.md) / [FDD-025](../project-docs/Functional-Design/FDD-025-scope-management-plan-standard-and-baseline-contract.md)  
-**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-025, BRD-025 and FDD-025 (Approved 2026-10-30); adjudicated via `approve-user-stories` (robust utility 0.735, episode `d33834f1-6ff5-4100-a08f-d2c2db66b0fb`).
+**Status:** Completed (Stories 25.1–25.4 implemented and verified); earlier approval: Approved (2026-10-30, Menno) — derived from Accepted ADR-025, BRD-025 and FDD-025 (Approved 2026-10-30); adjudicated via `approve-user-stories` (robust utility 0.735, episode `d33834f1-6ff5-4100-a08f-d2c2db66b0fb`).
 
 Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_scope_measure.py` (25.1), `tests/test_scope_sections.py` (25.2), `tests/test_scope_advice_policy.py` (25.3), `tests/test_scope_advice_reward.py` (25.4). FDD-025 §5 item 1 confirmed 2026-10-30 (one task id, four kinds, bandit scoped to the kind on each call). **Operating model (2026-10-30):** mandatory human `approve-subsidiary-plan` for baseline binding; `advise-scope-plan-decision` may recommend first (BRU-025-05–06, Scope plan §3.3). BRU-025-07 has no story: it is the text the plan author writes and the approver reads.
 

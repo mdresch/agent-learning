@@ -1,0 +1,52 @@
+{
+  "episode_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "timestamp": "2026-11-06T10:00:00Z",
+  "policy": "classify-diff-type",
+  "action": "classify",
+  "lesson_id": "LL-043",
+  "lesson_title": "A Closing Stage's Tooling May Sit Outside What CI Runs",
+  "diff_type": "structural",
+  "subtype": "architectural",
+  "evidence_basis": "execution",
+  "affected_artifacts": [
+    "pmbok/evaluate_phase_close_readiness.py",
+    "pmbok/seed-next.py",
+    "tests/pmbok/",
+    "src/agent_learning/pmbok/",
+    ".github/workflows/ci.yml",
+    "docs/adr/ADR-034-decommission-pmbok-directory.md"
+  ],
+  "scope": "migration",
+  "impact": "high",
+  "confidence": "high",
+  "classification_timestamp": "2026-11-06T10:00:00Z",
+  "classifier": "classify-diff-type",
+  "rationale": "The change affects the project's architectural structure by moving critical path code (Stage 18 tooling) from a legacy location (pmbok/) to the maintained codebase (src/agent_learning/pmbok/). This requires updates to multiple interconnected components including source code, tests, CI configuration, and architectural decisions (ADR-034). The evidence basis is 'execution' as this was discovered through the execution of Stage 15 lessons learned from INSIGHT-003 (derived from OBS-002, OBS-006, OBS-009).",
+  "decision": "Classify LL-043 as structural/architectural diff requiring Steering Committee approval",
+  "decision_maker": "classify-diff-type (FULL authority)",
+  "evidence": {
+    "basis": "execution",
+    "artifacts": [
+      "docs/insights/INSIGHT-003.md",
+      "docs/observations/OBS-002.md",
+      "docs/observations/OBS-006.md",
+      "docs/observations/OBS-009.md",
+      "docs/project-docs/Status-Reports/Stage-15-Lesson-Learned-Assessment.md",
+      "docs/project-docs/Lessons-Learned-Register.md"
+    ],
+    "lesson_text": "The Stage 18 tooling lives only in the legacy tree that CI skips. The readiness check, hypothesis adjudication and phase seeding named by the intent-refinement skill (evaluate_phase_close_readiness, seed-next) are in the top-level pmbok/ package and scripts/orchestrate_pmbok.py. src/agent_learning/pmbok has no intent_refinement module. Their tests are in tests/pmbok, which CI excludes, and ADR-034 plans to delete that tree. Running Stage 18 therefore depends on code that is neither maintained in CI nor on the path ADR-034 sets out."
+  },
+  "related_episodes": [
+    "42114091-0ccd-4c45-9b6b-c97046b048bd",
+    "c882fd98-427f-49e7-ae84-b985fa372230"
+  ],
+  "stage": 16,
+  "pmbok_process": "4.6 Perform Integrated Change Control",
+  "project_phase": "Phase 1",
+  "links": {
+    "lesson": "../project-docs/Lessons-Learned-Register.md#ll-043",
+    "insight": "../insights/INSIGHT-003.md",
+    "assessment": "../project-docs/Status-Reports/Stage-16-Governance-Change-Assessment.md",
+    "methodology": "../project-docs/Methodology/Stage-16-Governance-Change-Methodology.md"
+  }
+}

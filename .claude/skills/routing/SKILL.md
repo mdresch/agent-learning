@@ -1,0 +1,44 @@
+---
+name: routing
+description: Guidance for Contextual Authority Ensemble Routing (entropy/margin signals, hysteresis route, pinned gates, shadow record and agreement gate, the promotion seed and the approval-gated task-policy-routing-set command) in agent-learning (ADR-021, Epic 21).
+---
+
+# Skill: routing (agent-learning)
+
+## Overview
+Routes a request to `LOW` or `FULL` decision authority from the entropy and margin of the low policy's distribution, the tier, the bucket's human approval and the previous route of the bucket, and gathers the shadow evidence a human uses to approve a bucket for the fast path. Thresholds and bucket approvals change only through `agent-learn-ext task-policy-routing-set`, which cites an adjudicated, accepted approval episode. The code lives in `src/agent_learning_ext/routing.py` and the command in `src/agent_learning_ext/cli.py` (FDD-021 §1 names `src/agent_learning/routing.py`; the upstream fork stays untouched, Invariant 6, as recorded in the Story 21.1 to 21.3 contracts).
+
+## Governing Specifications & Contracts
+- **Architecture:** [`docs/adr/ADR-021-contextual-authority-ensemble-routing.md`](../../docs/adr/ADR-021-contextual-authority-ensemble-routing.md)
+- **Business Requirements:** [`docs/project-docs/Business-Requirements/BRD-021-contextual-authority-ensemble-routing.md`](../../docs/project-docs/Business-Requirements/BRD-021-contextual-authority-ensemble-routing.md)
+- **Functional Design:** [`docs/project-docs/Functional-Design/FDD-021-contextual-authority-ensemble-routing.md`](../../docs/project-docs/Functional-Design/FDD-021-contextual-authority-ensemble-routing.md)
+- **User Stories:** [`docs/user-stories/epic-21-contextual-authority-ensemble-routing.md`](../../docs/user-stories/epic-21-contextual-authority-ensemble-routing.md)
+- **Test Contracts:**
+  - `tests/test_routing_signals.py` (Story 21.1: entropy and margin)
+  - `tests/test_routing_route.py` (Story 21.2: the route)
+  - `tests/test_routing_pinning.py` (Story 21.3: pinned gates)
+  - `tests/test_routing_guard.py` (Story 21.4: shadow record and agreement gate)
+  - `tests/test_routing_decisions.py` (Story 21.5: human decisions and the promotion seed)
+
+## Load-Bearing Constraints & Invariants
+1. **Purity:** the module imports nothing from any `storage` module, no `random`, no `numpy`, and does no file I/O. Callers read episodes and snapshots and pass them in.
+2. **Signals (21.1):** entropy is `-sum p log2 p` (zero terms contribute 0); margin is top minus second probability, a missing second read as 0.
+3. **Route (21.2/21.3):** a pinned task (`PINNED_FULL`, eleven tasks) or `requires_human_approval` always routes `FULL` with reason `pinned`, even for invalid input; invalid input otherwise routes `FULL` with reason `anomaly`; `LOW` needs an approved bucket.
+4. **Shadow record (21.4):** `shadow_record(low_action_id, entropy_bits)` returns only `shadow_low_action` and `shadow_entropy_bits`; an empty action id or a non-finite (or non-numeric, or `bool`) entropy raises `ValueError`. It carries no reward key, and **no learner may read `shadow_low_action`** (AC_6): it is evidence for a human, never a label.
+5. **Previous route (21.4):** derived from episodes (K1), not stored: the newest by `created_at` among episodes whose `routing_bucket` / `routing.bucket` matches and that carry a route; `None` otherwise.
+6. **Agreement counting (21.4):** an episode counts only if it is in the bucket, full-routed, has `shadow_low_action`, a `feedback_status` of `accepted`/`rejected`, a **final action** (`correct_action_id`, else `action_id`; an episode with neither is dropped, never counted under a placeholder), and `created_at` inside `[now - max_evidence_age_days, now]`.
+7. **Fail closed (21.4, BRU-021-11):** `agreement` with `max_evidence_age_days` of `None` (or non-positive / non-finite) raises `ValueError`.
+8. **Gate (21.4, K7):** `propose_bucket` reports `wilson_lower` as exactly `wilson_lower_bound(k, n)` and compares that **unrounded** value with the standard-tier `min_correctness_lower_bound`; rounding before the comparison would admit a bound just below the gate. `n` below `min_outcomes` is never eligible. The 20-outcome floor is not binding: 35 of 35 (0.9011) is the first perfect run to pass 0.90.
+9. **Base rate beside, not a gate (ADR-021 §4.4):** `base_rate`, `modal_action` and `mean_shadow_entropy_bits` are reported next to the bound so an approver can see whether agreement exceeds chance. The mean entropy is taken only over counted episodes that carry a finite `shadow_entropy_bits` (an episode without one still counts in `n` and `k`); with none it is 0.0 (Q-146-1).
+
+10. **Seed (21.5, K5):** `seed_prior(counts, action_ids, *, damping=SEED_DAMPING_DEFAULT)` (0.70) is `damping * (ln f_a - mean_b ln f_b)` with `f_a = (n_a + 1) / (N + |A|)`; the logits sum to 0 and follow the order of `action_ids`. `ValueError` for damping outside (0, 1] (or `bool`, non-finite), a negative, fractional or `bool` count, a duplicate action id, or an action missing from `counts` or from `action_ids`. Empty input gives `{}`; all-zero counts give the uniform (all-zero) prior. Worked check: `(18, 3, 1)` gives `(0.8889, -0.2018, -0.6870)` at 0.70.
+11. **Approval episode (21.5, K4):** every `task-policy-routing-set` action except `--revoke-bucket` needs `--approval-episode`; `cli._approval_episode_error` (shared with `task-policy-weights-adopt`) looks it up under `--approval-agent-id` (default `--agent-id`, then `agent-learning-governance`) and requires `task_id` `approve-routing-thresholds` (for `--set-thresholds`, `--set-max-evidence-age-days`) or `approve-routing-bucket` (for `--approve-bucket`), `feedback_status` `adjudicated` and `decision_disposition` `accepted`. **Every check runs before the single `store_policy` call**: a refused command writes nothing.
+12. **Approve a bucket (21.5):** `--approve-bucket` needs `routing_state.max_evidence_age_days` set (fail closed), reads the task's episodes (at most 500, newest first), runs `agreement` then `propose_bucket` with the `standard` tier `AutonomyConfig`, refuses unless eligible, and writes `approved`, `revalidate: false`, `approval_episode_id`, `approved_at`, `prior` and `prior_provenance` (`damping`, `counts` over every policy action, unseen ones 0).
+13. **Thresholds revalidate (21.5, BRU-021-13):** `--set-thresholds` validates the JSON object as a `RoutingConfig` (only `tau_esc`, `tau_deesc`, `eps_margin`; margin defaults to 0.20) and marks every bucket with `approved` true `revalidate: true`. `approved_for_low(snapshot, bucket)` is true only for a routed snapshot whose bucket is approved and not awaiting revalidation, so the router gets `False` until a new `--approve-bucket`.
+14. **Same snapshot (21.5, K1/BRU-021-14):** the command changes only `metadata["routing_state"]`, storing the active snapshot with the same id and version (no new version). `is_routed(snapshot)` is false without `routing_state`; nothing but a successful gated action creates it (`--revoke-bucket` of a missing bucket exits non-zero and writes nothing).
+15. **Seed is not evidence (21.5, ADR-021 §4.4):** the prior lives only in `routing_state[...]["prior"]`, never in `snapshot.logits`, and the command writes no episode or reward, so `assess_autonomy` counts the same scored outcomes before and after an approval. Writing the seed into the logits would change the recommended action and therefore the scored outcomes.
+
+## Call Sites
+- `agent_learning_ext.__init__` lazily exports `route`, `shadow_record`, `previous_route`, `agreement`, `propose_bucket`, `seed_prior`, `approved_for_low`, `is_routed` and `SEED_DAMPING_DEFAULT`.
+- `agent_learning_ext.cli._cmd_routing_set` (`agent-learn-ext task-policy-routing-set`, Story 21.5): `--approve-bucket` computes `agreement` then `propose_bucket` and refuses unless eligible, then `seed_prior`.
+- Not wired: `task-policy-decide` does not call `route`, `is_routed` or `approved_for_low` (FDD-021 §7 item 4).

@@ -26,10 +26,10 @@ import os
 
 import pytest
 
-from agent_learning import cli
+from agent_learning_ext import cli
 from agent_learning import meta_prior as meta_prior_module
-from agent_learning.autonomy import assess_autonomy
-from agent_learning.config import AutonomyConfig
+from agent_learning_ext.autonomy import assess_autonomy
+from agent_learning_ext.config import AutonomyConfig
 from agent_learning.meta_prior import FamilyMember, MetaPrior, compile_meta_prior, seed_values
 from agent_learning.storage import InMemoryStore
 from agent_learning.types import Action, PolicySnapshot
@@ -267,7 +267,7 @@ def test_ac5_changing_the_seeded_logits_leaves_the_stored_prior_alone(monkeypatc
 
 
 def test_the_function_is_exported_from_the_package_root() -> None:
-    import agent_learning
+    import agent_learning_ext as agent_learning
 
     assert agent_learning.seed_values is seed_values
     assert "seed_values" in agent_learning.__all__

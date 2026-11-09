@@ -2,9 +2,9 @@
 
 **Source ADR:** [ADR-018](../adr/ADR-018-pairwise-preference-optimization.md) — Accepted (2026-10-28)  
 **Source BRD/FDD:** [BRD-018](../project-docs/Business-Requirements/BRD-018-pairwise-preference-optimization.md) / [FDD-018](../project-docs/Functional-Design/FDD-018-pairwise-preference-optimization.md)  
-**Status:** Approved (2026-10-29, Menno) — stories derived from Accepted ADR-018, BRD-018 and FDD-018; adjudicated via `approve-user-stories` (robust utility 0.735, episode `42460cf3-2d31-4aaa-911e-e6d3ac2c1467`). The epic number follows the source ADR number, as Epic 17 follows ADR-017.  
+**Status:** Completed (all stories 18.1–18.6 Completed) — stories derived from Accepted ADR-018, BRD-018 and FDD-018; adjudicated via `approve-user-stories` (robust utility 0.735, episode `42460cf3-2d31-4aaa-911e-e6d3ac2c1467`). The epic number follows the source ADR number, as Epic 17 follows ADR-017.   Amended 2026-11-09 at Stage 16: CR-20261109-002: correct the module path to src/agent_learning_ext, classified `correction_note` (robust utility 0.965, episode `e671b42f...`) and accepted by Menno.
 
-Six stories build `src/agent_learning/learners/pairwise.py`. Each rule sits in exactly one story's criteria (LL-012). Contract tests are `tests/test_pairwise_pairs.py` (18.1), `tests/test_pairwise_loss.py` (18.2), `tests/test_pairwise_fit.py` (18.3), `tests/test_pairwise_learner.py` (18.4), `tests/test_pairwise_runner.py` (18.5) and `tests/test_pairwise_real_data.py` (18.6). Showing that the learner improves decisions is a data gap, not a story (BRD-018 Out of Scope). The audit replay of this learner's runs is not a story (FDD-018 §7 item 2).
+Six stories build `src/agent_learning_ext/learners/pairwise.py`. Each rule sits in exactly one story's criteria (LL-012). Contract tests are `tests/test_pairwise_pairs.py` (18.1), `tests/test_pairwise_loss.py` (18.2), `tests/test_pairwise_fit.py` (18.3), `tests/test_pairwise_learner.py` (18.4), `tests/test_pairwise_runner.py` (18.5) and `tests/test_pairwise_real_data.py` (18.6). Showing that the learner improves decisions is a data gap, not a story (BRD-018 Out of Scope). The audit replay of this learner's runs is not a story (FDD-018 §7 item 2).
 
 **Stories 18.1 to 18.6 are unblocked:** Menno confirmed FDD-018 §4 (G1 to G7) on 2026-10-29 and ADR-018 was amended to match. No story depends on another epic.
 
@@ -14,7 +14,7 @@ Fixture used by the criteria below ("the base set"): three actions `x`, `y` and 
 
 ## Story 18.1 — Pairs From Episodes
 
-**Status:** Ready  
+**Status:** Completed  
 **As** a maintainer, **I want** a preference pair read from each episode in which a reviewer chose a different action, **so that** no label is written by hand and no preference becomes a reward.
 
 ### Acceptance Criteria:
@@ -28,7 +28,7 @@ Fixture used by the criteria below ("the base set"): three actions `x`, `y` and 
 
 ## Story 18.2 — The Loss and Its Gradient
 
-**Status:** Ready  
+**Status:** Completed  
 **As** an auditor, **I want** the Bradley-Terry loss and its gradient written as plain arithmetic, **so that** a logit update can be checked by hand.
 
 ### Acceptance Criteria:
@@ -41,7 +41,7 @@ Fixture used by the criteria below ("the base set"): three actions `x`, `y` and 
 
 ## Story 18.3 — The Fit
 
-**Status:** Ready  
+**Status:** Completed  
 **As** a maintainer, **I want** the fit to converge safely or say that it did not, **so that** a result is never taken for an optimum it is not.
 
 ### Acceptance Criteria:
@@ -59,7 +59,7 @@ Fixture used by the criteria below ("the base set"): three actions `x`, `y` and 
 
 ## Story 18.4 — The Learner
 
-**Status:** Ready  
+**Status:** Completed  
 **As** a maintainer, **I want** the learner to move a `SoftmaxPolicy`'s logits to the fit, anchored to a reference, **so that** a few overrides cannot drag the policy far from where it started.
 
 ### Acceptance Criteria:
@@ -75,20 +75,21 @@ Fixture used by the criteria below ("the base set"): three actions `x`, `y` and 
 
 ## Story 18.5 — Through the Runner
 
-**Status:** Ready  
+**Status:** Completed  
 **As** an adopter, **I want** to train a policy with this learner through the training runner, **so that** it needs no special entry point.
 
 ### Acceptance Criteria:
 - **$AC_0$ (Runs):** `TrainingRunner(learner=PairwiseLearner())` over a store that holds override episodes completes `run_offline_batch` with a `SUCCEEDED` run whose `algorithm` is `PairwiseLearner`.
-- **$AC_1$ (Twice):** two successive `run_offline_batch` runs over the same stored episodes leave the logits as after the first.
+- **$AC_1$ (Twice):** two successive `run_offline_batch` runs over the same stored episodes leave the logits as after the first within 1e-12 tolerance.
 - **$AC_2$ (Episodes Untouched):** the stored episodes are equal to their earlier copies after the run.
 - **$AC_3$ (Audit Replay):** the audit replay of such a run reports insufficient lineage and does not raise; the test asserts this and its docstring names FDD-018 §7 item 2.
+- **$AC_4$ (Empty Store & Non-Finite Guard):** running over a store with 0 pairs or an empty batch returns a `SUCCEEDED` run with 0 episodes used, leaving policy logits unchanged; non-finite float parameters (NaN / Inf) raise ValueError.
 
 ---
 
 ## Story 18.6 — The Real-Data Check (Zero Pairs)
 
-**Status:** Ready  
+**Status:** Completed  
 **As** a maintainer, **I want** the learner run on the recorded history, **so that** the missing real data is shown, not assumed.
 
 ### Acceptance Criteria:

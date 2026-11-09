@@ -6,7 +6,7 @@ To evaluate whether advanced exploration mechanisms (REINFORCE policy gradients,
 This ADR introduces the **Scheduled Epsilon-Greedy Policy Baseline** (Methodology #11 from `Ideation-Document.md` §2.1). By combining running empirical mean tracking with a decaying exploration schedule ($\epsilon_t$) and explicit exploration-branch logging in episode metadata, this policy establishes a rigorous, low-complexity reference standard for all discrete bandit policies in `agent-learning`.
 
 ## 2. Status
-**Accepted (2026-10-28, Menno)** — Derived from `Ideation-Document.md` §2.1 (Methodology #11). Approved as a design through `approve-adr` (robust utility 0.667, expected utility 0.747; Episode `dea2df98-8adb-49e2-9b7f-f690262756a7`). Amazon Q reviewed this text in PR #36. Nothing is built; the gaps named in the code-design section stay open.
+**Accepted (2026-10-28, Menno)** — Derived from `Ideation-Document.md` §2.1 (Methodology #11). Approved as a design through `approve-adr` (robust utility 0.667, expected utility 0.747; Episode `dea2df98-8adb-49e2-9b7f-f690262756a7`). Amazon Q reviewed this text in PR #36. Nothing is built; the gaps named in the code-design section stay open. Amended 2026-11-09 at Stage 16: CR-20261109-002: correct the module path to src/agent_learning_ext, classified `correction_note` (robust utility 0.965, episode `6acd859f...`) and accepted by Menno.
 
 ## 3. Context & Problem Statement
 - **The Empirical Baseline Deficit:** Without an $\epsilon$-greedy reference implementation, it is impossible to rigorously quantify whether more complex policy-gradient mechanisms (such as REINFORCE with moving-average baselines) justify their computational and hyperparameter tuning costs.
@@ -54,7 +54,7 @@ To maintain audit integrity, every generated `DecisionResult` and `Episode` reco
 
 ### 4.3 Code design and test data
 Design only: nothing below is built, and the signatures are the contract an FDD must confirm or change.
-Module `src/agent_learning/policy/epsilon_greedy.py`, implementing `Policy`, plus an `EpsilonGreedyLearner(Learner)` that shares the `action_statistics` update with ADR-016.
+Module `src/agent_learning_ext/policy/epsilon_greedy.py`, implementing `Policy`, plus an `EpsilonGreedyLearner(Learner)` that shares the `action_statistics` update with ADR-016.
 
 ```python
 def epsilon_at(t: int, eps0: float, delta: float, floor: float) -> float: ...   # harmonic, §4.1

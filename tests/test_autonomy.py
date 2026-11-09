@@ -6,16 +6,16 @@ import os
 
 import pytest
 
-from agent_learning.autonomy import (
+from agent_learning_ext.autonomy import (
     ComplexityProfile,
     assess_autonomy,
     assess_complexity,
     wilson_lower_bound,
 )
-from agent_learning.config import AutonomyConfig, validate_autonomy_monotonicity
+from agent_learning_ext.config import AutonomyConfig, validate_autonomy_monotonicity
 from agent_learning.policy import SoftmaxPolicy
 from agent_learning.storage import InMemoryStore
-from agent_learning.training import LearningRunner
+from agent_learning_ext.training import LearningRunner
 from agent_learning.types import Action, Episode, PolicySnapshot, Reward, RewardSource
 
 

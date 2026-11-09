@@ -6,7 +6,7 @@ In the `agent-learning` governance lifecycle, human code reviews, retrospective 
 This ADR introduces **Lightweight Critique-to-Evidence Ingestion** (Methodology #8 from `Ideation-Document.md` §2.1, addressing `HYP-AL-005`). It establishes a deterministic mechanism that parses structured textual critique into numeric criteria support deltas ($\Delta s_c$) and uncertainty adjustments ($u_c$) within an instance-specific `DecisionFrame`. This closes the cognitive loop between textual review findings and Bayesian decision adjudication without modifying foundation model weights or expanding storage schemas.
 
 ## 2. Status
-**Accepted (2026-10-28, Menno)** — Derived from `Ideation-Document.md` §2.1 (Methodology #8) and `HYP-AL-005`. Approved as a design through `approve-adr` (robust utility 0.662, expected utility 0.744; Episode `22072e4f-1024-48b5-a32d-b5c0a2d48e8b`). Amazon Q reviewed this text in PR #37. Nothing is built; the gaps named in the code-design section stay open.
+**Accepted (2026-10-28, Menno)** — Derived from `Ideation-Document.md` §2.1 (Methodology #8) and `HYP-AL-005`. Approved as a design through `approve-adr` (robust utility 0.662, expected utility 0.744; Episode `22072e4f-1024-48b5-a32d-b5c0a2d48e8b`). Amazon Q reviewed this text in PR #37. Nothing is built; the gaps named in the code-design section stay open. Amended 2026-11-09 at Stage 16: CR-20261109-002: correct the module path to src/agent_learning_ext, classified `correction_note` (robust utility 0.687, episode `4e3e709d...`) and accepted by Menno.
 
 ## 3. Context & Problem Statement
 - **The Frozen Model Constraint:** Foundation models in this repository are strictly frozen. Techniques that require backpropagating loss through weights (SFT) are permanently ruled out.
@@ -43,7 +43,7 @@ This section fixes the tag grammar only. The interface (`CritiqueDelta`, which c
 
 ### 4.4 Code design and test data
 Design only: nothing below is built, and the signatures are the contract an FDD must confirm or change.
-Module `src/agent_learning/critique_evidence.py`, standard library only and no file I/O, like `review_triage.py`; callers pass text in and get dataclasses or dicts out.
+Module `src/agent_learning_ext/critique_evidence.py`, standard library only and no file I/O, like `review_triage.py`; callers pass text in and get dataclasses or dicts out.
 
 ```python
 @dataclass(frozen=True)

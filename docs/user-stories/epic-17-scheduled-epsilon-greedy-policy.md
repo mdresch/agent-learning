@@ -3,9 +3,9 @@
 **Source ADR:** [ADR-017](../adr/ADR-017-scheduled-epsilon-greedy-policy.md) — Accepted (2026-10-28)  
 **Governing Baseline:** [PMP-BL-v1.0.0](../project-docs/Project-Management-Plan.md)  
 **Source BRD/FDD:** [BRD-017](../project-docs/Business-Requirements/BRD-017-scheduled-epsilon-greedy-policy.md) / [FDD-017](../project-docs/Functional-Design/FDD-017-scheduled-epsilon-greedy-policy.md)  
-**Status:** Approved (2026-10-29, Menno) — stories derived from Accepted ADR-017, BRD-017 and FDD-017; adjudicated via `approve-user-stories` (robust utility 0.735, episode `4e6a04e1-48a0-4cee-be3c-d89c4df493a6`). The source-comparison criterion of Story 17.5 AC2 ("reinforce.py is unchanged") was made behavioural on 2026-10-29 and the stories were re-approved via `approve-user-stories` (robust utility 0.739, episode `1e0762b1-4c41-4440-af96-15b628946de3`; comparison with the previous approval: flat, within tolerance, no criterion lower). The epic number follows the source ADR number, as Epic 16 follows ADR-016.  
+**Status:** Approved (2026-10-29, Menno) — stories derived from Accepted ADR-017, BRD-017 and FDD-017; adjudicated via `approve-user-stories` (robust utility 0.735, episode `4e6a04e1-48a0-4cee-be3c-d89c4df493a6`). The source-comparison criterion of Story 17.5 AC2 ("reinforce.py is unchanged") was made behavioural on 2026-10-29 and the stories were re-approved via `approve-user-stories` (robust utility 0.739, episode `1e0762b1-4c41-4440-af96-15b628946de3`; comparison with the previous approval: flat, within tolerance, no criterion lower). The epic number follows the source ADR number, as Epic 16 follows ADR-016.   Amended 2026-11-09 at Stage 16: CR-20261109-002: correct the module path to src/agent_learning_ext, classified `correction_note` (robust utility 0.687, episode `89231749...`) and accepted by Menno.
 
-Six stories build `src/agent_learning/policy/epsilon_greedy.py`, `src/agent_learning/learners/epsilon_greedy.py` and `src/agent_learning/policy/action_statistics.py`. Each rule sits in exactly one story's criteria (LL-012). Contract tests are `tests/test_epsilon_schedule.py` (17.1), `tests/test_epsilon_safety_mask.py` (17.2), `tests/test_epsilon_policy.py` (17.3), `tests/test_epsilon_learner.py` (17.4), `tests/test_epsilon_reinforce_guard.py` (17.5) and `tests/test_epsilon_positive_only.py` (17.6). The benchmark against the other policies is not a story (BRD-017 Out of Scope).
+Six stories build `src/agent_learning_ext/policy/epsilon_greedy.py`, `src/agent_learning_ext/learners/epsilon_greedy.py` and `src/agent_learning_ext/policy/action_statistics.py`. Each rule sits in exactly one story's criteria (LL-012). Contract tests are `tests/test_epsilon_schedule.py` (17.1), `tests/test_epsilon_safety_mask.py` (17.2), `tests/test_epsilon_policy.py` (17.3), `tests/test_epsilon_learner.py` (17.4), `tests/test_epsilon_reinforce_guard.py` (17.5) and `tests/test_epsilon_positive_only.py` (17.6). The benchmark against the other policies is not a story (BRD-017 Out of Scope).
 
 **Stories 17.1 to 17.6 are unblocked except for dependencies:** Menno confirmed FDD-017 §4 (F1 to F7) on 2026-10-29. Stories 17.3 and 17.5 depend on Epic 15 Stories 15.1 (`seed_for`) and 15.3 (`Decision.logprob` optional); 17.1, 17.2, 17.4 and 17.6 do not. Story 17.4 also depends on the shared statistics module of FDD-017 F6, which FDD-016 and Epic 16 Stories 16.3 and 16.4 now import (PR 48; FDD-017 §7 item 3). This sentence was updated on 2026-10-29 as a wording correction; no criterion changed and the gate was not re-run.
 
@@ -15,7 +15,7 @@ Fixture used by the criteria below ("the base policy"): three actions `a`, `b` a
 
 ## Story 17.1 — The Schedule
 
-**Status:** Ready  
+**Status:** Completed (2026-11-08, commit 8cced01)  
 **As** an auditor, **I want** the exploration rate to be a pure, bounded function of the pull count, **so that** its decay can be checked by hand.
 
 ### Acceptance Criteria:
@@ -28,7 +28,7 @@ Fixture used by the criteria below ("the base policy"): three actions `a`, `b` a
 
 ## Story 17.2 — The Safety Mask
 
-**Status:** Ready  
+**Status:** Completed (2026-11-08, commit b4ef91c)  
 **As** a maintainer, **I want** exploration restricted to actions a human has declared reversible, **so that** a random probe cannot run a destructive action.
 
 ### Acceptance Criteria:
@@ -41,7 +41,7 @@ Fixture used by the criteria below ("the base policy"): three actions `a`, `b` a
 
 ## Story 17.3 — Choosing and Replaying
 
-**Status:** Ready — depends on Stories 15.1 and 15.3 of Epic 15.  
+**Status:** Completed (2026-11-08, commit 54b10dc) — depends on Stories 15.1 and 15.3 of Epic 15.  
 **As** an auditor, **I want** every decision to say whether it was a greedy pick or an exploration probe and to be replayable, **so that** a sub-optimal choice can be explained.
 
 ### Acceptance Criteria:
@@ -58,7 +58,7 @@ Fixture used by the criteria below ("the base policy"): three actions `a`, `b` a
 
 ## Story 17.4 — Statistics and the Learner
 
-**Status:** Ready  
+**Status:** Completed (2026-11-08, commit 497c4f9)  
 **As** a maintainer, **I want** the means and counts kept in the policy snapshot in the record the UCB policy also uses, **so that** no new record type is needed and the two cannot drift apart.
 
 ### Acceptance Criteria:
@@ -74,7 +74,7 @@ Fixture used by the criteria below ("the base policy"): three actions `a`, `b` a
 
 ## Story 17.5 — Staying Out of REINFORCE
 
-**Status:** Ready — depends on Story 15.3 of Epic 15.  
+**Status:** Completed (2026-11-08) — depends on Story 15.3 of Epic 15.  
 **As** a maintainer, **I want** epsilon-greedy episodes to be invisible to `ReinforceLearner`, **so that** a baseline pick is never trained on as a softmax sample.
 
 ### Acceptance Criteria:
@@ -86,7 +86,7 @@ Fixture used by the criteria below ("the base policy"): three actions `a`, `b` a
 
 ## Story 17.6 — The Positive-Only Baseline Run
 
-**Status:** Ready  
+**Status:** Completed (2026-11-08)  
 **As** a maintainer, **I want** the recorded positive-only history replayed through the baseline, **so that** I can see how it behaves when every reward is 1.0 and no action is flagged reversible.
 
 ### Acceptance Criteria:

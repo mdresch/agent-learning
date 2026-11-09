@@ -1,0 +1,26 @@
+{
+  "document": "docs/project-docs/Functional-Design/FDD-020-explicit-policy-prior-warm-starting.md",
+  "tag": "cr002b",
+  "base_commit": "bfe18e4",
+  "candidate_sha256": "f964f8a16f5996a940f89f9313c648b280155591b5f247f9aefa6ab431ad4977",
+  "features": {
+    "lines": 2,
+    "terms_removed": 5,
+    "terms_kept": 4,
+    "goal_preserved": true,
+    "requirement_inverted": false,
+    "normative_touched": false,
+    "status_line_changed": false,
+    "downstream_refs": 0,
+    "change_ratio": 0.01
+  },
+  "observed": [
+    0.05,
+    0.1,
+    0.1,
+    0.1
+  ],
+  "proposed_action": "correction_note",
+  "accepted": true,
+  "episode": "639a5329"
+}

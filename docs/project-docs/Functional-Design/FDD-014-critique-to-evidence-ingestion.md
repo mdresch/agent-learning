@@ -2,13 +2,13 @@
 
 **Source ADR:** [ADR-014](../../adr/ADR-014-critique-to-evidence-ingestion.md) — Accepted (2026-10-28)  
 **Source BRD:** [BRD-014](../Business-Requirements/BRD-014-critique-to-evidence-ingestion.md)  
-**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-014; adjudicated via `approve-fdd` (robust utility 0.710, episode `d3157763-7368-4cc3-8937-737a36a1daba`). Section 4 lists where this design departs from ADR-014 §4.4. Menno confirmed all five departures (D1 to D5) on 2026-10-28, and ADR-014 §4.1, §4.4 and Invariant 5 were amended to match.  
+**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-014; adjudicated via `approve-fdd` (robust utility 0.710, episode `d3157763-7368-4cc3-8937-737a36a1daba`). Section 4 lists where this design departs from ADR-014 §4.4. Menno confirmed all five departures (D1 to D5) on 2026-10-28, and ADR-014 §4.1, §4.4 and Invariant 5 were amended to match.   Amended 2026-11-09 at Stage 16: CR-20261109-002: correct the module path to src/agent_learning_ext, classified `correction_note` (robust utility 0.965, episode `921cc8a0...`) and accepted by Menno.
 
 ---
 
 ## 1. Architecture & Component Placement
 
-1. **Pure module**, standard library only, in the style of `review_triage.py`: `src/agent_learning/critique_evidence.py`. It reads the frozen dataclasses of `agent_learning.decision` (`DecisionFrame`, `DecisionOption`, `EvidencePoint`) and nothing from `agent_learning.storage`. No file I/O.
+1. **Pure module**, standard library only, in the style of `review_triage.py`: `src/agent_learning_ext/critique_evidence.py`. It reads the frozen dataclasses of `agent_learning.decision` (`DecisionFrame`, `DecisionOption`, `EvidencePoint`) and nothing from `agent_learning.storage`. No file I/O.
 2. **Package export:** public names are re-exported from `agent_learning/__init__.py`.
 3. **Resolver untouched.** The module builds a new `DecisionFrame` and hands it to the existing `DecisionResolver`. It does not change how the resolver pools evidence.
 4. **Caller owns persistence.** The module returns plain dicts; the caller attaches them to `Episode.metadata["critique_adjustments"]`.

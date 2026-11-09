@@ -12,7 +12,7 @@ This is the practice used to validate a policy, not a training signal.
 
 from __future__ import annotations
 
-from agent_learning.decision import (
+from agent_learning_ext.decision import (
     DecisionAuthority,
     DecisionCriterion,
     DecisionFrame,

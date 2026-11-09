@@ -6,12 +6,12 @@ import random
 from typing import Any, Dict
 
 from agent_learning.config import LearnerConfig, ShapingConfig
-from agent_learning.learners import ReinforceLearner
+from agent_learning_ext.learners.reinforce import ReinforceLearner
 from agent_learning.metrics.base import MetricEvaluator, MetricRequest
 from agent_learning.policy import SoftmaxPolicy
 from agent_learning.rewards import RewardShaper, RewardWriter
 from agent_learning.storage import InMemoryStore
-from agent_learning.training import LearningRunner
+from agent_learning_ext.training import LearningRunner
 from agent_learning.types import (
     Action,
     Episode,

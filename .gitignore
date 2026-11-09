@@ -32,7 +32,23 @@ docs/.$erd.drawio.bkp
 .github/instructions/codacy.instructions.md
 .hypothesis/
 data/pmbok_runtime/
-data/agent-learning/
+data/agent-learning/*
+!data/agent-learning/store/
+data/agent-learning/store/*
+!data/agent-learning/store/policies/
+!data/agent-learning/store/active-policies/
+data/agent-learning/store/policies/*
+!data/agent-learning/store/policies/agent-learning-governance/
+data/agent-learning/store/active-policies/*
+!data/agent-learning/store/active-policies/agent-learning-governance/
+data/agent-learning/store/policies/agent-learning-governance/*
+!data/agent-learning/store/policies/agent-learning-governance/43ea80ae-f37e-493b-8f0f-554063f7dae0.json
+!data/agent-learning/store/policies/agent-learning-governance/67acdd43-e16b-40af-9d45-385630ae6b6f.json
+!data/agent-learning/store/policies/agent-learning-governance/d71ffe2f-d496-4655-9d5f-3543303f2595.json
+data/agent-learning/store/active-policies/agent-learning-governance/*
+!data/agent-learning/store/active-policies/agent-learning-governance/approve-brd.json
+!data/agent-learning/store/active-policies/agent-learning-governance/approve-fdd.json
+!data/agent-learning/store/active-policies/agent-learning-governance/approve-user-stories.json
 /adr-*-result.json
 /adr-*-reg.json
 /brd-*-result.json
@@ -54,3 +70,7 @@ pmbokguide_eighthed_eng.pdf
 
 # Node dependencies (any depth)
 node_modules/
+
+# Logs
+logs/
+*.log

@@ -12,7 +12,7 @@ Only the report of what is missing exists in the SDK; an automated loop that goe
 
 from __future__ import annotations
 
-from agent_learning.decision import (
+from agent_learning_ext.decision import (
     DecisionAuthority,
     DecisionCriterion,
     DecisionFrame,

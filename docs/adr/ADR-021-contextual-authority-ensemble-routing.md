@@ -6,7 +6,7 @@ ADR-001 established the foundational two-route decision authority model: high-fr
 This ADR introduces **Contextual Authority Ensemble Routing** (Methodology #17 from `Ideation-Document.md` §2.1). By evaluating request uncertainty, Shannon entropy, and declared ADR-003 complexity tiers at runtime, an ensemble router dynamically dispatches requests to either fast statistical bandits or thorough Bayesian reasoning, achieving optimal trade-offs between execution velocity and governance rigor.
 
 ## 2. Status
-**Accepted (2026-10-28, Menno)** — Derived from `Ideation-Document.md` §2.1 (Methodology #17). Approved as a design through `approve-adr` (robust utility 0.683, expected utility 0.762; Episode `a8e8fb11-e936-4cbd-9ce7-f872b1d0ee7a`). Amazon Q reviewed this text in PR #36. Nothing is built; the gaps named in the code-design section stay open.
+**Accepted (2026-10-28, Menno)** — Derived from `Ideation-Document.md` §2.1 (Methodology #17). Approved as a design through `approve-adr` (robust utility 0.683, expected utility 0.762; Episode `a8e8fb11-e936-4cbd-9ce7-f872b1d0ee7a`). Amazon Q reviewed this text in PR #36. Nothing is built; the gaps named in the code-design section stay open. Amended 2026-11-09 at Stage 16: CR-20261109-002: correct the module path to src/agent_learning_ext, classified `correction_note` (robust utility 0.687, episode `ba06bde4...`) and accepted by Menno.
 
 ## 3. Context & Problem Statement
 - **The Static Authority Inefficiency:** A policy configured with `full` authority must evaluate a multi-criteria `DecisionFrame` for every single instance, even when an identical input has been processed hundreds of times with high confidence.
@@ -65,7 +65,7 @@ Excluding `full` episodes from training (§4.3) creates a loop: contexts the low
 
 ### 4.5 Code design and test data
 Design only: nothing below is built, and the signatures are the contract an FDD must confirm or change.
-Module `src/agent_learning/routing.py`, pure; the router returns a decision and the caller records it.
+Module `src/agent_learning_ext/routing.py`, pure; the router returns a decision and the caller records it.
 
 ```python
 @dataclass(frozen=True)

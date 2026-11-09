@@ -44,11 +44,11 @@ from pathlib import Path
 
 import pytest
 
-from agent_learning import cli
-from agent_learning.capture import EpisodeCapture
+from agent_learning_ext import cli
+from agent_learning_ext.capture import EpisodeCapture
 from agent_learning.config import CaptureConfig, LearnerConfig
-from agent_learning.decision import DecisionResult, TaskPolicy, capture_decision_evidence_enabled
-from agent_learning.learners import ReinforceLearner
+from agent_learning_ext.decision import DecisionResult, TaskPolicy, capture_decision_evidence_enabled
+from agent_learning_ext.learners.reinforce import ReinforceLearner
 from agent_learning.policy import SoftmaxPolicy
 from agent_learning.storage import InMemoryStore
 from agent_learning.types import Action, Episode, PolicySnapshot, Reward, RewardSource

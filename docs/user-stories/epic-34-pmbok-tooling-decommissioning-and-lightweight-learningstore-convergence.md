@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-034](../adr/ADR-034-pmbok-tooling-decommissioning-and-lightweight-learningstore-convergence.md) — Accepted (2026-10-26)  
 **Source BRD/FDD:** [BRD-034](../project-docs/Business-Requirements/BRD-034-pmbok-tooling-decommissioning-and-lightweight-learningstore-convergence.md) / [FDD-034](../project-docs/Functional-Design/FDD-034-pmbok-tooling-decommissioning-and-lightweight-learningstore-convergence.md)  
-**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-034, BRD-034 and FDD-034 (Approved 2026-10-30); adjudicated via `approve-user-stories` (robust utility 0.726, episode `dd78f67b-d1d1-47da-8867-1d07e4e43132`).
+**Status:** In Progress (Stories 34.1–34.3 Completed; Stories 34.4–34.5 Draft) — derived from Accepted ADR-034, BRD-034 and FDD-034 (Approved 2026-10-30); adjudicated via `approve-user-stories` (robust utility 0.726, episode `dd78f67b-d1d1-47da-8867-1d07e4e43132`).
 
 Five stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_legacy_registry.py` (34.1), `tests/test_pmbok_run_state.py` (34.2), `tests/test_pmbok_client.py` (34.3), `tests/test_pmbok_cli.py` (34.4), `tests/test_pmbok_decommission.py` (34.5). Story 34.3 is Ready after confirming FDD-034 §5 item 3; Story 34.4 remains blocked on item 4 and Story 34.3. BRU-034-08 has no story of its own: Story 34.2 sets the two fields Story 1.1 already filters on.
 
@@ -12,7 +12,7 @@ ADR-034 §6 says "Epic 12". That label means this epic. Epics 12 and 13 stay as 
 
 ## Story 34.1 — The 49-process registry is pure data
 
-**Status:** Ready
+**Status:** Completed (2026-10-30, commit `b13f1bb`, per `implementation-log.md`); earlier status: Ready
 **As** a maintainer,  
 **I want** the legacy process codes and their prerequisites available without the legacy package,  
 **so that** a plan's `legacy_process` still names a real code after `pmbok/` is deleted.
@@ -28,7 +28,7 @@ ADR-034 §6 says "Epic 12". That label means this epic. Epics 12 and 13 stay as 
 
 ## Story 34.2 — A project run is an Episode, and the latest one wins
 
-**Status:** Ready
+**Status:** Completed (2026-10-30, commit `6cce8f5`, per `implementation-log.md`); earlier status: Ready
 **As** a governance reviewer,  
 **I want** each orchestration run stored as one more Episode, with the newest sequence winning,  
 **so that** project state lives in `LearningStore` and a later event does not rewrite an earlier one.
@@ -45,7 +45,7 @@ ADR-034 §6 says "Epic 12". That label means this epic. Epics 12 and 13 stay as 
 
 ## Story 34.3 — The client is the standard library, and secrets stay out of the record
 
-**Status:** Ready (2026-10-31, Menno confirmed FDD-034 §5 item 3)
+**Status:** Completed (2026-10-31, commit `cc0a53d`, per `implementation-log.md`); earlier status: Ready (2026-10-31, Menno confirmed FDD-034 §5 item 3)
 **As** a maintainer,  
 **I want** live calls to use `urllib` and an explicit backoff, and the offline client to touch neither the network nor a credential,  
 **so that** `tenacity` is unnecessary and a key cannot land in an episode or a log.

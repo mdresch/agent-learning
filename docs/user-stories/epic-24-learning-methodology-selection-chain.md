@@ -1,12 +1,12 @@
 # Epic 24: Learning Methodology Selection Chain
 
 **Source ADR:** [ADR-024](../adr/ADR-024-learning-methodology-selection-chain.md) — Accepted (2026-10-26, Menno); Episode `f99f1078-db8f-4575-9bb4-77a95ef73b97`  
-**Source BRD/FDD:** [BRD-024](../project-docs/Business-Requirements/BRD-024-learning-methodology-selection-chain.md) / [FDD-024](../project-docs/Functional-Design/FDD-024-learning-methodology-selection-chain.md) (both Draft)  
-**Status:** Draft — stories derived from Accepted ADR-024 and Draft BRD-024 and FDD-024. Awaiting human approval through `approve-user-stories`, after `approve-brd` and `approve-fdd`. The epic number follows the source ADR number, as Epic 21 follows ADR-021.  
+**Source BRD/FDD:** [BRD-024](../project-docs/Business-Requirements/BRD-024-learning-methodology-selection-chain.md) / [FDD-024](../project-docs/Functional-Design/FDD-024-learning-methodology-selection-chain.md) (both approved 2026-11-09)<br>
+**Status:** Approved (2026-11-09, Menno) — derived from Accepted ADR-024, BRD-024, and FDD-024; adjudicated via `approve-user-stories` (robust utility 0.794, episode `fa64cdb6-a080-4274-abfd-c440d905e7e3`). Implementation remains blocked by the PMP-BL-v1.1.0 scope decision and the story-specific prerequisites below.
 
 Seven stories build `src/agent_learning_ext/methodology_selection.py`, the seed rule table, the seed cases file, and the policy shape of the selection task. Nothing under `src/agent_learning/` is edited. Each rule sits in exactly one story's criteria (LL-012). Contract tests are `tests/test_methodology_selection_profile.py` (24.1), `tests/test_methodology_selection_rules.py` (24.2), `tests/test_methodology_selection_filter.py` (24.3), `tests/test_methodology_selection_ranking.py` (24.4), `tests/test_methodology_selection_decision.py` (24.5), `tests/test_methodology_selection_seed_table.py` (24.6) and `tests/test_methodology_selection_seed_cases.py` (24.7). A learned selector, building a requested methodology, and changing a methodology's catalog state are not stories (BRD-024 Out of Scope).
 
-**Decisions confirmed (2026-11-09, Menno):** option A for every row of FDD-024 §4 (D1 to D14). The criteria below are written to those answers. What still holds each story is named in its status line: every story waits on approval of the three documents (LL-010); Stories 24.4 and 24.6 also wait on the separate D5 change to the catalog and Ideation states; Story 24.6 also waits on Menno's review of FDD-024 Appendix A; Story 24.7 waits on Menno declaring the D10 seed profiles. Implementing Epic 24 also needs a scope decision, because `PMP-BL-v1.1.0` does not authorize it (FDD-024 §7 item 5).
+**Decisions confirmed (2026-11-09, Menno):** option A for every row of FDD-024 §4 (D1 to D14). The criteria below are written to those answers. Remaining story-level prerequisites are named in each status line: Stories 24.4 and 24.6 need the separate D5 change to the catalog and Ideation states; Story 24.6 also needs Menno's review of FDD-024 Appendix A; Story 24.7 needs Menno to declare the D10 seed profiles. Implementing Epic 24 also needs a scope decision, because `PMP-BL-v1.1.0` does not authorize it (FDD-024 §7 item 5).
 
 Fixtures used by the criteria below are those of FDD-024 §3, "Worked checks", built in the tests and labelled synthetic: "the fixture catalog" (#1 `excluded`, #2 and #3 `implemented`, #9 `candidate` with ADR-015, #10 `candidate` with ADR-016, #25 `blocked`, #30 `candidate` without an ADR), "the fixture rules" (version `test-1`), and the profiles P1 to P6.
 
@@ -14,7 +14,7 @@ Fixtures used by the criteria below are those of FDD-024 §3, "Worked checks", b
 
 ## Story 24.1 — The Use-Case Profile
 
-**Status:** Draft — decisions confirmed 2026-11-09; awaiting `approve-user-stories`  
+**Status:** Approved — implementation blocked pending PMP-BL-v1.1.0 scope authorization.
 **As** a maintainer declaring a decision, **I want** a strict profile that only a human can declare, **so that** the methodology is chosen from what the decision really is, not from what an agent guesses.
 
 ### Acceptance Criteria:
@@ -30,7 +30,7 @@ Fixtures used by the criteria below are those of FDD-024 §3, "Worked checks", b
 
 ## Story 24.2 — The Rule Table and Its Integrity Check
 
-**Status:** Draft — decisions confirmed 2026-11-09; awaiting `approve-user-stories`  
+**Status:** Approved — implementation blocked pending PMP-BL-v1.1.0 scope authorization.
 **As** a maintainer, **I want** the rule table parsed strictly and checked against the catalog, **so that** a rule cannot name an unknown field, value or methodology, and no methodology lacks a rule.
 
 ### Acceptance Criteria:
@@ -45,7 +45,7 @@ Fixtures used by the criteria below are those of FDD-024 §3, "Worked checks", b
 
 ## Story 24.3 — Hard Filters That Give A Reason
 
-**Status:** Draft — decisions confirmed 2026-11-09; awaiting `approve-user-stories`  
+**Status:** Approved — implementation blocked pending PMP-BL-v1.1.0 scope authorization.
 **As** an auditor, **I want** every methodology a selection sets aside to carry its reason, **so that** nothing is dropped silently.
 
 ### Acceptance Criteria:
@@ -61,7 +61,7 @@ Fixtures used by the criteria below are those of FDD-024 §3, "Worked checks", b
 
 ## Story 24.4 — Ranking By Maturity, As A Recommendation
 
-**Status:** Draft — decisions confirmed 2026-11-09; awaiting `approve-user-stories` and the separate D5 change to the catalog and Ideation states (FDD-024 §7 item 2)  
+**Status:** Approved — implementation blocked pending PMP-BL-v1.1.0 scope authorization and the separate D5 change to the catalog and Ideation states (FDD-024 §7 item 2).
 **As** a maintainer, **I want** the eligible methodologies ranked by how real they are, cheapest first among equals, **so that** I see what I can use today before what would need building.
 
 ### Acceptance Criteria:
@@ -77,7 +77,7 @@ Fixtures used by the criteria below are those of FDD-024 §3, "Worked checks", b
 
 ## Story 24.5 — The Human Decision and the Episode Record
 
-**Status:** Draft — decisions confirmed 2026-11-09; awaiting `approve-user-stories`  
+**Status:** Approved — implementation blocked pending PMP-BL-v1.1.0 scope authorization.
 **As** an auditor, **I want** the recommendation, the decision and its rationale stored together on an ordinary episode, **so that** I can later see what was recommended, what was decided, why, and whether the two differed, and so that no autonomy follows from it.
 
 ### Acceptance Criteria:
@@ -92,7 +92,7 @@ Fixtures used by the criteria below are those of FDD-024 §3, "Worked checks", b
 
 ## Story 24.6 — The Seed Rule Table, Checked Against the Ideation Document
 
-**Status:** Draft — decisions confirmed 2026-11-09; awaiting `approve-user-stories`, the separate D5 change to the catalog and Ideation states (FDD-024 §7 item 2), and Menno's hand review of FDD-024 Appendix A (§7 item 3)  
+**Status:** Approved — implementation blocked pending PMP-BL-v1.1.0 scope authorization, the separate D5 change to the catalog and Ideation states (FDD-024 §7 item 2), and Menno's hand review of FDD-024 Appendix A (§7 item 3).
 **As** a maintainer, **I want** the hand-judged rule table committed and checked against Ideation §2.1, **so that** the two cannot drift apart unnoticed (LL-007).
 
 ### Acceptance Criteria:
@@ -107,7 +107,7 @@ Fixtures used by the criteria below are those of FDD-024 §3, "Worked checks", b
 
 ## Story 24.7 — The Retroactive Seed Cases
 
-**Status:** Draft — decisions confirmed 2026-11-09; awaiting `approve-user-stories` and Menno declaring the six D10 seed profiles (Invariant 4; FDD-024 §7 item 4)  
+**Status:** Approved — implementation blocked pending PMP-BL-v1.1.0 scope authorization and Menno declaring the six D10 seed profiles (Invariant 4; FDD-024 §7 item 4).
 **As** a maintainer, **I want** the policies already built profiled after the fact and run through the rules, **so that** the rules are checked against the methodologies those policies actually use, without inventing any episode.
 
 ### Acceptance Criteria:

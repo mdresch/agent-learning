@@ -1,8 +1,8 @@
 # FDD-024: Learning Methodology Selection Chain
 
 **Source ADR:** [ADR-024](../../adr/ADR-024-learning-methodology-selection-chain.md) — Accepted (2026-10-26, Menno); Episode `f99f1078-db8f-4575-9bb4-77a95ef73b97`. Open questions resolved 2026-10-28 (ADR-024 §7).  
-**Source BRD:** [BRD-024](../Business-Requirements/BRD-024-learning-methodology-selection-chain.md) (Draft)  
-**Status:** Draft — derived from Accepted ADR-024 and Draft BRD-024. Awaiting human approval through `approve-fdd`. Section 4 lists fourteen points where ADR-024 is silent or ambiguous. Menno confirmed option A for all fourteen (D1 to D14) on 2026-11-09, and this FDD is written to those answers. Still open: the D5 catalog and Ideation state update, Menno's review of the Appendix A seed rows, Menno declaring the D10 seed profiles, the `PMP-BL-v1.1.0` scope decision, and the stale ADR-024 §2 wording (§7). Not approved: `approve-fdd` has not been run.  
+**Source BRD:** [BRD-024](../Business-Requirements/BRD-024-learning-methodology-selection-chain.md) (Approved 2026-11-09)<br>
+**Status:** Approved (2026-11-09, Menno) — derived from Accepted ADR-024 and approved BRD-024; adjudicated via `approve-fdd` (robust utility 0.762, episode `f8eec8ca-fdd5-4ab3-b3a2-485270b383b4`). Section 4 records Menno's confirmed option A choices for D1-D14. Still open: the separate D5 catalog and Ideation state update, Menno's review of the Appendix A seed rows, Menno declaring the D10 seed profiles, the `PMP-BL-v1.1.0` scope decision, and the stale ADR-024 §2 wording (§7). Document approval does not authorize implementation.
 
 ---
 

@@ -1,0 +1,133 @@
+{
+  "task": "FDD-023: approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "traceable_to_brd_adr",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Functional design traces to BRD-023 and Accepted ADR-023."
+    },
+    {
+      "id": "placement_and_purity",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Module placement, dependency use, and storage boundary preserve repository invariants."
+    },
+    {
+      "id": "no_invented_implementation",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Design detail is grounded in the ADR, existing code, confirmed decisions, or disclosed prototype evidence."
+    },
+    {
+      "id": "compatibility_preserved",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Existing public APIs, storage types, and upstream code remain unchanged."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_fdd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_brd_adr",
+          "source": "direct_doc_read:FDD-023 sections 1-4 cross-checked against BRD-023 and Accepted ADR-023",
+          "support": 0.9,
+          "confidence": 0.87
+        },
+        {
+          "criterion_id": "placement_and_purity",
+          "source": "direct_doc_read:FDD-023 specifies src/agent_learning_ext placement and no storage imports",
+          "support": 0.94,
+          "confidence": 0.9
+        },
+        {
+          "criterion_id": "no_invented_implementation",
+          "source": "direct_doc_read:FDD-023 labels prototype measurements and retains unresolved non-R questions in section 7",
+          "support": 0.8,
+          "confidence": 0.78
+        },
+        {
+          "criterion_id": "compatibility_preserved",
+          "source": "direct_doc_read:FDD-023 preserves shared Episode and PolicySnapshot types and leaves src/agent_learning unchanged",
+          "support": 0.9,
+          "confidence": 0.86
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_fdd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_brd_adr",
+          "source": "direct_doc_read:FDD-023 links and requirement references",
+          "support": 0.08,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "placement_and_purity",
+          "source": "direct_doc_read:FDD-023 extension path and storage boundary",
+          "support": 0.08,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "no_invented_implementation",
+          "source": "direct_doc_read:FDD-023 distinguishes confirmed choices from remaining open questions",
+          "support": 0.15,
+          "confidence": 0.78
+        },
+        {
+          "criterion_id": "compatibility_preserved",
+          "source": "direct_doc_read:FDD-023 standard Episode and PolicySnapshot contracts",
+          "support": 0.08,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_brd_adr",
+          "source": "direct_doc_read:FDD-023 identifies remaining questions separately from the confirmed R1-R11 decisions",
+          "support": 0.2,
+          "confidence": 0.78
+        },
+        {
+          "criterion_id": "placement_and_purity",
+          "source": "direct_doc_read:FDD-023 records the PMP dependency-scope question in section 7",
+          "support": 0.25,
+          "confidence": 0.76
+        },
+        {
+          "criterion_id": "no_invented_implementation",
+          "source": "direct_doc_read:FDD-023 marks empirical prototype results and unresolved fit-validation behavior",
+          "support": 0.28,
+          "confidence": 0.76
+        },
+        {
+          "criterion_id": "compatibility_preserved",
+          "source": "direct_doc_read:FDD-023 section 7 identifies non-blocking integration questions",
+          "support": 0.2,
+          "confidence": 0.76
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

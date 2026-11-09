@@ -691,9 +691,15 @@
     "docs/project-docs/Functional-Design/FDD-017-scheduled-epsilon-greedy-policy.md": {
       "family": "fdd",
       "status": "approved",
-      "sha256": "9faeec4986217e5cd273e1e5ff852df4b689b46b060fee4e1d5a58f1a8e3c51c",
+      "sha256": "54014d1781e46cd8c1a8bbf129d52afa58009642707c88873205bb337ad9e2fd",
       "approval_episode": "956b167a",
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-09",
+          "episode": "a8f93363",
+          "stage": 16
+        }
+      ]
     },
     "docs/project-docs/Functional-Design/FDD-018-pairwise-preference-optimization.md": {
       "family": "fdd",

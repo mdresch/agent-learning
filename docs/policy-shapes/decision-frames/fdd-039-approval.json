@@ -1,0 +1,133 @@
+{
+  "task": "FDD-039 (Shadow-Gate Learning and the Review-Finding Corpus): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "traceable_to_brd_adr",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Sections 2 and 3 implement the BRU rules from the paired BRD and the ADR sections."
+    },
+    {
+      "id": "placement_and_purity",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Module paths, store boundaries and purity rules match the repo and the fork rule."
+    },
+    {
+      "id": "no_invented_implementation",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Worked checks and error tables use values the ADR or BRD name or that were computed with the project's own function."
+    },
+    {
+      "id": "compatibility_preserved",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Existing CLI, learners and policies keep today's behavior."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_fdd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_brd_adr",
+          "source": "FDD sections 2 and 3 against BRD-039 and ADR-039 sections 4.1 to 4.5; author-agent review 2026-11-09 against the repo and ADR-039; not a separate reviewer",
+          "support": 0.82,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "placement_and_purity",
+          "source": "wilson_lower_bound, AutonomyConfig.for_tier and review_triage verified to exist at the named paths; LL-050 cited; author-agent review 2026-11-09 against the repo and ADR-039; not a separate reviewer",
+          "support": 0.84,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "no_invented_implementation",
+          "source": "four worked cases computed with agent_learning_ext.autonomy.wilson_lower_bound; new names (--store-confirmed, skipped) are designs, not borrowed facts; author-agent review 2026-11-09 against the repo and ADR-039; not a separate reviewer",
+          "support": 0.74,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "compatibility_preserved",
+          "source": "new modules and three new commands only; agent-learn untouched; no Microsoft module edited; author-agent review 2026-11-09 against the repo and ADR-039; not a separate reviewer",
+          "support": 0.84,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_fdd",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_brd_adr",
+          "source": "no fundamental flaw found",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "placement_and_purity",
+          "source": "no fundamental flaw found",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "no_invented_implementation",
+          "source": "no fundamental flaw found",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "compatibility_preserved",
+          "source": "no fundamental flaw found",
+          "support": 0.05,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "traceable_to_brd_adr",
+          "source": "open points disclosed in the document",
+          "support": 0.14,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "placement_and_purity",
+          "source": "open points disclosed in the document",
+          "support": 0.12,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "no_invented_implementation",
+          "source": "open points disclosed in the document",
+          "support": 0.26,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "compatibility_preserved",
+          "source": "open points disclosed in the document",
+          "support": 0.12,
+          "confidence": 0.75
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

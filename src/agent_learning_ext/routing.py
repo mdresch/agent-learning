@@ -16,6 +16,7 @@ uses no random number generator (no random), and uses no numpy. All arithmetic i
 from __future__ import annotations
 
 import copy
+import json
 import math
 from collections.abc import Sequence
 from dataclasses import dataclass
@@ -783,8 +784,8 @@ def policy_for_route(
     if (task_id in PINNED_FULL or requires_human_approval) and norm_auth == DecisionAuthority.LOW:
         raise ValueError(f"task '{task_id}' is pinned to FULL and cannot be routed to LOW")
 
-    # Deep copy the snapshot via to_dict / from_dict without mutating original snapshot
-    snap_dict = copy.deepcopy(snapshot.to_dict())
+    # Deep copy the snapshot via json serialization to guarantee complete data isolation
+    snap_dict = json.loads(json.dumps(snapshot.to_dict()))
     meta = snap_dict.get("metadata") or {}
     meta["decision_authority"] = norm_auth.value
     snap_dict["metadata"] = meta
@@ -798,6 +799,7 @@ def routed_episode_metadata(
     bucket: str,
     config: RoutingConfig | None = None,
     shadow: dict[str, Any] | None = None,
+    tier: str | None = None,
 ) -> dict[str, Any]:
     """Format episode metadata for a routed decision per FDD-021 §2.3.
 
@@ -812,19 +814,27 @@ def routed_episode_metadata(
             "eps_margin": config.eps_margin,
         }
 
+    routing_dict: dict[str, Any] = {
+        "bucket": bucket,
+        "route": decision.authority.value,
+        "entropy_bits": decision.entropy_bits,
+        "margin": decision.margin,
+        "reason": decision.reason,
+        "thresholds": thresholds_dict,
+    }
+    if tier is not None:
+        routing_dict["tier"] = tier
+
     meta: dict[str, Any] = {
         "routed_authority": decision.authority.value,
-        "routing": {
-            "bucket": bucket,
-            "route": decision.authority.value,
-            "entropy_bits": decision.entropy_bits,
-            "margin": decision.margin,
-            "reason": decision.reason,
-            "thresholds": thresholds_dict,
-        },
-        "routing_anomaly": decision.anomaly,
-        "shadow_low_action": shadow.get("shadow_low_action") if shadow else None,
-        "shadow_entropy_bits": shadow.get("shadow_entropy_bits") if shadow else None,
+        "routing": routing_dict,
     }
+    if decision.anomaly is not None:
+        meta["routing_anomaly"] = decision.anomaly
+    if shadow is not None:
+        if "shadow_low_action" in shadow:
+            meta["shadow_low_action"] = shadow["shadow_low_action"]
+        if "shadow_entropy_bits" in shadow:
+            meta["shadow_entropy_bits"] = shadow["shadow_entropy_bits"]
     return meta
 

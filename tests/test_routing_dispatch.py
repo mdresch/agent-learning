@@ -151,11 +151,13 @@ def test_ac2_routed_episode_metadata_round_trip() -> None:
         bucket="ctx-17",
         config=cfg,
         shadow=shadow,
+        tier="standard",
     )
 
     # Must match FDD-021 §2.3 structure
     assert meta["routed_authority"] == "full"
     assert meta["routing"]["bucket"] == "ctx-17"
+    assert meta["routing"]["tier"] == "standard"
     assert meta["routing"]["route"] == "full"
     assert meta["routing"]["entropy_bits"] == pytest.approx(1.2955, abs=1e-9)
     assert meta["routing"]["margin"] == pytest.approx(0.30, abs=1e-9)
@@ -163,7 +165,7 @@ def test_ac2_routed_episode_metadata_round_trip() -> None:
     assert meta["routing"]["thresholds"]["tau_esc"] == 1.0
     assert meta["routing"]["thresholds"]["tau_deesc"] == 0.7
     assert meta["routing"]["thresholds"]["eps_margin"] == 0.20
-    assert meta["routing_anomaly"] is None
+    assert "routing_anomaly" not in meta
     assert meta["shadow_low_action"] == "approve_plan"
     assert meta["shadow_entropy_bits"] == pytest.approx(1.2955, abs=1e-9)
 

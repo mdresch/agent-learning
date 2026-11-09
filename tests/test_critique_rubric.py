@@ -5,28 +5,13 @@ Source: FDD-014 §2.4, ADR-014, epic-14-critique-to-evidence-ingestion.md.
 
 import pytest
 
-try:
-    from agent_training_ext.critique_evidence import (
-        parse_critique,
-        rubric_delta,
-        RUBRIC_TABLE,
-        RUBRIC_VERSION,
-    )
-except ImportError:
-    try:
-        from critique_evidence import (
-            parse_critique,
-            rubric_delta,
-            RUBRIC_TABLE,
-            RUBRIC_VERSION,
-        )
-    except ImportError:
-        from agent_learning.critique_evidence import (
-            parse_critique,
-            rubric_delta,
-            RUBRIC_TABLE,
-            RUBRIC_VERSION,
-        )
+from agent_learning_ext.critique_evidence import (
+    parse_critique,
+    rubric_delta,
+    RUBRIC_TABLE,
+    RUBRIC_VERSION,
+
+)
 
 
 def test_ac0_rubric_table_all_18_pairs():

@@ -29,7 +29,7 @@ Fixture for 38.1 and 38.2 ("the zero policy"): actions `a` then `b`, `feature_di
 
 ## Story 38.2 — Skipped Episodes Are Counted
 
-**Status:** Ready — D6 confirmed 2026-10-30  
+**Status:** Completed (2026-11-09, commit `8c44e13`)  
 **As** an auditor, **I want** a missing or unusable vector to leave the weights alone, **so that** a hole is never trained as a zero vector.
 
 ### Acceptance Criteria
@@ -44,7 +44,7 @@ Fixture for 38.1 and 38.2 ("the zero policy"): actions `a` then `b`, `feature_di
 
 ## Story 38.3 — One Learner, One Policy Class
 
-**Status:** Ready — D6 confirmed 2026-10-30  
+**Status:** Completed (2026-11-09, commit `5cfd832`)  
 **As** a maintainer, **I want** each learner to reject the other policy class, **so that** a contextual weight row is never updated by the scalar rule.
 
 ### Acceptance Criteria
@@ -71,7 +71,7 @@ Fixture for 38.1 and 38.2 ("the zero policy"): actions `a` then `b`, `feature_di
 
 ## Story 38.5 — Decide Requires The Feature List
 
-**Status:** Ready — D1 and D3 confirmed 2026-10-30  
+**Status:** Completed (2026-11-09, commit `a8dd499`)  
 **As** an operator, **I want** a contextual decide to take the vector on the command line and refuse a bad one, **so that** the choice I record is the choice `choose` made.
 
 ### Acceptance Criteria
@@ -86,7 +86,7 @@ Fixture for 38.1 and 38.2 ("the zero policy"): actions `a` then `b`, `feature_di
 
 ## Story 38.6 — Scalar Commands Leave The Weight Rows Alone
 
-**Status:** Ready — D2, D4, and D5 confirmed 2026-10-30  
+**Status:** Completed (2026-11-09, commit `dd84864`)  
 **As** a maintainer, **I want** `train` and a full-authority change to refuse a contextual snapshot, **so that** the unused logits are not trained by mistake.
 
 ### Acceptance Criteria

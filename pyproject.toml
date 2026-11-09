@@ -79,6 +79,6 @@ line-length = 110
 target-version = "py310"
 
 [tool.pytest.ini_options]
-testpaths = ["tests", "agent-training-ext/tests"]
-pythonpath = ["src", "agent-training-ext"]
+testpaths = ["tests"]
+pythonpath = ["src"]
 asyncio_mode = "auto"

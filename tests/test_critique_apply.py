@@ -19,37 +19,16 @@ from agent_learning.decision import (
     EvidencePoint,
     PolicySnapshot,
 )
-try:
-    from agent_training_ext.critique_evidence import (
-        AppliedCritique,
-        CritiqueDelta,
-        apply_critique,
-        KAPPA_DEFAULT,
-        CONFIDENCE_FLOOR,
-        TARGET_EPSILON,
-        RESOLVER_EPSILON,
-    )
-except ImportError:
-    try:
-        from critique_evidence import (
-            AppliedCritique,
-            CritiqueDelta,
-            apply_critique,
-            KAPPA_DEFAULT,
-            CONFIDENCE_FLOOR,
-            TARGET_EPSILON,
-            RESOLVER_EPSILON,
-        )
-    except ImportError:
-        from agent_learning.critique_evidence import (
-            AppliedCritique,
-            CritiqueDelta,
-            apply_critique,
-            KAPPA_DEFAULT,
-            CONFIDENCE_FLOOR,
-            TARGET_EPSILON,
-            RESOLVER_EPSILON,
-        )
+from agent_learning_ext.critique_evidence import (
+    AppliedCritique,
+    CritiqueDelta,
+    apply_critique,
+    KAPPA_DEFAULT,
+    CONFIDENCE_FLOOR,
+    TARGET_EPSILON,
+    RESOLVER_EPSILON,
+
+)
 
 
 def _make_snapshot_for_frame(frame: DecisionFrame) -> PolicySnapshot:

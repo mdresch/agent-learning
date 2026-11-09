@@ -6,7 +6,7 @@ description: Guidance for lightweight critique-to-evidence ingestion, tag gramma
 # Skill: critique-evidence (agent-learning)
 
 ## Overview
-This skill governs the Lightweight Critique-to-Evidence Ingestion Engine implemented in `agent-training-ext/critique_evidence.py`. It converts qualitative markdown review findings into quantitative Bayesian evidence points applied directly to `DecisionFrame` options without mutating core models or bypassing human oversight.
+This skill governs the Lightweight Critique-to-Evidence Ingestion Engine implemented in `src/agent_learning_ext/critique_evidence.py` (with the replay harness in `src/agent_learning_ext/triage_replay.py`). It converts qualitative markdown review findings into quantitative Bayesian evidence points applied directly to `DecisionFrame` options without mutating core models or bypassing human oversight.
 
 ## Governing Specifications & Contracts
 - **Architecture:** [`docs/adr/ADR-014-critique-to-evidence-ingestion.md`](../../docs/adr/ADR-014-critique-to-evidence-ingestion.md)
@@ -14,15 +14,15 @@ This skill governs the Lightweight Critique-to-Evidence Ingestion Engine impleme
 - **Functional Design:** [`docs/project-docs/Functional-Design/FDD-014-critique-to-evidence-ingestion.md`](../../docs/project-docs/Functional-Design/FDD-014-critique-to-evidence-ingestion.md)
 - **User Stories:** [`docs/user-stories/epic-14-critique-to-evidence-ingestion.md`](../../docs/user-stories/epic-14-critique-to-evidence-ingestion.md)
 - **Test Contracts:**
-  - `agent-training-ext/tests/test_critique_parse.py` (Story 14.1 — Grammar, parser, bounds, field validation, purity)
-  - `agent-training-ext/tests/test_critique_apply.py` (Story 14.2 & 14.3 — Exact shift, direction invariance, clamping, sequence, doubt, source tracking, immutability)
-  - `agent-training-ext/tests/test_critique_metadata.py` (Story 14.4 — Episode metadata schema, JSON roundtrip, logit consistency)
+  - `tests/test_critique_parse.py` (Story 14.1 — Grammar, parser, bounds, field validation, purity)
+  - `tests/test_critique_apply.py` (Story 14.2 & 14.3 — Exact shift, direction invariance, clamping, sequence, doubt, source tracking, immutability)
+  - `tests/test_critique_metadata.py` (Story 14.4 — Episode metadata schema, JSON roundtrip, logit consistency)
   - `tests/test_critique_replay.py` (Story 14.5 — Replay on the real triage records, human tagging consistency, directionality, and disclaimer)
-  - `agent-training-ext/tests/test_critique_rubric.py` (Story 14.6 — Pre-calibrated delta rubric, versioning, overrides)
+  - `tests/test_critique_rubric.py` (Story 14.6 — Pre-calibrated delta rubric, versioning, overrides)
 
 ## Load-Bearing Constraints & Invariants
 1. **Upstream Fork Collision Protection (Invariant 6):**
-   - Resides exclusively in `agent-training-ext/`.
+   - Resides exclusively in `src/agent_learning_ext/` (moved there from the former `agent-training-ext/` folder, which no longer exists).
    - Leaves `src/agent_learning/` as a pristine mirror of upstream Microsoft HEAD (0 lines diff).
    - Interfaces strictly with public frozen dataclasses (`agent_learning.decision.DecisionFrame`, `DecisionOption`, `EvidencePoint`, `DecisionResolver`).
 2. **Standard Library Purity (Invariant 4):**

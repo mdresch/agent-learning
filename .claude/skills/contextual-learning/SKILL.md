@@ -16,6 +16,10 @@ description: ContextualReinforceLearner, the exported learner for ContextualSoft
 - **Baseline:** `decay * baseline_before + (1 - decay) * mean_reward`. `entropy_bonus`, `importance_clip` and `min_train_episodes` are not read. No entropy term, no importance weight (D6).
 - **Training vector:** `Episode.metadata["feature_vector"]`. `context_features` is never read (invariant 2, ADR-004).
 - **Purity (Story 38.1 AC_4):** standard library plus existing learner and policy types. No `numpy` import and no `agent_learning.storage` import in the module (`policy.probabilities` uses numpy internally; that is the policy's business).
+- **Skipped episodes are counted, never zero-filled (Story 38.2, invariants 3 and 4):** each episode increments exactly one `extra` key, the first matching row of FDD-038 2.1: `skipped_no_action`, `full_authority_excluded` (`action_logprob is None`), `skipped_no_reward`, `skipped_missing_vector` (absent or None), `skipped_not_list` (anything but a `list`), `skipped_wrong_length`, `skipped_non_finite` (bool, non-number, NaN or inf). All seven keys are present on every return. A caller-supplied zero vector of the right length is used.
+- **Nothing to apply:** with no used episode `apply_update` is not called; weights, baseline and version are unchanged; `episodes_used` 0, `mean_reward` 0, `extra["weight_deltas"]` `{}`, `extra["reason"]` `"no actionable episodes"`.
+- **Bad reward:** a non-finite aggregate reward, or one outside [-1, 1], raises `ValueError` while the rewards are indexed, before any episode is applied.
+- **One learner, one policy class (Story 38.3, invariant 1):** `update` raises `TypeError("ContextualReinforceLearner requires a ContextualSoftmaxPolicy")` for any other policy, before reading an episode, leaving the policy untouched. `ReinforceLearner` (ours and Microsoft's) already raises `TypeError` for a `ContextualSoftmaxPolicy` and still updates a `SoftmaxPolicy` without reading `feature_vector`; this component never edits it.
 - **Receipt:** `consumed_inputs` lists only used episodes with the aggregate reward id kept (newest `created_at` wins); `episodes_used == len(consumed_inputs)`.
 
 ## Call sites

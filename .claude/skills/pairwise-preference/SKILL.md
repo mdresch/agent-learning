@@ -6,7 +6,7 @@ description: Guidance for Pairwise Preference Optimization for discrete action l
 # Skill: pairwise-preference (agent-learning)
 
 ## Overview
-This skill governs the Pairwise Preference Optimization learner for discrete action logits (`src/agent_learning_ext/learners/pairwise.py` and `agent-training-ext/dpo_preference.py`). It fits a policy's action logits directly to preference pairs (winner, loser) extracted from human override episodes using the Bradley-Terry model with convex L2 regularization anchored to frozen reference logits.
+This skill governs the Pairwise Preference Optimization learner for discrete action logits (`src/agent_learning_ext/learners/pairwise.py`). It fits a policy's action logits directly to preference pairs (winner, loser) extracted from human override episodes using the Bradley-Terry model with convex L2 regularization anchored to frozen reference logits.
 
 ## Governing Specifications & Contracts
 - **Architecture:** [`docs/adr/ADR-018-pairwise-preference-optimization.md`](../../docs/adr/ADR-018-pairwise-preference-optimization.md)
@@ -23,7 +23,7 @@ This skill governs the Pairwise Preference Optimization learner for discrete act
 
 ## Load-Bearing Constraints & Invariants
 1. **Upstream Fork Collision Protection (Invariant 6):**
-   - Resides in `src/agent_learning_ext/learners/pairwise.py` and re-exported via `src/agent_learning_ext` and `agent-training-ext`.
+   - Resides in `src/agent_learning_ext/learners/pairwise.py` and re-exported via `src/agent_learning_ext`.
    - `src/agent_learning/` remains 100% byte-for-byte identical to upstream Microsoft HEAD (0 lines diff).
 2. **Standard Library Purity & Determinism (Invariant 4):**
    - Plain standard library and `numpy` (already a dependency of `SoftmaxPolicy`).

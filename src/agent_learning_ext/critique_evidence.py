@@ -1,6 +1,6 @@
 """Lightweight Critique-to-Evidence Ingestion (Epic 14 / Stories 14.1, 14.2, 14.3, 14.4).
 
-Staged implementation for agent-training-ext.
+Lives in agent_learning_ext (the fork rule); Microsoft's agent_learning is not edited.
 Converts markdown critique findings into structured CritiqueDelta instances
 following the tag grammar of FDD-014 §2.1, applies them to DecisionFrame
 according to FDD-014 §3, and outputs episode metadata.

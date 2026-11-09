@@ -149,3 +149,27 @@ def test_exported_from_ext_learners_and_ext_root():
     assert learners.ContextualReinforceLearner.__module__ == "agent_learning_ext.learners.contextual_reinforce"
     assert "ContextualReinforceLearner" in learners.__all__
     assert "ContextualReinforceLearner" in agent_learning_ext.__all__
+
+
+def test_review_no_usable_episode_leaves_the_policy_unchanged():
+    """Q-153 review: an empty or fully unusable batch must not divide by zero (I2)."""
+    policy = _zero_policy()
+    before = policy.snapshot()
+    result = _learner().update(policy, [], [])
+    after = policy.snapshot()
+    assert result.episodes_used == 0
+    assert result.consumed_inputs == []
+    assert result.logit_deltas == {}
+    assert after.version == before.version
+    assert _rows(policy) == before.metadata["context_weights"]
+
+
+def test_review_episode_without_a_feature_vector_is_skipped_not_raised():
+    """Q-153 review: missing metadata or a missing key is a skip, never a KeyError (I1)."""
+    policy = _zero_policy()
+    before = policy.snapshot()
+    bare = _episode(None)
+    result = _learner().update(policy, [bare], [_reward(bare, 1.0)])
+    assert result.episodes_used == 0
+    assert policy.snapshot().version == before.version
+    assert _rows(policy) == before.metadata["context_weights"]

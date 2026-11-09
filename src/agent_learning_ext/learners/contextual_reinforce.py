@@ -54,6 +54,8 @@ class ContextualReinforceLearner(Learner):
             reward = aggregate_rewards.get(episode.id)
             if reward is None or episode.action_id not in sums:
                 continue
+            if not episode.metadata or "feature_vector" not in episode.metadata:
+                continue
             phi = [float(x) for x in episode.metadata["feature_vector"]]
             probs = policy.probabilities(phi)
             advantage = reward.value - baseline_before
@@ -64,6 +66,16 @@ class ContextualReinforceLearner(Learner):
             consumed_inputs.append(ConsumedInput(episode_id=episode.id, reward_id=reward.id))
 
         used = len(consumed_inputs)
+        if used == 0:
+            return LearnerResult(
+                episodes_used=0,
+                mean_reward=0.0,
+                baseline_before=baseline_before,
+                baseline_after=baseline_before,
+                logit_deltas={},
+                extra={"weight_deltas": {}},
+                consumed_inputs=[],
+            )
         weight_deltas = {
             aid: [self._config.learning_rate * s / used for s in row] for aid, row in sums.items()
         }

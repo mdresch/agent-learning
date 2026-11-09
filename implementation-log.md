@@ -2907,5 +2907,45 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - $AC_4$: Direct resolution of toy frame with updated snapshot produces expected winning option under adopted weights.
 - **Review (Step 8):** Amazon Q reviewed PR #145. All findings addressed:
   - `Q-145-1 | crash risk | verified: yes | decision: accepted | Fix store.get_episode arity to (id, agent_id) with --approval-agent-id and governance fallback | fix: 0566e0b`
-  - `Q-145-2 | auditability | verified: yes | decision: accepted | Compute proposal SHA-256 directly on raw file bytes for exact sha256sum parity | fix: 0566e0b`
+  - `Q-145-2 | logic error | verified: yes | decision: accepted | Compute proposal SHA-256 directly on raw file bytes for exact sha256sum parity | fix: 0566e0b`
   - `Q-145-3 | test gap | verified: yes | decision: accepted | Update test mocks and assertions for 2-argument get_episode and raw bytes hash | fix: 0566e0b`
+
+---
+
+## Story 21.4 — The Shadow Record and the Agreement Gate
+- **Commit:** `02597cf` (lint and status `4d20c9c`)
+- **Date:** 2026-11-09
+- **Branch:** `feat/story-21.4`
+- **Source ADR / BRD / FDD:** ADR-021 (§4.1, §4.4), BRD-021 (BRU-021-11), FDD-021 (§1 items 4 to 7, §2.3, §3, §4 K1 and K7, §5)
+- **Pre-Flight Spec Gate:** PASSED, Proceed utility 0.7327, margin +0.2113 (>= +0.05), episode `spec-21_4-8ad60e3c`. The gate was run after the contract was healed (see heal pass below); its I1 to I3 match the contract docstring.
+- **Heal pass (LL-042, `heal-contract-failure`):** an `implement-story` run for this story was started and abandoned with uncommitted work in `../agent-learning-story-21.4` (no commits, no PR); Menno confirmed it abandoned. The leftovers were re-walked from Intent as evidence, not adopted. Attempt 1 of 3, healed:
+  - Contract file was `tests/test_routing_agreement.py`; renamed to the epic-declared `tests/test_routing_guard.py` (I4).
+  - AC_6 crashed (`SoftmaxPolicy(actions=...)`) and was vacuous (`CRITIQUE` rewards, which `ReinforceLearner` never consumes); now `AGGREGATE` rewards, asserts the logits moved, and runs both the upstream and extension learner (I6).
+  - AC_4 gated on `round(wilson, 4)`: 35 of 35 (0.901096) passed a 0.9011 gate. Now the reported bound equals `wilson_lower_bound(k, n)` and the unrounded value is compared (I3).
+  - AC_2 counted an episode without a final action under a placeholder `"unknown"` action; now dropped (FDD-021 §3.6, I5).
+  - AC_5 now also built from episodes through `agreement`.
+- **Files Modified/Created:**
+  - `src/agent_learning_ext/routing.py` (`shadow_record`, `previous_route`, `agreement`, `propose_bucket`)
+  - `src/agent_learning_ext/__init__.py` (lazy exports `agreement`, `previous_route`, `propose_bucket`, `shadow_record`)
+  - `tests/test_routing_guard.py` (contract tests for $AC_0$ through $AC_6$, interpretations $I_1$ to $I_6$)
+  - `.claude/skills/routing/SKILL.md` (new; the component skill was missing since Story 21.1 and now covers Stories 21.1 to 21.4)
+  - `docs/user-stories/epic-21-contextual-authority-ensemble-routing.md` (Story 21.4 marked Completed)
+- **Contracts:**
+  - `tests/test_routing_guard.py`
+  - Observed RED first (against the leftover code): 7 failed (`test_ac2_agreement_drops_episode_without_final_action`, five `test_ac4_reported_bound_equals_wilson_lower_bound` cases, `test_ac4_gate_compares_unrounded_bound`); AC_6 shown able to fail by mutating the extension `ReinforceLearner` to train on `shadow_low_action` (2 failed; mutation reverted, nothing committed).
+  - Contract run: 31 passed
+  - Epic 21 contracts plus `tests/test_upstream_untouched.py`: 55 passed
+- **Validation:**
+  - Full suite: 2211 passed, 2 skipped before merging `origin/main` (Story 22.6); 2236 passed, 1 skipped after the merge and the Q-145-2 correction (`uv run pytest --ignore=tests/test_spark.py --ignore=tests/pmbok`; `test_spark.py` needs a JVM, `tests/pmbok` cannot be collected from a clean install, ADR-034, LL-013).
+  - `ruff check` clean on the touched files (`main`'s `routing.py` was clean before the story).
+  - Upstream fork untouched (I1).
+- **Flagged during the heal, fixed in review:** `mean_shadow_entropy_bits` divided by `n`, so an episode with a shadow action but no finite `shadow_entropy_bits` lowered the mean (Q-146-1/Q-146-2 below).
+- **Review (Step 8):** Amazon Q reviewed PR #146 (round 1, head `278a07a`; two review summaries reporting the same defect). Finding addressed:
+  - `Q-146-1 | logic error | verified: yes | decision: accepted | mean_shadow_entropy_bits divided by n instead of the count of episodes carrying a finite shadow_entropy_bits | fix: f9aea3d`
+  - `Q-146-2 | test gap | verified: yes | decision: accepted | No contract case had a counted episode without shadow_entropy_bits; added test_ac5_mean_entropy_only_over_episodes_carrying_it (RED 0.375 vs 0.75 first) | fix: f9aea3d`
+- **Trap note (for the Epic 21 recap):** an abandoned run's tests can be green and still unable to fail (wrong reward source); a heal must show each contract can go RED, not only that it passes.
+
+---
+
+## Correction (2026-11-09) — Story 22.6 review line Q-145-2
+- `Q-145-2` was recorded with claim type `auditability`, which is not one of the fixed claim types (logic error, crash risk, test gap, documentation, style; `implement-story` Step 8.7). `agent_learning.review_triage` rejects it, so `tests/test_review_triage.py` and `tests/test_critique_replay.py` failed on `main` after PR #145. The finding (proposal SHA-256 not computed on the raw file bytes) is reclassified as `logic error` in place; nothing else in the line changed. Found during Story 21.4 validation (cross-epic regression, attributed to PR #145, not to Story 21.4's diff).

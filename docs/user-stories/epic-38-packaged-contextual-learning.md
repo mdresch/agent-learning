@@ -44,7 +44,7 @@ Fixture for 38.1 and 38.2 ("the zero policy"): actions `a` then `b`, `feature_di
 
 ## Story 38.3 — One Learner, One Policy Class
 
-**Status:** Ready — D6 confirmed 2026-10-30  
+**Status:** Completed (2026-11-09, commit `5cfd832`)  
 **As** a maintainer, **I want** each learner to reject the other policy class, **so that** a contextual weight row is never updated by the scalar rule.
 
 ### Acceptance Criteria

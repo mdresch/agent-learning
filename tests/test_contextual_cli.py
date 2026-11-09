@@ -396,3 +396,15 @@ def test_38_5_scalar_decide_without_features_still_runs(store, capsys) -> None:
     _scalar(store)
     payload = _decide_ok(capsys, "--greedy")
     assert "autonomy" in payload and "feature_vector" not in payload
+
+
+def test_38_5_review_contextual_snapshot_without_feature_dim_is_refused(store, capsys) -> None:
+    """Q-156 review: a hand-made contextual snapshot with no feature_dim exits 2, not a KeyError."""
+    snapshot = _contextual(store)
+    del snapshot.metadata["feature_dim"]
+    store.store_policy(snapshot)
+    before = _fingerprint(store)
+    capsys.readouterr()
+    assert _decide("--features", "[1.0, 0.0]") == 2
+    assert "feature_dim" in capsys.readouterr().err
+    assert _fingerprint(store) == before

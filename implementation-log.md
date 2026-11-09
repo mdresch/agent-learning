@@ -3099,3 +3099,8 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - The 38.1 implementation covers only the used-episode path. Skip counters (38.2) and the class wall (38.3) are added in their own stories so that each contract is observed RED.
   - The worktree's first `uv sync` did not install `numpy`; `uv sync --extra dev` was needed before the tests could import `agent_learning`.
   - Not touched, by instruction: `docs/project-docs/Project-Status-Register.md` (the orchestrator updates it once after validation, to avoid a merge conflict with the Stories 38.4 to 38.6 branch).
+- **Amazon Q review (PR #153):** two rounds on `/q review`, then `/q confirm` on head `1369f23`. Q's reply on the head says no earlier finding is unresolved and lists only later stories as open. Accepted and fixed in `1369f23` (new commit, tests observed RED first): the empty-batch division and the missing-`feature_vector` read. Declined with reasons in the PR triage comment: the `test_ac1` baseline-decay remark and the `parents[1]` path remark.
+  - `Q-153-1 | crash risk | verified: yes | decision: accepted | ZeroDivisionError when no episode is usable (reported twice) | fix: 1369f23`
+  - `Q-153-2 | crash risk | verified: yes | decision: accepted | KeyError or TypeError reading feature_vector from missing metadata (reported twice) | fix: 1369f23`
+  - `Q-153-3 | logic error | verified: no | decision: declined | AC_1 fixes only the learning rate and the baseline stays 0 for any decay because the rewards cancel | fix: none`
+  - `Q-153-4 | logic error | verified: no | decision: declined | LEARNER_FILE resolves from __file__ not the working directory and 28 other tests use the same pattern | fix: none`

@@ -28,6 +28,7 @@ jobs:
       version: ${{ steps.version.outputs.version }}
       tag: ${{ steps.version.outputs.tag }}
       tag-exists: ${{ steps.existing-tag.outputs.exists }}
+      release: ${{ steps.existing-tag.outputs.release }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -107,9 +108,18 @@ jobs:
           fi
 
           if [[ -n "$existing_sha" && "$existing_sha" != "$(git rev-parse HEAD)" ]]; then
+            # A push that does not bump the version has nothing to release (IMP-052); a manual PyPI publish still fails.
+            if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
+              echo "::notice::${TAG} already points to ${existing_sha}; no release for this push (bump the package version to release)."
+              echo "exists=true" >> "$GITHUB_OUTPUT"
+              echo "release=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
             echo "::error::${TAG} already points to ${existing_sha}; bump the package version."
             exit 1
           fi
+
+          echo "release=true" >> "$GITHUB_OUTPUT"
 
           if [[ -n "$existing_sha" ]]; then
             echo "exists=true" >> "$GITHUB_OUTPUT"
@@ -120,6 +130,7 @@ jobs:
   build:
     name: Build sdist + wheel
     needs: release-metadata
+    if: needs.release-metadata.outputs.release != 'false'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -149,7 +160,9 @@ jobs:
   build-windows:
     name: Build Windows release
     needs: release-metadata
-    if: github.event_name == 'push' || inputs.target == 'pypi'
+    if: >-
+      needs.release-metadata.outputs.release != 'false' &&
+      (github.event_name == 'push' || inputs.target == 'pypi')
     uses: ./.github/workflows/windows-installer.yaml
     with:
       app_version: ${{ needs.release-metadata.outputs.version }}
@@ -157,7 +170,9 @@ jobs:
   build-linux:
     name: Build Linux release
     needs: release-metadata
-    if: github.event_name == 'push' || inputs.target == 'pypi'
+    if: >-
+      needs.release-metadata.outputs.release != 'false' &&
+      (github.event_name == 'push' || inputs.target == 'pypi')
     uses: ./.github/workflows/linux-installer.yaml
     with:
       app_version: ${{ needs.release-metadata.outputs.version }}

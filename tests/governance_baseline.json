@@ -796,9 +796,15 @@
     "docs/project-docs/Functional-Design/FDD-023-active-dueling-bandit-ranking-engine.md": {
       "family": "fdd",
       "status": "approved",
-      "sha256": "90cb64b8d25889f45e8ccad6b3e4e968328c54d980ae1a4777263c23570a7f90",
+      "sha256": "e8060857ad98fcbe942b45154ff48075ca2bffe16f8c5ca18e1951bcbe485f3e",
       "approval_episode": "a7518909",
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-10",
+          "episode": "a2e3f780",
+          "stage": 16
+        }
+      ]
     },
     "docs/project-docs/Functional-Design/FDD-024-learning-methodology-selection-chain.md": {
       "family": "fdd",

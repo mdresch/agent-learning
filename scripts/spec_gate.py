@@ -304,10 +304,10 @@ _ZERO_REL = re.compile(r"\b(?:rel_tol|rtol)\s*=\s*0(?:\.0+)?(?![\d.])")
 _STRICT = re.compile(r"pytest\.approx\([^)]*\babs\s*=|absolute difference|\babs\(", re.IGNORECASE)
 
 # IMP-021: a classical discrete primitive (Wilson interval over integer successes) widened to a continuous domain.
-_DISCRETE = re.compile(r"\bwilson\b|\bbinomial\b|\bclopper\b|\bagresti\b", re.IGNORECASE)
+_DISCRETE = re.compile(r"\b(?:wilson|binomial|clopper|agresti)(?![A-Za-z])", re.IGNORECASE)
 _WIDENED = re.compile(r"\bfloats?\b.*\bsuccesses\b|\bsuccesses\b.*\bfloats?\b|\bin steps of 0\.[0-9]+|\bcumulative reward\b|\bfractional\b|\bnon-integer\b|\breal-valued\b|mapped (?:from \[-1, 1\] )?to \[0, 1\]", re.IGNORECASE)
-_CLAMP = re.compile(r"\bclamp(?:ed|s)?\b|\b(?:within|in|to) \[0, ?1\]|max\(0|min\(1", re.IGNORECASE)
-_INTEGER_LIMIT = re.compile(r"\binteger\b.*\b(?:equal|equals|agree|agrees|match|matches|identical|reduces)\b|\b(?:equal|equals|agree|agrees|match|matches|identical|reduces)\b.*\binteger\b", re.IGNORECASE)
+_CLAMP = re.compile(r"\bclamp(?:ed|s)?\b|\b(?:stays?|remains?|bounded|clipped)\b[^.]{0,20}\[0, ?1\]|max\(0|min\(1", re.IGNORECASE)
+_INTEGER_LIMIT = re.compile(r"(?<!non-)\binteger\b[^.]*\b(?:equal|equals|agree|agrees|match|matches|identical|reduces)\b|\b(?:equal|equals|agree|agrees|match|matches|identical|reduces)\b[^.]*(?<!non-)\binteger\b", re.IGNORECASE)
 
 
 def audit_story_spec(spec: StorySpec) -> tuple[list[CritiqueDelta], list[Interpretation], list[str]]:
@@ -617,7 +617,7 @@ def audit_story_spec(spec: StorySpec) -> tuple[list[CritiqueDelta], list[Interpr
     widened = [
         ac for ac in spec.acceptance_criteria if _DISCRETE.search(ac.prose) and _WIDENED.search(ac.prose)
     ]
-    if widened and not (_CLAMP.search(combined_text) and _INTEGER_LIMIT.search(combined_text)):
+    if widened and not (_CLAMP.search(all_ac_prose) and _INTEGER_LIMIT.search(all_ac_prose)):
         labels = ", ".join(ac.label for ac in widened)
         deltas.append(
             CritiqueDelta(
@@ -688,12 +688,12 @@ def audit_story_spec(spec: StorySpec) -> tuple[list[CritiqueDelta], list[Interpr
         log.append("[WARN] Testability: Floating-point assertions without explicit tolerances.")
 
     # Check A2 (IMP-024): an absolute tolerance on isclose / allclose with the default relative tolerance still in force
-    tight = any(int(n) >= 9 for n in _TIGHT.findall(combined_text))
+    tight = any(int(n) >= 9 for n in _TIGHT.findall(all_ac_prose))
     if (
-        _ISCLOSE.search(combined_text)
-        and (_ABS_TOL.search(combined_text) or tight)
-        and not _ZERO_REL.search(combined_text)
-        and not _STRICT.search(combined_text)
+        _ISCLOSE.search(all_ac_prose)
+        and (_ABS_TOL.search(all_ac_prose) or tight)
+        and not _ZERO_REL.search(all_ac_prose)
+        and not _STRICT.search(all_ac_prose)
     ):
         deltas.append(
             CritiqueDelta(

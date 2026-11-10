@@ -99,3 +99,29 @@ def test_the_real_epic_16_wording_is_flagged() -> None:
         "`1 - wilson_lower_bound(N - k, N)` equals the `wilson` score within 1e-12"
     )
     assert "SPEC-COMPL-DOMAIN-WIDENING" in _findings(spec)
+
+
+def test_a_clamp_in_the_epic_preamble_does_not_silence_the_widening_finding() -> None:
+    spec = _spec("The Wilson bound takes float successes in [0, total].")
+    spec.epic_context = "Everything is clamped to [0, 1] and at integer counts the value equals the classical one."
+    assert "SPEC-COMPL-DOMAIN-WIDENING" in _findings(spec)
+
+
+def test_the_isclose_check_reads_the_acceptance_criteria_only() -> None:
+    spec = _spec("The weights are saved.")
+    spec.epic_context = "math.isclose is used elsewhere with abs_tol=1e-12."
+    spec.want = "results within 1e-10"
+    assert "SPEC-TEST-REL-TOL-GAP" not in _findings(spec)
+
+
+def test_the_cue_and_the_input_domain_are_not_taken_for_a_clamp_or_an_integer_limit() -> None:
+    spec = _spec(
+        "The Wilson bound takes rewards mapped to [0, 1] as successes in [0, total] and equals the reference for non-integer counts."
+    )
+    assert "SPEC-COMPL-DOMAIN-WIDENING" in _findings(spec)
+
+
+@pytest.mark.parametrize("name", ["wilson_lower_bound", "wilson_upper", "binomial_ci"])
+def test_a_compound_primitive_name_counts(name: str) -> None:
+    spec = _spec(f"`{name}` takes float successes in [0, total].")
+    assert "SPEC-COMPL-DOMAIN-WIDENING" in _findings(spec)

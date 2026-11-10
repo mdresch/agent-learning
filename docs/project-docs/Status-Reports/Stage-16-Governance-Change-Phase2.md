@@ -11,7 +11,7 @@ follows: "Stage-15-Lessons-Phase2.md (REP-STAGE15-LESSON-PHASE2)"
 
 # Stage 16: Governance Change, Phase 2 (draft)
 
-> **Scope: the whole register, LL-001 to LL-064.** Only LL-043 and LL-046 (under Phase 1 titles) went through Stage 16 before. Section "Step 2a" covers the other lessons.
+> **Scope: the whole register, LL-001 to LL-064.** Only LL-043 and LL-046 (under Phase 1 titles) went through Stage 16 before. Step 2a covers the other lessons and Step 2b the improvements (IMP-001 to IMP-061).
 
 > A broad pass over what Stage 15 accepted and what Stage 14 flagged as baseline findings. Classifications are the assistant's readings; the escalation decision (Step 5) and every amendment are the maintainer's. Approved ADR, BRD, FDD and story changes need a Stage 16 episode and `scripts/governance_baseline.py`; generated plans are regenerated, never hand-patched.
 
@@ -44,6 +44,26 @@ LL-041 says a lesson's Tier 2 propagation belongs in the same PR; bucket C is wh
 | LL-062 (learner epic needs a data count first) | Yes, a new rule in the epic and spec gate | Stage 16 |
 | LL-063 (effort figures are human days) | Probably no; already the working rule | Maintainer to confirm whether the PMP states the unit |
 | LL-064 (stage needs input, output, owner) | Yes, coverage document | Stage 16 (IMP-061) |
+
+## Step 2b: Whole-register coverage (60 improvements)
+
+Read from the status column of `Continuous-Improvement-Register.md`. The register defines `In-Flight Candidate` as "can be introduced in the active phase ... evaluated through the governance change pipeline (Stages 16 to 17)".
+
+| Status | Count | IMP entries |
+|---|---|---|
+| Implemented | 3 | IMP-033, 046, 051 |
+| Rolled into Phase Next Intent Refinement | 33 | IMP-003, 005, 008 to 014, 018, 023, 026, 029, 032, 035 to 038, 040 to 042, 047 to 049, 053 to 061 |
+| In-Flight Candidate | 24 | IMP-001, 002, 004, 006, 007, 015 to 017, 019 to 022, 024, 025, 027, 028, 030, 031, 039, 043, 044, 045, 050, 052 |
+
+What this shows:
+
+- **24 entries still say they await Stage 16/17, some since Epic 14 (2026-10).** The Phase 1 Stage 16 pass took LL-043 and LL-046 only, and the Phase 1 Intent Refinement Proposal cites no IMP id. So none of the 24 was evaluated, and their status is stale or unproven.
+- **Status may lag the code.** IMP-045 (read `gh` output as UTF-8) is In-Flight, yet `scripts/pr_gate.py` line 524 calls `reconfigure(encoding="utf-8")`; LL-059 still says to run with `PYTHONUTF8=1`. Whether it is fixed needs a test, not a guess. IMP-043 (union merge for the log) has no `.gitattributes`, so it looks open.
+- **Numbering gap:** there is no IMP-034 in the register or in any document.
+- **"Rolled into Phase Next" is a label.** I found no document that records which phase-close decision rolled each of the 33 in. Treat it as a claim to confirm, as with the lesson IDs.
+- IMP-031 ("backfill Tier 2 targets for LL-045 to LL-048 and script the LL-041 check") is the register's own record that bucket C above is real; it is In-Flight and not done.
+
+Needed: for each of the 24, read the named change and mark it implemented, still open, or dropped; then decide for the open ones whether they are this adaptation's in-flight changes or go to Phase Next. Nothing is re-scored.
 
 ## Step 3: Classification
 

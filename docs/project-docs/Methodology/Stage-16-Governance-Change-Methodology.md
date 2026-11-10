@@ -3,8 +3,8 @@ artifact_type: "methodology_guide"
 stage: "16"
 stage_name: "Governance Change"
 pmbok_process: "4.6 Perform Integrated Change Control"
-version: "1.0"
-date: "2026-11-05"
+version: "1.1"
+date: "2026-11-10"
 owner: "Menno Drescher"
 governance_policy: "classify-diff-type (FULL), escalate-diff-response (LOW)"
 ---
@@ -16,6 +16,10 @@ governance_policy: "classify-diff-type (FULL), escalate-diff-response (LOW)"
 > **Alignment:** PMBOK 8 Process 4.6 Perform Integrated Change Control
 
 > **Authority:** FULL authority for `classify-diff-type`, LOW authority for `escalate-diff-response`
+
+> **Authority in this repository:** the Charter names one decision-maker, the Project Sponsor and Maintainer (Menno Drescher). There is no standing Steering Committee, so every "Steering Committee" or "Project Manager" approval below is given by the Sponsor and recorded as such (as in CR-20261109-001, CR-20261109-002 and CR-20261110-001). An agent classifies and drafts; it never accepts, approves or applies a governance change on its own, and it never backfills or re-scores a gate that was missed (record the gap; any exception is a dated human waiver).
+
+> **Scope of a pass:** a Stage 16 pass covers the whole Lessons Learned Register and the whole Continuous Improvement Register, not only the lessons flagged in Stage 15. A lesson or improvement that earlier passes never triaged is triaged now (Step 2).
 
 ---
 
@@ -46,6 +50,9 @@ Stage 17 (Adaptation Plan)  Operationalize
 | Governance Episodes | docs/policy-shapes/episodes/ | Yes |
 | Audit Register | docs/registers/Audit-Register.md | Yes |
 | Project Charter | docs/project-docs/Project-Charter.md | Yes |
+| Continuous Improvement Register | docs/project-docs/Continuous-Improvement-Register.md | Yes |
+| Baseline findings from Stage 14 | the "Baseline findings" table of the Stage 14 note | Yes |
+| Open change requests | docs/governance/change-requests/ | Yes |
 
 ### 1.3 Outputs
 
@@ -88,32 +95,51 @@ Stage 16 is complete when:
 - [ ] Charter approval limits are defined
 - [ ] Governance policies are available and tested
 
-**Validation Command:**
+**Validation Commands** (Stage 15 for Phase 1 ends in the words `STAGE 15 COMPLETE`; for Phase 2 the maintainer's acceptance is recorded in the Stage 15 note):
 ```bash
-# Verify Stage 15 artifacts
-grep -q "STAGE 15 COMPLETE" docs/project-docs/Status-Reports/Stage-15-Lesson-Learned-Assessment.md
+# Stage 15 is complete and accepted
+grep -n "accepted\|COMPLETE" docs/project-docs/Status-Reports/Stage-15-*.md
 
-# Verify flagged lessons exist
-grep -q "LL-043\|LL-046" docs/project-docs/Lessons-Learned-Register.md
+# Every lesson parses, and the last id is the one expected
+uv run python -c "from agent_learning.lessons_learned import load_lessons_learned_register as l; e=l(); print(len(e), e[-1].id)"
 
-# Verify baseline
-head -5 docs/project-docs/Project-Management-Plan.md | grep -q "PMP-BL-v"
+# Baseline and policies
+head -30 docs/project-docs/Project-Management-Plan.md | grep "PMP-BL-v"
+ls docs/policy-shapes/classify-diff-type.actions.json docs/policy-shapes/escalate-diff-response.actions.json
+
+# The store the governance commands will write to (LL-040): print it, count its files
+echo "${AGENT_LEARNING_LOCAL_STORE_DIR:-./data/agent-learning/store}"
 ```
+Check that `AGENT_LEARNING_LOCAL_STORE_DIR` points at this repository's store before any command that registers an episode. `scripts/stage16_amend.py` does not print or check it yet.
 
 ---
 
-### Step 2: Lesson Triage
+### Step 2: Triage of the whole registers
 
-**Purpose:** Separate lessons that require governance changes from those that can be addressed through process improvements.
+**Purpose:** Separate lessons and improvements that need a governance change from those that need a direct fix or none, and find those no earlier pass triaged.
 
-**Classification Matrix:**
+**2a. Coverage of the Lessons Learned Register.** For every `LL-###`, read its Tier 2/3 target and place it in one bucket:
 
-| Lesson Impact | Requires Governance Change? | Action |
+| Bucket | Meaning |
+|---|---|
+| A. Tier 1 only | No propagation owed. |
+| B. Tier 2/3 target, rule found there | Applied. Confirm by reading the target, not only by finding the id. |
+| C. Tier 2/3 target, rule not found | Not applied. A finding, because LL-041 requires the Tier 2 edit in the same PR as the entry. |
+
+An id search is a lead, not proof (a rule can sit in a skill without its id, an id in a test proves nothing). Read the named target. Tier 3 (`sidpa-template`) is outside the repository; list it as proposed, never as done.
+
+**2b. Coverage of the Continuous Improvement Register.** For every `IMP-###` whose disposition is `In-Flight Candidate`, read the change it names in the code and mark it implemented, partly, or open. An entry that says it awaits Stage 16/17 and was never evaluated is a finding. Check the numbering for gaps and the dispositions for stale labels; do not change a status on the agent's reading alone.
+
+**2c. Identifier integrity.** Check that each id cited in earlier stage documents (assessments, SPAs, BRPs, adaptation plans) names the lesson or improvement the register holds under that id. A mismatch is a baseline finding corrected through the amendment tooling; nothing is re-scored.
+
+**2d. Classification of what needs a change.**
+
+| Lesson or improvement impact | Requires governance change? | Action |
 |---|---|---|
 | Architectural (affects code structure) | Yes | Stage 16 |
 | Process (affects how work is done) | Yes | Stage 16 |
-| Documentation (clarification only) | No | Direct fix |
-| Tooling (automation only) | No | Direct fix |
+| Documentation (clarification only) | No | Direct fix, traced |
+| Tooling (automation only) | No | Direct fix, traced (a story or an `IMP`) |
 | Scope (new features) | Yes | Stage 16 |
 | Schedule (timeline changes) | Yes | Stage 16 |
 | Cost (budget changes) | Yes | Stage 16 |
@@ -122,11 +148,12 @@ head -5 docs/project-docs/Project-Management-Plan.md | grep -q "PMP-BL-v"
 **Triage Questions:**
 1. Does this lesson require a change to the approved baseline?
 2. Does it affect architectural decisions (ADRs)?
-3. Does it require updates to governance policies?
+3. Does it require updates to governance policies, skills or templates?
 4. Does it impact project scope, schedule, or cost?
 5. Can it be resolved through documentation or tooling changes only?
+6. Does the lesson conflict with a rule already in force (for example two skill steps that disagree)? Settle the conflict in the same change as the addition.
 
-**Output:** List of lessons requiring Stage 16 processing
+**Output:** Coverage table for both registers, and the list of items requiring Stage 16 processing, each with its route (Step 3).
 
 ---
 
@@ -135,6 +162,19 @@ head -5 docs/project-docs/Project-Management-Plan.md | grep -q "PMP-BL-v"
 **Purpose:** Classify each governance change by its structural type to determine the appropriate handling.
 
 **Policy:** `classify-diff-type` (FULL authority)
+
+**Two classifications, used for two different things.** The diff types below label a *proposed change* so that it can be routed and escalated. The `classify-diff-type` policy classifies an *edit to an approved document* into one of seven actions: `new_superseding_adr`, `amendment_log_entry`, `correction_note`, `clarification_section`, `provenance_note`, `pending_supersession_note`, `supersession_update`. Use the diff type here; use the policy's action only when an approved document is edited (route 1 below). The policy's lifecycle actions (`new_superseding_adr`, `pending_supersession_note`, `supersession_update`) mean the change is more than an amendment: stop and use the ADR route.
+
+**Routes by artifact.** The artifact decides the tooling, not the diff type:
+
+| # | Artifact changed | Route | Evidence it leaves |
+|---|---|---|---|
+| 1 | An approved ADR, BRD, FDD or user story | ADR-007: edit uncommitted, `uv run python scripts/stage16_amend.py propose <doc>`, a human reads the classification, then `accept <doc> --by "<name>" --summary "..."` on the human's explicit instruction; commit the document, the manifest and the `docs/policy-shapes/` files together. `tests/test_governance_baseline.py` must pass. | Episode in `docs/policy-shapes/episodes/`, the `Amended <date> at Stage 16 ...` line in the document, a refreshed manifest |
+| 2 | A skill under `.claude/skills/` (Tier 2), a script, a workflow, a process document | A manual Change Request `CR-YYYYMMDD-NNN` under `docs/governance/change-requests/` with the exact proposed text, a Sponsor decision recorded in it, then one PR that applies the edit and cites the request (LL-041). The whole suite must pass. | The request, its decision record, the PR |
+| 3 | The PMP and generated subsidiary plans | Regenerate from the `pmbok-planning` tooling and templates; never hand-edit a generated plan. A standard that must hold in every run belongs in the template. | The regenerated plan and its baseline id |
+| 4 | The baseline itself (scope, schedule, cost, a new baseline id) | Baseline Revision Package (Step 6); versioning per ADR-008 §4.6.1 and ADR-037. | `BRP-...` document, new `PMP-BL` id |
+| 5 | A register entry (`LL`, `IMP`) | Append-only. A correction is a new dated entry; an id is never reused or renumbered. | The register |
+| 6 | A stage assessment or methodology note (a Status Report, this guide) | Direct edit with a change-log line; these are working documents. | Git history |
 
 **Diff Type Taxonomy:**
 
@@ -293,6 +333,8 @@ overall_impact: [low|medium|high]
 - **Steering Committee Authority:** Changes to scope, major schedule changes, budget changes > X%, architectural changes
 - **Project Sponsor Authority:** Project charter changes, major scope changes
 
+**Who decides here.** The matrix names roles from the PMBOK model. In this repository each of them is the Project Sponsor (see Authority above). The `escalate-diff-response` policy runs at LOW authority and its classifier's human-approval gate halts before it, so the human's decision is the decision of record. Write the decision into the request or the document it concerns; do not infer an approval from silence or from a later instruction.
+
 **Escalation Template:**
 ```yaml
 lesson_id: LL-XXX
@@ -328,6 +370,8 @@ Does the change exceed Charter approval limits?
 ### Step 6: Governance Amendment Preparation
 
 **Purpose:** Prepare the necessary documentation for approved governance changes.
+
+Prepare the document that matches the route chosen in Step 3. Route 1 needs no separate package (the amendment tooling produces the evidence). Route 2 needs a Change Request. A BRP or an SPA is used only when the baseline or a subsidiary plan changes; existing examples are `docs/governance/brp/` and `docs/governance/spa/`. Prepare, do not apply: nothing here is applied before the decision is recorded.
 
 #### Baseline Revision Package (BRP) - For Steering Committee
 
@@ -433,43 +477,24 @@ Does the change exceed Charter approval limits?
 
 ### Step 7: Decision Recording
 
-**Purpose:** Record all governance decisions as episodes for auditability and traceability.
+**Purpose:** Record every governance decision so it can be audited and replayed.
 
-**Episode Structure:**
-```json
-{
-  "episode_id": "UUID",
-  "timestamp": "ISO8601",
-  "policy": "classify-diff-type|escalate-diff-response",
-  "action": "classify|escalate|approve|reject|request_revision",
-  "lesson_id": "LL-XXX",
-  "diff_type": "[classified type]",
-  "escalation_level": "[authority level]",
-  "decision": "[detailed decision]",
-  "decision_maker": "[role or name]",
-  "evidence": {
-    "basis": "execution|design_time",
-    "artifacts": ["list of evidence files"]
-  },
-  "related_episodes": ["list of related episode IDs"]
-}
-```
+**Use the tooling; do not hand-write episodes.** Episodes are `Episode` records created by the commands, not JSON written by hand:
 
-**Episode Storage:**
-- Location: `docs/policy-shapes/episodes/`
-- Naming: `[policy]-[action]-[lesson_id]-[timestamp].json`
-- Format: JSON for machine readability
+| Decision | How it is recorded |
+|---|---|
+| An edit to an approved ADR, BRD, FDD or story | `stage16_amend.py propose`, then `accept`: frame, result and measurements under `docs/policy-shapes/`, the episode in `docs/policy-shapes/episodes/` (for example `amend-adr-005-cr002b-episode.json`), the Status line in the document, and a refreshed governance baseline (`scripts/governance_baseline.py`) |
+| A decision on a change request | The decision table inside the request, with the date and the words of the decision as given by the human |
+| A classification by `classify-diff-type` or an escalation by `escalate-diff-response` outside the amendment route | `agent-learn-ext task-policy-decide`, then `task-policy-adjudicate`, then `task-episode-register`, in that order |
 
-**Recording Process:**
-1. Generate unique episode ID (UUID v4)
-2. Capture timestamp at decision time
-3. Document the policy that made the decision
-4. Record the action taken
-5. Link to the lesson that triggered the decision
-6. Store all relevant evidence
-7. Link to related episodes
-8. Save to episodes directory
-9. Update index in governance register
+**Rules:**
+1. Before any `task-policy-decide`, `task-policy-adjudicate` or `task-episode-register`, resolve and print the store path and count its files before and after (LL-040). Only `task-episode-register` writes a file.
+2. An agent never runs `accept` and never registers an approval on a human's behalf.
+3. A gate that was missed is not approved afterwards. Record the gap in the assessment; run the gate going forward; an exception is a dated human waiver.
+4. Never edit `tests/governance_baseline.json` by hand.
+5. Stages 13 to 15 have no episodes here (they are `human_review`); a Stage 16 decision on their output is the first episode.
+
+**Recording order:** decide, record in the request or document, commit together with the evidence files, run `tests/test_governance_baseline.py` and the whole suite.
 
 ---
 
@@ -478,14 +503,19 @@ Does the change exceed Charter approval limits?
 **Purpose:** Finalize Stage 16 and prepare for Stage 17.
 
 **Completion Checklist:**
+- [ ] Every lesson and every in-flight improvement has a coverage line (Step 2), not only the flagged ones
+- [ ] Id mismatches in earlier documents are listed (Step 2c)
 - [ ] All flagged lessons from Stage 15 are classified
 - [ ] All classified diffs have escalation decisions
+- [ ] Each change has a route (Step 3) and its evidence
 - [ ] All required BRPs are prepared and submitted
 - [ ] All required subsidiary plan amendments are prepared and submitted
-- [ ] All decisions are recorded as governance episodes
+- [ ] All decisions are recorded as the route requires (Step 7); none is recorded by an agent for a human
 - [ ] Project-Status-Register.md is updated to mark Stage 16 as COMPLETED
 - [ ] Stage 16 assessment document is complete and approved
 - [ ] All artifacts are committed to repository
+
+**One adaptation per phase.** The phase close runs Stage 16 and Stage 17 once, as one adaptation; Stage 17 receives everything Stage 16 approved, plus what it deferred to Phase Next.
 
 **Handoff to Stage 17:**
 1. Create Stage 17 assessment document
@@ -687,16 +717,10 @@ lesson_id:
 - [ ] All templates are properly filled
 - [ ] Document passes validation scripts
 
-**Validation Commands:**
+**Validation Commands** (the scripts `validate_links.py`, `validate_frontmatter.py` and `validate_episodes.py` do not exist in this repository):
 ```bash
-# Check for broken links
-python scripts/validate_links.py docs/project-docs/Status-Reports/Stage-16-*.md
-
-# Check YAML frontmatter
-python scripts/validate_frontmatter.py docs/project-docs/Status-Reports/Stage-16-*.md
-
-# Check episode JSON validity
-python scripts/validate_episodes.py docs/policy-shapes/episodes/
+uv run pytest tests/test_governance_baseline.py tests/test_stage16_amend.py tests/test_lessons_learned.py
+uv run pytest            # the whole suite, no --ignore
 ```
 
 ### 4.2 Review Criteria
@@ -1099,3 +1123,12 @@ def validate_stage16(assessment_path, register_path, episodes_dir):
 | Version | Date | Author | Changes |
 |---|---|---|---|
 | 1.0 | 2026-11-05 | Vibe Code | Initial version |
+
+---
+
+## Change Log
+
+| Date | Version | Change |
+|---|---|---|
+| 2026-11-05 | 1.0 | Phase 1 guide. |
+| 2026-11-10 | 1.1 | Authority in this repository (one decision-maker, no agent approval); the pass covers both registers in full (Step 2a to 2d); two classifications distinguished and routes by artifact added (Step 3); who decides (Step 5); route-specific preparation (Step 6); decision recording through the tooling, with the store-path check and the no-retroactive-approval rule (Step 7); one adaptation per phase (Step 8); input list and validation commands corrected to what exists. Templates and the Obsidian section are unchanged. |

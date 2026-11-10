@@ -28,8 +28,8 @@ Method: each lesson's Tier 2/3 target is read from the register, then the ID is 
 | Bucket | Lessons | Count | Reading |
 |---|---|---|---|
 | A. Tier 1 only | LL-008, 009, 012, 019, 024, 053 to 060, 062 to 064 | 16 | No propagation owed. LL-053 to 060 point at IMP entries for the skill or tool change. |
-| B. Tier 2/3 target, ID cited in a skill, script, source or test | LL-001 to 007, 010, 011, 013, 016, 018, 020 to 023, 025, 026, 037, 040 to 046, 049, 050, 052 | 29 | Probably applied. Spot-check the named target. |
-| C. Tier 2/3 target, ID cited nowhere | LL-014, 015, 017, 027 to 036, 038, 039, 047, 048, 051, 061 | 19 | Propagation unverified. |
+| B. Tier 2/3 target, ID cited in a skill, script, source or test | LL-001 to 007, 010, 011, 013, 016, 018, 020 to 023, 025, 026, 037, 040 to 046, 049, 050, 052 | 29 | Checked in Step 2d: 24 applied, 3 in code only (LL-001 to 003), 1 partly (LL-044), 1 not applied (LL-046). |
+| C. Tier 2/3 target, ID cited nowhere | LL-014, 015, 017, 027 to 036, 038, 039, 047, 048, 051, 061 | 19 | Checked in Step 2d: 2 applied (LL-017, 051), 1 in code only (LL-048), 1 partly (LL-061), 15 not applied. |
 
 Within C, LL-014, 015, 017 and 027 to 032 (nine lessons, 2026-10-25 to 2026-10-28) have no IMP entry either, so nothing tracks them. LL-033 to 036, 038, 039, 047, 048, 051 and 061 are at least named in an IMP.
 
@@ -87,6 +87,25 @@ Evidence for the open ones:
 
 Reading: 4 of 24 are done or mostly done, 20 are open. Of the 20, 13 touch `pr_gate.py`, `spec_gate.py`, `complete_story.py` or the `implement-story` skill, which is the tooling the lessons keep pointing at (IMP-001, 007, 017, 021, 024, 030, 031, 043, 044, 045, 050, 052 and IMP-015).
 
+### Step 2d: The 48 Tier 2/3 lessons (buckets B and C) checked against their Tier 2 targets
+
+Method: the named Tier 2 target was searched for the rule (by LL id, then by its wording) and the full `implement-story` skill was read. No test was run. Tier 3 (`sidpa-template`) is outside this repository and was not checked.
+
+| Result | Lessons | Count |
+|---|---|---|
+| Rule is in the named Tier 2 target | LL-004, 005, 006, 007, 010, 011, 013, 016, 017, 018, 020, 021, 022, 023, 025, 026, 037, 040, 041, 042, 043, 045, 049, 050, 051, 052 | 26 |
+| Rule is enforced in code or tests, but the named skill is silent | LL-001, 002, 003 (`storage` skill; `cosmos.py` and `test_storage_cosmos.py` hold the rule), LL-048 (wrappers exist in `policy/epsilon_greedy.py`; no skill mentions them) | 4 |
+| Partly | LL-044 (`docs/research/ideation/README.md` exists; the named `stage-1` or `ideation` skill does not), LL-061 (`routing` skill states the pinned count; no general rule or check) | 2 |
+| Not applied | LL-014 (`tailoring`), 015 (`learning-methodology-selection`), 027, 028, 029, 030, 031, 032, 033, 034, 035, 036, 038, 039 (`implement-story`), 046 (`ucb`, `spec_gate.py`), 047 (`pairwise-preference`, `spec_gate.py`) | 16 |
+
+What this shows:
+
+- **Twelve of the 16 are `implement-story` steps** (LL-027 to 036, 038, 039): approvals committed first, loading the skill, no `hash()` in tests, `uvx` for a missing tool, checking a confirmation, unfiltered omission checks, worktree setup, the no-finding review line, breaking code to see RED, running a spec's worked example, stacked PRs, `approx` on tuples. The skill has none of their ids. This is what IMP-031 said for LL-045 to 048 and LL-041 requires against; it holds for these too.
+- **Bucket B is mostly sound:** 24 of 29 are in the named target and 3 more are in code. The earlier "probably applied" reading was right for the older lessons.
+- **Conflicts to settle, not just add:** the skill's Step 6 still ends in `--ignore=tests/pmbok` (LL-013), while LL-055 and IMP-044 say run the whole suite. Step 0 says plain `uv sync`, while LL-033 and LL-055 say `uv sync --all-extras` (plus the dev and examples extras). Step 6 and Step 0 need one reading.
+- **Two Tier 2 targets name skills that do not exist** (`stage-1`, `ideation`, LL-044). Decide whether to create them or retarget the lesson.
+- **IMP overlap:** LL-033, 034 are the cause behind IMP-001 (open); LL-046, 047 behind IMP-021, 024 (open); LL-051 is applied. Fixing the IMPs and the skill together avoids two passes.
+
 ## Step 3: Classification
 
 | Item | Diff type | Evidence basis | Impact | Confidence |
@@ -109,7 +128,5 @@ Reading: 4 of 24 are done or mostly done, 20 are open. Of the 20, 13 touch `pr_g
 - F5: the Phase 1 lessons "External Evidence Dependency", "Single Source of Truth for Story Status" and "Dual Evidence Storage" appear in no register entry. Decide whether to register them under new IDs (LL-065 onward) or record that they were never adopted. Corrected references go through the amendment tooling, nothing is re-scored. Files: Stage 15, 16, 17 assessments, ADP-20261106-001, SPA-20261106-001, IRP-20261106-001, Adaptation-Plan.md, and the Stage 15 methodology appendix.
 
 ## Not done
-
-Reading each bucket B and C target to confirm propagation;
 
 Escalation decisions, change requests, amendments, governance episodes and the Project-Status-Register update.

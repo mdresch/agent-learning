@@ -791,7 +791,7 @@
     "docs/project-docs/Functional-Design/FDD-021-contextual-authority-ensemble-routing.md": {
       "family": "fdd",
       "status": "approved",
-      "sha256": "ad58310b01123e1d294f846d52bfc16796c29c2a45b8789b7c34c3d8617f0abc",
+      "sha256": "51972457467f116b909ddb83713bb5520b287c8bcf8e6377885729681ada86df",
       "approval_episode": "46c77417",
       "amendments": [
         {
@@ -802,6 +802,11 @@
         {
           "date": "2026-11-10",
           "episode": "84478bb3",
+          "stage": 16
+        },
+        {
+          "date": "2026-11-10",
+          "episode": "f611cd40",
           "stage": 16
         }
       ]

@@ -295,6 +295,21 @@ def parse_story(story_id: str, repo_root: Path = ROOT) -> StorySpec:
 # Adversarial Pre-Flight Audit Engine
 # ==============================================================================
 
+# IMP-024: math.isclose / allclose with an absolute tolerance keep a default relative tolerance (1e-9 / 1e-5) that can
+# silently relax a tight contract. pytest.approx(abs=...) does not, so it is not flagged.
+_ISCLOSE = re.compile(r"\b(?:isclose|allclose)\b", re.IGNORECASE)
+_ABS_TOL = re.compile(r"\b(?:abs_tol|atol)\b")
+_TIGHT = re.compile(r"\b1e-(\d+)\b")
+_ZERO_REL = re.compile(r"\b(?:rel_tol|rtol)\s*=\s*0(?:\.0+)?(?![\d.])")
+_STRICT = re.compile(r"pytest\.approx\([^)]*\babs\s*=|absolute difference|\babs\(", re.IGNORECASE)
+
+# IMP-021: a classical discrete primitive (Wilson interval over integer successes) widened to a continuous domain.
+_DISCRETE = re.compile(r"\bwilson\b|\bbinomial\b|\bclopper\b|\bagresti\b", re.IGNORECASE)
+_WIDENED = re.compile(r"\bfloats?\b.*\bsuccesses\b|\bsuccesses\b.*\bfloats?\b|\bin steps of 0\.[0-9]+|\bcumulative reward\b|\bfractional\b|\bnon-integer\b|\breal-valued\b|mapped (?:from \[-1, 1\] )?to \[0, 1\]", re.IGNORECASE)
+_CLAMP = re.compile(r"\bclamp(?:ed|s)?\b|\b(?:within|in|to) \[0, ?1\]|max\(0|min\(1", re.IGNORECASE)
+_INTEGER_LIMIT = re.compile(r"\binteger\b.*\b(?:equal|equals|agree|agrees|match|matches|identical|reduces)\b|\b(?:equal|equals|agree|agrees|match|matches|identical|reduces)\b.*\binteger\b", re.IGNORECASE)
+
+
 def audit_story_spec(spec: StorySpec) -> tuple[list[CritiqueDelta], list[Interpretation], list[str]]:
     """Run adversarial pre-flight checks across 4 governance criteria.
     
@@ -598,6 +613,33 @@ def audit_story_spec(spec: StorySpec) -> tuple[list[CritiqueDelta], list[Interpr
         )
         log.append("[WARN] Completeness: Floating-point processing without explicit non-finite rejection contract.")
 
+    # Check E (IMP-021): a discrete primitive widened to a continuous domain without its clamp and integer limit
+    widened = [
+        ac for ac in spec.acceptance_criteria if _DISCRETE.search(ac.prose) and _WIDENED.search(ac.prose)
+    ]
+    if widened and not (_CLAMP.search(combined_text) and _INTEGER_LIMIT.search(combined_text)):
+        labels = ", ".join(ac.label for ac in widened)
+        deltas.append(
+            CritiqueDelta(
+                criterion_id="specification_completeness",
+                support_delta=-0.05,
+                rationale=f"A discrete primitive is widened to a continuous domain ({labels}) without a stated clamp and integer limit.",
+                finding_id="SPEC-COMPL-DOMAIN-WIDENING",
+                basis="rubric",
+                rubric_delta=-0.05,
+            )
+        )
+        add_interp(
+            title="Continuous-Domain Widening",
+            category="Specification Completeness",
+            text=(
+                "State how the widened result is clamped (for a proportion bound, to [0, 1]), why it stays inside that "
+                "range for every float input, and that it equals the classical value at integer counts."
+            ),
+            governing_ac=widened[0].label,
+        )
+        log.append(f"[WARN] Completeness: [domain-widening] {labels}: discrete primitive on a continuous domain.")
+
     # --------------------------------------------------------------------------
     # 4. TESTABILITY
     # --------------------------------------------------------------------------
@@ -644,6 +686,35 @@ def audit_story_spec(spec: StorySpec) -> tuple[list[CritiqueDelta], list[Interpr
             ),
         )
         log.append("[WARN] Testability: Floating-point assertions without explicit tolerances.")
+
+    # Check A2 (IMP-024): an absolute tolerance on isclose / allclose with the default relative tolerance still in force
+    tight = any(int(n) >= 9 for n in _TIGHT.findall(combined_text))
+    if (
+        _ISCLOSE.search(combined_text)
+        and (_ABS_TOL.search(combined_text) or tight)
+        and not _ZERO_REL.search(combined_text)
+        and not _STRICT.search(combined_text)
+    ):
+        deltas.append(
+            CritiqueDelta(
+                criterion_id="testability",
+                support_delta=-0.05,
+                rationale="isclose / allclose with an absolute tolerance keeps a default relative tolerance that can relax a tight contract.",
+                finding_id="SPEC-TEST-REL-TOL-GAP",
+                basis="rubric",
+                rubric_delta=-0.05,
+            )
+        )
+        add_interp(
+            title="Zero Relative Tolerance",
+            category="Testability",
+            text=(
+                "Pass rel_tol=0.0 (or rtol=0) with abs_tol (atol): the default relative tolerance (1e-9 for math.isclose, "
+                "1e-5 for numpy.allclose) silently relaxes a 1e-12 contract. pytest.approx(abs=...) or an absolute "
+                "difference check is equally strict."
+            ),
+        )
+        log.append("[WARN] Testability: isclose / allclose absolute tolerance without rel_tol=0.0.")
 
     # Check B: Specific Exception Classes
     negative_path_count = sum(

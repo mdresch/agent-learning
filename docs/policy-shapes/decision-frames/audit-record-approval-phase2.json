@@ -1,0 +1,40 @@
+{
+  "task": "Audit-Register.md AUDIT-007 to AUDIT-017 (Stage 11, Phase 2 close): approve, reject, or request revision",
+  "criteria": [
+    {"id": "findings_substantiated", "weight": 1.0, "minimum_sources": 1,
+     "description": "Each finding names the code or config it was checked against (file, symbol or command), and the check was run on 2026-11-10 at git 51ef83d. AUDIT-009 states that only the constants were found, and AUDIT-017 states that its count is a loose text search."},
+    {"id": "verdicts_correct", "weight": 1.0, "minimum_sources": 1,
+     "description": "Verdicts use the register taxonomy and match the evidence: confirmed_accurate where the code matches, confirmed_with_drift where it does not (AUDIT-013, AUDIT-014), unauditable where no code path exists (AUDIT-008)."},
+    {"id": "corrective_actions_actionable", "weight": 1.0, "minimum_sources": 1,
+     "description": "Each finding that needs action points at a tracked improvement entry (IMP-053 to IMP-057), all dispositioned Rolled into Phase Next Intent Refinement by the Sponsor; no corrective action is applied in Phase 2."},
+    {"id": "scope_limits_disclosed", "weight": 1.0, "minimum_sources": 1,
+     "description": "The register says the second run is a bounded sample (one or two invariants for each of six ADRs, one follow-up, and the verification process), that it is an AI reading of the code, and that the 2026-11-04 approval covers AUDIT-001 to AUDIT-006 only."}
+  ],
+  "options": [
+    {"action_id": "approve_audit_record",
+     "constraint_results": {"no_unsubstantiated_finding": true},
+     "evidence": [
+       {"criterion_id": "findings_substantiated", "source": "direct_code_read:src/agent_learning_ext+.github/workflows/tests.yaml@51ef83d", "support": 0.82, "confidence": 0.8},
+       {"criterion_id": "verdicts_correct", "source": "direct_code_read:src/agent_learning_ext@51ef83d", "support": 0.8, "confidence": 0.8},
+       {"criterion_id": "corrective_actions_actionable", "source": "register_read:docs/project-docs/Continuous-Improvement-Register.md@PR180", "support": 0.8, "confidence": 0.85},
+       {"criterion_id": "scope_limits_disclosed", "source": "register_read:docs/registers/Audit-Register.md@PR180", "support": 0.85, "confidence": 0.85}]},
+    {"action_id": "reject_audit_record",
+     "constraint_results": {"no_unsubstantiated_finding": true},
+     "evidence": [
+       {"criterion_id": "findings_substantiated", "source": "direct_code_read:src/agent_learning_ext@51ef83d", "support": 0.05, "confidence": 0.8},
+       {"criterion_id": "verdicts_correct", "source": "direct_code_read:src/agent_learning_ext@51ef83d", "support": 0.05, "confidence": 0.8},
+       {"criterion_id": "corrective_actions_actionable", "source": "register_read:docs/registers/Audit-Register.md@PR180", "support": 0.05, "confidence": 0.8},
+       {"criterion_id": "scope_limits_disclosed", "source": "register_read:docs/registers/Audit-Register.md@PR180", "support": 0.05, "confidence": 0.8}]},
+    {"action_id": "request_revision_before_decision",
+     "constraint_results": {"no_unsubstantiated_finding": true},
+     "evidence": [
+       {"criterion_id": "findings_substantiated", "source": "direct_code_read:src/agent_learning_ext@51ef83d", "support": 0.2, "confidence": 0.75},
+       {"criterion_id": "verdicts_correct", "source": "direct_code_read:src/agent_learning_ext@51ef83d", "support": 0.2, "confidence": 0.75},
+       {"criterion_id": "corrective_actions_actionable", "source": "register_read:docs/registers/Audit-Register.md@PR180", "support": 0.25, "confidence": 0.75},
+       {"criterion_id": "scope_limits_disclosed", "source": "register_read:docs/registers/Audit-Register.md@PR180", "support": 0.2, "confidence": 0.75}]}
+  ],
+  "constraints": ["no_unsubstantiated_finding"],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

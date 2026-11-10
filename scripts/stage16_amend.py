@@ -28,6 +28,7 @@ import difflib
 import hashlib
 import importlib.util
 import json
+import os
 import re
 import subprocess
 import sys
@@ -225,9 +226,47 @@ def build_frame(rel: str, f: dict) -> dict:
 # --- the real pipeline ------------------------------------------------------------------------------------------------
 
 
+STORE_VAR = "AGENT_LEARNING_LOCAL_STORE_DIR"
+ALLOW_EXTERNAL_STORE = False  # set by --allow-external-store
+_store_announced = False
+
+
+def resolve_store() -> Path:
+    """The store the CLI will write to: the variable if set, else the CLI's default, resolved from the repository root."""
+    raw = os.environ.get(STORE_VAR) or "data/agent-learning/store"
+    path = Path(raw).expanduser()
+    return (path if path.is_absolute() else ROOT / path).resolve()
+
+
+def store_file_count(store: Path) -> int:
+    return sum(1 for p in store.rglob("*") if p.is_file()) if store.exists() else 0
+
+
+def guard_store() -> Path:
+    """IMP-062: print the store and its file count; refuse a store outside this repository unless allowed (LL-040)."""
+    global _store_announced
+    store = resolve_store()
+    if not store.is_relative_to(ROOT.resolve()) and not ALLOW_EXTERNAL_STORE:
+        raise Stop(
+            f"The governance store {store} is outside this repository ({ROOT}). Set {STORE_VAR} to "
+            f"{ROOT / 'data' / 'agent-learning' / 'store'}, or pass --allow-external-store if this is intended."
+        )
+    if not _store_announced:
+        print(f"Governance store: {store} ({store_file_count(store)} files before)")
+        _store_announced = True
+    return store
+
+
 def agent_learn(*args: str) -> str:
+    store = guard_store()
     run = subprocess.run(
-        [*CLI, *args], cwd=ROOT, capture_output=True, text=True, encoding="utf-8", check=False
+        [*CLI, *args],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        check=False,
+        env={**os.environ, STORE_VAR: str(store)},
     )
     if run.returncode != 0:
         raise Stop(f"`agent-learn-ext {' '.join(args)}` failed:\n{run.stdout}{run.stderr}")
@@ -515,11 +554,18 @@ def main() -> int:
     a.add_argument("document")
     a.add_argument("--by", required=True, help="the human who accepts the classification")
     a.add_argument("--summary", required=True, help="what changed, in one line")
+    parser.add_argument(
+        "--allow-external-store", action="store_true", help=f"allow {STORE_VAR} to point outside this repository"
+    )
     args = parser.parse_args()
+    global ALLOW_EXTERNAL_STORE
+    ALLOW_EXTERNAL_STORE = args.allow_external_store
     try:
-        if args.command == "propose":
-            return propose(args.document, args.tag)
-        return accept(args.document, args.by, args.summary)
+        code = propose(args.document, args.tag) if args.command == "propose" else accept(args.document, args.by, args.summary)
+        if _store_announced:
+            store = resolve_store()
+            print(f"Governance store: {store} ({store_file_count(store)} files after)")
+        return code
     except Stop as e:
         print(f"Stopped: {e}")
         return 1

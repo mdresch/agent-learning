@@ -24,6 +24,7 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_STORE_DIR = ROOT / "data" / "agent-learning" / "store"
 sys.path.insert(0, str(ROOT / "src"))
 
 from agent_learning.decision import (
@@ -297,7 +298,7 @@ def save_gate_episode(
     store_dir: Path | str | None = None,
 ) -> str | None:
     """Passively persist the PR gate decision as an auditable Episode in LearningStore."""
-    target_dir = Path(store_dir) if store_dir else ROOT / "data" / "agent-learning" / "store"
+    target_dir = Path(store_dir) if store_dir else DEFAULT_STORE_DIR
     try:
         store = LocalFileStore(root_dir=target_dir)
         head_commit = str(pr_data.get("headRefOid") or "unknown")

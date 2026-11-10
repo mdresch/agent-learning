@@ -121,3 +121,21 @@ def test_the_slug_names_the_document_not_its_title() -> None:
     assert s16.slug("docs/adr/ADR-007-governance.md") == "adr-007"
     assert s16.slug("docs/user-stories/epic-4-authority-migration.md") == "epic-4"
     assert s16.slug("docs/project-docs/Functional-Design/FDD-004-x.md") == "fdd-004"
+
+
+def test_a_store_inside_the_repository_is_accepted(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("AGENT_LEARNING_LOCAL_STORE_DIR", str(ROOT / "data" / "agent-learning" / "store"))
+    monkeypatch.setattr(s16, "_store_announced", True)
+    assert s16.guard_store() == (ROOT / "data" / "agent-learning" / "store").resolve()
+
+
+def test_a_store_outside_the_repository_is_refused_unless_allowed(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.setenv("AGENT_LEARNING_LOCAL_STORE_DIR", str(tmp_path))
+    monkeypatch.setattr(s16, "_store_announced", True)
+    monkeypatch.setattr(s16, "ALLOW_EXTERNAL_STORE", False)
+    with pytest.raises(s16.Stop, match="outside this repository"):
+        s16.guard_store()
+    monkeypatch.setattr(s16, "ALLOW_EXTERNAL_STORE", True)
+    assert s16.guard_store() == tmp_path.resolve()

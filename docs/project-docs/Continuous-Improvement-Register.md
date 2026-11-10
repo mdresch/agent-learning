@@ -203,6 +203,7 @@ An entry made before this format (Epics 14 to 22) has no code recap and is not r
   - **Evidence status:** the entropy, margin, seeding and Wilson values are verified by contract tests against constructed oracles. The real-data check (Story 21.7) shows no routed traffic and no calibrated threshold exist, and every committed gate in `PINNED_FULL` routes full. Nothing is claimed about cost or latency (BRU-021-15).
 - **Defensive Review (LL-###):** LL-057 (A review-fix commit removed existing behaviour and only the whole suite noticed), LL-058 (An unrecorded review and a bare confirm command), LL-059 (The PR gate crashes on Windows when a comment holds a character outside cp1252)
 - **Positive Improvement Harvest:** IMP-045, IMP-046, IMP-047, IMP-048, IMP-049, IMP-050, IMP-051
+- **Accepted:** Menno (Sponsor, PM and maintainer), 2026-11-10, for LL-057 to LL-059 and IMP-045 to IMP-051, to be presented to the Stage 18 review and the preparations for the next phase (ADR-010 section 4.7). Dispositions stand as drafted: IMP-045, IMP-046 and IMP-050 are In-Flight Candidates; IMP-047, IMP-048, IMP-049 and IMP-051 are rolled into the next phase's Intent Refinement.
 
 ---
 

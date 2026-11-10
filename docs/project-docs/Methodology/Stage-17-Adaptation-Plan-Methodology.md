@@ -3,8 +3,8 @@ artifact_type: "methodology_guide"
 stage: "17"
 stage_name: "Adaptation Plan"
 pmbok_process: "4.6 Perform Integrated Change Control (Tailoring)"
-version: "1.0"
-date: "2026-11-06"
+version: "1.1"
+date: "2026-11-10"
 owner: "Menno Drescher"
 governance_policy: "approve-adaptation-plan (FULL authority)"
 ---
@@ -16,6 +16,10 @@ governance_policy: "approve-adaptation-plan (FULL authority)"
 > **Alignment:** PMBOK 8 Process 4.6 Perform Integrated Change Control (Tailoring)
 
 > **Authority:** FULL authority via `approve-adaptation-plan` policy (3 actions: approve, reject, request revision)
+
+> **Authority in this repository:** the policy's gate computes a recommendation; the decision of record is the Project Sponsor's, given in words and registered with `task-policy-adjudicate` and `task-episode-register`. An agent drafts the plan and runs the steps; it never adjudicates, registers an approval, or edits a generated plan by hand. There is no separate technical-review or project-manager sign-off beyond the Sponsor (the Charter names one decision-maker).
+
+> **One adaptation per phase.** A phase runs Stage 16 and Stage 17 once, at its close (Sponsor, 2026-11-10: "close Phase 2 once instead of multiple times"). Stage 17 therefore carries everything Stage 16 approved plus what it deferred; a standalone package for one change is kept as an input, not run on its own.
 
 ---
 
@@ -45,7 +49,11 @@ Stage 18 (Intent Refinement) \u0014 Strategic Feedback
 | Current Skills | `.claude/skills/` | Yes |
 | Current Workflows | `.claude/skills/` | Yes |
 | Current PMP | Project-Management-Plan.md | Yes |
-| Governance Episodes | `docs/policy-shapes/episodes/` | Yes |
+| Governance Episodes | `docs/policy-shapes/episodes/` and the governance store (`data/agent-learning/store/`) | Yes |
+| Stage 16 assessment | `docs/project-docs/Status-Reports/Stage-16-Governance-Change-*.md`, approved | Yes |
+| Change requests and their decisions | `docs/governance/change-requests/` | Yes |
+| Earlier change packages kept as inputs | `docs/project-docs/Adaptation-Plans/` | If any |
+| Registers | Lessons Learned and Continuous Improvement, for the dispositions Stage 16 set | Yes |
 
 ### 1.3 Outputs
 
@@ -54,7 +62,7 @@ Stage 18 (Intent Refinement) \u0014 Strategic Feedback
 | Updated Skills | `.claude/skills/` | No (but version controlled) |
 | Updated Workflows | `.claude/skills/` | No (but version controlled) |
 | Tailored PMP | Project-Management-Plan.md | Yes (via approve-adaptation-plan) |
-| Adaptation Plan Document | `docs/governance/adaptation-plans/` | Yes |
+| Adaptation Plan Document | `docs/project-docs/Adaptation-Plans/ADP-YYYYMMDD-NNN-<title>.md` (the integrated `docs/project-docs/Adaptation-Plan.md` is produced by the planning tooling after approval) | Yes |
 | Updated Governance Episodes | `docs/policy-shapes/episodes/` | Yes |
 
 ### 1.4 Success Criteria
@@ -90,20 +98,21 @@ Stage 17 is complete when:
 - [ ] Current PMP is accessible and valid
 - [ ] All Stage 16 episodes are recorded
 
-**Validation Command:**
+**Validation Commands** (the Stage 16 assessment is marked `APPROVED` in its frontmatter status; Stage 16 writes no per-lesson episode files named `classify-diff-type-LL-*.json`):
 ```bash
-# Verify Stage 16 artifacts
-grep -q "STAGE 16 COMPLETED" docs/project-docs/Status-Reports/Stage-16-Governance-Change-Assessment.md
+# Stage 16 assessment approved
+grep -n "^status:" docs/project-docs/Status-Reports/Stage-16-Governance-Change-*.md
 
-# Verify BRPs and SPAs exist
-ls docs/governance/brp/BRP-*.md docs/governance/spa/SPA-*.md 2>/dev/null
+# Change requests exist and record their decisions
+ls docs/governance/change-requests/ && grep -n "Decision status\|Project Sponsor |" docs/governance/change-requests/CR-*.md
 
-# Verify skills exist
-ls -la .claude/skills/
+# Skills and the PMP
+ls .claude/skills/ && head -30 docs/project-docs/Project-Management-Plan.md | grep "PMP-BL-v"
 
-# Verify episodes exist
-ls docs/policy-shapes/episodes/classify-diff-type-LL-*.json docs/policy-shapes/episodes/escalate-diff-response-LL-*.json 2>/dev/null
+# The store the approval will be registered in (LL-040): print it, count its files
+echo "${AGENT_LEARNING_LOCAL_STORE_DIR:-./data/agent-learning/store}"
 ```
+Open items that Stage 16 deferred (for example F3 and F4) are carried as deferrals in the plan; they are not silently dropped.
 
 ---
 
@@ -377,6 +386,8 @@ validation_methods:
 
 **Purpose:** Update the Project Management Plan and subsidiary plans to reflect the operationalized changes.
 
+**Generated plans are regenerated, never hand-edited.** The PMP and the nine subsidiary plans come from `scripts/orchestrate_pmbok.py` (`--mode adapt --adaptation-plan <plan>`) and the `pmbok-planning` skill. A standard that must hold in every run goes in the template, then the plans are regenerated. Hand-authored approved documents named by the plan (the Charter, Business Case, Benefits Management Plan, Ideation Document) change through their own approved amendment, accepted by the Sponsor, and are listed in the plan with that route. **Baseline versioning** follows ADR-008 §4.6.1 and ADR-037: an execution adaptation is a minor increment (`PMP-BL-v1.1.0` to `PMP-BL-v1.2.0`); the numbers in the example below are from Phase 1.
+
 **PMP Update Process:**
 
 1. **Update baseline version**
@@ -589,20 +600,14 @@ related_changes:
 - [ ] All workflows execute properly
 - [ ] All PMP changes are reflected in operations
 
-**Validation Commands:**
+**Validation Commands** (the scripts `validate_pmp.py`, `validate_links.py` and `validate_episodes.py` do not exist in this repository):
 ```bash
-# Run all tests
-uv run pytest --ignore=tests/test_spark.py --ignore=tests/pmbok -v
-
-# Validate PMP consistency
-python scripts/validate_pmp.py
-
-# Validate cross-references
-python scripts/validate_links.py docs/
-
-# Validate governance episodes
-python scripts/validate_episodes.py docs/policy-shapes/episodes/
+uv run pytest                                  # the whole suite, no --ignore
+uv run pytest tests/test_governance_baseline.py tests/test_stage16_amend.py tests/test_lessons_learned.py
+# plan consistency: the plan-lint and plan-approval-gate skills, run by the planning tooling
+python scripts/orchestrate_pmbok.py --mode adapt --adaptation-plan <plan>   # only after approval
 ```
+Run the suite with `AGENT_LEARNING_LOCAL_STORE_DIR` pointing at a temporary directory until IMP-063 lands: the suite writes fixture episodes into the configured store.
 
 ---
 
@@ -612,22 +617,10 @@ python scripts/validate_episodes.py docs/policy-shapes/episodes/
 
 **Approval Process:**
 
-1. **Submit for technical review**
-   - Create PR with all changes
-   - Request technical review from senior developer
-
-2. **Submit for project management review**
-   - Request review from Project Manager
-   - Address any concerns
-
-3. **Submit for governance approval**
-   - Run `approve-adaptation-plan` policy
-   - Record approval episode
-
-4. **Finalize and commit**
-   - Merge PR to main branch
-   - Update Project-Status-Register.md
-   - Mark Stage 17 as COMPLETED
+1. **Merge the plan as a draft.** The plan document is committed with `status: draft`. Implementation work it lists is done in separate PRs, each merged through `scripts/pr_gate.py` after every required workflow has concluded (LL-060) and the whole suite has passed.
+2. **Decision.** The Sponsor reads the plan. Run `task-policy-decide` for `approve-adaptation-plan`, show the gate's recommendation, and wait. On the Sponsor's explicit words run `task-policy-adjudicate` and `task-episode-register`, after printing the store path and its file count before and after (LL-040).
+3. **Record.** Put the decision, its date and the episode id in the plan and in the Project-Status-Register. A gate that was missed is not approved afterwards; record the gap and run the gate going forward.
+4. **Finalize.** Regenerate the PMP and plans with the tooling, commit, and mark Stage 17 COMPLETED only when the work the plan authorizes is merged.
 
 **Completion Checklist:**
 - [ ] All skill and workflow updates are committed
@@ -1405,3 +1398,12 @@ def validate_stage17(adaptation_plan_path, skills_dir, pmp_path):
 | Version | Date | Author | Changes |
 |---|---|---|---|
 | 1.0 | 2026-11-06 | Vibe Code | Initial version |
+
+---
+
+## Change Log
+
+| Date | Version | Change |
+|---|---|---|
+| 2026-11-06 | 1.0 | Phase 1 guide. |
+| 2026-11-10 | 1.1 | Authority in this repository (Sponsor decides, agent never registers an approval); one adaptation per phase; inputs and output path corrected (`Adaptation-Plans/`, change requests, store); generated plans regenerated by the tooling and baseline versioning by ADR-008 and ADR-037; validation commands limited to what exists; approval process rewritten (gate recommendation, then the Sponsor's words, then adjudicate and register). Templates are unchanged. |

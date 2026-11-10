@@ -187,7 +187,7 @@
     "docs/adr/ADR-021-contextual-authority-ensemble-routing.md": {
       "family": "adr",
       "status": "accepted",
-      "sha256": "ae3b2be35fa672974375889dc06cf946b76240e15e73263308de5450c4769b65",
+      "sha256": "998a8e5ca5e6baf0b1e1c45dc3ece00f1ea223f384b8145fc0e9abf6593f6d3a",
       "approval_episode": null,
       "amendments": [
         {
@@ -198,6 +198,11 @@
         {
           "date": "2026-11-10",
           "episode": "3f511feb",
+          "stage": 16
+        },
+        {
+          "date": "2026-11-10",
+          "episode": "9cf46846",
           "stage": 16
         }
       ]
@@ -481,12 +486,17 @@
     "docs/project-docs/Business-Requirements/BRD-021-contextual-authority-ensemble-routing.md": {
       "family": "brd",
       "status": "approved",
-      "sha256": "42c61574d2dbe3a476ae36bdb7df84524c1c5d2262f43830d5f6bb2e4c5425c0",
+      "sha256": "90e175de2ec856ca364c601c8348e494dd850afdf9fef6cff8dd888e180d753c",
       "approval_episode": "f7d8b1b7",
       "amendments": [
         {
           "date": "2026-11-10",
           "episode": "e021910d",
+          "stage": 16
+        },
+        {
+          "date": "2026-11-10",
+          "episode": "c90ac8e0",
           "stage": 16
         }
       ]
@@ -781,7 +791,7 @@
     "docs/project-docs/Functional-Design/FDD-021-contextual-authority-ensemble-routing.md": {
       "family": "fdd",
       "status": "approved",
-      "sha256": "ad58310b01123e1d294f846d52bfc16796c29c2a45b8789b7c34c3d8617f0abc",
+      "sha256": "51972457467f116b909ddb83713bb5520b287c8bcf8e6377885729681ada86df",
       "approval_episode": "46c77417",
       "amendments": [
         {
@@ -792,6 +802,11 @@
         {
           "date": "2026-11-10",
           "episode": "84478bb3",
+          "stage": 16
+        },
+        {
+          "date": "2026-11-10",
+          "episode": "f611cd40",
           "stage": 16
         }
       ]
@@ -1070,7 +1085,7 @@
     "docs/user-stories/epic-21-contextual-authority-ensemble-routing.md": {
       "family": "story",
       "status": "approved",
-      "sha256": "b1b3576bd3de39d49dcbe4edce0ef0eaa0517a514c9c09c95f2391d3e16d26f9",
+      "sha256": "041cbec068ead62ca90155b1dbff86c4eb5cd21dfb1b731ea3e41937685ce795",
       "approval_episode": "5a905107",
       "amendments": [
         {
@@ -1081,6 +1096,11 @@
         {
           "date": "2026-11-10",
           "episode": "a8d2b75a",
+          "stage": 16
+        },
+        {
+          "date": "2026-11-10",
+          "episode": "241a9916",
           "stage": 16
         }
       ]

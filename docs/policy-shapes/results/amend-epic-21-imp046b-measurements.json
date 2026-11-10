@@ -1,0 +1,26 @@
+{
+  "document": "docs/user-stories/epic-21-contextual-authority-ensemble-routing.md",
+  "tag": "imp046b",
+  "base_commit": "472402e",
+  "candidate_sha256": "eb27b16ac19c1749a9bf58c22e2329129dae90756d8a5a88f9d39475deac4a06",
+  "features": {
+    "lines": 2,
+    "terms_removed": 2,
+    "terms_kept": 2,
+    "goal_preserved": true,
+    "requirement_inverted": false,
+    "normative_touched": false,
+    "status_line_changed": false,
+    "downstream_refs": 47,
+    "change_ratio": 0.14
+  },
+  "observed": [
+    0.05,
+    0.1,
+    0.1,
+    0.1
+  ],
+  "proposed_action": "correction_note",
+  "accepted": true,
+  "episode": "241a9916"
+}

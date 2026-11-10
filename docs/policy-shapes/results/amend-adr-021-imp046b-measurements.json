@@ -1,0 +1,26 @@
+{
+  "document": "docs/adr/ADR-021-contextual-authority-ensemble-routing.md",
+  "tag": "imp046b",
+  "base_commit": "472402e",
+  "candidate_sha256": "909d2682c8dde643ae76edcedc8ca6c2ed5a37cfae6d95898617d8347f64fea0",
+  "features": {
+    "lines": 7,
+    "terms_removed": 19,
+    "terms_kept": 19,
+    "goal_preserved": true,
+    "requirement_inverted": false,
+    "normative_touched": false,
+    "status_line_changed": false,
+    "downstream_refs": 0,
+    "change_ratio": 0.17
+  },
+  "observed": [
+    0.05,
+    0.1,
+    0.1,
+    0.1
+  ],
+  "proposed_action": "correction_note",
+  "accepted": true,
+  "episode": "9cf46846"
+}

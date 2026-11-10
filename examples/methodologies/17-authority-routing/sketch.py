@@ -27,6 +27,7 @@ def main() -> None:
         "approve-adaptation-plan", "approve-subsidiary-plan", "retrospective",
         "approve-routing-thresholds", "approve-routing-bucket",
         "approve-audit-record", "approve-benefits", "approve-business-case", "approve-ideation", "approve-project-pillars",
+        "approve-compiled-weights", "approve-intent-refinement",
     }
     valid_tiers = {"low", "standard", "high", "critical"}  # the autonomy tiers of config.py
     esc, deesc, eps_margin = 1.0, 0.7, 0.20  # entropy in bits; the band is wider than the 0.15-bit minimum

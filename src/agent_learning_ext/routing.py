@@ -51,6 +51,9 @@ PINNED_FULL: tuple[str, ...] = (
     "approve-business-case",
     "approve-ideation",
     "approve-project-pillars",
+    # IMP-046 follow-up (2026-11-10): the two gates that have a policy shape but no committed episode
+    "approve-compiled-weights",
+    "approve-intent-refinement",
 )
 
 

@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-036](../adr/ADR-036-learning-methodology-examples-ledger-and-review-triage-loop.md) — Accepted (2026-10-26)  
 **Source BRD/FDD:** [BRD-036](../project-docs/Business-Requirements/BRD-036-learning-methodology-examples-ledger-and-review-triage-loop.md) / [FDD-036](../project-docs/Functional-Design/FDD-036-learning-methodology-examples-ledger-and-review-triage-loop.md)  
-**Status:** Completed (Stories 36.1–36.6 implemented and verified) — derived from Accepted ADR-036; adjudicated via `approve-user-stories` (robust utility 0.769, episode `80fe8a45-29a0-4a52-baa9-476f70d88209`).  The epic number follows the source ADR number, as Epic 11 follows ADR-011.  
+**Status:** Completed (Stories 36.1–36.6 implemented and verified) — derived from Accepted ADR-036; adjudicated via `approve-user-stories` (robust utility 0.769, episode `80fe8a45-29a0-4a52-baa9-476f70d88209`).  The epic number follows the source ADR number, as Epic 11 follows ADR-011.   Amended 2026-11-10 at Stage 16: Catalog states: six methodologies built and promoted to runnable examples (PR #173), classified `amendment_log_entry` (robust utility 0.863, episode `7f53a67d...`) and accepted by Menno.
 
 ---
 
@@ -39,7 +39,7 @@
 **As** a maintainer, **I want** a clearly labeled sketch for each candidate that has a Proposed ADR, **so that** the design can be examined without claiming it works.
 
 ### Acceptance Criteria:
-- **$AC_0$ (Coverage):** each of #8 to #11, #13 to #15, #17, #22, #23 has a directory with `README.md` and `sketch.py`, and its catalog entry is `proof_of_concept`.
+- **$AC_0$ (Coverage):** each of #9, #14, #15, #23 has a directory with `README.md` and `sketch.py`, and its catalog entry is `proof_of_concept` (#8, #10, #11, #13, #17 and #22 became runnable examples on 2026-11-10 after their epics were implemented).
 - **$AC_1$ (Header):** each script carries the labeling header with `CODE: sketch`.
 - **$AC_2$ (Deterministic):** each sketch runs offline with a fixed seed and exits 0, using the standard library and the public SDK only.
 - **$AC_3$ (Falsification):** each README states the falsification criterion from its hypothesis and the real data needed to test it.

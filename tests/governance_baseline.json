@@ -1229,10 +1229,16 @@
     },
     "docs/user-stories/epic-36-learning-methodology-examples-ledger-and-review-triage-loop.md": {
       "family": "story",
-      "status": "approved",
-      "sha256": "a6cc2f15bb36766bddb7a58b5396654f5b7addc80c9ec3502b87d6f798c28906",
+      "status": "completed",
+      "sha256": "5b6fa92044d018e63065d98c3589838082f54095c4b7628fd8a4c8cdfe45ede7",
       "approval_episode": "80fe8a45",
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-10",
+          "episode": "7f53a67d",
+          "stage": 16
+        }
+      ]
     },
     "docs/user-stories/epic-37-design-time-baseline-feedback-loop.md": {
       "family": "story",

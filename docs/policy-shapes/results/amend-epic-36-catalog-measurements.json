@@ -21,5 +21,6 @@
     0.9
   ],
   "proposed_action": "amendment_log_entry",
-  "accepted": false
+  "accepted": true,
+  "episode": "7f53a67d"
 }

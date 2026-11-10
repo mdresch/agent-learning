@@ -39,6 +39,7 @@ RUNNABLE = {
     5: "05-reward-shaping",
     6: "06-human-override",
     8: "08-critique-to-evidence",
+    9: "09-thompson-sampling",
     10: "10-ucb",
     11: "11-epsilon-greedy",
     12: "12-active-evidence-seeking",

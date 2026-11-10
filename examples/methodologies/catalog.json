@@ -90,8 +90,8 @@
   {
     "id": 9,
     "name": "Thompson sampling / Bayesian bandits",
-    "state": "candidate",
-    "example_class": "proof_of_concept",
+    "state": "implemented",
+    "example_class": "runnable",
     "adr": "ADR-015",
     "hypothesis": "HYP-AL-002",
     "path": "examples/methodologies/09-thompson-sampling",

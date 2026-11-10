@@ -1,5 +1,5 @@
 {
-  "_note": "Hand-transcribed from Ideation-Document.md section 2.1 on 2026-10-26 (v1.13); #8, #10, #11, #13, #17, #22 set to implemented on 2026-11-10 with the Stage 16 amendment. Canonical tokens. Update with the Ideation table in the same change (LL-007).",
+  "_note": "Hand-transcribed from Ideation-Document.md section 2.1 on 2026-10-26 (v1.13); #8, #9, #10, #11, #13, #17, #22 set to implemented on 2026-11-10 with the Stage 16 amendment. Canonical tokens. Update with the Ideation table in the same change (LL-007).",
   "states": {
     "1": "excluded",
     "2": "implemented",
@@ -9,7 +9,7 @@
     "6": "implemented",
     "7": "excluded",
     "8": "implemented",
-    "9": "candidate",
+    "9": "implemented",
     "10": "implemented",
     "11": "implemented",
     "12": "partial",

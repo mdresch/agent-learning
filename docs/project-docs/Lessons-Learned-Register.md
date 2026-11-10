@@ -852,6 +852,8 @@
 - **Actionable Invariant:** On Windows run the gate with `PYTHONUTF8=1` until the gate passes `encoding="utf-8"` itself (IMP-045). Treat a crash with no verdict as a tooling failure, never as an approval or a rejection.
 - **Verification Gate:** `PYTHONUTF8=1 uv run python scripts/pr_gate.py <n>` prints a `GATE RESULT` line.
 
+---
+
 ### LL-060 — A Merge Gate That Blocks Only on Completed Failures Lets Unfinished or Missing Checks Through
 - **Identifier:** `LL-060`
 - **Date:** 2026-11-10

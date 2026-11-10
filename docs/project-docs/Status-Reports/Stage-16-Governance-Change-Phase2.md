@@ -5,7 +5,7 @@ baseline_id: "PMP-BL-v1.1.0"
 lifecycle_stage: "Stage 16 (Governance Change)"
 pmbok_process: "4.6 Perform Integrated Change Control"
 date: "2026-11-10"
-status: "DRAFT - Steps 1 to 3 (input check, triage, classification). No escalation decided, nothing amended."
+status: "DRAFT - Steps 1 to 8 prepared; awaiting the Sponsor's approval of the assessment and the F1 decision."
 follows: "Stage-15-Lessons-Phase2.md (REP-STAGE15-LESSON-PHASE2)"
 ---
 
@@ -162,6 +162,60 @@ Alternative: record that the three were never adopted. Not proposed, because the
 
 - F5 (see Step 5 B for the proposal): the Phase 1 lessons "External Evidence Dependency", "Single Source of Truth for Story Status" and "Dual Evidence Storage" appear in no register entry. Decide whether to register them under new IDs (LL-065 onward) or record that they were never adopted. Corrected references go through the amendment tooling, nothing is re-scored. Files: Stage 15, 16, 17 assessments, ADP-20261106-001, SPA-20261106-001, IRP-20261106-001, Adaptation-Plan.md, and the Stage 15 methodology appendix.
 
+## F1 and F2 checked (2026-11-10)
+
+**F1: HYP-AL-018 means two different things. Confirmed; a Sponsor decision is needed.**
+
+- **Ideation Document section 2.2.3** (and its 2026-10-25 copy in `history/PMP-BL-v1.0.0/`) defines HYP-AL-018 as a linear contextual bandit (LinUCB or LinTS, methodology #24) reaching the autonomy gate faster than `ContextualSoftmaxPolicy`. ADR-038 and FDD-024 use it that way.
+- **The Project Charter** (objective 2 and success criterion 2), **the Business Case** (rows for Epic 18, REQ-P2-03, and a hypothesis table row stating a DPO sample-efficiency claim), **the Benefits Management Plan** (BEN-P2-002) and the generated Scope plans use HYP-AL-018 for DPO pairwise preference (Epic 18, ADR-018).
+- DPO (#13) has no hypothesis in the Ideation Document (its hypothesis column reads "none"). The DPO claim was written into the Business Case under an id the Ideation Document had already given to another hypothesis.
+- Stage 12 already records HYP-AL-018 as Formulated, so the Charter's "formally resolved" criterion for it is not met under either meaning.
+
+*Proposal for the Stage 17 package, not a decision:* register the DPO sample-efficiency hypothesis in the Ideation Document as a new id (the next free one is HYP-AL-028; HYP-AL-018 keeps the LinUCB meaning that two ADRs and the Ideation Document use), then repoint the Charter, Business Case and Benefits Management Plan to it; the generated Scope plans are regenerated. The Charter, Business Case and Ideation Document are approved documents, outside the ADR-007 freeze, so this goes in the single Phase 2 close adaptation as a baseline change, accepted by the Sponsor. Alternative: give HYP-AL-018 the DPO meaning and move LinUCB to a new id; this touches two accepted ADRs and FDD-024 as well, so it is not proposed.
+
+**F2: `agent-training-ext/` in the Charter, PMP and plans. Mostly covered; two documents are missing from the package.**
+
+- The folder does not exist; the code is in `src/agent_learning_ext/` (PR #162).
+- CR-20261109-001 (section 6) and the Epic 23 package `ADP-20261110-001` (section 7) already carry the change: the PMP is regenerated at `PMP-BL-v1.2.0`, the Charter's boundary wording is a Stage 16 amendment, and the generated plans are regenerated, including the stale references that CR-20261109-002 left for it.
+- **Not in that table:** the **Business Case** (11 mentions) and the **Benefits Management Plan** (5). Both are hand-authored approved documents, so a regeneration will not reach them. FDD-023 (2 mentions) stays with Epic 23 and Phase 3.
+- *Proposal:* add the Business Case and the Benefits Management Plan to the Stage 17 package with the Charter. No new request is needed. About 157 mentions in current documents remain until that adaptation runs.
+
+## Stage 16 Completion Summary (draft, awaiting the Sponsor's approval of this assessment)
+
+### Processing summary
+
+- **Lessons processed:** 67 (LL-001 to LL-067, including the three registered today); coverage in Steps 2a and 2d.
+- **Improvements processed:** 62 entries (IMP-001 to IMP-063; there is no IMP-034); the 24 In-Flight entries checked against the code in Step 2c.
+- **Baseline findings:** 5 (F1 to F5), all classified.
+- **Governance episodes created:** none. No approved ADR, BRD, FDD or story was edited in this pass, and `stage16_amend.py` was not run.
+- **Baseline Revision Packages:** 0. **Subsidiary Plan Amendments:** 0. **Change requests:** CR-20261110-001 (approved and applied, PR #187), CR-20261110-002 (dispositions approved, build pending). `ADP-20261110-001` is an input to Stage 17.
+
+### Decisions made (all by the Project Sponsor, 2026-11-10)
+
+| Item | Decision | Status |
+|---|---|---|
+| `implement-story` and `heal-contract-failure` skills (12 lessons, Step 6, Step 0) | Approved, CR-20261110-001 | Applied, merged |
+| Improvement dispositions (15 in-flight, 7 Phase Next, 4 marked as the code shows) | Approved, proposal A | Applied; build of the 15 pending (CR-20261110-002) |
+| Phase 1 lessons LL-044 to LL-046 | Registered as LL-065 to LL-067, crosswalk added, Stage 17 assessment note, proposal B | Applied |
+| F3 (ADR-022) and F4 (ADR-016) | Deferred to the next phase | Recorded |
+| Stage 16 methodology | Amended to v1.1 | Applied |
+| Governance store | Local store merged and committed, 350 episodes, 18 active policies | Applied |
+
+### Open for Stage 17 and the next phase
+
+1. **F1:** decide how HYP-AL-018 is split (proposal above); then amend the Charter, Business Case and Benefits Management Plan.
+2. **F2:** add the Business Case and the Benefits Management Plan to the `ADP-20261110-001` change table; regenerate the PMP and plans.
+3. Build the 15 in-flight tooling changes (CR-20261110-002), starting with IMP-062 and IMP-063.
+4. Tier 2 backfill still owed: LL-014, 015, 046, 047, and the entries for LL-065 to LL-067; the Step 2d unapplied list.
+5. LL-063: confirm whether the PMP states the unit of its effort figures.
+6. Update `Project-Status-Register.md` when the Sponsor approves this assessment.
+
+### Approval
+
+- [ ] Stage 16 assessment approved by the Sponsor
+- [ ] `Project-Status-Register.md` updated
+- [x] Artifacts committed (this note, CR-20261110-001 and -002, the registers)
+
 ## Not done
 
-Escalation decisions, change requests, amendments, governance episodes and the Project-Status-Register update.
+The Sponsor's approval of this assessment, the `Project-Status-Register.md` update, the F1 decision, and the changes listed above for Stage 17. Nothing was escalated outside the Sponsor, and no governance episode exists for this pass.

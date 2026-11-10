@@ -2,7 +2,7 @@
 artifact_type: "adaptation_plan"
 plan_id: "ADP-20261110-002"
 baseline_from: "PMP-BL-v1.1.0"
-baseline_to: "PMP-BL-v1.2.0 (proposed; the Sponsor decides, section 9)"
+baseline_to: "PMP-BL-v1.1.0 (unchanged: Phase 2 closes under it, CR-20261109-001 section 7; the Phase 3 baseline is set at the Phase Close Decision)"
 version: "0.1 (draft)"
 date: "2026-11-10"
 prepared_by: "Claude (draft for the Project Sponsor)"
@@ -18,7 +18,7 @@ governance_policy: "approve-adaptation-plan (FULL authority; the Sponsor's words
 
 # Phase 2 Close Adaptation Plan (ADP-20261110-002)
 
-> **Draft. Not approved. Nothing in sections 4 to 6 is applied by this document.** It is the single Stage 17 adaptation for Phase 2 (Sponsor, 2026-11-10: close Phase 2 once). It follows `Stage-17-Adaptation-Plan-Methodology.md` v1.1. `PMP-BL-v1.1.0` is unchanged until the plan is approved through `approve-adaptation-plan`.
+> **Draft. Not approved. Nothing in sections 4 to 6 is applied by this document.** It is the single Stage 17 adaptation for Phase 2 (Sponsor, 2026-11-10: close Phase 2 once). It follows `Stage-17-Adaptation-Plan-Methodology.md` v1.1. `PMP-BL-v1.1.0` is not raised by this plan: Phase 2 closes under it (CR-20261109-001 section 7), and the Phase 3 baseline is set at the Phase Close Decision (section 2).
 >
 > Effort figures anywhere in this plan are human-engineering person-days. Agentic effort is a shadow record for learning only and is not used here.
 
@@ -28,13 +28,15 @@ governance_policy: "approve-adaptation-plan (FULL authority; the Sponsor's words
 |---|---|
 | Plan ID | ADP-20261110-002 |
 | From baseline | `PMP-BL-v1.1.0` |
-| To baseline | `PMP-BL-v1.2.0` (proposed) |
+| To baseline | `PMP-BL-v1.1.0`, unchanged. The Phase 3 baseline is set at the Phase Close Decision. |
 | Source | The approved Stage 16 assessment: 67 lessons and 62 improvements triaged, 5 baseline findings (F1 to F5), 3 change requests |
 | Already done (recorded, not repeated) | skill edits (PR #187), register reconciliation (LL-065 to LL-067, crosswalk, IMP dispositions), governance store merge, Stage 16 and 17 methodology v1.1 |
 | To do under this plan | 5 pending changes (GC-P2-03 to GC-P2-07) of 7, in 4 steps (section 6) |
 | Status | draft |
 
 ## 2. Scope
+
+**What this plan does not do: close the phase or move the baseline.** It changes documents, plans and tooling under `PMP-BL-v1.1.0`. Phase 2 stays ACTIVE until Stage 18 runs and the Sponsor signs the Phase Close Decision (`PCD-Phase2`, Milestone M10). The Phase 3 baseline is set at that decision: Stage 18's `scripts/orchestrate_pmbok.py --mode seed-next` reads the baseline id from the Intent Refinement Proposal and derives the next phase's id (a major increment of a v1.x id, so `PMP-BL-v2.0.0`); the Sponsor confirms the id when approving the proposal. The Epic 23 scope, effort and cost in `ADP-20261110-001` are inputs to that Phase 3 baseline.
 
 **In scope:** the changes Stage 16 approved or left for Stage 17: the hand-authored approved documents that disagree with the code or each other (F1, F2), the regenerated PMP and plans, the tooling change set, and the Tier 2 backfill.
 
@@ -49,7 +51,7 @@ governance_policy: "approve-adaptation-plan (FULL authority; the Sponsor's words
 | GC-P2-03 | The tooling change set: IMP-062, 063, 045, 052, 030, 017, 015, 021, 024, 001, 007, 043, 044, 050, 031 | CR-20261110-002 | One PR (or story) each; IMP-044 delivered by #187, IMP-050 and IMP-031 edit skills and need the Sponsor's text | Pending |
 | GC-P2-04 | Tier 2 backfill for lessons whose rule is not in the named target: LL-014 (`tailoring`), LL-015 (`learning-methodology-selection`), LL-046 (`ucb`, `spec_gate.py`), LL-047 (`pairwise-preference`, `spec_gate.py`), LL-065 and LL-066 (`implement-story`), LL-067 (`governance`) | Stage 16 Step 2d | Change request with the exact text, then one PR | Pending |
 | GC-P2-05 | Hand-authored approved documents: register HYP-AL-028 (DPO sample efficiency) in the Ideation Document and repoint HYP-AL-018 to HYP-AL-028 in the Charter, Business Case and Benefits Management Plan; replace `agent-training-ext/` with `src/agent_learning_ext/` in the Charter, Business Case and Benefits Management Plan | Stage 16 F1 (approved) and F2 | Each document amended and accepted by the Sponsor; the exact lines are listed in section 5 | Pending |
-| GC-P2-06 | Regenerate the PMP (`PMP-BL-v1.2.0`) and the nine subsidiary plans, which clears the remaining `agent-training-ext` mentions and carries HYP-AL-028 | GC-P2-05, CR-20261109-001 section 6 and 7, `ADP-20261110-001` section 7 | `scripts/orchestrate_pmbok.py --mode adapt`; never by hand | Pending, after GC-P2-05 |
+| GC-P2-06 | Regenerate the PMP and the nine subsidiary plans **under `PMP-BL-v1.1.0`** (the id does not change), which clears the remaining `agent-training-ext` mentions and carries HYP-AL-028. **Check first (read from the script, not yet run):** `scripts/orchestrate_pmbok.py` line 257 calls `synthesize_pmp_markdown` without a baseline id, and the function defaults to `PMP-BL-v1.0.0`, so a run would stamp the wrong id; the same function writes a generic PMP and generic plans from a template, which may overwrite the validated v2.0 plans. Do not run it against `docs/project-docs/`. Run it on a scratch copy, diff against the current files, and if it changes the id or loses content, fix the tooling first (IMP-064) or amend the plans through their template and the planning skill instead | GC-P2-05, CR-20261109-001 section 6 and 7, `ADP-20261110-001` section 7 | `scripts/orchestrate_pmbok.py --mode adapt`; never by hand | Pending, after GC-P2-05 |
 | GC-P2-07 | State the unit of every effort figure in the PMP (human-engineering person-days) | LL-063 | Regeneration, with the unit in the template | Pending; the Sponsor first confirms whether the PMP already states it |
 
 ## 4. Impact mapping
@@ -80,7 +82,7 @@ Each PR is merged through `scripts/pr_gate.py` only after every required workflo
 
 - Whole suite, plain `uv run pytest`, against a temporary store; `tests/test_governance_baseline.py`, `tests/test_stage16_amend.py`, `tests/test_lessons_learned.py` pass.
 - A search finds no `agent-training-ext` outside `history/`, ADR-023/FDD-023/Epic 23 and dated records; HYP-AL-018 appears only with the LinUCB meaning outside dated records.
-- plan-lint and the plan approval gate pass on the regenerated PMP and plans; the PMP states its effort unit.
+- plan-lint and the plan approval gate pass on the regenerated PMP and plans; the PMP states its effort unit; **the regenerated PMP still reads `PMP-BL-v1.1.0`** in its frontmatter and body.
 - The Stage 16 deferrals (F3, F4, the seven Phase Next improvements) are listed in the Stage 18 input, not dropped.
 
 ## 8. Rollback plan
@@ -92,7 +94,7 @@ Each PR is merged through `scripts/pr_gate.py` only after every required workflo
 ## 9. Decisions for the Sponsor
 
 1. Approve this plan as the Phase 2 adaptation (`approve-adaptation-plan`), or ask for changes.
-2. Whether the adaptation bumps the baseline to `PMP-BL-v1.2.0`. CR-20261109-001 section 7 says `PMP-BL-v1.1.0` is unchanged by that request and the baseline change is made once at Phase 2 close; a minor increment follows ADR-008 section 4.6.1 for an execution adaptation. If the Sponsor prefers to keep `PMP-BL-v1.1.0`, GC-P2-05 and GC-P2-06 still change the documents but not the baseline id.
+2. ~~Baseline bump~~ Decided 2026-11-10: the baseline stays `PMP-BL-v1.1.0` through Phase 2; the Phase 3 baseline is set at the Phase Close Decision (section 2). Open for Stage 18: the Sponsor confirms the Phase 3 id (the tooling proposes `PMP-BL-v2.0.0`).
 3. Whether the PMP already states its effort unit (GC-P2-07).
 
 ## 10. Approval

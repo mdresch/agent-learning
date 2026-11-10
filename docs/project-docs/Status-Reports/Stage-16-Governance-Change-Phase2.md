@@ -178,7 +178,7 @@ Alternative: record that the three were never adopted. Not proposed, because the
 **F2: `agent-training-ext/` in the Charter, PMP and plans. Mostly covered; two documents are missing from the package.**
 
 - The folder does not exist; the code is in `src/agent_learning_ext/` (PR #162).
-- CR-20261109-001 (section 6) and the Epic 23 package `ADP-20261110-001` (section 7) already carry the change: the PMP is regenerated at `PMP-BL-v1.2.0`, the Charter's boundary wording is a Stage 16 amendment, and the generated plans are regenerated, including the stale references that CR-20261109-002 left for it.
+- CR-20261109-001 (section 6) and the Epic 23 package `ADP-20261110-001` (section 7) already carry the change: the PMP is regenerated at `PMP-BL-v1.2.0` (superseded by CR-20261109-001 section 7 and the Sponsor's decision of 2026-11-10: the baseline id stays `PMP-BL-v1.1.0` through Phase 2), the Charter's boundary wording is a Stage 16 amendment, and the generated plans are regenerated, including the stale references that CR-20261109-002 left for it.
 - **Not in that table:** the **Business Case** (11 mentions) and the **Benefits Management Plan** (5). Both are hand-authored approved documents, so a regeneration will not reach them. FDD-023 (2 mentions) stays with Epic 23 and Phase 3.
 - *Proposal:* add the Business Case and the Benefits Management Plan to the Stage 17 package with the Charter. No new request is needed. About 157 mentions in current documents remain until that adaptation runs.
 

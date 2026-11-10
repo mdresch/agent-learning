@@ -1,0 +1,26 @@
+{
+  "document": "docs/project-docs/Functional-Design/FDD-023-active-dueling-bandit-ranking-engine.md",
+  "tag": "cr001",
+  "base_commit": "a20e72d",
+  "candidate_sha256": "53f5d700dd6e71ca287188f45d2614bf352aa70ab8572921e918a89e85d027d8",
+  "features": {
+    "lines": 4,
+    "terms_removed": 5,
+    "terms_kept": 5,
+    "goal_preserved": true,
+    "requirement_inverted": false,
+    "normative_touched": false,
+    "status_line_changed": false,
+    "downstream_refs": 0,
+    "change_ratio": 0.46
+  },
+  "observed": [
+    0.05,
+    0.1,
+    0.1,
+    0.1
+  ],
+  "proposed_action": "correction_note",
+  "accepted": true,
+  "episode": "a2e3f780"
+}

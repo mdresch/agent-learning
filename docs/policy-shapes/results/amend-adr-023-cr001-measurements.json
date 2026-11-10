@@ -1,0 +1,26 @@
+{
+  "document": "docs/adr/ADR-023-active-dueling-bandit-ranking-engine.md",
+  "tag": "cr001",
+  "base_commit": "a20e72d",
+  "candidate_sha256": "8fdd915e31e0dc97fb71a7d1d9b69094b55431f3666d77eac6452ac52034e79a",
+  "features": {
+    "lines": 3,
+    "terms_removed": 2,
+    "terms_kept": 2,
+    "goal_preserved": true,
+    "requirement_inverted": false,
+    "normative_touched": false,
+    "status_line_changed": false,
+    "downstream_refs": 0,
+    "change_ratio": 0.54
+  },
+  "observed": [
+    0.05,
+    0.1,
+    0.1,
+    0.1
+  ],
+  "proposed_action": "correction_note",
+  "accepted": true,
+  "episode": "ada6e2b8"
+}

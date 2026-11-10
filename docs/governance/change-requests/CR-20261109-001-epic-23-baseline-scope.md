@@ -4,14 +4,14 @@ change_request_id: "CR-20261109-001"
 stage: "16"
 evidence_basis: "design_time"
 current_baseline: "PMP-BL-v1.1.0"
-status: "sponsor_approved_stage_17_package_pending"
+status: "approved_stage_17_package_pending"
 date: "2026-11-09"
 requested_by: "Menno Drescher"
 ---
 
 # Manual Change Request: Add Epic 23 to Phase 2 Scope
 
-> **Status:** Approved by the Project Sponsor on 2026-11-09 (see section 6). This request is a manual Stage 16 assessment outside the inactive automated design-time route. The Sponsor's approval permits preparation of the Stage 17 change package; it does not itself revise a baseline or authorize implementation. The Steering Committee decision and the Stage 17 approval are still pending.
+> **Status:** Approved by the Project Sponsor on 2026-11-09 and by the Steering Committee on 2026-11-10 (see section 6). This request is a manual Stage 16 assessment outside the inactive automated design-time route. The approvals decide that Epic 23 is in Phase 2 scope and permit the Stage 17 change package; they do not themselves revise `PMP-BL-v1.1.0`, and Epic 23 implementation stays blocked until the revised baseline is approved.
 
 ## 1. Request
 
@@ -36,7 +36,7 @@ The approved stories explicitly block implementation pending baseline authorizat
 | Overall impact | High — changes the approved scope baseline and affects critical-path schedule, cost/capacity, architecture constraints, and quality gates |
 | Proposed escalation | Steering Committee and Project Sponsor |
 | Stage 16 recommendation | Permit preparation of a complete Stage 17 change package, subject to the unresolved decisions and estimates below |
-| Decision status | Sponsor approved 2026-11-09; Steering Committee and Stage 17 approval pending; no governance episode recorded |
+| Decision status | Sponsor approved 2026-11-09; Steering Committee approved 2026-11-10; Stage 17 approval pending; no governance episode recorded for the two approvals |
 
 This is a manual assessment, not an output from `classify-diff-type` or `escalate-diff-response`. No automated governance decision is represented as having occurred.
 
@@ -83,8 +83,20 @@ Before any revised baseline is approved:
 | Role | Decision | Date |
 |---|---|---|
 | Project Sponsor | Approved: prepare the Stage 17 change package for adding Epic 23 to Phase 2 | 2026-11-09 |
-| Steering Committee | Pending | — |
+| Steering Committee | Approved: Epic 23 is in Phase 2 scope; prepare the Stage 17 change package | 2026-11-10 |
 
 The Project Sponsor's decision was given by Menno Drescher in the working session of 2026-11-09 and is recorded here from that statement; no governance episode was registered for it. It permits the work in section 5 (conditions 1 to 5). Until the Steering Committee decision and the Stage 17 approval are recorded, `PMP-BL-v1.1.0` remains unchanged, Epic 23 remains outside authorized scope, and implementation remains blocked.
 
-Condition 2 (the custom package boundary) has moved since this request was drafted: the Epic 14 engine now lives in `src/agent_learning_ext/` (PR #162, pending merge), so the boundary the PMP and Charter call `agent-training-ext/` is `src/agent_learning_ext/` in the code. The PMP, Charter and generated plans still name the old folder and must be revised in the Stage 17 package.
+The Steering Committee decision was given by Menno Drescher in the working session of 2026-11-10 ("the CR is approved and Epic 23 can be amended") and is recorded here from that statement; the Sponsor, Project Manager and maintainer are one person in this repository (BRD-008), and the request lists the Steering Committee separately. No governance episode was registered for either approval.
+
+**Where the five conditions of section 5 stand (2026-11-10):**
+
+| Condition | State |
+|---|---|
+| 1. In Phase 2 scope or deferred | Decided: in Phase 2 scope (the two approvals above) |
+| 2. Package boundary and `numpy` | Resolved in the documents by two Stage 16 correction notes: ADR-023 now names `src/agent_learning_ext/dueling.py`, and FDD-023 section 7 item 2 records that the "standard library only" invariant named a folder that no longer exists and that `numpy` is accepted in `src/agent_learning_ext/`; the PMP and Charter wording is revised in the Stage 17 package |
+| 3. Effort, sequencing, capacity and cost analysis | Open: not yet prepared |
+| 4. The less-than-5-ms target | Open: preserved; the prototype measured 98 ms; a viable implementation or a separately approved requirement change is still needed |
+| 5. The Stage 17 change package | Open: not yet prepared; the stories stay blocked until it is approved |
+
+Condition 2 (the custom package boundary) has moved since this request was drafted: the Epic 14 engine now lives in `src/agent_learning_ext/` (PR #162, merged), so the boundary the PMP and Charter call `agent-training-ext/` is `src/agent_learning_ext/` in the code. The PMP, Charter and generated plans still name the old folder and must be revised in the Stage 17 package.

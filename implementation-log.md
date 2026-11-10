@@ -3323,3 +3323,11 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Stage 16 amendments** (accepted by Menno, 2026-11-10, each with its own episode in the document's Status line): ADR-021, BRD-021 and FDD-021 as `correction_note`; Epic 21 as `amendment_log_entry`. ADR-021 also has an Amendment Log row.
 - **Still outside:** approve-compiled-weights and approve-intent-refinement have policy shapes but no episodes and are not pinned; the maintainer has not decided them.
 
+## CR-20261109-001 — Epic 23 code boundary resolved, Steering Committee approval recorded
+- **Date:** 2026-11-10
+- **Branch:** `docs/cr-001-epic-23-amendments`
+- **Source:** CR-20261109-001 (add Epic 23 to Phase 2), conditions 1 and 2. A change-request step, not a story.
+- **Recorded:** the Steering Committee approval of 2026-11-10 in the CR (Epic 23 is in Phase 2 scope), with a table of where the five conditions stand. Conditions 3 to 5 (effort, sequencing and cost; the less-than-5-ms target; the Stage 17 change package) are open, and the Epic 23 stories stay blocked until the revised baseline is approved.
+- **Stage 16 amendments** (accepted by Menno, 2026-11-10, `correction_note`, one governance episode each): ADR-023 (episode `ada6e2b8`) names `src/agent_learning_ext/dueling.py` instead of `src/agent_learning/dueling.py`, with an Amendment Log row; FDD-023 (episode `a2e3f780`) closes section 7 item 2: the PMP's "standard library only" invariant named `agent-training-ext/`, which no longer exists, and `numpy` is accepted in `src/agent_learning_ext/`. The PMP and Charter wording is revised in the Stage 17 package.
+- **Not done:** the Stage 17 change package (revised scope, schedule and cost plans) and any Epic 23 implementation.
+

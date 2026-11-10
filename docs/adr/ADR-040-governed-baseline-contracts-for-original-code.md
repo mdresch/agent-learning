@@ -4,7 +4,7 @@
 The `agent-learning` SDK came from `microsoft/agent-learning`. Its 54 source files have Microsoft's own tests, but no story, ADR, BRD or FDD stands behind those tests, and most of the files are named by no component skill. This fork has added governed work (Epics 7 to 38) on top. This ADR decides how the original code gets the same contract layer: characterization contracts that pin what the code does today, written through `implement-story`, starting with the eight original files that the full suite covers least. It does not change production code, and it does not claim the original code was designed under this governance.
 
 ## 2. Status
-**Proposed (2026-11-04)** — Draft for `approve-adr`. Nothing in this ADR is built. This is catch-up work and is recorded as catch-up. Numbered ADR-039 until 2026-11-09 (see the Amendment Log).
+**Accepted (2026-11-10, Menno)** — approval episode `69365299` (`approve-adr`, robust utility 0.760, expected utility 0.827, against 0.044 for reject and 0.119 for request-revision), recorded on 2026-11-04 as a catch-up approval and confirmed by the maintainer on 2026-11-10. The recorded score was produced by the ADR's author (`author_scored_own_adr`). Nothing in this ADR is built. This is catch-up work and is recorded as catch-up. Numbered ADR-039 until 2026-11-09 (see the Amendment Log).
 
 ## 3. Context & Problem Statement
 - **Governed cover is missing on original code.** Of the 26 test files Microsoft ships, three carry any Story or ADR header, and this fork added those headers. The rest are plain tests. `docs/project-docs/Pillar-Code-Map.md` (Draft, PR #116) records the mapping of each original file to a pillar and its coverage.
@@ -85,6 +85,7 @@ Each group adds or extends a component skill that names its files, its contracts
 | 2026-11-04 | Proposed | Draft for catch-up governed contracts on the original SDK code. Not accepted. |
 | 2026-11-04 | Test data corrected | §4.6 first said no recorded metric history exists. The governance store holds 180 real metric results (60 sets); §4.6 now states what they are and what they do not cover. Found when Menno asked whether the store holds sufficient evidence. |
 | 2026-11-09 | Renumbered from ADR-039 to ADR-040 | The number 039 was also used by "Shadow-Gate Learning and the Review-Finding Corpus" (ADR-039, PR #165). The maintainer decided on 2026-11-09 that the shadow-gate ADR keeps 039 and this ADR becomes 040. The approval evidence recorded on 2026-11-04 (approve-adr episode `69365299`, and the files now named `adr-040-*` under `docs/policy-shapes/`) was written under the earlier number and is kept unchanged. This ADR is still Proposed in this file. |
+| 2026-11-10 | Accepted | The maintainer confirmed the 2026-11-04 `approve-adr` outcome (episode `69365299`) after reviewing the score on 2026-11-10; the Status line, which still read Proposed, now records it. The open questions below stay open. |
 
 ## Open questions
 

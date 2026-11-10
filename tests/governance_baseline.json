@@ -475,9 +475,15 @@
     "docs/project-docs/Business-Requirements/BRD-021-contextual-authority-ensemble-routing.md": {
       "family": "brd",
       "status": "approved",
-      "sha256": "3b8cd85f5e4b3dde0e90226dd9eca13fea019a1df17fecf5e0e0e4295abe085e",
+      "sha256": "42c61574d2dbe3a476ae36bdb7df84524c1c5d2262f43830d5f6bb2e4c5425c0",
       "approval_episode": "f7d8b1b7",
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-10",
+          "episode": "e021910d",
+          "stage": 16
+        }
+      ]
     },
     "docs/project-docs/Business-Requirements/BRD-022-scored-search-decision-configuration-compilation.md": {
       "family": "brd",

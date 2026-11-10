@@ -1,0 +1,31 @@
+{
+  "id": "e021910d-77df-44d5-8ba4-562cab05b39d",
+  "agent_id": "agent-learning-governance",
+  "task_id": "classify-diff-type",
+  "user_input": "Classify the diff to BRD-021-contextual-authority-ensemble-routing.md under Stage 16: IMP-046: pin approve-audit-record, approve-benefits, approve-business-case, approve-ideation and approve-project-pillars",
+  "assistant_output": "correction_note: robust utility 0.965",
+  "intent_summary": "IMP-046: pin approve-audit-record, approve-benefits, approve-business-case, approve-ideation and approve-project-pillars",
+  "action_type": "recommendation",
+  "action_name": "Correction note",
+  "target": "BRD-021-contextual-authority-ensemble-routing.md",
+  "input_summary": "Candidate diff of docs/project-docs/Business-Requirements/BRD-021-contextual-authority-ensemble-routing.md against HEAD 1579f26: 2 changed lines, change ratio 0.13. Gate frame built from measurements of the diff by scripts/stage16_amend.py (terms kept 10/10, requirement inverted False, downstream references 1, status line changed False).",
+  "expected_outcome": "Menno explicit ACCEPT of this classification",
+  "execution_status": "completed",
+  "result_summary": "Accepted by Menno, 2026-11-10 (Stage 16 classify-diff-type), prospectively at the time of acceptance; not backdated.",
+  "policy_id": "51458125-b218-4e26-a94b-9baf17137ccc",
+  "policy_version": 0,
+  "action_id": "correction_note",
+  "metadata": {
+    "feedback_status": "adjudicated",
+    "decision_disposition": "accepted",
+    "selection_basis": "bayesian_decision",
+    "correct_action_id": "correction_note",
+    "task_completed": true,
+    "robust_utility": 0.9646266106604537,
+    "expected_utility": 0.9769037399651914,
+    "decision_margin": 0.101,
+    "artifact_commit": "1579f26",
+    "stage": 16,
+    "amendment": "IMP-046: pin approve-audit-record, approve-benefits, approve-business-case, approve-ideation and approve-project-pillars"
+  }
+}

@@ -1,15 +1,15 @@
 # Scored-search decision compilation (methodology #22)
 
-**Status:** proof_of_concept · **Code:** sketch · **Data:** SYNTHETIC · **Not evidence:** this run does not validate or invalidate the methodology.
+**Status:** runnable · **Code:** SDK · **Data:** SYNTHETIC · **Not evidence:** this example does not validate or invalidate the methodology.
 
 ## What it shows
-Coordinate ascent over criteria weights on the simplex (steps of 0.05, renormalised) maximising agreement with labeled decisions.
+Coordinate ascent over criteria weights on the simplex via `agent_learning_ext.weight_compiler`, maximizing accuracy + margin over historical `LabeledFrame` records with strict holdout safety validation.
 
 ## Run it
 ```
-python examples/methodologies/22-scored-search/sketch.py
+python examples/methodologies/22-scored-search/example.py
 ```
-Standard library only: no network, no credentials, no files written. All data in it is SYNTHETIC (invented for the demonstration). It is a sketch of the formulas in ADR-022 (Accepted); the methodology is not implemented in the SDK.
+It needs the package installed and nothing else: no network, no credentials, no files written. All data in it is SYNTHETIC (invented for the demonstration).
 
 ## What it does not show
 That search beats hand-set weights on real decisions; the labels here come from hidden weights and prove nothing.
@@ -21,4 +21,4 @@ If search over the same weight space, scored against the same labeled set, canno
 A labeled validation set of past `DecisionFrame` instances paired with the human adjudication, plus the current hand-set weights.
 
 ## References
-Ideation row #22; hypothesis: HYP-AL-010; ADR-022. Catalog entry: `examples/methodologies/catalog.json`, id 22.
+Ideation row #22; hypothesis: HYP-AL-010; ADR: ADR-022. Catalog entry: `examples/methodologies/catalog.json`, id 22.

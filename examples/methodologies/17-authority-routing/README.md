@@ -1,15 +1,15 @@
 # Contextual authority-ensemble routing (methodology #17)
 
-**Status:** proof_of_concept · **Code:** sketch · **Data:** SYNTHETIC · **Not evidence:** this run does not validate or invalidate the methodology.
+**Status:** runnable · **Code:** SDK · **Data:** SYNTHETIC · **Not evidence:** this example does not validate or invalidate the methodology.
 
 ## What it shows
-Hard pinning of lifecycle gates to full authority, entropy-based routing for operational tasks, and a hysteresis band that prevents flip-flopping.
+Contextual authority routing via `agent_learning_ext.routing`: hard pinning of critical tasks to full authority, entropy and margin threshold escalation, and a hysteresis deadband preventing flapping.
 
 ## Run it
 ```
-python examples/methodologies/17-authority-routing/sketch.py
+python examples/methodologies/17-authority-routing/example.py
 ```
-Standard library only: no network, no credentials, no files written. All data in it is SYNTHETIC (invented for the demonstration). It is a sketch of the formulas in ADR-021 (Accepted); the methodology is not implemented in the SDK.
+It needs the package installed and nothing else: no network, no credentials, no files written. All data in it is SYNTHETIC (invented for the demonstration).
 
 ## What it does not show
 That routing improves outcomes; it routes invented inputs. Lifecycle gates stay human-approved (ADR-003 Invariant 6).
@@ -21,4 +21,4 @@ Proposed here: if routed decisions are not escalated to a human more precisely (
 Real operational decisions with the policy's probabilities at decision time and whether a human later overrode it.
 
 ## References
-Ideation row #17; hypothesis: none registered (a criterion is proposed in the README); ADR-021. Catalog entry: `examples/methodologies/catalog.json`, id 17.
+Ideation row #17; hypothesis: none; ADR: ADR-021. Catalog entry: `examples/methodologies/catalog.json`, id 17.

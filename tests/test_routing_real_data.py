@@ -133,8 +133,7 @@ def _load_episodes() -> list[Episode]:
     episodes = []
     for path in _episode_files():
         data = json.loads(path.read_text(encoding="utf-8"))
-        data.setdefault("id", path.stem)
-        data["id"] = data.get("id") or path.stem
+        data["id"] = data.get("id") or path.stem  # 16 early files carry no id (I6)
         episodes.append(Episode.from_dict(data))
     return episodes
 

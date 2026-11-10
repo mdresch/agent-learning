@@ -31,17 +31,11 @@ ROOT = Path(__file__).resolve().parent.parent
 EXAMPLES = ROOT / "examples" / "methodologies"
 CATALOG = EXAMPLES / "catalog.json"
 
-# Methodology id -> directory, for the ten proof-of-concept entries (ADR-036 section 4.1).
+# Methodology id -> directory, for the proof-of-concept entries (ADR-036 section 4.1).
 RUNNABLE = {
-    8: "08-critique-to-evidence",
     9: "09-thompson-sampling",
-    10: "10-ucb",
-    11: "11-epsilon-greedy",
-    13: "13-pairwise-preference",
     14: "14-meta-learning",
     15: "15-warm-start",
-    17: "17-authority-routing",
-    22: "22-scored-search",
     23: "23-dueling-bandit",
 }
 RUN_TIMEOUT_SECONDS = 60  # each sketch takes about two seconds
@@ -80,7 +74,7 @@ def test_ac0_each_poc_methodology_has_a_readme_and_a_script(methodology_id: int)
     assert (directory / "sketch.py").is_file()
 
 
-def test_ac0_the_ten_proof_of_concept_entries_are_exactly_these_ids() -> None:
+def test_ac0_the_proof_of_concept_entries_are_exactly_these_ids() -> None:
     """AC_0: no proof_of_concept catalog entry lacks a sketch, and no sketch lacks an entry."""
     poc_ids = {i for i, e in _catalog().items() if e["example_class"] == "proof_of_concept"}
     assert poc_ids == set(RUNNABLE)

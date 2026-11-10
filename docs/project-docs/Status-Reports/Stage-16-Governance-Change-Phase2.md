@@ -156,7 +156,7 @@ Alternative: record that the three were never adopted. Not proposed, because the
 ## Notes for Step 5
 
 - F2 may already be covered by CR-20261109-001 section 6 and CR-002; check before opening anything new.
-- F3 and F4 are marked Phase 3 in the registers; deciding whether to move them into this adaptation is the maintainer's call.
+- **F3 and F4: decided 2026-11-10 (Menno Drescher, Project Sponsor): processed in the next phase, not in this adaptation.** ADR-022 Invariants 2 and 5 (IMP-053) and ADR-016 Invariant 4 (IMP-054) keep their dispositions "Rolled into Phase Next Intent Refinement" and stay as recorded baseline findings. Neither ADR is amended now; the amendments go through `stage16_amend.py` in the next phase. F4 keeps its open question (change the code or the ADR).
 - F4 has low confidence: it is not clear whether the fix is code (add the path) or the ADR (drop the invariant). Flag, do not classify further.
 - One adaptation covers all of this (Stage 16/17), as agreed.
 

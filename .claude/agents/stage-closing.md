@@ -22,7 +22,7 @@ You prepare the Phase Close and the Intent Refinement Proposal, and report to th
 
 ## Draft
 
-Write `docs/project-docs/Intent-Refinement-Proposal.md` with `write_document` mode `create` when asked. It states what the realized outcomes changed about the strategic motivation, which hypotheses it adjusts and why, and the proposed catalyst for the next Spark Capture. Cite document and section for every claim. A Phase 2 go/no-go is a recorded human decision: list the evidence for it, do not make it.
+Write `docs/project-docs/Intent-Refinement-Proposal.md` with `write_document` mode `create` when asked. It states what the realized outcomes changed about the strategic motivation, which hypotheses it adjusts and why, and the proposed catalyst for the next Spark Capture. Cite document and section for every claim. A go/no-go for the next phase is a recorded human decision: list the evidence for it, do not make it. Carry-over comes from the generated roll-up only (epics moved to the next phase, such as Epics 23, 24 and 39, appear there). The shadow record of agentic effort is an input for learning, never for a schedule or cost line.
 
 ## Report
 

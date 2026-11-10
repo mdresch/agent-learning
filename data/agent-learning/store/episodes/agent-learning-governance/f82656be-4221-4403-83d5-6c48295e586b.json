@@ -1,0 +1,38 @@
+{
+  "id": "f82656be-4221-4403-83d5-6c48295e586b",
+  "agent_id": "agent-learning-governance",
+  "agent_name": null,
+  "task_id": "classify-hypothesis-status",
+  "task_name": null,
+  "user_input": "HYP-AL-008, M1=Yes branch: SoftmaxPolicy exposes reusable converged state, dependency resolved, warm-start implementation can proceed but the comparison has not run yet",
+  "assistant_output": "advance_to_testing: the blocker is resolved, the real test can now proceed, but no result exists yet",
+  "intent_summary": null,
+  "action_type": null,
+  "action_name": null,
+  "target": null,
+  "input_summary": null,
+  "expected_outcome": null,
+  "execution_status": null,
+  "result_summary": null,
+  "system_message": null,
+  "conversation_history": [],
+  "tool_calls": [],
+  "policy_id": null,
+  "policy_version": null,
+  "action_id": "advance_to_testing",
+  "action_logprob": null,
+  "context_features": {
+    "hypothesis_id": "HYP-AL-008",
+    "variant": "M1=Yes contrast pair"
+  },
+  "model_deployment": null,
+  "correlation_id": null,
+  "session_id": null,
+  "request_latency_ms": null,
+  "token_usage": null,
+  "metadata": {
+    "source_document": "Project-Charter.md",
+    "real_or_redteam": "real"
+  },
+  "created_at": "2026-10-21T11:51:49.003845+00:00"
+}

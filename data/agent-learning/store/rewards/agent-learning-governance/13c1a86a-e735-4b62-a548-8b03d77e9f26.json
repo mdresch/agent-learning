@@ -1,0 +1,82 @@
+[
+  {
+    "id": "b1ccd381-3393-4f2e-9860-1d485dab7f1a",
+    "episode_id": "13c1a86a-e735-4b62-a548-8b03d77e9f26",
+    "agent_id": "agent-learning-governance",
+    "source": "metric",
+    "value": 0.0,
+    "raw_value": 0.5,
+    "metric": "intent_resolution",
+    "rubric": "intent_resolution",
+    "evaluator": "local:intent",
+    "metadata": {
+      "reason": "local pass"
+    },
+    "created_at": "2026-10-28T15:24:18.613645+00:00"
+  },
+  {
+    "id": "72e51517-aeb9-4788-875e-92b4a54cf1cf",
+    "episode_id": "13c1a86a-e735-4b62-a548-8b03d77e9f26",
+    "agent_id": "agent-learning-governance",
+    "source": "metric",
+    "value": 1.0,
+    "raw_value": 1.0,
+    "metric": "task_adherence",
+    "rubric": "task_adherence",
+    "evaluator": "local:adherence",
+    "metadata": {
+      "reason": "local pass"
+    },
+    "created_at": "2026-10-28T15:24:18.615198+00:00"
+  },
+  {
+    "id": "af68a5db-830d-430c-98ea-0755e390dea6",
+    "episode_id": "13c1a86a-e735-4b62-a548-8b03d77e9f26",
+    "agent_id": "agent-learning-governance",
+    "source": "metric",
+    "value": 1.0,
+    "raw_value": 1.0,
+    "metric": "task_completion",
+    "rubric": "task_completion",
+    "evaluator": "local:episode-outcome",
+    "metadata": {
+      "reason": "derived from action_id and metadata.correct_action_id"
+    },
+    "created_at": "2026-10-28T15:24:18.624716+00:00"
+  },
+  {
+    "id": "757840b1-872b-45ad-b99d-06be45dd6e83",
+    "episode_id": "13c1a86a-e735-4b62-a548-8b03d77e9f26",
+    "agent_id": "agent-learning-governance",
+    "source": "aggregate",
+    "value": 0.7,
+    "raw_value": null,
+    "metric": null,
+    "rubric": "aggregate",
+    "evaluator": null,
+    "metadata": {
+      "metric_contributions": [
+        {
+          "metric": "intent_resolution",
+          "weight": 0.1,
+          "signed": 0.0,
+          "contribution": 0.0
+        },
+        {
+          "metric": "task_adherence",
+          "weight": 0.2,
+          "signed": 1.0,
+          "contribution": 0.2
+        },
+        {
+          "metric": "task_completion",
+          "weight": 0.5,
+          "signed": 1.0,
+          "contribution": 0.5
+        }
+      ],
+      "penalties": []
+    },
+    "created_at": "2026-10-28T15:24:18.636828+00:00"
+  }
+]

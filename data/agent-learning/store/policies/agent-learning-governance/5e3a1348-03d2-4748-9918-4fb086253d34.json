@@ -1,0 +1,48 @@
+{
+  "id": "5e3a1348-03d2-4748-9918-4fb086253d34",
+  "agent_id": "agent-learning-governance",
+  "task_id": "approve-audit-record",
+  "version": 0,
+  "actions": [
+    {
+      "id": "approve_audit_record",
+      "description": "The Audit Record provides substantiated evidence of compliance or non-conformance, clear impact classification, and actionable remediation actions -- approve it into the formal audit register",
+      "parameters": {}
+    },
+    {
+      "id": "reject_audit_record",
+      "description": "The Audit Record is unsubstantiated, misclassifies governance boundaries, or lacks factual verification -- reject it outright",
+      "parameters": {}
+    },
+    {
+      "id": "request_revision_before_decision",
+      "description": "The Audit Record requires additional evidence verification, clearer finding descriptions, or refined corrective actions before formal recording",
+      "parameters": {}
+    }
+  ],
+  "logits": {
+    "approve_audit_record": 0.0,
+    "reject_audit_record": 0.0,
+    "request_revision_before_decision": 0.0
+  },
+  "baseline": 0.0,
+  "episodes_seen": 0,
+  "updates_applied": 0,
+  "metadata": {
+    "policy_scope": "delegated_decision",
+    "decision_context": "Governance review for Stage 11 Audit Record",
+    "decision_authority": "full",
+    "decision_authority_source": "configured",
+    "complexity_profile": {
+      "intent_ambiguity": "low",
+      "context_variability": "variable",
+      "outcome_observability": "direct",
+      "decision_impact": "high",
+      "reversibility": "reversible",
+      "requires_human_approval": true,
+      "rationale": "Reused directly from sidpa-template's own shared-complexity-profile.json, which itself was corrected from a real ADPA mistake (approve-adr was first built with requires_human_approval: false, and the resolver's own execute_without_confirmation logic would have bypassed a real governance rule as a result). Correct this down per-policy only with real evidence the specific decision doesn't need a human sign-off -- never flip it the other direction speculatively."
+    },
+    "complexity_profile_source": "configured"
+  },
+  "created_at": "2026-10-24T09:38:53.448756+00:00"
+}

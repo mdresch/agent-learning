@@ -1,0 +1,37 @@
+{
+  "id": "417eeacd-6e47-4674-b63c-dfdeaccb37e3",
+  "agent_id": "agent-learning-governance",
+  "agent_name": null,
+  "task_id": "classify-hypothesis-status",
+  "task_name": null,
+  "user_input": "CONSTRUCTED red-team: a pilot showed the predicted effect in two of three test categories but the opposite in the third, with overlapping confidence intervals",
+  "assistant_output": "mark_inconclusive: genuinely mixed real evidence, not clearly resolved either way, but not contradictory enough to need a human adjudicator",
+  "intent_summary": null,
+  "action_type": null,
+  "action_name": null,
+  "target": null,
+  "input_summary": null,
+  "expected_outcome": null,
+  "execution_status": null,
+  "result_summary": null,
+  "system_message": null,
+  "conversation_history": [],
+  "tool_calls": [],
+  "policy_id": null,
+  "policy_version": null,
+  "action_id": "mark_inconclusive",
+  "action_logprob": null,
+  "context_features": {
+    "hypothesis_id": "HYP-TEST-INCONCLUSIVE"
+  },
+  "model_deployment": null,
+  "correlation_id": null,
+  "session_id": null,
+  "request_latency_ms": null,
+  "token_usage": null,
+  "metadata": {
+    "real_or_redteam": "constructed",
+    "note": "distinguishes genuinely mixed evidence from both a clean verdict and a true contradiction needing escalation"
+  },
+  "created_at": "2026-10-21T11:51:53.033542+00:00"
+}

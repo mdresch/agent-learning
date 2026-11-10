@@ -1,0 +1,39 @@
+{
+  "id": "8109a49c-873b-4fcb-bd3d-a7bba426f87a",
+  "agent_id": "agent-learning-governance",
+  "agent_name": null,
+  "task_id": "classify-hypothesis-status",
+  "task_name": null,
+  "user_input": "HYP-AL-008, M1=No scenario: SoftmaxPolicy does not expose reusable converged state, so the warm-start-vs-cold-start episode-count comparison was never run",
+  "assistant_output": "remain_formulated_blocked: an SDK-internals limitation blocked the planned test, it doesn't falsify the hypothesis",
+  "intent_summary": null,
+  "action_type": null,
+  "action_name": null,
+  "target": null,
+  "input_summary": null,
+  "expected_outcome": null,
+  "execution_status": null,
+  "result_summary": null,
+  "system_message": null,
+  "conversation_history": [],
+  "tool_calls": [],
+  "policy_id": null,
+  "policy_version": null,
+  "action_id": "remain_formulated_blocked",
+  "action_logprob": null,
+  "context_features": {
+    "hypothesis_id": "HYP-AL-008",
+    "source": "agent-learning Project-Charter.md Section 7 M1 disposition table"
+  },
+  "model_deployment": null,
+  "correlation_id": null,
+  "session_id": null,
+  "request_latency_ms": null,
+  "token_usage": null,
+  "metadata": {
+    "source_document": "Project-Charter.md",
+    "real_or_redteam": "real",
+    "note": "this exact distinction was the bug a review caught in Charter v1.3/v1.4"
+  },
+  "created_at": "2026-10-21T10:33:28.342147+00:00"
+}

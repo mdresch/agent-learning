@@ -1,0 +1,72 @@
+{
+  "id": "733ba15b-732d-457b-9866-3c803bcf5fa2",
+  "agent_id": "agent-learning-governance",
+  "task_id": "classify-hypothesis-status",
+  "version": 0,
+  "actions": [
+    {
+      "id": "advance_to_testing",
+      "description": "Move the hypothesis from Formulated to Testing: a real attempt to evaluate it has begun, but the falsification criteria have not yet been fully resolved either way",
+      "parameters": {}
+    },
+    {
+      "id": "mark_validated",
+      "description": "Real evidence directly tested the hypothesis's own falsification criteria and confirmed the hypothesis",
+      "parameters": {}
+    },
+    {
+      "id": "mark_invalidated",
+      "description": "Real evidence directly tested the hypothesis's own falsification criteria and refuted the hypothesis",
+      "parameters": {}
+    },
+    {
+      "id": "mark_inconclusive",
+      "description": "Real evidence exists and points in a direction, but is too partial or weak to fully validate or invalidate yet",
+      "parameters": {}
+    },
+    {
+      "id": "remain_formulated_blocked",
+      "description": "An external or implementation blocker prevented the falsification criteria from being tested at all -- this is not evidence against the hypothesis",
+      "parameters": {}
+    },
+    {
+      "id": "flag_for_human_review",
+      "description": "Evidence is ambiguous or contradictory enough that a human should adjudicate the status change directly",
+      "parameters": {}
+    },
+    {
+      "id": "no_new_evidence",
+      "description": "Nothing has changed since the hypothesis was last assessed -- no test ran, no blocker was hit, no partial result exists. This is a no-op, distinct from a blocker or an escalation: there is genuinely nothing to report",
+      "parameters": {}
+    }
+  ],
+  "logits": {
+    "advance_to_testing": 0.0,
+    "mark_validated": 0.0,
+    "mark_invalidated": 0.0,
+    "mark_inconclusive": 0.0,
+    "remain_formulated_blocked": 0.0,
+    "flag_for_human_review": 0.0,
+    "no_new_evidence": 0.0
+  },
+  "baseline": 0.0,
+  "episodes_seen": 0,
+  "updates_applied": 0,
+  "metadata": {
+    "policy_scope": "delegated_decision",
+    "decision_context": "Given new evidence/findings bearing on an already-formulated hypothesis, decide whether its status should move to Testing, Validated, Invalidated, Inconclusive, or stay Formulated-but-blocked, be escalated to a human, or be left unchanged because nothing new occurred",
+    "decision_authority": "full",
+    "decision_authority_source": "configured",
+    "complexity_profile": {
+      "intent_ambiguity": "medium",
+      "context_variability": "variable",
+      "outcome_observability": "delayed",
+      "decision_impact": "medium",
+      "reversibility": "costly",
+      "requires_human_approval": false,
+      "rationale": ""
+    },
+    "complexity_profile_source": "default"
+  },
+  "created_at": "2026-10-21T11:58:14.514695+00:00"
+}

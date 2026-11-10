@@ -1,0 +1,46 @@
+[
+  {
+    "metric": "intent_resolution",
+    "score": 0.5,
+    "normalized": 0.5,
+    "status": "completed",
+    "reason": "local pass",
+    "properties": {
+      "probability": 0.5,
+      "fitted": false,
+      "feature_dim": 1024
+    },
+    "evaluator": "local:intent",
+    "metadata": {
+      "label": "pass",
+      "confidence": 0.5
+    }
+  },
+  {
+    "metric": "task_adherence",
+    "score": 1.0,
+    "normalized": 1.0,
+    "status": "completed",
+    "reason": "local pass",
+    "properties": {
+      "probability": 1.0,
+      "clauses_total": 0,
+      "violations": []
+    },
+    "evaluator": "local:adherence",
+    "metadata": {
+      "label": "pass",
+      "confidence": 1.0
+    }
+  },
+  {
+    "metric": "task_completion",
+    "score": 1.0,
+    "normalized": 1.0,
+    "status": "completed",
+    "reason": "derived from action_id and metadata.correct_action_id",
+    "properties": null,
+    "evaluator": "local:episode-outcome",
+    "metadata": {}
+  }
+]

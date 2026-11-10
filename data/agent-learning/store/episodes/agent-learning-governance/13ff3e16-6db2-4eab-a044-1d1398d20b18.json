@@ -1,0 +1,38 @@
+{
+  "id": "13ff3e16-6db2-4eab-a044-1d1398d20b18",
+  "agent_id": "agent-learning-governance",
+  "agent_name": null,
+  "task_id": "classify-hypothesis-status",
+  "task_name": null,
+  "user_input": "HYP-AL-004 real partial finding: this session hit the per-instance-varying gap once on validate-intent-foundation and hand-built a full-authority frame instead of using the contextual bandit -- one data point, not a repeated pattern yet",
+  "assistant_output": "advance_to_testing: one real data point is suggestive but not conclusive enough to validate or invalidate yet",
+  "intent_summary": null,
+  "action_type": null,
+  "action_name": null,
+  "target": null,
+  "input_summary": null,
+  "expected_outcome": null,
+  "execution_status": null,
+  "result_summary": null,
+  "system_message": null,
+  "conversation_history": [],
+  "tool_calls": [],
+  "policy_id": null,
+  "policy_version": null,
+  "action_id": "advance_to_testing",
+  "action_logprob": null,
+  "context_features": {
+    "hypothesis_id": "HYP-AL-004",
+    "source": "agent-learning Ideation Document v1.8 Section 2.2"
+  },
+  "model_deployment": null,
+  "correlation_id": null,
+  "session_id": null,
+  "request_latency_ms": null,
+  "token_usage": null,
+  "metadata": {
+    "source_document": "Ideation-Document.md",
+    "real_or_redteam": "real"
+  },
+  "created_at": "2026-10-21T10:33:29.137869+00:00"
+}

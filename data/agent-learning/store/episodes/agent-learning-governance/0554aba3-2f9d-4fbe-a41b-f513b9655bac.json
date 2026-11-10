@@ -1,0 +1,37 @@
+{
+  "id": "0554aba3-2f9d-4fbe-a41b-f513b9655bac",
+  "agent_id": "agent-learning-governance",
+  "agent_name": null,
+  "task_id": "classify-hypothesis-status",
+  "task_name": null,
+  "user_input": "CONSTRUCTED red-team: hypothetical HYP-TEST predicted a UI change would halve review time; a real before/after measurement showed no meaningful difference",
+  "assistant_output": "mark_invalidated: the falsification criteria were directly tested and the predicted effect did not appear",
+  "intent_summary": null,
+  "action_type": null,
+  "action_name": null,
+  "target": null,
+  "input_summary": null,
+  "expected_outcome": null,
+  "execution_status": null,
+  "result_summary": null,
+  "system_message": null,
+  "conversation_history": [],
+  "tool_calls": [],
+  "policy_id": null,
+  "policy_version": null,
+  "action_id": "mark_invalidated",
+  "action_logprob": null,
+  "context_features": {
+    "hypothesis_id": "HYP-TEST-INVALIDATED"
+  },
+  "model_deployment": null,
+  "correlation_id": null,
+  "session_id": null,
+  "request_latency_ms": null,
+  "token_usage": null,
+  "metadata": {
+    "real_or_redteam": "constructed",
+    "note": "no real agent-learning hypothesis has actually been invalidated yet -- built to exercise this action at all"
+  },
+  "created_at": "2026-10-21T11:51:51.452230+00:00"
+}

@@ -1,0 +1,37 @@
+{
+  "id": "824ff94f-a2e4-4413-a7a8-bcefbc10933e",
+  "agent_id": "agent-learning-governance",
+  "agent_name": null,
+  "task_id": "classify-hypothesis-status",
+  "task_name": null,
+  "user_input": "HYP-AL-007 checked for a status update, but nothing new happened since it was formulated -- no test ran, no blocker was hit, no partial result exists",
+  "assistant_output": "no_new_evidence: gap closed by adding a 7th action -- the first run of this exact case needed a human tie-break because no action meant 'nothing to report'; re-run with the new action resolves cleanly",
+  "intent_summary": null,
+  "action_type": null,
+  "action_name": null,
+  "target": null,
+  "input_summary": null,
+  "expected_outcome": null,
+  "execution_status": null,
+  "result_summary": null,
+  "system_message": null,
+  "conversation_history": [],
+  "tool_calls": [],
+  "policy_id": null,
+  "policy_version": null,
+  "action_id": "no_new_evidence",
+  "action_logprob": null,
+  "context_features": {
+    "hypothesis_id": "HYP-AL-007"
+  },
+  "model_deployment": null,
+  "correlation_id": null,
+  "session_id": null,
+  "request_latency_ms": null,
+  "token_usage": null,
+  "metadata": {
+    "real_or_redteam": "constructed-edge-case",
+    "note": "the action that didn't exist when this case first surfaced a needs_user_tie_break"
+  },
+  "created_at": "2026-10-21T11:59:49.231989+00:00"
+}

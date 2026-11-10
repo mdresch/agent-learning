@@ -1,0 +1,72 @@
+{
+  "id": "51458125-b218-4e26-a94b-9baf17137ccc",
+  "agent_id": "agent-learning-governance",
+  "task_id": "classify-diff-type",
+  "version": 0,
+  "actions": [
+    {
+      "id": "new_superseding_adr",
+      "description": "Alters core architecture, principles, or system topology; mandates drafting a full superseding ADR",
+      "parameters": {}
+    },
+    {
+      "id": "amendment_log_entry",
+      "description": "Updates operational parameters, timeouts, or thresholds while preserving core architectural intent",
+      "parameters": {}
+    },
+    {
+      "id": "correction_note",
+      "description": "Errata, broken citations, typographical errors, or non-semantic formatting fixes",
+      "parameters": {}
+    },
+    {
+      "id": "clarification_section",
+      "description": "Additional explanatory prose or diagrams resolving ambiguity without altering decision boundary",
+      "parameters": {}
+    },
+    {
+      "id": "provenance_note",
+      "description": "Lineage, authorship, or upstream specification references updated",
+      "parameters": {}
+    },
+    {
+      "id": "pending_supersession_note",
+      "description": "Marks active artifact indicating replacement is currently drafted; permanently frozen from autonomy",
+      "parameters": {}
+    },
+    {
+      "id": "supersession_update",
+      "description": "Marks older artifact superseded once replacement is formally accepted; permanently frozen from autonomy",
+      "parameters": {}
+    }
+  ],
+  "logits": {
+    "new_superseding_adr": 0.0,
+    "amendment_log_entry": 0.0,
+    "correction_note": 0.0,
+    "clarification_section": 0.0,
+    "provenance_note": 0.0,
+    "pending_supersession_note": 0.0,
+    "supersession_update": 0.0
+  },
+  "baseline": 0.0,
+  "episodes_seen": 0,
+  "updates_applied": 0,
+  "metadata": {
+    "policy_scope": "delegated_decision",
+    "decision_context": "Semantic diff inspection for Stage 16 Governance Change",
+    "decision_authority": "full",
+    "decision_authority_source": "configured",
+    "complexity_profile": {
+      "intent_ambiguity": "low",
+      "context_variability": "variable",
+      "outcome_observability": "direct",
+      "decision_impact": "high",
+      "reversibility": "reversible",
+      "requires_human_approval": true,
+      "rationale": "Reused directly from sidpa-template's own shared-complexity-profile.json, which itself was corrected from a real ADPA mistake (approve-adr was first built with requires_human_approval: false, and the resolver's own execute_without_confirmation logic would have bypassed a real governance rule as a result). Correct this down per-policy only with real evidence the specific decision doesn't need a human sign-off -- never flip it the other direction speculatively."
+    },
+    "complexity_profile_source": "configured"
+  },
+  "created_at": "2026-10-24T09:38:58.235279+00:00"
+}

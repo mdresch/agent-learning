@@ -1,0 +1,37 @@
+{
+  "id": "5d5ccd81-9fd1-4e09-a9ad-6930bc963622",
+  "agent_id": "agent-learning-governance",
+  "agent_name": null,
+  "task_id": "classify-hypothesis-status",
+  "task_name": null,
+  "user_input": "HYP-AL-006: classify-diff-type resolved three real/constructed cases correctly, including one that itself correctly escalated rather than guessing",
+  "assistant_output": "mark_validated: a mixed-but-still-confirming result (two clean resolutions plus one appropriate escalation) is exactly what validated should look like for this kind of hypothesis",
+  "intent_summary": null,
+  "action_type": null,
+  "action_name": null,
+  "target": null,
+  "input_summary": null,
+  "expected_outcome": null,
+  "execution_status": null,
+  "result_summary": null,
+  "system_message": null,
+  "conversation_history": [],
+  "tool_calls": [],
+  "policy_id": null,
+  "policy_version": null,
+  "action_id": "mark_validated",
+  "action_logprob": null,
+  "context_features": {
+    "hypothesis_id": "HYP-AL-006"
+  },
+  "model_deployment": null,
+  "correlation_id": null,
+  "session_id": null,
+  "request_latency_ms": null,
+  "token_usage": null,
+  "metadata": {
+    "source_document": "Ideation-Document.md",
+    "real_or_redteam": "real"
+  },
+  "created_at": "2026-10-21T11:51:50.637390+00:00"
+}

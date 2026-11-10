@@ -1,0 +1,37 @@
+{
+  "id": "c5bdb10a-f792-4e0a-9256-2a3af49dcc7a",
+  "agent_id": "agent-learning-governance",
+  "agent_name": null,
+  "task_id": "classify-hypothesis-status",
+  "task_name": null,
+  "user_input": "HYP-AL-001 real finding: choose-repository-search crossed every autonomy-tier gate (eligible: true) at 219 real episodes, selection_mode flipped to autonomous-greedy",
+  "assistant_output": "mark_validated: a different validation flavor than the others tested so far -- statistical gate-crossing via accumulated REINFORCE training, not a live proof-of-negative or multi-trial full-authority discrimination",
+  "intent_summary": null,
+  "action_type": null,
+  "action_name": null,
+  "target": null,
+  "input_summary": null,
+  "expected_outcome": null,
+  "execution_status": null,
+  "result_summary": null,
+  "system_message": null,
+  "conversation_history": [],
+  "tool_calls": [],
+  "policy_id": null,
+  "policy_version": null,
+  "action_id": "mark_validated",
+  "action_logprob": null,
+  "context_features": {
+    "hypothesis_id": "HYP-AL-001"
+  },
+  "model_deployment": null,
+  "correlation_id": null,
+  "session_id": null,
+  "request_latency_ms": null,
+  "token_usage": null,
+  "metadata": {
+    "source_document": "Ideation-Document.md",
+    "real_or_redteam": "real"
+  },
+  "created_at": "2026-10-21T11:59:48.419160+00:00"
+}

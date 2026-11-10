@@ -1,0 +1,48 @@
+{
+  "id": "f6c07a16-28cd-45b4-aef1-983625af25dc",
+  "agent_id": "agent-learning-governance",
+  "task_id": "approve-business-case",
+  "version": 0,
+  "actions": [
+    {
+      "id": "approve_business_case",
+      "description": "The Business Case establishes a grounded value premise tied to hypotheses, credible ROI/benefit expectations, realistic risk assessments, and sound business alternatives -- approve it to authorize project chartering",
+      "parameters": {}
+    },
+    {
+      "id": "reject_business_case",
+      "description": "The Business Case fails to justify investment, presents unviable economics or unsubstantiated value premises -- reject it outright",
+      "parameters": {}
+    },
+    {
+      "id": "request_revision_before_decision",
+      "description": "The Business Case requires further financial justification, risk quantification, or clearer hypothesis-to-benefit linkage before it can be judged",
+      "parameters": {}
+    }
+  ],
+  "logits": {
+    "approve_business_case": 0.0,
+    "reject_business_case": 0.0,
+    "request_revision_before_decision": 0.0
+  },
+  "baseline": 0.0,
+  "episodes_seen": 0,
+  "updates_applied": 0,
+  "metadata": {
+    "policy_scope": "delegated_decision",
+    "decision_context": "Governance review for Stage 4 Business Case",
+    "decision_authority": "full",
+    "decision_authority_source": "configured",
+    "complexity_profile": {
+      "intent_ambiguity": "low",
+      "context_variability": "variable",
+      "outcome_observability": "direct",
+      "decision_impact": "high",
+      "reversibility": "reversible",
+      "requires_human_approval": true,
+      "rationale": "Reused directly from sidpa-template's own shared-complexity-profile.json, which itself was corrected from a real ADPA mistake (approve-adr was first built with requires_human_approval: false, and the resolver's own execute_without_confirmation logic would have bypassed a real governance rule as a result). Correct this down per-policy only with real evidence the specific decision doesn't need a human sign-off -- never flip it the other direction speculatively."
+    },
+    "complexity_profile_source": "configured"
+  },
+  "created_at": "2026-10-24T09:38:54.399619+00:00"
+}

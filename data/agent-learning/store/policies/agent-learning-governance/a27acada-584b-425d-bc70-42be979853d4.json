@@ -1,0 +1,48 @@
+{
+  "id": "a27acada-584b-425d-bc70-42be979853d4",
+  "agent_id": "agent-learning-governance",
+  "task_id": "approve-charter",
+  "version": 0,
+  "actions": [
+    {
+      "id": "approve_charter",
+      "description": "The Project Charter establishes clear strategic purpose, sponsor authority, measurable objectives aligned with benefits, and realistic scope boundaries -- approve it to proceed to project execution and subsidiary planning",
+      "parameters": {}
+    },
+    {
+      "id": "reject_charter",
+      "description": "The Project Charter has fundamental flaws in authority, objectives, or scope alignment that cannot be reconciled -- reject it outright",
+      "parameters": {}
+    },
+    {
+      "id": "request_revision_before_decision",
+      "description": "The Project Charter requires clarification of measurable objectives, sponsor boundaries, or premature subsidiary commitments before a final decision can be made",
+      "parameters": {}
+    }
+  ],
+  "logits": {
+    "approve_charter": 0.0,
+    "reject_charter": 0.0,
+    "request_revision_before_decision": 0.0
+  },
+  "baseline": 0.0,
+  "episodes_seen": 0,
+  "updates_applied": 0,
+  "metadata": {
+    "policy_scope": "delegated_decision",
+    "decision_context": "Governance review for Stage 2 Project Charter",
+    "decision_authority": "full",
+    "decision_authority_source": "configured",
+    "complexity_profile": {
+      "intent_ambiguity": "low",
+      "context_variability": "variable",
+      "outcome_observability": "direct",
+      "decision_impact": "high",
+      "reversibility": "reversible",
+      "requires_human_approval": true,
+      "rationale": "Reused directly from sidpa-template's own shared-complexity-profile.json, which itself was corrected from a real ADPA mistake (approve-adr was first built with requires_human_approval: false, and the resolver's own execute_without_confirmation logic would have bypassed a real governance rule as a result). Correct this down per-policy only with real evidence the specific decision doesn't need a human sign-off -- never flip it the other direction speculatively."
+    },
+    "complexity_profile_source": "configured"
+  },
+  "created_at": "2026-10-24T09:38:55.378667+00:00"
+}

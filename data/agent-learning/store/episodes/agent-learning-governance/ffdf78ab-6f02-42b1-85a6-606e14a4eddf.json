@@ -1,0 +1,38 @@
+{
+  "id": "ffdf78ab-6f02-42b1-85a6-606e14a4eddf",
+  "agent_id": "agent-learning-governance",
+  "agent_name": null,
+  "task_id": "classify-hypothesis-status",
+  "task_name": null,
+  "user_input": "HYP-AL-002 real finding: validate-intent-foundation, trained live on 146 real all-positive episodes, plateaued at ~0.417 probability and began declining after ~50 further training calls -- mathematically incapable of reaching the required 0.75",
+  "assistant_output": "mark_validated: positive-only evidence cannot statistically earn autonomy for a low-authority bandit, confirmed by a live training run that plateaued and then declined",
+  "intent_summary": null,
+  "action_type": null,
+  "action_name": null,
+  "target": null,
+  "input_summary": null,
+  "expected_outcome": null,
+  "execution_status": null,
+  "result_summary": null,
+  "system_message": null,
+  "conversation_history": [],
+  "tool_calls": [],
+  "policy_id": null,
+  "policy_version": null,
+  "action_id": "mark_validated",
+  "action_logprob": null,
+  "context_features": {
+    "hypothesis_id": "HYP-AL-002",
+    "source": "agent-learning Ideation Document v1.8 Section 2.2"
+  },
+  "model_deployment": null,
+  "correlation_id": null,
+  "session_id": null,
+  "request_latency_ms": null,
+  "token_usage": null,
+  "metadata": {
+    "source_document": "Ideation-Document.md",
+    "real_or_redteam": "real"
+  },
+  "created_at": "2026-10-21T10:33:27.531690+00:00"
+}

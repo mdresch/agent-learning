@@ -1,0 +1,38 @@
+{
+  "id": "76562952-261d-4d32-9538-255ea1383db5",
+  "agent_id": "agent-learning-governance",
+  "agent_name": null,
+  "task_id": "classify-hypothesis-status",
+  "task_name": null,
+  "user_input": "HYP-AL-010: offline scored-search over DecisionResolver criteria weights, not yet attempted. The labeled set partially exists (six resolved real-vs-red-team pairs), but no actual search/optimization run has occurred",
+  "assistant_output": "no_new_evidence: noting that groundwork exists is not the same as beginning a real attempt -- a harder boundary test than HYP-AL-007's true zero-evidence case, since there was a real readiness signal pulling toward advance_to_testing",
+  "intent_summary": null,
+  "action_type": null,
+  "action_name": null,
+  "target": null,
+  "input_summary": null,
+  "expected_outcome": null,
+  "execution_status": null,
+  "result_summary": null,
+  "system_message": null,
+  "conversation_history": [],
+  "tool_calls": [],
+  "policy_id": null,
+  "policy_version": null,
+  "action_id": "no_new_evidence",
+  "action_logprob": null,
+  "context_features": {
+    "hypothesis_id": "HYP-AL-010"
+  },
+  "model_deployment": null,
+  "correlation_id": null,
+  "session_id": null,
+  "request_latency_ms": null,
+  "token_usage": null,
+  "metadata": {
+    "source_document": "Ideation-Document.md",
+    "real_or_redteam": "real",
+    "note": "distinguishes groundwork-noted from attempt-began"
+  },
+  "created_at": "2026-10-21T12:07:49.649549+00:00"
+}

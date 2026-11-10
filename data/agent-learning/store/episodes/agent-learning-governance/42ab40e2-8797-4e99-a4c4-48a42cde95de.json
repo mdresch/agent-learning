@@ -1,0 +1,42 @@
+{
+  "id": "42ab40e2-8797-4e99-a4c4-48a42cde95de",
+  "agent_id": "agent-learning-governance",
+  "agent_name": "agent-learning-governance",
+  "task_id": "approve-subsidiary-plan",
+  "task_name": "Approve subsidiary management plan",
+  "user_input": "The Project Sponsor accepted the approve_plan recommendation for Schedule Management Plan v1.2.0 (6.B-7).",
+  "assistant_output": "The human accepted the full-authority reasoned recommendation. Recorded approval against the Schedule plan canonical hash and approved upstream Scope hash.",
+  "intent_summary": "Record sponsor approval of Schedule Management Plan v1.2.0 after Scope 6.A-7 and Schedule foundation 6.B-6.",
+  "action_type": "subsidiary_plan_approval",
+  "action_name": "Approve Schedule Management Plan (human adjudication)",
+  "target": "docs/project-docs/management-plans/Schedule-Management-Plan.md",
+  "input_summary": "plan_id=schedule-management; baseline=PMP-BL-v1.0.0; version=1.2.0; canonical_content_hash=1818224cc279819228c7f20b15eea531a0467a6e24ec652c09252d55c4e09cb9; upstream scope-management hash=3febf6edd1dbed564df2a8618176d32c42ec19a5d02dcf3ea45b594b70cb33a8; Schedule manifest v1.4.0 pack_status=approved; 8/8 artifact hashes verified; lint and integrity findings=0.",
+  "expected_outcome": "Hash-bound approval Episode for Schedule Management Plan v1.2.0 and completion of gate 6.B-7.",
+  "execution_status": "completed",
+  "result_summary": "Approved after explicit Project Sponsor acceptance of the full-authority recommendation. This is human adjudication; no REINFORCE update was performed.",
+  "system_message": null,
+  "conversation_history": [],
+  "tool_calls": [],
+  "policy_id": "0e085d92-6083-4da1-8500-6b0567558e38",
+  "policy_version": 0,
+  "action_id": "approve_plan",
+  "action_logprob": null,
+  "context_features": {},
+  "model_deployment": null,
+  "correlation_id": null,
+  "session_id": null,
+  "request_latency_ms": null,
+  "token_usage": null,
+  "metadata": {
+    "plan_id": "schedule-management",
+    "canonical_content_hash": "1818224cc279819228c7f20b15eea531a0467a6e24ec652c09252d55c4e09cb9",
+    "upstream_hashes": {
+      "scope-management": "3febf6edd1dbed564df2a8618176d32c42ec19a5d02dcf3ea45b594b70cb33a8"
+    },
+    "decision_disposition": "accepted",
+    "feedback_status": "accepted",
+    "run_id": "42ab40e2-8797-4e99-a4c4-48a42cde95de",
+    "sequence_number": 0
+  },
+  "created_at": "2026-10-30T17:06:05.550537+00:00"
+}

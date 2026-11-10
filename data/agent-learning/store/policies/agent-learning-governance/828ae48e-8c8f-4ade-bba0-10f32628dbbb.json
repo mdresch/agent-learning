@@ -1,0 +1,48 @@
+{
+  "id": "828ae48e-8c8f-4ade-bba0-10f32628dbbb",
+  "agent_id": "agent-learning-governance",
+  "task_id": "recommend-subsidiary-plan-review",
+  "version": 0,
+  "actions": [
+    {
+      "id": "approve_plan",
+      "description": "The subsidiary management plan establishes sound baseline definitions, meets technical integrity criteria, and is consistent with upstream plans -- approve it to authorize baseline formalization",
+      "parameters": {}
+    },
+    {
+      "id": "reject_plan",
+      "description": "The subsidiary management plan has critical deficiencies, ungrounded assumptions, or irreconcilable contradictions with upstream plans -- reject it outright",
+      "parameters": {}
+    },
+    {
+      "id": "request_revision_before_decision",
+      "description": "The subsidiary management plan requires minor clarifications, boundary sharpening, or terminology reconciliation with upstream plans before authorization",
+      "parameters": {}
+    }
+  ],
+  "logits": {
+    "approve_plan": 0.0,
+    "reject_plan": 0.0,
+    "request_revision_before_decision": 0.0
+  },
+  "baseline": 0.0,
+  "episodes_seen": 0,
+  "updates_applied": 0,
+  "metadata": {
+    "policy_scope": "delegated_decision",
+    "decision_context": "Non-binding low-authority recommendation for one subsidiary management plan; a human retains the approval decision and confirms outcomes for pilot learning.",
+    "decision_authority": "low",
+    "decision_authority_source": "configured",
+    "complexity_profile": {
+      "intent_ambiguity": "medium",
+      "context_variability": "variable",
+      "outcome_observability": "delayed",
+      "decision_impact": "medium",
+      "reversibility": "reversible",
+      "requires_human_approval": true,
+      "rationale": "Pilot recommendations are non-binding. A human must approve, reject, or request revision; this policy has no authority to approve a plan."
+    },
+    "complexity_profile_source": "configured"
+  },
+  "created_at": "2026-10-30T17:00:01.942528+00:00"
+}

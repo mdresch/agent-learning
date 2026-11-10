@@ -36,6 +36,11 @@ def _temporary_store(
 
     temporary = tmp_path_factory.mktemp("store")
     monkeypatch.setattr(pr_gate, "DEFAULT_STORE_DIR", temporary)
+    def no_diff(pr_number: int) -> str:  # no network; tests that need a diff patch it
+        return ""
+
+    no_diff.real = pr_gate.fetch_pr_diff  # type: ignore[attr-defined]  # the unpatched function, for its own test
+    monkeypatch.setattr(pr_gate, "fetch_pr_diff", no_diff)
     # The *_real_data tests read the recorded store on purpose (they copy it); every other test gets a temporary one.
     if not request.module.__name__.endswith("_real_data"):
         monkeypatch.setenv("AGENT_LEARNING_LOCAL_STORE_DIR", str(temporary))

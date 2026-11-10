@@ -37,6 +37,7 @@ from agent_learning.decision import (
     EvidencePoint,
     PolicySnapshot,
 )
+from agent_learning.review_triage import TriageRecord, find_triage_lines, parse_triage_line
 from agent_learning.storage.local import LocalFileStore
 from agent_learning.types import Episode
 
@@ -44,8 +45,10 @@ from agent_learning_ext.critique_evidence import (
     CritiqueDelta,
     apply_critique,
     parse_critique,
+    rubric_delta,
     to_episode_metadata,
 )
+from agent_learning_ext.triage_replay import map_claim_to_criterion
 
 
 def fetch_pr_data(pr_number: int) -> dict[str, Any]:
@@ -64,6 +67,91 @@ def fetch_pr_data(pr_number: int) -> dict[str, Any]:
     if run.returncode != 0:
         raise RuntimeError(f"Failed to fetch PR #{pr_number} via gh: {run.stderr.strip()}")
     return json.loads(run.stdout)
+
+
+TRIAGE_LOG = "implementation-log.md"
+
+
+def fetch_pr_diff(pr_number: int) -> str:
+    """Fetch the unified diff of a PR via GitHub CLI (fails closed: an unreadable diff is an error)."""
+    run = subprocess.run(
+        ["gh", "pr", "diff", str(pr_number)],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        check=False,
+    )
+    if run.returncode != 0:
+        raise RuntimeError(f"Failed to fetch the diff of PR #{pr_number} via gh: {run.stderr.strip()}")
+    return run.stdout
+
+
+def added_triage_lines(diff: str) -> list[str]:
+    """The review-triage lines a PR adds to the implementation log (IMP-030)."""
+    added: list[str] = []
+    in_log = False
+    for line in diff.splitlines():
+        if line.startswith("diff --git "):
+            in_log = line.rstrip().endswith("/" + TRIAGE_LOG)
+        elif in_log and line.startswith("+") and not line.startswith("+++"):
+            added.append(line[1:])
+    return find_triage_lines("\n".join(added))
+
+
+def check_triage_lines(lines: list[str]) -> tuple[list[TriageRecord], list[str]]:
+    """Parse each added triage line; a claim type, verification or decision outside the vocabulary is an error."""
+    records: list[TriageRecord] = []
+    errors: list[str] = []
+    for text in lines:
+        try:
+            records.append(parse_triage_line(text))
+        except ValueError as err:
+            errors.append(f"`{text[:60]}`: {err}")
+    return records, errors
+
+
+def reconcile_triage(
+    deltas: list[CritiqueDelta], records: list[TriageRecord], pr_number: int
+) -> tuple[list[CritiqueDelta], list[str]]:
+    """Respect the maintainer's triage of this PR's own findings (IMP-017).
+
+    A declined or deferred row cancels one review-derived defect on the same criterion; an accepted row keeps the defect,
+    and adds the rubric delta when the review text produced none. Untriaged findings still count in full.
+    """
+    remaining = list(deltas)
+    notes: list[str] = []
+    for rec in records:
+        if rec.pr != pr_number:
+            continue
+        criterion = map_claim_to_criterion(rec.claim_type)
+        match = next((d for d in remaining if d.criterion_id == criterion and d.support_delta < 0), None)
+        if rec.decision == "accepted":
+            if match is not None:
+                notes.append(f"{rec.finding_id} accepted: kept {match.finding_id}")
+                continue
+            try:
+                value = rubric_delta(rec.claim_type, rec.verified)
+            except ValueError:
+                notes.append(f"{rec.finding_id} accepted: no rubric delta for ({rec.claim_type}, {rec.verified}); not scored")
+                continue
+            if value < 0:
+                remaining.append(
+                    CritiqueDelta(
+                        criterion_id=criterion,
+                        support_delta=value,
+                        rationale=rec.reason,
+                        finding_id=rec.finding_id,
+                        basis="rubric",
+                        rubric_delta=value,
+                    )
+                )
+                notes.append(f"{rec.finding_id} accepted: added rubric delta {value:+.2f}")
+        elif rec.decision in {"declined", "deferred"} and match is not None:
+            remaining.remove(match)
+            notes.append(f"{rec.finding_id} {rec.decision}: cancelled {match.finding_id}")
+    return remaining, notes
 
 
 def extract_raw_review_texts(pr_data: dict[str, Any]) -> list[tuple[str, str]]:
@@ -428,6 +516,33 @@ def evaluate_pr(
             },
         )
 
+    # 2b. IMP-030: review-triage lines the PR adds must stay inside the vocabulary
+    triage_records, triage_errors = check_triage_lines(added_triage_lines(fetch_pr_diff(pr_number)))
+    if triage_errors:
+        reason = "Triage line outside the vocabulary: " + "; ".join(triage_errors)
+        ep_id = None
+        if persist_episode:
+            ep_id = save_gate_episode(
+                pr_number=pr_number,
+                pr_data=pr_data,
+                passed=False,
+                reason=reason,
+                margin=-1.0,
+                applied=None,
+                store_dir=store_dir,
+            )
+        return (
+            False,
+            reason,
+            {
+                "pr_number": pr_number,
+                "title": pr_data.get("title"),
+                "head_commit": pr_data.get("headRefOid"),
+                "triage_errors": triage_errors,
+                "episode_id": ep_id,
+            },
+        )
+
     # 3. Extract and parse reviews
     review_sources = extract_raw_review_texts(pr_data)
     all_tagged_bullets: list[str] = []
@@ -444,6 +559,8 @@ def evaluate_pr(
         except ValueError as err:
             # Tolerant fallback if any bullet fails parsing
             print(f"Warning: Parse issue on review line: {err}", file=sys.stderr)
+
+    deltas, triage_notes = reconcile_triage(deltas, triage_records, pr_number)
 
     # 4. Bayesian Decision Frame Setup & Ingestion
     frame = build_decision_frame(pr_number)
@@ -507,6 +624,7 @@ def evaluate_pr(
             },
         },
         "critique_deltas_count": len(deltas),
+        "triage_replay": triage_notes,
         "critique_adjustments": to_episode_metadata(applied).get("critique_adjustments", []),
         "episode_id": ep_id,
     }

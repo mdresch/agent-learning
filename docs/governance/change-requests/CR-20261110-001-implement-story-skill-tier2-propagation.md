@@ -10,7 +10,7 @@ requested_by: "Menno Drescher"
 drafted_by: "assistant (draft only; nothing in section 4 is applied)"
 ---
 
-# Manual Change Request: Bring the `implement-story` Skill Up To Date With the Accepted Lessons and the Code
+# Manual Change Request: Bring the `implement-story` and `heal-contract-failure` Skills Up To Date With the Accepted Lessons and the Code
 
 > **Status:** Proposed. No decision is recorded. The skill file is unchanged until the Sponsor decides (section 6).
 
@@ -22,6 +22,8 @@ drafted_by: "assistant (draft only; nothing in section 4 is applied)"
 - **Step 6 is out of date.** It ends in `--ignore=tests/test_spark.py --ignore=tests/pmbok`. The whole suite now collects 2606 tests with no `--ignore` (checked 2026-11-10 with `uv run pytest --collect-only -q`), the Spark tests skip without a JVM, and `tests/pmbok` collects once the `dev` and `examples` extras are synced (LL-055, IMP-044, the maintainer's rule to run the whole suite).
 - **Step 0 is out of date.** It says plain `uv sync`; LL-033 and LL-055 say a fresh worktree needs the extras and a check.
 - **"Enforcement layer: None (no ... CI contract gate)"** and the Step 6 note repeat the old exclusion. CI still runs `pytest --ignore=tests/pmbok` (`.github/workflows/tests.yaml`); that is IMP-056, carried separately, and the skill should say so instead of copying it.
+
+- **A heal pass runs the same loop.** `heal-contract-failure` says "walk steps 1 to 5" and, for a resumed `implement-story` run (LL-042), reuses the story's branch, tests and review. Every rule added to `implement-story` therefore applies to a heal pass too, but the heal skill names none of them. Its Step 5 and its project facts also still say `--ignore=tests/test_spark.py --ignore=tests/pmbok`.
 
 ## 2. Why a change request
 
@@ -57,6 +59,20 @@ Each line cites its lesson so the Step 9 check (`grep -c "LL-0xx"`) finds it. Wo
 | 8.9 Merge | Prefer merging the base story first. A stacked PR is unverified: after the base merges, retarget to `main`, merge `main` into the branch, rerun the full suite and wait for CI before the gate. | LL-038 |
 | 9 Audit | To claim an omission, read the unfiltered source (for example `grep -c` on the whole entry) and quote it; a filtered output only supports "not found in this view". | LL-032 |
 
+### 4b. `heal-contract-failure`: the heal pass uses the same rules
+
+To avoid two copies that drift apart (LL-007), the heal skill points at `implement-story` instead of repeating the text. Proposed edits to `.claude/skills/heal-contract-failure/SKILL.md`:
+
+| Where | Add or change | Lessons |
+|---|---|---|
+| New section "Rules shared with `implement-story`" | A heal pass applies these `implement-story` rules unchanged, by step: Step 0 (worktree environment, approvals committed, load and re-read the skill), Step 1 (run a spec's worked example through the real gate), Step 3 (RED by breaking the behaviour, no `hash(`, no `approx` on tuples), Step 6 (whole suite, `uvx` for a missing tool), Step 8 (check a confirmation's claims, record a no-finding review as prose, treat a stacked PR as unverified), Step 9 (read the unfiltered source before claiming an omission). | LL-027, 028, 029, 030, 031, 032, 033, 034, 035, 036, 038, 039 |
+| Step 2 (make it RED) | Name the LL-035 way to obtain RED when the defect is already fixed or latent: break the behaviour, see the named test fail, restore, and check `git diff main -- src` is empty. | LL-035 |
+| Step 5 Validate | Replace the command with plain `uv run pytest` after `uv sync --extra dev --extra examples`; a partial run is never called the whole suite. | LL-013, 055 |
+| Resuming a started run | Add: record the environment check (LL-033) and the review record shape (LL-034) in the dated correction entry. | LL-033, 034 |
+| Project facts | Replace the old command; say CI still excludes `tests/pmbok` (IMP-056), so CI is not the whole suite. Keep "no mechanical enforcement layer". | LL-013, 055 |
+
+Order of the two edits: `implement-story` first, so the heal skill's pointer names text that exists.
+
 ## 5. LL-040 (store path): what it means and where it belongs
 
 LL-040 says to resolve and print the store path before `task-policy-decide`, `task-policy-adjudicate` or `task-episode-register`, and count files before and after.
@@ -73,7 +89,7 @@ LL-040 says to resolve and print the store path before `task-policy-decide`, `ta
 
 ## 7. Procedure after approval
 
-1. One branch, one PR: edit the skill as section 4; update the Stage 16 draft and, where the lessons name the skill, nothing else by hand.
+1. One branch, one PR: edit both skills as sections 4 and 4b; update the Stage 16 draft and, where the lessons name the skill, nothing else by hand.
 2. `uv run pytest` (whole suite) and `scripts/pr_gate.py`; the PR cites this request.
-3. The next epic recap runs the LL-041 check and finds all 12 ids.
+3. The next epic recap runs the LL-041 check and finds all 12 ids in `implement-story`; `heal-contract-failure` names the same ids in its shared-rules section.
 4. Record the result in the Stage 16 assessment; do not edit the register entries.

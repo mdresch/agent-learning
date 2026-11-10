@@ -213,9 +213,15 @@
     "docs/adr/ADR-023-active-dueling-bandit-ranking-engine.md": {
       "family": "adr",
       "status": "accepted",
-      "sha256": "7817e6bf55ad412a54799c9e0e113e4a6b677046fb17fe33e66840dafc5850a2",
+      "sha256": "3eee11ba93da5152cba2f7300e496e8ce257b3ae6e23468693e3a57ecb9009b1",
       "approval_episode": null,
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-10",
+          "episode": "ada6e2b8",
+          "stage": 16
+        }
+      ]
     },
     "docs/adr/ADR-024-learning-methodology-selection-chain.md": {
       "family": "adr",

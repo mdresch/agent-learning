@@ -33,7 +33,6 @@ CATALOG = EXAMPLES / "catalog.json"
 
 # Methodology id -> directory, for the proof-of-concept entries (ADR-036 section 4.1).
 RUNNABLE = {
-    9: "09-thompson-sampling",
     14: "14-meta-learning",
     15: "15-warm-start",
     23: "23-dueling-bandit",

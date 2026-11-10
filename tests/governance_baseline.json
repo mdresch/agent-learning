@@ -320,9 +320,20 @@
     "docs/adr/ADR-036-learning-methodology-examples-ledger-and-review-triage-loop.md": {
       "family": "adr",
       "status": "accepted",
-      "sha256": "f3d9079071fab096510377c562399c31d1ea3a39e6d910932790231408e3c0b0",
+      "sha256": "27f588e8d2c4032ad9cda91f8f269b823aaccfb9602bb0d83df29e6b8035762b",
       "approval_episode": null,
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-10",
+          "episode": "4b6f2c91",
+          "stage": 16
+        },
+        {
+          "date": "2026-11-10",
+          "episode": "bfc5ab7b",
+          "stage": 16
+        }
+      ]
     },
     "docs/adr/ADR-037-design-time-baseline-feedback-loop.md": {
       "family": "adr",
@@ -1223,10 +1234,21 @@
     },
     "docs/user-stories/epic-36-learning-methodology-examples-ledger-and-review-triage-loop.md": {
       "family": "story",
-      "status": "approved",
-      "sha256": "a6cc2f15bb36766bddb7a58b5396654f5b7addc80c9ec3502b87d6f798c28906",
+      "status": "completed",
+      "sha256": "4a302707e0db6ab303d57888d80cd7d3ceed28f3d83009d6f9a4a47ee151b4e3",
       "approval_episode": "80fe8a45",
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-10",
+          "episode": "7f53a67d",
+          "stage": 16
+        },
+        {
+          "date": "2026-11-10",
+          "episode": "89358a1e",
+          "stage": 16
+        }
+      ]
     },
     "docs/user-stories/epic-37-design-time-baseline-feedback-loop.md": {
       "family": "story",

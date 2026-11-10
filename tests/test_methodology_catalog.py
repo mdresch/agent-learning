@@ -113,11 +113,11 @@ def test_ac1_unknown_state_is_rejected() -> None:
 
 
 def test_ac1_class_counts_match_adr_036() -> None:
-    """AC_1: 9 runnable, 10 proof_of_concept and 13 documented (ADR-036 section 4.1, I3)."""
+    """AC_1: 16 runnable, 3 proof_of_concept and 13 documented (ADR-036 section 4.1, I3)."""
     counts: dict[str, int] = {}
     for entry in _entries():
         counts[entry.example_class.value] = counts.get(entry.example_class.value, 0) + 1
-    assert counts == {"runnable": 9, "proof_of_concept": 10, "documented": 13}
+    assert counts == {"runnable": 16, "proof_of_concept": 3, "documented": 13}
 
 
 def test_ac1_mismatched_class_is_rejected() -> None:

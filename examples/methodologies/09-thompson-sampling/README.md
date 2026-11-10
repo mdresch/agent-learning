@@ -1,15 +1,15 @@
 # Thompson sampling (methodology #9)
 
-**Status:** proof_of_concept · **Code:** sketch · **Data:** SYNTHETIC · **Not evidence:** this run does not validate or invalidate the methodology.
+**Status:** runnable · **Code:** SDK · **Data:** SYNTHETIC · **Not evidence:** this run does not validate or invalidate the methodology.
 
 ## What it shows
-A Beta posterior per action (alpha += r, beta += 1 - r) and probability matching: the better action is sampled more often as evidence accumulates.
+Seeded Beta-Bernoulli Thompson sampling with the real `ThompsonPolicy` and `ThompsonLearner`: a Beta posterior per action, probability matching, each episode counted once, and the better action drawn more often as evidence accumulates.
 
 ## Run it
 ```
-python examples/methodologies/09-thompson-sampling/sketch.py
+python examples/methodologies/09-thompson-sampling/example.py
 ```
-Standard library only: no network, no credentials, no files written. All data in it is SYNTHETIC (invented for the demonstration). It is a sketch of the formulas in ADR-015 (Accepted); the methodology is not implemented in the SDK.
+It needs the package installed and nothing else: no network, no credentials, no files written. All data in it is SYNTHETIC (invented for the demonstration).
 
 ## What it does not show
 That Thompson sampling crosses an autonomy gate under positive-only evidence; no gate is evaluated.

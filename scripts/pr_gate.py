@@ -58,7 +58,9 @@ def fetch_pr_data(pr_number: int) -> dict[str, Any]:
         "--json",
         "number,title,state,headRefOid,mergeable,mergeStateStatus,statusCheckRollup,reviews,comments,files",
     ]
-    run = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, check=False)
+    run = subprocess.run(
+        cmd, cwd=ROOT, capture_output=True, text=True, encoding="utf-8", errors="replace", check=False
+    )
     if run.returncode != 0:
         raise RuntimeError(f"Failed to fetch PR #{pr_number} via gh: {run.stderr.strip()}")
     return json.loads(run.stdout)

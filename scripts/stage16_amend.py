@@ -122,7 +122,13 @@ def git_head(rel: str) -> str:
 
 def head_commit() -> str:
     return subprocess.run(
-        ["git", "rev-parse", "--short", "HEAD"], cwd=ROOT, capture_output=True, text=True, check=True
+        ["git", "rev-parse", "--short", "HEAD"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        check=True,
     ).stdout.strip()
 
 
@@ -265,6 +271,7 @@ def agent_learn(*args: str) -> str:
         capture_output=True,
         text=True,
         encoding="utf-8",
+        errors="replace",
         check=False,
         env={**os.environ, STORE_VAR: str(store)},
     )

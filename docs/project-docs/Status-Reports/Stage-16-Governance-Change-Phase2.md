@@ -5,7 +5,7 @@ baseline_id: "PMP-BL-v1.1.0"
 lifecycle_stage: "Stage 16 (Governance Change)"
 pmbok_process: "4.6 Perform Integrated Change Control"
 date: "2026-11-10"
-status: "DRAFT - Steps 1 to 8 prepared; awaiting the Sponsor's approval of the assessment and the F1 decision."
+status: "DRAFT - Steps 1 to 8 prepared; awaiting the Sponsor's approval of the assessment (F1 approved 2026-11-10)."
 follows: "Stage-15-Lessons-Phase2.md (REP-STAGE15-LESSON-PHASE2)"
 ---
 
@@ -171,7 +171,9 @@ Alternative: record that the three were never adopted. Not proposed, because the
 - DPO (#13) has no hypothesis in the Ideation Document (its hypothesis column reads "none"). The DPO claim was written into the Business Case under an id the Ideation Document had already given to another hypothesis.
 - Stage 12 already records HYP-AL-018 as Formulated, so the Charter's "formally resolved" criterion for it is not met under either meaning.
 
-*Proposal for the Stage 17 package, not a decision:* register the DPO sample-efficiency hypothesis in the Ideation Document as a new id (the next free one is HYP-AL-028; HYP-AL-018 keeps the LinUCB meaning that two ADRs and the Ideation Document use), then repoint the Charter, Business Case and Benefits Management Plan to it; the generated Scope plans are regenerated. The Charter, Business Case and Ideation Document are approved documents, outside the ADR-007 freeze, so this goes in the single Phase 2 close adaptation as a baseline change, accepted by the Sponsor. Alternative: give HYP-AL-018 the DPO meaning and move LinUCB to a new id; this touches two accepted ADRs and FDD-024 as well, so it is not proposed.
+**Decision (2026-11-10, Menno Drescher, Project Sponsor): approved. The DPO hypothesis is registered as HYP-AL-028; HYP-AL-018 keeps the LinUCB meaning.** The Ideation Document, Charter, Business Case and Benefits Management Plan changes are carried by the Stage 17 package; none is made yet.
+
+*The proposal as presented:* register the DPO sample-efficiency hypothesis in the Ideation Document as a new id (the next free one is HYP-AL-028; HYP-AL-018 keeps the LinUCB meaning that two ADRs and the Ideation Document use), then repoint the Charter, Business Case and Benefits Management Plan to it; the generated Scope plans are regenerated. The Charter, Business Case and Ideation Document are approved documents, outside the ADR-007 freeze, so this goes in the single Phase 2 close adaptation as a baseline change, accepted by the Sponsor. Alternative: give HYP-AL-018 the DPO meaning and move LinUCB to a new id; this touches two accepted ADRs and FDD-024 as well, so it is not proposed.
 
 **F2: `agent-training-ext/` in the Charter, PMP and plans. Mostly covered; two documents are missing from the package.**
 
@@ -203,7 +205,7 @@ Alternative: record that the three were never adopted. Not proposed, because the
 
 ### Open for Stage 17 and the next phase
 
-1. **F1:** decide how HYP-AL-018 is split (proposal above); then amend the Charter, Business Case and Benefits Management Plan.
+1. **F1 (approved 2026-11-10):** register HYP-AL-028 for DPO in the Ideation Document and repoint the Charter, Business Case and Benefits Management Plan to it, in the Stage 17 package.
 2. **F2:** add the Business Case and the Benefits Management Plan to the `ADP-20261110-001` change table; regenerate the PMP and plans.
 3. Build the 15 in-flight tooling changes (CR-20261110-002), starting with IMP-062 and IMP-063.
 4. Tier 2 backfill still owed: LL-014, 015, 046, 047, and the entries for LL-065 to LL-067; the Step 2d unapplied list.
@@ -218,4 +220,4 @@ Alternative: record that the three were never adopted. Not proposed, because the
 
 ## Not done
 
-The Sponsor's approval of this assessment, the `Project-Status-Register.md` update, the F1 decision, and the changes listed above for Stage 17. Nothing was escalated outside the Sponsor, and no governance episode exists for this pass.
+The Sponsor's approval of this assessment, the `Project-Status-Register.md` update, and the changes listed above for Stage 17. Nothing was escalated outside the Sponsor, and no governance episode exists for this pass.

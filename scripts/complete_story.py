@@ -10,6 +10,8 @@ that reaches ``main``):
              commit the audit change
 
 Usage:
+    python scripts/complete_story.py worktree 20.3 [--dry-run]
+
     python scripts/complete_story.py done 20.3 \\
         --message "feat(warm-start): implement task-policy-warm-start (Story 20.3)" \\
         --note "Strict isolation: donor is never written" [--contract tests/test_x.py] [--dry-run]
@@ -17,12 +19,17 @@ Usage:
     python scripts/complete_story.py triage 20.3 --round 1 --on 8bb9cc6 \\
         --finding "Q-83-1 | logic error | verified: yes | decision: accepted | <reason> | fix: 0820d05" \\
         --fix-commit 0820d05 --validation "7 passed; full suite 1,531 passed"
+
+    python scripts/complete_story.py triage 20.3 --round 1 --on 8bb9cc6 --none [--verdict "no findings"]
+
+Commits carry a ``Co-Authored-By`` trailer when ``--co-author "Name <email>"`` or the ``STORY_CO_AUTHOR`` variable is set.
 """
 
 from __future__ import annotations
 
 import argparse
 import datetime
+import os
 import re
 import shutil
 import subprocess
@@ -40,8 +47,8 @@ class Abort(Exception):
     """A gate failed; nothing further is done."""
 
 
-def run(cmd: list[str], check: bool = True, capture: bool = True) -> subprocess.CompletedProcess:
-    proc = subprocess.run(cmd, cwd=ROOT, text=True, capture_output=capture, encoding="utf-8")
+def run(cmd: list[str], check: bool = True, capture: bool = True, cwd: Path | None = None) -> subprocess.CompletedProcess:
+    proc = subprocess.run(cmd, cwd=cwd or ROOT, text=True, capture_output=capture, encoding="utf-8")
     if check and proc.returncode != 0:
         raise Abort(f"`{' '.join(cmd)}` failed:\n{proc.stdout}{proc.stderr}")
     return proc
@@ -49,6 +56,44 @@ def run(cmd: list[str], check: bool = True, capture: bool = True) -> subprocess.
 
 def git(*args: str, check: bool = True) -> str:
     return run(["git", *args], check=check).stdout.strip()
+
+
+def with_trailer(message: str, co_author: str | None) -> str:
+    """Append a ``Co-Authored-By`` trailer once (IMP-001); no trailer when nobody is named."""
+    if not co_author or f"Co-Authored-By: {co_author}" in message:
+        return message
+    return f"{message}\n\nCo-Authored-By: {co_author}"
+
+
+def co_author_of(args: argparse.Namespace) -> str | None:
+    return getattr(args, "co_author", None) or os.environ.get("STORY_CO_AUTHOR") or None
+
+
+def cmd_worktree(args: argparse.Namespace) -> None:
+    """Provision a story worktree: add it, sync every extra, drop the real azure-cosmos, check the import (LL-033)."""
+    story = args.story
+    branch = f"feat/story-{story}"
+    path = ROOT.parent / f"{ROOT.name}-story-{story}"
+    if git("branch", "--list", branch) or path.name in git("worktree", "list"):
+        raise Abort(
+            f"{branch} or {path.name} already exists: a run was already started (LL-042). Do not adopt it; inspect it read-only."
+        )
+    venv_python = path / ".venv" / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+    steps = [
+        (["git", "worktree", "add", str(path), "-b", branch, "main"], None),
+        (["uv", "sync", "--all-extras"], path),
+        (["uv", "pip", "uninstall", "--python", str(venv_python), "azure-cosmos"], path),
+        ([str(venv_python), "-c", "import agent_learning"], path),
+    ]
+    if args.dry_run:
+        print(f"[dry run] would provision {path} on {branch}:")
+        for cmd, where in steps:
+            print("  " + " ".join(cmd) + (f"   (in {where})" if where else ""))
+        return
+    for cmd, where in steps:
+        print("  " + " ".join(cmd))
+        run(cmd, cwd=where)
+    print(f"Ready: {path} on {branch}. Read the RED before accepting it: it must name the symbol the story adds, not a missing package.")
 
 
 def pytest_cmd() -> list[str]:
@@ -134,7 +179,8 @@ def cmd_done(args: argparse.Namespace) -> None:
     git("add", "-A", "--", *stage)
     if not git("diff", "--cached", "--name-only"):
         raise Abort("Nothing staged under " + ", ".join(stage))
-    git("commit", "-m", args.message)
+    co_author = co_author_of(args)
+    git("commit", "-m", with_trailer(args.message, co_author))
     impl = git("rev-parse", "--short", "HEAD")
     files = git("show", "--name-only", "--format=", impl).splitlines()
 
@@ -157,7 +203,7 @@ def cmd_done(args: argparse.Namespace) -> None:
     text, nl = read_log()
     write_log(text.rstrip("\n") + "\n\n" + "\n".join(entry) + "\n", nl)
     git("add", "implementation-log.md")
-    git("commit", "-m", f"docs(audit): record implementation of Story {story} (commit {impl})")
+    git("commit", "-m", with_trailer(f"docs(audit): record implementation of Story {story} (commit {impl})", co_author))
     print(f"Done: implementation {impl}, audit {git('rev-parse', '--short', 'HEAD')}. Ready to push and open the PR.")
 
 
@@ -171,13 +217,23 @@ def cmd_triage(args: argparse.Namespace) -> None:
     end_idx = m.end() + end.start() if end else len(text)
     block = text[m.start():end_idx].rstrip("\n")
 
+    if args.none and args.finding:
+        raise Abort("Pass --finding or --none, not both.")
+    if not args.none and not args.finding:
+        raise Abort("Pass --finding or --none.")
+
     add: list[str] = []
     if args.fix_commit:
         add.append(f"- **Review-fix commits:** `{args.fix_commit}`")
     if args.validation:
         add.append(f"- **Review validation:** {args.validation}")
-    add.append(f"- **Amazon Q triage (round {args.round} on `{args.on}`):**")
-    add += [f"  - `{f}`" for f in args.finding]
+    if args.none:
+        # LL-034: a review with no findings is one prose bullet, never a Q-<PR>-<n> line (the claim types are fixed)
+        verdict = args.verdict or "no findings"
+        add.append(f"- **Amazon Q review (round {args.round} on `{args.on}`):** {verdict}.")
+    else:
+        add.append(f"- **Amazon Q triage (round {args.round} on `{args.on}`):**")
+        add += [f"  - `{f}`" for f in args.finding]
 
     if args.dry_run:
         print("\n".join(add))
@@ -187,7 +243,7 @@ def cmd_triage(args: argparse.Namespace) -> None:
     )
     write_log(new_text, nl)
     git("add", "implementation-log.md")
-    git("commit", "-m", f"docs(audit): record Amazon Q round {args.round} triage for Story {story}")
+    git("commit", "-m", with_trailer(f"docs(audit): record Amazon Q round {args.round} triage for Story {story}", co_author_of(args)))
     print(f"Recorded round {args.round} for Story {story}: {git('rev-parse', '--short', 'HEAD')}")
 
 
@@ -201,15 +257,24 @@ def main() -> int:
     d.add_argument("--contract", action="append", help="contract test file (default: changed tests/test_*.py)")
     d.add_argument("--ignore", action="append", help="extra path to exclude from the full suite")
     d.add_argument("--note", action="append", help="note line for the log entry (repeatable)")
+    d.add_argument("--co-author", help="'Name <email>' for a Co-Authored-By trailer (default: $STORY_CO_AUTHOR)")
     d.add_argument("--dry-run", action="store_true")
     d.set_defaults(fn=cmd_done)
+
+    w = sub.add_parser("worktree", help="provision the story worktree (LL-033)")
+    w.add_argument("story", help="story id, e.g. 20.3")
+    w.add_argument("--dry-run", action="store_true")
+    w.set_defaults(fn=cmd_worktree)
 
     t = sub.add_parser("triage", help="append Amazon Q triage to a story's log entry")
     t.add_argument("story")
     t.add_argument("--round", type=int, required=True)
     t.add_argument("--on", required=True, help="commit the review was on")
-    t.add_argument("--finding", action="append", required=True,
+    t.add_argument("--finding", action="append",
                    help="'Q-<PR>-<n> | <claim type> | verified: ... | decision: ... | <reason> | fix: ...'")
+    t.add_argument("--none", action="store_true", help="the review had no findings: log one prose bullet (LL-034)")
+    t.add_argument("--verdict", help="with --none: the reviewer's verdict in a few words (default: no findings)")
+    t.add_argument("--co-author", help="'Name <email>' for a Co-Authored-By trailer (default: $STORY_CO_AUTHOR)")
     t.add_argument("--fix-commit")
     t.add_argument("--validation")
     t.add_argument("--dry-run", action="store_true")

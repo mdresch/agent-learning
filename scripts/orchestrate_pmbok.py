@@ -8,6 +8,9 @@ Project Management Plan (PMP) using project-anchored context from:
 - docs/project-docs/Business-Case.md
 - docs/project-docs/Project-Charter.md
 
+A generated file that already exists with different content is skipped unless --overwrite is given (IMP-064),
+and the PMP keeps the baseline id already in its frontmatter.
+
 Also provides closed-loop adaptation regeneration via:
 --adapt-from docs/project-docs/Adaptation-Plan.md
 """
@@ -37,6 +40,7 @@ from pmbok.agents.factory import ProcessAgentFactory
 from pmbok.agents.process_agent import _StubLLMClient
 from pmbok.orchestrator.orchestrator import PMBOKOrchestrator
 from pmbok.output.pretty_printer import PrettyPrinter
+from pmbok_write_guard import read_baseline_id, write_generated
 
 PLAN_MAPPING = {
     "5.1": {"name": "Scope-Management-Plan", "title": "Scope Management Plan", "flag": "Scope Management Plan"},
@@ -245,18 +249,21 @@ This plan establishes the guidelines and processes for managing {meta['title'].l
 ## 3. Review & Governance Invariant
 This subsidiary plan integrates directly into [Project-Management-Plan.md](../Project-Management-Plan.md) and is verified under `approve-pmp`.
 """
-                doc_path.write_text(md_content, encoding="utf-8")
+                outcome = write_generated(doc_path, md_content, overwrite=args.overwrite)
                 generated_summaries[pid] = f"Formulated {meta['title']} addressing {', '.join(project_context['objectives'])}."
-                print(f"      [OK] Written to {doc_path.relative_to(repo_root)}")
+                note = " (exists and differs; --overwrite replaces it)" if outcome == "skipped" else ""
+                print(f"      [{outcome.upper()}] {doc_path.relative_to(repo_root)}{note}")
         except Exception as e:
             print(f"      [WARN] Execution error on {pid}: {e}")
 
     # Synthesize PMP
     print("\n  >>> Synthesizing integrated Project Management Plan (4.2)...")
     pmp_file = repo_root / "docs" / "project-docs" / "Project-Management-Plan.md"
-    pmp_markdown = synthesize_pmp_markdown(project_context, generated_summaries)
-    pmp_file.write_text(pmp_markdown, encoding="utf-8")
-    print(f"  [OK] Project Management Plan written to {pmp_file.relative_to(repo_root)}")
+    baseline_id = read_baseline_id(pmp_file, default="PMP-BL-v1.0.0")
+    pmp_markdown = synthesize_pmp_markdown(project_context, generated_summaries, baseline_id=baseline_id)
+    pmp_outcome = write_generated(pmp_file, pmp_markdown, overwrite=args.overwrite)
+    pmp_note = " (exists and differs; --overwrite replaces it)" if pmp_outcome == "skipped" else ""
+    print(f"  [{pmp_outcome.upper()}] Project Management Plan {pmp_file.relative_to(repo_root)} (baseline {baseline_id}){pmp_note}")
 
     # Decision Validation Gate Notice
     print("\n-------------------------------------------------------")
@@ -267,7 +274,7 @@ This subsidiary plan integrates directly into [Project-Management-Plan.md](../Pr
 
 
 
-def seed_next_phase(refinement_path: Path, output_dir: Path | None = None) -> None:
+def seed_next_phase(refinement_path: Path, output_dir: Path | None = None, overwrite: bool = False) -> None:
     """Read an approved Intent-Refinement-Proposal and seed Phase N+1 artifacts."""
     refinement_path = refinement_path.resolve() if refinement_path.is_absolute() else (repo_root / refinement_path).resolve()
     if not refinement_path.exists():
@@ -334,12 +341,12 @@ This phase is initiated directly from the double-loop strategic learning and emp
 ## 3. Governance Handoff
 Next step: Author and validate [Ideation-Document.md](Ideation-Document.md) through `approve-ideation`.
 """
-    spark_file.write_text(spark_content, encoding="utf-8")
+    spark_outcome = write_generated(spark_file, spark_content, overwrite=overwrite)
     try:
         rel_spark = spark_file.relative_to(repo_root)
     except ValueError:
         rel_spark = spark_file
-    print(f"  [OK] Seeded Phase Next Spark: {rel_spark}")
+    print(f"  [{spark_outcome.upper()}] Phase Next Spark: {rel_spark}")
 
     ideation_file = target_dir / "Ideation-Document.md"
     ideation_content = f"""---
@@ -370,12 +377,12 @@ Building on the verified outcomes of {refinement_id}, this ideation document cap
 ## 3. Decision Gate Verification
 Submit this ideation document to `template-governance` / `approve-ideation` before authoring the Business Case and Project Charter.
 """
-    ideation_file.write_text(ideation_content, encoding="utf-8")
+    ideation_outcome = write_generated(ideation_file, ideation_content, overwrite=overwrite)
     try:
         rel_ideation = ideation_file.relative_to(repo_root)
     except ValueError:
         rel_ideation = ideation_file
-    print(f"  [OK] Seeded Phase Next Ideation: {rel_ideation}")
+    print(f"  [{ideation_outcome.upper()}] Phase Next Ideation: {rel_ideation}")
 
     print("\n-------------------------------------------------------")
     print("  Phase Next Seeding Complete.")
@@ -466,12 +473,13 @@ def main():
     parser.add_argument("--to-baseline", default="PMP-BL-v1.0.0", help="Target baseline for rollback mode")
     parser.add_argument("--output-dir", default=None, help="Optional output directory for seed-next mode")
     parser.add_argument("--mock", action="store_true", help="Force mock/offline execution")
+    parser.add_argument("--overwrite", action="store_true", help="Replace an existing file whose content differs (default: skip it and report; IMP-064)")
     args = parser.parse_args()
 
     if args.mode == "seed-next":
         ref_path = Path(args.refinement_proposal)
         out_path = Path(args.output_dir) if args.output_dir else None
-        seed_next_phase(ref_path, out_path)
+        seed_next_phase(ref_path, out_path, overwrite=args.overwrite)
     elif args.mode == "decommission":
         ref_path = Path(args.refinement_proposal)
         decommission_project(ref_path)

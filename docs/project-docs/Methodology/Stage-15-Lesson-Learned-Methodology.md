@@ -2,9 +2,9 @@
 artifact_type: "methodology_guide"
 artifact_id: "METHOD-STAGE15-001"
 governance_adr: "ADR-010"
-related_stages: "Stage 13 (Observation), Stage 14 (Insight), Stage 15 (Lesson Learned)"
-version: "1.0"
-date: "2026-11-05"
+related_stages: "Stage 13 (Observation: Systems Telemetry Review and Findings), Stage 14 (Insight: Insights), Stage 15 (Lesson Learned)"
+version: "1.1"
+date: "2026-11-10"
 owner: "Menno Drescher"
 ---
 
@@ -12,13 +12,13 @@ owner: "Menno Drescher"
 
 > **Purpose:** Transform verified insights into formalized organizational knowledge that can be ingested into Obsidian brain knowledge graphs, improving project procedures and methodologies.
 
-> **Authority:** LOW authority via `resolve-kb-conflict` policy. A human decides every proposal: trust existing, supersede, or flag.
+> **Authority:** the chain designs Stage 14 around a LOW-authority `resolve-kb-conflict` policy (trust existing, supersede, or flag). This repository declares no such shape and has recorded no such decision, so Stages 13 to 15 are `human_review` here: the assistant drafts, and the maintainer accepts or drops every entry. No episode is created for them.
 
 ---
 
 ## 📚 Overview
 
-Stage 15 crystallizes actionable knowledge from verified insights (Stage 14) derived from raw observations (Stage 13). This completes the knowledge path and transforms lessons into high-quality knowledge graph entries for Obsidian brain ingestion.
+Stage 15 crystallizes actionable knowledge from verified insights (Stage 14, Insights) derived from raw observations (Stage 13, Observation, run in Phase 2 as the Systems Telemetry Review and Findings). This completes the knowledge path and transforms lessons into high-quality knowledge graph entries for Obsidian brain ingestion.
 
 ### Knowledge Pipeline
 
@@ -38,7 +38,16 @@ Stage 15 (Lesson Learned)
 
 ### Step 1: Verify Stage 13 & 14 Completeness
 
-**Input Requirements:**
+**Where the inputs live.** The forms differ by phase, and Stage 15 reads whichever the phase produced:
+
+| Phase | Stage 13 (Observation) | Stage 14 (Insight) |
+|---|---|---|
+| Phase 1 (worked example below) | One file per observation: `docs/observations/OBS-001.md` to `OBS-009.md` | One file per insight: `docs/insights/INSIGHT-001.md` to `INSIGHT-004.md` |
+| Phase 2 | A review note, `Status-Reports/Stage-13-Systems-Telemetry-Review-and-Findings.md` (REP-STAGE13-OBSERVATION-PHASE2), and one file per observation: `docs/observations/OBS-010.md` to `OBS-019.md` | A review note, `Status-Reports/Stage-14-Insights-Phase2.md` (REP-STAGE14-INSIGHT-PHASE2), with a baseline-findings table, and one file per insight: `docs/insights/INSIGHT-005.md` to `INSIGHT-011.md` (the note calls them `INSIGHT-P2-01` to `P2-07`) |
+
+An insight that contradicts an approved document is a baseline finding for Stage 16 and does not become a lesson. A lesson cites the insight id and, through it, the observation sections. The Phase 1 walk-through that follows keeps its original ids.
+
+**Input Requirements (Phase 1 worked example):**
 - ✅ **Stage 13**: 9 observations recorded (OBS-001 to OBS-009)
   - Raw facts: what was seen, when, the evidence
   - No interpretation or fixes
@@ -49,11 +58,13 @@ Stage 15 (Lesson Learned)
   - Knowledge-base conflict checks performed
   - Decisions: trust existing, supersede, or flag
 
-**Verification Command:**
+**Verification Command (Phase 1 files):**
 ```bash
 ls docs/observations/OBS-*.md | wc -l  # Should be 9
 ls docs/insights/INSIGHT-*.md | wc -l  # Should be 4
 ```
+
+**Verification (Phase 2):** the two notes exist under `docs/project-docs/Status-Reports/`; `ls docs/observations/OBS-*.md | wc -l` gives 19 and `ls docs/insights/INSIGHT-*.md | wc -l` gives 11; each insight names the observation files it rests on, and the maintainer has accepted, changed or dropped each insight before a lesson is drafted from it.
 
 ---
 
@@ -566,3 +577,10 @@ graph TD
 ---
 
 *This methodology ensures that Stage 15 lessons are not just recorded, but transformed into high-quality, actionable knowledge that improves project procedures and can be ingested into the Obsidian brain knowledge graph for long-term organizational benefit.*
+
+## Change Log
+
+| Date | Version | Change |
+|---|---|---|
+| 2026-11-05 | 1.0 | Phase 1 guide and worked example (OBS-001 to OBS-009, INSIGHT-001 to INSIGHT-004, LL-043 to LL-046). |
+| 2026-11-10 | 1.1 | Names Stage 13 as the Systems Telemetry Review and Findings and Stage 14 as Insights for Phase 2; adds where each phase keeps its inputs; states the authority as `human_review` because no `resolve-kb-conflict` shape is declared. The Phase 1 walk-through is unchanged. |

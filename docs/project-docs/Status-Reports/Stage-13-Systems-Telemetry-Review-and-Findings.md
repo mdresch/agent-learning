@@ -83,3 +83,20 @@ From `Shadow-Agentic-Effort-Phase-2.md`: 254 non-merge commits from 2026-11-07 t
 - The CI window and the loose text searches may undercount or overcount; they are indications, not audits.
 - It leaves out items already recorded at Stages 10, 11 and 12 (the audit result and the outcome blockers); they stay in their own reports.
 - This note is not an approval.
+
+## 9. Observation files
+
+Each item above is also recorded as one file under `docs/observations/`, in the Phase 1 form (OBS-nnn, raw and uninterpreted), so that insights and lessons can cite and link them.
+
+| This note | File |
+|---|---|
+| Section 2, Tests and Build Linux CLI | OBS-010 |
+| Section 2, Release and Publish | OBS-011 |
+| Section 3, local suite runs | OBS-012 |
+| Section 4, review findings | OBS-013 |
+| Section 5, failing-first runs | OBS-014 |
+| Section 5, events in the log | OBS-015 |
+| Section 6, agentic effort | OBS-016 |
+| Not in the sections above: episode telemetry fields and policy snapshot counters | OBS-017 |
+| Not in the sections above: how `pr_gate.py` treats pending checks | OBS-018 |
+| Section 7, store counts | OBS-019 |

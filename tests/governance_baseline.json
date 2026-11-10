@@ -486,12 +486,17 @@
     "docs/project-docs/Business-Requirements/BRD-021-contextual-authority-ensemble-routing.md": {
       "family": "brd",
       "status": "approved",
-      "sha256": "42c61574d2dbe3a476ae36bdb7df84524c1c5d2262f43830d5f6bb2e4c5425c0",
+      "sha256": "90e175de2ec856ca364c601c8348e494dd850afdf9fef6cff8dd888e180d753c",
       "approval_episode": "f7d8b1b7",
       "amendments": [
         {
           "date": "2026-11-10",
           "episode": "e021910d",
+          "stage": 16
+        },
+        {
+          "date": "2026-11-10",
+          "episode": "c90ac8e0",
           "stage": 16
         }
       ]

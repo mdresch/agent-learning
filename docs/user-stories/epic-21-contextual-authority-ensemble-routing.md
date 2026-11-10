@@ -103,7 +103,7 @@ Fixture used by the criteria below ("the base config"): `tau_esc` 1.0, `tau_dees
 
 ## Story 21.7 — The Real-Data Check (No Routed Traffic)
 
-**Status:** Ready  
+**Status:** Completed (2026-11-10, commit `1b60f24`)  
 **As** a maintainer, **I want** the router tried against the recorded policies, **so that** the absence of routed traffic and calibrated thresholds is shown, not assumed.
 
 ### Acceptance Criteria:

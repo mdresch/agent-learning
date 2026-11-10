@@ -320,9 +320,15 @@
     "docs/adr/ADR-036-learning-methodology-examples-ledger-and-review-triage-loop.md": {
       "family": "adr",
       "status": "accepted",
-      "sha256": "f3d9079071fab096510377c562399c31d1ea3a39e6d910932790231408e3c0b0",
+      "sha256": "5bba3aafd247222f55142c1e5d8eb39fa8dd51cf5edc7f007b31ffe47af95829",
       "approval_episode": null,
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-10",
+          "episode": "4b6f2c91",
+          "stage": 16
+        }
+      ]
     },
     "docs/adr/ADR-037-design-time-baseline-feedback-loop.md": {
       "family": "adr",

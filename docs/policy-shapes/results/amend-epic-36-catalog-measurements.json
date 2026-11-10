@@ -1,0 +1,25 @@
+{
+  "document": "docs/user-stories/epic-36-learning-methodology-examples-ledger-and-review-triage-loop.md",
+  "tag": "catalog",
+  "base_commit": "9e97aed",
+  "candidate_sha256": "02519b708b88222af337083fc4b01f33b1fcbd87e238f518ee3df4112938bbc0",
+  "features": {
+    "lines": 2,
+    "terms_removed": 3,
+    "terms_kept": 3,
+    "goal_preserved": true,
+    "requirement_inverted": false,
+    "normative_touched": true,
+    "status_line_changed": false,
+    "downstream_refs": 47,
+    "change_ratio": 0.34
+  },
+  "observed": [
+    0.25,
+    0.1,
+    0.9,
+    0.9
+  ],
+  "proposed_action": "amendment_log_entry",
+  "accepted": false
+}

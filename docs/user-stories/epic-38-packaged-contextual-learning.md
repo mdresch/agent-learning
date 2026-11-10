@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-038](../adr/ADR-038-packaged-contextual-learning.md) — Accepted (2026-10-30, Menno); Episode `f745c77b-0a2c-4e97-82d4-6f6936b2acd9`  
 **Source BRD/FDD:** [BRD-038](../project-docs/Business-Requirements/BRD-038-packaged-contextual-learning.md) / [FDD-038](../project-docs/Functional-Design/FDD-038-packaged-contextual-learning.md)  
-**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-038, BRD-038 and FDD-038 (Approved 2026-10-30); adjudicated via `approve-user-stories` (robust utility 0.748, episode `3da3bcdf-7c13-4473-8613-081bc6fdfd6c`).
+**Status:** Completed (Stories 38.1–38.6 implemented and verified); earlier approval: Approved (2026-10-30, Menno) — derived from Accepted ADR-038, BRD-038 and FDD-038 (Approved 2026-10-30); adjudicated via `approve-user-stories` (robust utility 0.748, episode `3da3bcdf-7c13-4473-8613-081bc6fdfd6c`).
 
 Six stories. Each rule sits in one story (LL-012). Contract tests are `tests/test_contextual_learner.py` (38.1, 38.2, 38.3) and `tests/test_contextual_cli.py` (38.4, 38.5, 38.6). BRU-038-10 has no story: HYP-AL-004 stays Testing, and the methodology catalog is not edited.
 

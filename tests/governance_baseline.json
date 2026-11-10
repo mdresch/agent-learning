@@ -335,6 +335,13 @@
       "approval_episode": "6b98f377",
       "amendments": []
     },
+    "docs/adr/ADR-040-governed-baseline-contracts-for-original-code.md": {
+      "family": "adr",
+      "status": "accepted",
+      "sha256": "2f68dd543fcb2a64dc585cc9d9c069199ee326f1988be1170db7be9cac7254be",
+      "approval_episode": "69365299",
+      "amendments": []
+    },
     "docs/project-docs/Business-Requirements/BRD-001-reinforce-authority-boundary-enforcement.md": {
       "family": "brd",
       "status": "approved",

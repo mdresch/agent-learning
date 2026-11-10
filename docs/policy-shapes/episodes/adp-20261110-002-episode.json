@@ -1,0 +1,30 @@
+{
+  "id": "954bb20d-b6d1-43c4-acb5-d67ef04e3539",
+  "agent_id": "agent-learning-governance",
+  "task_id": "approve-adaptation-plan",
+  "user_input": "Approve, reject or request revision of the Phase 2 Close Adaptation Plan ADP-20261110-002.",
+  "assistant_output": "approve_adaptation_plan: robust utility 0.802",
+  "intent_summary": "Phase 2 Close Adaptation Plan ADP-20261110-002 approved as written by the Project Sponsor.",
+  "action_type": "recommendation",
+  "action_name": "Approve adaptation plan",
+  "target": "ADP-20261110-002-Phase-2-Close-Adaptation-Plan.md",
+  "input_summary": "Decision frame docs/policy-shapes/decision-frames/adp-20261110-002-approval.json: four criteria read from the plan sections 2 to 9; evidence supports are the assistant's reading of the plan, not measurements.",
+  "expected_outcome": "Menno Drescher (Project Sponsor) explicit approval of the plan",
+  "execution_status": "completed",
+  "result_summary": "Accepted by Menno Drescher, Project Sponsor, 2026-11-10 (Stage 17 approve-adaptation-plan), prospectively at the time of acceptance; not backdated.",
+  "policy_id": "28b78922-3a78-4f5a-a60c-e5dafb0f5eaf",
+  "policy_version": 0,
+  "action_id": "approve_adaptation_plan",
+  "metadata": {
+    "feedback_status": "adjudicated",
+    "decision_disposition": "accepted",
+    "selection_basis": "bayesian_decision",
+    "correct_action_id": "approve_adaptation_plan",
+    "task_completed": true,
+    "robust_utility": 0.8021161153346368,
+    "expected_utility": 0.8599557082345319,
+    "decision_margin": 0.7276,
+    "stage": 17,
+    "plan_id": "ADP-20261110-002"
+  }
+}

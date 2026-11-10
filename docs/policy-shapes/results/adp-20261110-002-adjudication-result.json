@@ -1,0 +1,165 @@
+{
+  "agent_id": "agent-learning-governance",
+  "task_id": "approve-adaptation-plan",
+  "policy_id": "28b78922-3a78-4f5a-a60c-e5dafb0f5eaf",
+  "policy_version": 0,
+  "status": "resolved",
+  "reason": "The user accepted the proposed option to resolve the tie.",
+  "selection_basis": "bayesian_decision",
+  "selected_action": {
+    "id": "approve_adaptation_plan",
+    "description": "The Adaptation Plan soundly operationalizes validated governance changes into behavioral, tooling, and workflow modifications, and explicitly tailors updates to affected Subsidiary Management Plans feeding back to the Project Management Plan -- approve it for rollout",
+    "parameters": {}
+  },
+  "proposed_action": null,
+  "candidate_actions": [
+    {
+      "id": "approve_adaptation_plan",
+      "description": "The Adaptation Plan soundly operationalizes validated governance changes into behavioral, tooling, and workflow modifications, and explicitly tailors updates to affected Subsidiary Management Plans feeding back to the Project Management Plan -- approve it for rollout",
+      "parameters": {}
+    }
+  ],
+  "assessments": [
+    {
+      "action": {
+        "id": "approve_adaptation_plan",
+        "description": "The Adaptation Plan soundly operationalizes validated governance changes into behavioral, tooling, and workflow modifications, and explicitly tailors updates to affected Subsidiary Management Plans feeding back to the Project Management Plan -- approve it for rollout",
+        "parameters": {}
+      },
+      "feasible": true,
+      "criteria": [
+        {
+          "criterion_id": "operationalizes_validated_changes",
+          "support": 0.9000798695375839,
+          "entropy_bits": 0.46874236200448016,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "tailoring_of_management_plans",
+          "support": 0.873642672870144,
+          "entropy_bits": 0.547362829148033,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "validation_and_rollback",
+          "support": 0.8137268950694664,
+          "entropy_bits": 0.6936096520977755,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "scope_and_gap_disclosure",
+          "support": 0.8523733954609335,
+          "entropy_bits": 0.6038688727455178,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        }
+      ],
+      "expected_utility": 0.8599557082345319,
+      "uncertainty": 0.5783959289989516,
+      "robust_utility": 0.8021161153346368,
+      "ruled_out_by": []
+    },
+    {
+      "action": {
+        "id": "reject_adaptation_plan",
+        "description": "The Adaptation Plan introduces ungrounded workflow disruptions, violates architectural boundaries, or fails to specify which management plans require updates following governance changes -- reject it outright",
+        "parameters": {}
+      },
+      "feasible": true,
+      "criteria": [
+        {
+          "criterion_id": "operationalizes_validated_changes",
+          "support": 0.017230297966172255,
+          "entropy_bits": 0.12559340868200014,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "tailoring_of_management_plans",
+          "support": 0.017230297966172255,
+          "entropy_bits": 0.12559340868200014,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "validation_and_rollback",
+          "support": 0.03529615057262776,
+          "entropy_bits": 0.22029296918295163,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "scope_and_gap_disclosure",
+          "support": 0.017230297966172255,
+          "entropy_bits": 0.12559340868200014,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        }
+      ],
+      "expected_utility": 0.02174676111778613,
+      "uncertainty": 0.14926829880723802,
+      "robust_utility": 0.006819931237062329,
+      "ruled_out_by": [
+        "pareto_dominated_by:approve_adaptation_plan"
+      ]
+    },
+    {
+      "action": {
+        "id": "request_revision_before_decision",
+        "description": "The Adaptation Plan requires clearer transition milestones, risk mitigations, or more precise tailoring of subsidiary management plan updates before execution",
+        "parameters": {}
+      },
+      "feasible": true,
+      "criteria": [
+        {
+          "criterion_id": "operationalizes_validated_changes",
+          "support": 0.11145196878255528,
+          "entropy_bits": 0.5042800599818668,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "tailoring_of_management_plans",
+          "support": 0.11145196878255528,
+          "entropy_bits": 0.5042800599818668,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "validation_and_rollback",
+          "support": 0.16331145677458808,
+          "entropy_bits": 0.642173080547477,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "scope_and_gap_disclosure",
+          "support": 0.13381492719137836,
+          "entropy_bits": 0.5678085753840262,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        }
+      ],
+      "expected_utility": 0.13000758038276924,
+      "uncertainty": 0.5546354439738092,
+      "robust_utility": 0.07454403598538833,
+      "ruled_out_by": [
+        "pareto_dominated_by:approve_adaptation_plan"
+      ]
+    }
+  ],
+  "information_needs": [],
+  "rejected_action_ids": [],
+  "authorization_basis": "user_acceptance",
+  "action_probabilities": {
+    "approve_adaptation_plan": 0.3333333333333333,
+    "reject_adaptation_plan": 0.3333333333333333,
+    "request_revision_before_decision": 0.3333333333333333
+  },
+  "action_logprob": null,
+  "audit_evidence": null,
+  "decision_authority": "full"
+}

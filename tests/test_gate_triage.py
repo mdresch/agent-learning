@@ -115,3 +115,25 @@ def test_fetch_pr_diff_decodes_as_utf8_and_fails_closed(monkeypatch: pytest.Monk
     with pytest.raises(RuntimeError, match="boom"):
         pr_gate.fetch_pr_diff.real(1)
     assert seen["encoding"] == "utf-8" and seen["errors"] == "replace"
+
+
+def test_a_declined_row_cannot_cancel_a_defect_an_accepted_row_kept() -> None:
+    accepted = parse_triage_line(GOOD.replace("Q-145-1", "Q-123-1"))
+    declined = parse_triage_line(DECLINED)
+    kept, _ = pr_gate.reconcile_triage([_delta("REV1-CRIT-1")], [accepted, declined], 123)
+    assert [d.finding_id for d in kept] == ["REV1-CRIT-1"]
+    # and a declined row cannot cancel the rubric delta an accepted row added
+    added, _ = pr_gate.reconcile_triage([], [accepted, declined], 123)
+    assert [d.finding_id for d in added] == ["Q-123-1"]
+
+
+def test_two_accepted_rows_each_stand_behind_their_own_defect() -> None:
+    first = parse_triage_line(GOOD.replace("Q-145-1", "Q-123-1"))
+    second = parse_triage_line(GOOD.replace("Q-145-1", "Q-123-2"))
+    kept, _ = pr_gate.reconcile_triage([_delta("REV1-CRIT-1")], [first, second], 123)
+    assert [d.finding_id for d in kept] == ["REV1-CRIT-1", "Q-123-2"]
+
+
+def test_a_nested_implementation_log_is_not_the_triage_log() -> None:
+    diff = f"diff --git a/docs/implementation-log.md b/docs/implementation-log.md\n+`{GOOD}`\n"
+    assert pr_gate.added_triage_lines(diff) == []

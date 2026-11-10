@@ -94,7 +94,7 @@ def added_triage_lines(diff: str) -> list[str]:
     in_log = False
     for line in diff.splitlines():
         if line.startswith("diff --git "):
-            in_log = line.rstrip().endswith("/" + TRIAGE_LOG)
+            in_log = line.rstrip().endswith(" b/" + TRIAGE_LOG)  # the root file only, not docs/implementation-log.md
         elif in_log and line.startswith("+") and not line.startswith("+++"):
             added.append(line[1:])
     return find_triage_lines("\n".join(added))
@@ -121,14 +121,18 @@ def reconcile_triage(
     and adds the rubric delta when the review text produced none. Untriaged findings still count in full.
     """
     remaining = list(deltas)
+    reserved: set[int] = set()  # ids of deltas an accepted row already stands behind; a declined row cannot cancel them
     notes: list[str] = []
     for rec in records:
         if rec.pr != pr_number:
             continue
         criterion = map_claim_to_criterion(rec.claim_type)
-        match = next((d for d in remaining if d.criterion_id == criterion and d.support_delta < 0), None)
+        match = next(
+            (d for d in remaining if d.criterion_id == criterion and d.support_delta < 0 and id(d) not in reserved), None
+        )
         if rec.decision == "accepted":
             if match is not None:
+                reserved.add(id(match))
                 notes.append(f"{rec.finding_id} accepted: kept {match.finding_id}")
                 continue
             try:
@@ -137,16 +141,16 @@ def reconcile_triage(
                 notes.append(f"{rec.finding_id} accepted: no rubric delta for ({rec.claim_type}, {rec.verified}); not scored")
                 continue
             if value < 0:
-                remaining.append(
-                    CritiqueDelta(
-                        criterion_id=criterion,
-                        support_delta=value,
-                        rationale=rec.reason,
-                        finding_id=rec.finding_id,
-                        basis="rubric",
-                        rubric_delta=value,
-                    )
+                added = CritiqueDelta(
+                    criterion_id=criterion,
+                    support_delta=value,
+                    rationale=rec.reason,
+                    finding_id=rec.finding_id,
+                    basis="rubric",
+                    rubric_delta=value,
                 )
+                remaining.append(added)
+                reserved.add(id(added))
                 notes.append(f"{rec.finding_id} accepted: added rubric delta {value:+.2f}")
         elif rec.decision in {"declined", "deferred"} and match is not None:
             remaining.remove(match)

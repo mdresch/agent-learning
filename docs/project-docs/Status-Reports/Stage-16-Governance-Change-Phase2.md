@@ -65,6 +65,28 @@ What this shows:
 
 Needed: for each of the 24, read the named change and mark it implemented, still open, or dropped; then decide for the open ones whether they are this adaptation's in-flight changes or go to Phase Next. Nothing is re-scored.
 
+### Step 2c: The 24 In-Flight improvements checked against the code
+
+Method: for each entry, the named file, function or command was searched for and, where it exists, read. No test was run. "Open" means the named change is not in the code; the register status is unchanged until the maintainer decides.
+
+| Result | Entries |
+|---|---|
+| Already in the code (status stale) | IMP-004 (`_prior_from_snapshot` in `cli.py`, refuses a missing logit; private to the CLI), IMP-020 (`spec_gate.py` uses all four Epic 14 criteria), IMP-022 (`add_rewards` skips a seen id before validating; `store_episodes` not read) |
+| Partly | IMP-016 (`convert_unstructured_review_to_tags` exists and names Bugbot; Claude and human summaries not confirmed) |
+| Open (20) | IMP-001, 002, 006, 007, 015, 017, 019, 021, 024, 025, 027, 028, 030, 031, 039, 043, 044, 045, 050, 052 |
+
+Evidence for the open ones:
+
+- IMP-001: `complete_story.py` has no `worktree`, `--none` or `Co-Authored-By` handling. IMP-007: no `scripts/approve.py`. IMP-019, 025, 028: no harvester, preference-pair loader or reversibility lint command. IMP-015: the fixture file exists, no export script.
+- IMP-002: `policy/thompson.py` still has `replay(record, policy_id)`. IMP-027: `CallableSnapshot` stays in `epsilon_greedy.py`; no `base_compat`.
+- IMP-017: `pr_gate.py` does not call `triage_replay`; IMP-030: it has no triage check at all.
+- IMP-031: no LL-045 to LL-048 id in any named Tier 2 target. IMP-043: no `.gitattributes`. IMP-044: `implement-story` Step 6 still lists `--ignore=tests/pmbok`. IMP-050: Step 8 is prose with the literal confirm text but no checklist.
+- IMP-045: the gate's `gh` call (`subprocess.run(..., text=True)`, line 60) sets no encoding; the `reconfigure` at line 524 covers output only. LL-059's workaround still applies.
+- IMP-052: `publish.yaml` still fails when the tag points at another commit, which is the unbumped-push case.
+- IMP-021, 024: `spec_gate.py` has no widening check and no `rel_tol` check. IMP-006: no committed store fixture. IMP-039: `autonomy.py` has no contextual handling.
+
+Reading: 4 of 24 are done or mostly done, 20 are open. Of the 20, 13 touch `pr_gate.py`, `spec_gate.py`, `complete_story.py` or the `implement-story` skill, which is the tooling the lessons keep pointing at (IMP-001, 007, 017, 021, 024, 030, 031, 043, 044, 045, 050, 052 and IMP-015).
+
 ## Step 3: Classification
 
 | Item | Diff type | Evidence basis | Impact | Confidence |

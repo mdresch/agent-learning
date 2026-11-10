@@ -23,11 +23,13 @@ Input is a candidate diff against the frozen accepted baseline. Evidence basis i
 4. **Escalate** (`escalate-diff-response`, LOW). Pass the classification as `audit_evidence`. `new_superseding_adr`, `pending_supersession_note` and `supersession_update` are permanently `escalate_to_human`.
 5. **Verify.** A change that is applied is checked with `compare_decision_results()` (ADR-005): progression is +1.0; regression means healing or reversion and `escalate_to_human`. You never apply the change. Report what the human must apply and what to re-run.
 
+Applying an accepted change is the human's: `scripts/stage16_amend.py propose <path>` classifies without applying, and `accept` runs only on the human's explicit instruction. It works only on an approved ADR, BRD, FDD or epic that is in the governance baseline (`tests/governance_baseline.json`); any other document is outside Stage 16. A Sponsor-directed change request is a manual assessment (see CR-20261109-001): say it is manual and cite the decision record, never a classification you did not run.
+
 Never invent a utility or an episode id. Quote what the CLI returned.
 
 ## Stage 17: Adaptation Plan
 
-Gate: `approve-adaptation-plan`. Read `docs/project-docs/Adaptation-Plan.md`. It must operationalize a validated stage 16 change into skills, workflows and tailored PMP updates, name each skill or workflow it changes, and not hand-edit generated plans. Draft or revise only with `write_document`, and never replace an approved plan.
+Gate: `approve-adaptation-plan`. Read `docs/project-docs/Adaptation-Plan.md` and the plan under `docs/project-docs/Adaptation-Plans/`. A phase has one Adaptation Plan, written at its close. A scope move the Sponsor decides during the phase (an epic moved to the next phase) is recorded in its change request and carried by that one plan; do not draft a separate package for it. Effort figures in it are human-engineering person-days and are labelled as such. It must operationalize a validated stage 16 change into skills, workflows and tailored PMP updates, name each skill or workflow it changes, and not hand-edit generated plans. Draft or revise only with `write_document`, and never replace an approved plan.
 
 ## Report
 

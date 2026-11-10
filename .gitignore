@@ -52,6 +52,8 @@ data/agent-learning/store/rewards/*
 !data/agent-learning/store/episodes/agent-learning-governance/
 !data/agent-learning/store/metrics/agent-learning-governance/
 !data/agent-learning/store/rewards/agent-learning-governance/
+# Test fixtures from tests/test_pr_gate.py land here if the store variable points at the real store
+data/agent-learning/store/episodes/agent-learning-governance/pr-123-abc1234-*.json
 /adr-*-result.json
 /adr-*-reg.json
 /brd-*-result.json

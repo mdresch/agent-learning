@@ -107,6 +107,38 @@ What this shows:
 - **Routed:** CR-20261110-001 proposes one edit to `implement-story` for the 12 lessons, Step 6 and Step 0, with the text drafted; it awaits the Sponsor. The skill is not an ADR, BRD, FDD or story, so `stage16_amend.py` does not apply. LL-040 already sits in the `governance` skill; the live gap is that `stage16_amend.py` does not print or check the store path, and `AGENT_LEARNING_LOCAL_STORE_DIR` here points at the socialengage store. That is a tooling change, listed in the CR as separate.
 - **IMP overlap:** LL-033, 034 are the cause behind IMP-001 (open); LL-046, 047 behind IMP-021, 024 (open); LL-051 is applied. Fixing the IMPs and the skill together avoids two passes.
 
+## Step 5: Proposed decisions for the Sponsor (nothing is decided or applied)
+
+### A. The 20 open In-Flight improvements (Step 2c)
+
+Proposal: split by what they touch, and add the two new entries.
+
+| Proposed disposition | Entries | Why |
+|---|---|---|
+| In-flight, one tooling change set (route 2: a change request, then one PR) | IMP-001, 007, 015, 017, 021, 024, 030, 031, 043, 044, 045, 050, 052, 062, 063 | They fix the gate, the spec gate, `complete_story.py`, the skills and the workflow that the accepted lessons keep naming; small; IMP-044 and IMP-031 are already covered by CR-20261110-001 and the Tier 2 backfill |
+| Phase Next (route 5: roll in) | IMP-002, 006, 019, 025, 027, 028, 039 | They add features or change an approved FDD (IMP-002 FDD-015, IMP-039 FDD-038) and need their own story or an FDD amendment |
+| Already done: update the status | IMP-004, 020, 022, and IMP-016 (partly) | The code exists; a status line change only, by the maintainer |
+
+Not yet checked and not part of this proposal: IMP-044 and IMP-050 as written overlap CR-20261110-001 (the Step 6 edit is done); mark them implemented only after the maintainer reads the merged skill.
+
+### B. F5: Phase 1 lesson ids LL-044, LL-045, LL-046
+
+What the check showed:
+
+- The Phase 1 Stage 15 to 18 records (assessments, Adaptation Plan ADP-20261106-001, SPA-20261106-001, IRP, PCD, the Stage 15 and 17 methodology appendices) use LL-044 to LL-046 for three lessons that the register never received: External Evidence Dependency, Single Source of Truth for Story Status, Dual Evidence Storage. Their full text is in the Stage 15 assessment, section 3.
+- The live approved documents that cite LL-044 (Project Charter, Business Case, Ideation Document, Spark Capture, Quality Management Plan) mean the register's LL-044, the Monolithic Ideation Trap, and are correct. The collision is confined to the Phase 1 records.
+- The three lessons were acted on in Phase 1 (SPA-20261106-001 for evidence synchronisation; GC-003 and GC-004 as direct changes), so the register lacks lessons that drove real changes.
+- LL-046 as Phase 1 wrote it (gate evidence split between `AGENT_LEARNING_LOCAL_STORE_DIR` and `docs/policy-shapes/episodes/`) is the same split found again on 2026-11-10 (the socialengage store); it is still current.
+
+Proposal (no renumbering, no rewriting of dated records):
+
+1. Append the three lessons to the register as **LL-065, LL-066, LL-067**, text taken from the Stage 15 assessment section 3, with a line "Cited as LL-044, LL-045, LL-046 in the Phase 1 records".
+2. Add an **identifier crosswalk** to the register header: Phase 1 id to register id (044 to 065, 045 to 066, 046 to 067).
+3. Leave the Phase 1 records as they are, with one dated correction note on their entry document (the Stage 17 assessment, whose links `Lessons-Learned-Register.md#ll-046` resolve to the wrong lesson) pointing at the crosswalk.
+4. The Tier 2 targets named by the three entries join the Step 2d backfill (Tier 2 for LL-067: the `governance` skill; the other two: `implement-story`).
+
+Alternative: record that the three were never adopted. Not proposed, because the changes they drove exist.
+
 ## Step 3: Classification
 
 | Item | Diff type | Evidence basis | Impact | Confidence |
@@ -126,7 +158,7 @@ What this shows:
 - F4 has low confidence: it is not clear whether the fix is code (add the path) or the ADR (drop the invariant). Flag, do not classify further.
 - One adaptation covers all of this (Stage 16/17), as agreed.
 
-- F5: the Phase 1 lessons "External Evidence Dependency", "Single Source of Truth for Story Status" and "Dual Evidence Storage" appear in no register entry. Decide whether to register them under new IDs (LL-065 onward) or record that they were never adopted. Corrected references go through the amendment tooling, nothing is re-scored. Files: Stage 15, 16, 17 assessments, ADP-20261106-001, SPA-20261106-001, IRP-20261106-001, Adaptation-Plan.md, and the Stage 15 methodology appendix.
+- F5 (see Step 5 B for the proposal): the Phase 1 lessons "External Evidence Dependency", "Single Source of Truth for Story Status" and "Dual Evidence Storage" appear in no register entry. Decide whether to register them under new IDs (LL-065 onward) or record that they were never adopted. Corrected references go through the amendment tooling, nothing is re-scored. Files: Stage 15, 16, 17 assessments, ADP-20261106-001, SPA-20261106-001, IRP-20261106-001, Adaptation-Plan.md, and the Stage 15 methodology appendix.
 
 ## Not done
 

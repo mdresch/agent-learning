@@ -775,12 +775,17 @@
     "docs/project-docs/Functional-Design/FDD-021-contextual-authority-ensemble-routing.md": {
       "family": "fdd",
       "status": "approved",
-      "sha256": "1d00119f3644a3bea84c5088065bf048d21bfd55b252020e47fa3dfe0e4c447d",
+      "sha256": "ad58310b01123e1d294f846d52bfc16796c29c2a45b8789b7c34c3d8617f0abc",
       "approval_episode": "46c77417",
       "amendments": [
         {
           "date": "2026-11-09",
           "episode": "0ebf33c8",
+          "stage": 16
+        },
+        {
+          "date": "2026-11-10",
+          "episode": "84478bb3",
           "stage": 16
         }
       ]

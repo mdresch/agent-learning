@@ -546,17 +546,18 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
+    common = argparse.ArgumentParser(add_help=False)
+    common.add_argument(
+        "--allow-external-store", action="store_true", help=f"allow {STORE_VAR} to point outside this repository"
+    )
     sub = parser.add_subparsers(dest="command", required=True)
-    p = sub.add_parser("propose", help="measure the edit, classify it, register nothing")
+    p = sub.add_parser("propose", parents=[common], help="measure the edit, classify it, register nothing")
     p.add_argument("document")
     p.add_argument("--tag", help="name for this amendment's evidence files (default: today's date)")
-    a = sub.add_parser("accept", help="record the human's acceptance and refresh the baseline")
+    a = sub.add_parser("accept", parents=[common], help="record the human's acceptance and refresh the baseline")
     a.add_argument("document")
     a.add_argument("--by", required=True, help="the human who accepts the classification")
     a.add_argument("--summary", required=True, help="what changed, in one line")
-    parser.add_argument(
-        "--allow-external-store", action="store_true", help=f"allow {STORE_VAR} to point outside this repository"
-    )
     args = parser.parse_args()
     global ALLOW_EXTERNAL_STORE
     ALLOW_EXTERNAL_STORE = args.allow_external_store

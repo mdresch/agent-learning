@@ -126,6 +126,7 @@ def test_the_slug_names_the_document_not_its_title() -> None:
 def test_a_store_inside_the_repository_is_accepted(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("AGENT_LEARNING_LOCAL_STORE_DIR", str(ROOT / "data" / "agent-learning" / "store"))
     monkeypatch.setattr(s16, "_store_announced", True)
+    monkeypatch.setattr(s16, "ALLOW_EXTERNAL_STORE", False)
     assert s16.guard_store() == (ROOT / "data" / "agent-learning" / "store").resolve()
 
 
@@ -139,3 +140,16 @@ def test_a_store_outside_the_repository_is_refused_unless_allowed(
         s16.guard_store()
     monkeypatch.setattr(s16, "ALLOW_EXTERNAL_STORE", True)
     assert s16.guard_store() == tmp_path.resolve()
+
+
+@pytest.mark.parametrize("command", ["propose", "accept"])
+def test_the_external_store_flag_is_accepted_after_the_subcommand(command: str, monkeypatch: pytest.MonkeyPatch) -> None:
+    argv = ["stage16_amend.py", command, "docs/x.md", "--allow-external-store"]
+    if command == "accept":
+        argv += ["--by", "me", "--summary", "s"]
+    monkeypatch.setattr(s16.sys, "argv", argv)
+    monkeypatch.setattr(s16, "ALLOW_EXTERNAL_STORE", False)
+    monkeypatch.setattr(s16, "propose", lambda *a: 0)
+    monkeypatch.setattr(s16, "accept", lambda *a: 0)
+    assert s16.main() == 0
+    assert s16.ALLOW_EXTERNAL_STORE is True

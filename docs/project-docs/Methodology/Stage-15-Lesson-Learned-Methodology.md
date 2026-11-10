@@ -43,7 +43,7 @@ Stage 15 (Lesson Learned)
 | Phase | Stage 13 (Observation) | Stage 14 (Insight) |
 |---|---|---|
 | Phase 1 (worked example below) | One file per observation: `docs/observations/OBS-001.md` to `OBS-009.md` | One file per insight: `docs/insights/INSIGHT-001.md` to `INSIGHT-004.md` |
-| Phase 2 | One note, `Status-Reports/Stage-13-Systems-Telemetry-Review-and-Findings.md` (REP-STAGE13-OBSERVATION-PHASE2), citing its source for every line | One note, `Status-Reports/Stage-14-Insights-Phase2.md` (REP-STAGE14-INSIGHT-PHASE2), with insights `INSIGHT-P2-01` to `INSIGHT-P2-07` and a baseline-findings table |
+| Phase 2 | A review note, `Status-Reports/Stage-13-Systems-Telemetry-Review-and-Findings.md` (REP-STAGE13-OBSERVATION-PHASE2), and one file per observation: `docs/observations/OBS-010.md` to `OBS-019.md` | A review note, `Status-Reports/Stage-14-Insights-Phase2.md` (REP-STAGE14-INSIGHT-PHASE2), with a baseline-findings table, and one file per insight: `docs/insights/INSIGHT-005.md` to `INSIGHT-011.md` (the note calls them `INSIGHT-P2-01` to `P2-07`) |
 
 An insight that contradicts an approved document is a baseline finding for Stage 16 and does not become a lesson. A lesson cites the insight id and, through it, the observation sections. The Phase 1 walk-through that follows keeps its original ids.
 
@@ -64,7 +64,7 @@ ls docs/observations/OBS-*.md | wc -l  # Should be 9
 ls docs/insights/INSIGHT-*.md | wc -l  # Should be 4
 ```
 
-**Verification (Phase 2 notes):** both notes exist under `docs/project-docs/Status-Reports/`, each insight names the observation sections it rests on, and the maintainer has accepted, changed or dropped each insight before a lesson is drafted from it.
+**Verification (Phase 2):** the two notes exist under `docs/project-docs/Status-Reports/`; `ls docs/observations/OBS-*.md | wc -l` gives 19 and `ls docs/insights/INSIGHT-*.md | wc -l` gives 11; each insight names the observation files it rests on, and the maintainer has accepted, changed or dropped each insight before a lesson is drafted from it.
 
 ---
 

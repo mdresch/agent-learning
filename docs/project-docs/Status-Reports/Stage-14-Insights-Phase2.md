@@ -84,3 +84,17 @@ These go to the one Stage 16/17 adaptation, not into the knowledge base.
 - These are readings of recorded observations by one assistant; they are drafts until the maintainer accepts them.
 - Four insights (P2-03, P2-05, and parts of P2-01 and P2-02) rest on counts from loose searches or on facts whose cause was not checked; each says so.
 - Nothing here was run as an experiment.
+
+## Insight files
+
+Each insight is also recorded as one file under `docs/insights/`, in the Phase 1 form, citing the observation files it rests on.
+
+| This note | File | Derived from |
+|---|---|---|
+| INSIGHT-P2-01 | INSIGHT-005 | OBS-017, Stage 12 report |
+| INSIGHT-P2-02 | INSIGHT-006 | OBS-013 |
+| INSIGHT-P2-03 | INSIGHT-007 | OBS-010, OBS-012, OBS-018 |
+| INSIGHT-P2-04 | INSIGHT-008 | OBS-012, AUDIT-011, 013, 014 |
+| INSIGHT-P2-05 | INSIGHT-009 | OBS-014 |
+| INSIGHT-P2-06 | INSIGHT-010 | OBS-017, coverage document section 3.2 |
+| INSIGHT-P2-07 | INSIGHT-011 | OBS-016 |

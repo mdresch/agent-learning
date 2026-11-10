@@ -45,6 +45,12 @@ PINNED_FULL: tuple[str, ...] = (
     "retrospective",
     "approve-routing-thresholds",
     "approve-routing-bucket",
+    # IMP-046 (2026-11-10): gates found in the committed episodes that were not pinned by name
+    "approve-audit-record",
+    "approve-benefits",
+    "approve-business-case",
+    "approve-ideation",
+    "approve-project-pillars",
 )
 
 

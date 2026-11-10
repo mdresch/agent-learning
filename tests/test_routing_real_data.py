@@ -44,10 +44,12 @@ Interpretations added for this contract:
   I7 "For any distribution" is a set of constructed distributions (uniform, peaked, an empty list, a sum that is
      not 1), crossed with every tier and with the approvals a fast path would need (``approved_for_low`` True and
      ``previous`` LOW). They are arithmetic checks and are labelled so.
-  I8 Finding, recorded and not asserted: five gate tasks in the episodes are not in PINNED_FULL
-     (approve-audit-record, approve-benefits, approve-business-case, approve-ideation, approve-project-pillars).
-     Their routing therefore depends on ``requires_human_approval`` in a complexity profile, and no profile for them
-     is committed. AC_1 does not cover them (it says "that is in PINNED_FULL"). Raised as an open question.
+  I8 Finding, resolved by IMP-046 (2026-11-10): five gate tasks in the episodes had not been in PINNED_FULL
+     (approve-audit-record, approve-benefits, approve-business-case, approve-ideation, approve-project-pillars), so their
+     routing depended on ``requires_human_approval`` in a complexity profile and no profile for them is committed.
+     They are now pinned by name, and ``test_ac1_every_recorded_gate_is_pinned`` asserts that every approve-* task
+     in the committed episodes is pinned, so a new gate type must be pinned (or its decision recorded) before it merges.
+     Still outside this check: approve-compiled-weights and approve-intent-refinement have policy shapes but no episodes.
 """
 
 from __future__ import annotations
@@ -214,10 +216,16 @@ def test_ac1_recorded_gates_route_full_pinned_for_any_distribution(task: str, di
 def test_ac1_every_pinned_approve_task_in_the_episodes_routes_full() -> None:
     pinned = sorted(t for t in _recorded_approve_tasks() if t in PINNED_FULL)
     assert set(RECORDED_TASKS) <= set(pinned)
-    assert len(pinned) >= 7  # approve-adr, -brd, -charter, -fdd, -pmp, -subsidiary-plan, -user-stories
+    assert len(pinned) >= 12  # the seven pinned at approval and the five added by IMP-046
     for task in pinned:
         decision = route(DISTRIBUTIONS["uniform"], "low", task_id=task, approved_for_low=True)
         assert (decision.authority, decision.reason) == (DecisionAuthority.FULL, "pinned"), task
+
+
+def test_ac1_every_recorded_gate_is_pinned() -> None:
+    """IMP-046: no approve-* task in the committed episodes depends on a missing complexity profile to route full."""
+    unpinned = sorted(t for t in _recorded_approve_tasks() if t not in PINNED_FULL)
+    assert unpinned == [], f"approve-* tasks in the committed episodes that are not in PINNED_FULL: {unpinned}"
 
 
 # --- AC_2: No Routed Episodes ---------------------------------------------------------------------------

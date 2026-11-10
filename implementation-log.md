@@ -3289,3 +3289,24 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-157-15 | logic error | verified: partial | decision: accepted | routed_episode_metadata ignores shadow keys other than the two in FDD-021 2.3; by design, now stated in the docstring and pinned by a test | fix: 54db93d`
 - **Reconciliation:** `main` merged into the branch; the Project Status Register checkpoint rows were merged with the Epic 38 and Epic 14 updates and now cite PR #157 and the other PRs.
 - **Amazon Q confirm (head `9402942`):** resolved the earlier findings and listed two items as remaining (Q-157-14, Q-157-15 above); both closed in `54db93d` with characterization tests and a docstring note, no behaviour change.
+
+## Story 21.7 — The Real-Data Check (No Routed Traffic)
+- **Commit:** `1b60f24`
+- **Date:** 2026-11-10
+- **Branch:** `feat/story-21.7` (worktree `../agent-learning-story-21.7`)
+- **Source ADR / BRD / FDD:** ADR-021 (§4.5, Invariant 5), BRD-021 (BRU-021-15), FDD-021 (§8 Test Data)
+- **Pre-Flight Spec Gate:** `uv run python scripts/spec_gate.py 21.7 --no-persist` PASSED, robust margin +0.0975. `--no-persist` because `AGENT_LEARNING_LOCAL_STORE_DIR` on this machine points at another project's store (LL-040). Interpretations I1 (round trip), I2 (empty base case), I3 (non-finite floats) and I4 (tolerances) from the gate are recorded in the test docstring, with I5 to I8 added.
+- **Step 1 checks:** `git ls-files data/agent-learning/store` shows only six tracked files: three active-policy pointers (approve-brd, approve-fdd, approve-user-stories) and the three snapshots they name. The other pointers on this machine (approve-adr among them) are git-ignored, so the story's "committed store" is those three (I5, LL-037). `docs/policy-shapes/episodes/` holds 227 tracked files; 16 early ones carry no `id`. No code path is named by the story that is missing (`PINNED_FULL`, `previous_route`, `agreement` and `route` are in `src/agent_learning_ext/routing.py`).
+- **Files Modified/Created:**
+  - `tests/test_routing_real_data.py` (new; 56 test cases for AC_0 to AC_4)
+  - `.claude/skills/routing/SKILL.md` (contract list and constraint 17)
+  - `docs/user-stories/epic-21-contextual-authority-ensemble-routing.md` (Story 21.7 Status line)
+  - `docs/project-docs/Project-Status-Register.md` (checkpoint, last completed, next)
+  - No source file under `src/` changes: the deliverable is the check.
+- **Contracts & Validation:**
+  - The story adds no behaviour, so the contract cannot be RED before an implementation. It was shown able to fail by breaking the code: with `approve-brd` removed from `PINNED_FULL`, 17 cases failed; with a routing record injected into one committed episode, 1 failed; with the reason `pinned` changed, 49 failed. Each change was reverted (`git status` shows only the new files).
+  - `tests/test_routing_real_data.py`: 56 passed. AC_3 (nothing written) was not mutated.
+  - Full suite, no `--ignore` (plain `uv run pytest`): 2576 passed, 3 skipped. `ruff check` clean on the new test.
+- **Result (the recorded statement):** every committed gate in `PINNED_FULL` routes FULL with reason `pinned` for any distribution, tier and approval (the three committed policies, and the seven pinned `approve-*` tasks found in the episodes). No committed episode carries `routed_authority` or a `routing` record, so `previous_route` is None and `agreement` finds n = 0 for every bucket. No routed traffic and no calibrated threshold exist yet; nothing is claimed about cost or latency (BRU-021-15). Missing data: mixed-difficulty traffic through a hybrid policy with a context key declared for each request.
+- **Finding for a human (not changed here):** five gate tasks that appear in the committed episodes are not in `PINNED_FULL`: approve-audit-record, approve-benefits, approve-business-case, approve-ideation, approve-project-pillars. They route full only if their complexity profile sets `requires_human_approval`, and no profile for them is committed. AC_1 does not cover them ("that is in PINNED_FULL"). Whether to add them to `PINNED_FULL` (ADR-021 Invariant 5 lists the pinned set) or to commit their profiles is an open question.
+- **Notes:** the story is the last of Epic 21, so Step 9 (the breakout recap) follows the merge.

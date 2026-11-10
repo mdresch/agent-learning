@@ -187,12 +187,17 @@
     "docs/adr/ADR-021-contextual-authority-ensemble-routing.md": {
       "family": "adr",
       "status": "accepted",
-      "sha256": "e83806f1961ed44195745075f03c5a6b37da4d856df2ad9edccbeb12ea8b1a9d",
+      "sha256": "ae3b2be35fa672974375889dc06cf946b76240e15e73263308de5450c4769b65",
       "approval_episode": null,
       "amendments": [
         {
           "date": "2026-11-09",
           "episode": "ba06bde4",
+          "stage": 16
+        },
+        {
+          "date": "2026-11-10",
+          "episode": "3f511feb",
           "stage": 16
         }
       ]
@@ -470,9 +475,15 @@
     "docs/project-docs/Business-Requirements/BRD-021-contextual-authority-ensemble-routing.md": {
       "family": "brd",
       "status": "approved",
-      "sha256": "3b8cd85f5e4b3dde0e90226dd9eca13fea019a1df17fecf5e0e0e4295abe085e",
+      "sha256": "42c61574d2dbe3a476ae36bdb7df84524c1c5d2262f43830d5f6bb2e4c5425c0",
       "approval_episode": "f7d8b1b7",
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-10",
+          "episode": "e021910d",
+          "stage": 16
+        }
+      ]
     },
     "docs/project-docs/Business-Requirements/BRD-022-scored-search-decision-configuration-compilation.md": {
       "family": "brd",
@@ -764,12 +775,17 @@
     "docs/project-docs/Functional-Design/FDD-021-contextual-authority-ensemble-routing.md": {
       "family": "fdd",
       "status": "approved",
-      "sha256": "1d00119f3644a3bea84c5088065bf048d21bfd55b252020e47fa3dfe0e4c447d",
+      "sha256": "ad58310b01123e1d294f846d52bfc16796c29c2a45b8789b7c34c3d8617f0abc",
       "approval_episode": "46c77417",
       "amendments": [
         {
           "date": "2026-11-09",
           "episode": "0ebf33c8",
+          "stage": 16
+        },
+        {
+          "date": "2026-11-10",
+          "episode": "84478bb3",
           "stage": 16
         }
       ]
@@ -1042,12 +1058,17 @@
     "docs/user-stories/epic-21-contextual-authority-ensemble-routing.md": {
       "family": "story",
       "status": "approved",
-      "sha256": "0df2eaec25e562a4c762950fc019a43f04a2e74b243c6ec3db99532b268b26d9",
+      "sha256": "b1b3576bd3de39d49dcbe4edce0ef0eaa0517a514c9c09c95f2391d3e16d26f9",
       "approval_episode": "5a905107",
       "amendments": [
         {
           "date": "2026-11-09",
           "episode": "e49f2eb2",
+          "stage": 16
+        },
+        {
+          "date": "2026-11-10",
+          "episode": "a8d2b75a",
           "stage": 16
         }
       ]

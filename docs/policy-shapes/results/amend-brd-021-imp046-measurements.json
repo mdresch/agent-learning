@@ -1,0 +1,26 @@
+{
+  "document": "docs/project-docs/Business-Requirements/BRD-021-contextual-authority-ensemble-routing.md",
+  "tag": "imp046",
+  "base_commit": "1579f26",
+  "candidate_sha256": "2ba7a4f136acacd5956ad4b375a99ec981ad254f00b03ea8f72e9207ab499bc7",
+  "features": {
+    "lines": 2,
+    "terms_removed": 10,
+    "terms_kept": 10,
+    "goal_preserved": true,
+    "requirement_inverted": false,
+    "normative_touched": false,
+    "status_line_changed": false,
+    "downstream_refs": 1,
+    "change_ratio": 0.13
+  },
+  "observed": [
+    0.05,
+    0.1,
+    0.1,
+    0.1
+  ],
+  "proposed_action": "correction_note",
+  "accepted": true,
+  "episode": "e021910d"
+}

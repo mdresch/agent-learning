@@ -3312,3 +3312,14 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Notes:** the story is the last of Epic 21, so Step 9 (the breakout recap) follows the merge.
 - **Amazon Q review (PR #167):** `/q review` on head `e56955e`: two reviews, no blocking defect. One finding, fixed in `76fc215`; Q's `/q confirm` follows.
   - `Q-167-1 | style | verified: yes | decision: accepted | data.setdefault(id) in _load_episodes is overwritten by the next line | fix: 76fc215`
+
+## IMP-046 — The five gate tasks the real-data check found unpinned are now pinned
+- **Commit:** `1579f26`
+- **Date:** 2026-11-10
+- **Branch:** `fix/imp-046-pin-five-gates`
+- **Source ADR / BRD / FDD:** ADR-021 (section 4.1, Invariant 5), BRD-021 (BRU-021-02), FDD-021 (section 2.1), Epic 21 Story 21.3 AC_0. An improvement entry (IMP-046), not a story.
+- **Why:** Story 21.7 (PR #167) found that approve-audit-record, approve-benefits, approve-business-case, approve-ideation and approve-project-pillars appear in the committed episodes but were not in `PINNED_FULL`. They routed full only if their complexity profile set `requires_human_approval`, and no profile for them is committed. The maintainer decided on 2026-11-10 that they go into `PINNED_FULL`.
+- **Code and tests:** `src/agent_learning_ext/routing.py` (`PINNED_FULL` is sixteen tasks); `tests/test_routing_pinning.py` (the list and the count); `tests/test_routing_real_data.py` (the finding is resolved, and `test_ac1_every_recorded_gate_is_pinned` asserts that every approve-* task in the committed episodes is pinned); the routing skill and the demo sketch. Three of the new assertions fail without the constant change (RED observed); the full suite with no `--ignore` flags: 2602 passed, 2 skipped.
+- **Stage 16 amendments** (accepted by Menno, 2026-11-10, each with its own episode in the document's Status line): ADR-021, BRD-021 and FDD-021 as `correction_note`; Epic 21 as `amendment_log_entry`. ADR-021 also has an Amendment Log row.
+- **Still outside:** approve-compiled-weights and approve-intent-refinement have policy shapes but no episodes and are not pinned; the maintainer has not decided them.
+

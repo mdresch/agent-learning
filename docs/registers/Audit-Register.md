@@ -27,12 +27,12 @@ outputs:
 |---|---|
 | Version | 1.0 (live — accumulates as audits actually run) |
 | Date | 2026-11-10 |
-| Status | Active. First audit run 2026-11-04 (AUDIT-001 to AUDIT-006), bounded sample, approved by Menno on 2026-11-04 via `approve-audit-record` (robust utility 0.682, episode `42114091-0ccd-4c45-9b6b-c97046b048bd`). |
+| Status | Active. First audit run 2026-11-04 (AUDIT-001 to AUDIT-006), bounded sample, approved by Menno on 2026-11-04 via `approve-audit-record` (robust utility 0.682, episode `42114091-0ccd-4c45-9b6b-c97046b048bd`). Second run, AUDIT-007 to AUDIT-017, approved by Menno on 2026-11-10 via `approve-audit-record` (robust utility 0.699, expected utility 0.775, episode `198bfc09-34ae-4ad7-b8f1-d96eb2ec89a3`). |
 | Source | Instantiated from sidpa-template `docs/registers/Audit-Register.template.md` (commit `e97e8a3`). No audit-sampling rationale yet. |
 
 **Entries are added only when a real audit happens, never backfilled.** The first audit ran on 2026-11-04 at git `f86530a` (prospective: the ADR claims were checked against the code on that date). It is a bounded sample: four ADRs (015, 019, 020, 034) and the story-status drift report. The other ADRs were not audited and nothing here says they are accurate. The findings are an AI reading of the code, accepted by the human at the `approve-audit-record` gate on 2026-11-04.
 
-**Second audit run (2026-11-10, Phase 2 close).** Prospective, at git `51ef83d`: AUDIT-007 to AUDIT-017 check one or two stated invariants for each of ADR-014, 016, 018, 021, 022 and 038, one follow-up on ADR-034, and the verification process. It is a bounded sample and says nothing about invariants not listed. The findings are an AI reading of the code, awaiting `approve-audit-record`; the 2026-11-04 approval covers AUDIT-001 to AUDIT-006 only.
+**Second audit run (2026-11-10, Phase 2 close).** Prospective, at git `51ef83d`: AUDIT-007 to AUDIT-017 check one or two stated invariants for each of ADR-014, 016, 018, 021, 022 and 038, one follow-up on ADR-034, and the verification process. It is a bounded sample and says nothing about invariants not listed. The findings are an AI reading of the code, approved by Menno on 2026-11-10 via `approve-audit-record` (episode `198bfc09-34ae-4ad7-b8f1-d96eb2ec89a3`); the 2026-11-04 approval covers AUDIT-001 to AUDIT-006 only. Every corrective action is rolled into Phase 3 (IMP-053 to IMP-057).
 
 Centralized, not scattered. Every real audit finding (an ADR's accuracy checked against actual code) and every real Governance Exercise (a real-world prerequisite or claim checked against production reality) lives here once, with a stable ID — other documents **reference** the ID rather than copying the finding into their own text.
 

@@ -3340,3 +3340,11 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Code and tests:** `PINNED_FULL` is now eighteen tasks; `test_ac1_every_gate_with_a_policy_shape_is_pinned` asserts every approve-* policy shape is pinned. RED observed (2 failures without the constant change); full suite with no `--ignore`: 2605 passed, 2 skipped.
 - **Stage 16 amendments** (accepted by Menno, 2026-11-10, `correction_note`): ADR-021 `9cf46846`, BRD-021 `c90ac8e0`, FDD-021 `f611cd40`, Epic 21 `241a9916`. ADR-021 also has an Amendment Log row.
 
+## Governance gate — approve-audit-record (Audit-Register.md AUDIT-007 to AUDIT-017, Phase 2 close)
+- **Date:** 2026-11-10 (prospective: recorded when approved, not backdated)
+- **Gate:** `agent-learning-governance` / `approve-audit-record`. Recommendation `approve_audit_record` (robust utility 0.699, expected utility 0.775; request revision 0.188; reject 0.044; margin +0.511). Human acceptance by Menno on 2026-11-10. Episode `198bfc09-34ae-4ad7-b8f1-d96eb2ec89a3` registered in the repo store `data/agent-learning/store` (319 files before registration, 320 after). The decision and adjudication ran against the socialengage store at `AGENT_LEARNING_LOCAL_STORE_DIR` (620 files before and after; they write nothing).
+- **Evidence:** findings checked against code at git `51ef83d`; the assistant authored the frame scores from that read, so they are an AI assessment accepted by the human, not independent measurement. Frame, decision and adjudication results, and episode: `docs/policy-shapes/{decision-frames/audit-record-approval-phase2.json, results/audit-record-phase2-decision-result.json, results/audit-record-phase2-adjudication-result.json, episodes/audit-record-phase2-approval-episode.json}`.
+- **Scope carried, not hidden:** a bounded sample (one or two invariants for each of ADR-014, 016, 018, 021, 022 and 038, one ADR-034 follow-up, and the verification process). Five findings carry drift or a gap (AUDIT-008, 013, 014, 016, 017) and AUDIT-009 is partial; every corrective action is rolled into Phase 3 as IMP-053 to IMP-057. None is applied in Phase 2.
+- **Does not change:** the 2026-11-04 approval of AUDIT-001 to AUDIT-006.
+
+---

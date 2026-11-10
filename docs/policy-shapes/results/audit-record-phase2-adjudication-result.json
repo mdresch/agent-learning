@@ -1,0 +1,165 @@
+{
+  "agent_id": "agent-learning-governance",
+  "task_id": "approve-audit-record",
+  "policy_id": "5e3a1348-03d2-4748-9918-4fb086253d34",
+  "policy_version": 0,
+  "status": "resolved",
+  "reason": "The user accepted the proposed option to resolve the tie.",
+  "selection_basis": "bayesian_decision",
+  "selected_action": {
+    "id": "approve_audit_record",
+    "description": "The Audit Record provides substantiated evidence of compliance or non-conformance, clear impact classification, and actionable remediation actions -- approve it into the formal audit register",
+    "parameters": {}
+  },
+  "proposed_action": null,
+  "candidate_actions": [
+    {
+      "id": "approve_audit_record",
+      "description": "The Audit Record provides substantiated evidence of compliance or non-conformance, clear impact classification, and actionable remediation actions -- approve it into the formal audit register",
+      "parameters": {}
+    }
+  ],
+  "assessments": [
+    {
+      "action": {
+        "id": "approve_audit_record",
+        "description": "The Audit Record provides substantiated evidence of compliance or non-conformance, clear impact classification, and actionable remediation actions -- approve it into the formal audit register",
+        "parameters": {}
+      },
+      "feasible": true,
+      "criteria": [
+        {
+          "criterion_id": "findings_substantiated",
+          "support": 0.7708431110170424,
+          "entropy_bits": 0.7765386738949349,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "verdicts_correct",
+          "support": 0.7519492530313434,
+          "entropy_bits": 0.808173988334322,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "corrective_actions_actionable",
+          "support": 0.7646510369310004,
+          "entropy_bits": 0.7872198354765074,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "scope_limits_disclosed",
+          "support": 0.8137268950694664,
+          "entropy_bits": 0.6936096520977755,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        }
+      ],
+      "expected_utility": 0.7752925740122132,
+      "uncertainty": 0.766385537450885,
+      "robust_utility": 0.6986540202671246,
+      "ruled_out_by": []
+    },
+    {
+      "action": {
+        "id": "reject_audit_record",
+        "description": "The Audit Record is unsubstantiated, misclassifies governance boundaries, or lacks factual verification -- reject it outright",
+        "parameters": {}
+      },
+      "feasible": true,
+      "criteria": [
+        {
+          "criterion_id": "findings_substantiated",
+          "support": 0.0866255450880921,
+          "entropy_bits": 0.42510488271276897,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "verdicts_correct",
+          "support": 0.0866255450880921,
+          "entropy_bits": 0.42510488271276897,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "corrective_actions_actionable",
+          "support": 0.0866255450880921,
+          "entropy_bits": 0.42510488271276897,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "scope_limits_disclosed",
+          "support": 0.0866255450880921,
+          "entropy_bits": 0.42510488271276897,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        }
+      ],
+      "expected_utility": 0.0866255450880921,
+      "uncertainty": 0.42510488271276897,
+      "robust_utility": 0.0441150568168152,
+      "ruled_out_by": [
+        "pareto_dominated_by:approve_audit_record"
+      ]
+    },
+    {
+      "action": {
+        "id": "request_revision_before_decision",
+        "description": "The Audit Record requires additional evidence verification, clearer finding descriptions, or refined corrective actions before formal recording",
+        "parameters": {}
+      },
+      "feasible": true,
+      "criteria": [
+        {
+          "criterion_id": "findings_substantiated",
+          "support": 0.2612038749637415,
+          "entropy_bits": 0.8285576078854364,
+          "disagreement_bits": 1.1102230246251565e-16,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "verdicts_correct",
+          "support": 0.2612038749637415,
+          "entropy_bits": 0.8285576078854364,
+          "disagreement_bits": 1.1102230246251565e-16,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "corrective_actions_actionable",
+          "support": 0.30492387503156065,
+          "entropy_bits": 0.8872267845821186,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "scope_limits_disclosed",
+          "support": 0.2612038749637415,
+          "entropy_bits": 0.8285576078854364,
+          "disagreement_bits": 1.1102230246251565e-16,
+          "source_count": 1
+        }
+      ],
+      "expected_utility": 0.2721338749806963,
+      "uncertainty": 0.843224902059607,
+      "robust_utility": 0.18781138477473558,
+      "ruled_out_by": [
+        "pareto_dominated_by:approve_audit_record"
+      ]
+    }
+  ],
+  "information_needs": [],
+  "rejected_action_ids": [],
+  "authorization_basis": "user_acceptance",
+  "action_probabilities": {
+    "approve_audit_record": 0.3333333333333333,
+    "reject_audit_record": 0.3333333333333333,
+    "request_revision_before_decision": 0.3333333333333333
+  },
+  "action_logprob": null,
+  "audit_evidence": null,
+  "decision_authority": "full"
+}

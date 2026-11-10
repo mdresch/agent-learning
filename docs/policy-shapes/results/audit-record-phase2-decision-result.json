@@ -1,0 +1,339 @@
+{
+  "agent_id": "agent-learning-governance",
+  "task_id": "approve-audit-record",
+  "policy_id": "5e3a1348-03d2-4748-9918-4fb086253d34",
+  "policy_version": 0,
+  "status": "needs_user_feedback",
+  "reason": "The policy requires human approval; accept or reject the reasoned recommendation.",
+  "selection_basis": "bayesian_decision",
+  "selected_action": null,
+  "proposed_action": {
+    "id": "approve_audit_record",
+    "description": "The Audit Record provides substantiated evidence of compliance or non-conformance, clear impact classification, and actionable remediation actions -- approve it into the formal audit register",
+    "parameters": {}
+  },
+  "candidate_actions": [
+    {
+      "id": "approve_audit_record",
+      "description": "The Audit Record provides substantiated evidence of compliance or non-conformance, clear impact classification, and actionable remediation actions -- approve it into the formal audit register",
+      "parameters": {}
+    }
+  ],
+  "assessments": [
+    {
+      "action": {
+        "id": "approve_audit_record",
+        "description": "The Audit Record provides substantiated evidence of compliance or non-conformance, clear impact classification, and actionable remediation actions -- approve it into the formal audit register",
+        "parameters": {}
+      },
+      "feasible": true,
+      "criteria": [
+        {
+          "criterion_id": "findings_substantiated",
+          "support": 0.7708431110170424,
+          "entropy_bits": 0.7765386738949349,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "verdicts_correct",
+          "support": 0.7519492530313434,
+          "entropy_bits": 0.808173988334322,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "corrective_actions_actionable",
+          "support": 0.7646510369310004,
+          "entropy_bits": 0.7872198354765074,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "scope_limits_disclosed",
+          "support": 0.8137268950694664,
+          "entropy_bits": 0.6936096520977755,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        }
+      ],
+      "expected_utility": 0.7752925740122132,
+      "uncertainty": 0.766385537450885,
+      "robust_utility": 0.6986540202671246,
+      "ruled_out_by": []
+    },
+    {
+      "action": {
+        "id": "reject_audit_record",
+        "description": "The Audit Record is unsubstantiated, misclassifies governance boundaries, or lacks factual verification -- reject it outright",
+        "parameters": {}
+      },
+      "feasible": true,
+      "criteria": [
+        {
+          "criterion_id": "findings_substantiated",
+          "support": 0.0866255450880921,
+          "entropy_bits": 0.42510488271276897,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "verdicts_correct",
+          "support": 0.0866255450880921,
+          "entropy_bits": 0.42510488271276897,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "corrective_actions_actionable",
+          "support": 0.0866255450880921,
+          "entropy_bits": 0.42510488271276897,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "scope_limits_disclosed",
+          "support": 0.0866255450880921,
+          "entropy_bits": 0.42510488271276897,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        }
+      ],
+      "expected_utility": 0.0866255450880921,
+      "uncertainty": 0.42510488271276897,
+      "robust_utility": 0.0441150568168152,
+      "ruled_out_by": [
+        "pareto_dominated_by:approve_audit_record"
+      ]
+    },
+    {
+      "action": {
+        "id": "request_revision_before_decision",
+        "description": "The Audit Record requires additional evidence verification, clearer finding descriptions, or refined corrective actions before formal recording",
+        "parameters": {}
+      },
+      "feasible": true,
+      "criteria": [
+        {
+          "criterion_id": "findings_substantiated",
+          "support": 0.2612038749637415,
+          "entropy_bits": 0.8285576078854364,
+          "disagreement_bits": 1.1102230246251565e-16,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "verdicts_correct",
+          "support": 0.2612038749637415,
+          "entropy_bits": 0.8285576078854364,
+          "disagreement_bits": 1.1102230246251565e-16,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "corrective_actions_actionable",
+          "support": 0.30492387503156065,
+          "entropy_bits": 0.8872267845821186,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "scope_limits_disclosed",
+          "support": 0.2612038749637415,
+          "entropy_bits": 0.8285576078854364,
+          "disagreement_bits": 1.1102230246251565e-16,
+          "source_count": 1
+        }
+      ],
+      "expected_utility": 0.2721338749806963,
+      "uncertainty": 0.843224902059607,
+      "robust_utility": 0.18781138477473558,
+      "ruled_out_by": [
+        "pareto_dominated_by:approve_audit_record"
+      ]
+    }
+  ],
+  "information_needs": [],
+  "rejected_action_ids": [],
+  "authorization_basis": null,
+  "action_probabilities": {
+    "approve_audit_record": 0.3333333333333333,
+    "reject_audit_record": 0.3333333333333333,
+    "request_revision_before_decision": 0.3333333333333333
+  },
+  "action_logprob": null,
+  "audit_evidence": null,
+  "decision_context": "Governance review for Stage 11 Audit Record",
+  "decision_authority": "full",
+  "selection_mode": "reasoned",
+  "selected_action_feedback": {
+    "attempts": 1,
+    "correctness_evaluated": 1,
+    "correct": 1,
+    "correctness_rate": 1.0,
+    "rewarded_episodes": 0,
+    "mean_reward": null,
+    "recent_outcomes": [
+      {
+        "created_at": "2026-11-04T15:51:12.182601+00:00",
+        "was_correct": true,
+        "reward": null,
+        "execution_status": "completed",
+        "result_summary": "Approved by Menno, 2026-11-04 (approve-audit-record gate), prospectively at the time of approval; not backdated.",
+        "score_breakdown": {}
+      }
+    ]
+  },
+  "historical_feedback": {
+    "episodes_reviewed": 1,
+    "actions": {
+      "approve_audit_record": {
+        "attempts": 1,
+        "correctness_evaluated": 1,
+        "correct": 1,
+        "correctness_rate": 1.0,
+        "rewarded_episodes": 0,
+        "mean_reward": null,
+        "recent_outcomes": [
+          {
+            "created_at": "2026-11-04T15:51:12.182601+00:00",
+            "was_correct": true,
+            "reward": null,
+            "execution_status": "completed",
+            "result_summary": "Approved by Menno, 2026-11-04 (approve-audit-record gate), prospectively at the time of approval; not backdated.",
+            "score_breakdown": {}
+          }
+        ]
+      },
+      "reject_audit_record": {
+        "attempts": 0,
+        "correctness_evaluated": 0,
+        "correct": 0,
+        "correctness_rate": null,
+        "rewarded_episodes": 0,
+        "mean_reward": null,
+        "recent_outcomes": []
+      },
+      "request_revision_before_decision": {
+        "attempts": 0,
+        "correctness_evaluated": 0,
+        "correct": 0,
+        "correctness_rate": null,
+        "rewarded_episodes": 0,
+        "mean_reward": null,
+        "recent_outcomes": []
+      }
+    }
+  },
+  "autonomy": {
+    "eligible": false,
+    "authorization_basis": "none",
+    "decision_authority": "full",
+    "mode": "supervised",
+    "execute_without_confirmation": false,
+    "request_user_feedback": true,
+    "observable_outcome_satisfies_feedback": false,
+    "feedback_reason": "human_approval_required",
+    "outcome_recording": "user_feedback",
+    "complexity": {
+      "tier": "standard",
+      "score": 4,
+      "intent_score": 1,
+      "decision_score": 3,
+      "action_count": 3,
+      "action_space_points": 1,
+      "profile_source": "configured",
+      "profile": {
+        "intent_ambiguity": "low",
+        "context_variability": "variable",
+        "outcome_observability": "direct",
+        "decision_impact": "high",
+        "reversibility": "reversible",
+        "requires_human_approval": true,
+        "rationale": "Reused directly from sidpa-template's own shared-complexity-profile.json, which itself was corrected from a real ADPA mistake (approve-adr was first built with requires_human_approval: false, and the resolver's own execute_without_confirmation logic would have bypassed a real governance rule as a result). Correct this down per-policy only with real evidence the specific decision doesn't need a human sign-off -- never flip it the other direction speculatively."
+      },
+      "risk_floors": []
+    },
+    "learned_policy_assessment": {
+      "eligible": false,
+      "authorization_basis": "human_adjudication",
+      "user_feedback_status": null,
+      "user_feedback_episode_id": null,
+      "recommended_action_id": "approve_audit_record",
+      "scored_outcomes": 0,
+      "correctness_evaluated": 0,
+      "correct_outcomes": 0,
+      "correctness_rate": null,
+      "correctness_lower_bound": 0.0,
+      "mean_reward": null,
+      "action_probability": 0.3333333333333333,
+      "probability_margin": 0.0,
+      "stable_snapshots": 0,
+      "audit_rate": 0.1,
+      "complexity": {
+        "tier": "standard",
+        "score": 4,
+        "intent_score": 1,
+        "decision_score": 3,
+        "action_count": 3,
+        "action_space_points": 1,
+        "profile_source": "configured",
+        "profile": {
+          "intent_ambiguity": "low",
+          "context_variability": "variable",
+          "outcome_observability": "direct",
+          "decision_impact": "high",
+          "reversibility": "reversible",
+          "requires_human_approval": true,
+          "rationale": "Reused directly from sidpa-template's own shared-complexity-profile.json, which itself was corrected from a real ADPA mistake (approve-adr was first built with requires_human_approval: false, and the resolver's own execute_without_confirmation logic would have bypassed a real governance rule as a result). Correct this down per-policy only with real evidence the specific decision doesn't need a human sign-off -- never flip it the other direction speculatively."
+        },
+        "risk_floors": []
+      },
+      "criteria": {
+        "minimum_outcomes": {
+          "actual": 0,
+          "required": 20,
+          "met": false
+        },
+        "correctness_lower_bound": {
+          "actual": 0.0,
+          "required": 0.9,
+          "wilson_z": 1.96,
+          "met": false
+        },
+        "positive_mean_reward": {
+          "actual": null,
+          "required_greater_than": 0.0,
+          "met": false
+        },
+        "action_probability": {
+          "actual": 0.3333333333333333,
+          "required": null,
+          "status": "not_applicable",
+          "reason": "full decision authority uses reasoned resolution, not learned policy logits (ADR-003 section 4.5)",
+          "met": true
+        },
+        "probability_margin": {
+          "actual": 0.0,
+          "required": null,
+          "status": "not_applicable",
+          "reason": "full decision authority uses reasoned resolution, not learned policy logits (ADR-003 section 4.5)",
+          "met": true
+        },
+        "stable_snapshots": {
+          "actual": 0,
+          "required": 3,
+          "met": false
+        },
+        "human_approval_not_required": {
+          "actual": true,
+          "required": false,
+          "met": false
+        },
+        "latest_user_feedback_not_rejected": {
+          "actual": null,
+          "required_not": "rejected",
+          "met": true
+        }
+      }
+    }
+  }
+}

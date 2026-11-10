@@ -59,11 +59,38 @@ def test_worktree_refuses_when_the_branch_or_worktree_already_exists(monkeypatch
     monkeypatch.setattr(cs, "run", Recorder(branches="  feat/story-20.3\n"))
     with pytest.raises(cs.Abort, match="already"):
         cs.cmd_worktree(_args(story="20.3", dry_run=False))
-    rec = Recorder(worktrees="C:/x/agent-learning-story-20.3  abc [feat/story-20.3]\n")
+    rec = Recorder(worktrees="worktree C:/x/agent-learning-story-20.3\nHEAD abc\nbranch refs/heads/feat/story-20.3\n")
     monkeypatch.setattr(cs, "run", rec)
     with pytest.raises(cs.Abort, match="already"):
         cs.cmd_worktree(_args(story="20.3", dry_run=False))
     assert not any(c[:3] == ["git", "worktree", "add"] for c in rec.calls)
+
+
+def test_a_longer_story_id_does_not_make_a_shorter_one_look_started(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    """Story 2.1 is not started because a worktree for 2.10 exists."""
+    monkeypatch.setattr(cs, "ROOT", tmp_path / "agent-learning")
+    rec = Recorder(worktrees="worktree C:/x/agent-learning-story-2.10\nHEAD abc\nbranch refs/heads/feat/story-2.10\n")
+    monkeypatch.setattr(cs, "run", rec)
+    cs.cmd_worktree(_args(story="2.1", dry_run=False))
+    assert any(c[:3] == ["git", "worktree", "add"] for c in rec.calls)
+
+
+def test_a_failed_provision_is_rolled_back_so_it_can_be_run_again(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.setattr(cs, "ROOT", tmp_path / "agent-learning")
+
+    class FailingSync(Recorder):
+        def __call__(self, cmd, check=True, capture=True, cwd=None):
+            super().__call__(cmd, check, capture, cwd)
+            if cmd[:2] == ["uv", "sync"]:
+                raise cs.Abort("uv sync failed")
+            return subprocess.CompletedProcess(cmd, 0, stdout="", stderr="")
+
+    rec = FailingSync()
+    monkeypatch.setattr(cs, "run", rec)
+    with pytest.raises(cs.Abort, match="Rolled back"):
+        cs.cmd_worktree(_args(story="20.3", dry_run=False))
+    assert any(c[:4] == ["git", "worktree", "remove", "--force"] for c in rec.calls)
+    assert ["git", "branch", "-D", "feat/story-20.3"] in rec.calls
 
 
 def test_worktree_dry_run_changes_nothing(

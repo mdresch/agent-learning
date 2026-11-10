@@ -74,7 +74,12 @@ def cmd_worktree(args: argparse.Namespace) -> None:
     story = args.story
     branch = f"feat/story-{story}"
     path = ROOT.parent / f"{ROOT.name}-story-{story}"
-    if git("branch", "--list", branch) or path.name in git("worktree", "list"):
+    listed = [
+        Path(ln[len("worktree ") :]).name
+        for ln in git("worktree", "list", "--porcelain").splitlines()
+        if ln.startswith("worktree ")
+    ]
+    if git("branch", "--list", branch) or path.name in listed:  # exact directory names: story 2.1 is not 2.10
         raise Abort(
             f"{branch} or {path.name} already exists: a run was already started (LL-042). Do not adopt it; inspect it read-only."
         )
@@ -90,9 +95,16 @@ def cmd_worktree(args: argparse.Namespace) -> None:
         for cmd, where in steps:
             print("  " + " ".join(cmd) + (f"   (in {where})" if where else ""))
         return
-    for cmd, where in steps:
+    for done, (cmd, where) in enumerate(steps):
         print("  " + " ".join(cmd))
-        run(cmd, cwd=where)
+        try:
+            run(cmd, cwd=where)
+        except Abort as exc:
+            if done > 0:  # the worktree and branch exist only because this invocation just added them: take them back
+                run(["git", "worktree", "remove", "--force", str(path)], check=False)
+                run(["git", "branch", "-D", branch], check=False)
+                raise Abort(f"{exc}\nRolled back {path.name} and {branch} so the command can be run again.") from exc
+            raise
     print(f"Ready: {path} on {branch}. Read the RED before accepting it: it must name the symbol the story adds, not a missing package.")
 
 

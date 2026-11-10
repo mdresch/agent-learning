@@ -320,12 +320,17 @@
     "docs/adr/ADR-036-learning-methodology-examples-ledger-and-review-triage-loop.md": {
       "family": "adr",
       "status": "accepted",
-      "sha256": "5bba3aafd247222f55142c1e5d8eb39fa8dd51cf5edc7f007b31ffe47af95829",
+      "sha256": "27f588e8d2c4032ad9cda91f8f269b823aaccfb9602bb0d83df29e6b8035762b",
       "approval_episode": null,
       "amendments": [
         {
           "date": "2026-11-10",
           "episode": "4b6f2c91",
+          "stage": 16
+        },
+        {
+          "date": "2026-11-10",
+          "episode": "bfc5ab7b",
           "stage": 16
         }
       ]

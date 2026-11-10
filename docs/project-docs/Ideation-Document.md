@@ -28,7 +28,7 @@ outputs:
 | Document Title | Ideation Document — agent-learning SDK |
 | Version | 1.14 |
 | Date | 2026-11-07 |
-| Updated | 2026-11-10: section 2.1 rows #8, #10, #11, #13, #17 and #22 synced from candidate to Implemented (Epics 14, 16, 17, 18, 21 and 22 are built); no scope change. Aligned with `tests/fixtures/methodology_catalog/ideation_states.json` (LL-007) and the ADR-036 and Epic 36 Stage 16 amendments of the same date. |
+| Updated | 2026-11-10: section 2.1 rows #8, #9, #10, #11, #13, #17 and #22 synced from candidate to Implemented (Epics 14, 15, 16, 17, 18, 21 and 22 are built); no scope change. Aligned with `tests/fixtures/methodology_catalog/ideation_states.json` (LL-007) and the ADR-036 and Epic 36 Stage 16 amendments of the same date. |
 | Status | Approved (Phase 1 Closed via PCD-20261106-001; Phase 2 Initiated under PMP-BL-v1.0.1). Adjudicated via `approve-ideation` (robust utility 0.822, expected utility 0.875, episode `a8db17b5-9134-4b7c-97f9-80cfe9ade4a1`; supersedes Phase 1 episode `c882fd98-427f-49e7-ae84-b985fa372230`). Lineage Kernel `2402e037cb69f8e4...`. |
 | Source | `README.md`, `PYPI.md`, `docs/decision-making.md`, `docs/autonomy-complexity.md`, `docs/experiential-reinforcement-learning-comparison.md`, `docs/scout-agent-learn-skill.md`, `docs/scout-automation-agent-learning.md`, `docs/research/main.tex`, `examples/next_best_action.py`, `src/agent_learning/decision.py`/`cli.py`/`audit.py`, `git log`, and empirical Phase 1 execution results across 1,840 tests and 58 completed stories |
 
@@ -110,7 +110,7 @@ whether the technique is good in the abstract.
 | 6 | Durable explicit human override | **Yes** | Implemented, production — non-gradient, granted trust, bypasses statistical gates entirely |
 | 7 | ERL — experience, reflection, retry, internalize | **No, in full form** | Requires the policy itself to generate and internalize reflections — needs a generative model as the policy, not a small action-ID bandit. **Reopens if** replayable, resettable task environments exist |
 | 8 | Lightweight critique-to-evidence (ERL-inspired, no weight updates) | **Yes** | Implemented (Epic 14, ADR-014) — turns textual critique into `DecisionFrame` evidence adjustments without touching model weights |
-| 9 | Thompson sampling / Bayesian bandits | **Yes** | Not built — candidate; the SDK already computes Wilson lower bounds, halfway there |
+| 9 | Thompson sampling / Bayesian bandits | **Yes** | Implemented (Epic 15, ADR-015) — the SDK already computes Wilson lower bounds, halfway there |
 | 10 | UCB (Upper Confidence Bound) | **Yes** | Implemented (Epic 16, ADR-016) — simpler than REINFORCE, no gradient or entropy hyperparameter needed |
 | 11 | Epsilon-greedy bandit | **Yes** | Implemented (Epic 17, ADR-017) — weaker/simpler alternative to #9–10, named for completeness |
 | 12 | Active evidence-seeking (information-gain-driven) | **Partially** | `InformationNeed`/`estimated_information_gain_bits` already exists on `DecisionResolver`'s `NEEDS_EVIDENCE` path; not yet automated into an actual seeking loop |

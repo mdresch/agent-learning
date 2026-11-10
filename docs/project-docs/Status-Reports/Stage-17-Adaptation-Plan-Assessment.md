@@ -25,6 +25,8 @@ related_documents:
 >
 > **Authority:** FULL authority via `approve-adaptation-plan` policy (3 actions: approve, reject, request revision)
 >
+> **Correction note (2026-11-10):** the ids LL-044, LL-045 and LL-046 in this record name three Phase 1 lessons that the register holds as LL-065, LL-066 and LL-067 (see the crosswalk in `Lessons-Learned-Register.md`). The links `Lessons-Learned-Register.md#ll-044`, `#ll-045` and `#ll-046` below reach other lessons. The rest of the record is unchanged.
+>
 > **Status:** **COMPLETED** 2026-11-06. Stage 17 Adaptation Plan completed with all artifacts committed and pushed.
 
 ---

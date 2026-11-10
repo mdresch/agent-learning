@@ -3,7 +3,8 @@
 **Governing ADR:** [ADR-010](../adr/ADR-010-lessons-learned-crystallization-and-register.md) — Accepted (2026-10-25)  
 **Lifecycle Role:** Light post-coding breakout recap per ADR-010: held once per epic, after its last user story, on how the code was created from the stories. Not the formal Stage 15 review, which is separate.  
 **Maintenance Rule:** Append-only register. Crystallized entries represent verified institutional knowledge captured at the epic-end recap. A recap with nothing new is recorded as a short sign-off entry (Epic/Phase containing `no-new-lessons`).  
-**Cadence note:** `LL-001` through `LL-006` were recorded per story, before ADR-010 was clarified to a per-epic cadence (2026-10-25). New entries follow the epic-end cadence.
+**Cadence note:** `LL-001` through `LL-006` were recorded per story, before ADR-010 was clarified to a per-epic cadence (2026-10-25). New entries follow the epic-end cadence.  
+**Identifier crosswalk (Phase 1 records):** the Phase 1 Stage 15 to 18 records (2026-11-05 to 2026-11-06) cite three lessons as `LL-044`, `LL-045` and `LL-046` that were never entered in this register under those ids, which the register gave to other lessons. They are registered as `LL-065` (cited as LL-044), `LL-066` (cited as LL-045) and `LL-067` (cited as LL-046). Documents outside the Phase 1 stage records that cite `LL-044` mean the Monolithic Ideation Trap.
 
 ---
 
@@ -63,6 +64,21 @@
 | [LL-050](#ll-050--approved-documents-can-name-code-that-is-not-there-and-criteria-edited-after-the-contract-trip-the-baseline) | Approved Documents Can Name Code That Is Not There, and Criteria Edited After the Contract Trip the Baseline | Epic 22 / Stories 22.1–22.7 | Universal Process | 2026-11-09 |
 | [LL-051](#ll-051--pr-gate-stale-review-parsing-and-confirmation-recognition) | PR Gate Stale Review Parsing and Confirmation Recognition | Epic 22 / Story 22.7 | Universal Process & Tooling | 2026-11-09 |
 | [LL-052](#ll-052--pareto-dominance-margin-collapse-and-simplex-corner-collapse-in-scored-search-compilation) | Pareto-Dominance Margin Collapse and Simplex Corner Collapse in Scored-Search Compilation | Epic 22 / Stories 22.1–22.7 | Universal ML & Governance Decision Theory | 2026-11-09 |
+| [LL-053](#ll-053--approved-documents-named-microsoft-module-placement-again) | Approved Documents Named Microsoft-Module Placement Again | Epic 38 / Stories 38.1–38.6 (PRs #152–#159) | Specification Authoring / Fork Rule | 2026-11-09 |
+| [LL-054](#ll-054--stacked-story-branches-conflict-in-the-append-only-log-at-every-merge) | Stacked Story Branches Conflict in the Append-Only Log at Every Merge | Epic 38 / Stories 38.1–38.6 (PRs #152–#159) | Delivery / Git Workflow | 2026-11-09 |
+| [LL-055](#ll-055--a-fresh-worktree-misses-the-dev-and-examples-extras-and-a-recorded-exclusion-hid-the-cause) | A Fresh Worktree Misses the Dev and Examples Extras, and a Recorded Exclusion Hid the Cause | Epic 38 / Stories 38.1–38.6 (PRs #152–#159) | Environment / Test Suite | 2026-11-09 |
+| [LL-056](#ll-056--q-findings-repeat-and-re-anchor-after-a-fix-and-a-stacked-first-story-ships-latent-crash-paths) | Q Findings Repeat and Re-Anchor After a Fix, and a Stacked First Story Ships Latent Crash Paths | Epic 38 / Stories 38.1–38.6 (PRs #152–#159) | Review Workflow / Specification Order | 2026-11-09 |
+| [LL-057](#ll-057--a-review-fix-commit-removed-existing-behaviour-and-only-the-whole-suite-noticed) | A Review-Fix Commit Removed Existing Behaviour and Only the Whole Suite Noticed | Epic 21 / Stories 21.6 and 21.7 (PRs #157, #167) | Review Workflow / Regression Control | 2026-11-10 |
+| [LL-058](#ll-058--an-unrecorded-review-and-a-bare-confirm-command) | An Unrecorded Review and a Bare Confirm Command | Epic 21 / Stories 21.6 and 21.7 (PRs #157, #167) | Review Workflow / Audit Trail | 2026-11-10 |
+| [LL-059](#ll-059--the-pr-gate-crashes-on-windows-when-a-comment-holds-a-character-outside-cp1252) | The PR Gate Crashes on Windows When a Comment Holds a Character Outside cp1252 | Epic 21 / Stories 21.6 and 21.7 (PRs #157, #167) | Tooling / Windows | 2026-11-10 |
+| [LL-060](#ll-060--a-merge-gate-that-blocks-only-on-completed-failures-lets-unfinished-or-missing-checks-through) | A Merge Gate That Blocks Only on Completed Failures Lets Unfinished or Missing Checks Through | Phase 2 Close (Stage 15) / INSIGHT-007; PR #173, PR #178 | Tooling / CI | 2026-11-10 |
+| [LL-061](#ll-061--a-list-or-threshold-copied-into-an-approved-document-goes-stale-until-a-test-binds-it-to-the-code) | A List or Threshold Copied Into an Approved Document Goes Stale Until a Test Binds It to the Code | Phase 2 Close (Stage 15) / INSIGHT-008; Epics 21, 22, 36 | Governance / Documentation | 2026-11-10 |
+| [LL-062](#ll-062--learners-built-ahead-of-the-data-that-would-exercise-them-leave-their-value-unmeasured) | Learners Built Ahead of the Data That Would Exercise Them Leave Their Value Unmeasured | Phase 2 Close (Stage 15) / INSIGHT-005; Epics 16, 18, 21 | Process / Planning | 2026-11-10 |
+| [LL-063](#ll-063--a-planning-figure-in-human-engineering-days-is-not-a-forecast-of-agentic-delivery) | A Planning Figure in Human-Engineering Days Is Not a Forecast of Agentic Delivery | Phase 2 Close (Stage 15) / INSIGHT-011; Epic 23 change package | Planning | 2026-11-10 |
+| [LL-064](#ll-064--a-stage-with-a-role-but-no-named-input-or-deliverable-is-reinvented-on-each-pass) | A Stage With a Role but No Named Input or Deliverable Is Reinvented on Each Pass | Phase 2 Close (Stage 15) / INSIGHT-010; Stages 13 and 14 | Governance / Process | 2026-11-10 |
+| [LL-065](#ll-065--external-evidence-dependency-blocks-hypothesis-validation) | External Evidence Dependency Blocks Hypothesis Validation | Phase 1 Close (Stage 15) / INSIGHT-001 (OBS-001, OBS-004, OBS-005); crystallized 2026-11-05 and cited as `LL-044` in the Phase 1 records, registered here by Stage 16 (Sponsor decision 2026-11-10) | Universal Testing & Validation | 2026-11-10 |
+| [LL-066](#ll-066--single-source-of-truth-for-story-status) | Single Source of Truth for Story Status | Phase 1 Close (Stage 15) / INSIGHT-002 (OBS-003, OBS-006); crystallized 2026-11-05 and cited as `LL-045` in the Phase 1 records, registered here by Stage 16 (Sponsor decision 2026-11-10) | Repository Process | 2026-11-10 |
+| [LL-067](#ll-067--dual-evidence-storage-requires-reconciliation) | Dual Evidence Storage Requires Reconciliation | Phase 1 Close (Stage 15) / INSIGHT-004 (OBS-001, OBS-007, OBS-008); crystallized 2026-11-05 and cited as `LL-046` in the Phase 1 records, registered here by Stage 16 (Sponsor decision 2026-11-10) | Universal Governance | 2026-11-10 |
 
 ---
 
@@ -916,5 +932,41 @@
 - **The Root Cause:** The chain defines the stages by role (what is seen, what it means) and not by a source and a path in this repository, so each pass improvises and documents drift apart.
 - **Actionable Invariant:** Before a stage pass starts, name its input source, its output path and its owner in the stage definition; update the coverage document in the same change when the practice differs from it.
 - **Verification Gate:** The stage definition lists a source and an output path; `docs/observations/OBS-*.md` and `docs/insights/INSIGHT-*.md` exist for the phase before Stage 15 begins.
+
+---
+
+### LL-065 — External Evidence Dependency Blocks Hypothesis Validation
+- **Identifier:** `LL-065`
+- **Date:** 2026-11-10
+- **Epic / Story:** Phase 1 Close (Stage 15) / INSIGHT-001 (OBS-001, OBS-004, OBS-005); crystallized 2026-11-05 and cited as `LL-044` in the Phase 1 records, registered here by Stage 16 (Sponsor decision 2026-11-10)
+- **Scope:** Universal Testing & Validation
+- **Tier 2/3 Propagation Target:** Tier 1 register; Tier 2: `.claude/skills/implement-story/SKILL.md` (a data dependency check in Step 0); Tier 3: `sidpa-template/testing/data-dependencies.md` (proposed, needs human approval before any cross-repo change)
+- **The Trap:** Hypotheses HYP-AL-008 and HYP-AL-009 remain in Formulated state because required evidence (a converged low-authority donor, a failure history) exists only in external stores that the repository's test environment cannot reach. Building more policy classes adds methods but not the missing data.
+- **The Root Cause:** The repository test suite runs in isolation from production data, and hypothesis validation depends on external evidence that is not available in the CI environment.
+- **Actionable Invariant:** Document every external data dependency for each hypothesis. Ensure test environments have access to representative data, or to mock data that satisfies the hypothesis preconditions. Never assume production data will be available for validation.
+
+---
+
+### LL-066 — Single Source of Truth for Story Status
+- **Identifier:** `LL-066`
+- **Date:** 2026-11-10
+- **Epic / Story:** Phase 1 Close (Stage 15) / INSIGHT-002 (OBS-003, OBS-006); crystallized 2026-11-05 and cited as `LL-045` in the Phase 1 records, registered here by Stage 16 (Sponsor decision 2026-11-10)
+- **Scope:** Repository Process
+- **Tier 2/3 Propagation Target:** Tier 1 register; Tier 2: `.claude/skills/implement-story/SKILL.md` (automate the status update in Step 9); Tier 3: `sidpa-template/governance/story-status-management.md` (proposed, needs human approval before any cross-repo change)
+- **The Trap:** Story status is kept in two places (the epic file's Status line and `implementation-log.md`) and drifts. Manual updates at different steps left 15 stories with inconsistent status; the roll-up script detects the drift but does not resolve it.
+- **The Root Cause:** Two places are maintained by hand at different times for different purposes, with no automated synchronization.
+- **Actionable Invariant:** Keep story status in exactly one canonical location. Derive every other representation from it, and automate the derivation so that drift cannot occur.
+
+---
+
+### LL-067 — Dual Evidence Storage Requires Reconciliation
+- **Identifier:** `LL-067`
+- **Date:** 2026-11-10
+- **Epic / Story:** Phase 1 Close (Stage 15) / INSIGHT-004 (OBS-001, OBS-007, OBS-008); crystallized 2026-11-05 and cited as `LL-046` in the Phase 1 records, registered here by Stage 16 (Sponsor decision 2026-11-10)
+- **Scope:** Universal Governance
+- **Tier 2/3 Propagation Target:** Tier 1 register; Tier 2: `.claude/skills/governance/SKILL.md` (an evidence synchronization check); Tier 3: `sidpa-template/governance/evidence-management.md` (proposed, needs human approval before any cross-repo change)
+- **The Trap:** Gate evidence lives in two places, the external store (`AGENT_LEARNING_LOCAL_STORE_DIR`) and the repository copies (`docs/policy-shapes/episodes/`), and nothing reconciles them. Upstream gates (`approve-charter`, `approve-business-case`) had no episodes at all while later gates did. The split was found again on 2026-11-10: this project's governance history sat in another project's store while this repository's own store held only five cold policies.
+- **The Root Cause:** Evidence is written twice without synchronization, so manual copying makes the two diverge, and there is no single authoritative record of the governance audit trail.
+- **Actionable Invariant:** Designate one authoritative source for governance evidence. If two stores are unavoidable, synchronize them automatically and detect conflicts, and make sure every gate writes its evidence to the designated source.
 
 ---

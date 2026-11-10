@@ -107,7 +107,9 @@ What this shows:
 - **Routed:** CR-20261110-001 proposes one edit to `implement-story` for the 12 lessons, Step 6 and Step 0, with the text drafted; it awaits the Sponsor. The skill is not an ADR, BRD, FDD or story, so `stage16_amend.py` does not apply. LL-040 already sits in the `governance` skill; the live gap is that `stage16_amend.py` does not print or check the store path, and `AGENT_LEARNING_LOCAL_STORE_DIR` here points at the socialengage store. That is a tooling change, listed in the CR as separate.
 - **IMP overlap:** LL-033, 034 are the cause behind IMP-001 (open); LL-046, 047 behind IMP-021, 024 (open); LL-051 is applied. Fixing the IMPs and the skill together avoids two passes.
 
-## Step 5: Proposed decisions for the Sponsor (nothing is decided or applied)
+## Step 5: Decisions of the Sponsor, 2026-11-10
+
+> **Decision (2026-11-10, Menno Drescher, Project Sponsor):** proposals A and B approved as written ("Approve both A and B proposals"). **Applied on the same day:** A: the Continuous Improvement Register dispositions (seven rolled into Phase Next, four marked as the code shows, fifteen marked `In-Flight Candidate (CR-20261110-002)`) and CR-20261110-002, which fixes the scope and order of the 15 and builds none of them. B: LL-065 to LL-067 appended to the Lessons Learned Register, the identifier crosswalk in its header, index rows for LL-053 to LL-067 (the index had stopped at LL-052), and a correction note on the Stage 17 assessment. No Phase 1 record was renumbered or rewritten.
 
 ### A. The 20 open In-Flight improvements (Step 2c)
 

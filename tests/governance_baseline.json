@@ -1058,12 +1058,17 @@
     "docs/user-stories/epic-21-contextual-authority-ensemble-routing.md": {
       "family": "story",
       "status": "approved",
-      "sha256": "0df2eaec25e562a4c762950fc019a43f04a2e74b243c6ec3db99532b268b26d9",
+      "sha256": "b1b3576bd3de39d49dcbe4edce0ef0eaa0517a514c9c09c95f2391d3e16d26f9",
       "approval_episode": "5a905107",
       "amendments": [
         {
           "date": "2026-11-09",
           "episode": "e49f2eb2",
+          "stage": 16
+        },
+        {
+          "date": "2026-11-10",
+          "episode": "a8d2b75a",
           "stage": 16
         }
       ]

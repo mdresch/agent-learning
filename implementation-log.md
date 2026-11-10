@@ -3331,3 +3331,12 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Stage 16 amendments** (accepted by Menno, 2026-11-10, `correction_note`, one governance episode each): ADR-023 (episode `ada6e2b8`) names `src/agent_learning_ext/dueling.py` instead of `src/agent_learning/dueling.py`, with an Amendment Log row; FDD-023 (episode `a2e3f780`) closes section 7 item 2: the PMP's "standard library only" invariant named `agent-training-ext/`, which no longer exists, and `numpy` is accepted in `src/agent_learning_ext/`. The PMP and Charter wording is revised in the Stage 17 package.
 - **Not done:** the Stage 17 change package (revised scope, schedule and cost plans) and any Epic 23 implementation.
 
+## IMP-046 follow-up — approve-compiled-weights and approve-intent-refinement are now pinned
+- **Commit:** `472402e`
+- **Date:** 2026-11-10
+- **Branch:** `fix/pin-two-more-gates`
+- **Source ADR / BRD / FDD:** ADR-021 (section 4.1, Invariant 5), BRD-021 (BRU-021-02), FDD-021 (section 2.1), Epic 21 Story 21.3 AC_0.
+- **Why:** The two gates had a policy shape under `docs/policy-shapes/` but no committed episode, so the Story 21.7 check had not seen them. The maintainer decided on 2026-11-10 to pin them.
+- **Code and tests:** `PINNED_FULL` is now eighteen tasks; `test_ac1_every_gate_with_a_policy_shape_is_pinned` asserts every approve-* policy shape is pinned. RED observed (2 failures without the constant change); full suite with no `--ignore`: 2605 passed, 2 skipped.
+- **Stage 16 amendments** (accepted by Menno, 2026-11-10, `correction_note`): ADR-021 `9cf46846`, BRD-021 `c90ac8e0`, FDD-021 `f611cd40`, Epic 21 `241a9916`. ADR-021 also has an Amendment Log row.
+

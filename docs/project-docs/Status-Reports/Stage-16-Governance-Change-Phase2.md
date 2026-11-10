@@ -104,6 +104,7 @@ What this shows:
 - **Bucket B is mostly sound:** 24 of 29 are in the named target and 3 more are in code. The earlier "probably applied" reading was right for the older lessons.
 - **Conflicts to settle, not just add:** the skill's Step 6 still ends in `--ignore=tests/pmbok` (LL-013), while LL-055 and IMP-044 say run the whole suite. Step 0 says plain `uv sync`, while LL-033 and LL-055 say `uv sync --all-extras` (plus the dev and examples extras). Step 6 and Step 0 need one reading.
 - **Two Tier 2 targets name skills that do not exist** (`stage-1`, `ideation`, LL-044). Decide whether to create them or retarget the lesson.
+- **Routed:** CR-20261110-001 proposes one edit to `implement-story` for the 12 lessons, Step 6 and Step 0, with the text drafted; it awaits the Sponsor. The skill is not an ADR, BRD, FDD or story, so `stage16_amend.py` does not apply. LL-040 already sits in the `governance` skill; the live gap is that `stage16_amend.py` does not print or check the store path, and `AGENT_LEARNING_LOCAL_STORE_DIR` here points at the socialengage store. That is a tooling change, listed in the CR as separate.
 - **IMP overlap:** LL-033, 034 are the cause behind IMP-001 (open); LL-046, 047 behind IMP-021, 024 (open); LL-051 is applied. Fixing the IMPs and the skill together avoids two passes.
 
 ## Step 3: Classification

@@ -57,13 +57,13 @@ def test_a_push_without_a_version_bump_skips_the_release_instead_of_failing() ->
     workflow = _publish_workflow()
     guard = workflow.split("name: Reject a version already tagged at another commit", 1)[1].split("\n  build:", 1)[0]
 
-    push_branch = guard.split('if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then', 1)[1].split("fi", 1)[0]
+    # The push branch is closed by the `fi` indented 12 spaces; the first `fi` of the step belongs to another check.
+    push_branch, after_push = guard.split('if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then', 1)[1].split("\n            fi\n", 1)
     assert 'echo "release=false" >> "$GITHUB_OUTPUT"' in push_branch
     assert "exit 0" in push_branch
     assert "exit 1" not in push_branch
     # A manual publish of an already tagged version still fails.
-    after_push = guard.split("fi", 1)[1]
-    assert "exit 1" in after_push
+    assert "::error::" in after_push and "exit 1" in after_push
     assert "      release: ${{ steps.existing-tag.outputs.release }}" in workflow
 
 

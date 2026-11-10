@@ -1,15 +1,15 @@
 # UCB (methodology #10)
 
-**Status:** proof_of_concept · **Code:** sketch · **Data:** SYNTHETIC · **Not evidence:** this run does not validate or invalidate the methodology.
+**Status:** runnable · **Code:** SDK · **Data:** SYNTHETIC · **Not evidence:** this example does not validate or invalidate the methodology.
 
 ## What it shows
-UCB1 selection `mean + c * sqrt(2 ln t / N)` with a deterministic tie-break (count, then id); selection uses no random numbers.
+Deterministic Upper Confidence Bound selection (`UCBPolicy`) and count-based updating (`UCBLearner`) with deterministic tie-breaking (pull count, then action id).
 
 ## Run it
 ```
-python examples/methodologies/10-ucb/sketch.py
+python examples/methodologies/10-ucb/example.py
 ```
-Standard library only: no network, no credentials, no files written. All data in it is SYNTHETIC (invented for the demonstration). It is a sketch of the formulas in ADR-016 (Accepted); the methodology is not implemented in the SDK.
+It needs the package installed and nothing else: no network, no credentials, no files written. All data in it is SYNTHETIC (invented for the demonstration).
 
 ## What it does not show
 That UCB crosses the autonomy gate that defeated REINFORCE; no gate is evaluated.
@@ -21,4 +21,4 @@ If Thompson or UCB, run on the same real `validate-intent-foundation` 146-episod
 The real `validate-intent-foundation` episodes with outcomes, scored against the declared autonomy gate.
 
 ## References
-Ideation row #10; hypothesis: HYP-AL-009; ADR-016. Catalog entry: `examples/methodologies/catalog.json`, id 10.
+Ideation row #10; hypothesis: HYP-AL-009; ADR: ADR-016. Catalog entry: `examples/methodologies/catalog.json`, id 10.

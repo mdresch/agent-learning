@@ -49,7 +49,9 @@ Interpretations added for this contract:
      routing depended on ``requires_human_approval`` in a complexity profile and no profile for them is committed.
      They are now pinned by name, and ``test_ac1_every_recorded_gate_is_pinned`` asserts that every approve-* task
      in the committed episodes is pinned, so a new gate type must be pinned (or its decision recorded) before it merges.
-     Still outside this check: approve-compiled-weights and approve-intent-refinement have policy shapes but no episodes.
+     approve-compiled-weights and approve-intent-refinement have policy shapes but no episodes; they were pinned in a
+     follow-up (2026-11-10), and ``test_ac1_every_gate_with_a_policy_shape_is_pinned`` asserts every approve-* policy
+     shape in docs/policy-shapes/ is pinned, so a gate cannot be added without a decision.
 """
 
 from __future__ import annotations
@@ -226,6 +228,15 @@ def test_ac1_every_recorded_gate_is_pinned() -> None:
     """IMP-046: no approve-* task in the committed episodes depends on a missing complexity profile to route full."""
     unpinned = sorted(t for t in _recorded_approve_tasks() if t not in PINNED_FULL)
     assert unpinned == [], f"approve-* tasks in the committed episodes that are not in PINNED_FULL: {unpinned}"
+
+
+def test_ac1_every_gate_with_a_policy_shape_is_pinned() -> None:
+    """IMP-046 follow-up: a gate that has a policy shape is pinned even before it has a committed episode."""
+    shapes_dir = REPO / "docs" / "policy-shapes"
+    gates = sorted(p.name[: -len(".actions.json")] for p in shapes_dir.glob("approve-*.actions.json"))
+    assert len(gates) >= 17, f"expected the approve-* policy shapes, found {gates}"
+    unpinned = [g for g in gates if g not in PINNED_FULL]
+    assert unpinned == [], f"approve-* policy shapes that are not in PINNED_FULL: {unpinned}"
 
 
 # --- AC_2: No Routed Episodes ---------------------------------------------------------------------------

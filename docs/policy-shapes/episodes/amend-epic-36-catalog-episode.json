@@ -1,0 +1,31 @@
+{
+  "id": "7f53a67d-c0d2-4991-a4bd-23ba69aa8d8a",
+  "agent_id": "agent-learning-governance",
+  "task_id": "classify-diff-type",
+  "user_input": "Classify the diff to epic-36-learning-methodology-examples-ledger-and-review-triage-loop.md under Stage 16: Catalog states: six methodologies built and promoted to runnable examples (PR #173)",
+  "assistant_output": "amendment_log_entry: robust utility 0.863",
+  "intent_summary": "Catalog states: six methodologies built and promoted to runnable examples (PR #173)",
+  "action_type": "recommendation",
+  "action_name": "Amendment log entry",
+  "target": "epic-36-learning-methodology-examples-ledger-and-review-triage-loop.md",
+  "input_summary": "Candidate diff of docs/user-stories/epic-36-learning-methodology-examples-ledger-and-review-triage-loop.md against HEAD 9e97aed: 2 changed lines, change ratio 0.34. Gate frame built from measurements of the diff by scripts/stage16_amend.py (terms kept 3/3, requirement inverted False, downstream references 47, status line changed False).",
+  "expected_outcome": "Menno explicit ACCEPT of this classification",
+  "execution_status": "completed",
+  "result_summary": "Accepted by Menno, 2026-11-10 (Stage 16 classify-diff-type), prospectively at the time of acceptance; not backdated.",
+  "policy_id": "51458125-b218-4e26-a94b-9baf17137ccc",
+  "policy_version": 0,
+  "action_id": "amendment_log_entry",
+  "metadata": {
+    "feedback_status": "adjudicated",
+    "decision_disposition": "accepted",
+    "selection_basis": "bayesian_decision",
+    "correct_action_id": "amendment_log_entry",
+    "task_completed": true,
+    "robust_utility": 0.8628640427178159,
+    "expected_utility": 0.8970183180229376,
+    "decision_margin": 0.0984,
+    "artifact_commit": "9e97aed",
+    "stage": 16,
+    "amendment": "Catalog states: six methodologies built and promoted to runnable examples (PR #173)"
+  }
+}

@@ -13,7 +13,7 @@ It adds no `LearningStore` record type (ADR-002 Invariant #2), grants no autonom
 ---
 
 ## 2. Status
-**Accepted (2026-10-26, Menno)** — Cross-cutting. Episode: `f0047810-a3f2-49f4-8023-e3058fce3ed9`.
+**Accepted (2026-10-26, Menno)** — Cross-cutting. Episode: `f0047810-a3f2-49f4-8023-e3058fce3ed9`. Amended 2026-11-10 at Stage 16: Catalog states: six methodologies built and promoted to runnable examples (PR #173), classified `correction_note` (robust utility 0.965, episode `4b6f2c91...`) and accepted by Menno. Amended 2026-11-10 at Stage 16: Catalog states: methodology #9 (Thompson sampling) built and promoted to a runnable example, classified `correction_note` (robust utility 0.965, episode `bfc5ab7b...`) and accepted by Menno.
 
 ---
 
@@ -33,8 +33,8 @@ It adds no `LearningStore` record type (ADR-002 Invariant #2), grants no autonom
 
 | Class | Applies to | What exists |
 |---|---|---|
-| `runnable` | State is Implemented, example-only, partial or practiced: #2, #3, #4, #5, #6, #12, #19, #20, #21 | A directory with `README.md` and an `example.py` that runs offline against the real SDK |
-| `proof_of_concept` | A Proposed ADR and no code: #8 to #11, #13 to #15, #17, #22, #23 | A directory with `README.md` and a `sketch.py` that runs offline, seeded, with stdlib and the public SDK only |
+| `runnable` | State is Implemented, example-only, partial or practiced: #2, #3, #4, #5, #6, #8, #9, #10, #11, #12, #13, #17, #19, #20, #21, #22 | A directory with `README.md` and an `example.py` that runs offline against the real SDK |
+| `proof_of_concept` | A Proposed ADR and no code: #14, #15, #23 | A directory with `README.md` and a `sketch.py` that runs offline, seeded, with stdlib and the public SDK only |
 | `documented` | Blocked, excluded, declined, or candidate with no ADR: #1, #7, #16, #18, #24 to #32 | A catalog entry and a short note only. No code |
 
 The class follows from the state; a mismatch is a catalog error. Moving a methodology from `documented` to `proof_of_concept` requires its ADR to exist. This ADR does not change any methodology's state.
@@ -127,3 +127,5 @@ Per-methodology effectiveness, any change to a methodology's state in the Ideati
 |---|---|---|
 | 2026-10-26 | Proposed | Initial drafting: example catalog, best-practice ledger, review-triage learning loop. |
 | 2026-10-26 | **Accepted by Menno** | Formally adjudicated and accepted through `approve-adr`; robust utility 0.748, expected utility 0.816; Episode `f0047810-a3f2-49f4-8023-e3058fce3ed9`. |
+| 2026-11-10 | Catalog states updated | Six methodologies were built through their epics (#8 Epic 14, #10 Epic 16, #11 Epic 17, #13 Epic 18, #17 Epic 21, #22 Epic 22) and their sketches became runnable examples (PR #173). The Ideation section 2.1 rows now read Implemented, so their class follows to runnable: 15 runnable, 4 proof_of_concept (#9, #14, #15, #23) and 13 documented. The classes follow the state as before; this ADR still changes no state by itself. |
+| 2026-11-10 | Thompson sampling promoted | Methodology #9 was built through Epic 15 and its sketch became a runnable example on the same date. The Ideation section 2.1 row reads Implemented, so its class follows to runnable: 16 runnable, 3 proof_of_concept (#14, #15, #23) and 13 documented. |

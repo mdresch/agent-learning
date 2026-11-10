@@ -1,0 +1,26 @@
+{
+  "document": "docs/adr/ADR-036-learning-methodology-examples-ledger-and-review-triage-loop.md",
+  "tag": "catalog",
+  "base_commit": "9e97aed",
+  "candidate_sha256": "94fb0a2f49ccaa783e8b143954ab5fb3d578df072deaa0a093c98b34dddc96e9",
+  "features": {
+    "lines": 5,
+    "terms_removed": 5,
+    "terms_kept": 5,
+    "goal_preserved": true,
+    "requirement_inverted": false,
+    "normative_touched": false,
+    "status_line_changed": false,
+    "downstream_refs": 0,
+    "change_ratio": 0.41
+  },
+  "observed": [
+    0.05,
+    0.1,
+    0.1,
+    0.1
+  ],
+  "proposed_action": "correction_note",
+  "accepted": true,
+  "episode": "4b6f2c91"
+}

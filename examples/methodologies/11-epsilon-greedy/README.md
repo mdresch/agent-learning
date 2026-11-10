@@ -1,15 +1,15 @@
 # Epsilon-greedy (methodology #11)
 
-**Status:** proof_of_concept · **Code:** sketch · **Data:** SYNTHETIC · **Not evidence:** this run does not validate or invalidate the methodology.
+**Status:** runnable · **Code:** SDK · **Data:** SYNTHETIC · **Not evidence:** this example does not validate or invalidate the methodology.
 
 ## What it shows
-A decaying exploration rate `max(floor, e0 / (1 + d t))` with a safe-action mask: masked actions are never explored.
+A decaying exploration rate `max(floor, eps0 / (1 + delta * t))` (`EpsilonGreedyPolicy`) with a safe-action mask and deterministic counting (`EpsilonGreedyLearner`).
 
 ## Run it
 ```
-python examples/methodologies/11-epsilon-greedy/sketch.py
+python examples/methodologies/11-epsilon-greedy/example.py
 ```
-Standard library only: no network, no credentials, no files written. All data in it is SYNTHETIC (invented for the demonstration). It is a sketch of the formulas in ADR-017 (Accepted); the methodology is not implemented in the SDK.
+It needs the package installed and nothing else: no network, no credentials, no files written. All data in it is SYNTHETIC (invented for the demonstration).
 
 ## What it does not show
 That decayed exploration beats a fixed policy on real data.
@@ -21,4 +21,4 @@ Proposed here, not in the Ideation Document: if epsilon-greedy with decay and a 
 Episodes of a decision with a known set of unsafe actions, with outcomes for the actions that were tried.
 
 ## References
-Ideation row #11; hypothesis: none registered (a criterion is proposed in the README); ADR-017. Catalog entry: `examples/methodologies/catalog.json`, id 11.
+Ideation row #11; hypothesis: none; ADR: ADR-017. Catalog entry: `examples/methodologies/catalog.json`, id 11.

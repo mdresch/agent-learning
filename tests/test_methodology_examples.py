@@ -31,17 +31,24 @@ ROOT = Path(__file__).resolve().parent.parent
 EXAMPLES = ROOT / "examples" / "methodologies"
 CATALOG = EXAMPLES / "catalog.json"
 
-# Methodology id -> directory, for the nine runnable entries (ADR-036 section 4.1).
+# Methodology id -> directory, for the runnable entries (ADR-036 section 4.1).
 RUNNABLE = {
     2: "02-reinforce-bandit",
     3: "03-reasoned-resolution",
     4: "04-contextual-bandit",
     5: "05-reward-shaping",
     6: "06-human-override",
+    8: "08-critique-to-evidence",
+    9: "09-thompson-sampling",
+    10: "10-ucb",
+    11: "11-epsilon-greedy",
     12: "12-active-evidence-seeking",
+    13: "13-pairwise-preference",
+    17: "17-authority-routing",
     19: "19-red-team-validation",
     20: "20-diff-classification",
     21: "21-category-escalation",
+    22: "22-scored-search",
 }
 RUN_TIMEOUT_SECONDS = 60  # each example takes about two seconds
 FORBIDDEN_NAMES = {"LocalFileStore", "CosmosStore", "get_default_store"}
@@ -79,7 +86,7 @@ def test_ac0_each_runnable_methodology_has_a_readme_and_a_script(methodology_id:
     assert (directory / "example.py").is_file()
 
 
-def test_ac0_the_nine_runnable_entries_are_exactly_these_ids() -> None:
+def test_ac0_the_runnable_entries_are_exactly_these_ids() -> None:
     """AC_0: no runnable catalog entry lacks an example, and no example lacks a runnable entry."""
     runnable_ids = {i for i, e in _catalog().items() if e["example_class"] == "runnable"}
     assert runnable_ids == set(RUNNABLE)

@@ -4,14 +4,16 @@ change_request_id: "CR-20261109-001"
 stage: "16"
 evidence_basis: "design_time"
 current_baseline: "PMP-BL-v1.1.0"
-status: "approved_stage_17_package_pending"
+status: "rescoped_to_phase_3_2026-11-10"
 date: "2026-11-09"
 requested_by: "Menno Drescher"
 ---
 
 # Manual Change Request: Add Epic 23 to Phase 2 Scope
 
-> **Status:** Approved by the Project Sponsor on 2026-11-09 and by the Steering Committee on 2026-11-10 (see section 6). This request is a manual Stage 16 assessment outside the inactive automated design-time route. The approvals decide that Epic 23 is in Phase 2 scope and permit the Stage 17 change package; they do not themselves revise `PMP-BL-v1.1.0`, and Epic 23 implementation stays blocked until the revised baseline is approved.
+> **Status (2026-11-10): rescoped to Phase 3.** The Sponsor decided on 2026-11-10 that Epic 23 is not built in Phase 2 and that Phase 2 closes once, so the baseline change is carried by the Phase 2 close adaptation as a Phase 3 input (see section 7). The text below is the record as it stood before that decision and is not rewritten.
+>
+> **Earlier status:** Approved by the Project Sponsor on 2026-11-09 and by the Steering Committee on 2026-11-10 (see section 6). This request is a manual Stage 16 assessment outside the inactive automated design-time route. The approvals decide that Epic 23 is in Phase 2 scope and permit the Stage 17 change package; they do not themselves revise `PMP-BL-v1.1.0`, and Epic 23 implementation stays blocked until the revised baseline is approved.
 
 ## 1. Request
 
@@ -100,3 +102,17 @@ The Steering Committee decision was given by Menno Drescher in the working sessi
 | 5. The Stage 17 change package | Open: not yet prepared; the stories stay blocked until it is approved |
 
 Condition 2 (the custom package boundary) has moved since this request was drafted: the Epic 14 engine now lives in `src/agent_learning_ext/` (PR #162, merged), so the boundary the PMP and Charter call `agent-training-ext/` is `src/agent_learning_ext/` in the code. The PMP, Charter and generated plans still name the old folder and must be revised in the Stage 17 package.
+
+## 7. Rescoping decision (2026-11-10)
+
+The Project Sponsor decided on 2026-11-10 ("we will push these to Phase 3 and close Phase 2 once instead of multiple times"), given by Menno Drescher in the working session and recorded here from that statement; no governance episode was registered for it. It supersedes the Steering Committee's 2026-11-10 "in Phase 2 scope" decision in section 6, which stays above as the record of what was decided at the time.
+
+| Item | Result |
+|---|---|
+| Epic 23 | Moves from Phase 2 scope to Phase 3 scope. Not built in Phase 2. |
+| `PMP-BL-v1.1.0` | Unchanged by this request. Phase 2 closes under it. |
+| Separate Stage 17 package for this request | Not pursued. The draft [ADP-20261110-001](../../project-docs/Adaptation-Plans/ADP-20261110-001-Epic-23-Scope-Change-Package.md) is kept as an input to the Phase 2 close adaptation and to the Phase 3 baseline. |
+| Epics 24 and 39 | Already waiting on the next phase; carried by the same close. |
+| Conditions 3 and 4 (section 5) | Not closed. The estimate, cost option and 5 ms plan in the draft are inputs for the Phase 3 baseline decision, which still needs the Sponsor's choices. |
+| Condition 5 | Replaced: the baseline change is made once, at Phase 2 close. |
+

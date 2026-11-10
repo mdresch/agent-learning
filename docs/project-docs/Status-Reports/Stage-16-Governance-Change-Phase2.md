@@ -1,0 +1,73 @@
+---
+artifact_type: "governance_change_assessment"
+report_id: "REP-STAGE16-GOVERNANCE-CHANGE-PHASE2"
+baseline_id: "PMP-BL-v1.1.0"
+lifecycle_stage: "Stage 16 (Governance Change)"
+pmbok_process: "4.6 Perform Integrated Change Control"
+date: "2026-11-10"
+status: "DRAFT - Steps 1 to 3 (input check, triage, classification). No escalation decided, nothing amended."
+follows: "Stage-15-Lessons-Phase2.md (REP-STAGE15-LESSON-PHASE2)"
+---
+
+# Stage 16: Governance Change, Phase 2 (draft)
+
+> **Scope: the whole register, LL-001 to LL-064.** Only LL-043 and LL-046 (under Phase 1 titles) went through Stage 16 before. Section "Step 2a" covers the other lessons.
+
+> A broad pass over what Stage 15 accepted and what Stage 14 flagged as baseline findings. Classifications are the assistant's readings; the escalation decision (Step 5) and every amendment are the maintainer's. Approved ADR, BRD, FDD and story changes need a Stage 16 episode and `scripts/governance_baseline.py`; generated plans are regenerated, never hand-patched.
+
+## Step 1: Inputs
+
+- Stage 15: accepted by the maintainer 2026-11-10 (LL-060 to LL-064, IMP-059 to IMP-061).
+- Baseline: PMP-BL-v1.1.0. Open change requests: CR-20261109-001 (Epic 23 scope) and CR-20261109-002 (26 wording corrections, amendments in progress).
+- Governance episodes for Stages 13 to 15: none, by design (`human_review`).
+
+## Step 2a: Whole-register coverage (64 lessons)
+
+Method: each lesson's Tier 2/3 target is read from the register, then the ID is searched in `.claude/`, `scripts/`, `src/` and `tests/` and counted in the Continuous Improvement Register. **This is a heuristic.** A rule can be in a skill without the ID, and an ID in a test is not proof the skill was changed. Bucket B and C need a read of each named target before any claim.
+
+| Bucket | Lessons | Count | Reading |
+|---|---|---|---|
+| A. Tier 1 only | LL-008, 009, 012, 019, 024, 053 to 060, 062 to 064 | 16 | No propagation owed. LL-053 to 060 point at IMP entries for the skill or tool change. |
+| B. Tier 2/3 target, ID cited in a skill, script, source or test | LL-001 to 007, 010, 011, 013, 016, 018, 020 to 023, 025, 026, 037, 040 to 046, 049, 050, 052 | 29 | Probably applied. Spot-check the named target. |
+| C. Tier 2/3 target, ID cited nowhere | LL-014, 015, 017, 027 to 036, 038, 039, 047, 048, 051, 061 | 19 | Propagation unverified. |
+
+Within C, LL-014, 015, 017 and 027 to 032 (nine lessons, 2026-10-25 to 2026-10-28) have no IMP entry either, so nothing tracks them. LL-033 to 036, 038, 039, 047, 048, 051 and 061 are at least named in an IMP.
+
+LL-041 says a lesson's Tier 2 propagation belongs in the same PR; bucket C is where that was not met, or not recorded.
+
+### This pass's five lessons
+
+| Lesson | Needs a governance change? | Route |
+|---|---|---|
+| LL-060 (merge gate and pending checks) | No, tooling | Direct fix through IMP-059 |
+| LL-061 (document lists vs code) | Yes for the drifted ADRs (findings 3 and 4); the check is tooling | Stage 16 for the ADRs; IMP-060 for the check |
+| LL-062 (learner epic needs a data count first) | Yes, a new rule in the epic and spec gate | Stage 16 |
+| LL-063 (effort figures are human days) | Probably no; already the working rule | Maintainer to confirm whether the PMP states the unit |
+| LL-064 (stage needs input, output, owner) | Yes, coverage document | Stage 16 (IMP-061) |
+
+## Step 3: Classification
+
+| Item | Diff type | Evidence basis | Impact | Confidence |
+|---|---|---|---|---|
+| LL-062 spec-gate rule | process | execution | medium | medium |
+| LL-064 / IMP-061 coverage document | content | execution | low | high |
+| F1 Charter maps HYP-AL-018 to the DPO engine; Ideation 2.2 says linear contextual bandit | content | design_time | medium | high |
+| F2 Charter, PMP and plans still name `agent-training-ext/` | content (generated plans regenerate) | design_time | low | high |
+| F3 ADR-022 Invariants 2 and 5 vs code and FDD-022 (IMP-053) | content on an approved ADR | execution | medium | high |
+| F4 ADR-016 Invariant 4 has no code path (IMP-054) | structural or scope, unclear | design_time | medium | low |
+| F5 Phase 1 documents use LL-044, LL-045, LL-046 for lessons the register does not hold under those IDs (the register's three are different lessons); SPA-20261106-001 cites LL-046 | content (references) | execution | medium | high |
+
+## Notes for Step 5
+
+- F2 may already be covered by CR-20261109-001 section 6 and CR-002; check before opening anything new.
+- F3 and F4 are marked Phase 3 in the registers; deciding whether to move them into this adaptation is the maintainer's call.
+- F4 has low confidence: it is not clear whether the fix is code (add the path) or the ADR (drop the invariant). Flag, do not classify further.
+- One adaptation covers all of this (Stage 16/17), as agreed.
+
+- F5: the Phase 1 lessons "External Evidence Dependency", "Single Source of Truth for Story Status" and "Dual Evidence Storage" appear in no register entry. Decide whether to register them under new IDs (LL-065 onward) or record that they were never adopted. Corrected references go through the amendment tooling, nothing is re-scored. Files: Stage 15, 16, 17 assessments, ADP-20261106-001, SPA-20261106-001, IRP-20261106-001, Adaptation-Plan.md, and the Stage 15 methodology appendix.
+
+## Not done
+
+Reading each bucket B and C target to confirm propagation;
+
+Escalation decisions, change requests, amendments, governance episodes and the Project-Status-Register update.

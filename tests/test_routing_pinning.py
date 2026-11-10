@@ -1,7 +1,8 @@
 """Contract test suite for Story 21.3: Pinned Gates (Epic 21).
 
 Acceptance Criteria:
-- AC_0 (The List): PINNED_FULL equals the eleven tasks of FDD-021 §2.1, and the test lists them.
+- AC_0 (The List): PINNED_FULL equals the sixteen tasks of FDD-021 §2.1 (eleven at approval, five added by IMP-046
+  on 2026-11-10), and the test lists them.
 - AC_1 (Always Full): for each pinned task, over a grid of distributions, tiers, previous values
   and approved_for_low values, route returns full with reason pinned.
 - AC_2 (Declared Pin): a task not in the set, called with requires_human_approval true, routes
@@ -50,6 +51,12 @@ EXPECTED_PINNED_TASKS = (
     "retrospective",
     "approve-routing-thresholds",
     "approve-routing-bucket",
+    # IMP-046 (2026-11-10)
+    "approve-audit-record",
+    "approve-benefits",
+    "approve-business-case",
+    "approve-ideation",
+    "approve-project-pillars",
 )
 
 
@@ -59,8 +66,8 @@ def base_config() -> RoutingConfig:
 
 
 def test_ac0_the_list() -> None:
-    """AC_0: PINNED_FULL equals the eleven tasks of FDD-021 §2.1, and the test lists them."""
-    assert len(PINNED_FULL) == 11, f"Expected 11 pinned tasks, found {len(PINNED_FULL)}"
+    """AC_0: PINNED_FULL equals the sixteen tasks of FDD-021 §2.1, and the test lists them."""
+    assert len(PINNED_FULL) == 16, f"Expected 16 pinned tasks, found {len(PINNED_FULL)}"
     assert PINNED_FULL == EXPECTED_PINNED_TASKS, (
         f"PINNED_FULL mismatch.\nExpected: {EXPECTED_PINNED_TASKS}\nFound: {PINNED_FULL}"
     )

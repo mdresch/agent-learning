@@ -1,0 +1,259 @@
+{
+  "task": "Classify the diff to docs/project-docs/Functional-Design/FDD-021-contextual-authority-ensemble-routing.md",
+  "criteria": [
+    {
+      "id": "semantic_scope_impact",
+      "weight": 0.4,
+      "minimum_sources": 1,
+      "description": "Scope of semantic impact"
+    },
+    {
+      "id": "architectural_intent_shift",
+      "weight": 0.35,
+      "minimum_sources": 1,
+      "description": "Shift in architectural intent"
+    },
+    {
+      "id": "downstream_contract_footprint",
+      "weight": 0.15,
+      "minimum_sources": 1,
+      "description": "Impact on downstream contracts"
+    },
+    {
+      "id": "textual_cosmetic_ratio",
+      "weight": 0.1,
+      "minimum_sources": 1,
+      "description": "Ratio of structural to cosmetic diff"
+    }
+  ],
+  "options": [
+    {
+      "action_id": "new_superseding_adr",
+      "evidence": [
+        {
+          "criterion_id": "semantic_scope_impact",
+          "source": "measured:FDD-021-contextual-authority-ensemble-routing.md:semantic_scope_impact=0.05",
+          "support": 0.15,
+          "confidence": 0.9
+        },
+        {
+          "criterion_id": "architectural_intent_shift",
+          "source": "measured:FDD-021-contextual-authority-ensemble-routing.md:architectural_intent_shift=0.10",
+          "support": 0.2,
+          "confidence": 0.9
+        },
+        {
+          "criterion_id": "downstream_contract_footprint",
+          "source": "measured:FDD-021-contextual-authority-ensemble-routing.md:downstream_contract_footprint=0.10",
+          "support": 0.3,
+          "confidence": 0.7
+        },
+        {
+          "criterion_id": "textual_cosmetic_ratio",
+          "source": "measured:FDD-021-contextual-authority-ensemble-routing.md:textual_cosmetic_ratio=0.10",
+          "support": 0.2,
+          "confidence": 0.9
+        }
+      ],
+      "constraint_results": {
+        "valid_format": true
+      }
+    },
+    {
+      "action_id": "amendment_log_entry",
+      "evidence": [
+        {
+          "criterion_id": "semantic_scope_impact",
+          "source": "measured:FDD-021-contextual-authority-ensemble-routing.md:semantic_scope_impact=0.05",
+          "support": 0.75,
+          "confidence": 0.9
+        },
+        {
+          "criterion_id": "architectural_intent_shift",
+          "source": "measured:FDD-021-contextual-authority-ensemble-routing.md:architectural_intent_shift=0.10",
+          "support": 1.0,
+          "confidence": 0.9
+        },
+        {
+          "criterion_id": "downstream_contract_footprint",
+          "source": "measured:FDD-021-contextual-authority-ensemble-routing.md:downstream_contract_footprint=0.10",
+          "support": 0.6,
+          "confidence": 0.7
+        },
+        {
+          "criterion_id": "textual_cosmetic_ratio",
+          "source": "measured:FDD-021-contextual-authority-ensemble-routing.md:textual_cosmetic_ratio=0.10",
+          "support": 0.3,
+          "confidence": 0.9
+        }
+      ],
+      "constraint_results": {
+        "valid_format": true
+      }
+    },
+    {
+      "action_id": "correction_note",
+      "evidence": [
+        {
+          "criterion_id": "semantic_scope_impact",
+          "source": "measured:FDD-021-contextual-authority-ensemble-routing.md:semantic_scope_impact=0.05",
+          "support": 1.0,
+          "confidence": 0.9
+        },
+        {
+          "criterion_id": "architectural_intent_shift",
+          "source": "measured:FDD-021-contextual-authority-ensemble-routing.md:architectural_intent_shift=0.10",
+          "support": 0.95,
+          "confidence": 0.9
+        },
+        {
+          "criterion_id": "downstream_contract_footprint",
+          "source": "measured:FDD-021-contextual-authority-ensemble-routing.md:downstream_contract_footprint=0.10",
+          "support": 1.0,
+          "confidence": 0.7
+        },
+        {
+          "criterion_id": "textual_cosmetic_ratio",
+          "source": "measured:FDD-021-contextual-authority-ensemble-routing.md:textual_cosmetic_ratio=0.10",
+          "support": 1.0,
+          "confidence": 0.9
+        }
+      ],
+      "constraint_results": {
+        "valid_format": true
+      }
+    },
+    {
+      "action_id": "clarification_section",
+      "evidence": [
+        {
+          "criterion_id": "semantic_scope_impact",
+          "source": "measured:FDD-021-contextual-authority-ensemble-routing.md:semantic_scope_impact=0.05",
+          "support": 0.9,
+          "confidence": 0.9
+        },
+        {
+          "criterion_id": "architectural_intent_shift",
+          "source": "measured:FDD-021-contextual-authority-ensemble-routing.md:architectural_intent_shift=0.10",
+          "support": 1.0,
+          "confidence": 0.9
+        },
+        {
+          "criterion_id": "downstream_contract_footprint",
+          "source": "measured:FDD-021-contextual-authority-ensemble-routing.md:downstream_contract_footprint=0.10",
+          "support": 0.85,
+          "confidence": 0.7
+        },
+        {
+          "criterion_id": "textual_cosmetic_ratio",
+          "source": "measured:FDD-021-contextual-authority-ensemble-routing.md:textual_cosmetic_ratio=0.10",
+          "support": 0.7,
+          "confidence": 0.9
+        }
+      ],
+      "constraint_results": {
+        "valid_format": true
+      }
+    },
+    {
+      "action_id": "provenance_note",
+      "evidence": [
+        {
+          "criterion_id": "semantic_scope_impact",
+          "source": "measured:FDD-021-contextual-authority-ensemble-routing.md:semantic_scope_impact=0.05",
+          "support": 0.95,
+          "confidence": 0.9
+        },
+        {
+          "criterion_id": "architectural_intent_shift",
+          "source": "measured:FDD-021-contextual-authority-ensemble-routing.md:architectural_intent_shift=0.10",
+          "support": 0.9,
+          "confidence": 0.9
+        },
+        {
+          "criterion_id": "downstream_contract_footprint",
+          "source": "measured:FDD-021-contextual-authority-ensemble-routing.md:downstream_contract_footprint=0.10",
+          "support": 0.95,
+          "confidence": 0.7
+        },
+        {
+          "criterion_id": "textual_cosmetic_ratio",
+          "source": "measured:FDD-021-contextual-authority-ensemble-routing.md:textual_cosmetic_ratio=0.10",
+          "support": 0.95,
+          "confidence": 0.9
+        }
+      ],
+      "constraint_results": {
+        "valid_format": true
+      }
+    },
+    {
+      "action_id": "pending_supersession_note",
+      "evidence": [
+        {
+          "criterion_id": "semantic_scope_impact",
+          "source": "measured:FDD-021-contextual-authority-ensemble-routing.md:semantic_scope_impact=0.05",
+          "support": 0.02,
+          "confidence": 0.9
+        },
+        {
+          "criterion_id": "architectural_intent_shift",
+          "source": "measured:FDD-021-contextual-authority-ensemble-routing.md:architectural_intent_shift=0.10",
+          "support": 0.02,
+          "confidence": 0.9
+        },
+        {
+          "criterion_id": "downstream_contract_footprint",
+          "source": "measured:FDD-021-contextual-authority-ensemble-routing.md:downstream_contract_footprint=0.10",
+          "support": 0.02,
+          "confidence": 0.7
+        },
+        {
+          "criterion_id": "textual_cosmetic_ratio",
+          "source": "measured:FDD-021-contextual-authority-ensemble-routing.md:textual_cosmetic_ratio=0.10",
+          "support": 0.02,
+          "confidence": 0.9
+        }
+      ],
+      "constraint_results": {
+        "valid_format": true
+      }
+    },
+    {
+      "action_id": "supersession_update",
+      "evidence": [
+        {
+          "criterion_id": "semantic_scope_impact",
+          "source": "measured:FDD-021-contextual-authority-ensemble-routing.md:semantic_scope_impact=0.05",
+          "support": 0.02,
+          "confidence": 0.9
+        },
+        {
+          "criterion_id": "architectural_intent_shift",
+          "source": "measured:FDD-021-contextual-authority-ensemble-routing.md:architectural_intent_shift=0.10",
+          "support": 0.02,
+          "confidence": 0.9
+        },
+        {
+          "criterion_id": "downstream_contract_footprint",
+          "source": "measured:FDD-021-contextual-authority-ensemble-routing.md:downstream_contract_footprint=0.10",
+          "support": 0.02,
+          "confidence": 0.7
+        },
+        {
+          "criterion_id": "textual_cosmetic_ratio",
+          "source": "measured:FDD-021-contextual-authority-ensemble-routing.md:textual_cosmetic_ratio=0.10",
+          "support": 0.02,
+          "confidence": 0.9
+        }
+      ],
+      "constraint_results": {
+        "valid_format": true
+      }
+    }
+  ],
+  "constraints": [
+    "valid_format"
+  ],
+  "minimum_margin": 0.05
+}

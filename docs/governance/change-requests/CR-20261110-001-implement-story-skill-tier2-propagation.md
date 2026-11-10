@@ -4,7 +4,7 @@ change_request_id: "CR-20261110-001"
 stage: "16"
 evidence_basis: "execution"
 current_baseline: "PMP-BL-v1.1.0"
-status: "proposed_awaiting_sponsor_decision"
+status: "sponsor_approved_edits_applied_on_branch"
 date: "2026-11-10"
 requested_by: "Menno Drescher"
 drafted_by: "assistant (draft only; nothing in section 4 is applied)"
@@ -12,7 +12,7 @@ drafted_by: "assistant (draft only; nothing in section 4 is applied)"
 
 # Manual Change Request: Bring the `implement-story` and `heal-contract-failure` Skills Up To Date With the Accepted Lessons and the Code
 
-> **Status:** Proposed. No decision is recorded. The skill file is unchanged until the Sponsor decides (section 6).
+> **Status:** Approved by the Project Sponsor on 2026-11-10 (section 6). The edits of sections 4 and 4b are applied on branch `chore/cr-20261110-001-skills` in one PR.
 
 ## 1. Request
 
@@ -38,7 +38,7 @@ The skill is not an approved ADR, BRD, FDD or story, so ADR-007 and `scripts/sta
 | Primary diff type | process (how the loop is run); no requirement, interface or baseline change |
 | Overall impact | Medium: it changes what every future story run does |
 | Proposed escalation | Project Sponsor |
-| Decision status | Not decided |
+| Decision status | Sponsor approved 2026-11-10 |
 
 ## 4. Proposed edits (text to apply on approval)
 
@@ -85,7 +85,9 @@ LL-040 says to resolve and print the store path before `task-policy-decide`, `ta
 
 | Role | Decision | Date |
 |---|---|---|
-| Project Sponsor | Pending | |
+| Project Sponsor | Approved: apply the edits of sections 4 and 4b to `implement-story` and `heal-contract-failure` | 2026-11-10 |
+
+The decision was given by Menno Drescher in the working session of 2026-11-10 ("The change request is Approved") and is recorded here from that statement. Section 5's `stage16_amend.py` store-path guard is not part of this approval; it needs its own entry.
 
 ## 7. Procedure after approval
 

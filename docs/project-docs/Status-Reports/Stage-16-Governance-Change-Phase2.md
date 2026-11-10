@@ -5,7 +5,7 @@ baseline_id: "PMP-BL-v1.1.0"
 lifecycle_stage: "Stage 16 (Governance Change)"
 pmbok_process: "4.6 Perform Integrated Change Control"
 date: "2026-11-10"
-status: "DRAFT - Steps 1 to 8 prepared; awaiting the Sponsor's approval of the assessment (F1 approved 2026-11-10)."
+status: "APPROVED by the Project Sponsor 2026-11-10. Stage 17 is next. Nothing in Stage 17 is done."
 follows: "Stage-15-Lessons-Phase2.md (REP-STAGE15-LESSON-PHASE2)"
 ---
 
@@ -214,10 +214,10 @@ Alternative: record that the three were never adopted. Not proposed, because the
 
 ### Approval
 
-- [ ] Stage 16 assessment approved by the Sponsor
-- [ ] `Project-Status-Register.md` updated
+- [x] Stage 16 assessment approved by the Sponsor (Menno Drescher, 2026-11-10: "lets continue and approve the assessment")
+- [x] `Project-Status-Register.md` updated (2026-11-10)
 - [x] Artifacts committed (this note, CR-20261110-001 and -002, the registers)
 
 ## Not done
 
-The Sponsor's approval of this assessment, the `Project-Status-Register.md` update, and the changes listed above for Stage 17. Nothing was escalated outside the Sponsor, and no governance episode exists for this pass.
+The changes listed above for Stage 17 and the next phase. Nothing was escalated outside the Sponsor, and no governance episode exists for this pass.

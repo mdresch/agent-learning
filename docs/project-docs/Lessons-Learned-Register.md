@@ -852,4 +852,67 @@
 - **Actionable Invariant:** On Windows run the gate with `PYTHONUTF8=1` until the gate passes `encoding="utf-8"` itself (IMP-045). Treat a crash with no verdict as a tooling failure, never as an approval or a rejection.
 - **Verification Gate:** `PYTHONUTF8=1 uv run python scripts/pr_gate.py <n>` prints a `GATE RESULT` line.
 
+### LL-060 — A Merge Gate That Blocks Only on Completed Failures Lets Unfinished or Missing Checks Through
+- **Identifier:** `LL-060`
+- **Date:** 2026-11-10
+- **Epic / Story:** Phase 2 Close (Stage 15) / INSIGHT-007; PR #173, PR #178
+- **Scope:** Tooling / CI
+- **Tier 2/3 Propagation Target:** Tier 1 only (IMP-059 proposes the gate change)
+- **The Trap:** A red `Tests` run existed on `feat/phase-2-examples-and-ledger` (commit `f26eadb`) and PR #173 merged three minutes later; `main` then ran 5 catalog tests red until PR #178 (OBS-010, OBS-012). For PR #178 the check list read back empty about a minute after the push, and the gate still reported PASSED (OBS-018).
+- **The Root Cause:** `scripts/pr_gate.py` builds its failing set only from checks whose conclusion is `FAILURE`, `TIMED_OUT` or `ACTION_REQUIRED` (lines 362 to 370). A check still running, or a check list that is empty, has no conclusion and passes. Who issued the #173 merge is not established, so it is not known whether it passed through this gate.
+- **Actionable Invariant:** Treat a required check that is pending, missing or empty as not ready, and wait for a conclusion before a merge. A gate that cannot see a result has no verdict, the same as a crash (LL-059).
+- **Verification Gate:** After a push, `gh pr view <n> --json statusCheckRollup` shows a conclusion for every required workflow before `pr_gate.py <n> --merge` is run.
+
+---
+
+### LL-061 — A List or Threshold Copied Into an Approved Document Goes Stale Until a Test Binds It to the Code
+- **Identifier:** `LL-061`
+- **Date:** 2026-11-10
+- **Epic / Story:** Phase 2 Close (Stage 15) / INSIGHT-008; Epics 21, 22, 36
+- **Scope:** Governance / Documentation
+- **Tier 2/3 Propagation Target:** Tier 2: component skills that state a list or limit; Tier 3 candidate for `sidpa-template`
+- **The Trap:** ADR-021 named 11 pinned gates where the code needed 18, found in two rounds (IMP-046). ADR-022 says weights are at least 0.0 and a proposal needs accuracy "at least" the baseline, where the code requires 0.05 and "strictly greater" and FDD-022 says "strictly beats" (AUDIT-013, AUDIT-014). The catalog tests failed after seven methodologies were promoted until the Ideation states and ADR-036's counts were amended (OBS-012).
+- **The Root Cause:** A document copies a number or a list that code also holds, and nothing keeps the two equal until a test or a real-data check forces it. The pinned-gate test added under IMP-046 is the one place where something now does.
+- **Actionable Invariant:** When an ADR, BRD, FDD or story states a list or a number that code holds, either cite the constant by name or add a test that reads both and fails when they differ. Do this when the document is approved, not after an audit finds the drift.
+- **Verification Gate:** A test reads the document's list or number and the code constant and asserts equality; `tests/test_routing_pinning.py` and `test_ac1_every_gate_with_a_policy_shape_is_pinned` are the model.
+
+---
+
+### LL-062 — Learners Built Ahead of the Data That Would Exercise Them Leave Their Value Unmeasured
+- **Identifier:** `LL-062`
+- **Date:** 2026-11-10
+- **Epic / Story:** Phase 2 Close (Stage 15) / INSIGHT-005; Epics 16, 18, 21
+- **Scope:** Process / Planning
+- **Tier 2/3 Propagation Target:** Tier 1 only; Tier 3 candidate once a second project shows it
+- **The Trap:** All six baseline epics are built and the suite passes, yet the real-data checks could not test the value claims: 177 approve-* episodes and 0 preference pairs (Epic 18), no routed traffic (Epic 21), a positive-only history (Epic 16), and the repo store's 8 policy snapshots show 0 episodes seen and 0 updates (Stage 12 section 6, OBS-017).
+- **The Root Cause:** The governance gates are full-authority approvals that are almost all accepted, so the history holds no rejections, overrides or failures. The learners built to learn from those were scheduled without first checking that such data exists or will exist.
+- **Actionable Invariant:** Before a learner epic is approved, name its data source and count the records it needs (rejections, overrides, failures, routed decisions). If the count is zero, schedule the capture of that data first, or state in the epic that its real-data check cannot test the value claim.
+- **Verification Gate:** The epic's real-data story records the count of usable records before any build starts; a zero is a stated limit in the epic, not a surprise at Stage 12.
+
+---
+
+### LL-063 — A Planning Figure in Human-Engineering Days Is Not a Forecast of Agentic Delivery
+- **Identifier:** `LL-063`
+- **Date:** 2026-11-10
+- **Epic / Story:** Phase 2 Close (Stage 15) / INSIGHT-011; Epic 23 change package
+- **Scope:** Planning
+- **Tier 2/3 Propagation Target:** Tier 1 only
+- **The Trap:** The Phase 2 plan (M6 to M10, 30.0 person-days) and the Epic 23 estimate (7.0 person-days) were read as if they predicted agentic delivery. The shadow record shows about 25.5 hours of session time from 2026-11-07 to 2026-11-10, a lower bound that leaves out human review and tokens (OBS-016).
+- **The Root Cause:** The planning units are human-engineering days (Sponsor, 2026-11-10). Agentic effort has no recorded history to estimate from, so no ratio between the two is supportable.
+- **Actionable Invariant:** Label every effort figure as human-engineering days. Record agentic effort as a measured shadow record (`scripts/shadow_effort.py`) for learning only, and build no schedule, cost or forecast from it until real agentic actuals have been recorded and reviewed.
+- **Verification Gate:** No schedule or cost line cites the shadow record; each effort figure in a plan states its unit.
+
+---
+
+### LL-064 — A Stage With a Role but No Named Input or Deliverable Is Reinvented on Each Pass
+- **Identifier:** `LL-064`
+- **Date:** 2026-11-10
+- **Epic / Story:** Phase 2 Close (Stage 15) / INSIGHT-010; Stages 13 and 14
+- **Scope:** Governance / Process
+- **Tier 2/3 Propagation Target:** Tier 1 only; Tier 3 candidate for `sidpa-template` chain coverage
+- **The Trap:** Stages 13 and 14 were reached for the second time with no defined source or output here; the Phase 2 pass first produced a chat summary, then two notes, then per-item OBS and INSIGHT files. The coverage document of 2026-10-27 says no OBS or insight notes exist, while Phase 1 created them on 2026-11-04. The episode telemetry fields that a Stage 13 input would use are empty (OBS-017).
+- **The Root Cause:** The chain defines the stages by role (what is seen, what it means) and not by a source and a path in this repository, so each pass improvises and documents drift apart.
+- **Actionable Invariant:** Before a stage pass starts, name its input source, its output path and its owner in the stage definition; update the coverage document in the same change when the practice differs from it.
+- **Verification Gate:** The stage definition lists a source and an output path; `docs/observations/OBS-*.md` and `docs/insights/INSIGHT-*.md` exist for the phase before Stage 15 begins.
+
 ---

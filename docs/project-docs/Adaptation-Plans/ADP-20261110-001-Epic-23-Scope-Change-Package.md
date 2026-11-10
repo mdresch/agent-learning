@@ -44,7 +44,9 @@ Condition 1 (scope) is decided. Condition 2 (boundary and `numpy`) is resolved i
 
 Why not the low case: Epic 23 is new numerical code (a Bradley-Terry fit, a Laplace variance, pair selection), and Story 23.1 has a performance target the prototype misses (section 4). Why not the high case: the contracts, fixtures and review loop exist now, and Epic 23 reuses `pairwise.py`.
 
-**Planning value: 7.0 pd, range 5.0 to 8.75 pd.** Hours: the cost plan values 30.0 pd at €15,300 of labour, so €510 per pd.
+> **What these figures are (Sponsor, 2026-11-10).** They are human-engineering guesstimates, in the same unit as the Phase 2 milestones they are derived from (M6 to M9). They are not a forecast of agentic delivery. The move from human engineering to an agentic coding process is not yet realistically estimable; the lessons have to be learned and earned first, and no estimate should be built on that theory beforehand. For the Phase 3 baseline, treat 7.0 pd as an upper-bound human-equivalent reference, and do not commit schedule or cost lines from it until Phase 2's actual agentic effort has been recorded and reviewed.
+
+**Planning value: 7.0 pd, range 5.0 to 8.75 pd (human-engineering equivalent).** Hours: the cost plan values 30.0 pd at €15,300 of labour, so €510 per pd.
 
 ## 3. Schedule effect
 
@@ -134,4 +136,5 @@ The same regeneration also corrects the stale `agent-training-ext` references in
 |---|---|---|
 | 2026-11-10 | Drafted | First draft prepared from CR-20261109-001. Estimates are by analogy to the M6 to M9 milestones and are unmeasured for Epic 23. |
 | 2026-11-10 | Rescoped | Epic 23 moved to Phase 3; this document becomes a Phase 3 input carried by the Phase 2 close. Body left as drafted. |
+| 2026-11-10 | Estimate basis stated | Sponsor: the figures are human-engineering guesstimates, not an agentic-delivery forecast; no Phase 3 commitment until Phase 2 agentic effort is recorded and reviewed. |
 

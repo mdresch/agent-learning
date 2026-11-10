@@ -814,3 +814,42 @@
 - **Verification Gate:** `gh api repos/<repo>/pulls/<n>/comments` shows `original_commit_id`; the 38.1 review tests `test_review_no_usable_episode_leaves_the_policy_unchanged` and `test_review_episode_without_a_feature_vector_is_skipped_not_raised`.
 
 ---
+
+### LL-057 — A Review-Fix Commit Removed Existing Behaviour and Only the Whole Suite Noticed
+- **Identifier:** `LL-057`
+- **Date:** 2026-11-10
+- **Epic / Story:** Epic 21 / Stories 21.6 and 21.7 (PRs #157, #167)
+- **Scope:** Review Workflow / Regression Control
+- **Tier 2/3 Propagation Target:** Tier 1 only (IMP-050 proposes the skill change)
+- **The Trap:** In Story 21.6, edits made to answer Amazon Q's findings removed the pre-21.6 count of an untagged episode with no log-probability from `learners/reinforce.py`. The story's own 18 contract tests still passed, and the log recorded a full-suite pass (2323 passed, with the old `--ignore` flags) taken at the first implementation commit, before the review rounds. On the final head the whole suite with no `--ignore` failed 6 tests: five older contracts (`tests/test_learner.py`, `tests/test_epsilon_reinforce_guard.py`) and the Status Register checkpoint test. The story's own tests had been adjusted to the new counts. Fixed in `ee3bb96`.
+- **The Root Cause:** The story test file covers only the story's behaviour, each review round re-ran it, and the whole suite ran once before the rounds began. Q's finding (one counter conflates two skip reasons) was answered by deleting a branch instead of checking which contracts name it.
+- **Actionable Invariant:** After every review-fix round, and before posting `/q confirm`, run the whole suite with no `--ignore` flags. Before removing or merging an existing branch in answer to a finding, search the tests for the behaviour it provides (the counter name, the key) and read the story criteria for the words "as before". Never adjust an expected value in the story's own tests to match a removed behaviour without checking the older contracts.
+- **Verification Gate:** `uv run pytest` with no flags on the head commit; `tests/test_learner.py` and `tests/test_epsilon_reinforce_guard.py`.
+
+---
+
+### LL-058 — An Unrecorded Review and a Bare Confirm Command
+- **Identifier:** `LL-058`
+- **Date:** 2026-11-10
+- **Epic / Story:** Epic 21 / Stories 21.6 and 21.7 (PRs #157, #167)
+- **Scope:** Review Workflow / Audit Trail
+- **Tier 2/3 Propagation Target:** Tier 1 only (IMP-050 proposes the skill change)
+- **The Trap:** Story 21.6 went through six Amazon Q rounds with no `Q-157-<n>` triage line in `implementation-log.md`, so 13 lines had to be reconstructed afterwards from the comments and commit messages, and nine of the 13 `verified` fields and two `decision` fields read `unknown`. The session also posted a bare `/q confirm`, and Q answered "The comment 'confirm' is too ambiguous to act on", after which `/q review` was posted twice.
+- **The Root Cause:** Step 8 records the review in step 7 "before merging", which a long run reaches after the details are gone, and the exact `/q confirm` wording (LL-004) is in prose in the middle of nine sub-steps.
+- **Actionable Invariant:** Write each round's triage lines in the log as the findings are triaged, and run `grep -c "Q-<PR>-" implementation-log.md` before the gate. Post the full text `/q confirm whether every earlier finding is resolved in this commit and list anything remaining` as its own comment.
+- **Verification Gate:** `tests/test_review_triage.py` and `tests/test_critique_replay.py` after any log edit; the Q reply to the confirm names the head commit.
+
+---
+
+### LL-059 — The PR Gate Crashes on Windows When a Comment Holds a Character Outside cp1252
+- **Identifier:** `LL-059`
+- **Date:** 2026-11-10
+- **Epic / Story:** Epic 21 / Stories 21.6 and 21.7 (PRs #157, #167)
+- **Scope:** Tooling / Windows
+- **Tier 2/3 Propagation Target:** Tier 1 only (IMP-050 proposes the skill change)
+- **The Trap:** `scripts/pr_gate.py 162` printed a `UnicodeDecodeError: 'charmap' codec can't decode byte 0x8f` from a `subprocess` reader thread and then `Error evaluating PR #162: the JSON object must be str, bytes or bytearray, not NoneType`, with no verdict. Setting `PYTHONUTF8=1` for the run fixed it; the gate then passed and merged.
+- **The Root Cause:** The gate runs `gh` through `subprocess` with the locale encoding (cp1252 on this machine), and Q's confirmation comments contain check marks.
+- **Actionable Invariant:** On Windows run the gate with `PYTHONUTF8=1` until the gate passes `encoding="utf-8"` itself (IMP-045). Treat a crash with no verdict as a tooling failure, never as an approval or a rejection.
+- **Verification Gate:** `PYTHONUTF8=1 uv run python scripts/pr_gate.py <n>` prints a `GATE RESULT` line.
+
+---

@@ -25,15 +25,26 @@ const stagesJson = JSON.parse(readFileSync(join(projectRoot, "journey", "stages.
 const modelFor = (id) => stagesJson.filter((s) => s.subagent === id).map((s) => s.model).filter(Boolean).sort((a, b) => RANK.indexOf(b) - RANK.indexOf(a))[0] ?? "sonnet";
 
 // Least privilege per subagent. Only the orchestrator may report stages or file approvals.
+// One subagent per stage (no subagent spans more than one stage).
 const SUBAGENT_TOOLS = {
-  "stage-initiating": { run: true, write: true },
-  "stage-specification": { run: true, write: true },
-  "stage-baseline": { run: true, write: false },
-  "stage-delivery": { run: true, write: false },
-  "stage-assurance": { run: false, write: true },
-  "stage-knowledge": { run: false, write: true },
-  "stage-change-control": { run: true, write: true },
-  "stage-closing": { run: true, write: true },
+  "stage-intent": { run: true, write: true },
+  "stage-hypothesis": { run: true, write: true },
+  "stage-benefit": { run: true, write: true },
+  "stage-objective": { run: true, write: true },
+  "stage-pillars": { run: true, write: true },
+  "stage-requirement": { run: true, write: true },
+  "stage-project": { run: true, write: false },
+  "stage-readiness": { run: true, write: false },
+  "stage-deliverable": { run: true, write: false },
+  "stage-verification": { run: true, write: false },
+  "stage-audit": { run: false, write: true },
+  "stage-outcome": { run: false, write: true },
+  "stage-observation": { run: false, write: true },
+  "stage-insight": { run: false, write: true },
+  "stage-lesson": { run: false, write: true },
+  "stage-governance": { run: true, write: true },
+  "stage-adaptation": { run: true, write: true },
+  "stage-refinement": { run: true, write: true },
 };
 
 const NOTE = `> Claude Code note: the governance tools appear with the prefix \`${PREFIX}\`, for example \`${PREFIX}journey_status\`. Wherever these instructions name a tool without the prefix, use the prefixed one.`;

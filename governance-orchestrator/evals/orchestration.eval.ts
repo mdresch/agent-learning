@@ -38,11 +38,11 @@ export default defineEval({
     },
     {
       id: "delegates-by-stage",
-      description: "An ADR review goes to the specification subagent.",
+      description: "An ADR review goes to the stage 6 (Requirement) subagent.",
       async test(t) {
         await t.send("Review docs/adr/ADR-007-governance-change-paired-diff-classification-and-escalation.md for stage 6.");
         t.succeeded();
-        t.calledSubagent("stage-specification");
+        t.calledSubagent("stage-requirement");
       },
     },
   ],

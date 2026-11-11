@@ -1,0 +1,25 @@
+# Stage subagent: Insight (stage 14)
+
+You draft; a human accepts every entry (ADR-010 section 4.7). This stage is `human_review`: this repository declares no `resolve-kb-conflict` shape and records no such decision, so you create no episode and no shape for it.
+
+Names and stage numbers follow `docs/intent-to-outcome-chain-coverage.md`, which `journey/stages.json` mirrors.
+
+## What you check
+
+Synthesize what the observations from stage 13 (Observation) mean, each insight citing the observations it rests on. An insight that contradicts an accepted project document is not a knowledge-base update: it is a baseline finding. Report it so the orchestrator can route it (execution evidence goes to stage 16, Governance Change). The knowledge base never supersedes an accepted project document. In this repository an insight lives as the "root cause" of a register entry.
+
+## Report
+
+```
+STAGE_REPORT
+stageId: 14
+status: in_progress | ready_for_gate | blocked | gap
+summary: two or three sentences for the dashboard
+evidence: ["path §section", ...]
+gaps: [...]
+recommendation: approve | request_revision
+taskId: human-review
+rationale: strongest reason
+artifactVersion: <commit hash>
+nextAction: one sentence
+```

@@ -1,13 +1,13 @@
 # governance-orchestrator
 
-One orchestrator agent and eight stage subagents that walk the 18-stage Intent-to-Outcome loop, report progress to a local dashboard, and stop at every gate for a human decision.
+One orchestrator agent and eighteen stage subagents, one per stage, that walk the 18-stage Intent-to-Outcome loop, report progress to a local dashboard, and stop at every gate for a human decision. No subagent spans more than one stage.
 
 It generalizes two earlier agents:
 
 | Earlier agent | Now lives in | What changed |
 |---|---|---|
-| `adr_reviewer` (coverage, pillars, researcher) | `stage-specification` | Same rubric, extended from ADRs to BRD, FDD and Stories. The three sub-roles are procedures inside one subagent, because subagents cannot nest. |
-| `pr-reviewer` (`inspect_pr`, `submit_review`) | `stage-delivery` | Same complexity rubric. It recommends only; it cannot approve a PR or merge. |
+| `adr_reviewer` (coverage, pillars, researcher) | `stage-pillars` (stage 5) and `stage-requirement` (stage 6) | Same rubric, extended from ADRs to BRD, FDD and Stories, and split one subagent per stage. |
+| `pr-reviewer` (`inspect_pr`, `submit_review`) | `stage-deliverable` (stage 9) and `stage-verification` (stage 10) | Same complexity rubric, split one subagent per stage. It recommends only; it cannot approve a PR or merge. |
 
 ## Shape
 
@@ -15,9 +15,12 @@ It generalizes two earlier agents:
 orchestrator ── journey_status / check_approvals   read progress and human decisions
      │          report_stage / request_approval     record reports, ask the human
      │          notify / write_document / run_command
-     └─ task ─► stage-initiating (1 3 4 2)   stage-specification (5 6)   stage-baseline (7 8)
-                stage-delivery (9 10)        stage-assurance (11 12 13)  stage-knowledge (14 15)
-                stage-change-control (16 17) stage-closing (18)
+     └─ task ─► stage-intent (1)        stage-hypothesis (3)    stage-benefit (4)
+                stage-objective (2)     stage-pillars (5)        stage-requirement (6)
+                stage-project (7)       stage-readiness (8)      stage-deliverable (9)
+                stage-verification (10) stage-audit (11)         stage-outcome (12)
+                stage-observation (13)  stage-insight (14)       stage-lesson (15)
+                stage-governance (16)   stage-adaptation (17)    stage-refinement (18)
 ```
 
 Each subagent ends with a `STAGE_REPORT` block. The orchestrator is the only writer of journey state.
@@ -50,7 +53,7 @@ The first time, Claude Code asks you to approve the project MCP server `governan
 
 | Piece | Where |
 |---|---|
-| Orchestrator and 8 stage subagents | `.claude/agents/*.md`, generated from `bot/` by `npm run build:claude` (check with `npm run check:claude`). Edit `bot/`, not the generated files |
+| Orchestrator and 18 stage subagents | `.claude/agents/*.md`, generated from `bot/` by `npm run build:claude` (check with `npm run check:claude`). Edit `bot/`, not the generated files |
 | Tools | `mcp/server.ts`, a stdio MCP server that wraps the same `bot/tools/*.ts`, so the rules exist once |
 | Server registration | `.mcp.json` at the repo root |
 

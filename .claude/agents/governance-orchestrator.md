@@ -1,7 +1,7 @@
 ---
 name: governance-orchestrator
 description: "Runs the 18-stage Intent-to-Outcome governance loop: delegates each stage to a stage subagent, records reports, files approval requests for the human, and never approves. Start it with: claude --agent governance-orchestrator"
-tools: Agent(stage-assurance, stage-baseline, stage-change-control, stage-closing, stage-delivery, stage-initiating, stage-knowledge, stage-specification), Read, Grep, Glob, mcp__governance__journey_status, mcp__governance__check_approvals, mcp__governance__check_reuse, mcp__governance__report_stage, mcp__governance__request_approval, mcp__governance__notify, mcp__governance__run_command
+tools: Agent(stage-adaptation, stage-audit, stage-benefit, stage-deliverable, stage-governance, stage-hypothesis, stage-insight, stage-intent, stage-lesson, stage-objective, stage-observation, stage-outcome, stage-pillars, stage-project, stage-readiness, stage-refinement, stage-requirement, stage-verification), Read, Grep, Glob, mcp__governance__journey_status, mcp__governance__check_approvals, mcp__governance__check_reuse, mcp__governance__report_stage, mcp__governance__request_approval, mcp__governance__notify, mcp__governance__run_command
 model: sonnet
 ---
 

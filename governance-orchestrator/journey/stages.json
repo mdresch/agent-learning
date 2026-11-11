@@ -11,7 +11,7 @@
   "stages": [
     {
       "id": 1, "key": "intent", "name": "Intent", "group": "Initiating",
-      "pmbok": "Pre-Project: Strategic Need Identification", "subagent": "stage-initiating",
+      "pmbok": "Pre-Project: Strategic Need Identification", "subagent": "stage-intent",
       "after": [], "gateMode": "policy",
       "touchpoints": {"kind":"fixed","count":1,"label":"approve-ideation"},
       "model": "sonnet",
@@ -27,7 +27,7 @@
     },
     {
       "id": 3, "key": "hypothesis", "name": "Hypothesis", "group": "Initiating",
-      "pmbok": "Pre-Project: Design Assumption Formulation", "subagent": "stage-initiating",
+      "pmbok": "Pre-Project: Design Assumption Formulation", "subagent": "stage-hypothesis",
       "after": [1], "gateMode": "policy",
       "touchpoints": {"kind":"fixed","count":1,"label":"classify-hypothesis-status"},
       "model": "sonnet",
@@ -41,7 +41,7 @@
     },
     {
       "id": 4, "key": "benefit", "name": "Benefit", "group": "Initiating",
-      "pmbok": "Business Documents: Benefits Realization Planning", "subagent": "stage-initiating",
+      "pmbok": "Business Documents: Benefits Realization Planning", "subagent": "stage-benefit",
       "after": [3], "gateMode": "policy",
       "touchpoints": {"kind":"fixed","count":1,"label":"approve-business-case"},
       "model": "sonnet",
@@ -55,7 +55,7 @@
     },
     {
       "id": 2, "key": "objective", "name": "Objective", "group": "Initiating",
-      "pmbok": "4.1 Develop Project Charter", "subagent": "stage-initiating",
+      "pmbok": "4.1 Develop Project Charter", "subagent": "stage-objective",
       "after": [4], "gateMode": "policy",
       "touchpoints": {"kind":"fixed","count":1,"label":"approve-charter"},
       "model": "sonnet",
@@ -69,7 +69,7 @@
     },
     {
       "id": 5, "key": "pillars", "name": "Pillars & Architecture", "group": "Planning",
-      "pmbok": "Pillars Exercise (post-Charter decomposition)", "subagent": "stage-specification",
+      "pmbok": "Pillars Exercise (post-Charter decomposition)", "subagent": "stage-pillars",
       "after": [2], "gateMode": "policy",
       "touchpoints": {"kind":"variable","minimum":2,"label":"approve-project-pillars, then one approve-adr per high-level ADR"},
       "model": "sonnet",
@@ -86,7 +86,7 @@
     },
     {
       "id": 6, "key": "requirement", "name": "Requirement", "group": "Planning",
-      "pmbok": "5.2 Collect Requirements, 5.3 Define Scope, 5.4 Create WBS", "subagent": "stage-specification",
+      "pmbok": "5.2 Collect Requirements, 5.3 Define Scope, 5.4 Create WBS", "subagent": "stage-requirement",
       "after": [5], "gateMode": "policy",
       "touchpoints": {"kind":"per_epic","label":"one request per epic: its ADR, BRD, FDD and stories"},
       "model": "sonnet",
@@ -106,7 +106,7 @@
     },
     {
       "id": 7, "key": "project", "name": "Project (PMP & Baselines)", "group": "Planning",
-      "pmbok": "4.2 Develop Project Management Plan", "subagent": "stage-baseline",
+      "pmbok": "4.2 Develop Project Management Plan", "subagent": "stage-project",
       "after": [6], "gateMode": "policy",
       "touchpoints": {"kind":"fixed","count":10,"label":"9 subsidiary plans, then approve-pmp"},
       "model": "sonnet",
@@ -125,7 +125,7 @@
     },
     {
       "id": 8, "key": "readiness", "name": "Implementation Readiness", "group": "Planning to Executing",
-      "pmbok": "5.4 WBS and Execution Authorization Gate", "subagent": "stage-baseline",
+      "pmbok": "5.4 WBS and Execution Authorization Gate", "subagent": "stage-readiness",
       "after": [7], "gateMode": "policy",
       "touchpoints": {"kind":"per_epic","label":"one validate-intent-foundation request per epic, covering its stories"},
       "model": "haiku",
@@ -139,7 +139,7 @@
     },
     {
       "id": 9, "key": "deliverable", "name": "Deliverable", "group": "Executing",
-      "pmbok": "4.3 Direct and Manage Project Work", "subagent": "stage-delivery",
+      "pmbok": "4.3 Direct and Manage Project Work", "subagent": "stage-deliverable",
       "after": [8], "gateMode": "evidence",
       "touchpoints": {"kind":"external","label":"you merge each story PR on GitHub, not on the dashboard"},
       "model": "sonnet",
@@ -154,7 +154,7 @@
     },
     {
       "id": 10, "key": "verification", "name": "Verification Evidence", "group": "Monitoring and Controlling",
-      "pmbok": "8.3 Control Quality", "subagent": "stage-delivery",
+      "pmbok": "8.3 Control Quality", "subagent": "stage-verification",
       "after": [9], "gateMode": "evidence",
       "touchpoints": {"kind":"none","label":"no approval"},
       "model": "haiku",
@@ -168,7 +168,7 @@
     },
     {
       "id": 11, "key": "audit", "name": "Audit Record", "group": "Monitoring and Controlling",
-      "pmbok": "8.2 Manage Quality Audits", "subagent": "stage-assurance",
+      "pmbok": "8.2 Manage Quality Audits", "subagent": "stage-audit",
       "after": [10], "gateMode": "policy",
       "touchpoints": {"kind":"variable","minimum":1,"label":"one approve-audit-record per audit entry"},
       "model": "sonnet",
@@ -182,7 +182,7 @@
     },
     {
       "id": 12, "key": "outcome", "name": "Actual Outcome", "group": "Monitoring and Controlling",
-      "pmbok": "5.5 Validate Scope and Value Realization", "subagent": "stage-assurance",
+      "pmbok": "5.5 Validate Scope and Value Realization", "subagent": "stage-outcome",
       "after": [11], "gateMode": "evidence",
       "touchpoints": {"kind":"none","label":"no approval"},
       "model": "haiku",
@@ -196,7 +196,7 @@
     },
     {
       "id": 13, "key": "observation", "name": "Observation", "group": "Monitoring and Controlling",
-      "pmbok": "4.5 Monitor and Control Project Work", "subagent": "stage-assurance",
+      "pmbok": "4.5 Monitor and Control Project Work", "subagent": "stage-observation",
       "after": [11], "gateMode": "evidence",
       "touchpoints": {"kind":"none","label":"no approval"},
       "model": "haiku",
@@ -209,7 +209,7 @@
     },
     {
       "id": 14, "key": "insight", "name": "Insight", "group": "Monitoring and Controlling",
-      "pmbok": "4.4 Manage Project Knowledge (Synthesis)", "subagent": "stage-knowledge",
+      "pmbok": "4.4 Manage Project Knowledge (Synthesis)", "subagent": "stage-insight",
       "after": [13], "gateMode": "human_review",
       "touchpoints": {"kind":"fixed","count":1,"label":"sign-off on the insight report"},
       "model": "sonnet",
@@ -224,7 +224,7 @@
     },
     {
       "id": 15, "key": "lesson", "name": "Lesson Learned", "group": "Monitoring and Controlling",
-      "pmbok": "4.4 Manage Project Knowledge (Lessons Learned Register)", "subagent": "stage-knowledge",
+      "pmbok": "4.4 Manage Project Knowledge (Lessons Learned Register)", "subagent": "stage-lesson",
       "after": [14], "gateMode": "human_review",
       "touchpoints": {"kind":"fixed","count":1,"label":"sign-off on the lessons; you accept every LL entry"},
       "model": "sonnet",
@@ -239,7 +239,7 @@
     },
     {
       "id": 16, "key": "governance", "name": "Governance Change", "group": "Monitoring and Controlling",
-      "pmbok": "4.6 Perform Integrated Change Control", "subagent": "stage-change-control",
+      "pmbok": "4.6 Perform Integrated Change Control", "subagent": "stage-governance",
       "after": [15], "gateMode": "pipeline",
       "touchpoints": {"kind":"variable","minimum":0,"label":"only when the pipeline stops: a 0.05 tie, a frozen change type, or escalate_to_human"},
       "model": "opus",
@@ -258,7 +258,7 @@
     },
     {
       "id": 17, "key": "adaptation", "name": "Adaptation Plan", "group": "Closing and Adaptive Feedback",
-      "pmbok": "4.6 Perform Integrated Change Control (Tailoring)", "subagent": "stage-change-control",
+      "pmbok": "4.6 Perform Integrated Change Control (Tailoring)", "subagent": "stage-adaptation",
       "after": [16], "gateMode": "policy",
       "touchpoints": {"kind":"fixed","count":1,"label":"approve-adaptation-plan"},
       "model": "sonnet",
@@ -272,7 +272,7 @@
     },
     {
       "id": 18, "key": "refinement", "name": "Intent Refinement", "group": "Closing and Strategic Feedback",
-      "pmbok": "4.7 Close Project or Phase (Cognitive Feedback)", "subagent": "stage-closing",
+      "pmbok": "4.7 Close Project or Phase (Cognitive Feedback)", "subagent": "stage-refinement",
       "after": [17], "gateMode": "policy",
       "touchpoints": {"kind":"fixed","count":1,"label":"approve-intent-refinement"},
       "model": "sonnet",

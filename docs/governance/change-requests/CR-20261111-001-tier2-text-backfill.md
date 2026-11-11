@@ -111,6 +111,20 @@ Sponsor direction, 2026-11-11: when several agents work in parallel they will ne
 - Same rule as the Story Execution Register: no TaskPolicy and no invented bids until a real case shows the decision shape.
 - Proposed route: register it as an `IMP-###` for the next phase (Continuous Improvement Register) so it reaches the Stage 18 input; not part of this PR.
 
+### 4f. Future: preparations before several agents pick up the WBS work packages (noted, not built)
+
+Sponsor direction, 2026-11-11: several preparations are still required before multiple agents can pick up the agentic, sequenced tasks of the scheduled management plans (the WBS work packages). The 143-row WBS duration forecast exists in the Schedule foundation pack (`docs/project-docs/management-plans/schedule-baseline/foundation/Schedule-Baseline-WBS-Forecast.md`); the rest does not. Nothing here is built by this request.
+
+1. **Machine-readable task list.** The WBS is a Markdown table. Each work package needs a record (id, predecessors, inputs, outputs, acceptance check) so the sequence is derived, not read by a person.
+2. **Claim and bid register.** The Task Ownership Register of 4e, with a task id, the bids, the awarded agent and a lease that expires, so a stalled task is released.
+3. **Isolation per task.** One branch and worktree per claimed task, named from the task id. The LL-042 check (an existing branch means a run was already started) becomes the lock against double claims.
+4. **Readiness gate per work package.** Predecessors done and inputs approved, in the manner of `scripts/spec_gate.py` for stories. LL-015 applies: each component passes its own gate before any composite is formed.
+5. **Authority limits.** Which tasks an agent may take alone and which need a human award, following the existing low and full authority split. A swarm never approves its own gates.
+6. **Shared writes.** `implementation-log.md` already has a union merge; the registers and the gate episodes need the same, or agents will conflict.
+7. **Estimate basis.** The durations are human-equivalent estimates. Agents are not scheduled against them until actuals are recorded.
+
+Order: items 1 and 2 first, since the others depend on them. Route: an `IMP-###` for the next phase, so it reaches the Stage 18 input.
+
 ## 5. Out of scope
 
 - Any Tier 3 (`sidpa-template`) change; each stays "proposed, needs human approval before any cross-repo change".

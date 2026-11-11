@@ -88,6 +88,19 @@ Two facts in it are new to the skill and are checked against the repository: the
 
 **The LL-041 check as a script (a code change, not text).** Proposed: `scripts/check_tier2_propagation.py` reads the `Tier 2/3 Propagation Target` line of each `LL-###` entry, takes the files named after `Tier 2:`, and lists every id missing from its file; exit 1 if any. Tests with a fake register. It is a separate improvement with its own PR, because section 4a and 4c are text and this is code. After the text lands it should report nothing for the lessons of this request; it will still list older entries (the Step 2d "not applied" ones outside this request), which is its purpose.
 
+### 4d. Story Execution Register: put it into the loop
+
+`docs/registers/Story-Execution-Register.md` has a column per step (0 to 8) and no rows. Nothing writes to it; only `tests/test_project_status_register.py` reads it, to check it exists and still holds the "first real row gets added" marker. Its own text says rows are added prospectively and never backfilled (Stories 1.1 to 20.6 stay in `implementation-log.md`).
+
+| # | File and place | Change |
+|---|---|---|
+| 11 | `.claude/skills/implement-story/SKILL.md`, Step 7, after "Audit log" | New bullet: **Execution row.** In the same follow-up commit as the log entry, add the story's row to `docs/registers/Story-Execution-Register.md`: for each of Steps 0 to 8, `done` with the evidence (commit, test output, PR number), `skipped` with the reason, or `not recorded`. Never fill a cell from memory or mark a step done that did not happen (LL-028). Step 8 is completed in the row when the PR merges. |
+| 12 | `scripts/complete_story.py done` | Writes the row's cells that the script itself saw: Step 0 (branch `feat/story-<X.Y>`), 5 and 6 (contract and full-suite results it ran), 7 (the log commit). Leaves Steps 1 to 4 as `not recorded` unless passed with `--attest "1=<evidence>"`, because the script cannot see that the spec was read or RED was observed. `triage` and the merge fill Step 8. Test with a fake register. |
+| 13 | `tests/test_project_status_register.py::test_story_execution_register_exists_and_is_empty` | Today it requires the "first real row gets added" marker, so the first row would break it. Change it to: the file exists, and either holds the marker or every row has all nine step cells filled (`done`, `skipped` or `not recorded`). |
+| 14 | The register's "Status" line | "Active, empty" becomes "Active" when the first row lands; the "Trigger for building that TaskPolicy" section stays as written. |
+
+Rows 12 and 13 are code and tests, so they follow section 4c's script as a separate improvement; rows 11 and 14 are text and go with the PR of this request. Recommendation: start with the rows by hand under row 11 for the next story, and add the script only after one real row shows which cells are worth automating. That matches the register's own rule that nothing is built before a real case exists.
+
 ## 5. Out of scope
 
 - Any Tier 3 (`sidpa-template`) change; each stays "proposed, needs human approval before any cross-repo change".
@@ -98,7 +111,7 @@ Two facts in it are new to the skill and are checked against the repository: the
 
 | Role | Decision | Date |
 |---|---|---|
-| Project Sponsor | Pending: per row of section 4 (accept, change, strike); the row 7 question; whether to build the script of section 4c | |
+| Project Sponsor | Pending: per row of section 4 (accept, change, strike); the row 7 question; whether to build the script of section 4c; hand-filled rows first or the script of section 4d | |
 
 ## 7. Procedure after approval
 

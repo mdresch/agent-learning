@@ -19,7 +19,7 @@
       "created_at": "2026-11-02T08:40:50Z",
       "id": 4440329181,
       "kind": "inline",
-      "line": null,
+      "line": 1292,
       "path": "src/agent_learning/cli.py",
       "url": "https://github.com/mdresch/agent-learning/pull/83#discussion_r4440329181"
     },
@@ -41,7 +41,7 @@
       "created_at": "2026-11-02T08:40:50Z",
       "id": 4440329206,
       "kind": "inline",
-      "line": null,
+      "line": 32,
       "path": "tests/test_warm_start_cli.py",
       "url": "https://github.com/mdresch/agent-learning/pull/83#discussion_r4440329206"
     },
@@ -52,7 +52,7 @@
       "created_at": "2026-11-02T08:40:50Z",
       "id": 4440329209,
       "kind": "inline",
-      "line": null,
+      "line": 319,
       "path": "tests/test_warm_start_cli.py",
       "url": "https://github.com/mdresch/agent-learning/pull/83#discussion_r4440329209"
     },
@@ -63,7 +63,7 @@
       "created_at": "2026-11-02T08:40:50Z",
       "id": 4440329212,
       "kind": "inline",
-      "line": null,
+      "line": 501,
       "path": "tests/test_warm_start_cli.py",
       "url": "https://github.com/mdresch/agent-learning/pull/83#discussion_r4440329212"
     },
@@ -74,7 +74,7 @@
       "created_at": "2026-11-02T08:41:01Z",
       "id": 4440330724,
       "kind": "inline",
-      "line": null,
+      "line": 1193,
       "path": "src/agent_learning/cli.py",
       "url": "https://github.com/mdresch/agent-learning/pull/83#discussion_r4440330724"
     },
@@ -96,7 +96,7 @@
       "created_at": "2026-11-02T08:41:01Z",
       "id": 4440330763,
       "kind": "inline",
-      "line": null,
+      "line": 32,
       "path": "tests/test_warm_start_cli.py",
       "url": "https://github.com/mdresch/agent-learning/pull/83#discussion_r4440330763"
     },
@@ -107,7 +107,7 @@
       "created_at": "2026-11-02T08:41:01Z",
       "id": 4440330779,
       "kind": "inline",
-      "line": null,
+      "line": 319,
       "path": "tests/test_warm_start_cli.py",
       "url": "https://github.com/mdresch/agent-learning/pull/83#discussion_r4440330779"
     },
@@ -140,7 +140,7 @@
       "created_at": "2026-11-02T08:51:54Z",
       "id": 4440419117,
       "kind": "inline",
-      "line": null,
+      "line": 1286,
       "path": "src/agent_learning/cli.py",
       "url": "https://github.com/mdresch/agent-learning/pull/83#discussion_r4440419117"
     },
@@ -162,7 +162,7 @@
       "created_at": "2026-11-02T08:51:54Z",
       "id": 4440419135,
       "kind": "inline",
-      "line": null,
+      "line": 445,
       "path": "tests/test_warm_start_cli.py",
       "url": "https://github.com/mdresch/agent-learning/pull/83#discussion_r4440419135"
     },
@@ -195,7 +195,7 @@
       "created_at": "2026-11-02T09:11:09Z",
       "id": 4440579296,
       "kind": "inline",
-      "line": null,
+      "line": 605,
       "path": "tests/test_warm_start_cli.py",
       "url": "https://github.com/mdresch/agent-learning/pull/83#discussion_r4440579296"
     },

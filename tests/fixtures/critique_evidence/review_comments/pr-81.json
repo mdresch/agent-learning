@@ -8,7 +8,7 @@
       "created_at": "2026-11-01T17:48:36Z",
       "id": 4436703859,
       "kind": "inline",
-      "line": null,
+      "line": 50,
       "path": "src/agent_learning/warm_start.py",
       "url": "https://github.com/mdresch/agent-learning/pull/81#discussion_r4436703859"
     },
@@ -19,7 +19,7 @@
       "created_at": "2026-11-01T17:48:36Z",
       "id": 4436703877,
       "kind": "inline",
-      "line": null,
+      "line": 14,
       "path": "src/agent_learning/warm_start.py",
       "url": "https://github.com/mdresch/agent-learning/pull/81#discussion_r4436703877"
     },
@@ -30,7 +30,7 @@
       "created_at": "2026-11-01T17:48:36Z",
       "id": 4436703884,
       "kind": "inline",
-      "line": null,
+      "line": 213,
       "path": "tests/test_warm_start_logits.py",
       "url": "https://github.com/mdresch/agent-learning/pull/81#discussion_r4436703884"
     },
@@ -85,7 +85,7 @@
       "created_at": "2026-11-01T18:35:50Z",
       "id": 4436851565,
       "kind": "inline",
-      "line": null,
+      "line": 232,
       "path": "tests/test_warm_start_logits.py",
       "url": "https://github.com/mdresch/agent-learning/pull/81#discussion_r4436851565"
     },
@@ -129,7 +129,7 @@
       "created_at": "2026-11-01T18:40:58Z",
       "id": 4436867977,
       "kind": "inline",
-      "line": null,
+      "line": 9,
       "path": "docs/policy-shapes/results/pmp-decision-result.json",
       "url": "https://github.com/mdresch/agent-learning/pull/81#discussion_r4436867977"
     },

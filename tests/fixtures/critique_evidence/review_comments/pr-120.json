@@ -52,7 +52,7 @@
       "created_at": "2026-11-08T15:48:46Z",
       "id": 4506797008,
       "kind": "inline",
-      "line": null,
+      "line": 244,
       "path": "tests/test_pairwise_fit.py",
       "url": "https://github.com/mdresch/agent-learning/pull/120#discussion_r4506797008"
     },

@@ -8,7 +8,7 @@
       "created_at": "2026-11-03T23:14:03Z",
       "id": 4461589420,
       "kind": "inline",
-      "line": null,
+      "line": 1215,
       "path": "src/agent_learning/cli.py",
       "url": "https://github.com/mdresch/agent-learning/pull/96#discussion_r4461589420"
     },
@@ -19,7 +19,7 @@
       "created_at": "2026-11-03T23:14:03Z",
       "id": 4461589428,
       "kind": "inline",
-      "line": null,
+      "line": 1226,
       "path": "src/agent_learning/cli.py",
       "url": "https://github.com/mdresch/agent-learning/pull/96#discussion_r4461589428"
     },
@@ -30,7 +30,7 @@
       "created_at": "2026-11-03T23:14:03Z",
       "id": 4461589435,
       "kind": "inline",
-      "line": null,
+      "line": 354,
       "path": "tests/test_meta_prior_store.py",
       "url": "https://github.com/mdresch/agent-learning/pull/96#discussion_r4461589435"
     },
@@ -41,7 +41,7 @@
       "created_at": "2026-11-03T23:14:03Z",
       "id": 4461589443,
       "kind": "inline",
-      "line": null,
+      "line": 314,
       "path": "tests/test_meta_prior_store.py",
       "url": "https://github.com/mdresch/agent-learning/pull/96#discussion_r4461589443"
     },
@@ -85,7 +85,7 @@
       "created_at": "2026-11-03T23:14:29Z",
       "id": 4461592819,
       "kind": "inline",
-      "line": null,
+      "line": 357,
       "path": "tests/test_meta_prior_store.py",
       "url": "https://github.com/mdresch/agent-learning/pull/96#discussion_r4461592819"
     },

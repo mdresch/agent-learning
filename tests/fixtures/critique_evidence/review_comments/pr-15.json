@@ -30,7 +30,7 @@
       "created_at": "2026-10-26T11:55:28Z",
       "id": 4376919900,
       "kind": "inline",
-      "line": null,
+      "line": 165,
       "path": "tests/test_methodology_examples.py",
       "url": "https://github.com/mdresch/agent-learning/pull/15#discussion_r4376919900"
     },
@@ -41,7 +41,7 @@
       "created_at": "2026-10-26T11:55:28Z",
       "id": 4376919921,
       "kind": "inline",
-      "line": null,
+      "line": 142,
       "path": "tests/test_methodology_examples.py",
       "url": "https://github.com/mdresch/agent-learning/pull/15#discussion_r4376919921"
     },

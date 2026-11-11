@@ -78,6 +78,31 @@ def test_a_pr_that_no_longer_exists_is_recorded_as_unavailable() -> None:
     assert record == {"pr": 404, "available": False, "comments": []}
 
 
+def test_a_404_on_one_source_keeps_the_comments_of_the_others() -> None:
+    responses = _pr_responses(9)
+    del responses["repos/mdresch/agent-learning/issues/9/comments"]
+    record = exp.export_pr(9, _fake_gh(responses))
+    assert record["available"] is True
+    assert {c["id"] for c in record["comments"]} == {11, 22, 44}
+
+
+def test_an_outdated_inline_comment_keeps_its_original_line() -> None:
+    responses = _pr_responses(9)
+    base = "repos/mdresch/agent-learning/pulls/9/comments"
+    responses[base][1].update({"line": None, "original_line": 3})
+    record = exp.export_pr(9, _fake_gh(responses))
+    assert next(c for c in record["comments"] if c["id"] == 11)["line"] == 3
+
+
+def test_empty_gh_output_is_a_clear_error(monkeypatch: pytest.MonkeyPatch) -> None:
+    class Done:
+        returncode, stdout, stderr = 0, "", ""
+
+    monkeypatch.setattr(exp.subprocess, "run", lambda *a, **k: Done())
+    with pytest.raises(RuntimeError, match="empty output"):
+        exp.gh_api("repos/x/pulls/1/comments")
+
+
 def test_other_gh_failures_are_not_swallowed() -> None:
     def broken(path: str) -> list[dict]:
         raise RuntimeError("gh exploded")

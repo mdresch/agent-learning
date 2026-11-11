@@ -8,7 +8,7 @@
       "created_at": "2026-11-03T23:45:42Z",
       "id": 4461817191,
       "kind": "inline",
-      "line": null,
+      "line": 83,
       "path": "tests/test_meta_prior_real_data.py",
       "url": "https://github.com/mdresch/agent-learning/pull/98#discussion_r4461817191"
     },
@@ -41,7 +41,7 @@
       "created_at": "2026-11-03T23:45:50Z",
       "id": 4461818142,
       "kind": "inline",
-      "line": null,
+      "line": 83,
       "path": "tests/test_meta_prior_real_data.py",
       "url": "https://github.com/mdresch/agent-learning/pull/98#discussion_r4461818142"
     },
@@ -63,7 +63,7 @@
       "created_at": "2026-11-03T23:45:50Z",
       "id": 4461818175,
       "kind": "inline",
-      "line": null,
+      "line": 83,
       "path": "tests/test_meta_prior_real_data.py",
       "url": "https://github.com/mdresch/agent-learning/pull/98#discussion_r4461818175"
     },

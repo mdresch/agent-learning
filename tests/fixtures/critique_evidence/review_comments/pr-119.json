@@ -19,7 +19,7 @@
       "created_at": "2026-11-08T14:19:34Z",
       "id": 4506528796,
       "kind": "inline",
-      "line": null,
+      "line": 136,
       "path": "src/agent_learning_ext/learners/pairwise.py",
       "url": "https://github.com/mdresch/agent-learning/pull/119#discussion_r4506528796"
     },
@@ -30,7 +30,7 @@
       "created_at": "2026-11-08T14:19:34Z",
       "id": 4506528802,
       "kind": "inline",
-      "line": null,
+      "line": 168,
       "path": "src/agent_learning_ext/learners/pairwise.py",
       "url": "https://github.com/mdresch/agent-learning/pull/119#discussion_r4506528802"
     },
@@ -85,7 +85,7 @@
       "created_at": "2026-11-08T14:19:38Z",
       "id": 4506528980,
       "kind": "inline",
-      "line": null,
+      "line": 138,
       "path": "src/agent_learning_ext/learners/pairwise.py",
       "url": "https://github.com/mdresch/agent-learning/pull/119#discussion_r4506528980"
     },
@@ -96,7 +96,7 @@
       "created_at": "2026-11-08T14:19:38Z",
       "id": 4506528985,
       "kind": "inline",
-      "line": null,
+      "line": 170,
       "path": "src/agent_learning_ext/learners/pairwise.py",
       "url": "https://github.com/mdresch/agent-learning/pull/119#discussion_r4506528985"
     },
@@ -107,7 +107,7 @@
       "created_at": "2026-11-08T14:19:38Z",
       "id": 4506528991,
       "kind": "inline",
-      "line": null,
+      "line": 11,
       "path": "src/agent_learning_ext/learners/pairwise.py",
       "url": "https://github.com/mdresch/agent-learning/pull/119#discussion_r4506528991"
     },

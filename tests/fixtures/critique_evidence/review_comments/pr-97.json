@@ -19,7 +19,7 @@
       "created_at": "2026-11-03T23:34:24Z",
       "id": 4461737974,
       "kind": "inline",
-      "line": null,
+      "line": 244,
       "path": "tests/test_meta_prior_seed.py",
       "url": "https://github.com/mdresch/agent-learning/pull/97#discussion_r4461737974"
     },

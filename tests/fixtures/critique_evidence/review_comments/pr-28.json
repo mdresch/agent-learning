@@ -8,7 +8,7 @@
       "created_at": "2026-10-27T04:58:55Z",
       "id": 4385228706,
       "kind": "inline",
-      "line": null,
+      "line": 37,
       "path": "tests/test_plan_parser.py",
       "url": "https://github.com/mdresch/agent-learning/pull/28#discussion_r4385228706"
     },
@@ -30,7 +30,7 @@
       "created_at": "2026-10-27T04:59:00Z",
       "id": 4385229094,
       "kind": "inline",
-      "line": null,
+      "line": 37,
       "path": "tests/test_plan_parser.py",
       "url": "https://github.com/mdresch/agent-learning/pull/28#discussion_r4385229094"
     },

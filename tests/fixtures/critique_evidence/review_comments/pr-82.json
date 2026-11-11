@@ -85,7 +85,7 @@
       "created_at": "2026-11-01T19:57:51Z",
       "id": 4437118651,
       "kind": "inline",
-      "line": null,
+      "line": 149,
       "path": "tests/test_warm_start_provenance.py",
       "url": "https://github.com/mdresch/agent-learning/pull/82#discussion_r4437118651"
     },
@@ -107,7 +107,7 @@
       "created_at": "2026-11-01T20:06:27Z",
       "id": 4437144681,
       "kind": "inline",
-      "line": null,
+      "line": 163,
       "path": "tests/test_warm_start_provenance.py",
       "url": "https://github.com/mdresch/agent-learning/pull/82#discussion_r4437144681"
     },
@@ -151,7 +151,7 @@
       "created_at": "2026-11-01T20:10:30Z",
       "id": 4437157192,
       "kind": "inline",
-      "line": null,
+      "line": 178,
       "path": "tests/test_warm_start_provenance.py",
       "url": "https://github.com/mdresch/agent-learning/pull/82#discussion_r4437157192"
     },
@@ -173,7 +173,7 @@
       "created_at": "2026-11-01T20:20:27Z",
       "id": 4437189087,
       "kind": "inline",
-      "line": null,
+      "line": 165,
       "path": "src/agent_learning/warm_start.py",
       "url": "https://github.com/mdresch/agent-learning/pull/82#discussion_r4437189087"
     },

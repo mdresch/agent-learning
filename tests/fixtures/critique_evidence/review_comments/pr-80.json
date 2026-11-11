@@ -8,7 +8,7 @@
       "created_at": "2026-10-31T07:59:49Z",
       "id": 4431023428,
       "kind": "inline",
-      "line": null,
+      "line": 73,
       "path": "src/agent_learning/pmbok_runtime/client.py",
       "url": "https://github.com/mdresch/agent-learning/pull/80#discussion_r4431023428"
     },
@@ -30,7 +30,7 @@
       "created_at": "2026-10-31T07:59:54Z",
       "id": 4431023581,
       "kind": "inline",
-      "line": null,
+      "line": 73,
       "path": "src/agent_learning/pmbok_runtime/client.py",
       "url": "https://github.com/mdresch/agent-learning/pull/80#discussion_r4431023581"
     },
@@ -52,7 +52,7 @@
       "created_at": "2026-10-31T08:05:12Z",
       "id": 4431037475,
       "kind": "inline",
-      "line": null,
+      "line": 225,
       "path": "tests/test_pmbok_client.py",
       "url": "https://github.com/mdresch/agent-learning/pull/80#discussion_r4431037475"
     },

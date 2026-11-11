@@ -8,7 +8,7 @@
       "created_at": "2026-10-30T18:44:35Z",
       "id": 4427321533,
       "kind": "inline",
-      "line": null,
+      "line": 116,
       "path": "src/agent_learning/pmbok/run_state.py",
       "url": "https://github.com/mdresch/agent-learning/pull/79#discussion_r4427321533"
     },
@@ -19,7 +19,7 @@
       "created_at": "2026-10-30T18:44:35Z",
       "id": 4427321563,
       "kind": "inline",
-      "line": null,
+      "line": 99,
       "path": "src/agent_learning/pmbok_runtime/runs.py",
       "url": "https://github.com/mdresch/agent-learning/pull/79#discussion_r4427321563"
     },
@@ -63,7 +63,7 @@
       "created_at": "2026-10-30T18:44:53Z",
       "id": 4427324040,
       "kind": "inline",
-      "line": null,
+      "line": 112,
       "path": "src/agent_learning/pmbok_runtime/runs.py",
       "url": "https://github.com/mdresch/agent-learning/pull/79#discussion_r4427324040"
     },
@@ -74,7 +74,7 @@
       "created_at": "2026-10-30T18:44:53Z",
       "id": 4427324046,
       "kind": "inline",
-      "line": null,
+      "line": 27,
       "path": "src/agent_learning/pmbok_runtime/runs.py",
       "url": "https://github.com/mdresch/agent-learning/pull/79#discussion_r4427324046"
     },
@@ -85,7 +85,7 @@
       "created_at": "2026-10-30T18:44:53Z",
       "id": 4427324055,
       "kind": "inline",
-      "line": null,
+      "line": 90,
       "path": "src/agent_learning/pmbok/run_state.py",
       "url": "https://github.com/mdresch/agent-learning/pull/79#discussion_r4427324055"
     },
@@ -96,7 +96,7 @@
       "created_at": "2026-10-30T18:44:53Z",
       "id": 4427324068,
       "kind": "inline",
-      "line": null,
+      "line": 100,
       "path": "src/agent_learning/pmbok_runtime/runs.py",
       "url": "https://github.com/mdresch/agent-learning/pull/79#discussion_r4427324068"
     },
@@ -129,7 +129,7 @@
       "created_at": "2026-10-30T18:54:25Z",
       "id": 4427405625,
       "kind": "inline",
-      "line": null,
+      "line": 135,
       "path": "src/agent_learning/pmbok_runtime/runs.py",
       "url": "https://github.com/mdresch/agent-learning/pull/79#discussion_r4427405625"
     },
@@ -162,7 +162,7 @@
       "created_at": "2026-10-30T18:54:25Z",
       "id": 4427405659,
       "kind": "inline",
-      "line": null,
+      "line": 114,
       "path": "src/agent_learning/pmbok/run_state.py",
       "url": "https://github.com/mdresch/agent-learning/pull/79#discussion_r4427405659"
     },
@@ -173,7 +173,7 @@
       "created_at": "2026-10-30T18:54:25Z",
       "id": 4427405664,
       "kind": "inline",
-      "line": null,
+      "line": 89,
       "path": "src/agent_learning/pmbok_runtime/runs.py",
       "url": "https://github.com/mdresch/agent-learning/pull/79#discussion_r4427405664"
     },
@@ -228,7 +228,7 @@
       "created_at": "2026-10-30T19:14:07Z",
       "id": 4427580047,
       "kind": "inline",
-      "line": null,
+      "line": 127,
       "path": "src/agent_learning/pmbok_runtime/runs.py",
       "url": "https://github.com/mdresch/agent-learning/pull/79#discussion_r4427580047"
     },
@@ -272,7 +272,7 @@
       "created_at": "2026-10-30T19:14:08Z",
       "id": 4427580108,
       "kind": "inline",
-      "line": null,
+      "line": 61,
       "path": "src/agent_learning/pmbok_runtime/runs.py",
       "url": "https://github.com/mdresch/agent-learning/pull/79#discussion_r4427580108"
     },
@@ -283,7 +283,7 @@
       "created_at": "2026-10-30T19:27:59Z",
       "id": 4427700812,
       "kind": "inline",
-      "line": null,
+      "line": 130,
       "path": "src/agent_learning/pmbok_runtime/runs.py",
       "url": "https://github.com/mdresch/agent-learning/pull/79#discussion_r4427700812"
     },

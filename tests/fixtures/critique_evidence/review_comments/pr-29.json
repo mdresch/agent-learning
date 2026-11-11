@@ -8,7 +8,7 @@
       "created_at": "2026-10-27T05:08:21Z",
       "id": 4385278101,
       "kind": "inline",
-      "line": null,
+      "line": 18,
       "path": "src/agent_learning/pmbok/lint.py",
       "url": "https://github.com/mdresch/agent-learning/pull/29#discussion_r4385278101"
     },
@@ -19,7 +19,7 @@
       "created_at": "2026-10-27T05:08:21Z",
       "id": 4385278118,
       "kind": "inline",
-      "line": null,
+      "line": 218,
       "path": "tests/test_plan_metadata.py",
       "url": "https://github.com/mdresch/agent-learning/pull/29#discussion_r4385278118"
     },
@@ -41,7 +41,7 @@
       "created_at": "2026-10-27T05:08:23Z",
       "id": 4385278280,
       "kind": "inline",
-      "line": null,
+      "line": 18,
       "path": "src/agent_learning/pmbok/lint.py",
       "url": "https://github.com/mdresch/agent-learning/pull/29#discussion_r4385278280"
     },

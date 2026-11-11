@@ -48,6 +48,8 @@ def gh_api(path: str) -> list[dict[str, Any]]:
         if "404" in run.stderr or "Not Found" in run.stderr:
             raise NotFound(path)
         raise RuntimeError(f"gh api {path} failed: {run.stderr.strip()}")
+    if not run.stdout.strip():
+        raise RuntimeError(f"gh api {path} returned empty output")
     pages = json.loads(run.stdout)
     return [item for page in pages for item in (page if isinstance(page, list) else [page])]
 
@@ -68,7 +70,7 @@ def _record(kind: str, item: dict[str, Any]) -> dict[str, Any]:
         "created_at": item.get("created_at") or item.get("submitted_at"),
         "commit": item.get("commit_id"),
         "path": item.get("path"),
-        "line": item.get("line"),
+        "line": item.get("line") or item.get("original_line"),
         "body": item.get("body") or "",
         "url": item.get("html_url"),
     }
@@ -83,10 +85,15 @@ def export_pr(pr: int, run: Runner, reviewers: Sequence[str] = DEFAULT_REVIEWERS
         ("issue", f"{base}/issues/{pr}/comments"),
     )
     comments: list[dict[str, Any]] = []
-    try:
-        for kind, path in sources:
-            comments += [_record(kind, i) for i in run(path) if _wanted(_login(i), reviewers)]
-    except NotFound:
+    missing = 0
+    for kind, path in sources:
+        try:
+            items = run(path)
+        except NotFound:
+            missing += 1  # one source gone is an empty source; all three gone is a missing PR
+            continue
+        comments += [_record(kind, i) for i in items if _wanted(_login(i), reviewers)]
+    if missing == len(sources):
         return {"pr": pr, "available": False, "comments": []}
     comments.sort(key=lambda c: (c["created_at"] or "", c["kind"], c["id"]))
     return {"pr": pr, "available": True, "comments": comments}

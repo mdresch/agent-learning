@@ -20,7 +20,11 @@ The scores file is JSON. Evidence supports are assessments (the assessor's readi
     {"task_id": "approve-adaptation-plan", "subject": "ADP-20261110-002", "task": "Approve, reject or request revision of ...",
      "criteria": [{"id": "validation_and_rollback", "weight": 1.0, "description": "..."}],
      "options": {"approve_adaptation_plan": {"validation_and_rollback": {"support": 0.9, "confidence": 0.85, "source": "..."}}, ...},
-     "constraints": ["no_unfixed_critical_flaw"]}
+     "constraints": ["no_unfixed_critical_flaw"],
+     "constraint_results": {"reject_adaptation_plan": {"no_unfixed_critical_flaw": false}}}
+
+``constraint_results`` is optional. A constraint with no stated result for an option is taken as satisfied, and ``decide``
+says which options that applies to, so a failing constraint is never hidden by a default.
 
 Every action of ``docs/policy-shapes/<task_id>.actions.json`` needs an option, and every option needs every criterion.
 """
@@ -31,6 +35,7 @@ import argparse
 import hashlib
 import importlib.util
 import json
+import re
 import sys
 import uuid
 from datetime import date
@@ -43,7 +48,8 @@ AGENT_ID = "agent-learning-governance"
 
 def _load_stage16():
     spec = importlib.util.spec_from_file_location("stage16_amend", ROOT / "scripts" / "stage16_amend.py")
-    assert spec is not None and spec.loader is not None
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"Cannot load stage16_amend from {ROOT / 'scripts' / 'stage16_amend.py'}")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
@@ -108,10 +114,25 @@ def validate(scores: dict) -> None:
                     raise s16.Stop(f"{action} / {cid}: {field} must be a number between 0 and 1.")
             if not ev.get("source"):
                 raise s16.Stop(f"{action} / {cid}: the evidence needs a source.")
+    constraints = scores.get("constraints") or ["no_unfixed_critical_flaw"]
+    for action, results in (scores.get("constraint_results") or {}).items():
+        if action not in actions:
+            raise s16.Stop(f"constraint_results names {action!r}, which is not an action of {scores['task_id']}.")
+        for name, value in results.items():
+            if name not in constraints or not isinstance(value, bool):
+                raise s16.Stop(f"constraint_results / {action} / {name}: use a listed constraint and true or false.")
+
+
+def assumed_constraints(scores: dict) -> list[str]:
+    """The options whose constraint results were not stated, so were taken as satisfied."""
+    constraints = scores.get("constraints") or ["no_unfixed_critical_flaw"]
+    stated = scores.get("constraint_results") or {}
+    return [a for a in scores["options"] if any(name not in stated.get(a, {}) for name in constraints)]
 
 
 def build_frame(scores: dict) -> dict:
     constraints = scores.get("constraints") or ["no_unfixed_critical_flaw"]
+    stated = scores.get("constraint_results") or {}
     ids = [c["id"] for c in scores["criteria"]]
     return {
         "task": scores["task"],
@@ -131,7 +152,7 @@ def build_frame(scores: dict) -> dict:
                     }
                     for cid in ids
                 ],
-                "constraint_results": {name: True for name in constraints},
+                "constraint_results": {name: bool(stated.get(action, {}).get(name, True)) for name in constraints},
             }
             for action, ev in scores["options"].items()
         ],
@@ -150,7 +171,7 @@ def _paths(subject: str, tag: str) -> dict[str, Path]:
     return {
         "frame": SHAPES / "decision-frames" / f"{base}-approval.json",
         "result": SHAPES / "results" / f"{base}-decision-result.json",
-        "comparison": SHAPES / "results" / f"{base}-comparison.json",
+        "comparison": SHAPES / "results" / f"{base}-comparison.txt",
         "adjudicated": SHAPES / "results" / f"{base}-adjudication-result.json",
         "state": SHAPES / "results" / f"{base}-approval-state.json",
         "episode": SHAPES / "episodes" / f"{base}-episode.json",
@@ -198,11 +219,13 @@ def decide(scores_path: Path | str, tag: str | None = None) -> int:
     if len(ranking) > 1:
         print(f"  margin to runner-up {ranking[0][0] - ranking[1][0]:.3f}")
     if previous:
-        comparison = _parse_json(
-            agent_learn("task-policy-compare", "--sequence", str(previous[-1]), str(paths["result"]))
-        )
-        _write(paths["comparison"], comparison)
-        print(f"  compared with {previous[-1].name}: {comparison.get('classification')}: {comparison.get('classification_reason')}")
+        text = agent_learn("task-policy-compare", "--sequence", str(previous[-1]), str(paths["result"]))
+        paths["comparison"].write_text(text, encoding="utf-8")  # the CLI prints text, not JSON
+        found = re.search(r"^Classification: (.+)$", text, re.MULTILINE)
+        print(f"  compared with {previous[-1].name}: {found.group(1) if found else 'see ' + paths['comparison'].name}")
+    assumed = assumed_constraints(scores)
+    if assumed:
+        print(f"  constraints taken as satisfied (no result stated) for: {', '.join(assumed)}")
     print(f"  evidence: {paths['frame'].relative_to(ROOT).as_posix()} (+ result)")
     print("\nNothing is registered. If you decide, run:")
     print(f'  uv run python scripts/approve.py register {subject} --tag {tag} --by "<your name>" --disposition accept|reject --summary "<one line>"')
@@ -254,7 +277,10 @@ def register(subject: str, tag: str | None, by: str, disposition: str, summary: 
         )
     )
     _write(paths["adjudicated"], adjudicated)
-    chosen = (adjudicated.get("selected_action") or adjudicated.get("proposed_action") or {}).get("id")
+    rejected_ids = adjudicated.get("rejected_action_ids") or []
+    chosen = (adjudicated.get("selected_action") or adjudicated.get("proposed_action") or {}).get("id") or (
+        rejected_ids[0] if disposition == "reject" and rejected_ids else None
+    )
     if not chosen:
         raise s16.Stop("The adjudication named no action; nothing was registered.")
     best = next((a for a in adjudicated["assessments"] if a["action"]["id"] == chosen), {})
@@ -285,7 +311,6 @@ def register(subject: str, tag: str | None, by: str, disposition: str, summary: 
             "feedback_status": "adjudicated",
             "decision_disposition": "accepted" if disposition == "accept" else "rejected",
             "selection_basis": adjudicated.get("selection_basis", "bayesian_decision"),
-            "correct_action_id": chosen,
             "task_completed": True,
             "robust_utility": best.get("robust_utility"),
             "expected_utility": best.get("expected_utility"),
@@ -294,6 +319,10 @@ def register(subject: str, tag: str | None, by: str, disposition: str, summary: 
             "frame_sha256": state["frame_sha256"],
         },
     }
+    if disposition == "accept":
+        episode["metadata"]["correct_action_id"] = chosen  # a rejection does not say which action was right
+    else:
+        episode["metadata"]["rejected_action_id"] = chosen
     _write(paths["episode"], episode)
     agent_learn(
         "task-episode-register", "--agent-id", AGENT_ID, "--task-id", task_id,

@@ -54,6 +54,25 @@ ADJUDICATED = {
 }
 
 
+# What the real CLI prints (checked against `task-policy-compare` and a live `task-policy-adjudicate --disposition reject`):
+COMPARE_TEXT = (
+    "=== Comparison: a.json -> b.json ===\n"
+    "Policy: p1 (v0) -> p1 (v0)\n"
+    "Classification: PROGRESSION (margin widened by +0.0122; robust utility rose by +0.0122)\n"
+    "Leader: approve_adr -> approve_adr (changed: False, feasible: True)\n"
+)
+REJECTED = {
+    "policy_id": "p1",
+    "policy_version": 0,
+    "status": "rejected",
+    "selected_action": None,
+    "proposed_action": None,
+    "rejected_action_ids": [ACTIONS[0]],
+    "selection_basis": "bayesian_decision",
+    "assessments": DECISION["assessments"],
+}
+
+
 class Cli:
     """Stands in for ``approve.agent_learn``: records the calls and answers with canned JSON."""
 
@@ -65,9 +84,9 @@ class Cli:
         if args[0] == "task-policy-decide":
             return json.dumps(DECISION)
         if args[0] == "task-policy-adjudicate":
-            return json.dumps(ADJUDICATED)
+            return json.dumps(REJECTED if "reject" in args else ADJUDICATED)
         if args[0] == "task-policy-compare":
-            return json.dumps({"classification": "progression", "classification_reason": "margin widened"})
+            return COMPARE_TEXT
         return "{}"
 
     def names(self) -> list[str]:
@@ -162,7 +181,8 @@ def test_decide_compares_with_the_previous_result_of_the_same_subject(env: dict)
     assert env["cli"].names().count("task-policy-compare") == 1
     compare = next(c for c in env["cli"].calls if c[0] == "task-policy-compare")
     assert "ADP-TEST-2026-01-01-decision-result.json" in " ".join(compare)
-    assert (env["shapes"] / "results" / "ADP-TEST-2026-02-01-comparison.json").is_file()
+    saved = (env["shapes"] / "results" / "ADP-TEST-2026-02-01-comparison.txt").read_text(encoding="utf-8")
+    assert "Classification: PROGRESSION" in saved
 
 
 def test_decide_does_not_overwrite_an_earlier_run(env: dict) -> None:
@@ -220,12 +240,52 @@ def test_register_adjudicates_then_registers_the_episode_once(env: dict) -> None
         ap.register("ADP-TEST", tag="t1", by="Menno", disposition="accept", summary="again")
 
 
-def test_a_rejection_is_recorded_as_rejected(env: dict) -> None:
+def test_a_rejection_is_recorded_as_rejected_and_names_no_correct_action(env: dict) -> None:
+    """The real CLI answers a rejection with no selected or proposed action; the action is in rejected_action_ids."""
     ap.decide(_write(env), tag="t1")
     ap.register("ADP-TEST", tag="t1", by="Menno", disposition="reject", summary="not ready")
     episode = json.loads((env["shapes"] / "episodes" / "ADP-TEST-t1-episode.json").read_text(encoding="utf-8"))
-    assert episode["metadata"]["decision_disposition"] == "rejected"
+    meta = episode["metadata"]
+    assert meta["decision_disposition"] == "rejected" and meta["rejected_action_id"] == ACTIONS[0]
+    assert "correct_action_id" not in meta  # a rejection must not label the rejected action as correct
+    assert "Rejected by Menno" in episode["result_summary"]
     assert "--disposition" in env["cli"].calls[-2] and "reject" in env["cli"].calls[-2]
+
+
+def test_an_accepted_episode_names_the_correct_action(env: dict) -> None:
+    ap.decide(_write(env), tag="t1")
+    ap.register("ADP-TEST", tag="t1", by="Menno", disposition="accept", summary="approved")
+    meta = json.loads((env["shapes"] / "episodes" / "ADP-TEST-t1-episode.json").read_text(encoding="utf-8"))["metadata"]
+    assert meta["correct_action_id"] == ACTIONS[0] and "rejected_action_id" not in meta
+
+
+# --- constraint results ----------------------------------------------------------------------------------------
+
+
+def test_a_stated_failing_constraint_reaches_the_frame(env: dict) -> None:
+    scores = _scores(constraint_results={ACTIONS[0]: {"no_unfixed_critical_flaw": False}})
+    ap.validate(scores)
+    first = next(o for o in ap.build_frame(scores)["options"] if o["action_id"] == ACTIONS[0])
+    assert first["constraint_results"] == {"no_unfixed_critical_flaw": False}
+
+
+def test_decide_says_which_options_had_their_constraints_taken_as_satisfied(
+    env: dict, capsys: pytest.CaptureFixture[str]
+) -> None:
+    scores = _scores(constraint_results={ACTIONS[0]: {"no_unfixed_critical_flaw": True}})
+    ap.decide(_write(env, scores), tag="t1")
+    out = capsys.readouterr().out
+    assert "taken as satisfied" in out and ACTIONS[1] in out and ACTIONS[2] in out
+    assert f"for: {ACTIONS[0]}" not in out
+
+
+@pytest.mark.parametrize(
+    "bad",
+    [{"made_up": {"no_unfixed_critical_flaw": True}}, {ACTIONS[0]: {"unlisted": True}}, {ACTIONS[0]: {"no_unfixed_critical_flaw": "yes"}}],
+)
+def test_constraint_results_must_name_real_actions_and_constraints(env: dict, bad: dict) -> None:
+    with pytest.raises(ap.s16.Stop, match="constraint_results"):
+        ap.validate(_scores(constraint_results=bad))
 
 
 def test_register_refuses_a_disposition_other_than_accept_or_reject(env: dict) -> None:

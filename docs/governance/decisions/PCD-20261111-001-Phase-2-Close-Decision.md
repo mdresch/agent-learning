@@ -35,6 +35,40 @@ Phase 2 delivered its technical scope: every story of the six baseline epics is 
 - [ ] Strategic pivot capacity validated: not computed (IRP section 4)
 - [ ] Intent Refinement Proposal approved: pending
 
+## Hypotheses at close (27)
+
+Source: `Ideation-Document.md` section 2.2, status column as recorded. 8 Validated (001, 002, 003, 006, 008, 009, 026, 027), 2 Testing (004, 005), 17 Formulated (007, 010 to 025). HYP-AL-028 is not registered yet (GC-P2-05, deferred to Phase 3). The IRP (section 2) proposes carrying the 19 non-validated forward unchanged; the Sponsor decides.
+
+| HYP-AL | Type | Status | Claim (shortened) |
+|---|---|---|---|
+| 001 | Value | Validated | A 2–3 action softmax bandit with REINFORCE-with-baseline can earn autonomy |
+| 002 | Technical | Validated | Positive-only history cannot earn autonomy for a low-authority bandit |
+| 003 | Feasibility | Validated | Full-authority resolution can decide a per-instance case on the first attempt |
+| 004 | Adoption | Testing | The packaged softmax/REINFORCE path suffices for most real decisions |
+| 005 | Value | Testing (active for Phase 2) | Experience-reflection-retry learning converges faster |
+| 006 | Feasibility | Validated | Classifying only what changed against a frozen baseline works |
+| 007 | Value | Formulated | A diff-type category's escalation can be learned by low-authority REINFORCE |
+| 008 | Feasibility | Validated | Warm-starting from a similar converged policy cuts episodes needed |
+| 009 | Technical | Validated | Thompson/UCB crosses the autonomy gate that defeated REINFORCE |
+| 010 | Feasibility | Formulated | Offline scored-search can find `DecisionResolver` weights |
+| 011 | Adoption | Formulated | A hosted governance-as-a-service layer has paying demand |
+| 012 | Technical | Formulated | A confidence-interval bandit can replace ADPA's hand-set constants |
+| 013 | Feasibility | Formulated | A policy trained on ADPA's audit-ledger verdicts is feasible |
+| 014 | Technical | Formulated | The same approach replaces a third system's hand-set constants |
+| 015 | Feasibility | Formulated | Adaptive pairwise comparison (dueling bandit) is feasible |
+| 016 | Technical | Formulated | A learned policy can replace SIDPA's static confidence-factor bands |
+| 017 | Feasibility | Formulated | Capability-filtered model selection by a low-authority policy |
+| 018 | Technical | Formulated | A linear contextual bandit reaches the gate in fewer episodes |
+| 019 | Technical | Formulated | A conformal abstention rule gives a calibrated "defer to a human" |
+| 020 | Technical | Formulated | Off-policy evaluation ranks policies as running them would |
+| 021 | Technical | Formulated | A discounted or windowed update recovers faster after a shift |
+| 022 | Feasibility | Formulated | Hard action masking enforces ADR-011's floors and caps |
+| 023 | Value | Formulated | Active-learning triage catches more wrong autonomous decisions |
+| 024 | Feasibility | Formulated | Outcome-conditioned exemplar selection, recorded in episode metadata |
+| 025 | Technical | Formulated | Governance-integrated learning (SPARK-001) |
+| 026 | Technical | Validated (Phase 1 Close) | Cognitive feedback damping (SPARK-002) |
+| 027 | Feasibility | Validated (Phase 1 Close) | Adaptive capacity management (SPARK-003) |
+
 ## Next steps if approved
 
 1. Register the approval episode and set the Phase 3 baseline id.

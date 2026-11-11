@@ -21,6 +21,19 @@ A simple confirmation that the test suite was run and what it reported. Stage 10
 | Result | **2723 passed, 2 skipped, 0 failed**, 175 s |
 | Skipped | Java (Spark) and POSIX Bash tests, which skip when their tool is absent |
 
+## Scope of the run
+
+Counted from `uv run pytest --collect-only -q` on the same commit.
+
+| Measure | Value |
+|---|---|
+| Test folders | 2: `tests/` (2633 tests) and `tests/pmbok` (91 tests); `tests/fixtures` holds data, not tests |
+| Test files | 144 |
+| Module families (first word of the test file name after `test_`) | 65 |
+| Tests collected | 2724 |
+
+Collection reports 2724 tests; the run reported 2725 outcomes (2723 passed plus 2 skipped). The one-test difference is not explained here.
+
 ## Limits
 
 - **CI is narrower.** `.github/workflows/tests.yaml` still runs `pytest --ignore=tests/pmbok` (IMP-056), so a green CI is not this run.

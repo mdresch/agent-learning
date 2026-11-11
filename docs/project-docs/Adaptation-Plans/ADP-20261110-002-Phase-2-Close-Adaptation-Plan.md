@@ -6,7 +6,7 @@ baseline_to: "PMP-BL-v1.1.0 (unchanged: Phase 2 closes under it, CR-20261109-001
 version: "1.0"
 date: "2026-11-10"
 prepared_by: "Claude (draft for the Project Sponsor)"
-status: "approved by the Project Sponsor 2026-11-10; nothing in it is applied yet"
+status: "approved by the Project Sponsor 2026-11-10; Stage 17 recorded COMPLETED by the Sponsor 2026-11-11 (GC-P2-01 to 03 applied, GC-P2-04 to 07 and IMP-050, IMP-031 deferred to Phase 3)"
 related_stage_16: "Status-Reports/Stage-16-Governance-Change-Phase2.md (approved 2026-11-10)"
 related_change_requests:
   - "CR-20261109-001"

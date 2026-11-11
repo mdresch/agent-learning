@@ -101,6 +101,16 @@ Two facts in it are new to the skill and are checked against the repository: the
 
 Rows 12 and 13 are code and tests, so they follow section 4c's script as a separate improvement; rows 11 and 14 are text and go with the PR of this request. Recommendation: start with the rows by hand under row 11 for the next story, and add the script only after one real row shows which cells are worth automating. That matches the register's own rule that nothing is built before a real case exists.
 
+### 4e. Future: a Task Ownership Register for a swarm of agents (noted, not built)
+
+Sponsor direction, 2026-11-11: when several agents work in parallel they will need a register where they bid on the tasks to be done, and where the win assigns ownership to one agent. Nothing exists for this and no case has run, so this request only records the need and its relation to 4d.
+
+- It is a separate register from the Story Execution Register: that one records which steps of a story completed; this one would record who owns which task (task id, bids, the awarded agent, status, who decided).
+- The Story Execution Register would gain an `Owner` column once ownership exists, so 4d should not hard-code a single actor.
+- Open design points, to settle with a real multi-agent case first: how a bid is scored (this repository's own decision machinery is the obvious candidate), whether a human approves each award or only above a risk tier, how an abandoned or stalled task is released, and how two agents are kept from claiming the same worktree (LL-042: an existing story branch means a run was already started).
+- Same rule as the Story Execution Register: no TaskPolicy and no invented bids until a real case shows the decision shape.
+- Proposed route: register it as an `IMP-###` for the next phase (Continuous Improvement Register) so it reaches the Stage 18 input; not part of this PR.
+
 ## 5. Out of scope
 
 - Any Tier 3 (`sidpa-template`) change; each stays "proposed, needs human approval before any cross-repo change".

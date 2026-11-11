@@ -4,7 +4,7 @@ change_request_id: "CR-20261111-001"
 stage: "16"
 evidence_basis: "execution"
 current_baseline: "PMP-BL-v1.1.0"
-status: "draft_awaiting_sponsor_decision"
+status: "sponsor_approved_build_deferred_to_phase_3"
 date: "2026-11-11"
 requested_by: "Menno Drescher"
 drafted_by: "assistant (draft only; nothing in section 4 is applied)"
@@ -12,7 +12,7 @@ drafted_by: "assistant (draft only; nothing in section 4 is applied)"
 
 # Manual Change Request: Tier 2 Text Backfill (GC-P2-04), the Step 8 Checklist (IMP-050) and the Tier 2 Check (IMP-031)
 
-> **Status:** Draft. The Sponsor decides the wording of section 4 (accept, change or strike each row). On approval one PR applies it. Same route as CR-20261110-001.
+> **Status:** Approved by the Project Sponsor on 2026-11-11 (section 6). Nothing in it is applied now: the build is deferred to Phase 3.
 
 ## 1. Request
 
@@ -135,7 +135,7 @@ Order: items 1 and 2 first, since the others depend on them. Route: an `IMP-###`
 
 | Role | Decision | Date |
 |---|---|---|
-| Project Sponsor | Pending: per row of section 4 (accept, change, strike); the row 7 question; whether to build the script of section 4c; hand-filled rows first or the script of section 4d | |
+| Project Sponsor | Approved as drafted, to be built in Phase 3, not now (the wording of section 4 is not changed by this decision) | 2026-11-11 |
 
 ## 7. Procedure after approval
 
@@ -143,3 +143,5 @@ Order: items 1 and 2 first, since the others depend on them. Route: an `IMP-###`
 2. `uv run pytest` (whole suite; `tests/test_project_status_register.py` reads `implement-story`) and `scripts/pr_gate.py`.
 3. Mark GC-P2-04, IMP-050 and IMP-031 in `ADP-20261110-002` and the Continuous Improvement Register as applied, through their own record, not by editing this request.
 4. If approved, the script of section 4c follows as its own improvement.
+
+The decision was given by Menno Drescher in the working session of 2026-11-11 ("that finishes the Change Request and its approved to be build in phase 3 not now") and is recorded here from that statement. The Phase 2 Close Adaptation Plan listed GC-P2-04 as Phase 2 work; its status moves with this decision (a separate record, not an edit of this request).

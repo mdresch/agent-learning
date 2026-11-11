@@ -1,14 +1,3 @@
 {
-  "mcpServers": {
-    "governance": {
-      "command": "node",
-      "args": [
-        "governance-orchestrator/node_modules/tsx/dist/cli.mjs",
-        "governance-orchestrator/mcp/server.ts"
-      ],
-      "env": {
-        "GOVERNANCE_APPROVAL_SECRET": "${GOVERNANCE_APPROVAL_SECRET}"
-      }
-    }
-  }
+  "mcpServers": {}
 }

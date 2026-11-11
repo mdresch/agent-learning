@@ -3372,7 +3372,7 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Tests:** fake `gh` runner for the script; an offline check that every PR with a triage line has a fixture and that the index matches the dataset. RED observed (module missing, then 29 fixtures missing).
 - **Not done:** filling `comment_ids` (manual, the tagger's work).
 - **Review fix and triage (round 1 on `cba5e47`).** Rows proposed by Claude from live checks, **awaiting Menno's decision**; Cursor Bugbot's two findings (partial 404 wiping a fixture; outdated comments losing `original_line`) are the same defects as Q-198-1 and a confirmed one, both fixed.
-  - `Q-198-1 | logic error | verified: yes | decision: accepted | a 404 on one of the three sources discarded the others and wrote an unavailable record, which a re-run could use to erase committed comments; now a PR is unavailable only when all three 404 | fix: pending`
-  - `Q-198-2 | crash risk | verified: partial | decision: accepted | gh exiting 0 with empty stdout is unlikely but the guard is one line and the error is clearer | fix: pending`
-  - `Q-198-3 | test gap | verified: yes | decision: accepted | no test covered a partial 404; added with tests for original_line and empty output, seen failing first | fix: pending`
+  - `Q-198-1 | logic error | verified: yes | decision: accepted | a 404 on one of the three sources discarded the others and wrote an unavailable record, which a re-run could use to erase committed comments; now a PR is unavailable only when all three 404 | fix: 99c7515`
+  - `Q-198-2 | crash risk | verified: partial | decision: accepted | gh exiting 0 with empty stdout is unlikely but the guard is one line and the error is clearer | fix: 99c7515`
+  - `Q-198-3 | test gap | verified: yes | decision: accepted | no test covered a partial 404; added with tests for original_line and empty output, seen failing first | fix: 99c7515`
 - **CI:** `test` failed on `tests/test_methodology_examples.py::test_ac2_example_runs_offline_and_exits_zero[9]` (Thompson example seed 9, Linux only; passes locally in the full suite). Not touched by this PR.

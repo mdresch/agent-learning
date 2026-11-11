@@ -40,9 +40,9 @@ Source: `Status-Reports/Stage-12-Actual-Outcome-Assessment-Phase2.md`, `Project-
 | Stage 15 lessons | Accepted (LL-001 to LL-067) | `Lessons-Learned-Register.md` |
 | Stage 16 governance change | Approved by the Sponsor 2026-11-10 | `Status-Reports/Stage-16-Governance-Change-Phase2.md` |
 | Stage 17 adaptation | Completed 2026-11-11: GC-P2-01 to 03 applied; GC-P2-04 to 07 deferred to Phase 3 | `ADP-20261110-002`, PR #203 |
-| Open pull requests | None | `gh pr list` |
+| Open pull requests | At drafting only #205, which carries this IRP and the PCD; #204 merged 2026-11-11. None once #205 merges | `gh pr list` |
 
-Charter criteria not met (from the Stage 12 report, section 2): criterion 2 (hypotheses HYP-AL-005, 018, 025, 026, 027 resolved with empirical evidence: HYP-AL-005 is Testing, 018 and 025 Formulated) and criterion 5 (`PCD-Phase2` approved, which is this decision).
+Charter criteria not met (from the Stage 12 report, section 2): criterion 2 (hypotheses HYP-AL-005, 018, 025, 026, 027 resolved with empirical evidence): three are unresolved, HYP-AL-005 Testing and 018 and 025 Formulated; 026 and 027 are Validated, at the Phase 1 close, so they were not resolved by Phase 2 work and criterion 5 (`PCD-Phase2` approved, which is this decision).
 
 Exceptions, in one line each:
 - CI still runs `pytest --ignore=tests/pmbok` (IMP-056), so a green CI is not the whole suite.

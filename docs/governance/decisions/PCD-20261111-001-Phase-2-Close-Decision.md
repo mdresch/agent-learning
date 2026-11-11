@@ -25,7 +25,7 @@ related_proposal: "IRP-20261111-001"
 
 ## Rationale (for the Sponsor to confirm or change)
 
-Phase 2 delivered its technical scope: every story of the six baseline epics is implemented and the whole suite passes (2723 passed, 2 skipped). The audit (Stage 11) was approved twice and the Stage 16 and 17 changes are approved and applied, except the items the Sponsor moved to Phase 3. Two charter success criteria are not met: hypotheses HYP-AL-005, 018 and 025 are not resolved with empirical evidence, and this decision is itself criterion 5. The IRP proposes carrying the 19 non-terminal hypotheses to Phase 3 rather than collapsing them to refuted.
+Phase 2 delivered its technical scope: every story of the six baseline epics is implemented and the whole suite passes (2723 passed, 2 skipped). The audit (Stage 11) was approved twice and the Stage 16 and 17 changes are approved and applied, except the items the Sponsor moved to Phase 3. Two charter success criteria are not met: of the five hypotheses named in criterion 2 (HYP-AL-005, 018, 025, 026, 027), three are not resolved with empirical evidence (005 Testing, 018 and 025 Formulated; 026 and 027 were Validated at the Phase 1 close), and this decision is itself criterion 5. The IRP proposes carrying the 19 non-terminal hypotheses to Phase 3 rather than collapsing them to refuted.
 
 ## Evidence
 

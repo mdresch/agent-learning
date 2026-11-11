@@ -3385,3 +3385,11 @@ This log records completed user stories in accordance with the SIDPA `implement-
 
 ## IMP-015 — correction, 2026-11-11
 - **Correction:** the entry above says `comment_ids` is "the tagger's work". WARNING: filling comment_ids is optional and is NOT a workflow step. It would mean matching 139 findings to GitHub comments by hand, an excessive amount of manual work; nothing reads it (pr_gate.py does not). Leave it empty unless a pairing is proposed and only spot-checked. The Story 14.5 requirement (the original comment text beside each finding) is met by the 29 `pr-<N>.json` files.
+
+## Stage 18 — IRP and PCD drafts for the Phase 2 close (PR #205)
+- **Date:** 2026-11-11
+- **Branch:** `docs/stage-18-irp-pcd-drafts`
+- **What:** drafts of `IRP-20261111-001` and `PCD-20261111-001`; documents only, nothing approved.
+- **Amazon Q triage (round 1 on `d7d6476`), proposed by Claude from the files, awaiting Menno's decision:**
+  - `Q-205-1 | documentation | verified: yes | decision: accepted | the readiness row said no open pull requests while #205 itself was open; now states #205 at drafting and none once it merges | fix: pending`
+  - `Q-205-2 | documentation | verified: yes | decision: accepted | the PCD rationale named three of the five criterion-2 hypotheses; now says three are unresolved and 026 and 027 were validated at the Phase 1 close | fix: pending`

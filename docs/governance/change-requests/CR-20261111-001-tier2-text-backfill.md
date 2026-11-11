@@ -70,14 +70,13 @@ Step 8 round checklist (copy per round; fill the <>)
 [ ] one triage line per finding, in implementation-log.md:
       Q-<n>-<k> | <logic error|crash risk|test gap|documentation|style> | verified: <yes|no|partial|unknown> | decision: <accepted|declined|deferred> | <reason> | fix: <sha|none>
 [ ] uv run pytest tests/test_review_triage.py tests/test_critique_replay.py
-[ ] final round only, as its own comment (not the last line of another):
-      MSYS_NO_PATHCONV=1 gh pr comment <n> --repo mdresch/agent-learning --body "/q confirm whether every earlier finding is resolved in this commit and list anything remaining"
+[ ] every round, including the last, the same and only command: /q review (Sponsor, 2026-11-11: `/q confirm` is not a Q command)
 [ ] uv run python scripts/pr_gate.py <n>
 [ ] uv run python scripts/pr_gate.py <n> --merge
 Round log: <round> | <sha> | <findings> | <verdict>
 ````
 
-Two facts in it are new to the skill and are checked against the repository: the gate command is `scripts/pr_gate.py` (Step 8.8, 8.9), and the register entry names `/q confirm` as the text that failed when bare. A halt that remains after fixes is not a checklist item; it goes to the Sponsor (waiver route of `## IMP-007` and `## IMP-015` in the log, IMP-065).
+Two facts in it are new to the skill and are checked against the repository: the gate command is `scripts/pr_gate.py` (Step 8.8, 8.9), and the register entry quotes a bare `/q confirm` that Q answered with "too ambiguous to act on". `/q confirm` is not a Q command (Sponsor, 2026-11-11); `/q review` is the only one. Step 8.6 and LL-004 of `implement-story` still tell the agent to use `/q confirm` and are wrong on this point; correcting them is part of the Phase 3 build. A halt that remains after fixes is not a checklist item; it goes to the Sponsor (waiver route of `## IMP-007` and `## IMP-015` in the log, IMP-065).
 
 ### 4c. IMP-031: LL-045 and LL-048, and the LL-041 check
 

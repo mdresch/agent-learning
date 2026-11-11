@@ -59,6 +59,8 @@ Source: `Ideation-Document.md` section 2.2 status column. **Bayes factors are no
 | Testing | 2 | HYP-AL-004, 005 |
 | Formulated | 17 | HYP-AL-007, 010 to 025 |
 
+The full list of the 27 with type, status and claim is in the PCD (`docs/governance/decisions/PCD-20261111-001-Phase-2-Close-Decision.md`, section "Hypotheses at close").
+
 HYP-AL-028 (DPO sample efficiency) is **not yet registered** in the Ideation Document; registering it is GC-P2-05, deferred to Phase 3.
 
 **Exception to the methodology (Success Criteria: 100% terminal resolution):** 19 of 27 hypotheses are not in a terminal state. The methodology's collapse rule would score an inconclusive hypothesis as refuted. Proposed instead: carry the 19 forward unchanged to Phase 3, because the evidence they need (for example HYP-AL-009's and HYP-AL-013's external stores, LL-065) is outside the repository. **The Sponsor decides** whether to carry them forward or apply the collapse rule.

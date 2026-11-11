@@ -1,0 +1,133 @@
+{
+  "task": "Phase 2 Close Decision PCD-20261111-001 with IRP-20261111-001: approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "readiness_evidence",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Stages 9 to 17 are evidenced and the exceptions are disclosed"
+    },
+    {
+      "id": "hypothesis_honesty",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "No Bayes factor or outcome figure is invented; the 19 non-terminal hypotheses are carried forward, not forced to a verdict"
+    },
+    {
+      "id": "gap_disclosure",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Unmet Charter criteria, waivers and not-applicable steps are stated"
+    },
+    {
+      "id": "phase3_seed_completeness",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Deferred items and open decisions are carried into the Phase 3 input"
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_intent_refinement",
+      "evidence": [
+        {
+          "criterion_id": "readiness_evidence",
+          "source": "IRP section 1 against the Stage 10, 11, 12, 15, 16, 17 records",
+          "support": 0.9,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "hypothesis_honesty",
+          "source": "IRP section 2; 27 hypotheses listed in the PCD with recorded status; Sponsor 2026-11-11: carry the 19 to Phase 3",
+          "support": 0.9,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "gap_disclosure",
+          "source": "IRP section 1 exceptions; steps 4 and 5 recorded not applicable by the Sponsor",
+          "support": 0.9,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "phase3_seed_completeness",
+          "source": "IRP section 5 against the handover and CR-20261111-001",
+          "support": 0.85,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_intent_refinement",
+      "evidence": [
+        {
+          "criterion_id": "readiness_evidence",
+          "source": "no blocker found in the readiness check",
+          "support": 0.1,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "hypothesis_honesty",
+          "source": "no fabricated figure found",
+          "support": 0.1,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "gap_disclosure",
+          "source": "gaps are disclosed",
+          "support": 0.1,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "phase3_seed_completeness",
+          "source": "inputs are carried",
+          "support": 0.1,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": false
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "readiness_evidence",
+          "source": "Stage 10 to 12 records are complete",
+          "support": 0.3,
+          "confidence": 0.7
+        },
+        {
+          "criterion_id": "hypothesis_honesty",
+          "source": "the carry-forward is now decided by the Sponsor",
+          "support": 0.2,
+          "confidence": 0.7
+        },
+        {
+          "criterion_id": "gap_disclosure",
+          "source": "gaps are disclosed",
+          "support": 0.2,
+          "confidence": 0.7
+        },
+        {
+          "criterion_id": "phase3_seed_completeness",
+          "source": "seeding follows approval",
+          "support": 0.3,
+          "confidence": 0.7
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

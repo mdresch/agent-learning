@@ -2,11 +2,11 @@
 artifact_type: "intent_refinement_proposal"
 proposal_id: "IRP-20261111-001"
 baseline_from: "PMP-BL-v1.1.0"
-baseline_to: "set at the Phase Close Decision (PCD-20261111-001); no baseline content changes in this proposal"
-version: "0.1"
+baseline_to: "PMP-BL-v1.2.0 (id set by PCD-20261111-001; formalized at the Stage 7 artifact approvals)"
+version: "1.0"
 date: "2026-11-11"
 prepared_by: "Claude (draft for the Project Sponsor)"
-status: "draft"
+status: "approved"
 governance_policy: "approve-intent-refinement"
 ---
 
@@ -14,7 +14,7 @@ governance_policy: "approve-intent-refinement"
 
 ## Phase 2 closure and Phase 3 seeding
 
-> **Draft.** Nothing here is approved. Where the records do not hold the input a methodology step needs, the section says so instead of supplying a figure. Written to the Stage 18 methodology (`docs/project-docs/Methodology/Stage-18-Intent-Refinement-Methodology.md`, section 3.1).
+> **Approved** by the Project Sponsor on 2026-11-11 (section 6). It was drafted so that where the records do not hold the input a methodology step needs, the section says so instead of supplying a figure. Written to the Stage 18 methodology (`docs/project-docs/Methodology/Stage-18-Intent-Refinement-Methodology.md`, section 3.1).
 
 ## Executive summary
 
@@ -22,8 +22,8 @@ governance_policy: "approve-intent-refinement"
 |---|---|
 | Proposal ID | IRP-20261111-001 |
 | From baseline | `PMP-BL-v1.1.0` |
-| To baseline | Set at the Phase Close Decision. No plan or baseline content changes with this proposal |
-| Status | Draft |
+| To baseline | `PMP-BL-v1.2.0` (id set by the PCD; formalized at the Stage 7 artifact approvals). No plan content changes with this proposal |
+| Status | Approved 2026-11-11 |
 | Date | 2026-11-11 |
 
 ## 1. Phase closure readiness (Step 1)
@@ -67,11 +67,11 @@ HYP-AL-028 (DPO sample efficiency) is **not yet registered** in the Ideation Doc
 
 ## 3. Low-pass damping (Step 4)
 
-**Not computed.** The method needs a series of realized outcome deltas; the Stage 12 report gives met, partly met and not met per criterion, not a numeric series. The Sponsor decides whether a numeric outcome vector is wanted for Phase 2 or the step is recorded as not applicable.
+**Recorded not applicable (Sponsor, 2026-11-11).** The method needs a series of realized outcome deltas; the Stage 12 report gives met, partly met and not met per criterion, not a numeric series. The Sponsor decides whether a numeric outcome vector is wanted for Phase 2 or the step is recorded as not applicable.
 
 ## 4. Strategic pivot capacity (Step 5)
 
-**Not computed.** The check is $P_{proposed} \le P_{max} = \lceil C_{adapt}/2 \rceil$. The pivot list and $C_{adapt}$ for Phase 2 are not recorded. The candidate pivots in this proposal are the items of section 5; the Sponsor confirms which count as pivots.
+**Recorded not applicable (Sponsor, 2026-11-11).** The check is $P_{proposed} \le P_{max} = \lceil C_{adapt}/2 \rceil$. The pivot list and $C_{adapt}$ for Phase 2 are not recorded. The candidate pivots in this proposal are the items of section 5; the Sponsor confirms which count as pivots.
 
 ## 5. Refined intent for Phase 3 (Step 6)
 
@@ -91,9 +91,9 @@ Carried forward as the Stage 18 input. Nothing in this list is built by closing 
 
 | Role | Decision | Date |
 |---|---|---|
-| Project Sponsor | Pending | |
+| Project Sponsor (Menno Drescher) | Approved, via `approve-intent-refinement`, episode `fa8603c7`; the 19 non-terminal hypotheses carried over to Phase 3; sections 3 and 4 not applicable | 2026-11-11 |
 
-Policy `approve-intent-refinement` (FULL authority, `requires_human_approval: true`). No episode has been registered for this draft.
+Policy `approve-intent-refinement` (FULL authority, `requires_human_approval: true`). Approval episode `fa8603c7` registered with `scripts/approve.py` (ranking: approve 0.789, request revision 0.226; the scores are assessments, not measurements).
 
 ## 7. Phase seeding (Step 8)
 

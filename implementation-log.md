@@ -3394,3 +3394,12 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-205-1 | documentation | verified: yes | decision: accepted | the readiness row said no open pull requests while #205 itself was open; now states #205 at drafting and none once it merges | fix: d7e3a76`
   - `Q-205-2 | documentation | verified: yes | decision: accepted | the PCD rationale named three of the five criterion-2 hypotheses; now says three are unresolved and 026 and 027 were validated at the Phase 1 close | fix: d7e3a76`
 - **Gate waiver (dated, prospective):** on 2026-11-11 `scripts/pr_gate.py 205` halted at margin -0.047 (required +0.05): Q-205-1 and Q-205-2 were accepted and fixed but still count in full, because the gate has no notion of a finding resolved by a recorded fix and Q reviews only the first push. Menno, Project Sponsor, waived the halt and approved the merge. Checks (`test`, `build-installer`) had passed on the head commit. The rule is not changed by this waiver (IMP-065).
+
+## Stage 18 — PCD-20261111-001 and IRP-20261111-001 approval & Stage 17 Phase 2 assessment (PR #206)
+- **Date:** 2026-11-11
+- **Branch:** `docs/pcd-phase2-approved`
+- **What:** records Sponsor approval of `PCD-20261111-001` and `IRP-20261111-001` via `approve-intent-refinement` (episode `fa8603c7-9d86-4d6a-be56-ec70525ab666`) and adds `Stage-17-Adaptation-Plan-Assessment-Phase2.md`.
+- **Amazon Q triage (round 1 on `4b18ab8`), verified against files and `scripts/approve.py`:**
+  - `Q-206-1 | logic error | verified: no | decision: declined | fc927c0b8ff747df29775c097f4f5d22c4daa7024fc370ddb460ee6ed96d5100 is 64 hex chars (not 63) and matches the exact LF SHA-256 digest of PCD-20261111-001-pcd-20261111-001-approval.json computed by approve._digest() | fix: none`
+  - `Q-206-2 | logic error | verified: no | decision: declined | duplicate of Q-206-1 on PCD-20261111-001-pcd-20261111-001-approval-state.json; digest is 64 hex chars and matches the decision frame | fix: none`
+  - `Q-206-3 | documentation | verified: yes | decision: accepted | Project-Status-Register.md §1/§2 still showed Phase 2 as ACTIVE with last_updated 2026-11-10; updated §1 and §2 to mark Phase 2 CLOSED via PCD-20261111-001, added the Phase 3 READY row, and bumped last_updated to 2026-11-11 | fix: 98e8373`

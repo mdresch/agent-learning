@@ -8,6 +8,8 @@ idempotent. `index.json` lists each finding id with an empty `comment_ids`,
 which the human tagger fills: a finding id is the order the maintainer triaged
 in, not a GitHub id, so a script cannot join them. A re-run never erases it.
 
+WARNING: filling comment_ids is optional and is NOT a workflow step. It would mean matching 139 findings to GitHub comments by hand, an excessive amount of manual work; nothing reads it (pr_gate.py does not). Leave it empty unless a pairing is proposed and only spot-checked.
+
 Usage:
     uv run python scripts/export_review_comments.py
     uv run python scripts/export_review_comments.py --pr 195 --reviewer cursor

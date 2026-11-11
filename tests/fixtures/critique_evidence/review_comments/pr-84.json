@@ -1,0 +1,116 @@
+{
+  "available": true,
+  "comments": [
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: `hmac.new` does not exist in Python's standard library — the correct function is `hmac.new` is not a thing; the API is `hmac.new(key, msg, digestmod)` via the module-level function, which is actually correct syntax... wait — re-checking: Python's `hmac` module exposes `hmac.new(key, msg=None, digestmod='')`. This IS the correct call. However, `hmac.new` was deprecated in Python 3.4 in favour of `hmac.HMAC` constructor directly, and **removed in Python 3.13**. On Python 3.13+ this will raise `AttributeError: module 'hmac' has no attribute 'new'`, breaking the function entirely. Replace with `hmac.HMAC(key, msg, digestmod)` or the equivalent `hmac.new` compatible shim.\n```suggestion\n    digest = hmac.HMAC(\n        policy_id.encode(\"utf-8\"),\n        (request_id + \"|\" + timestamp).encode(\"utf-8\"),\n        hashlib.sha256,\n    ).hexdigest()\n```",
+      "commit": "872a79b11b425675d4ac942d5cf9beef3c0de80f",
+      "created_at": "2026-11-02T15:53:25Z",
+      "id": 4444524956,
+      "kind": "inline",
+      "line": 28,
+      "path": "src/agent_learning/policy/thompson.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/84#discussion_r4444524956"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: Same `hmac.new` deprecation/removal issue as in the production code. `hmac.new` was removed in Python 3.13, so `_expected_seed` — which is the reference implementation used to verify `seed_for` in `test_ac0` — will raise `AttributeError` on Python 3.13+, causing the contract test to crash rather than pass or fail meaningfully.\n```suggestion\n    digest = hmac.HMAC(\n        policy_id.encode(\"utf-8\"),\n        (request_id + \"|\" + timestamp).encode(\"utf-8\"),\n        hashlib.sha256,\n    ).hexdigest()\n```",
+      "commit": "872a79b11b425675d4ac942d5cf9beef3c0de80f",
+      "created_at": "2026-11-02T15:53:25Z",
+      "id": 4444524994,
+      "kind": "inline",
+      "line": 44,
+      "path": "tests/test_thompson_seed.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/84#discussion_r4444524994"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: The seed comparison converts both sides to `str` before comparing (`str(expected) != str(record[\"prng_seed\"])`). This introduces a false-positive failure path: if `record[\"prng_seed\"]` is stored as an integer (e.g., after a JSON round-trip where the field was serialised without quotes), `str(42)` equals `\"42\"` and the comparison works — but if it is stored as a float like `4.2e10`, `str` coercion produces a different string than the integer representation would. More critically, the test in `_make_record` stores `prng_seed` as `str(seed)`, but the AC specifies no particular type for the field. A numeric `prng_seed` value of `expected` would compare `str(expected) != str(expected)` → `False` (correct), but a float representation `1.23456789e+18` would compare unequal to the decimal string and raise a spurious `ValueError`. Use a direct integer comparison after coercion: `int(record[\"prng_seed\"]) != expected`.\n```suggestion\n    if int(record[\"prng_seed\"]) != expected:\n```",
+      "commit": "872a79b11b425675d4ac942d5cf9beef3c0de80f",
+      "created_at": "2026-11-02T15:53:25Z",
+      "id": 4444525003,
+      "kind": "inline",
+      "line": 44,
+      "path": "src/agent_learning/policy/thompson.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/84#discussion_r4444525003"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThis PR implements `seed_for` and `replay` for Thompson sampling (Story 15.1). The logic and test structure are sound overall, but there are **two blocking defects** that need to be addressed before merge:\n\n### 🛑 Blocking Issues\n\n1. **`hmac.new` removed in Python 3.13** (`thompson.py` line 24, `test_thompson_seed.py` line 40): Both the production code and the test's reference implementation use `hmac.new(...)`, which was deprecated in Python 3.4 and **removed in Python 3.13**. On Python 3.13+ this raises `AttributeError` at runtime, breaking all functionality. Both call sites must be updated to `hmac.HMAC(key, msg, digestmod)`. One-click fix suggestions have been provided for both files.\n\n2. **String-based seed comparison is fragile** (`thompson.py` line 44): Comparing `str(expected) != str(record[\"prng_seed\"])` is error-prone — a float-encoded seed value (e.g., from certain JSON serialisers) would produce a different string than the integer decimal form, triggering a spurious `ValueError`. Use `int(record[\"prng_seed\"]) != expected` for a robust, type-safe comparison.\n\n3. **Float equality after JSON round-trip** (`thompson.py` line 56): Comparing redrawn payoffs with `==` against values that have been through a JSON round-trip can fail due to floating-point precision loss in decimal serialisation. The test explicitly exercises this path (`json.loads(json.dumps(record))`), making this a potential intermittent test failure depending on the specific betavariate values drawn.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "427f3e883a6a586d89ef0fcf3bef719de9a64359",
+      "created_at": "2026-11-02T15:53:25Z",
+      "id": 5739310720,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/84#pullrequestreview-5739310720"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: `redrawn != dict(record[\"sampled_payoffs\"])` compares floating-point values with `==`. After a JSON round-trip (`json.dumps` → `json.loads`), the float values in `sampled_payoffs` may lose precision due to JSON's decimal serialisation, causing this equality check to fail even when the replay is correct — falsely raising `ValueError` about a \"version difference\". The test `test_ac3_replay_returns_the_recorded_draws_exactly` explicitly exercises this round-trip path on line 102, so this is a latent test failure depending on the specific float values produced by `betavariate`. Use `math.isclose` or store/compare the raw bit representation to make the check robust.",
+      "commit": "872a79b11b425675d4ac942d5cf9beef3c0de80f",
+      "created_at": "2026-11-02T15:53:26Z",
+      "id": 4444525017,
+      "kind": "inline",
+      "line": 56,
+      "path": "src/agent_learning/policy/thompson.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/84#discussion_r4444525017"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error:** `if not value:` passes for whitespace-only strings (e.g., `\" \"`, `\"\\t\"`), silently computing an HMAC with a blank-equivalent key or message and returning a valid-looking seed instead of raising `ValueError`. This breaks the AC_2 invariant for inputs that are logically empty but not technically falsy. Replace with an explicit strip check.\n```suggestion\n        if not value or not value.strip():\n            raise ValueError(f\"{name} must not be empty\")\n```",
+      "commit": "872a79b11b425675d4ac942d5cf9beef3c0de80f",
+      "created_at": "2026-11-02T15:53:40Z",
+      "id": 4444527701,
+      "kind": "inline",
+      "line": 23,
+      "path": "src/agent_learning/policy/thompson.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/84#discussion_r4444527701"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error:** `str(expected) != str(record[\"prng_seed\"])` coerces both sides to strings before comparing. If `record[\"prng_seed\"]` is stored as an integer (e.g., written by a producer that omits the `str()` call), `str(1234)` still equals `\"1234\"`, so the comparison is correct in that case. However, if `prng_seed` is stored in a non-decimal representation such as hex (e.g., `\"0x4a3f...\"`) by any future producer, this comparison silently passes a mismatched seed. Use a direct integer comparison to make the contract unambiguous and prevent bypassing the seed check.\n```suggestion\n    if expected != int(str(record[\"prng_seed\"]), 10):\n```",
+      "commit": "872a79b11b425675d4ac942d5cf9beef3c0de80f",
+      "created_at": "2026-11-02T15:53:40Z",
+      "id": 4444527736,
+      "kind": "inline",
+      "line": 44,
+      "path": "src/agent_learning/policy/thompson.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/84#discussion_r4444527736"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error:** `len(variations) == 3` asserts the three varied seeds are distinct from each other, which is correct. However, the assertion `base not in variations` only confirms `base` differs from each variant, but does **not** confirm that each individual variant differs from `base` independently — it is possible for two of the variants to collide with each other (hash collision) causing `len(variations) < 3`, which would already be caught. The test logic is sound but the combination of the two asserts means the test would still fail if any two variants collide. This is fine in practice; no defect here — but `assert base not in variations` on line 78 does nothing additional beyond what `assert len(variations) == 3` guarantees, since `base` is not inserted into the set. This is a redundant but harmless assertion, not a blocking defect.",
+      "commit": "872a79b11b425675d4ac942d5cf9beef3c0de80f",
+      "created_at": "2026-11-02T15:53:40Z",
+      "id": 4444527751,
+      "kind": "inline",
+      "line": 79,
+      "path": "tests/test_thompson_seed.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/84#discussion_r4444527751"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThis PR implements `seed_for` and `replay` for Thompson sampling (Story 15.1). The overall structure is clean and well-tested with 10 contract tests covering all four acceptance criteria. Two issues require attention before merge:\n\n**Blocking findings:**\n\n1. **`thompson.py` line 22–23 — Whitespace-only inputs bypass validation:** `if not value:` only rejects empty strings. Whitespace-only strings (e.g., `\" \"`) silently pass and produce a semantically meaningless but structurally valid HMAC seed, violating the spirit of AC_2. The fix is to also reject strings that are empty after stripping.\n\n2. **`thompson.py` line 44 — Fragile string-based seed comparison:** Comparing via `str(expected) != str(record[\"prng_seed\"])` couples the equality check to how `prng_seed` was serialized. If any producer ever writes `prng_seed` as a non-decimal integer representation, the check silently passes a mismatched seed. A direct integer comparison (`expected != int(str(record[\"prng_seed\"]), 10)`) is unambiguous and enforces the decimal string contract explicitly.\n\n**Note on the test at line 78–79:** The two assertions `assert base not in variations` and `assert len(variations) == 3` are both meaningful and together correctly implement AC_1 — the comment I left there is informational only and does not represent a blocking defect.\n\nThe JSON round-trip replay test (`test_ac3_replay_returns_the_recorded_draws_exactly`) is a good addition that catches serialization edge cases. The `copy.deepcopy` immutability test is also well-considered.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "427f3e883a6a586d89ef0fcf3bef719de9a64359",
+      "created_at": "2026-11-02T15:53:40Z",
+      "id": 5739314071,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/84#pullrequestreview-5739314071"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "Based on a full review of the diff, the implementation log, and the Amazon Q triage record for PR #84 (Story 15.1), here is the disposition of every prior finding:\n\n---\n\n### ✅ All five Amazon Q findings are resolved (declined with documented rationale)\n\n| ID | Claim | Status |\n|---|---|---|\n| `Q-84-1` | `hmac.new` removal risk on Python 3.13/3.14 | **Declined – verified**: `hmac.new` is current in 3.13 and 3.14 |\n| `Q-84-2` | `int()` comparison loosens the `prng_seed` string contract | **Declined – verified**: FDD-015 §2.3 / BRU-015-02 requires a decimal string; string-equality comparison is intentional |\n| `Q-84-3` | Float `repr` loses precision through JSON round-trip | **Declined – verified**: Python float repr round-trips exactly through JSON; 200,000 betavariate draws produced zero mismatches; the round-trip test (`test_ac3_replay_returns_the_recorded_draws_exactly`) passes |\n| `Q-84-4` | Whitespace-only arguments should be refused | **Declined – deferred**: AC_2 and FDD-015 specify empty only; widening to whitespace-only requires human confirmation |\n| `Q-84-5` | Two harmless asserts flagged as test gap | **Declined – Q's own comment states no defect** |\n\n---\n\n### 📋 Remaining open items (not blocking merge, require human action)\n\n1. **I2 / FDD-015 §7 item 6** — `replay(record, policy_id)` deviates from the story's `replay(record)` wording. The record holds no policy id, so the signature takes it as a second argument. The maintainer must confirm which is wanted: keep the extra argument, or add a `policy_id` field to the §2.3 record.\n\n2. **Q-84-4 (deferred)** — Whether whitespace-only `policy_id`, `request_id`, or `timestamp` should raise `ValueError`. Not in scope without a human decision to widen the AC.\n\n3. **`math` import not used** — `thompson.py` imports `math` per the FDD's stated import list, but no call to `math` appears in this story's code. This is harmless and will be consumed by later Epic 15 stories (15.2–15.4); it can be removed if Stories 15.2–15.4 land without needing it.\n\n---\n\n### ✅ All four acceptance criteria are met\n\n- **AC_0** (seed formula and `< 2**64`): covered by `test_ac0_seed_is_the_hmac_prefix_below_2_pow_64`\n- **AC_1** (deterministic, separator collision resistance): covered by `test_ac1_seed_is_deterministic_and_sensitive_to_every_argument`\n- **AC_2** (empty-argument rejection by name): covered by `test_ac2_empty_argument_is_refused_by_name` (parametrized × 3)\n- **AC_3** (replay exact match, seed-changed-by-one rejection): covered by `test_ac3_replay_returns_the_recorded_draws_exactly`, `test_ac3_replay_refuses_a_seed_changed_by_one`, `test_ac3_replay_refuses_the_wrong_policy_id`, `test_ac3_replay_does_not_mutate_the_record`, and `test_i3_changed_draw_is_reported_as_a_version_difference`\n\n**No blocking finding remains. The two open items above require a human decision before or during Story 15.3.**",
+      "commit": null,
+      "created_at": "2026-11-02T15:54:43Z",
+      "id": 6581629289,
+      "kind": "issue",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/84#issuecomment-6581629289"
+    }
+  ],
+  "pr": 84
+}

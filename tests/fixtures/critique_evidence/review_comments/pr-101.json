@@ -1,0 +1,72 @@
+{
+  "available": true,
+  "comments": [
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Crash Risk**: `data[\"policy_id\"]` raises `KeyError` with no informative message when an episode file is missing the `policy_id` field. The same episode file path already gets a graceful fallback for `id` (line 74), but `policy_id` gets no such guard. An episode file without this key causes an unhandled exception inside `_recorded_tasks`, producing a cryptic traceback rather than a useful assertion error.\n\nUse `.get(\"policy_id\")` with an assert, or wrap with a more informative error:\n\n```suggestion\n        policy_id = data.get(\"policy_id\")\n        assert policy_id is not None, f\"episode file {path} is missing 'policy_id'\"\n        task[\"policy_ids\"].add(policy_id)\n```",
+      "commit": "c983d0cbacc800c8f7e8a2a039cd4a9943d0bcc5",
+      "created_at": "2026-11-04T05:22:44Z",
+      "id": 4463908577,
+      "kind": "inline",
+      "line": 78,
+      "path": "tests/test_warm_start_real_data.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/101#discussion_r4463908577"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\n**PR Intent:** Test-and-documentation-only story (20.6) demonstrating that no usable warm-start donor exists yet in the recorded governance data. No production code is changed. The structure and coverage of the 7 new tests are sound.\n\n**One issue found:**\n\n### Crash Risk — unguarded `data[\"policy_id\"]` in `_recorded_tasks` (line 77)\n\nThe helper raises an unhandled `KeyError` if any committed episode file is missing a `policy_id` field. Neighbouring code already applies a graceful fallback for the `id` field (line 74), but `policy_id` has no such guard. Since all current episode files are expected to carry this field the tests pass today, but a future episode file without it will produce a cryptic traceback rather than a clear assertion error. A fix suggestion has been posted inline.\n\nEverything else in the PR is correct: the fixture setup, the store-equality checks, the `capsys` stderr assertions, the AC_1 `warm_start_logits` arithmetic, and the AC_3 label invariants all behave as intended.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "801d7751d47af4e5542e65992ab1e66adb08dc24",
+      "created_at": "2026-11-04T05:22:44Z",
+      "id": 5763617953,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/101#pullrequestreview-5763617953"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Crash Risk:** `data[\"policy_id\"]` on line 77 raises `KeyError` if any episode file matching the agent/task criteria lacks the `\"policy_id\"` field. The analogous helper in the parallel Story 19.7 test (`test_meta_prior_real_data.py`) had this exact pattern flagged (Q-98-1) and fixed: \"the actions file was read without the existence assertion that every other read in the helper has\". The `policy_ids` set is only used for metadata recording (`recorded_policy_ids` in `_build_store`), not for any test assertion, so a missing field should either be skipped or guarded.\n```suggestion\n        task = tasks.setdefault(data[\"task_id\"], {\"episodes\": [], \"policy_ids\": set()})\n        task[\"episodes\"].append(data)\n        if \"policy_id\" in data:\n            task[\"policy_ids\"].add(data[\"policy_id\"])\n```",
+      "commit": "c983d0cbacc800c8f7e8a2a039cd4a9943d0bcc5",
+      "created_at": "2026-11-04T05:22:50Z",
+      "id": 4463909068,
+      "kind": "inline",
+      "line": 78,
+      "path": "tests/test_warm_start_real_data.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/101#discussion_r4463909068"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThis PR adds test and documentation only for Story 20.6 (the warm-start real-data check). No production code is changed.\n\n**One blocking defect found:**\n\nIn `tests/test_warm_start_real_data.py`, `_recorded_tasks()` accesses `data[\"policy_id\"]` (line 77) without a guard. If any committed episode file that matches the agent/task criteria lacks a `\"policy_id\"` field, this raises an unhandled `KeyError` and the entire test module fails at collection or setup time, silently defeating all 7 contract tests. The parallel Story 19.7 real-data test (`test_meta_prior_real_data.py`) had this exact pattern flagged by Q-98-1 and fixed. A one-line guard (`if \"policy_id\" in data:`) eliminates the crash; the `policy_ids` set is only used for metadata recording and its incompleteness does not affect any test assertion.\n\nAll other aspects of the change (logic, security, documentation, AC coverage) are sound.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "801d7751d47af4e5542e65992ab1e66adb08dc24",
+      "created_at": "2026-11-04T05:22:50Z",
+      "id": 5763618575,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/101#pullrequestreview-5763618575"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "\n## :warning: Review Failed\nI was unable to finalize my review because the pull request head or merge base was modified since I began my review. Please try again.\n\n*Request ID: e884fd23-655d-5f3c-bf6e-9e47a3aabfdf*\n",
+      "commit": null,
+      "created_at": "2026-11-04T05:38:48Z",
+      "id": 6623528059,
+      "kind": "issue",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/101#issuecomment-6623528059"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "Here is the status of every finding from the earlier review round (Amazon Q triage, PR #101, Story 20.6):\n\n**Resolved in this commit:**\n\n| Finding | Description | Status |\n|---|---|---|\n| `Q-101-1` | `data[\"policy_id\"]` would raise a bare `KeyError` on an episode without the field | ✅ Resolved — replaced with `assert data.get(\"policy_id\") is not None, f\"episode file {path} is missing 'policy_id'\"` (line 77) |\n| `Q-101-2` | Same line as Q-101-1; Q's suggestion to skip a missing field was not taken — a named assertion is the correct failure mode | ✅ Resolved — same fix as Q-101-1; the decision to assert rather than skip is deliberate and recorded |\n\n**Nothing remaining.** Both findings from the prior review round are addressed in commit `a4c3fb6`. The implementation log entry for Story 20.6 confirms 7 tests passing and the 4 pre-existing `test_storage_cosmos.py` failures that reproduce identically on `main` without this change. No production code was modified, so no production-code findings are expected. The only open item noted in the PR description — FDD-020 §7 item 7 (the git-ignored store interpretation) — is recorded as a decision for the maintainer, not a code defect.",
+      "commit": null,
+      "created_at": "2026-11-04T05:44:58Z",
+      "id": 6623614496,
+      "kind": "issue",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/101#issuecomment-6623614496"
+    }
+  ],
+  "pr": 101
+}

@@ -1,0 +1,61 @@
+{
+  "available": true,
+  "comments": [
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: When `latest.canonical_content_hash == current_hash`, disposition and feedback are both `\"accepted\"`, but `action_id` is none of the three known values (`approve_plan`, `reject_plan`, `request_revision_before_decision`), the inner `if` block at lines 462–473 silently falls through without returning, and the function reaches `return PlanState.DRAFTED` at line 475. This silently classifies a record with an unrecognized accepted action as `DRAFTED`, which is a wrong and invisible result rather than a clear error. Since `approval_record()` already validates `action_id` against `APPROVAL_ACTIONS`, this path should be unreachable in practice — but it becomes reachable if a `PlanApprovalRecord` is constructed directly (the dataclass has no `action_id` validation). Add a final `else` branch to raise `ValueError` and prevent silent misclassification.\n```suggestion\n        if latest.action_id == \"reject_plan\":\n            return PlanState.REJECTED\n        if latest.action_id == \"request_revision_before_decision\":\n            return PlanState.REVISION_REQUESTED\n        if latest.action_id == \"approve_plan\":\n            if freshness is None:\n                raise ValueError(\"freshness is required when latest action is approve_plan matching current hash\")\n            if freshness.fresh:\n                return PlanState.APPROVED\n            if freshness.reason.startswith(\"PENDING_UPSTREAM\"):\n                return PlanState.PENDING_UPSTREAM\n            return PlanState.STALE_DEPENDENCY\n        raise ValueError(f\"unrecognised action_id {latest.action_id!r} in derive_plan_state\")\n\n    return PlanState.DRAFTED\n```",
+      "commit": "9c583498dba8d64ba7f8dc253ae3e74529fec850",
+      "created_at": "2026-10-28T15:55:58Z",
+      "id": 4402878653,
+      "kind": "inline",
+      "line": 481,
+      "path": "src/agent_learning/pmbok/governance.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/42#discussion_r4402878653"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "\n## :warning: Review Failed\nI was unable to finalize my review because the pull request head or merge base was modified since I began my review. Please try again.\n\n*Request ID: 67dae34a-1cce-5705-a204-801601ca63f8*\n",
+      "commit": null,
+      "created_at": "2026-10-28T15:55:58Z",
+      "id": 6473845480,
+      "kind": "issue",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/42#issuecomment-6473845480"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Code Review Summary\n\nThis PR implements Epic 13 (the per-plan approval gate, Stories 13.1–13.7) across three new modules (`hashing.py`, `governance.py`, `integrity.py`), supporting constants in `standards.py`, and 57 contract tests. The implementation is well-structured: pure functions with no I/O, thorough input validation, and clear separation of concerns.\n\n### Critical finding\n\nOne logic defect was identified in `derive_plan_state` (`governance.py`, lines 462–475): when a `PlanApprovalRecord` is constructed directly (bypassing the `approval_record()` factory) with an `action_id` that is none of the three known values, but with `canonical_content_hash == current_hash` and both `decision_disposition` and `feedback_status` set to `\"accepted\"`, the function silently falls through all inner `if` branches and returns `PlanState.DRAFTED`. This is a wrong silent result rather than a detectable error. A fix was suggested — see the inline comment.\n\n### No other blocking issues found\n\n- The canonical hash pipeline (`hashing.py`) is correct: BOM stripping, NFC normalization, CRLF normalization, volatile key removal, hard-break preservation, and SHA-256 are all applied in the specified order.\n- Freshness propagation logic in `check_plan_freshness` correctly handles `not_applicable` bypass, `pmp_section` stub/raw detection, transitive staleness, and the `PENDING_UPSTREAM` vs. `TRANSITIVE_STALE` distinction.\n- `latest_approvals` tiebreak uses `(sequence_number, created_at)` lexicographic comparison, which is correct for the ISO-8601 UTC timestamps in use.\n- `check_formalization` iterates `DRAFT_ORDER` and correctly blocks on all three route types.\n- The 57 contract tests cover all documented acceptance criteria.\n\n### Process deviations noted in PR description\n\nThe stated deviations (batched commit, no observed-RED-first, `ruff` not run) are recorded in the PR description as required. The interpretations I1–I3 appear reasonable and are consistent with how Epic 12 was handled.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n\n\n---\n:warning: This PR contains more than 30 files. Amazon Q is better at reviewing smaller PRs, and may miss issues in larger changesets.\n",
+      "commit": "a27998aa450cce5d18a51b4274eaf4d13424a5a2",
+      "created_at": "2026-10-28T15:55:58Z",
+      "id": 5685654601,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/42#pullrequestreview-5685654601"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "Based on a full read of the implementation log, the PR description, and the current source, here is the status of every finding recorded against this PR and its immediate predecessors.\n\n---\n\n### Q-42-1 — `derive_plan_state` silently returned `DRAFTED` for an unrecognised `action_id`\n- **Raised:** PR #42, round 1, head `a27998a`\n- **Decision:** accepted\n- **Fix:** commit `aa8889a` — `derive_plan_state` now raises `ValueError` for any `action_id` not in `APPROVAL_ACTIONS`; a dedicated test was observed failing first (1441 passed, 2 skipped after the fix)\n- **Status: ✅ Resolved**\n\n---\n\n### Stated process deviations (from the PR body) — not findings but open for a human\n1. **Batched commit** (Stories 13.1–13.7 in one commit `d9c8bdb`, not one PR per story): deviation recorded; interpretation I2 requests human confirmation that this is acceptable.\n2. **No observed-RED before code** (Step 3 not satisfied): declared plainly; the log entry does not claim otherwise.\n3. **PR #41 dependency** (BRD-013, FDD-013, Epic 13 story approvals not yet committed to `main`): this PR depends on #41 merging first.\n4. **`ruff` not installed** (LL-026): `ruff check` was not run on the new files in `src/agent_learning/pmbok/` (`hashing.py`, `integrity.py`, `governance.py`). This is the one **unresolved gap** — no static lint pass has been confirmed on the Epic 13 source files.\n\n---\n\n### Story 13.5 hash regression — `hash()` replaced by sha256\n- The test file `tests/test_plan_freshness.py` originally derived plan hashes with Python's salted `hash()`; fixed in commit `3264593` before this PR was opened.\n- **Status: ✅ Resolved** (interpretation I3 in the PR body)\n\n---\n\n### Summary\n\n| Finding / deviation | Status |\n|---|---|\n| Q-42-1 `derive_plan_state` unrecognised `action_id` | ✅ Fixed (`aa8889a`) |\n| Story 13.5 `hash()` → sha256 | ✅ Fixed (`3264593`) |\n| `ruff check` not run on Epic 13 source files (LL-026) | ⚠️ **Outstanding** — environment constraint; no lint result on record for `hashing.py`, `integrity.py`, `governance.py` |\n| Batched commit / no RED-first (process deviations) | 📋 Recorded; awaiting human confirmation (I2) |\n| PR #41 dependency not merged | 📋 Blocking merge order; not a code defect |\n\nThe only unresolved code-quality gap is the missing `ruff` run. Everything else is either fixed or explicitly deferred to a human decision.",
+      "commit": null,
+      "created_at": "2026-10-28T15:59:48Z",
+      "id": 6473938580,
+      "kind": "issue",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/42#issuecomment-6473938580"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "Here is the finding status for PR #42 based on the implementation log and the current head commit.\n\n---\n\n**All raised findings — resolved status**\n\n| ID | Category | Description | Status |\n|---|---|---|---|\n| `Q-42-1` | logic error | `derive_plan_state` read an unrecognised action id as `DRAFTED` instead of raising `ValueError` | ✅ **Resolved** — fix `aa8889a`; test observed RED first (1441 passed before fix) |\n| `Q-28-1` (carried from Story 12.1) | crash risk | `ruff check` not run (LL-026) | ⚠️ **Acknowledged open deviation** — `ruff` not installed in the environment; the PR body records this explicitly. `uvx ruff` was used in Story 13.7 and 29 findings were fixed (`0cb8cb8`); the PR body notes `ruff check` was not run as a pre-commit gate |\n| Python `hash()` in freshness tests | logic error | `tests/test_plan_freshness.py` was deriving plan hashes with Python's salted `hash()` instead of sha256 | ✅ **Resolved** — replaced with sha256 in commit `3264593` |\n\n---\n\n**Remaining open items (not findings, but stated deviations and open questions)**\n\n1. **Batched commit** — Stories 13.1–13.7 were built and committed together in `d9c8bdb` rather than one worktree and PR per story. Recorded as a deviation, not corrected.\n2. **No RED-first observation** — Contracts were not run before the code; the log does not claim \"Observed RED first\". Recorded honestly.\n3. **PR #41 dependency** — BRD-013, FDD-013 and Epic 13 story approvals were committed on 2026-10-27 but live in PR #41, which has not merged. This PR depends on it.\n4. **`ruff` not installed** — `ruff check` was not run as a gate (LL-026); `uvx ruff` was used post-hoc in Story 13.7.\n5. **`tests/pmbok` (legacy suite)** — still cannot be collected from a clean install due to undeclared `tenacity`/`sqlalchemy`. Pre-existing, not introduced by this PR.\n\nNo other findings remain unresolved at head `21285eb`.\n",
+      "commit": null,
+      "created_at": "2026-10-28T16:04:48Z",
+      "id": 6474058585,
+      "kind": "issue",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/42#issuecomment-6474058585"
+    }
+  ],
+  "pr": 42
+}

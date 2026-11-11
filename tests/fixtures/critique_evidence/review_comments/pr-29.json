@@ -1,0 +1,94 @@
+{
+  "available": true,
+  "comments": [
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: The `_PLAN_ID` regex `[a-z][a-z0-9-]*` accepts invalid kebab-case identifiers: trailing hyphens (e.g., `\"scope-\"`) and consecutive hyphens (e.g., `\"scope--management\"`) both pass `fullmatch()`. The error message promises kebab-case enforcement, but these values will silently validate without a finding.\n```suggestion\n_PLAN_ID = re.compile(r\"[a-z][a-z0-9]*(?:-[a-z0-9]+)*\", re.ASCII)\n```",
+      "commit": "481b53e961f6b73530a342861d4d084939cac694",
+      "created_at": "2026-10-27T05:08:21Z",
+      "id": 4385278101,
+      "kind": "inline",
+      "line": null,
+      "path": "src/agent_learning/pmbok/lint.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/29#discussion_r4385278101"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: The malformed `plan_id` test cases are missing trailing-hyphen (`\"scope-\"`) and consecutive-hyphen (`\"scope--management\"`) inputs. Both are invalid kebab-case but currently pass validation due to the permissive regex (see `_PLAN_ID` in `lint.py`). Without these cases the regex defect cannot be caught by the test suite.\n```suggestion\n    @pytest.mark.parametrize(\"plan_id\", [\"Scope\", \"scope_management\", \"-scope\", \"1scope\", \"scope management\", \"scope!\", \"scope-\", \"scope--management\"])\n```",
+      "commit": "481b53e961f6b73530a342861d4d084939cac694",
+      "created_at": "2026-10-27T05:08:21Z",
+      "id": 4385278118,
+      "kind": "inline",
+      "line": null,
+      "path": "tests/test_plan_metadata.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/29#discussion_r4385278118"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThis PR implements `validate_metadata()` with 171 tests covering required fields, closed lists, governance policy, the nine-plan standards table, and route agreement. The structure is clean and the no-cascade / no-I/O design is well-executed.\n\n### Critical Finding (blocks merge)\n\n**`_PLAN_ID` regex is too permissive** — `[a-z][a-z0-9-]*` accepts trailing hyphens (`\"scope-\"`) and consecutive hyphens (`\"scope--management\"`), both of which are not valid kebab-case. Because the test suite does not include these cases, the defect passes all 171 tests undetected. Two comments have been left with an inline fix for the regex and the missing test parameters.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "481b53e961f6b73530a342861d4d084939cac694",
+      "created_at": "2026-10-27T05:08:21Z",
+      "id": 5662472173,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/29#pullrequestreview-5662472173"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: The `_PLAN_ID` pattern `[a-z][a-z0-9-]*` accepts trailing hyphens (e.g., `\"scope-\"`, `\"a--\"`). Since `*` allows zero or more of `[a-z0-9-]`, a string ending in `-` passes `fullmatch`. Valid kebab-case identifiers must not start or end with a hyphen and must not have consecutive hyphens. The regex should be tightened to prevent these malformed plan IDs from silently passing validation.\n```suggestion\n_PLAN_ID = re.compile(r\"[a-z][a-z0-9]*(?:-[a-z0-9]+)*\", re.ASCII)\n```",
+      "commit": "481b53e961f6b73530a342861d4d084939cac694",
+      "created_at": "2026-10-27T05:08:23Z",
+      "id": 4385278280,
+      "kind": "inline",
+      "line": null,
+      "path": "src/agent_learning/pmbok/lint.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/29#discussion_r4385278280"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: The dots in `_VERSION` are unescaped regex metacharacters — they match **any character**, not literal `.`. The pattern `[0-9]+\\.[0-9]+\\.[0-9]+` with `fullmatch` would accept `\"1X0X0\"` or `\"100100\"` as valid versions. The dots must be escaped with `\\.`.\n```suggestion\n_VERSION = re.compile(r\"[0-9]+\\.[0-9]+\\.[0-9]+\", re.ASCII)\n```",
+      "commit": "a8a28208cb280eb7c4018d6695facaa6fcd5c8bf",
+      "created_at": "2026-10-27T05:08:23Z",
+      "id": 4385278293,
+      "kind": "inline",
+      "line": 19,
+      "path": "src/agent_learning/pmbok/lint.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/29#discussion_r4385278293"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "This comment was added in error — `r\"\\.\"` in a raw string correctly passes the two-character sequence `\\.` to the regex engine, which interprets it as a literal dot. The `_VERSION` pattern is correct. Please disregard.",
+      "commit": "a8a28208cb280eb7c4018d6695facaa6fcd5c8bf",
+      "created_at": "2026-10-27T05:08:23Z",
+      "id": 4385278299,
+      "kind": "inline",
+      "line": 19,
+      "path": "src/agent_learning/pmbok/lint.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/29#discussion_r4385278299"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThis PR introduces `validate_metadata()` and supporting types/constants for Story 12.2 (ADR-012 plan metadata validation). The structure is clean — pure standard-library module, frozen dataclasses, immutable `MappingProxyType`, and 171 well-organized tests covering all stated acceptance criteria.\n\n### Issues Found\n\n**1. `_PLAN_ID` regex accepts invalid kebab-case (e.g., trailing hyphens) — `lint.py` line 18**\nThe pattern `[a-z][a-z0-9-]*` with `fullmatch` accepts `\"a-\"`, `\"scope-\"`, or `\"a--b\"` (consecutive/trailing hyphens). True kebab-case must not end with or have consecutive hyphens. A fix is suggested on that line.\n\n**2. Line 19 comment (correction)** — The `_VERSION` pattern using `r\"\\.\"` in a raw string is correctly escaped and is _not_ a bug. The `r\"...\"` prefix preserves the backslash, which the regex engine interprets as a literal dot. Please disregard the comment I placed on line 19.\n\n### Observations (not blocking)\n- The `MISSING` sentinel is defined at line 84 _after_ `meta()` at line 74. Python resolves the name at call-time, so this works; however, reordering `MISSING` above `meta()` would make the dependency explicit and is a common convention.\n- `adr_rows()` in `TestPlanStandards` slices up to the first ` ``` ` after the table header. If ADR-012 ever gains a fenced code block before the closing of the table block, the parser will silently truncate. This is a fragile coupling between the test and the ADR document format, but it passes under the current document structure.\n\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "481b53e961f6b73530a342861d4d084939cac694",
+      "created_at": "2026-10-27T05:08:23Z",
+      "id": 5662472457,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/29#pullrequestreview-5662472457"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "Checked every finding from the round-1 review against head `c2f1aa4`.\n\n**Q-29-1 — plan-id pattern (logic error, accepted)**\nFixed in `ceb4a69`. `_PLAN_ID` in `lint.py` is now `r\"[a-z][a-z0-9]*(?:-[a-z0-9]+)*\"` (line 18), and the five additional test cases (`\"scope-\"`, `\"scope--management\"`, `\"a--\"` etc.) are present in `tests/test_plan_metadata.py` (lines 217–219). ✅ Resolved.\n\n**Q-29-2 — version regex unescaped dots (logic error, declined)**\nQ retracted this finding in round 1. No action was required. ✅ N/A.\n\n**Q-29-3 — MISSING sentinel defined after first use (style, accepted)**\n`MISSING = object()` now appears at line 70 of `tests/test_plan_metadata.py`, before its first use in `meta()` at line 76. ✅ Resolved.\n\n**Q-29-4 — table reader truncation risk (test gap, declined)**\nDeclined, with the rationale that the `len(rows) == 9` assertion makes the failure loud. No fix was expected. ✅ N/A.\n\n**Remaining open items (not findings from this review):**\n- FDD-012 section 3.2 amendment for I2/I3/I4 (no-cascade rule) — awaiting human approval; not a code defect.\n- `tests/pmbok` (legacy, needs `tenacity`) and `tests/test_spark.py` (needs JVM) are excluded from the run — pre-existing, not introduced here (LL-013).\n\n**Explicit verdict: No.** No further additions are required and no merge-blocking issues remain at head `c2f1aa4`.",
+      "commit": null,
+      "created_at": "2026-10-27T05:10:48Z",
+      "id": 6434312214,
+      "kind": "issue",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/29#issuecomment-6434312214"
+    }
+  ],
+  "pr": 29
+}

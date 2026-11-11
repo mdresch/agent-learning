@@ -3361,3 +3361,13 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-195-2 | logic error | verified: yes | decision: accepted | constraint results were hardcoded true; now optional per option, validated, and decide names the options where they were assumed | fix: 65220f7`
   - `Q-195-3 | logic error | verified: no | decision: declined | guard_store runs before task-policy-adjudicate and a test asserts no CLI call is made | fix: none`
 - **Gate waiver (dated, prospective):** on 2026-11-11 `scripts/pr_gate.py 195` halted at margin -0.071 and, after the triage rows above, at -0.004 (required +0.05): Q-195-1 and Q-195-2 were accepted and fixed in `65220f7` but still count in full, because the gate has no notion of a finding resolved by a recorded fix, and Q did not re-review. Menno, Project Sponsor, overrode the rule and approved the merge. Checks (`test`, `build-installer`) had passed on the head commit. The rule itself is not changed by this waiver; it is registered as an improvement.
+
+## IMP-015 — scripts/export_review_comments.py, review comments as committed fixtures
+- **Commit:** pending (filled on merge)
+- **Date:** 2026-11-11
+- **Branch:** `feat/imp-015-review-comment-export`
+- **Source:** CR-20261110-002 (GC-P2-03). Improvement, not a story: contract tests in `tests/test_export_review_comments.py`.
+- **Why:** Epic 14 Story 14.5 AC_0 required "the original comment text exported beside each" finding. The triage replay dataset (139 records, 29 PRs) holds only the triage reason in `rationale`, so the original text was never exported. Sponsor decision 2026-11-11: this PR closes that gap (a defect of Story 14.5, not routed through heal-contract-failure).
+- **What:** `scripts/export_review_comments.py` writes every Amazon Q comment (inline, review summary, issue comment; `--reviewer cursor` adds Cursor) per PR to `tests/fixtures/critique_evidence/review_comments/pr-<N>.json` via `gh api`, sorted and idempotent; a PR that no longer exists is recorded `available: false`. `index.json` lists the 139 finding ids with empty `comment_ids`; the human tagger fills them (a finding id is the triage order, not a GitHub id). A re-run keeps the filled ids. The 29 fixtures were exported once (about 0.5 MB) and committed.
+- **Tests:** fake `gh` runner for the script; an offline check that every PR with a triage line has a fixture and that the index matches the dataset. RED observed (module missing, then 29 fixtures missing).
+- **Not done:** filling `comment_ids` (manual, the tagger's work).

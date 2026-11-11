@@ -1,0 +1,94 @@
+{
+  "available": true,
+  "comments": [
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThe PR correctly implements the softmax meta-prior pooling (Story 19.1) with clean pure-stdlib code and a comprehensive 14-test contract suite. The math is sound and the AC_0 hand-computed values check out. Three blocking issues were found:\n\n### Blocking Issues\n\n1. **Crash on empty or single-member input** (`meta_prior.py` lines 53–57): `_pool_softmax` raises `IndexError` when `members` is empty (`centred[0]` is never guarded) and `ZeroDivisionError` when exactly one member is passed (`count - 1 == 0`). These are unhandled edge cases that crash the public API.\n\n2. **Silent discard of `kappa_prior` argument** (`meta_prior.py` line 67): `compile_meta_prior` accepts `kappa_prior: float = 10.0` but always constructs `MetaPrior(kappa_prior=None, ...)`, discarding any caller-supplied value without error. The parameter default should be `None` (matching the softmax-only contract) or the function should raise if a non-`None` value is provided.\n\n3. **Missing `role_spread` assertion in AC_3 test** (`tests/test_meta_prior_softmax.py` line 140): `test_ac3_different_ids_and_order_of_actions_within_a_member` only checks `.values` and omits `.role_spread`, leaving a regression path for the spread computation open in this specific scenario.\n\nNo security concerns were identified.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "105d7b3098dc239f9d31ca227ec967fbcb36511d",
+      "created_at": "2026-11-03T19:48:53Z",
+      "id": 5758546249,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/90#pullrequestreview-5758546249"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Crash Risk**: `_pool_softmax` raises `IndexError` on an empty `members` sequence because `centred[0]` is accessed unconditionally after the loop. Additionally, when `len(members) == 1`, `count - 1` equals `0`, causing a `ZeroDivisionError` in the spread calculation. Both cases crash `compile_meta_prior` with an unhelpful exception instead of a clear error. Since Story 19.3 is the story that adds validation/refusals, the current code should guard against these crashes at the computation layer to avoid silent undefined behavior reaching callers.",
+      "commit": "320af445ccc854743443ba73a09074c4e7be49a9",
+      "created_at": "2026-11-03T19:48:54Z",
+      "id": 4459678038,
+      "kind": "inline",
+      "line": 57,
+      "path": "src/agent_learning/meta_prior.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/90#discussion_r4459678038"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: The `kappa_prior` parameter is accepted by `compile_meta_prior` with a default value of `10.0`, but it is silently discarded — `MetaPrior` is always constructed with `kappa_prior=None` regardless of what the caller passes. A caller invoking `compile_meta_prior(..., kappa_prior=5.0)` would receive a `MetaPrior` with `kappa_prior=None` without any error or warning, which is a silent data loss bug. Since the docstring already documents that `kappa_prior` is only for the Beta representation, the parameter should not be accepted at all for the softmax path, or should raise if a non-default value is provided.\n```suggestion\n    kappa_prior: float | None = None,\n```",
+      "commit": "320af445ccc854743443ba73a09074c4e7be49a9",
+      "created_at": "2026-11-03T19:48:54Z",
+      "id": 4459678049,
+      "kind": "inline",
+      "line": 67,
+      "path": "src/agent_learning/meta_prior.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/90#discussion_r4459678049"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: `test_ac3_different_ids_and_order_of_actions_within_a_member` only asserts that `.values` matches the base family but does not assert that `.role_spread` also matches. The AC_3 acceptance criterion states that members with different action ids but the same role map give \"the same prior\", which includes the spread. The missing assertion means a regression in the spread computation for reordered action ids would go undetected by this test.\n```suggestion\n    base = _compile(_base_family())\n    assert _compile(reordered).values == pytest.approx(base.values, abs=1e-12)\n    assert _compile(reordered).role_spread == pytest.approx(base.role_spread, abs=1e-12)\n```",
+      "commit": "320af445ccc854743443ba73a09074c4e7be49a9",
+      "created_at": "2026-11-03T19:48:54Z",
+      "id": 4459678095,
+      "kind": "inline",
+      "line": 143,
+      "path": "tests/test_meta_prior_softmax.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/90#discussion_r4459678095"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThis PR introduces `FamilyMember`, `MetaPrior`, and `compile_meta_prior` for Story 19.1 (softmax meta-prior pooling). The math is correct per FDD-019 §3 item 2, AC_5 purity is enforced, and the 14-test contract suite is thorough. Two blocking issues were found:\n\n### 🛑 Must Fix\n\n1. **`ZeroDivisionError` on a single-member family** (`meta_prior.py` line 57): The `count - 1` denominator in the spread calculation crashes when exactly one member is passed. A minimum-size guard is needed before the spread computation.\n\n2. **`kappa_prior` default silently discarded for softmax** (`meta_prior.py` line 67): The parameter accepts `float = 10.0` but the softmax path always stores `None`, meaning any explicit caller-supplied value is dropped without error. Changing the default to `None` (or rejecting a non-`None` value for softmax) removes the silent data-loss path.\n\nNo other blocking issues were identified. The mathematical implementation, type annotations, purity contract, and package-root exports are all correct.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "105d7b3098dc239f9d31ca227ec967fbcb36511d",
+      "created_at": "2026-11-03T19:49:03Z",
+      "id": 5758548339,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/90#pullrequestreview-5758548339"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Crash Risk (ZeroDivisionError):** `_pool_softmax` divides by `count - 1` on line 57 to compute the spread. When called with exactly one member, `count - 1 == 0`, causing an unhandled `ZeroDivisionError` at runtime. Story 19.3 is described as adding family-level validation (gate, size, role maps), but that validation calls `compile_meta_prior` — the guard must be here, before the division, to produce a controlled error instead of a crash. Add a check such as `if count < 2: raise ValueError(...)` at the top of `_pool_softmax` or immediately after `count = len(centred)`.",
+      "commit": "320af445ccc854743443ba73a09074c4e7be49a9",
+      "created_at": "2026-11-03T19:49:04Z",
+      "id": 4459679765,
+      "kind": "inline",
+      "line": 57,
+      "path": "src/agent_learning/meta_prior.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/90#discussion_r4459679765"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error (silently ignored argument):** `compile_meta_prior` accepts `kappa_prior: float = 10.0` as a keyword-only argument but unconditionally stores `None` for the softmax path, meaning any caller who explicitly passes `kappa_prior=<value>` will have that value silently discarded with no error or warning. Since the parameter has a non-`None` default and is accepted without complaint, this creates a silent data-loss defect for softmax callers. The parameter should either be rejected (raise `ValueError` if `kappa_prior` is not the sentinel default when `representation == \"softmax\"`) or its default should be `None` to make the intent clear.\n```suggestion\n    kappa_prior: float | None = None,\n```",
+      "commit": "320af445ccc854743443ba73a09074c4e7be49a9",
+      "created_at": "2026-11-03T19:49:04Z",
+      "id": 4459679779,
+      "kind": "inline",
+      "line": 67,
+      "path": "src/agent_learning/meta_prior.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/90#discussion_r4459679779"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "Here is the status of every finding category against this commit:\n\n---\n\n### ✅ Resolved\n\n| Finding | Status |\n|---|---|\n| **AC_0 – Mean & Spread numerics** | `_pool_softmax` implements zero-centering, per-role mean, and K−1 spread exactly per FDD-019 §3 item 2. Test `test_ac0_*` pins both the hand-computed values and the formula-recomputed values to 1e-9 / 1e-12. ✅ |\n| **AC_1 – Centred invariant** | `values` sums to zero within 1e-12 (proven by the zero-centering algebra). The member centred-logit sum is validated indirectly via the four-identical-member fixture. ✅ |\n| **AC_2 – Offset invariance** | Subtraction of per-member mean before pooling guarantees this. Two tests cover single-constant and per-member-different-constant cases. ✅ |\n| **AC_3 – Roles, not ids** | `by_role` re-indexes on `role_map` before any arithmetic; member order changes neither `values` nor `role_spread` (commutative mean/variance). Three tests cover renamed ids, reordered action-within-member, and reversed member list. ✅ |\n| **AC_4 – Record shape** | `representation`, `member_count`, `kappa_prior=None`, `sigma_het`, `roles` (sorted via `tuple(sorted(...))`), and `compiled_from` (input order) are all set correctly and verified by three AC_4 tests. ✅ |\n| **AC_5 – Purity** | Only `math`, `collections.abc`, `dataclasses`, `typing` are imported. `test_ac5_meta_prior_is_pure` walks the AST and asserts no `storage`, `random`, `numpy`, or file-I/O imports and no `open` call. ✅ |\n| **Package export** | `FamilyMember`, `MetaPrior`, and `compile_meta_prior` are imported in `__init__.py` and listed in `__all__`. `test_the_types_and_the_function_are_exported_from_the_package_root` covers this. ✅ |\n| **I1 – Non-softmax guard** | `compile_meta_prior` raises `NotImplementedError` for any representation other than `\"softmax\"`. ✅ |\n\n---\n\n### ⚠️ One latent defect — not introduced by this PR, but now observable\n\n`_pool_softmax` will raise `ZeroDivisionError` if called with an empty `members` sequence (`len(centred) == 0` → `centred[0]` is an `IndexError`, and `count - 1 == -1` for a single-member sequence yields a spread of 0 by coincidence but division by zero for K=1 on `count - 1`). Family-size validation is intentionally deferred to Story 19.3 (AC_5 note / I1), so this is **by design for now**, but should be tracked as a guard to add in 19.3: reject families with fewer than 2 members before calling `_pool_softmax`.\n\n---\n\n### 🔲 Explicitly out of scope for this story (not findings — tracked in later stories)\n\n- Beta / Thompson representation (Story 19.2)\n- Family validation / refusals — size, gate, role-map consistency, `sigma_het` range (Story 19.3)\n- CLI commands `task-policy-family-set` / `task-policy-meta-compile` (Stories 19.4, 19.5)\n- Seeding a policy from the prior via `warm_start_*` (Story 19.6)\n\n---\n\n**Bottom line:** all six ACs and both interpretations (I1, I2/I3) are fully resolved in this commit. The only item remaining is the empty/single-member guard, which is a known deferral to Story 19.3.",
+      "commit": null,
+      "created_at": "2026-11-03T19:50:02Z",
+      "id": 6613897125,
+      "kind": "issue",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/90#issuecomment-6613897125"
+    }
+  ],
+  "pr": 90
+}

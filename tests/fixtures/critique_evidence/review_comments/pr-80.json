@@ -1,0 +1,105 @@
+{
+  "available": true,
+  "comments": [
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: The `Request` object is constructed once before the retry loop and reused across all attempts. `urllib.request.urlopen` reads `request.data` (a `bytes` object) directly — `bytes` objects are not streams so they are not consumed, meaning this specific issue does not actually cause a regression here. However, the `Request` object also accumulates any internal state mutations that `urlopen` may make (e.g. to headers like `Host` or `Content-length` via `add_unredirected_header`). To be safe and avoid subtle state-bleed between attempts, reconstruct the `Request` object inside the loop on each attempt.\n```suggestion\n        data = prompt.encode(\"utf-8\")\n        for attempt in range(len(self._delays) + 1):\n            request = Request(\n                self._url,\n                data=data,\n                headers=headers,\n                method=\"POST\",\n            )\n            try:\n                with urlopen(request) as response:\n                    return response.read().decode(\"utf-8\")\n            except HTTPError as exc:\n                if not _is_retryable_status(exc.code):\n                    raise\n                last_error: URLError = exc\n            except URLError as exc:\n                last_error = exc\n\n            if attempt == len(self._delays):\n                raise last_error\n            self._sleeper(self._delays[attempt])\n```",
+      "commit": "1bf8df40c76c65bea8994d05562f5998b5bcb6b3",
+      "created_at": "2026-10-31T07:59:49Z",
+      "id": 4431023428,
+      "kind": "inline",
+      "line": null,
+      "path": "src/agent_learning/pmbok_runtime/client.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/80#discussion_r4431023428"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThe implementation is well-structured: caller-supplied retry delays with additive jitter, credential-at-call-time reading with no logging of the value, clean stdlib-only dependency, and a solid test suite covering all five acceptance criteria.\n\n**One finding requiring attention:**\n\nIn `_UrllibClient.complete`, the `Request` object is constructed before the retry loop and reused across all retry attempts. While `bytes` objects in `request.data` are not stream-consumed, `urlopen` can silently mutate internal `Request` state (e.g. via `add_unredirected_header` for `Host`, `Content-length`, etc.). Reconstructing the `Request` inside the loop on each attempt eliminates this risk and is the standard pattern for retry-safe urllib usage. A one-click suggestion has been provided on the relevant lines.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "1bf8df40c76c65bea8994d05562f5998b5bcb6b3",
+      "created_at": "2026-10-31T07:59:49Z",
+      "id": 5721904345,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/80#pullrequestreview-5721904345"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: The `Request` object is constructed once before the retry loop, but `urlopen` consumes its `data` body as a stream on the first attempt. On the second attempt (and any subsequent retry), `request.data` still holds the original `bytes` reference so the object appears intact, but certain transport layers can exhaust the underlying buffer. More critically, `urlopen` does not automatically reset the seek position; if the body were a file-like object this would silently send an empty body on every retry. The safe pattern is to reconstruct the `Request` object (or at least reassign `request.data`) inside the loop on each attempt, ensuring a fresh payload is always sent.\n```suggestion\n        encoded_prompt = prompt.encode(\"utf-8\")\n        for attempt in range(len(self._delays) + 1):\n            request = Request(\n                self._url,\n                data=encoded_prompt,\n                headers=headers,\n                method=\"POST\",\n            )\n            try:\n                with urlopen(request) as response:\n                    return response.read().decode(\"utf-8\")\n            except HTTPError as exc:\n                if not _is_retryable_status(exc.code):\n                    raise\n                last_error: URLError = exc\n            except URLError as exc:\n                last_error = exc\n\n            if attempt == len(self._delays):\n                raise last_error\n            self._sleeper(self._delays[attempt])\n```",
+      "commit": "1bf8df40c76c65bea8994d05562f5998b5bcb6b3",
+      "created_at": "2026-10-31T07:59:54Z",
+      "id": 4431023581,
+      "kind": "inline",
+      "line": null,
+      "path": "src/agent_learning/pmbok_runtime/client.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/80#discussion_r4431023581"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThis PR implements the PMBOK HTTP and mock LLM clients (Story 34.3) cleanly: standard-library-only dependencies, caller-supplied retry/backoff/jitter, credential handling via environment variable at call time, and no credential leakage into logs or `RunEpisodeFields`. The structure and test coverage are solid.\n\n**One blocking defect found:**\n\nThe `urllib.request.Request` object is built once *outside* the retry loop in `_UrllibClient.complete`. While `bytes` objects are immutable and won't be exhausted, constructing the `Request` outside the loop is fragile: it couples the retry logic to the assumption that `urlopen` never partially consumes or mutates the request body. Moving `Request` construction inside the loop (one per attempt) is the correct defensive pattern and eliminates any ambiguity — see the inline comment for a concrete suggestion.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "1bf8df40c76c65bea8994d05562f5998b5bcb6b3",
+      "created_at": "2026-10-31T07:59:54Z",
+      "id": 5721904577,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/80#pullrequestreview-5721904577"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: The domain isolation check only blocks direct imports of `client` or `agent_learning.pmbok_runtime.client` but does NOT catch `from agent_learning.pmbok_runtime import urllib_client` (or `mock_client`, `backoff_delays`, `LlmClient`). A domain module can import any of the re-exported client symbols from `pmbok_runtime.__init__` without triggering this assertion, silently violating the boundary. The check should also assert that none of the client-specific names (`urllib_client`, `mock_client`, `backoff_delays`, `LlmClient`) are imported from `agent_learning.pmbok_runtime`.\n```suggestion\n                if node.module in {\"agent_learning.pmbok_runtime\", \"pmbok_runtime\"}:\n                    assert all(\n                        alias.name != \"client\"\n                        and alias.name != \"*\"\n                        and alias.name not in {\"urllib_client\", \"mock_client\", \"backoff_delays\", \"LlmClient\"}\n                        for alias in node.names\n                    )\n```",
+      "commit": "e4b1aa18b8a6232cea4ecfc9075251ea58aa82c1",
+      "created_at": "2026-10-31T08:05:12Z",
+      "id": 4431037475,
+      "kind": "inline",
+      "line": null,
+      "path": "tests/test_pmbok_client.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/80#discussion_r4431037475"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThe implementation is well-structured: stdlib-only HTTP client, caller-supplied retry schedule with additive jitter, credential isolation from env vars at call time, and the mock client are all correctly implemented. The retry loop logic and error propagation are sound.\n\n**One blocking issue found** in the contract test `test_ac4_client_uses_only_stdlib_and_stays_out_of_pure_domain`:\n\nThe domain isolation check guards against direct imports of the `client` module or `agent_learning.pmbok_runtime.client`, but it does **not** guard against a domain module importing the client symbols (`urllib_client`, `mock_client`, `backoff_delays`, `LlmClient`) via the re-exported names from `agent_learning.pmbok_runtime.__init__`. This means the boundary contract can be silently violated, which defeats the purpose of the test.\n\nSee the inline comment for the specific fix.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "e4b1aa18b8a6232cea4ecfc9075251ea58aa82c1",
+      "created_at": "2026-10-31T08:05:12Z",
+      "id": 5721921936,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/80#pullrequestreview-5721921936"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "Here is a status check against all findings that were raised (or implied by the PR's own risk note and review criteria) for this commit:\n\n---\n\n### ✅ Resolved\n\n| Finding | Evidence in this commit |\n|---|---|\n| **No hardcoded credentials / secrets** | `client.py` reads the Bearer token from a named env var at call time (`os.environ.get`); the var name — not the value — appears in the `ValueError` message (line 50). `test_ac2` explicitly asserts the secret is absent from both the exception string and `RunEpisodeFields`. |\n| **No secret echo in logs/errors** | `ValueError` only prints `self._credential_env_var` (the env var *name*), never the credential value. |\n| **`tenacity` / third-party dependency eliminated** | `test_ac4` uses AST inspection to assert `tenacity` and `agent_learning.storage` are not imported by `client.py`. |\n| **Pure domain (`agent_learning.pmbok`) must not import runtime** | `test_ac4` walks every `.py` in the `pmbok` package and asserts no `pmbok_runtime` imports exist. |\n| **Each `Request` object rebuilt per retry attempt** | `test_ac1` asserts `requests[0] is not requests[1]`, confirming the rebuild-per-attempt contract. |\n| **Retry only on 429 / 5xx; propagate non-retryable errors immediately** | `_is_retryable_status` covers exactly this range; `test_ac1` exercises a 400 (no retry) and a 503 (retry-then-raise). |\n| **Caller-supplied delays, no hidden defaults** | `backoff_delays` is a pure builder; `urllib_client` takes `delays: Sequence[float]` — no internal default retry schedule. |\n| **FDD-034 §5 item 3 confirmed** | PR description marks this confirmed; I1/I2 interpretations are recorded in the test docstring. |\n| **`__all__` exports updated** | `pmbok_runtime/__init__.py` re-exports `LlmClient`, `backoff_delays`, `mock_client`, `urllib_client`. |\n\n---\n\n### ⚠️ Remaining / not yet addressed in this commit\n\n| Item | Status |\n|---|---|\n| **`tests/pmbok/` collection errors (15 errors)** | Acknowledged in the PR test plan — blocked on missing optional deps (`tenacity`, `sqlalchemy`, `fastapi`, `yaml`, `hypothesis`). Owned by Story 34.5. Not introduced by this PR, but CI remains unstable until resolved. |\n| **Full suite exclusion (`--ignore=tests/pmbok`)** | Same root cause. The CI exclusion is a carry-forward item to Story 34.5. |\n| **URL not validated before use** | `_UrllibClient` passes `url` directly to `urllib.request.Request` with no scheme/host validation. A caller-supplied non-HTTP(S) scheme (e.g. `file://`) would succeed silently. This is a scope/contract question rather than a regression, but worth a follow-up or explicit guard if untrusted input can reach this API.[^1] |\n\n[^1]: CWE-20: Improper Input Validation — https://cwe.mitre.org/data/definitions/20.html\n\n---\n\n**Summary:** All security and correctness findings that were in scope for Story 34.3 are resolved in this commit. The two CI items are pre-existing and assigned to Story 34.5. The URL validation gap is a new observation worth tracking but is not a blocker for this story's acceptance criteria.",
+      "commit": null,
+      "created_at": "2026-10-31T08:10:27Z",
+      "id": 6540991530,
+      "kind": "issue",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/80#issuecomment-6540991530"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "Here is the status of every finding raised against this PR, based on the current diff and file content:\n\n---\n\n### ✅ Resolved\n\n| Finding | Resolution |\n|---|---|\n| **URL scheme not validated** — `urllib_client` could accept `file://`, `ftp://`, or bare paths, allowing unintended network targets or local file reads. | **Resolved.** `_require_http_url` (client.py line 84–87) rejects anything that isn't `http`/`https` with a non-empty host, and fires before any credential read or socket open. Contract-locked by `test_i3_url_scheme_guard_rejects_non_http_urls` (8 parametrized cases) and `test_i3_url_scheme_guard_accepts_http_and_https`. |\n| **Credential value echoed in errors / logged** — raw token could appear in exception messages or `RunEpisodeFields`. | **Resolved.** The error message on line 51 names only the *variable name* (`{self._credential_env_var!r}`), never the value. `test_ac2` asserts `secret not in str(caught.value)` and `secret not in repr(fields)`. |\n| **Credential read at construction time** — secret could be snapshotted into the object and retained in memory longer than necessary. | **Resolved.** `os.environ.get(self._credential_env_var)` is called inside `complete()` (line 48) on every invocation, not in `__init__`. |\n| **`tenacity` / third-party dependency on the runtime path** — previously the retry logic relied on `tenacity`. | **Resolved.** `backoff_delays` + the manual retry loop in `_UrllibClient.complete` use only stdlib. AST guard in `test_ac4` enforces this statically. |\n| **Pure PMBOK domain importing runtime modules** — `agent_learning.pmbok` importing from `pmbok_runtime` would violate the purity boundary. | **Resolved.** `test_ac4_client_uses_only_stdlib_and_stays_out_of_pure_domain` walks every `.py` under `src/agent_learning/pmbok` and asserts no `pmbok_runtime` import exists. |\n| **`Request` object reused across retries** — a shared mutable `Request` could carry stale state. | **Resolved.** A new `Request` is constructed on every iteration of the retry loop (lines 57–62). `test_ac1` asserts `requests[0] is not requests[1]`. |\n| **Non-retryable errors (e.g. HTTP 400) being retried** — wasting attempts and delaying the caller. | **Resolved.** `_is_retryable_status` (line 80–81) limits retries to 429 and 5xx; non-retryable `HTTPError` is re-raised immediately. |\n\n---\n\n### ⚠️ Remaining / Not Fully Addressed\n\n| Item | Detail |\n|---|---|\n| **`tests/pmbok/` collection errors (15 errors)** | Missing optional deps (`tenacity`, `sqlalchemy`, `fastapi`, `yaml`, `hypothesis`) cause 15 collection errors in `tests/pmbok/`. The PR description explicitly defers this to Story 34.5, but the CI exclusion `--ignore=tests/pmbok` means those tests are not run in the current suite, leaving that coverage gap open until 34.5 lands. |\n| **`last_error` potentially unbound** | If `_UrllibClient.complete` is called with `delays=[]` (zero retries) and the single attempt succeeds, `last_error` is never assigned — which is fine. However, if the loop body's `except` branches are never entered on any iteration and the loop exits normally, `raise last_error` on line 74 would reference an unbound name. The `raise RuntimeError(...)` on line 77 acts as a final safety net, but `last_error` is still technically unbound in that path. This is a latent `UnboundLocalError` risk, not currently caught by the test suite. |\n\nThe one substantive open item is the `last_error` unbound-name risk on line 74; everything else from previous rounds is confirmed resolved.",
+      "commit": null,
+      "created_at": "2026-11-02T09:46:48Z",
+      "id": 6574020394,
+      "kind": "issue",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/80#issuecomment-6574020394"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "Here is a status check of every finding raised against this PR, based on the current head commit (`bb89383`):\n\n---\n\n### ✅ Resolved\n\n| Finding | Resolution |\n|---|---|\n| **No URL scheme validation** — `urllib_client` previously accepted any string as a URL, including `file://` and bare paths, which could expose credentials to unintended destinations. | Fully resolved. `_require_http_url` validates `http`/`https` with a non-empty host at construction time, before any credential read or socket open. `test_i3_url_scheme_guard_rejects_non_http_urls` (8 parametrized cases) and `test_i3_url_scheme_guard_accepts_http_and_https` lock this gate. |\n| **Credential value leaked in `ValueError` message** — error text previously included the env-var value. | Resolved. The error message exposes only the *name* of the env-var (`{self._credential_env_var!r}`), not its value. `test_ac2` asserts `secret not in str(caught.value)`. |\n| **Secret present in `RunEpisodeFields` / logs** | Resolved. `test_ac2` additionally asserts `secret not in repr(fields)` after calling `build_run_fields`, confirming the purity boundary holds. |\n| **`tenacity` / `agent_learning.storage` dependency on the runtime path** | Resolved. `test_ac4_client_uses_only_stdlib_and_stays_out_of_pure_domain` uses an AST guard to assert neither `tenacity` nor `agent_learning.storage` (nor `LearningStore`) are imported by `client.py`. |\n| **Pure-domain (`agent_learning.pmbok`) importing runtime modules** | Resolved. The same `test_ac4` walks every `.py` file under `agent_learning/pmbok` and asserts no runtime import is present. |\n| **Request object not rebuilt per attempt** — reusing a `Request` instance across retries could cause stale state. | Resolved. `Request(...)` is constructed inside the retry loop on each iteration. `test_ac1` asserts `requests[0] is not requests[1]`. |\n\n---\n\n### ⚠️ Remaining / Not Yet Addressed\n\n| Item | Detail |\n|---|---|\n| **15 collection errors in `tests/pmbok/`** | Missing optional dependencies (`tenacity`, `sqlalchemy`, `fastapi`, `yaml`, `hypothesis`) cause errors at collection time. The PR description acknowledges this is owned by Story 34.5. It is not a regression introduced here, but it does mean the full suite cannot be verified clean until 34.5 lands. |\n| **`last_error` potentially unbound** | If `delays` is empty (`len(self._delays) == 0`), the loop runs exactly one iteration (`range(1)`). On that iteration, if `urlopen` succeeds the function returns normally. However, if `urlopen` raises a retryable error, `last_error` is assigned and then `attempt == len(self._delays)` (i.e. `0 == 0`) immediately raises it — correct. But static analysers (mypy strict mode) may flag `last_error` as possibly unbound since its assignment is inside an `except` block. This is not a runtime bug given the loop logic, but worth confirming mypy is run with `--strict` or that the variable is pre-initialised to silence the warning cleanly. |\n\n---\n\n**Summary:** All security and functional findings from prior review rounds are resolved in this commit. The two items above are a pre-existing CI gap (tracked to 34.5) and a static-analysis edge case — neither blocks the Story 34.3 acceptance criteria.",
+      "commit": null,
+      "created_at": "2026-11-02T09:51:45Z",
+      "id": 6574115074,
+      "kind": "issue",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/80#issuecomment-6574115074"
+    }
+  ],
+  "pr": 80
+}

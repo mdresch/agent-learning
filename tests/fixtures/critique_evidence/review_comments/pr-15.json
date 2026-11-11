@@ -1,0 +1,61 @@
+{
+  "available": true,
+  "comments": [
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThis PR introduces nine runnable methodology examples under `examples/methodologies/` with a thorough contract test suite (`tests/test_methodology_examples.py`). The implementation is well-structured and the design intent (synthetic data, in-memory store only, no network calls, no production store mutations) is consistently enforced across all examples.\n\n**No blocking defects were found.** The code is correct, the test coverage is comprehensive for the stated acceptance criteria, and the examples correctly isolate themselves from production state.\n\nA few observations for awareness (not blocking):\n\n- The static import scan in `test_ac3_example_uses_no_real_store_and_no_network` does not catch dynamic network calls (e.g. `os.system`, `subprocess.run` inside an example) — this limitation is correctly acknowledged in the PR description and test docstring (I1 interpretation).\n- `ast.parse` calls in the test helpers (lines 55, 121, 142) have no exception handling; a syntax error in a scanned source file would surface as an `ast.ParserError` rather than an assertion failure, making CI output harder to diagnose. This is minor and not blocking.\n- The per-methodology subprocess timeout of 120 s is generous; the serial `test_ac3_running_the_examples_leaves_the_catalog_unchanged` can therefore take up to 9 × 120 s = 18 min in the worst case on a slow machine. Consider whether a tighter per-script limit is appropriate.\n\nOverall the change is clean and merge-ready from a correctness standpoint.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "16577a700be836c0ac023d0bdef936bc22047ace",
+      "created_at": "2026-10-26T11:55:14Z",
+      "id": 5651537175,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/15#pullrequestreview-5651537175"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThe PR adds nine well-structured runnable methodology examples with good inline labeling (`DATA: SYNTHETIC`, `NOT EVIDENCE`), proper `InMemoryStore`-only isolation, and a thorough contract test suite. The examples themselves are clean and the test coverage of the labeling, store-isolation, and no-network invariants is solid.\n\nTwo defects in `tests/test_methodology_examples.py` need fixing before merge:\n\n1. **`test_ac3_running_the_examples_leaves_the_catalog_unchanged`** — uses `check=True` inside the subprocess loop, meaning a non-zero exit raises `subprocess.CalledProcessError` and completely bypasses the catalog-hash assertion. The error surfacing is inconsistent with `test_ac2` and obscures the actual failure. Switch to `check=False` with an explicit `returncode` assertion (see inline comment).\n\n2. **`test_ac3_nothing_under_src_imports_from_examples`** — `ast.parse` is called without a `try/except SyntaxError` guard. Any syntax-invalid `.py` file under `src/` will crash the entire test with an unhandled exception rather than a controlled failure (see inline comment).\n\nNo issues found in the example scripts themselves.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "16577a700be836c0ac023d0bdef936bc22047ace",
+      "created_at": "2026-10-26T11:55:27Z",
+      "id": 5651539547,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/15#pullrequestreview-5651539547"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: `check=True` causes `subprocess.CalledProcessError` to propagate as an unhandled exception when any script exits non-zero, bypassing the `assert` at line 166 entirely. A CI failure would surface as an exception traceback pointing at `subprocess.run` rather than as a test assertion failure, making it non-obvious which script failed and why. Use `check=False` and assert the return code explicitly, consistent with how `test_ac2` handles this.\n```suggestion\n        proc = subprocess.run(\n            [sys.executable, str(_script(methodology_id))],\n            cwd=tmp_path,\n            capture_output=True,\n            text=True,\n            timeout=120,\n            check=False,\n        )\n        assert proc.returncode == 0, proc.stderr[-1500:]\n```",
+      "commit": "16577a700be836c0ac023d0bdef936bc22047ace",
+      "created_at": "2026-10-26T11:55:28Z",
+      "id": 4376919900,
+      "kind": "inline",
+      "line": null,
+      "path": "tests/test_methodology_examples.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/15#discussion_r4376919900"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Crash Risk**: `ast.parse` raises `SyntaxError` if any `.py` file under `src/` contains invalid Python syntax. This propagates as an unhandled exception, aborting the entire test rather than producing a controlled assertion failure. Wrap the parse in a `try/except SyntaxError` to skip or report invalid files without crashing the test.\n```suggestion\n    for path in (ROOT / \"src\").rglob(\"*.py\"):\n        try:\n            tree = ast.parse(path.read_text(encoding=\"utf-8\"))\n        except SyntaxError:\n            continue\n```",
+      "commit": "16577a700be836c0ac023d0bdef936bc22047ace",
+      "created_at": "2026-10-26T11:55:28Z",
+      "id": 4376919921,
+      "kind": "inline",
+      "line": null,
+      "path": "tests/test_methodology_examples.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/15#discussion_r4376919921"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "Here is the status of every finding raised in the round-1 review against this PR (Story 36.2):\n\n| ID | Category | Verdict | Resolution |\n|---|---|---|---|\n| Q-15-1 | test gap — `check=True` in the catalog-unchanged test masked the failing script | accepted | Fixed in `5048fe2`; test now passes `check=False` and asserts `returncode == 0` per script, so the error message names the failing id. |\n| Q-15-2 | crash risk — bare `SyntaxError` from `ast.parse` on `src/` files could crash the test suite | accepted with modification | Fixed in `5048fe2`; the `_parse` helper now catches `SyntaxError` and calls `pytest.fail(f\"cannot parse {path}: {exc}\")` so the file path is always reported (rather than Q's suggestion of skipping, which would hide a broken file). |\n| Q-15-3 | test gap — same unguarded `ast.parse` in example-script scan and header helper | accepted | Fixed in `5048fe2`; all three call sites now go through the single `_parse` helper. |\n| Q-15-4 | style — 120 s per-script timeout generous for ~2 s scripts | accepted | Fixed in `5048fe2`; timeout reduced to 60 s (`RUN_TIMEOUT_SECONDS = 60`). |\n| Q-15-5 | test gap — static scan cannot catch dynamic network calls (`os.system`, etc.) | declined | Acknowledged as interpretation I1 in the test module docstring and the PR description; no fix intended. |\n\n**Nothing remains open from the round-1 findings.** The two items called out in the PR description as \"Found, not fixed\" (`examples/quickstart.py` and `examples/next_best_action.py`) are pre-existing issues explicitly deferred to a separate change and are outside this story's scope.",
+      "commit": null,
+      "created_at": "2026-10-26T11:57:30Z",
+      "id": 6415421497,
+      "kind": "issue",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/15#issuecomment-6415421497"
+    }
+  ],
+  "pr": 15
+}

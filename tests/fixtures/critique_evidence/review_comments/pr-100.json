@@ -1,0 +1,94 @@
+{
+  "available": true,
+  "comments": [
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Crash Risk**: `snapshot.logits[role]` raises an uncaught `KeyError` if a role present in `snapshot.actions` is missing from `snapshot.logits`. This `KeyError` propagates out of `_prior_from_snapshot` and is not caught by the `except (ValueError, TypeError)` handler in `_warm_start_from_meta_prior`, causing an unhandled exception instead of a clean non-zero exit. Replace the direct key access with `.get(role, 0.0)` to match the logit-fallback used elsewhere in the codebase, or add `KeyError` to the caught exception types.\n```suggestion\n        values={role: snapshot.logits.get(role, 0.0) for role in roles},\n```",
+      "commit": "816128b0b7823ab28ceb8a38818c9e4543d24f62",
+      "created_at": "2026-11-04T02:54:46Z",
+      "id": 4463039978,
+      "kind": "inline",
+      "line": 1462,
+      "path": "src/agent_learning/cli.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/100#discussion_r4463039978"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThis PR implements Story 20.5 (`--meta-prior` warm start) by adding `_latest_meta_prior`, `_prior_from_snapshot`, and `_warm_start_from_meta_prior` to `cli.py`, replacing the previous stub. The implementation correctly follows the spec (FDD-020 §2.1 item 3): it finds the latest non-superseded softmax meta-prior, seeds values via `seed_values`, applies damping (defaulting to 1.0), records provenance with `gate_met=None`, and writes only on success. The test suite in `test_warm_start_meta_prior.py` covers all six acceptance criteria (AC_0–AC_5) thoroughly.\n\n**One blocking issue found:**\n\nIn `_prior_from_snapshot`, `snapshot.logits[role]` uses direct key access (line 1458). If a stored snapshot has a role in `snapshot.actions` that is absent from `snapshot.logits` (e.g., a malformed Beta-prior snapshot that was incorrectly passed through), this raises a `KeyError` that is not caught by the `except (ValueError, TypeError)` handler in `_warm_start_from_meta_prior`, producing an unhandled exception instead of the expected clean non-zero exit. Use `.get(role, 0.0)` to match the pattern used elsewhere (e.g., line 1158: `snapshot.logits.get(action.id, 0.0)`).\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "f3bd12655b1d9dc9f4962225fa73e67c9bd8a32a",
+      "created_at": "2026-11-04T02:54:46Z",
+      "id": 5762560170,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/100#pullrequestreview-5762560170"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThis PR implements Story 20.5 (`task-policy-warm-start --meta-prior N`), replacing the \"not yet implemented\" stub with full meta-prior seeding logic. The implementation correctly covers all stated acceptance criteria (AC_0–AC_5), and the test coverage is thorough and well-structured.\n\n### Critical Issues Found\n\n**Two `KeyError` crash paths in `_warm_start_from_meta_prior` / `_prior_from_snapshot`:**\n\n1. **`_prior_from_snapshot` (line 1458)**: `snapshot.logits[role]` uses direct dict lookup. If a stored meta-prior snapshot is missing a logit entry for any role (due to corruption or an unexpected storage state), a `KeyError` is raised. This is not caught by the caller's `except (ValueError, TypeError)`, causing an unhandled exception to propagate out of `main()` instead of a clean non-zero exit.\n\n2. **`_warm_start_from_meta_prior` (line 1501)**: The `seeds[action_id]` dict comprehension inside the try block at line 1491 is also only guarded by `except (ValueError, TypeError)`. A `KeyError` from `seed_values` returning an incomplete mapping would similarly crash the CLI.\n\nBoth issues need to be fixed before merge to ensure the command always exits cleanly with a user-facing error message rather than an unhandled exception traceback.\n\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "f3bd12655b1d9dc9f4962225fa73e67c9bd8a32a",
+      "created_at": "2026-11-04T02:54:53Z",
+      "id": 5762561293,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/100#pullrequestreview-5762561293"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Crash Risk**: `snapshot.logits[role]` raises `KeyError` if any role is missing from the stored logits of a malformed meta-prior snapshot. The calling try/except at line 1490 only catches `ValueError` and `TypeError`, so a `KeyError` here propagates unhandled and crashes the CLI instead of printing a user-friendly error and returning exit code 2.\n```suggestion\n        values={role: snapshot.logits.get(role, 0.0) for role in roles},\n```",
+      "commit": "816128b0b7823ab28ceb8a38818c9e4543d24f62",
+      "created_at": "2026-11-04T02:54:54Z",
+      "id": 4463040965,
+      "kind": "inline",
+      "line": 1462,
+      "path": "src/agent_learning/cli.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/100#discussion_r4463040965"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Crash Risk**: The `except (ValueError, TypeError)` at line 1501 does not catch `KeyError`. If `seed_values` returns a mapping that is missing any `action_id` from `action_ids` (e.g., due to a `role_map` that maps to roles not in the prior), the dict comprehension `seeds[action_id]` raises an unhandled `KeyError` that propagates out of `main()` as an exception instead of a clean non-zero exit with an error message. Add `KeyError` to the caught exceptions.\n```suggestion\n    except (ValueError, TypeError, KeyError) as exc:\n```",
+      "commit": "816128b0b7823ab28ceb8a38818c9e4543d24f62",
+      "created_at": "2026-11-04T02:54:54Z",
+      "id": 4463040972,
+      "kind": "inline",
+      "line": 1505,
+      "path": "src/agent_learning/cli.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/100#discussion_r4463040972"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: The `limit=1000` hard cap means that if a prior accumulates more than 1000 stored snapshots (e.g., a long-running family that recompiles frequently), `store.list_policies` truncates the result and `max(..., key=lambda s: s.version)` silently picks the highest-version snapshot *within the returned page* rather than the true latest. This causes warm-starting from a stale version without any error, violating AC_3 (\"the latest non-superseded prior is used\"). Use an unbounded fetch or a sufficiently large sentinel, and document the assumption, or use a dedicated store query for the max-version snapshot.",
+      "commit": "816128b0b7823ab28ceb8a38818c9e4543d24f62",
+      "created_at": "2026-11-04T03:01:22Z",
+      "id": 4463075645,
+      "kind": "inline",
+      "line": 1438,
+      "path": "src/agent_learning/cli.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/100#discussion_r4463075645"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThis PR correctly implements Story 20.5: meta-prior warm-starting (`task-policy-warm-start --meta-prior N`). The overall design is sound — the new `_latest_meta_prior`, `_prior_from_snapshot`, and `_warm_start_from_meta_prior` helpers follow the existing patterns closely, all refusal paths exit 2 and write nothing, and the 13 contract tests cover all acceptance criteria including the malformed-prior safety case (Q-100-1). The update to `test_warm_start_cli.py` correctly replaces the stub assertion.\n\n**One blocking defect found:**\n\n`_latest_meta_prior` calls `store.list_policies(agent_id, name, limit=1000)` and then picks the `max` by version from the returned page. If a prior has been recompiled more than 1000 times, the true highest-version snapshot may not be in the returned list, and the function silently seeds from a stale version. This violates AC_3 (\"the latest non-superseded prior is used\") without raising any error. See the inline comment for details.\n\nNo other merge-blocking issues were found.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "21072f0c1be14447390219f89d868deb8d988604",
+      "created_at": "2026-11-04T03:01:22Z",
+      "id": 5762602099,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/100#pullrequestreview-5762602099"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "Here is the status of every tracked finding against this commit (816128b):\n\n---\n\n### ✅ Resolved\n\n| Finding | Description | Evidence in this commit |\n|---|---|---|\n| **Story 20.5 stub** | `--meta-prior` exited \"not yet implemented\" | `_warm_start_from_meta_prior`, `_latest_meta_prior`, `_prior_from_snapshot` fully implement the path; 13 contract tests pass |\n| **AC_0** (Same Values) | Logits must equal `seed_values × damping`; provenance must carry `meta_prior` kind, snapshot id, task id, version, and `role_map` as action map | `test_ac0_logits_equal_seed_values_and_provenance_names_the_prior` asserts all provenance fields and logit equality |\n| **AC_1** (Default Damping) | Default damping for meta-prior must be 1.0; `--damping 0.5` must halve logits | `DAMPING_DEFAULT_META_PRIOR` imported and applied; `test_ac1_default_damping_is_one_and_half_is_half` covers both sub-cases |\n| **AC_2** (Matching Declaration) | Target without `family`, with wrong family, or without `role_map` must exit non-zero and write nothing | `_warm_start_from_meta_prior` guards both; `test_ac2_*` parametrised and role-mismatch tests cover this |\n| **AC_3** (Which Prior) | Latest non-superseded softmax prior; superseded, missing, and Beta priors each exit non-zero | `_latest_meta_prior` enforces all four cases; four `test_ac3_*` tests cover each |\n| **AC_4** (Exclusive Flags) | `--action-map` with `--meta-prior` must exit non-zero | Guarded at line 1532–1534; `test_ac4_action_map_with_meta_prior_exits_non_zero` covers it |\n| **AC_5** (Prior Untouched) | Prior snapshot must be byte-equal after the command | `_warm_start_from_meta_prior` writes only `target_copy`; `test_ac5_the_prior_is_left_equal` verifies both the active and the by-id copy |\n| **Q-100-1** | Corrupt prior missing a role logit previously crashed or silently used zero | `_prior_from_snapshot` raises `ValueError` naming the missing role; `test_a_prior_with_an_action_that_has_no_logit_is_refused_cleanly` asserts the role name and \"no logit\" appear in stderr |\n| **Story 20.3 stub assertion** | `test_warm_start_cli.py::test_ac6_flags` asserted \"not yet implemented\" | Updated (line 663–679) to assert `'family-meta-prior' not found`, with a dated comment |\n| **`warm_start_donor_gate_met` null** (I2) | Gate field must be `null` for a meta-prior (FDD-020 §2.1) | `provenance(..., gate_met=None)` at line 1503; `test_ac0` asserts `meta[\"warm_start_donor_gate_met\"] is None` |\n\n---\n\n### 🔲 Remaining / Not addressed in this commit\n\n| Item | Status |\n|---|---|\n| `ruff` findings (4) | PR description states these are pre-existing and unchanged — not introduced by this commit, tracked separately |\n| `mypy` findings (36) | Same — pre-existing, none new per PR description |\n| `test_spark.py` skip | Pre-existing JVM dependency, out of scope for Story 20.5 |\n| `tests/pmbok` skip | Story 34.5 / LL-013, out of scope |\n\nNo acceptance criteria from Story 20.5 remain open. The only open items are pre-existing linting/type findings that were present before this commit and are not new regressions.",
+      "commit": null,
+      "created_at": "2026-11-04T03:02:27Z",
+      "id": 6621369945,
+      "kind": "issue",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/100#issuecomment-6621369945"
+    }
+  ],
+  "pr": 100
+}

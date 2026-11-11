@@ -1,0 +1,171 @@
+{
+  "available": true,
+  "comments": [
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: `bool` is a subclass of `int` in Python, so `isinstance(True, (int, float))` returns `True`. This means `damping=False` (== `0.0`) slips past the `isinstance` guard and is only caught by the range check — which is fine — but `damping=True` (== `1.0`) is silently accepted as a valid float value with no indication that a boolean was passed. The declared type is `float`, and accepting `bool` is a type-contract violation that can mask caller bugs. Add an explicit `bool` exclusion at the top of the damping guard.\n```suggestion\n    if isinstance(damping, bool) or not isinstance(damping, (int, float)) or math.isnan(damping) or math.isinf(damping):\n        raise ValueError(f\"damping must be a finite float, got {damping!r}\")\n    if damping <= 0.0 or damping > 1.0:\n        raise ValueError(f\"damping must be in (0, 1], got {damping!r}\")\n```",
+      "commit": "13978393be8cd945dfca7c6e52c742d7d9dc43bc",
+      "created_at": "2026-11-01T17:48:36Z",
+      "id": 4436703859,
+      "kind": "inline",
+      "line": null,
+      "path": "src/agent_learning/warm_start.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/81#discussion_r4436703859"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "`Dict` is imported from `typing` but never referenced anywhere in this file — `Mapping` and `Sequence` are used, but `Dict` is not. Remove the unused import to keep the import block consistent with the module's own standard-library-purity constraint and to prevent the `test_ac6_pure` source-scan logic from needing future updates if patterns are expanded.\n```suggestion\nfrom typing import Mapping, Sequence\n```",
+      "commit": "13978393be8cd945dfca7c6e52c742d7d9dc43bc",
+      "created_at": "2026-11-01T17:48:36Z",
+      "id": 4436703877,
+      "kind": "inline",
+      "line": null,
+      "path": "src/agent_learning/warm_start.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/81#discussion_r4436703877"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Crash Risk**: The purity-check path `Path(__file__).resolve().parent.parent / \"src\" / \"agent_learning\" / \"warm_start.py\"` hard-codes a two-level assumption (`tests/` is exactly one level below the repo root). If tests are ever relocated, the `assert source_path.is_file()` line will fail with a misleading assertion error rather than a test-setup error. Additionally, in an installed-package scenario (e.g., `pip install -e .`), `warm_start.py` may not exist at that relative path at all, causing the test to fail for all CI environments that do not run from a source checkout. Use `importlib` or `inspect` to locate the module source reliably.\n```suggestion\n    import importlib, inspect\n    import agent_learning.warm_start as _ws_mod\n    source_path = Path(inspect.getfile(_ws_mod))\n    assert source_path.is_file(), \"warm_start.py does not exist\"\n    source_text = source_path.read_text(encoding=\"utf-8\")\n```",
+      "commit": "13978393be8cd945dfca7c6e52c742d7d9dc43bc",
+      "created_at": "2026-11-01T17:48:36Z",
+      "id": 4436703884,
+      "kind": "inline",
+      "line": null,
+      "path": "tests/test_warm_start_logits.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/81#discussion_r4436703884"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThe core `warm_start_logits` implementation is well-structured: input validation is thorough, the function is pure (no mutations, no forbidden imports), and the test suite covers all specified acceptance criteria (AC_0–AC_6). Three issues were found that should be addressed before merge:\n\n1. **`bool` accepted as `damping`** (`src/agent_learning/warm_start.py`, lines 47–50): Since `bool` is a subclass of `int`, `damping=True` silently passes all guards as a valid `1.0`. Explicitly reject `bool` instances to enforce the `float` contract.\n\n2. **Unused `Dict` import** (`src/agent_learning/warm_start.py`, line 14): `Dict` is imported but never used. Remove it to keep the module clean and consistent with its own purity invariant.\n\n3. **Fragile source-file path in purity test** (`tests/test_warm_start_logits.py`, lines 211–213): The hardcoded `parent.parent / \"src\" / ...` path assumes a fixed directory layout and will fail in installed-package or relocated-test scenarios. Use `inspect.getfile()` to locate the module source reliably.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n\n\n---\n:warning: This PR contains more than 30 files. Amazon Q is better at reviewing smaller PRs, and may miss issues in larger changesets.\n",
+      "commit": "13978393be8cd945dfca7c6e52c742d7d9dc43bc",
+      "created_at": "2026-11-01T17:48:36Z",
+      "id": 5729423748,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/81#pullrequestreview-5729423748"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: `target_actions` is typed as a `Sequence[str]`, which permits duplicates. If a caller passes `[\"accept\", \"accept\", \"decline\"]`, the `set()` conversion at line 55 silently discards the duplicate, so the key-equality check at line 57 passes for an `action_map` with only 2 keys. The returned dict will then have 2 entries instead of the 3 implied by the input sequence, with no error raised. An explicit length-vs-set check on `target_actions` should be added before line 55 to catch this invalid input.",
+      "commit": "ce4725991dc8a6b90726a9565e868b6c312396ef",
+      "created_at": "2026-11-01T17:59:25Z",
+      "id": 4436742086,
+      "kind": "inline",
+      "line": 58,
+      "path": "src/agent_learning/warm_start.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/81#discussion_r4436742086"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "The test suite covers duplicate *donor* targets (AC_4) but has no test for duplicate entries in `target_actions` itself (e.g., `[\"accept\", \"accept\", \"decline\"]`). This gap leaves the silent data-loss bug in `warm_start_logits` undetected by the contract suite — a `target_actions` sequence with duplicates currently produces a shorter result dict than the caller expects without raising any error. A test case asserting `ValueError` for a duplicated `target_actions` entry should be added to AC_3 or AC_4.",
+      "commit": "ce4725991dc8a6b90726a9565e868b6c312396ef",
+      "created_at": "2026-11-01T17:59:25Z",
+      "id": 4436742089,
+      "kind": "inline",
+      "line": 179,
+      "path": "tests/test_warm_start_logits.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/81#discussion_r4436742089"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThe implementation of `warm_start_logits` (Story 20.1) is well-structured: validation ordering is sound, the purity constraint (no numpy/random/storage imports) is correctly enforced, all declared error contracts are implemented, and the arithmetic is correct.\n\n**One blocking logic error was found** that must be addressed before merge:\n\n### `target_actions` duplicate entries cause silent data loss\n\n`target_actions` is typed as `Sequence[str]`, which allows duplicates. When duplicates are present (e.g., `[\"accept\", \"accept\", \"decline\"]`), the `set()` conversion silently reduces the cardinality, causing the subsequent key-equality check against `action_map` to pass for a 2-key map. The function then returns a dict with fewer entries than the caller's sequence implied — no exception is raised. The fix is a length-vs-set guard on `target_actions` before the set conversion.\n\nThe test suite has a matching gap: no contract test exercises duplicate `target_actions` entries, which is why this path is unreported. A `ValueError` assertion for this case should be added to the AC_3 or AC_4 test.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n\n\n---\n:warning: This PR contains more than 30 files. Amazon Q is better at reviewing smaller PRs, and may miss issues in larger changesets.\n",
+      "commit": "7875b55d9bd0e23779c7d5c9f3d0eecc7b2d174d",
+      "created_at": "2026-11-01T17:59:25Z",
+      "id": 5729464845,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/81#pullrequestreview-5729464845"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: `inspect.getfile` returns the `.pyc` bytecode path when the package is installed without source files (e.g., from a wheel with `--no-source`). Calling `.read_text()` on a `.pyc` binary will either raise a `UnicodeDecodeError` or silently succeed with garbled bytes that never contain the forbidden string patterns — in both cases the purity contract is not actually verified. Replace with an explicit `.py` source path resolution that fails loudly when the source is unavailable, rather than silently passing.\n```suggestion\n    source_path = Path(inspect.getfile(agent_learning.warm_start))\n    if source_path.suffix == \".pyc\":\n        # Navigate from __pycache__/warm_start.cpython-XY.pyc back to warm_start.py\n        source_path = source_path.parent.parent / (source_path.stem.split(\".\")[0] + \".py\")\n    source_path = source_path.resolve()\n    assert source_path.is_file() and source_path.suffix == \".py\", (\n        f\"warm_start.py source not found (resolved: {source_path})\"\n    )\n    source_text = source_path.read_text(encoding=\"utf-8\")\n```",
+      "commit": "d99b04d2ba1366fd924071a34b52cc48576df51b",
+      "created_at": "2026-11-01T18:35:50Z",
+      "id": 4436851565,
+      "kind": "inline",
+      "line": null,
+      "path": "tests/test_warm_start_logits.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/81#discussion_r4436851565"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThis PR implements the `warm_start_logits` damped-copy function (Story 20.1) along with a large governance documentation package. The core implementation in `src/agent_learning/warm_start.py` is correct — validation guards, arithmetic, purity constraints, and the `__init__.py` export are all sound.\n\n### Critical Finding\n\n**`tests/test_warm_start_logits.py` — `test_ac6_pure`**: `inspect.getfile` can return a `.pyc` bytecode path when the package is installed from a wheel without source. Reading a `.pyc` file as UTF-8 text either raises `UnicodeDecodeError` (crashing the test) or, if it happens to decode, never matches the forbidden import patterns — meaning the purity contract silently passes unverified. A fix is suggested on the relevant lines.\n\n### No Other Blocking Issues\n\nThe rest of the changes (documentation, JSON fixtures, management plans, skill files) are structural/governance artifacts with no runtime logic defects identified.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n\n\n---\n:warning: This PR contains more than 30 files. Amazon Q is better at reviewing smaller PRs, and may miss issues in larger changesets.\n",
+      "commit": "d99b04d2ba1366fd924071a34b52cc48576df51b",
+      "created_at": "2026-11-01T18:35:50Z",
+      "id": 5729639047,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/81#pullrequestreview-5729639047"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Code Review Summary\n\nThis PR introduces the `warm_start_logits` damped-copy implementation for Story 20.1, along with a large set of governance documentation (policy shapes, episodes, decision frames, management plans).\n\n### Core Implementation (`src/agent_learning/warm_start.py`, `tests/test_warm_start_logits.py`, `src/agent_learning/__init__.py`)\n\nThe runtime code is clean and correct. Validation logic, type guards, the injective mapping check, and the arithmetic are all properly implemented and well-tested across AC_0–AC_6. The stdlib-purity invariant is correctly enforced. No defects found in the implementation or test suite.\n\n### Governance Documentation — Two Defects Require Attention\n\nTwo data-integrity issues were found in `docs/policy-shapes/results/pmp-decision-result.json`. These are flagged in the PR description itself as \"medium risk\" because errors in policy JSON could mis-route approvals:\n\n1. **`candidate_actions` is incomplete**: Only `approve_pmp` appears in `candidate_actions`, but all three options (`approve_pmp`, `reject_pmp`, `request_revision_before_decision`) have full entries in `assessments`. Any consumer expecting `candidate_actions` and `assessments` to be in correspondence will see a truncated view.\n\n2. **`status`/`selected_action` mismatch with episode record**: The result file retains `status: \"needs_user_feedback\"` and `selected_action: null`, while the paired episode file (`pmp-approval-episode.json`) records `decision_disposition: \"accepted\"` and `correct_action_id: \"approve_pmp\"`. This internal contradiction means the result artifact does not reflect the completed governance decision.\n\nThese two issues are confined to a single JSON artifact and do not affect runtime behavior, but they should be corrected before merge since they are specifically called out as traceability documents for the approved baseline `PMP-BL-v1.0.0`.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n\n\n---\n:warning: This PR contains more than 30 files. Amazon Q is better at reviewing smaller PRs, and may miss issues in larger changesets.\n",
+      "commit": "0deffb128a10f5557859d10d9e2266a93cb41f91",
+      "created_at": "2026-11-01T18:40:57Z",
+      "id": 5729673481,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/81#pullrequestreview-5729673481"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: `candidate_actions` lists only `approve_pmp`, but `assessments` contains all three candidates (`approve_pmp`, `reject_pmp`, `request_revision_before_decision`). Any consumer iterating `candidate_actions` to enumerate which options were evaluated will see an incomplete set, which could silently mis-route logic that expects `candidate_actions` and `assessments` to be in 1-to-1 correspondence. Add the two missing entries to `candidate_actions` to match the assessed set.",
+      "commit": "ce4725991dc8a6b90726a9565e868b6c312396ef",
+      "created_at": "2026-11-01T18:40:58Z",
+      "id": 4436867975,
+      "kind": "inline",
+      "line": 31,
+      "path": "docs/policy-shapes/results/pmp-decision-result.json",
+      "url": "https://github.com/mdresch/agent-learning/pull/81#discussion_r4436867975"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: `status` is `\"needs_user_feedback\"` and `selected_action` is `null`, but the corresponding episode file (`pmp-approval-episode.json`) records `\"decision_disposition\": \"accepted\"` and `\"correct_action_id\": \"approve_pmp\"`. The result artifact contradicts the recorded outcome, making this governance record internally inconsistent. Update `status` to reflect the final accepted state (e.g. `\"accepted\"`) and set `selected_action` to the `approve_pmp` action object to match the episode.",
+      "commit": "0deffb128a10f5557859d10d9e2266a93cb41f91",
+      "created_at": "2026-11-01T18:40:58Z",
+      "id": 4436867977,
+      "kind": "inline",
+      "line": null,
+      "path": "docs/policy-shapes/results/pmp-decision-result.json",
+      "url": "https://github.com/mdresch/agent-learning/pull/81#discussion_r4436867977"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Crash Risk — NameError at runtime**: `base_action_map` is used on line 170 but is not declared as a fixture parameter in `test_ac3_complete_map`'s function signature (line 146–149). The function only receives `base_donor_logits` and `base_target_actions`. When pytest runs this test, calling `warm_start_logits(base_donor_logits, base_action_map, dup_target_actions)` will raise `NameError: name 'base_action_map' is not defined`, causing the test to error out rather than pass or fail. Add `base_action_map` as a fixture parameter to the function.\n```suggestion\ndef test_ac3_complete_map(\n    base_donor_logits: dict[str, float],\n    base_action_map: dict[str, str],\n    base_target_actions: list[str],\n) -> None:\n```",
+      "commit": "ce4725991dc8a6b90726a9565e868b6c312396ef",
+      "created_at": "2026-11-01T19:41:01Z",
+      "id": 4437063683,
+      "kind": "inline",
+      "line": 150,
+      "path": "tests/test_warm_start_logits.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/81#discussion_r4437063683"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThis PR introduces the Story 20.1 damped-copy warm-start implementation (`warm_start.py`, exported via `__init__.py`) alongside contract tests. The core implementation is clean, pure (stdlib-only), and correctly handles all the specified validation invariants (damping bounds, map symmetry, injective constraint, logit finiteness).\n\n### Critical Issue Found\n\n**`tests/test_warm_start_logits.py` — `test_ac3_complete_map` will error at runtime.** The test uses `base_action_map` on line 170 for the duplicate-target-actions sub-case, but `base_action_map` is not declared as a fixture parameter in the function signature — only `base_donor_logits` and `base_target_actions` are. This produces a `NameError` when pytest executes the test, meaning the AC_3 acceptance criterion is not actually being verified. The fix is a one-line signature change to add `base_action_map: dict[str, str]` as a parameter (suggestion attached to the relevant line).\n\nNo other blocking issues were found in the implementation or exports.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n\n\n---\n:warning: This PR contains more than 30 files. Amazon Q is better at reviewing smaller PRs, and may miss issues in larger changesets.\n",
+      "commit": "d91e6c0c688b9a258192ecf2297c538b4e4a1d89",
+      "created_at": "2026-11-01T19:41:01Z",
+      "id": 5729892377,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/81#pullrequestreview-5729892377"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary — Story 20.1: Damped Copy Warm-Start\n\nThe core implementation is correct and well-structured. `warm_start_logits` in `warm_start.py` faithfully implements the damped copy formula `target[a] = donor[action_map[a]] * damping`, validation ordering is logically sound (damping → uniqueness → map completeness → injectivity → per-action donor presence/finiteness), and the stdlib-only purity constraint is upheld with no numpy, random, or storage-layer imports.\n\nThe contract tests in `tests/test_warm_start_logits.py` cover all seven acceptance criteria (AC_0–AC_6) with no logic errors found: the AC_1 entropy monotonicity traversal correctly verifies `H(d_low) ≥ H(d_high)` across the full grid, and the AC_6 purity check's `.pyc` path resolution handles the `__pycache__` navigation correctly.\n\nThe `__init__.py` additions are minimal and correct — the three new exports (`DAMPING_DEFAULT`, `DAMPING_DEFAULT_META_PRIOR`, `warm_start_logits`) are present in both the import block and `__all__`.\n\n**No merge-blocking defects found.** The implementation is ready to merge.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n\n\n---\n:warning: This PR contains more than 30 files. Amazon Q is better at reviewing smaller PRs, and may miss issues in larger changesets.\n",
+      "commit": "ce4725991dc8a6b90726a9565e868b6c312396ef",
+      "created_at": "2026-11-01T19:46:33Z",
+      "id": 5729912480,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/81#pullrequestreview-5729912480"
+    }
+  ],
+  "pr": 81
+}

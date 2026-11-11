@@ -1,0 +1,50 @@
+{
+  "available": true,
+  "comments": [
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThe implementation of Story 19.4 is well-structured and the logic is correct. The `task-policy-family-set` command, `_scan_family`, `_gate_passed`, and `FamilyScan` are all implemented cleanly with proper validation and read-only guarantees. The 24 contract tests cover all acceptance criteria thoroughly.\n\nNo blocking defects were identified. The code is ready to merge from a correctness and security standpoint. The known limitation regarding Thompson members and the standard-tier gate (logits fixed at zero) is properly disclosed in both the PR description and the test module docstring rather than hidden.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "d59e903f9a579239440541273eee80a6d30ce664",
+      "created_at": "2026-11-03T20:49:03Z",
+      "id": 5759263129,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/93#pullrequestreview-5759263129"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Crash Risk**: `KeyError` is not caught when building the `params` dict from Thompson posterior data. The `except ValueError` on line 1126 only guards `ThompsonPolicy.from_snapshot(snapshot).posterior()`. The subsequent dict comprehension on lines 1129–1132 accesses `posterior[\"alpha\"][action.id]` and `posterior[\"beta\"][action.id]` — if an action id is absent from either alpha or beta dict, a `KeyError` propagates uncaught and crashes the entire scan instead of excluding the member with a reason. The fix is to extend the `try` block to cover the dict comprehension as well, and catch `KeyError` alongside `ValueError`.\n```suggestion\n            try:\n                posterior = ThompsonPolicy.from_snapshot(snapshot).posterior()\n                params = {\n                    action.id: (posterior[\"alpha\"][action.id], posterior[\"beta\"][action.id])\n                    for action in snapshot.actions\n                }\n            except (ValueError, KeyError) as exc:\n                reason = f\"posterior_parameters unreadable: {exc}\"\n\n```",
+      "commit": "64a323773dd0c7c519be8c24fff241a17e9a7434",
+      "created_at": "2026-11-03T20:49:20Z",
+      "id": 4460271758,
+      "kind": "inline",
+      "line": 1128,
+      "path": "src/agent_learning/cli.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/93#discussion_r4460271758"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary — Story 19.4: `task-policy-family-set` and `_scan_family`\n\nThe implementation correctly covers all specified acceptance criteria. The `_cmd_set_task_policy_family` command properly validates inputs (family name, role-map JSON, bijection check, action coverage) before touching the store, and `_scan_family` correctly handles the discovery pipeline including meta-prior exclusion, authority/gate/role-map checks, representation classification, and the read-only contract.\n\n**One defect identified** (see inline comment):\n\nIn `_scan_family`, when a `posterior_parameters` key is present, the `try/except ValueError` block only guards the `ThompsonPolicy.from_snapshot(snapshot).posterior()` call. The subsequent dict comprehension accessing `posterior[\"alpha\"][action.id]` and `posterior[\"beta\"][action.id]` is outside the `try` block — a `KeyError` from a missing action id in either dict propagates uncaught and crashes the entire scan. The fix is to move the dict comprehension inside the `try` block and add `KeyError` to the except clause (one-click suggestion provided inline).\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "d59e903f9a579239440541273eee80a6d30ce664",
+      "created_at": "2026-11-03T20:49:20Z",
+      "id": 5759266378,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/93#pullrequestreview-5759266378"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "Based on a full read of the diff, the 24 tests in `tests/test_meta_prior_members.py`, and the PR description, here is the status of every acceptance criterion from this story:\n\n**AC_0 (Declare) — ✅ Resolved**\n`_cmd_set_task_policy_family` validates blank family, bad/non-object JSON, outside/missing/non-injective role-map entries, and empty/non-string roles before touching the store. `id` and `version` are unchanged (same snapshot object re-stored). Tests cover 9 refusal cases plus the happy path, repeated calls, and the no-policy case.\n\n**AC_1 (Declared Only) — ✅ Resolved**\n`_scan_family` skips candidates whose `family` metadata key differs from the requested family, and skips any snapshot with `is_family_meta_prior` set, regardless of matching `family`. Tests `test_ac1_only_a_policy_that_declares_the_family_is_a_member` and `test_ac1_a_meta_prior_snapshot_is_never_a_member` confirm both branches.\n\n**AC_2 (Exclusions With Reasons) — ✅ Resolved**\nFull-authority, missing/empty `role_map`, and gate-failure candidates each produce a named entry in `FamilyScan.excluded`; the rest become `FamilyMember` values with `gate_passed=True`. Tests assert on substring content of each reason string.\n\n**AC_3 (Gate Is Computed) — ✅ Resolved**\n`_gate_passed` calls `assess_autonomy(..., AutonomyConfig.for_tier(\"standard\")).eligible` directly; no stored flag is read. The `_clear_autonomy_env` fixture strips all `AGENT_LEARNING_AUTONOMY_*` environment variables so `for_tier` cannot be influenced by the environment. Two tests verify the `standard` vs `low` tier difference.\n\n**AC_4 (Representation) — ✅ Resolved**\nThompson members (`posterior_parameters` present) are read via `ThompsonPolicy.from_snapshot(snapshot).posterior()` and stored as `(alpha, beta)` tuples; softmax members use raw logits. A mix raises `ValueError` naming both task lists. The Beta-path test stubs `_gate_passed` (documented gap I3). Empty-store case returns `representation=None`.\n\n**AC_5 (Read Only) — ✅ Resolved**\n`_ReadOnlyStore` overrides every write method to raise `AssertionError`. `test_ac5_reading_members_writes_nothing` passes it through `_scan_family` with qualifying, gate-failing, and map-missing members and asserts no mutation.\n\n---\n\n**One open item (documented, not a defect for this story):**\nThe Thompson gate gap (SKILL.md constraint 14, PR \"Finding for the maintainer\"): `assess_autonomy` reads `snapshot.logits`, and Thompson snapshots keep logits at zero, so a Thompson member can never pass the standard-tier action-probability criterion (0.60) through the real gate today. AC_4's Beta-reading tests therefore stub `_gate_passed`. This is explicitly recorded in the skill and the PR description as a design decision deferred to a future story — it is not a regression introduced here.\n\n**Pre-existing issues (unchanged by this commit):**\nThe PR description confirms `ruff` and `mypy` report the same 4 and 37 findings as at the base commit; none are in the new code paths.\n\nAll six ACs for Story 19.4 are addressed in this commit. No new findings remain unresolved.",
+      "commit": null,
+      "created_at": "2026-11-03T20:50:12Z",
+      "id": 6615105370,
+      "kind": "issue",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/93#issuecomment-6615105370"
+    }
+  ],
+  "pr": 93
+}

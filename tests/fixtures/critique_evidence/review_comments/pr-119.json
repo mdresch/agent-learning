@@ -1,0 +1,171 @@
+{
+  "available": true,
+  "comments": [
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Crash Risk:** When `data` is a `Mapping` missing one or more keys from `action_ids`, `data[a]` raises an unhandled `KeyError`. Both `bt_loss` and `bt_gradient` call `_as_vector` for both `theta` and `theta_ref`, so any partial mapping will crash the caller without a descriptive error. Add a guard that raises a `KeyError` (or `ValueError`) with a message identifying the missing key.\n```suggestion\n        missing = [a for a in action_ids if a not in data]\n        if missing:\n            raise KeyError(f\"Keys missing from mapping: {missing}\")\n        return np.array([float(data[a]) for a in action_ids], dtype=np.float64)\n```",
+      "commit": "6568581a16ffc73f55c69673f0896ab1bb301121",
+      "created_at": "2026-11-08T14:19:34Z",
+      "id": 4506528785,
+      "kind": "inline",
+      "line": 115,
+      "path": "src/agent_learning_ext/learners/pairwise.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/119#discussion_r4506528785"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Crash Risk:** When `pairs_or_W` is a 2D `np.ndarray` of the wrong shape (e.g., `(n, m)` where `m != n`, or `(n, n)` where `n != len(action_ids)`), it is silently accepted as `W` and used directly. The subsequent matrix operations (`W * np.logaddexp(...)` or `W * S`) will either broadcast incorrectly and produce silently wrong results, or raise an opaque numpy shape error. Add an explicit shape check.\n```suggestion\n    if isinstance(pairs_or_W, np.ndarray) and pairs_or_W.ndim == 2:\n        n = len(action_ids)\n        if pairs_or_W.shape != (n, n):\n            raise ValueError(\n                f\"W must be a square matrix of shape ({n}, {n}), got {pairs_or_W.shape}\"\n            )\n        W = pairs_or_W\n```",
+      "commit": "2dae4ffe0742cc75ffe4000470a870c4dd321425",
+      "created_at": "2026-11-08T14:19:34Z",
+      "id": 4506528796,
+      "kind": "inline",
+      "line": null,
+      "path": "src/agent_learning_ext/learners/pairwise.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/119#discussion_r4506528796"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "The same missing shape validation applies to `bt_gradient`. An incorrectly shaped 2D array passed as `pairs_or_W` will be silently used as `W`, producing wrong gradient values or a cryptic numpy error. Apply the same `(n, n)` shape check here as in `bt_loss`.\n```suggestion\n    if isinstance(pairs_or_W, np.ndarray) and pairs_or_W.ndim == 2:\n        n = len(action_ids)\n        if pairs_or_W.shape != (n, n):\n            raise ValueError(\n                f\"W must be a square matrix of shape ({n}, {n}), got {pairs_or_W.shape}\"\n            )\n        W = pairs_or_W\n```",
+      "commit": "2dae4ffe0742cc75ffe4000470a870c4dd321425",
+      "created_at": "2026-11-08T14:19:34Z",
+      "id": 4506528802,
+      "kind": "inline",
+      "line": null,
+      "path": "src/agent_learning_ext/learners/pairwise.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/119#discussion_r4506528802"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "`pytest` is imported but never used in this file. If the CI runs linting (e.g., `flake8` or `ruff`), this will produce an unused-import warning or error that may block the build.\n```suggestion\nimport math\nimport numpy as np\n```",
+      "commit": "6568581a16ffc73f55c69673f0896ab1bb301121",
+      "created_at": "2026-11-08T14:19:34Z",
+      "id": 4506528805,
+      "kind": "inline",
+      "line": 23,
+      "path": "tests/test_pairwise_loss.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/119#discussion_r4506528805"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary — Story 18.2: The Loss and Its Gradient\n\nThe core mathematical implementation (`bt_loss`, `bt_gradient`, `build_pair_matrix`) and contract tests look correct against the FDD-018 §2.4 spec. The numerically-stable use of `np.logaddexp` for the cross-entropy and `np.exp(-np.logaddexp(0, Z))` for the sigmoid are sound. The re-export in `agent-training-ext` is complete and consistent.\n\n### Blocking issues found\n\n1. **`_as_vector` missing-key crash** (`pairwise.py` line 112): A `Mapping` that doesn't contain every key in `action_ids` raises an unhandled `KeyError` with no diagnostic message. Needs an explicit guard before the list comprehension.\n\n2. **`bt_loss` and `bt_gradient` — no shape validation on the `W` array** (`pairwise.py` lines 135–136 and 167–168): A 2D `np.ndarray` of the wrong shape is silently accepted as the preference matrix and produces incorrect results or an opaque numpy broadcast error. Both functions need a `shape == (n, n)` check.\n\n3. **Unused `pytest` import in test file** (`tests/test_pairwise_loss.py` line 22): No `pytest.mark`, `pytest.raises`, or fixture is used. This will fail linting rules (e.g., `F401` in flake8/ruff) that are commonly enforced in CI.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "2dae4ffe0742cc75ffe4000470a870c4dd321425",
+      "created_at": "2026-11-08T14:19:34Z",
+      "id": 5818228236,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/119#pullrequestreview-5818228236"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Crash Risk:** `_as_vector` accesses `data[a]` with no guard for missing keys. If a caller passes a `Mapping` that does not contain every action in `action_ids`, this raises an unhandled `KeyError` with no helpful context. Replace the bare subscript with an explicit check so the caller gets a clear `ValueError` instead of a confusing `KeyError`.\n```suggestion\n    if isinstance(data, Mapping):\n        missing = [a for a in action_ids if a not in data]\n        if missing:\n            raise ValueError(f\"Mapping is missing keys for actions: {missing}\")\n        return np.array([float(data[a]) for a in action_ids], dtype=np.float64)\n```",
+      "commit": "6568581a16ffc73f55c69673f0896ab1bb301121",
+      "created_at": "2026-11-08T14:19:37Z",
+      "id": 4506528975,
+      "kind": "inline",
+      "line": 115,
+      "path": "src/agent_learning_ext/learners/pairwise.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/119#discussion_r4506528975"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThis PR implements Story 18.2 (Bradley–Terry loss and gradient primitives for Epic 18). The mathematical core — `build_pair_matrix`, `bt_loss`, and `bt_gradient` — is numerically correct and the contract tests verify all four acceptance criteria. The overall structure and the lazy-export wiring through `__init__.py` and `dpo_preference.py` are sound.\n\n### Issues requiring fixes before merge\n\n**Crash risks in `pairwise.py`:**\n1. **`_as_vector` — unhandled `KeyError` on incomplete mappings.** When a caller passes a `Mapping` that omits one or more keys from `action_ids`, the bare `data[a]` subscript raises a raw `KeyError` with no diagnostic. A pre-check with a clear `ValueError` is needed.\n2. **`bt_loss` / `bt_gradient` — non-2D ndarray silently delegates to `build_pair_matrix`.** If a caller passes a 1D `np.ndarray`, the `ndim == 2` guard fails quietly and the array is forwarded to `build_pair_matrix`, which then crashes with `AttributeError` trying to call `.winner` on an array element. Both functions need an explicit shape rejection.\n\n**Unused imports (linter/CI risk):**\n3. `import math` in `pairwise.py` — never referenced in the module.\n4. `import pytest` in `test_pairwise_loss.py` — never referenced in any test function.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "2dae4ffe0742cc75ffe4000470a870c4dd321425",
+      "created_at": "2026-11-08T14:19:37Z",
+      "id": 5818228464,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/119#pullrequestreview-5818228464"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Crash Risk:** When `pairs_or_W` is a 1D `np.ndarray` (e.g., `ndim == 1`), the guard `isinstance(pairs_or_W, np.ndarray) and pairs_or_W.ndim == 2` is `False`, so execution falls through to `build_pair_matrix(pairs_or_W, action_ids)`. `build_pair_matrix` iterates over its first argument calling `.winner` and `.loser` on each element — this raises `AttributeError` at runtime with no diagnostic. Add an explicit shape check to fail early with a clear message.\n```suggestion\n    if isinstance(pairs_or_W, np.ndarray):\n        if pairs_or_W.ndim != 2:\n            raise ValueError(\n                f\"pairs_or_W as ndarray must be 2D (shape (n, n)), got shape {pairs_or_W.shape}\"\n            )\n        W = pairs_or_W\n    else:\n        W = build_pair_matrix(pairs_or_W, action_ids)  # type: ignore[arg-type]\n```",
+      "commit": "2dae4ffe0742cc75ffe4000470a870c4dd321425",
+      "created_at": "2026-11-08T14:19:38Z",
+      "id": 4506528980,
+      "kind": "inline",
+      "line": null,
+      "path": "src/agent_learning_ext/learners/pairwise.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/119#discussion_r4506528980"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "The same unguarded `ndim == 2` check exists here in `bt_gradient`. Apply the same explicit shape validation as suggested for `bt_loss` so that a 1D ndarray fails immediately with a clear error rather than producing a silent crash inside `build_pair_matrix`.\n```suggestion\n    if isinstance(pairs_or_W, np.ndarray):\n        if pairs_or_W.ndim != 2:\n            raise ValueError(\n                f\"pairs_or_W as ndarray must be 2D (shape (n, n)), got shape {pairs_or_W.shape}\"\n            )\n        W = pairs_or_W\n    else:\n        W = build_pair_matrix(pairs_or_W, action_ids)  # type: ignore[arg-type]\n```",
+      "commit": "2dae4ffe0742cc75ffe4000470a870c4dd321425",
+      "created_at": "2026-11-08T14:19:38Z",
+      "id": 4506528985,
+      "kind": "inline",
+      "line": null,
+      "path": "src/agent_learning_ext/learners/pairwise.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/119#discussion_r4506528985"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "`import math` is imported but never used anywhere in `pairwise.py`. This will trigger linter/CI failures (`F401` in flake8/ruff) if those checks are enforced in the pipeline.",
+      "commit": "2dae4ffe0742cc75ffe4000470a870c4dd321425",
+      "created_at": "2026-11-08T14:19:38Z",
+      "id": 4506528991,
+      "kind": "inline",
+      "line": null,
+      "path": "src/agent_learning_ext/learners/pairwise.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/119#discussion_r4506528991"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "`import pytest` is present but never used — no `pytest.mark`, `pytest.raises`, fixtures, or any other `pytest` symbol appears in this file. This is a dead import that will fail linter/CI checks (`F401`) if enforced.",
+      "commit": "6568581a16ffc73f55c69673f0896ab1bb301121",
+      "created_at": "2026-11-08T14:19:38Z",
+      "id": 4506528994,
+      "kind": "inline",
+      "line": 23,
+      "path": "tests/test_pairwise_loss.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/119#discussion_r4506528994"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "Here is a status check of all findings against the current commit (`5af9cd5`):\n\n---\n\n### ✅ Resolved in this commit\n\n| # | Finding | Status |\n|---|---------|--------|\n| 1 | **Missing `numpy` import** — `np` was used but not imported in `pairwise.py` | ✅ Fixed — `import numpy as np` added; `Mapping`/`Sequence` also moved from `typing` to `collections.abc` (correct for Python 3.9+) |\n| 2 | **`build_pair_matrix`, `bt_loss`, `bt_gradient` not implemented** (Story 18.2 scope) | ✅ Implemented with numerically stable `logaddexp` formulations |\n| 3 | **No input validation for `theta`/`theta_ref` mapping keys or `W` shape** | ✅ `_as_vector` raises `ValueError` on missing keys; `_resolve_W` raises on wrong `ndarray` shape or bad type |\n| 4 | **No contract tests for AC_0–AC_3** | ✅ `tests/test_pairwise_loss.py` covers all four ACs plus a validation test (5 tests total) |\n| 5 | **`bt_loss`/`bt_gradient`/`build_pair_matrix`/`PreferencePair` not exported from `agent_learning_ext`** | ✅ All four added to `_EXPORTS` dict in `src/agent_learning_ext/__init__.py` |\n| 6 | **`dpo_preference.py` not wired to new primitives** | ✅ Re-exports all four symbols under the `agent-training-ext` namespace |\n| 7 | **Invariant 6 (upstream `src/agent_learning/` must be untouched)** | ✅ All new code lands exclusively in `src/agent_learning_ext/learners/pairwise.py` and `agent-training-ext/`; diff shows zero changes to `src/agent_learning/` |\n\n---\n\n### ⚠️ Remaining / open items\n\n| # | Finding | Notes |\n|---|---------|-------|\n| 1 | **`_resolve_W` accepts a bare `Sequence` even when it contains non-`PreferencePair` items** — `isinstance(pairs_or_W, Sequence)` is `True` for `str`, `list[int]`, etc.; only fails later at `build_pair_matrix` with an `AttributeError` rather than a clear `TypeError` | No test guards this path; a runtime call with wrong list elements yields an opaque error rather than the diagnostic intended by the validation layer |\n| 2 | **AC_3 stationary-point tolerance is loose (`1e-3`)** — the PR description states the gradient at `θ = (1.3235, −1.3235, 0)` should be zero within `1e-3`, but the actual residual depends on how precisely `1.3235` approximates the true fixed point; the test would pass even with a noticeably non-zero gradient | If a tighter `theta_stat` value (e.g. solved numerically) is available, tightening to `1e-6` would give the AC stronger guarantees |\n| 3 | **No test for `_resolve_W` rejecting a non-`Sequence`, non-`ndarray` input via `bt_loss`/`bt_gradient`** — the `TypeError` branch at line 130 of `pairwise.py` is not exercised by any test in this commit | `test_validation_missing_keys_and_invalid_shapes` covers shape errors but not type errors |\n\nItems 1 and 3 are minor robustness gaps; item 2 is an AC precision note. None block correctness of the core math as specified, but they should be tracked for Story 18.3 or a follow-up hardening task.\n",
+      "commit": null,
+      "created_at": "2026-11-08T14:27:40Z",
+      "id": 6722705022,
+      "kind": "issue",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/119#issuecomment-6722705022"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "Based on a full review of this commit's diff and the governing acceptance criteria, here is the status of every earlier area of concern:\n\n---\n\n### ✅ Resolved in this commit\n\n| Finding | Status | Evidence |\n|---|---|---|\n| **AC_0 (Loss)** — numerical correctness of `bt_loss` | ✅ Resolved | `bt_loss` uses `np.logaddexp(0.0, -Z)` for numerically stable computation; `test_ac0_loss_exact_value` asserts equality within 1e-12. |\n| **AC_1 (Gradient)** — analytic gradient matches finite difference | ✅ Resolved | `bt_gradient` implements the exact FDD-018 §2.4 formula; `test_ac1_gradient_matches_finite_difference` verifies 5 random trials within 1e-6. |\n| **AC_2 (Aggregated)** — matrix form equals pair-sum | ✅ Resolved | `build_pair_matrix` + `_resolve_W` dual-path tested in `test_ac2_aggregated_matrix_form_equals_pair_sum`, including repeated pairs, within 1e-12. |\n| **AC_3 (Single pair gradient values)** | ✅ Resolved | Stationary-point and origin-gradient checks present in `test_ac3_single_pair_gradient_values` with correct tolerances. |\n| **Input validation / error diagnostics** | ✅ Resolved | `_as_vector` and `_resolve_W` raise typed `ValueError`/`TypeError` with descriptive messages; covered by `test_validation_missing_keys_and_invalid_shapes`. |\n| **Upstream fork collision (Invariant 6)** | ✅ Resolved | All new code is in `src/agent_learning_ext/learners/pairwise.py`; `src/agent_learning/` is untouched per the diff. |\n| **`dpo_preference` namespace wiring** | ✅ Resolved | `agent-training-ext/agent_training_ext/dpo_preference.py` now exports `bt_loss`, `bt_gradient`, `build_pair_matrix`, and `pairs_from_episodes`, matching the prior stub that only exported `PreferencePair` and `pairs_from_episodes`. |\n| **`agent_learning_ext.__init__` lazy-export registration** | ✅ Resolved | All four pairwise symbols (`PreferencePair`, `bt_loss`, `bt_gradient`, `build_pair_matrix`, `pairs_from_episodes`) are registered in the `_EXPORTS` dict. |\n\n---\n\n### ⚠️ Items not yet addressed / remaining gaps\n\n1. **`bt_gradient` missing from `test_validation_missing_keys_and_invalid_shapes`** — The test validates `bt_loss` against an incomplete `theta_ref` mapping (section 2) but does **not** run the equivalent check on `bt_gradient`. If a caller passes a partial `theta_ref` to `bt_gradient`, the error path is exercised only through `bt_loss`. This is a test-coverage gap, not an implementation bug, but it leaves AC coverage incomplete for `bt_gradient`'s `theta_ref` validation branch.\n\n2. **No test for `pairs_from_episodes`** — The function is exported and wired in all three init files but has zero contract tests in this PR. Story 18.2's test plan does not appear to include it, but it is a public API surface introduced here.\n\n3. **`_resolve_W` does not validate that `W` is non-negative** — A caller can pass a matrix with negative counts, which is mathematically invalid for a preference count matrix. There is no guard or documented precondition against this.\n\nNeither item 1 nor item 3 blocks correctness of the four governing ACs, but both are open gaps to track toward Story 18.3 or a follow-on hardening ticket.",
+      "commit": null,
+      "created_at": "2026-11-08T14:32:58Z",
+      "id": 6722761087,
+      "kind": "issue",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/119#issuecomment-6722761087"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "Here is a full status check of every finding that was raised in earlier review rounds against this commit (3eb2071):\n\n---\n\n### ✅ Resolved Findings\n\n| # | Finding | Status |\n|---|---------|--------|\n| 1 | **`Sequence` import moved to `collections.abc`** — `from typing import Sequence` was replaced with `from collections.abc import Mapping, Sequence` | ✅ Resolved |\n| 2 | **`numpy` not imported in `pairwise.py`** — `import numpy as np` is now present | ✅ Resolved |\n| 3 | **`build_pair_matrix` missing** — fully implemented with correct `W[w_idx, l_idx] += 1.0` accumulation | ✅ Resolved |\n| 4 | **`bt_loss` numerics** — uses `np.logaddexp(0.0, -Z)` for numerically stable `log(1 + exp(-z))`; AC_0 verified to 1e-12 | ✅ Resolved |\n| 5 | **`bt_gradient` formula correctness** — row/column sum decomposition matches FDD-018 §2.4 exactly; finite-difference check (AC_1) passes to 1e-6 | ✅ Resolved |\n| 6 | **Input validation added** — `_as_vector` raises `ValueError` for missing keys and wrong shapes; `_resolve_W` rejects negative matrices, wrong ndim/shape, strings, non-`PreferencePair` elements | ✅ Resolved |\n| 7 | **Re-export chain complete** — `bt_loss`, `bt_gradient`, `build_pair_matrix`, `pairs_from_episodes`, `PreferencePair` are re-exported through `agent_learning_ext.learners`, `agent_learning_ext.__init__`, and `agent-training-ext/dpo_preference` | ✅ Resolved |\n| 8 | **Invariant 6 (upstream fork collision)** — no edits to `src/agent_learning/`; all new code confined to `src/agent_learning_ext/learners/pairwise.py` | ✅ Resolved |\n| 9 | **All 4 acceptance criteria covered by tests** — AC_0 through AC_3 each have a dedicated test; a fifth `test_validation_missing_keys_and_invalid_shapes` test covers error paths | ✅ Resolved |\n\n---\n\n### ⚠️ Remaining / Open Items\n\n| # | Finding | Detail |\n|---|---------|--------|\n| 1 | **`lam <= 0` not validated** | `bt_loss` and `bt_gradient` accept `lam=0` (identity case, technically fine) but also silently accept negative `lam`, which would make the regularizer a reward and break the convexity guarantee. No guard or documented contract exists for this. |\n| 2 | **`pairs_from_episodes` not covered by any test in this PR** | The function is present and exported but has zero contract tests here; AC coverage for FDD-018 §3 item 1 (the episode-extraction path) is deferred. This is expected if it belongs to a later story, but should be confirmed. |\n| 3 | **`test_ac3` stationary-point tolerance is loose (1e-3)** | The spec allows 1e-3 but the approximate stationary point `θ = (1.3235, -1.3235, 0)` with `λ=0.05` produces a gradient whose true magnitude is ~3×10⁻⁴. The test passes, but the tolerance is ~3× wider than the actual error, so future regressions in numeric precision would not be caught until they are large. |\n\nItems 2 and 3 are low-severity and do not block merge; item 1 is worth a one-line guard if negative `lam` is not intentionally supported.",
+      "commit": null,
+      "created_at": "2026-11-08T14:40:55Z",
+      "id": 6722844843,
+      "kind": "issue",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/119#issuecomment-6722844843"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "Based on a full review of the current diff and file state in this commit, here is the status of findings across the PR:\n\n---\n\n### ✅ Resolved Findings\n\n| Area | Status |\n|------|--------|\n| **`Sequence` import** — previously imported from `typing` (deprecated in Python 3.9+) | ✅ Fixed — now correctly imported from `collections.abc` |\n| **`numpy` import missing** — `np` was used but not imported in earlier story work | ✅ Fixed — `import numpy as np` is now present |\n| **`build_pair_matrix` not exported** — new symbol was missing from `agent_learning_ext/__init__.py` and `learners/__init__.py` | ✅ Fixed — all four symbols (`PreferencePair`, `bt_loss`, `bt_gradient`, `build_pair_matrix`, `pairs_from_episodes`) are wired through both `__init__.py` files and re-exported from `agent-training-ext/agent_training_ext/dpo_preference.py` |\n| **AC_0–AC_3 contract tests missing** — acceptance criteria had no automated coverage | ✅ Fixed — `tests/test_pairwise_loss.py` covers all four ACs plus input validation |\n| **Upstream fork isolation (Invariant 6)** — risk of editing `src/agent_learning/` directly | ✅ Clean — all new code is confined to `src/agent_learning_ext/learners/pairwise.py`; no upstream files modified |\n| **Numerical stability** — naive `log(1 + exp(...))` is susceptible to overflow | ✅ Fixed — `np.logaddexp(0.0, -Z)` used in `bt_loss`; `np.exp(-np.logaddexp(0.0, Z))` used in `bt_gradient` |\n| **Input validation** — no guards on negative `lam` or malformed `W` / `theta` | ✅ Fixed — `lam < 0`, wrong `W` shape, negative `W` values, missing keys, and non-`PreferencePair` elements all raise typed errors |\n\n---\n\n### ⚠️ Remaining / Open Items\n\n1. **`lam = 0.0` boundary not guarded** — the check is `lam < 0.0` (strict), so `lam = 0.0` is allowed and produces an unregularized loss. This is likely intentional per the spec, but worth confirming against FDD-018 §2.4 to ensure a zero-regularization call is a supported use case and not an accidental omission guard.\n\n2. **No test for `pairs_from_episodes`** — `pairs_from_episodes` is exported and used downstream, but there are no contract tests covering its deduplication behaviour (G5) or the `feedback_status`/`correct_action_id` filtering rules in this PR's test file. If prior review rounds flagged this, it remains open.\n\n3. **`build_pair_matrix` silently drops unknown winners/losers** — pairs whose `winner` or `loser` is not in `action_ids` are silently skipped (lines 102–104). There is no warning or error. If a caller passes mismatched data, the loss will be silently computed on a sparser matrix than intended. No change from prior state — still open if it was previously flagged.\n\n4. **`mergeable_state: unstable`** — the PR is flagged as unstable by GitHub (likely a failing status check). This should be resolved before merge regardless of code correctness.\n",
+      "commit": null,
+      "created_at": "2026-11-08T14:44:22Z",
+      "id": 6722881674,
+      "kind": "issue",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/119#issuecomment-6722881674"
+    }
+  ],
+  "pr": 119
+}

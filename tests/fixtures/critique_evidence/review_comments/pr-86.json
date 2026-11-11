@@ -1,0 +1,61 @@
+{
+  "available": true,
+  "comments": [
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error:** `_last_record` is set after the argmax loop but stores a reference to the same `draws` dict object that was created above. While `last_sampling_record()` correctly returns a deep copy, the stored `self._last_record[\"sampled_payoffs\"]` is the original `draws` dict — meaning any code between the assignment and a subsequent `choose()` call that mutates `draws` externally would corrupt the stored record. More critically, `posterior` is the dict returned by `self.posterior()` (a fresh copy), so that is fine. However, `draws` is only referenced in `self._last_record`; it is never defensively copied before storage. If a caller obtains the same dict reference via some internal path before `last_sampling_record()` is called and mutates it, the record is silently corrupted. Store a copy of `draws` in the record to harden this against future refactoring that might expose the reference.\n```suggestion\n        self._last_record = {\n            \"request_id\": request_id,\n            \"timestamp\": timestamp,\n            \"prng_seed\": str(seed),\n            \"posterior_parameters\": posterior,\n            \"sampled_payoffs\": dict(draws),\n        }\n```",
+      "commit": "62ab29cc33334cab4afce538b1164b9cfde14b90",
+      "created_at": "2026-11-03T18:54:00Z",
+      "id": 4459104166,
+      "kind": "inline",
+      "line": 226,
+      "path": "src/agent_learning/policy/thompson.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/86#discussion_r4459104166"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error:** The abstract `Policy.choose` signature declares only `state` as a parameter, but `ThompsonPolicy.choose` adds `request_id` and `timestamp` as keyword-only parameters. Callers typed against the `Policy` abstract interface cannot pass these arguments without downcasting, breaking the LSP contract. The PR description says callers in `decision.py` and `__init__.py` use `policy.choose()` with no arguments — this is fine at runtime, but the mismatch means the interface does not document the full contract that `ThompsonPolicy` exposes, and static type checkers will flag override incompatibility.",
+      "commit": "62ab29cc33334cab4afce538b1164b9cfde14b90",
+      "created_at": "2026-11-03T18:54:00Z",
+      "id": 4459104190,
+      "kind": "inline",
+      "line": 17,
+      "path": "src/agent_learning/policy/base.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/86#discussion_r4459104190"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Code Review Summary — Story 15.3 (Thompson `choose`)\n\nThe implementation is well-structured and the test suite comprehensively covers the acceptance criteria. Two issues warrant attention before merge:\n\n1. **`sampled_payoffs` stored without defensive copy** (`thompson.py` line 220–226): The `draws` dict is stored directly as `self._last_record[\"sampled_payoffs\"]` without copying. Although `last_sampling_record()` returns a `deepcopy`, the stored reference is exposed to corruption between the assignment and the next `choose()` call, particularly under future refactoring. A shallow `dict(draws)` copy at the storage site is the safe fix.\n\n2. **Abstract `Policy.choose` signature mismatch** (`base.py` line 17): `ThompsonPolicy.choose` adds `request_id` and `timestamp` as keyword-only parameters that the abstract base does not declare. Callers holding a `Policy`-typed reference cannot reach those parameters without downcasting, and static type checkers will flag the override as incompatible. The abstract signature should be widened to match, or the parameters should be scoped to `ThompsonPolicy` only with explicit documentation that these are policy-specific extensions.\n\nAll 15 contract tests pass and the full suite (1630 tests) is clean. The HMAC seeding, tie-breaking, deep-copy isolation, and `logprob=None` changes are all correct.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "6c39a1d7535ba72a992171e2845238d32a0a2ea6",
+      "created_at": "2026-11-03T18:54:00Z",
+      "id": 5757828816,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/86#pullrequestreview-5757828816"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\n**Story 15.3 – Thompson `choose` implementation looks correct and ready to merge.**\n\nThe core logic is sound:\n- `seed_for` correctly uses HMAC-SHA256 with a `\"|\"` separator to prevent collisions between `(request_id, timestamp)` pairs.\n- The argmax loop correctly ties to the earlier action (AC_3 §3.3).\n- `_last_record` stores independent copies (`self.posterior()` already returns a fresh dict copy; `draws` is a new dict comprehension), so `copy.deepcopy` in `last_sampling_record()` correctly isolates the returned record from both the caller and the next call (AC_1 mutation safety).\n- `replay` iterates `posterior[\"alpha\"]` keys, which are in snapshot action order (per `_read_parameters` build order) and therefore reproduce the same RNG call sequence as the original draw.\n- The `Optional[float]` change to `Decision.logprob` in `base.py` is correct, and the test assertion `typing.get_type_hints(Decision)[\"logprob\"] == (float | None)` holds on Python ≥ 3.10 (the project's minimum target per `pyproject.toml`).\n\nNo blocking defects were found. The 15-test contract suite covers all acceptance criteria (AC_0 through AC_5) and the stated interpretations (I2–I5).\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "6c39a1d7535ba72a992171e2845238d32a0a2ea6",
+      "created_at": "2026-11-03T18:54:13Z",
+      "id": 5757831238,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/86#pullrequestreview-5757831238"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "Here is a full pass against every acceptance criterion and prior finding for this commit:\n\n---\n\n**AC_0 – Argmax / tie-breaking** ✅ Resolved\n`choose` iterates `self._snapshot.actions` in snapshot order, seeds `random.Random` with `seed_for(snapshot.id, request_id, timestamp)`, draws one `betavariate` per action, and selects the first maximum (strict `>` keeps the earlier action on a tie). Tests `test_ac0_*` confirm all three sub-cases.\n\n**AC_1 – Record shape & immutability** ✅ Resolved\n`_last_record` is built with all five FDD-015 §2.3 fields (`request_id`, `timestamp`, `prng_seed` as decimal string, `posterior_parameters`, `sampled_payoffs`). `last_sampling_record()` returns `copy.deepcopy(self._last_record)`, so mutation of the returned dict cannot reach the stored record. `test_ac1_*` cover shape, deep-copy safety, and round-trip replay.\n\n**AC_2 – Defaults** ✅ Resolved\n`request_id is None` → `uuid.uuid4()` (UUID4 per I1); `timestamp is None` → `datetime.now(timezone.utc).isoformat()` (UTC ISO 8601 per I1). Both use `is None`, not truthiness, so empty strings still propagate to `seed_for` and raise `ValueError` (I4). `test_ac2_*` and `test_i4_*` cover this.\n\n**AC_3 – No log-probability** ✅ Resolved\n`Decision.logprob` is now `Optional[float]` in `base.py` (one-line change, diff confirmed). `choose` always returns `logprob=None`. `test_ac3_*` verifies both the runtime value and the type hint via `typing.get_type_hints`.\n\n**AC_4 – Exploration** ✅ Resolved\n2000-draw loop with `Beta(2,1)` vs `Beta(1,1)` asserts `b` chosen ≥ 1 time and `a` more often than `b`. Covered by `test_ac4_*`.\n\n**AC_5 – Not a logit policy** ✅ Resolved\n`apply_update` raises `TypeError(\"use ThompsonLearner\")`. Covered by `test_ac5_*`.\n\n**I1–I5 (interpretations)** ✅ All addressed in code and tests; I5 is explicitly deferred to Story 15.4 (noted in the test file header and PR description).\n\n---\n\n**Remaining / open items:**\n\n1. **`Policy.choose` abstract signature mismatch** — The base class abstract method is still `def choose(self, state: Optional[Any] = None) -> Decision:` (no `request_id`/`timestamp` kwargs). `ThompsonPolicy.choose` adds keyword-only arguments not present in the base, which technically widens the signature beyond the declared contract. This is not a runtime error today (Python does not enforce Liskov at the language level for extra kwargs), but it means a caller typed as `Policy` cannot pass `request_id`/`timestamp` without a cast. This was pre-existing before this PR and is arguably a Story 15.4 concern, but worth tracking.\n\n2. **`_last_record` stores `draws` dict directly** — `self._last_record[\"sampled_payoffs\"]` is assigned the `draws` dict object before `Decision` is returned. Because `draws` is not deep-copied at assignment time, any future internal code path that mutates `draws` after the assignment would silently corrupt the stored record. `last_sampling_record()` returns a deep copy *of the record*, but the record itself holds a live reference to `draws` until the next `choose` call replaces it. In the current code there is no mutation after assignment, so this is not a live bug, but it is a latent fragility. No change required unless a future contributor modifies `choose` after the record assignment.\n\n3. **`Policy` abstract `choose` signature / `base.py` pre-existing ruff findings** — The PR description explicitly acknowledges pre-existing ruff findings in `base.py`; these are out of scope for this story and carry over.\n\n**Summary:** All six acceptance criteria (AC_0–AC_5) and all five interpretations (I1–I4 in-scope, I5 deferred) are resolved in this commit. The two items above are latent/pre-existing and do not block merge.",
+      "commit": null,
+      "created_at": "2026-11-03T18:56:04Z",
+      "id": 6612763071,
+      "kind": "issue",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/86#issuecomment-6612763071"
+    }
+  ],
+  "pr": 86
+}

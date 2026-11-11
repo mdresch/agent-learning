@@ -1,0 +1,105 @@
+{
+  "available": true,
+  "comments": [
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Crash Risk**: `_recorded_tasks()` calls `(SHAPES / f\"{task_id}.actions.json\").read_text(...)` on line 83 without checking whether the file exists first. If a task has episodes but no corresponding `<task_id>.actions.json` file committed under `docs/policy-shapes/`, this raises an unhandled `FileNotFoundError` with no informative message. Every other file read in this function (via `_read_json`) uses an `assert path.is_file()` guard that produces a clear failure message. The actions file read should follow the same pattern.\n```suggestion\n        actions_path = SHAPES / f\"{task_id}.actions.json\"\n        assert actions_path.is_file(), f\"missing actions file for task {task_id!r}: {actions_path}\"\n        actions = json.loads(actions_path.read_text(encoding=\"utf-8\"))\n```",
+      "commit": "425c66fd78423db28fd1476bca5bafa81c44acb7",
+      "created_at": "2026-11-03T23:45:42Z",
+      "id": 4461817191,
+      "kind": "inline",
+      "line": null,
+      "path": "tests/test_meta_prior_real_data.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/98#discussion_r4461817191"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: `_role_map` assigns `\"revise\"` to every action whose id does not start with `\"approve\"` or `\"reject\"`. If any task's action space were to contain a fourth action with a neutral or unrelated name (not starting with any of those prefixes), it would silently be mapped to `\"revise\"`. More critically, the role map must be a bijection (each role used exactly once per Story 19.4 AC_0), so two non-approve/non-reject actions would both be assigned `\"revise\"`, causing `task-policy-family-set` to exit non-zero and `_declare_all` to fail the assertion at line 157. The fallback `else` clause should assert that there is exactly one remaining action to guarantee the bijection property, rather than silently mapping any unrecognized action to `\"revise\"`.",
+      "commit": "8cbd906d19b481fed81c99375b5c80d2e0474711",
+      "created_at": "2026-11-03T23:45:42Z",
+      "id": 4461817212,
+      "kind": "inline",
+      "line": 108,
+      "path": "tests/test_meta_prior_real_data.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/98#discussion_r4461817212"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThis PR adds `tests/test_meta_prior_real_data.py` (Story 19.7) and updates the `SKILL.md`, epic file, and implementation log. No production code changes are included. The overall structure is sound — the test correctly rebuilds a temporary store from committed episodes/actions/results, exercises the compiler's \"no family\" exit path, and verifies nothing is written to the store.\n\n**Two blocking issues found:**\n\n1. **Missing file-existence guard on the actions JSON read** (`_recorded_tasks`, line 83): Unlike every other file read in that function, the `<task_id>.actions.json` path is read without an existence assertion, so a missing file raises an uninformative `FileNotFoundError`. A one-click fix is suggested.\n\n2. **Silent fallback in `_role_map`** (lines 94–103): The `else` branch maps any action not starting with `\"approve\"` or `\"reject\"` to `\"revise\"` without checking uniqueness. With the current governance action space (exactly one `request_revision_before_decision` per task) this happens to work, but if a task ever gains a second unrecognized action, two actions silently get the same role, the bijection requirement fails, and `_declare_all` fails with a non-zero exit from `task-policy-family-set`. No code suggestion is provided here as the fix depends on what contract the maintainer wants to enforce; adding an assertion that only one `\"revise\"` candidate exists would prevent silent misclassification.\n\nAll four acceptance criteria (AC_0 through AC_3) are structurally complete and correctly target the governing requirements.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "425c66fd78423db28fd1476bca5bafa81c44acb7",
+      "created_at": "2026-11-03T23:45:42Z",
+      "id": 5761091205,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/98#pullrequestreview-5761091205"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Crash Risk:** If a task discovered in `episodes/` has no corresponding `{task_id}.actions.json` file, this line raises an unguarded `FileNotFoundError`. The `_read_json` helper uses an `assert path.is_file()` guard for a clear failure message, but this path bypasses it. A missing actions file would terminate the entire test collection with a confusing traceback rather than a clear assertion about which file is absent.\n```suggestion\n        actions = json.loads(_read_json(SHAPES / f\"{task_id}.actions.json\"))\n```",
+      "commit": "425c66fd78423db28fd1476bca5bafa81c44acb7",
+      "created_at": "2026-11-03T23:45:50Z",
+      "id": 4461818142,
+      "kind": "inline",
+      "line": null,
+      "path": "tests/test_meta_prior_real_data.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/98#discussion_r4461818142"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "The constraint list jumps from item 17 to item 20, skipping 18 and 19. Any code or documentation that references constraints by number (e.g., \"Constraint 18\") will silently point to nothing. Either renumber 20→18 and 21→19, or add placeholder items explaining the gap (e.g., reserved for future stories).",
+      "commit": "8cbd906d19b481fed81c99375b5c80d2e0474711",
+      "created_at": "2026-11-03T23:45:50Z",
+      "id": 4461818164,
+      "kind": "inline",
+      "line": 46,
+      "path": ".claude/skills/meta-prior/SKILL.md",
+      "url": "https://github.com/mdresch/agent-learning/pull/98#discussion_r4461818164"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Crash Risk:** If a task discovered in `episodes/` has no corresponding `{task_id}.actions.json` file, this raises an unguarded `FileNotFoundError`. The `_read_json` helper on line 54 provides a clear `assert path.is_file()` error message, but this path bypasses it. Use `_read_json` here for a consistent, readable failure message when an actions file is absent.\n```suggestion\n        actions = _read_json(SHAPES / f\"{task_id}.actions.json\")\n```",
+      "commit": "425c66fd78423db28fd1476bca5bafa81c44acb7",
+      "created_at": "2026-11-03T23:45:50Z",
+      "id": 4461818175,
+      "kind": "inline",
+      "line": null,
+      "path": "tests/test_meta_prior_real_data.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/98#discussion_r4461818175"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThis PR adds Story 19.7: a test-only statement that no suitable meta-prior family exists yet over the recorded `approve-*` governance tasks. No production code is modified; all changes are in test and documentation files.\n\n**Overall assessment:** The test logic is well-structured and correctly implements all four acceptance criteria. The interpretation of the \"committed store\" gap (I1) is sound. The monkeypatching of `cli.get_default_store` and the use of `tmp_path` properly isolate the test from the real store.\n\n### Finding requiring attention\n\n**Line 83 in `tests/test_meta_prior_real_data.py`:** The `_read_json` helper (line 54) guards against missing files with a clear `assert path.is_file()` message, but the actions-file read at line 83 bypasses it with a raw `read_text` call. A missing `{task_id}.actions.json` would raise an unguarded `FileNotFoundError` instead of the consistent assertion message used elsewhere in the file. The fix is to use `_read_json` directly (since it already parses JSON and returns a dict), and remove the redundant `json.loads` wrapping.\n\n**Note on the first inline comment at line 83:** The earlier draft comment on that line contained an incorrect code suggestion (`json.loads(_read_json(...))` — double-parsing). The second comment on the same line contains the correct fix (`_read_json(SHAPES / f\"{task_id}.actions.json\")`). Please apply only the second suggestion.\n\n### Documentation note\n\nThe constraint numbering in `SKILL.md` jumps from item 17 to item 20, skipping 18 and 19. This is a minor inconsistency but could confuse anyone referencing constraints by number. Consider renumbering or adding gap markers.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "425c66fd78423db28fd1476bca5bafa81c44acb7",
+      "created_at": "2026-11-03T23:45:50Z",
+      "id": 5761092273,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/98#pullrequestreview-5761092273"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "Here is the finding resolution status for this commit (head `5da0720`, the post-review fix commit):\n\n**Resolved — both findings from round 1 (on `425c66f`) are fixed in `5da0720`:**\n\n| ID | Summary | Status |\n|---|---|---|\n| Q-98-1 | `_recorded_tasks` read the actions file without an existence assertion — bare `FileNotFoundError` on a missing file | ✅ Fixed in `5da0720`: `actions_path` now has the same `assert actions_path.is_file()` guard as every other path read in the helper |\n| Q-98-2 | `_role_map` fell back to `\"revise\"` for any unrecognised action name, masking future action additions silently; `_declare_all` assertion was also implicitly relying on this | ✅ Fixed in `5da0720`: the fallback is replaced by an explicit `raise AssertionError` naming the unrecognised action id, and the three-role bijection is asserted after the loop |\n\n**Nothing remaining from this PR's review.**\n\n**Open items that are explicitly deferred to a human (not blocking merge):**\n- **I1 / FDD-019 §7 item 11**: Story wording says \"the committed store under `data/agent-learning/store`\", but that directory is git-ignored. Recorded for the maintainer to reword the story or commit the store in some form.\n- **I2 / I3**: `role_map` authorship and family name `governance-gates` — interpretations recorded in the test docstring, awaiting maintainer confirmation.\n- **Story 19.6** (seeding) is still `Ready`, not `Completed` — independent of this PR and not a gap here.\n- The epic-end recap (Lessons Learned / Continuous Improvement entries) is deferred to the final commit of Step 9, as stated in the PR description.\n\nNo unresolved code defects remain at this head.",
+      "commit": null,
+      "created_at": "2026-11-03T23:46:49Z",
+      "id": 6618426605,
+      "kind": "issue",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/98#issuecomment-6618426605"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "**Finding status for PR #98 (Story 19.7, head `5da0720`)**\n\n**Resolved in this commit:**\n\n| Finding | Description | Status |\n|---|---|---|\n| Q-98-1 | `crash risk` — actions file read without existence assertion; missing file gave bare `FileNotFoundError` | ✅ Fixed in `5da0720`: assertion now names task and path |\n| Q-98-2 | `test gap` — `_role_map` fell back to `revise` for any unrecognised action name; now names the one revision action, raises for any other, and asserts the three-role bijection | ✅ Fixed in `5da0720` |\n\n**Remaining open items (not findings — open questions for the maintainer):**\n\n- **FDD-019 §7 item 11 / I1 (AC_0 / AC_2 wording):** The story's \"committed store under `data/agent-learning/store`\" does not exist in CI because `data/agent-learning/` is git-ignored. The test rebuilds from committed episodes, action files and decision results instead; the local recorded store is checked only when present (one skip in CI is expected). Whether to reword the story or commit the store in some form is recorded as an open question for you.\n- **Story 19.6 (Seeding a New Policy):** Status remains `Ready` — not part of this PR and not touched here.\n- **Epic 19 recap / Lessons Learned entries:** The PR description notes that the epic recap and LL entries will be added as a last commit once you have no further additions (implement-story Step 9). Nothing is missing from Story 19.7 itself.\n\n**No unresolved findings remain from this PR's review rounds.** The full suite is 1803 passed, 1 skipped (the local-store test on a machine without the git-ignored store), ruff clean, no production code changed.\n",
+      "commit": null,
+      "created_at": "2026-11-03T23:48:24Z",
+      "id": 6618451516,
+      "kind": "issue",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/98#issuecomment-6618451516"
+    }
+  ],
+  "pr": 98
+}

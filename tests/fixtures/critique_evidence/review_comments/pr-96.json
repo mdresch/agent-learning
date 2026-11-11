@@ -1,0 +1,116 @@
+{
+  "available": true,
+  "comments": [
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "The output-name conflict guard runs after `_scan_family` and `compile_meta_prior` have already executed successfully. This means the expensive pooling computation is performed for an `--output-prior-name` that will always be rejected (it names an existing non-prior task). Move the conflict check to before the `try` block so it short-circuits immediately, matching the documented contract that \"nothing is stored\" on refusal and avoiding wasted work.",
+      "commit": "55a54a1c06abf291d2532d4ee1b20555f9086f85",
+      "created_at": "2026-11-03T23:14:03Z",
+      "id": 4461589420,
+      "kind": "inline",
+      "line": null,
+      "path": "src/agent_learning/cli.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/96#discussion_r4461589420"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Crash Risk**: `pair[0]` and `pair[1]` index into the value returned by `prior.values[role]` for a Thompson prior. This is suppressed with `# type: ignore[index]`, which conceals that if `compile_meta_prior` returns the Thompson values as something other than a sequence (e.g., a named tuple or dict), both accesses will raise a `TypeError` at runtime, crashing the command after compilation has succeeded and before the snapshot is written. Remove the suppression or add an explicit `tuple(...)` cast and assert the length to fail fast with a meaningful error.",
+      "commit": "55a54a1c06abf291d2532d4ee1b20555f9086f85",
+      "created_at": "2026-11-03T23:14:03Z",
+      "id": 4461589428,
+      "kind": "inline",
+      "line": null,
+      "path": "src/agent_learning/cli.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/96#discussion_r4461589428"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "This test accesses `store._path(...)`, a private method of `LocalFileStore`. If the internal API of `LocalFileStore` changes (method renamed, signature altered, or the file layout abstracted), this test will raise `AttributeError` silently masking the real AC_3 invariant. Use the public API (`store.get_active_policy`) — which is already asserted on the next line — to verify the pointer without coupling to internal implementation.",
+      "commit": "55a54a1c06abf291d2532d4ee1b20555f9086f85",
+      "created_at": "2026-11-03T23:14:03Z",
+      "id": 4461589435,
+      "kind": "inline",
+      "line": null,
+      "path": "tests/test_meta_prior_store.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/96#discussion_r4461589435"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "`test_ac2_the_required_flags_are_required` only verifies that missing `--sigma-het` and missing `--output-prior-name` each raise `SystemExit`, but there is no coverage for missing `--agent-id` or missing `--family`. If either of those flags were accidentally made non-required in a future refactor of `_build_arg_parser`, this test would not catch the regression.",
+      "commit": "55a54a1c06abf291d2532d4ee1b20555f9086f85",
+      "created_at": "2026-11-03T23:14:03Z",
+      "id": 4461589443,
+      "kind": "inline",
+      "line": null,
+      "path": "tests/test_meta_prior_store.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/96#discussion_r4461589443"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThis PR introduces `task-policy-meta-compile` (Story 19.5), completing the pooling-to-storage pipeline. The implementation is well-structured: the scan/gate/representation-detection logic in `_scan_family` is correct, provenance metadata is comprehensive, and the supersession chain (H8) is properly enforced. The 17-test contract suite covers all five acceptance criteria.\n\n### Issues requiring attention before merge\n\n**`src/agent_learning/cli.py`**\n\n1. **Post-compilation conflict guard (lines 1209–1215):** The `--output-prior-name` conflict check (I4 / FDD-019 H6) runs *after* `_scan_family` and `compile_meta_prior` have already succeeded. A caller targeting an existing non-prior task name pays the full pooling cost before being refused. This check should be a pre-flight guard before the `try` block.\n\n2. **`type: ignore[index]` on Thompson pair unpacking (lines 1225–1226):** Index access on `prior.values[role]` for Thompson priors is suppressed via `# type: ignore[index]`. If the returned type is not positionally indexable, this produces a runtime `TypeError` after successful compilation. The suppression hides a potential crash; the type contract of `compile_meta_prior`'s return value for Thompson families should be made explicit.\n\n**`tests/test_meta_prior_store.py`**\n\n3. **Private `_path` access (line 353):** `store._path(\"active-policies\", AGENT, NAME)` couples the test to an internal method of `LocalFileStore`. The public assertion on the following line (`store.get_active_policy(AGENT, NAME).id == newest.id`) already verifies the invariant; the raw pointer read is redundant and fragile.\n\n4. **Incomplete required-flags coverage (lines 309–314):** The required-flags test only asserts that missing `--sigma-het` and missing `--output-prior-name` each exit non-zero. Missing `--agent-id` and `--family` are not exercised, leaving a gap that would miss a future accidental `required=False` change.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "55a54a1c06abf291d2532d4ee1b20555f9086f85",
+      "created_at": "2026-11-03T23:14:03Z",
+      "id": 5760829542,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/96#pullrequestreview-5760829542"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: The `--kappa-prior` argument is declared with `type=float` and no bounds enforcement, but the help text explicitly states \"above 0 and at most 10\". Without a custom validator, passing `--kappa-prior 0` or `--kappa-prior 15` silently passes argparse and only fails (if at all) deep inside `compile_meta_prior`, potentially with an unhelpful error message or silent misbehavior. Add a validator analogous to `_damping_factor` so invalid values are rejected at argument-parse time with a clear CLI error.\n```python\n    meta_compile.add_argument(\n        \"--kappa-prior\",\n        type=_kappa_prior,\n        default=10.0,\n        help=\"Prior strength for Beta-count families, above 0 and at most 10 (default: 10.0).\",\n    )\n```",
+      "commit": "2227a594dcf84d7deb19afd438271db77764b026",
+      "created_at": "2026-11-03T23:14:29Z",
+      "id": 4461592785,
+      "kind": "inline",
+      "line": 295,
+      "path": "src/agent_learning/cli.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/96#discussion_r4461592785"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Crash Risk**: `scan` is guaranteed non-`None` at line 1241 (the `except` block returns early, so reaching line 1241 means the `try` completed successfully with `scan` assigned). The guard `scan.excluded if scan is not None else []` is dead code that masks the true type guarantees. More importantly, if `scan` were ever `None` here due to a future refactor, the silent empty-list fallback would produce a prior with an empty `excluded` list in `validation_report` rather than raising an error, silently corrupting provenance. Remove the dead guard to make the invariant explicit and prevent future silent failures.\n```suggestion\n        \"validation_report\": {\n            \"family_size\": prior.member_count,\n            \"excluded\": scan.excluded,\n            \"role_spread\": dict(prior.role_spread),\n        },\n```",
+      "commit": "2227a594dcf84d7deb19afd438271db77764b026",
+      "created_at": "2026-11-03T23:14:29Z",
+      "id": 4461592795,
+      "kind": "inline",
+      "line": 1244,
+      "path": "src/agent_learning/cli.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/96#discussion_r4461592795"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Crash Risk**: `store._path(...)` accesses a private implementation method of `LocalFileStore`. This is an internal API with no stability guarantee — if `_path` is renamed, re-parameterized, or removed during a refactor, this test will crash with `AttributeError` rather than failing cleanly. The test is designed to verify the active-pointer behaviour, which is already covered by `store.get_active_policy(AGENT, NAME).id == newest.id` on the next line. The raw-pointer assertion via `_path` creates a brittle coupling to storage internals; either expose a public API for the pointer file path, or drop the redundant raw-pointer check and rely solely on the public `get_active_policy` assertion.",
+      "commit": "55a54a1c06abf291d2532d4ee1b20555f9086f85",
+      "created_at": "2026-11-03T23:14:29Z",
+      "id": 4461592819,
+      "kind": "inline",
+      "line": null,
+      "path": "tests/test_meta_prior_store.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/96#discussion_r4461592819"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThis PR implements `task-policy-meta-compile` (Story 19.5), wiring `compile_meta_prior` into the CLI and covering it with 17 contract tests. The core logic — family scanning, snapshot construction, supersession, Thompson/softmax branching, and provenance metadata — is well-structured and the test matrix covers the acceptance criteria thoroughly.\n\n### Issues found\n\n**`src/agent_learning/cli.py`**\n\n1. **`--kappa-prior` lacks bounds validation** (line 290-295): The help text documents the constraint \"above 0 and at most 10\", but the argument uses plain `type=float` with no validator. A caller passing `0` or `15` bypasses all CLI-level checks and the error (if any) surfaces deep inside `compile_meta_prior` with no actionable message. A short validator function like `_damping_factor` would enforce the contract at parse time.\n\n2. **Dead guard on `scan.excluded` silently hides provenance** (line 1241): After the `try/except` block, `scan` is unconditionally non-`None`; the `if scan is not None else []` guard is unreachable. If a future refactor accidentally makes `scan` reachable here as `None`, the silent empty fallback would produce a prior with a falsified (empty) `excluded` list in `validation_report` instead of raising.\n\n**`tests/test_meta_prior_store.py`**\n\n3. **Private `_path` API access** (line 353): `store._path(...)` couples the test to `LocalFileStore` internals. Since `store.get_active_policy(AGENT, NAME).id == newest.id` on the very next line exercises the same invariant through the public API, the raw-pointer check adds fragility without additional coverage.\n\nNo security vulnerabilities were identified. All acceptance criteria appear to have corresponding test coverage.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "55a54a1c06abf291d2532d4ee1b20555f9086f85",
+      "created_at": "2026-11-03T23:14:29Z",
+      "id": 5760833326,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/96#pullrequestreview-5760833326"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "Here is the finding-by-finding status for this commit:\n\n---\n\n**Resolved in this commit**\n\n| Finding | Resolution |\n|---|---|\n| `compile_meta_prior` not imported in `cli.py` | ✅ Added to `from .meta_prior import FamilyMember, compile_meta_prior` (line 36) |\n| `cast` not imported in `cli.py` | ✅ Added to `from typing import Any, cast` (line 16) |\n| `task-policy-meta-compile` subcommand missing from arg parser | ✅ Added at lines 273–295 |\n| `task-policy-meta-compile` not dispatched in `main()` | ✅ Added to dispatch table at line 1641 |\n| `_cmd_meta_compile_task_policy` not implemented | ✅ Fully implemented at lines 1185–1259 |\n| Output-name-collision check must run before pooling (Q-96-1) | ✅ `existing` is checked at line 1195 before `_scan_family` is called |\n| Supersession (`metadata[\"supersedes\"]`) on recompilation | ✅ Set at line 1248 when `existing is not None` |\n| Thompson prior must store zero logits + `posterior_parameters` | ✅ Correctly branched at lines 1217–1229 |\n| All required AC_0–AC_5 contract tests | ✅ `tests/test_meta_prior_store.py` (17 tests) added in full |\n| AC_5 storage-boundary: pooling module must not import storage | ✅ Enforced by `test_ac5_the_pooling_module_imports_nothing_from_storage` |\n\n---\n\n**Not resolved / acknowledged as pre-existing**\n\nThe PR description explicitly states that `cli.py` retains **4 pre-existing ruff findings and 37 pre-existing mypy findings** that existed before this story and are **not in the code added by this PR**. None of those are new regressions introduced here.\n\n**One open item to verify:** `_cmd_warm_start_task_policy` still exits with `\"Meta-prior warm starting is not yet implemented.\"` (line 1617). This is intentional per the PR description (Story 19.6 / Epic 20 is a later story), but confirm this is tracked and will not block the merge gate if tests exercise that path.\n\nNo new findings were introduced by the code in this commit.",
+      "commit": null,
+      "created_at": "2026-11-03T23:16:44Z",
+      "id": 6617940566,
+      "kind": "issue",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/96#issuecomment-6617940566"
+    }
+  ],
+  "pr": 96
+}

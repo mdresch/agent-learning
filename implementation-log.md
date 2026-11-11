@@ -3348,3 +3348,15 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Does not change:** the 2026-11-04 approval of AUDIT-001 to AUDIT-006.
 
 ---
+
+## IMP-007 — scripts/approve.py, one command for an approval run
+- **Commit:** `74a75ca`
+- **Date:** 2026-11-11
+- **Branch:** `feat/imp-007-approve-script`
+- **Source:** CR-20261110-002 (GC-P2-03), PR #195. Improvement, not a story: contract tests in `tests/test_approve.py`.
+- **Review-fix commits:** `65220f7`
+- **Review validation:** 27 passed in `tests/test_approve.py`; full suite 2696 passed, 2 skipped. The fix also made `compare` and `reject` handle what the real CLI returns (checked live, read-only).
+- **Amazon Q triage (round 1 on `74a75ca`), decided by Menno on 2026-11-11:**
+  - `Q-195-1 | logic error | verified: partial | decision: accepted | assert on the spec loader replaced by an explicit error in approve.py; the test file keeps the repo's script-loading pattern | fix: 65220f7`
+  - `Q-195-2 | logic error | verified: yes | decision: accepted | constraint results were hardcoded true; now optional per option, validated, and decide names the options where they were assumed | fix: 65220f7`
+  - `Q-195-3 | logic error | verified: no | decision: declined | guard_store runs before task-policy-adjudicate and a test asserts no CLI call is made | fix: none`

@@ -1,0 +1,50 @@
+{
+  "available": true,
+  "comments": [
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThe implementation of Story 3.1 is well-structured and the tier-specific override resolution, monotonicity validation, and full-authority authority-aware reporting logic are all functionally correct. The test coverage across all four acceptance criteria (AC_0–AC_4) is thorough.\n\n**One blocking defect found:**\n\nIn `src/agent_learning/config.py`, `_note_global_override` checks `os.getenv(global_key)` for truthiness at line 120, then directly reads `os.environ[global_key]` at line 124. This TOCTOU window can raise a `KeyError` if the variable is removed between the two calls — particularly in tests that use `monkeypatch.delenv` or any concurrent env manipulation. Since `_note_global_override` is called on every invocation of `_env_tier_int` and `_env_tier_float`, the crash propagates into `AutonomyConfig.for_tier` and ultimately into `assess_autonomy`. The fix is to use `os.getenv(global_key)` on line 124 instead of `os.environ[global_key]`.\n\nNo other blocking issues identified.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "00153f2b29f23d0e5ecb10198c43f0b29ce0cc11",
+      "created_at": "2026-10-26T09:40:01Z",
+      "id": 5649986003,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/11#pullrequestreview-5649986003"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Crash Risk**: `os.environ[global_key]` at line 124 is accessed after `os.getenv(global_key)` at line 120 with no atomicity guarantee. If the environment variable is removed between the check and the access (e.g., in tests that manipulate `os.environ` concurrently, or with `monkeypatch.delenv`), this raises a `KeyError` that propagates through `_env_tier_int`/`_env_tier_float` into `AutonomyConfig.for_tier`, crashing the autonomy assessment. Replace with `os.getenv(global_key)` to read the value safely.\n```suggestion\n            os.getenv(global_key),\n```",
+      "commit": "00153f2b29f23d0e5ecb10198c43f0b29ce0cc11",
+      "created_at": "2026-10-26T09:40:02Z",
+      "id": 4375805140,
+      "kind": "inline",
+      "line": 124,
+      "path": "src/agent_learning/config.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/11#discussion_r4375805140"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "Here is a full status check against each acceptance criterion and every structural concern that would normally be raised on this kind of PR.\n\n---\n\n### AC_0 – Tier-suffixed variable resolution ✅\n`AutonomyConfig.for_tier` correctly chains `_env_tier_int` / `_env_tier_float`, which resolve `AGENT_LEARNING_AUTONOMY_{METRIC}_{TIER}` → global variable → tier default. Invalid values fall through via the existing `_env_int` / `_env_float` lenient parse (I1). All six metrics plus `audit_rate` are covered. `WILSON_Z` has no tier suffix as specified.\n\n### AC_1 – Per-tier isolation ✅\nTier-suffixed overrides apply to exactly one tier; the remaining tiers continue to read their own defaults or global variables. Confirmed by `test_ac1_low_tier_override_preserves_other_tiers`.\n\n### AC_2 – Monotonicity validation ✅\n`validate_autonomy_monotonicity()` checks all six statistical gates (I2 – covers ADR-003 Invariant 5, not just the three in FDD-003). The error message names both the metric and the two tier names. `assess_autonomy()` calls it only when it self-resolves the config (I3); a caller-supplied config is not re-validated. Confirmed by the parametrised `test_ac2_*` suite.\n\n### AC_3 – Full-authority reporting ✅\n`_is_full_authority` reads `snapshot.metadata[\"decision_authority\"]` without importing `decision.py`. `_mark_probability_criteria_not_applicable` sets `status=\"not_applicable\"`, `met=True`, `required=None`, and a `reason` citing ADR-003 section 4.5 on both gates. `authorization_basis` is always `\"human_adjudication\"` for full-authority snapshots regardless of statistical evidence (I4). `requires_human_approval: true` continues to block eligibility (ADR-003 Invariant 6). Confirmed by `test_ac3_*`.\n\n### AC_4 – Low-authority path unchanged ✅\nProbability gates retain their numeric `required` and no `status` key for low-authority policies. Confirmed by `test_ac4_low_authority_statistical_gates_are_unchanged`.\n\n---\n\n### Other review dimensions\n\n| Dimension | Status |\n|---|---|\n| No hardcoded secrets or credentials | ✅ Clean |\n| No new `ruff` findings | ✅ PR description confirms same 12 pre-existing findings, none new |\n| `validate_autonomy_monotonicity` exported in `__all__` | ✅ Added at line 724 |\n| `validate_autonomy_monotonicity` imported in `autonomy.py` | ✅ Line 9 |\n| Skill doc, env-var docs, story status, implementation log | ✅ All four artefacts present in the diff |\n| Test coverage: 17 new tests, 33 total pass | ✅ Per PR description; RED observed first |\n| `tests/pmbok` and `tests/test_spark.py` skipped | ⚠️ Pre-existing gap, not introduced by this PR |\n| Interpretations I1–I4 recorded in FDD-003 | ⚠️ PR notes this needs a separate approval; nothing to action here |\n\n---\n\n**Nothing introduced by this commit remains unresolved.** The two open items (the skipped test suites and the FDD-003 interpretation amendment) both pre-date or are explicitly out-of-scope for this story.",
+      "commit": null,
+      "created_at": "2026-10-26T11:34:54Z",
+      "id": 6415017153,
+      "kind": "issue",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/11#issuecomment-6415017153"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "Here is a status check against all findings that were previously raised for this PR, based on the current head commit (`8b1b04c`):\n\n---\n\n### ✅ Resolved\n\n| # | Finding | Resolution |\n|---|---------|------------|\n| AC_0 | `AutonomyConfig.for_tier` did not support tier-suffixed env vars | `_env_tier_int` / `_env_tier_float` implement the three-level fallback (`AGENT_LEARNING_AUTONOMY_{METRIC}_{TIER}` → global → tier default). Tests `test_ac0_*` cover int metrics, float metrics, and the invalid-value fallthrough (I1). |\n| AC_1 | A tier override leaked into other tiers | `for_tier` resolves each tier in isolation; `test_ac1_low_tier_override_preserves_other_tiers` confirms isolation. |\n| AC_2 | No monotonicity guard across tiers | `validate_autonomy_monotonicity()` covers all six statistical gates and all four adjacent tier pairs; the parametrized `test_ac2_*` suite confirms each gate and pair. |\n| AC_2/I3 | `assess_autonomy` didn't run the monotonicity check | Guard is called inside the `if config is None` branch of `assess_autonomy`; covered by `test_ac2_assess_autonomy_rejects_inverted_thresholds`. |\n| AC_3 | Full-authority policies were gated on frozen logits | `_mark_probability_criteria_not_applicable` sets `status=\"not_applicable\"` and `met=True` for both probability criteria; `statistically_eligible` is short-circuited by `not full_authority`; `authorization_basis` returns `\"human_adjudication\"`. Tests `test_ac3_*` cover the not-applicable shape, the I4 statistical-path block, and `requires_human_approval` override. |\n| AC_4 | Low-authority gate shape was unintentionally changed | Low-authority path is unmodified; `test_ac4_low_authority_statistical_gates_are_unchanged` confirms the probability criteria still carry `\"required\"` and no `\"status\"` key. |\n| `validate_autonomy_monotonicity` not exported | Not in `__all__` | Added to `__all__` in `config.py` line 724. |\n\n---\n\n### ⚠️ Remaining / Out-of-scope items\n\n| # | Item | Status |\n|---|------|--------|\n| **wilson_z not tier-aware** | `for_tier` hard-codes `wilson_z=_env_float(\"AGENT_LEARNING_AUTONOMY_WILSON_Z\", 1.96)` — there is no tier-suffixed `WILSON_Z_{TIER}` path. This is consistent with the FDD (Wilson Z is not listed as a per-tier gate), so it is not a defect unless the spec changes. | Accepted gap, not a bug. |\n| **`tests/pmbok` and `tests/test_spark.py` not run** | Noted in the PR description — undeclared `sqlalchemy`/`tenacity` deps and JVM requirement respectively. | Pre-existing; not introduced by this PR. |\n| **12 existing `ruff` findings** | PR description states the same 12 pre-existing findings remain; none new were added. | Pre-existing; not introduced by this PR. |\n| **I1–I4 interpretations not yet recorded in FDD-003** | PR description flags this needs a separate approval cycle. | Out of scope for this commit; tracked as a follow-up. |\n\nAll acceptance criteria for Story 3.1 (AC_0–AC_4) are addressed in this commit. The remaining items are either pre-existing or deferred by design.",
+      "commit": null,
+      "created_at": "2026-10-26T11:35:52Z",
+      "id": 6415034490,
+      "kind": "issue",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/11#issuecomment-6415034490"
+    }
+  ],
+  "pr": 11
+}

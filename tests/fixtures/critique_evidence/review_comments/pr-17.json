@@ -1,0 +1,116 @@
+{
+  "available": true,
+  "comments": [
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: The regex `r\"BP-002.*19.*20\"` hardcodes the `standard` tier gate value (`20`) directly in the error-message assertion. Interpretation I2 (documented in this file's own docstring) explicitly states that `AutonomyConfig.for_tier(tier).min_outcomes` is used and that tier-specific environment overrides apply. If the `standard` gate is overridden in the test environment, this test will either fail with a confusing assertion mismatch or silently assert against the wrong value. The passing case on the next line also hardcodes `evidence_count=\"20\"` based on that assumption — if the gate is overridden to a different value the \"at the gate parses\" half of this test will break (or pass vacuously when it should fail). Replace the hardcoded `19` and `20` with values derived from `AutonomyConfig.for_tier(\"standard\").min_outcomes` to stay consistent with I2.",
+      "commit": "546caba4a5ed176fcf972b8e90705177dd684461",
+      "created_at": "2026-10-26T12:55:31Z",
+      "id": 4377426034,
+      "kind": "inline",
+      "line": 146,
+      "path": "tests/test_methodology_ledger.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/17#discussion_r4377426034"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: `evidence_count=\"3\"` and the assertion `entry.tier == \"low\"` both hardcode the assumption that `AutonomyConfig.for_tier(\"low\").min_outcomes == 3`. Per I2, this gate is environment-overridable; if it is overridden, the `[entry] = parse_ledger(...)` call will raise instead of returning an entry, and the `pytest.raises` block below will no longer be testing the correct boundary. Derive the gate value from `AutonomyConfig.for_tier(\"low\").min_outcomes` at runtime so the test remains correct under any configuration.",
+      "commit": "546caba4a5ed176fcf972b8e90705177dd684461",
+      "created_at": "2026-10-26T12:55:31Z",
+      "id": 4377426043,
+      "kind": "inline",
+      "line": 154,
+      "path": "tests/test_methodology_ledger.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/17#discussion_r4377426043"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThe parser implementation is well-structured and the rule enforcement logic (adoption gates, supersedes chains, link resolution, field validation) is correct. The 25 contract tests cover the acceptance criteria thoroughly.\n\n**Two issues require attention before merge:**\n\n1. **Hardcoded tier gate values in tests (lines 143–146 and 151–154 of `tests/test_methodology_ledger.py`)** — Both `test_ac1_adopted_below_the_tier_gate_raises_and_at_the_gate_parses` and `test_ac1_the_gate_follows_the_declared_tier` bake in concrete gate numbers (`19`, `20` for `standard`; `3` for `low`). Interpretation I2, documented in the test file's own docstring, explicitly states these gates are environment-overridable via `AutonomyConfig`. If the gate is overridden in any CI or local environment, the boundary tests will silently assert the wrong threshold or fail with misleading errors. Gate values should be read from `AutonomyConfig.for_tier(tier).min_outcomes` at test runtime.\n\n**No other blocking issues found.** The module correctly imports nothing from storage, the link-format regex is sound, the append-only chain logic is correct, and the `current_entries` function accurately identifies tail entries.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "546caba4a5ed176fcf972b8e90705177dd684461",
+      "created_at": "2026-10-26T12:55:31Z",
+      "id": 5652286449,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/17#pullrequestreview-5652286449"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: `not fields.get(key)` treats a required field whose value is an empty string as missing. This correctly rejects blank values for enumeration fields (`applies_to`, `evidence_class`, `status`), but it conflates two distinct errors for free-text fields like `evidence_ref` and `preconditions`: a field that was never written vs. a field written with an empty value. More critically, `evidence_count` parsed as `\"0\"` is falsy in Python only if it were the integer 0, but here all values are strings so `\"0\"` is truthy — however any field written as `- evidence_ref: ` (trailing space stripped by the regex) produces `\"\"` which is falsy, so the field is reported as \"missing\" rather than \"empty\". Replace the missing-field check with an explicit key-presence test to distinguish absent from empty.\n```suggestion\n    missing = [key for key in _REQUIRED if key not in fields]\n    if missing:\n        raise ValueError(f\"{entry_id}: missing fields: {', '.join(missing)}\")\n```",
+      "commit": "546caba4a5ed176fcf972b8e90705177dd684461",
+      "created_at": "2026-10-26T12:55:39Z",
+      "id": 4377427235,
+      "kind": "inline",
+      "line": 96,
+      "path": "src/agent_learning/methodology_ledger.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/17#discussion_r4377427235"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: `_blocks` uses `_ANY_H2` (which matches *any* `## ` heading) to delimit the end of an entry body. This means any `##`-level sub-heading that appears inside or between entries in the Markdown file will silently truncate the entry body, causing required fields after that heading to be silently dropped rather than parsed. For example, if the register ever contains a `## Notes` or `## References` section between entries, the preceding entry's body is cut at that heading and fields below it are lost. The delimiter search should only stop at the *next BP-entry* heading (`_HEADING`), not at any `##` heading.\n```suggestion\ndef _blocks(text: str) -> list[tuple[str, str]]:\n    \"\"\"Split the register into (entry id, body) pairs; other headings and text are ignored.\"\"\"\n    blocks: list[tuple[str, str]] = []\n    headings = list(_HEADING.finditer(text))\n    for i, match in enumerate(headings):\n        end = headings[i + 1].start() if i + 1 < len(headings) else len(text)\n        blocks.append((match.group(1), text[match.end() : end]))\n    return blocks\n```",
+      "commit": "0608272219d09708227809f9ba553864be54d3b9",
+      "created_at": "2026-10-26T12:55:39Z",
+      "id": 4377427268,
+      "kind": "inline",
+      "line": 79,
+      "path": "src/agent_learning/methodology_ledger.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/17#discussion_r4377427268"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThis PR introduces a well-structured, pure-functional ledger parser for `methodology_ledger.py` with comprehensive contract tests. The overall design is sound, but there are **four blocking defects** identified:\n\n### Critical Issues\n\n1. **`_fields` missing-field detection (`methodology_ledger.py` line 94)** — `not fields.get(key)` treats a present-but-empty field value (`\"\"`) the same as an absent field. This produces a misleading \"missing fields\" error for any required free-text field written with an empty value (e.g., `- evidence_ref: `). Fix: use `key not in fields`.\n\n2. **`_blocks` entry-body truncation (`methodology_ledger.py` line 75)** — Using `_ANY_H2` (any `## ` heading) to delimit entry bodies means any non-BP `##` section in the register file will silently truncate the preceding entry's body, causing required fields below that heading to be dropped without error. Fix: delimit by the next `_HEADING` match index instead.\n\n3. **Tier-gate test hard-codes config value (`test_methodology_ledger.py` line 143)** — `r\"BP-002.*19.*20\"` assumes the `standard` tier gate is exactly 20. Since Interpretation I2 explicitly allows environment-variable overrides via `AutonomyConfig`, this test will fail spuriously in any environment where the gate is overridden. Fix: derive the gate value from `AutonomyConfig.for_tier(\"standard\").min_outcomes` at test time.\n\n4. **`DEFAULT_EPSILON` missing from `__all__` (`__init__.py`)** — `DEFAULT_EPSILON` is importable by name but excluded from `__all__`, breaking star-import consumers.\n\n### Minor Observation\nThe `test_ac4` purity test verifies the module has no `storage` or file-I/O imports but does not guard against future indirect file I/O introduced through `.config`. This is low-risk today but worth noting as a gap in the \"pure\" guarantee.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "546caba4a5ed176fcf972b8e90705177dd684461",
+      "created_at": "2026-10-26T12:55:39Z",
+      "id": 5652288430,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/17#pullrequestreview-5652288430"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: The purity test checks that `methodology_ledger.py` imports nothing from `storage` and nothing from `{pathlib, os, io, shutil}`, but it does not verify that the `.config` import itself is side-effect-free or that no other relative imports bring in file I/O indirectly. More critically, `\"re\"`, `\"collections.abc\"`, and `\"dataclasses\"` are approved stdlib modules, but the test would silently pass if a future commit added `from .config import something_that_reads_files`. The assertion message only dumps the raw `imported` list without the test name, making CI failures hard to diagnose. Add `.config` to the checked module set or expand the assertion to name the offending import explicitly.",
+      "commit": "0608272219d09708227809f9ba553864be54d3b9",
+      "created_at": "2026-10-26T12:55:40Z",
+      "id": 4377427281,
+      "kind": "inline",
+      "line": 246,
+      "path": "tests/test_methodology_ledger.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/17#discussion_r4377427281"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: `test_ac1_adopted_below_the_tier_gate_raises_and_at_the_gate_parses` hard-codes the `standard` tier gate as 20 (matching `r\"BP-002.*19.*20\"`). If `AutonomyConfig.for_tier(\"standard\").min_outcomes` is overridden via an environment variable in CI (as Interpretation I2 explicitly allows), this test will fail because the error message will contain a different gate value. The test couples a hard-coded gate number to the parser's error message rather than deriving it from the same config. Use `AutonomyConfig.for_tier(\"standard\").min_outcomes` to build the expected regex at test time.",
+      "commit": "546caba4a5ed176fcf972b8e90705177dd684461",
+      "created_at": "2026-10-26T12:55:40Z",
+      "id": 4377427287,
+      "kind": "inline",
+      "line": 144,
+      "path": "tests/test_methodology_ledger.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/17#discussion_r4377427287"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: `DEFAULT_EPSILON` is imported from `.comparison` and accessible via `from agent_learning import DEFAULT_EPSILON`, but it is absent from `__all__`. Any consumer relying on `from agent_learning import *` will not receive `DEFAULT_EPSILON`, creating an inconsistency between named-import and star-import APIs. Add `\"DEFAULT_EPSILON\"` to `__all__`.",
+      "commit": "0608272219d09708227809f9ba553864be54d3b9",
+      "created_at": "2026-10-26T12:55:40Z",
+      "id": 4377427293,
+      "kind": "inline",
+      "line": 309,
+      "path": "src/agent_learning/__init__.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/17#discussion_r4377427293"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "Reviewed head `45455cd`.\n\n**Verdict: No** — no further findings.\n\nThe implementation across all 7 changed files is sound. `methodology_ledger.py` is correctly pure, all validation paths name the offending entry, the adoption gate delegates properly to `AutonomyConfig.for_tier`, and the supersedes chain enforces backward-only, same-methodology, no-fork constraints. Test coverage (AC0–AC4 + live-register smoke test) is complete. `__init__.py` re-exports and `__all__` entries are consistent. No security, PII, or correctness issues found.",
+      "commit": null,
+      "created_at": "2026-10-26T12:57:42Z",
+      "id": 6416559595,
+      "kind": "issue",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/17#issuecomment-6416559595"
+    }
+  ],
+  "pr": 17
+}

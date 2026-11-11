@@ -1,0 +1,116 @@
+{
+  "available": true,
+  "comments": [
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThis PR adds ten stdlib-only proof-of-concept sketches for ADR-backed methodology candidates (Story 36.3) along with a contract test suite. The sketches themselves are well-structured, correctly labelled, and the individual algorithm implementations look arithmetically sound. Three issues were found in the test file that need to be addressed before merge:\n\n**Must Fix:**\n\n1. **Forbidden-import bypass via relative imports** (`tests/test_methodology_sketches.py` lines 141–145): When an `ast.ImportFrom` node uses a relative import (`from . import requests`), `node.module` is `None`, so `(None or \"\").split(\".\")[0]` yields `\"\"` — never in `FORBIDDEN_IMPORTS`. A sketch could smuggle in a forbidden package via relative import and the check would not catch it. The fix is to also add `alias.name` values from `ImportFrom` nodes into the `imports` set.\n\n2. **Implicit `None` return from `_parse`** (`tests/test_methodology_sketches.py` lines 56–61): The `except` branch calls `pytest.fail()` which always raises, but the function has no explicit `return` after it. Type checkers see an implicit `None` return path, and if the internals of `pytest.fail` were ever changed, callers like `ast.get_docstring(_parse(path))` would crash with `TypeError`. Adding `raise` after `pytest.fail()` makes the intent explicit and satisfies type checkers.\n\n3. **`FileNotFoundError` if `src/` does not exist** (`tests/test_methodology_sketches.py` line 151): `Path.rglob()` on a non-existent directory raises `FileNotFoundError` in Python ≥ 3.12 rather than yielding nothing, causing `test_ac3_nothing_under_src_imports_from_examples` to crash with an opaque error in environments where `src/` has not yet been created.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "146a0b12676e1e7321cef4e119823c0909ef4bac",
+      "created_at": "2026-10-26T12:06:00Z",
+      "id": 5651655996,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/16#pullrequestreview-5651655996"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: The `ast.ImportFrom` branch of the forbidden-import check extracts the top-level module from `node.module`, but when a sketch uses a relative import (e.g. `from . import requests`) `node.module` is `None`. `(None or \"\").split(\".\")[0]` produces `\"\"`, which is never in `FORBIDDEN_IMPORTS`, so the forbidden package name (`requests`, `socket`, etc.) silently bypasses the check entirely. The `names` set also won't see the alias unless the `names.update(alias.name for alias in node.names)` line below catches it — and it does for `ImportFrom`, but only if the import is `from . import requests` (alias.name == \"requests\"). However, for `from .sub import requests` (node.module = \".sub\"), the module check still fails. The correct fix is to also check `alias.name` values against `FORBIDDEN_IMPORTS` for `ImportFrom` nodes, not only the top-level module string.\n```suggestion\n        elif isinstance(node, ast.ImportFrom):\n            imports.add((node.module or \"\").split(\".\")[0])\n            names.update(alias.name for alias in node.names)\n            imports.update(alias.name.split(\".\")[0] for alias in node.names)\n    assert not (names & FORBIDDEN_NAMES), names & FORBIDDEN_NAMES\n    assert not (imports & FORBIDDEN_IMPORTS), imports & FORBIDDEN_IMPORTS\n```",
+      "commit": "729e5c216ac80c46d97f96b1c04eed9df90ad6bc",
+      "created_at": "2026-10-26T12:06:01Z",
+      "id": 4377004659,
+      "kind": "inline",
+      "line": 146,
+      "path": "tests/test_methodology_sketches.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/16#discussion_r4377004659"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Crash Risk**: `_parse` is annotated as returning `ast.Module`, but when a `SyntaxError` is caught, `pytest.fail()` raises internally and the function never actually returns `None`. Callers like `_docstring` pass the result directly to `ast.get_docstring(...)`. While this works at runtime because `pytest.fail` always raises, static type checkers will flag `_parse` as having an implicit `None` return path (the `except` block falls off without a `return`), and if `pytest.fail` were ever replaced with a logging call that didn't raise, callers would receive `None` and crash at `ast.get_docstring(None)`.\n```suggestion\ndef _parse(path: Path) -> ast.Module:\n    \"\"\"Parse a source file, failing the test with the path and error if it is not valid Python.\"\"\"\n    try:\n        return ast.parse(path.read_text(encoding=\"utf-8\"))\n    except SyntaxError as exc:\n        pytest.fail(f\"cannot parse {path}: {exc}\")\n        raise  # unreachable; satisfies type checkers\n```",
+      "commit": "729e5c216ac80c46d97f96b1c04eed9df90ad6bc",
+      "created_at": "2026-10-26T12:06:01Z",
+      "id": 4377004680,
+      "kind": "inline",
+      "line": 61,
+      "path": "tests/test_methodology_sketches.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/16#discussion_r4377004680"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Crash Risk**: If `ROOT / \"src\"` does not exist on the filesystem where the tests are run, `Path.rglob(\"*.py\")` raises `FileNotFoundError` (Python 3.12+) rather than yielding an empty sequence. The test would crash with an opaque error rather than passing (the correct outcome when there are no `src/` files to check).\n```suggestion\n    offenders = []\n    src_root = ROOT / \"src\"\n    if not src_root.is_dir():\n        return\n    for path in src_root.rglob(\"*.py\"):\n```",
+      "commit": "729e5c216ac80c46d97f96b1c04eed9df90ad6bc",
+      "created_at": "2026-10-26T12:06:01Z",
+      "id": 4377004688,
+      "kind": "inline",
+      "line": 152,
+      "path": "tests/test_methodology_sketches.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/16#discussion_r4377004688"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: The regex patterns on lines 97 and 98 use `r\"^ADR: \\\\S+\"` and `r\"^HYPOTHESIS: \\\\S+\"`. In a raw string, `\\\\S` is the two-character sequence `\\S`, which the regex engine interprets as a literal backslash followed by `S+` — it does **not** match non-whitespace. Since no sketch header contains a literal backslash, both assertions will always fail at runtime when the ADR and HYPOTHESIS lines are populated (e.g. `ADR: ADR-015 (Proposed)` contains no backslash). The pattern should be `r\"^ADR: \\S+\"` (single backslash in raw string = regex non-whitespace quantifier).\n```suggestion\n    assert re.search(r\"^ADR: \\S+\", header, re.MULTILINE), header\n    assert re.search(r\"^HYPOTHESIS: \\S+\", header, re.MULTILINE), header\n```",
+      "commit": "729e5c216ac80c46d97f96b1c04eed9df90ad6bc",
+      "created_at": "2026-10-26T12:06:05Z",
+      "id": 4377005300,
+      "kind": "inline",
+      "line": 98,
+      "path": "tests/test_methodology_sketches.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/16#discussion_r4377005300"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Crash Risk**: `_parse` is declared to return `ast.Module`, but in the `except SyntaxError` branch it calls `pytest.fail()` — which raises — so execution never falls through. However, mypy sees this as an implicit `None` return, and `_docstring` passes the result directly to `ast.get_docstring()`. If `_parse` is ever called outside of a pytest context (e.g. in `test_ac3_sketch_uses_no_real_store_and_no_network` where `_parse` is also used directly), a `SyntaxError` would cause `pytest.fail` to raise, which is correct. The real issue is the missing `-> None` / `NoReturn` annotation on `pytest.fail`, but at minimum `_parse`'s return type should reflect this. Annotating the except branch with `pytest.fail(...); raise` or using `assert False` after the call would silence the type error and prevent any future refactor accidentally using the `None` return value.",
+      "commit": "729e5c216ac80c46d97f96b1c04eed9df90ad6bc",
+      "created_at": "2026-10-26T12:06:05Z",
+      "id": 4377005327,
+      "kind": "inline",
+      "line": 61,
+      "path": "tests/test_methodology_sketches.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/16#discussion_r4377005327"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThis PR adds ten stdlib-only proof-of-concept sketch files and a contract test suite for Story 36.3. The sketch implementations themselves are algorithmically sound (correct seeded arithmetic, proper normalization, valid assertions) and the structural labeling/tagging conventions are consistently applied across all ten files.\n\n**One blocking defect found:**\n\nIn `tests/test_methodology_sketches.py` lines 97–98, the regex patterns `r\"^ADR: \\\\S+\"` and `r\"^HYPOTHESIS: \\\\S+\"` use a double-backslash in a raw string. The regex engine receives `\\\\S+`, which matches a literal backslash character followed by one or more `S` — not the intended \"one or more non-whitespace characters\" (`\\S+`). No sketch header contains a literal backslash, so both assertions would fail for every methodology when the `ADR:` and `HYPOTHESIS:` fields are non-empty. The fix is to use single-backslash raw strings `r\"^ADR: \\S+\"` and `r\"^HYPOTHESIS: \\S+\"`.\n\nThe reported test-pass count (53 passed) likely reflects that the tests were run against sketch files where these two fields happen to match in a way that makes the assertions vacuously pass — for example if `re.search` returns a match object for some other pattern accidentally, but closer inspection shows this is a real regex error that needs to be corrected before the contract tests reliably enforce their AC_1 invariants.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "146a0b12676e1e7321cef4e119823c0909ef4bac",
+      "created_at": "2026-10-26T12:06:05Z",
+      "id": 5651656753,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/16#pullrequestreview-5651656753"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: The regex patterns on lines 97 and 98 use double-backslash inside raw strings (`r\"^ADR: \\\\S+\"` and `r\"^HYPOTHESIS: \\\\S+\"`). In a raw string, `\\\\` represents two literal backslash characters, so the compiled pattern requires a literal `\\` before the non-whitespace characters. This means the assertions would never match sketch headers like `ADR: ADR-019 (Proposed)` or `HYPOTHESIS: HYP-AL-002`, causing all 10 parametrized instances of this test to pass vacuously only if the header happens to contain a backslash — or to fail silently if `re.search` returns `None` and the assert message is misleading. The fix is to use a single backslash in the raw string: `r\"^ADR: \\S+\"` and `r\"^HYPOTHESIS: \\S+\"`.\n```suggestion\n    assert re.search(r\"^ADR: \\S+\", header, re.MULTILINE), header\n    assert re.search(r\"^HYPOTHESIS: \\S+\", header, re.MULTILINE), header\n```",
+      "commit": "729e5c216ac80c46d97f96b1c04eed9df90ad6bc",
+      "created_at": "2026-10-26T12:17:58Z",
+      "id": 4377101575,
+      "kind": "inline",
+      "line": 98,
+      "path": "tests/test_methodology_sketches.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/16#discussion_r4377101575"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThe PR adds 10 proof-of-concept sketches with a well-structured contract test suite. The sketches themselves are correct, stdlib-only, and properly labeled. One blocking bug was identified in the test file.\n\n### Critical Issue (must fix before merge)\n\n**`tests/test_methodology_sketches.py` lines 97–98 — broken regex patterns for `ADR` and `HYPOTHESIS`:**\nIn `test_ac1_header_carries_the_labeling_lines`, the patterns `r\"^ADR: \\\\S+\"` and `r\"^HYPOTHESIS: \\\\S+\"` use double-backslash inside raw strings. In Python raw strings, `\\\\` is two literal backslash characters, so the compiled regex requires a literal `\\` character in the header text. None of the sketch headers contain a backslash on those lines (e.g., `ADR: ADR-019 (Proposed)`, `HYPOTHESIS: none registered`), so these assertions would fail for all 10 parametrized test cases. The fix is `r\"^ADR: \\S+\"` and `r\"^HYPOTHESIS: \\S+\"`.\n\n### No other blocking issues found\n- All sketch files are correctly structured, use only stdlib, seed `random.Random` deterministically, and their arithmetic assertions are valid.\n- The static analysis in `test_ac3_sketch_uses_no_real_store_and_no_network` correctly handles both `ast.Import` and `ast.ImportFrom` cases.\n- The catalog hash check and the `src/` import isolation test are sound.\n\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "4e891a98e07aec67e90a5ad90784c952dd90187f",
+      "created_at": "2026-10-26T12:17:58Z",
+      "id": 5651784462,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/16#pullrequestreview-5651784462"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "The regex finding is retracted — confirmed false positive. The patterns on lines 93–99 of `tests/test_methodology_sketches.py` are ordinary single-backslash Python regex strings matching literal start-of-line anchors; no raw strings or double-escaping are needed or missing here.\n\n**Verdict: No further additions.** All sketch files are stdlib-only, correctly labeled, and the test suite's AST-based store/network checks and catalog hash guard are sound. No security issues, hardcoded credentials, or PII were found across the 24 changed files.",
+      "commit": null,
+      "created_at": "2026-10-26T12:40:24Z",
+      "id": 6416226375,
+      "kind": "issue",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/16#issuecomment-6416226375"
+    }
+  ],
+  "pr": 16
+}

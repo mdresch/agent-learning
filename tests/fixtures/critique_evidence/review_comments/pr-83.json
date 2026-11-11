@@ -1,0 +1,226 @@
+{
+  "available": true,
+  "comments": [
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThis PR implements the `task-policy-warm-start` CLI subcommand (Story 20.3) and its contract test suite. The core logic flow is sound and the acceptance-criteria coverage is comprehensive, but there are several blocking issues that must be resolved before merge.\n\n### Critical Issues Found\n\n**`src/agent_learning/cli.py`**\n1. **Missing type validation on `--action-map` after load** (line 1283–1292): After loading the action map from either an inline JSON string or a file, there is no check that the result is a `dict`. A JSON array or any non-object value will propagate to `warm_start_logits` and produce a confusing error. A simple `isinstance` guard must be added after parsing.\n\n2. **`advance_version()` must generate a new snapshot `id`** (lines 1332–1338): The warm-started snapshot is cloned from the original `target` via `PolicySnapshot.from_dict(target.to_dict())`, preserving the original `id`. If `advance_version()` does not also assign a new UUID, `store.store_policy(target_copy)` will overwrite the version-0 snapshot, violating AC_0 (\"earlier version is stored and unchanged\"). This needs verification — if `advance_version()` does not set a new `id`, the clone must explicitly receive one (e.g., `target_copy.id = str(uuid.uuid4())`).\n\n**`tests/test_warm_start_cli.py`**\n3. **`test_ac3_cold_target_only` overwrites the active policy across loop iterations** (lines 301–319): Each iteration stores a new snapshot for `task_id=\"target-task\"`, making the previously-checked snapshot the active one for the next iteration. The test needs to either use distinct `task_id` values per case, or call `file_store.store_policy(base_target_snapshot)` at the end of each iteration to restore the cold state.\n\n4. **`test_ac6_flags` step 3 has a fragile state dependency** (lines 482–501): There is no re-store of the cold `base_target_snapshot` before invoking the warm-start with default damping. If any logic elsewhere in the test function were to write to `target-task`, the `assert code_default == 0` would silently fail. Add `file_store.store_policy(base_target_snapshot)` immediately before the step-3 CLI invocation.\n\n5. **Unused `MagicMock` import and missing `--meta-prior`-only test** (line 32): `MagicMock` is imported but unused. Additionally, there is no explicit test asserting that providing `--meta-prior` alone (without `--donor-task-id`) exits non-zero with a meaningful message — the current AC_6 test only validates the \"both flags together\" and \"neither flag\" combinations.\n\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "8bb9cc603b89d333b0dcee53bbcbb0a2612220bf",
+      "created_at": "2026-11-02T08:40:49Z",
+      "id": 5733909630,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/83#pullrequestreview-5733909630"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: The `--action-map` string detection heuristic `raw_map.startswith(\"{\")` will silently fail for valid JSON that is not an object (e.g., arrays), but more critically it will misclassify any file path that starts with `{` as an inline JSON string, opening that content as a file will fail and the exception is caught, masking the actual mismatch. However, a file path that doesn't start with `{` but whose content is not a JSON object will be loaded and then passed to `warm_start_logits` as a non-dict, causing an opaque downstream error rather than a clean \"not a JSON object\" message. The bigger problem is that this dual-mode parsing is unvalidated: after loading, there is no check that `action_map` is actually a `dict[str, str]` before using it. If the file contains a JSON array or other non-dict, `warm_start_logits` will receive an unexpected type and the error message will be confusing.\n```suggestion\n            try:\n                raw_map = args.action_map.strip()\n                if raw_map.startswith(\"{\"):\n                    action_map = json.loads(raw_map)\n                else:\n                    with open(raw_map, \"r\", encoding=\"utf-8\") as f:\n                        action_map = json.load(f)\n                if not isinstance(action_map, dict):\n                    print(\"--action-map must be a JSON object mapping target action IDs to donor action IDs.\", file=sys.stderr)\n                    return 2\n            except Exception as exc:\n                print(f\"Failed to parse --action-map: {exc}\", file=sys.stderr)\n                return 2\n```",
+      "commit": "09686de0367cab176206fd1c36ec2110015f6d49",
+      "created_at": "2026-11-02T08:40:50Z",
+      "id": 4440329181,
+      "kind": "inline",
+      "line": 1292,
+      "path": "src/agent_learning/cli.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/83#discussion_r4440329181"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: The `target_copy` is created from `target.to_dict()` which preserves the original snapshot `id`. After `advance_version()` the new snapshot is stored, but if the store uses the `id` as a primary key (rather than creating a new ID), the original version-0 snapshot will be overwritten. AC_0 requires that \"the earlier version is stored and unchanged\" — this is only safe if `advance_version()` also generates a new unique `id` for the snapshot. If `advance_version()` only bumps the `version` integer without assigning a new `id`, storing `target_copy` will clobber `target`, and the test assertion `active_target.id != base_target_snapshot.id` (test line 109) will fail at runtime.",
+      "commit": "85d8288a13d9dda0338ea645803c96d696c89fd0",
+      "created_at": "2026-11-02T08:40:50Z",
+      "id": 4440329198,
+      "kind": "inline",
+      "line": 1363,
+      "path": "src/agent_learning/cli.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/83#discussion_r4440329198"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: `MagicMock` is imported from `unittest.mock` but is never used anywhere in the test file. This is harmless noise, but more importantly it signals a missing test: there is no test that verifies the `--meta-prior` path actually returns the correct non-zero exit code with a clear \"not implemented\" message — the current `test_ac6_flags` only tests the flag-combination rules and the default damping. AC_6 as stated in the PR says `--meta-prior` alone should exit non-zero, which `test_ac6_flags` does not explicitly verify via the implemented stub (`return 2` at line 1344 of cli.py) after ensuring it doesn't fall through to success. This is a test coverage gap against a stated acceptance criterion.",
+      "commit": "8bb9cc603b89d333b0dcee53bbcbb0a2612220bf",
+      "created_at": "2026-11-02T08:40:50Z",
+      "id": 4440329206,
+      "kind": "inline",
+      "line": 32,
+      "path": "tests/test_warm_start_cli.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/83#discussion_r4440329206"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: `test_ac3_cold_target_only` stores each `target_snap` with the same `task_id=\"target-task\"` (inherited from `base_target_snapshot` via `copy.deepcopy`). After the first iteration, `file_store.get_active_policy(\"test-agent\", \"target-task\")` will return the most recently stored snapshot from the previous iteration rather than the one stored in the current iteration — because the store's \"active\" policy is determined by the last write. This means the test is not correctly testing each case in isolation; the cold-target-check for iteration N may be evaluated against the snapshot written in iteration N-1, making several sub-cases vacuously pass or silently test the wrong thing.",
+      "commit": "8bb9cc603b89d333b0dcee53bbcbb0a2612220bf",
+      "created_at": "2026-11-02T08:40:50Z",
+      "id": 4440329209,
+      "kind": "inline",
+      "line": 319,
+      "path": "tests/test_warm_start_cli.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/83#discussion_r4440329209"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: `test_ac6_flags` (step 3, \"damping defaults to 0.70\") uses `--target-task-id target-task`, but steps 1 and 2 have already run against the same `file_store` and the same `target-task`. After step 2 (\"both flags provided\"), the store state for `target-task` is still unchanged (the command exits non-zero, so no write occurred). However, if any prior test in the class has written to `target-task` and `file_store` is test-scoped (which it is via `tmp_path`), step 3 should be safe — but the ordering dependency on `base_target_snapshot` still being the active policy (version 0, cold) is fragile. More critically, there is no re-store of `base_target_snapshot` before step 3, so if any prior step in this same test function had written to `target-task`, the warm-start would correctly fail with a \"not cold\" error and `code_default` would be non-zero, causing the `assert code_default == 0` to fail.",
+      "commit": "8bb9cc603b89d333b0dcee53bbcbb0a2612220bf",
+      "created_at": "2026-11-02T08:40:50Z",
+      "id": 4440329212,
+      "kind": "inline",
+      "line": 501,
+      "path": "tests/test_warm_start_cli.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/83#discussion_r4440329212"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: The scope check accepts `\"decision\"` as a valid `policy_scope`, but the entire codebase uses `_DECISION_POLICY_SCOPE = \"delegated_decision\"` exclusively. The `_is_decision_policy()` helper on line 479-483 only recognises `\"delegated_decision\"`, so a policy with `policy_scope=\"decision\"` would pass this warm-start gate but be treated as a non-decision policy by every other command (e.g. `task-policy`, `train`, `task-policy-decide`). This inconsistency means a warm-started target with `\"decision\"` scope will be silently broken for all downstream operations. Replace with the canonical constant.\n```suggestion\n    if policy_scope != _DECISION_POLICY_SCOPE:\n```",
+      "commit": "8bb9cc603b89d333b0dcee53bbcbb0a2612220bf",
+      "created_at": "2026-11-02T08:41:01Z",
+      "id": 4440330724,
+      "kind": "inline",
+      "line": 1193,
+      "path": "src/agent_learning/cli.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/83#discussion_r4440330724"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: The bare `except Exception` silently swallows all exceptions from `assess_autonomy` and unconditionally sets `gate_met = False`. Any unexpected internal error (including out-of-memory conditions, programming bugs, store connectivity failures) would be silently hidden. A corrupt autonomy gate evaluation would cause the warm start to succeed when it should fail, writing provenance metadata with a wrong `gate_met=False` value and producing an incorrect audit trail. At minimum, log the suppressed exception so it is not invisible.\n```suggestion\n        try:\n            donor_assessment = assess_autonomy(\n                store,\n                donor,\n                config=AutonomyConfig.for_tier(AutonomyTier.STANDARD),\n            )\n            gate_met = bool(donor_assessment.eligible)\n        except Exception as exc:\n            logger.warning(\"Autonomy gate evaluation failed for donor %r: %s\", donor_task_id, exc)\n            gate_met = False\n```",
+      "commit": "85d8288a13d9dda0338ea645803c96d696c89fd0",
+      "created_at": "2026-11-02T08:41:01Z",
+      "id": 4440330751,
+      "kind": "inline",
+      "line": 1339,
+      "path": "src/agent_learning/cli.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/83#discussion_r4440330751"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "`MagicMock` is imported but never used anywhere in this file. This is dead import that will cause linting failures in CI.\n```suggestion\nfrom pathlib import Path\n```",
+      "commit": "8bb9cc603b89d333b0dcee53bbcbb0a2612220bf",
+      "created_at": "2026-11-02T08:41:01Z",
+      "id": 4440330763,
+      "kind": "inline",
+      "line": 32,
+      "path": "tests/test_warm_start_cli.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/83#discussion_r4440330763"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: `test_ac3_cold_target_only` iterates through all test cases but each iteration stores a new snapshot for `\"target-task\"`. After the first test case (e.g. `updates_applied=1`) succeeds in storing a non-cold snapshot, subsequent calls to `store.get_active_policy(\"test-agent\", \"target-task\")` will return whichever snapshot the store considers \"active\". If the store resolves the active policy by latest version or insertion order, the subsequent test cases could be testing the wrong snapshot. The test should reset the store's target state between each case (e.g. only store the variant snapshot, not rely on state accumulated from prior iterations) to guarantee isolation.",
+      "commit": "8bb9cc603b89d333b0dcee53bbcbb0a2612220bf",
+      "created_at": "2026-11-02T08:41:01Z",
+      "id": 4440330779,
+      "kind": "inline",
+      "line": 319,
+      "path": "tests/test_warm_start_cli.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/83#discussion_r4440330779"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThis PR implements the `task-policy-warm-start` command (Story 20.3) and is generally well-structured with good validation coverage. However, there are a few issues that must be addressed before merging:\n\n**Blocking issues:**\n\n1. **Inconsistent `policy_scope` check** (`cli.py` line 1193): The warm-start gate accepts both `\"delegated_decision\"` and `\"decision\"` as valid scopes, but all other commands and the `_is_decision_policy()` helper exclusively use the `\"delegated_decision\"` constant. A target policy with `policy_scope=\"decision\"` would pass the warm-start but then be broken for every downstream command.\n\n2. **Silent exception suppression in autonomy gate** (`cli.py` lines 1307–1315): The bare `except Exception` swallows all errors silently, writing incorrect `gate_met=False` provenance metadata without any log trace. This makes failures in the autonomy gate evaluation completely invisible.\n\n3. **Test isolation issue in `test_ac3_cold_target_only`** (`tests/test_warm_start_cli.py` lines 301–319): Each loop iteration adds another snapshot for `\"target-task\"` without removing prior ones, meaning later iterations may be testing the wrong active policy depending on how `LocalFileStore` resolves the active snapshot.\n\n4. **Unused import** (`tests/test_warm_start_cli.py` line 32): `MagicMock` is imported but never used, which will fail linting/CI checks.\n\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "8bb9cc603b89d333b0dcee53bbcbb0a2612220bf",
+      "created_at": "2026-11-02T08:41:01Z",
+      "id": 5733911988,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/83#pullrequestreview-5733911988"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: `updates_applied` is never explicitly reset to `0` on the warm-started snapshot. The handler resets `episodes_seen`, `baseline`, and `logits` — but omits `updates_applied`. The cold-target precondition (line 1208) guarantees the source `target.updates_applied == 0` when we arrive here, so this currently doesn't corrupt production data. However, the semantics of a warm-started snapshot require `updates_applied=0` to be an invariant of the new snapshot itself, and its absence means any future relaxation of the cold-target gate would silently propagate a non-zero value into the new snapshot, breaking downstream REINFORCE training assumptions.\n```suggestion\n        target_copy.logits = new_logits\n        target_copy.episodes_seen = 0\n        target_copy.updates_applied = 0\n        target_copy.baseline = 0.0\n```",
+      "commit": "85d8288a13d9dda0338ea645803c96d696c89fd0",
+      "created_at": "2026-11-02T08:51:54Z",
+      "id": 4440419100,
+      "kind": "inline",
+      "line": 1360,
+      "path": "src/agent_learning/cli.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/83#discussion_r4440419100"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: The heuristic `raw_map.startswith(\"{\")` is an unreliable discriminator between inline JSON and a file path. A file path that begins with `{` (e.g. `{backup}.json` on some systems) will be incorrectly interpreted as inline JSON, and the resulting parse error will produce the message \"Failed to parse --action-map\" instead of a file-not-found error, masking the real problem from operators. A more robust approach is to attempt JSON parsing first and fall back to file loading only on failure, or require a separate `--action-map-file` flag for file-based maps.",
+      "commit": "09686de0367cab176206fd1c36ec2110015f6d49",
+      "created_at": "2026-11-02T08:51:54Z",
+      "id": 4440419117,
+      "kind": "inline",
+      "line": 1286,
+      "path": "src/agent_learning/cli.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/83#discussion_r4440419117"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: `--damping` is accepted as a raw `float` by argparse with no range validation at the parser level. Values of `0.0`, negative numbers, or values `> 1.0` are accepted by argparse and only rejected if `warm_start_logits` raises a `ValueError` downstream. If the downstream validation contract ever changes, an out-of-range damping factor would pass through undetected and corrupt the warm-started logits before `store_policy` is called. Add a validator type function analogous to `_episode_limit` to enforce the `(0, 1.0]` constraint at argument-parse time.\n```python\n    warm_start.add_argument(\n        \"--damping\",\n        type=_damping_factor,\n        help=\"Confidence damping factor in (0, 1.0]. Defaults to 0.70 for policy donor (1.0 for meta-prior).\",\n    )\n```",
+      "commit": "85d8288a13d9dda0338ea645803c96d696c89fd0",
+      "created_at": "2026-11-02T08:51:54Z",
+      "id": 4440419125,
+      "kind": "inline",
+      "line": 1314,
+      "path": "src/agent_learning/cli.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/83#discussion_r4440419125"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "The `test_ac5_nothing_written_on_refusal` test only verifies two refusal paths (invalid damping + bad map). It does not verify store immutability for the AC_3 non-cold target cases (e.g., `updates_applied > 0`, `episodes_seen > 0`, non-zero logits, prior warm-start ID), nor for the AC_4 donor checks. The AC_5 contract says \"after **every** refusal above\", but the test coverage is incomplete. If a future refactor introduces an early write before one of those checks, it would go undetected.",
+      "commit": "09686de0367cab176206fd1c36ec2110015f6d49",
+      "created_at": "2026-11-02T08:51:54Z",
+      "id": 4440419135,
+      "kind": "inline",
+      "line": 445,
+      "path": "tests/test_warm_start_cli.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/83#discussion_r4440419135"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThis PR adds the `task-policy-warm-start` CLI command with solid gating logic, fail-closed refusal semantics, and reasonable contract test coverage. The overall structure is correct and the donor-isolation invariant is properly enforced. Three issues require attention before merge:\n\n### Critical\n1. **`updates_applied` not reset on warm-started snapshot** (`cli.py` line 1342–1343): The new snapshot copies `updates_applied` from the cold target (currently always `0` due to the precondition), but the field is never explicitly set to `0` on `target_copy`. This is an implicit invariant, not an enforced one. Any future relaxation of the cold-target gate would silently propagate a non-zero value.\n\n### Significant\n2. **`--damping` has no argparse-level range validation** (`cli.py` lines 1294–1298): The `(0, 1.0]` constraint is enforced only inside `warm_start_logits`. A missing validator type at the parser level means the constraint can be bypassed if downstream validation is ever loosened. A small `_damping_factor` validator function (like `_episode_limit`) should be wired into the argparse argument.\n\n3. **`--action-map` inline vs. file-path detection is fragile** (`cli.py` lines 1284–1286): The `startswith(\"{\")` heuristic misdirects file paths that happen to start with `{` into JSON parsing and produces misleading error messages.\n\n### Test coverage gap\n4. **`test_ac5_nothing_written_on_refusal` is incomplete** (`test_warm_start_cli.py`): Only two of the many documented AC_5 refusal paths are covered. The AC_3 and AC_4 refusal scenarios are not verified for store immutability.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "09686de0367cab176206fd1c36ec2110015f6d49",
+      "created_at": "2026-11-02T08:51:54Z",
+      "id": 5734032234,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/83#pullrequestreview-5734032234"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: The donor eligibility check `if not donor.logits:` only rejects a donor with a completely empty logits dict. A donor whose logits are all zero (e.g., `{\"approve\": 0.0, \"reject\": 0.0}`) passes this guard and proceeds to `warm_start_logits`, which would produce all-zero new logits — identical to the target's cold state. This silently produces a warm start that has no effect, violating the intent of the donor-eligibility gate. Add a check for all-zero logits to match the cold-target constraint already enforced on the target side.\n```suggestion\n        if not donor.logits or all(v == 0.0 for v in donor.logits.values()):\n            print(\n                f\"Donor policy {donor_task_id!r} has no logits.\",\n                file=sys.stderr,\n            )\n            return 2\n```",
+      "commit": "85d8288a13d9dda0338ea645803c96d696c89fd0",
+      "created_at": "2026-11-02T09:11:09Z",
+      "id": 4440579269,
+      "kind": "inline",
+      "line": 1278,
+      "path": "src/agent_learning/cli.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/83#discussion_r4440579269"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: The `state` closure is redefined on each loop iteration using a default-argument capture (`task_id: str = snap.task_id`). While this correctly captures the current `snap.task_id` value at definition time, each iteration shadows the previous `state` function. The `before = state()` and `assert state() == before` calls always reference the most recently defined `state`, which is correct within a single iteration. However, if `snap.task_id` were mutated after `state` is defined but before `before = state()` is called, the captured default would be stale. More critically, defining a closure inside a loop is fragile and the function defined on the last iteration persists after the loop, capturing the last `snap.task_id`. Move `state` outside the loop or use a local variable to avoid this fragility.",
+      "commit": "42146dad8ce5686a9b3ee14525e6dc99a39b30cf",
+      "created_at": "2026-11-02T09:11:09Z",
+      "id": 4440579296,
+      "kind": "inline",
+      "line": 605,
+      "path": "tests/test_warm_start_cli.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/83#discussion_r4440579296"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThis PR implements the `task-policy-warm-start` CLI subcommand (Story 20.3) with comprehensive validation, atomic storage isolation, and 7 contract tests covering all acceptance criteria. The overall structure is solid: cold-target checks, donor eligibility guards, action-map injection/identity rules, provenance recording, and fail-closed refusal semantics are all correctly implemented.\n\n### Critical Issues\n\n1. **`src/agent_learning/cli.py` — All-zero donor logits bypass eligibility gate**: The `if not donor.logits:` guard only rejects an empty dict. A donor with all-zero logits (a \"cold\" donor in effect) passes the check and produces a warm start with no signal, silently violating the purpose of the donor gate. The fix is to additionally check `all(v == 0.0 for v in donor.logits.values())`.\n\n2. **`tests/test_warm_start_cli.py` — Fragile closure in loop**: The `state` helper is redefined on each loop iteration using a default-argument pattern. While it works correctly in the current code, this pattern is fragile — the definition leaks out of the loop body carrying the last iteration's `snap.task_id`. A simple local-variable approach would be more robust.\n\nNo other blocking defects were found. The donor isolation guarantee (AC_1), fail-closed write semantics (AC_5), action-map rules (AC_2), and provenance metadata (AC_0) are all implemented correctly.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "42146dad8ce5686a9b3ee14525e6dc99a39b30cf",
+      "created_at": "2026-11-02T09:11:09Z",
+      "id": 5734239431,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/83#pullrequestreview-5734239431"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "Based on a full review of the diff, the implementation log (`implementation-log.md`), the warm-start component skill (`.claude/skills/warm-start/SKILL.md`), `src/agent_learning/cli.py`, and `tests/test_warm_start_cli.py`, here is the status of every finding raised across all three review rounds on this PR:\n\n---\n\n**Round 1 (on `8bb9cc6`) — all resolved ✅**\n\n| ID | Claim | Decision | Fix |\n|----|-------|----------|-----|\n| Q-83-1 | `--action-map` parsed value not validated as `dict` before passing to `warm_start_logits` | Accepted | `0820d05` |\n| Q-83-2 | `advance_version()` doesn't mint a new UUID | Declined — `advance_version()` already calls `self.id = _new_id()` | none |\n| Q-83-3 | Non-cold test cases sharing the same task ID could pollute each other | Accepted | `0820d05` |\n| Q-83-4 | Base target snapshot not re-stored before step 3 of `test_ac6_flags` | Accepted | `0820d05` |\n| Q-83-5 | Unused `MagicMock` import; no standalone `--meta-prior` test | Accepted | `0820d05` |\n| Q-83-6 | `target.metadata.get(\"policy_scope\")` bypassed `_is_decision_policy()` | Accepted | `0820d05` |\n| Q-83-7 | No warning logged on unexpected `assess_autonomy` exception | Accepted | `0820d05` |\n\n---\n\n**Round 2 (on `09686de`) — all resolved ✅**\n\n| ID | Claim | Decision | Fix |\n|----|-------|----------|-----|\n| Q-83-8 | `updates_applied` not explicitly reset to `0` on the new snapshot | Accepted | `4fa3241` |\n| Q-83-9 | Relative path beginning with `{` incorrectly parsed as inline JSON instead of a file path | Accepted | `4fa3241` |\n| Q-83-10 | No `_damping_factor` argparse validator enforcing `(0, 1.0]` | Accepted | `4fa3241` |\n| Q-83-11 | AC_5 store-immutability coverage missing AC_3/AC_4/AC_6 refusal paths | Accepted | `4fa3241` |\n\n---\n\n**Round 3 (on `42146da`) — all resolved ✅**\n\n| ID | Claim | Decision | Fix |\n|----|-------|----------|-----|\n| Q-83-12 | Claimed donor with all-zero logits should be rejected | Declined — AC_4 and FDD-020 §1.2 require only \"at least one logit\"; an all-zero donor is valid | none |\n| Q-83-13 | Loop closure variable binding risk in a refusal helper | Accepted (with modification — replaced by a helper outside the loop) | `ce09e6d` |\n\n---\n\n**Summary: all 13 findings from rounds 1–3 are fully resolved on the current head.** No finding is unaddressed. The only declined items (Q-83-2, Q-83-12) have documented reasons grounded in the spec and the code, and both have been confirmed in the implementation log.\n\n**Nothing remains open.**",
+      "commit": null,
+      "created_at": "2026-11-02T09:29:23Z",
+      "id": 6573675087,
+      "kind": "issue",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/83#issuecomment-6573675087"
+    }
+  ],
+  "pr": 83
+}

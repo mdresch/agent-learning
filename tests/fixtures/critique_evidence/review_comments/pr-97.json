@@ -1,0 +1,50 @@
+{
+  "available": true,
+  "comments": [
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Code Review: Story 19.6 — `seed_values` in `meta_prior.py`\n\nThe implementation is correct and all 5 acceptance criteria are properly covered. The `seed_values` function:\n\n- Correctly validates the bijection property across all six failure modes (duplicate action id, missing action in map, extra map key, two actions on one role, unknown role, uncovered role), each raising a named `ValueError` as required.\n- Returns a fresh `dict` keyed in `action_ids` order without mutating `prior`, `role_map`, or `action_ids`.\n- Delegates Thompson `(alpha, beta)` pairs transparently through `prior.values`, satisfying AC_2.\n- Has no `seed_record` attribute or side effects, satisfying AC_3.\n\nThe test file provides complete contract coverage and the `autouse` fixture correctly isolates autonomy env-vars. The `__init__.py` changes (import + `__all__` entry) are consistent and correct.\n\nNo merge-blocking defects were found.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "c9f1e2274e0a60fbb4413c8b1d0fb9442caa27be",
+      "created_at": "2026-11-03T23:34:14Z",
+      "id": 5760996835,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/97#pullrequestreview-5760996835"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "The `logits` dict is built and mutated on lines 242–243 but is never stored to the store or used in any assertion. Since `seed_values` already returns a new plain `dict`, mutating it provably cannot affect `prior` or the store, so these two lines exercise no observable behaviour beyond what the `prior == prior_copy` assertion on line 248 already covers. A future reader may incorrectly assume `logits` is written back to the store as a new policy that tests decoupling at the store level — it isn't. Either remove the dead lines or actually store a new `PolicySnapshot` with `logits` and assert the stored prior is still unchanged, which would more completely exercise the AC_5 decoupling scenario.",
+      "commit": "c9f1e2274e0a60fbb4413c8b1d0fb9442caa27be",
+      "created_at": "2026-11-03T23:34:24Z",
+      "id": 4461737974,
+      "kind": "inline",
+      "line": 244,
+      "path": "tests/test_meta_prior_seed.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/97#discussion_r4461737974"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThe core implementation of `seed_values` in `src/agent_learning/meta_prior.py` is correct. The bijection validation is thorough and ordered correctly (duplicate action ids → missing map entries → extra map entries → duplicate roles → unknown roles → uncovered prior roles), the return dict is a new object decoupled from `prior.values`, and the `MetaPrior` frozen dataclass guarantees immutability. The `__all__` export is properly updated in both `meta_prior.py` and `src/agent_learning/__init__.py`.\n\nThe 15 contract tests cover all specified acceptance criteria (AC_0–AC_5) and the package-root export check. The Thompson seeding assertion at line 150 (`a + b - 2.0 ≈ 8.0`) is arithmetically sound for `kappa_prior=8.0`.\n\n**One finding:**\n\n- **`test_ac5`** — the `logits` variable (lines 242–243) is built and mutated but never stored or asserted on, making the test's decoupling claim incomplete at the store level. See the inline comment for details.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "c9f1e2274e0a60fbb4413c8b1d0fb9442caa27be",
+      "created_at": "2026-11-03T23:34:24Z",
+      "id": 5760998258,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/97#pullrequestreview-5760998258"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "This is a **net-new** PR (Story 19.6) — there are no earlier findings from previous review rounds on this diff to resolve. The PR introduces `seed_values` as an entirely new function with no pre-existing review comments or flagged issues in the change history.\n\nReviewing this commit against all six acceptance criteria and the PR description:\n\n| Item | Status |\n|---|---|\n| AC_0 – Through the map (correct value per role, order-preserved) | ✅ Implemented & tested (3 tests) |\n| AC_1 – Refuses a bad `role_map` (all 6 bijection failure modes named) | ✅ Implemented & tested (6 tests) |\n| AC_2 – Thompson seeding returns `(alpha, beta)` tuples, not logits | ✅ Implemented & tested (1 test) |\n| AC_3 – Returns values only; no `seed_record`; inputs unchanged | ✅ Implemented & tested (2 tests) |\n| AC_4 – Seeded-with-no-episodes snapshot fails `assess_autonomy` `standard` tier | ✅ Implemented & tested (1 test) |\n| AC_5 – Decoupled: mutating seeded logits / stored prior are independent | ✅ Implemented & tested (1 test) |\n| `seed_values` re-exported from `agent_learning.__all__` | ✅ Implemented & tested (1 test) |\n| FDD-019 H8: no `warm_start_*` provenance written here | ✅ Confirmed — module has no store/file I/O |\n| PR says 1812 passed, 1 skipped (full suite) | ✅ Reported clean |\n\n**Nothing is outstanding.** All stated acceptance criteria are addressed in this commit with direct contract coverage. The only work explicitly deferred is Epic 20 / Story 20.5 (the CLI command that applies a stored prior to a policy), which is out of scope here by design.",
+      "commit": null,
+      "created_at": "2026-11-03T23:35:25Z",
+      "id": 6618246452,
+      "kind": "issue",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/97#issuecomment-6618246452"
+    }
+  ],
+  "pr": 97
+}

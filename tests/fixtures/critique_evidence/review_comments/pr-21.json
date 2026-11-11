@@ -1,0 +1,61 @@
+{
+  "available": true,
+  "comments": [
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Crash Risk**: `_stored()` is annotated as returning `PolicySnapshot` but `store.get_active_policy()` can return `None`. Any caller that invokes `_stored()` before a policy is stored (or after an unexpected store failure) will get an `AttributeError` when `_records()` calls `.metadata` on the result, producing a confusing traceback instead of a clear test failure. The return type should reflect the nullable return, or an assertion should be added.\n```suggestion\ndef _stored(store: InMemoryStore) -> PolicySnapshot:\n    snapshot = store.get_active_policy(\"agent-1\", \"choose-region\")\n    assert snapshot is not None, \"No active policy found for agent-1 / choose-region\"\n    return snapshot\n```",
+      "commit": "afcf87ec9901e8903ef902104f4c44e0ae596808",
+      "created_at": "2026-10-26T18:52:58Z",
+      "id": 4381217390,
+      "kind": "inline",
+      "line": 85,
+      "path": "tests/test_authority_migration.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/21#discussion_r4381217390"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThe core implementation is correct: `_cmd_set_task_policy_authority` properly appends an immutable `MigrationRecord` only when the authority actually changes, uses `.lower()` for consistent comparison, and shares the same `migrated_at` timestamp between the record and `decision_authority_updated_at`. The `Episode` docstring update accurately removes the false replay claim and correctly references ADR-004. The test suite's structure and coverage of acceptance criteria are solid.\n\n**One finding (blocking):** The `_stored()` test helper's return type annotation hides a potential `None` return from `store.get_active_policy()`. While all current tests call `_policy(store)` first, the absence of an assertion makes future misuse a silent crash rather than a clear failure. See the inline comment for a one-click fix.\n\nNo other blocking defects found.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "afcf87ec9901e8903ef902104f4c44e0ae596808",
+      "created_at": "2026-10-26T18:52:58Z",
+      "id": 5657376570,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/21#pullrequestreview-5657376570"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "The monotonicity assertion `stamps == sorted(stamps)` does not enforce strict ordering — it passes when all three timestamps are identical (which can happen when the test runs fast enough that `datetime.now(timezone.utc)` returns the same value). In that case, the test neither proves nor disproves that records were appended in the correct order. Since the insertion order is already implied by `list.append`, this assertion provides no additional guarantee unless it is strengthened to require strictly increasing timestamps.",
+      "commit": "afcf87ec9901e8903ef902104f4c44e0ae596808",
+      "created_at": "2026-10-26T18:52:59Z",
+      "id": 4381217465,
+      "kind": "inline",
+      "line": 188,
+      "path": "tests/test_authority_migration.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/21#discussion_r4381217465"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThe core implementation in `_cmd_set_task_policy_authority` is correct: the migration record append and `store.store_policy` call are properly gated inside the `if current_authority != target_authority:` block, satisfying the idempotency contract (AC_2, interpretation I3). The softmax distribution snapshot is captured before the metadata update, and `migrated_at` is generated once and reused for both the record and `decision_authority_updated_at`, ensuring they are always in sync.\n\nThe `Episode` docstring correction in `types.py` accurately removes the false claim about `context_features` enabling decision replay and replaces it with the ADR-004-aligned description.\n\nThe new test suite is well-structured and covers the acceptance criteria comprehensively. One minor test-reliability concern was noted: the timestamp monotonicity assertion in the oscillation test may silently pass when all three migrations complete within the same clock tick, reducing confidence in the ordering guarantee.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "afcf87ec9901e8903ef902104f4c44e0ae596808",
+      "created_at": "2026-10-26T18:52:59Z",
+      "id": 5657376667,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/21#pullrequestreview-5657376667"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "Reviewed head `b247eea`. **No — no further additions.**\n\nAll five acceptance criteria are correctly implemented and tested at this head:\n\n- **`_cmd_set_task_policy_authority` (cli.py):** The idempotency guard (`current_authority != target_authority`) is correct. The `MigrationRecord` is appended with exactly the five required fields. `migrated_at` is captured once and reused for `decision_authority_updated_at` within the same branch. `store.store_policy` is called only inside the change-detected branch — satisfying the no-op write requirement for AC_2.\n- **`Episode` docstring (types.py):** The misleading replay claim is removed and the replacement correctly points to ADR-004. AC_4 is satisfied.\n- **`tests/test_authority_migration.py`:** 15 contract tests cover AC_0–AC_5, all seven interpretations (I1–I7), the backward-compatibility guard, deep-copy immutability checks, timestamp ordering, and the exact five-field schema.\n- No new `LearningStore` record type is introduced (AC_5 / ADR-002 Invariant 2).\n- `ruff check` is clean on the new test file; the 78 pre-existing findings on `cli.py` and `types.py` are unchanged and out of scope.\n\nNo blocking defects, logic errors, security issues, or missing error-handling gaps found in the diff.",
+      "commit": null,
+      "created_at": "2026-10-26T18:54:28Z",
+      "id": 6424667582,
+      "kind": "issue",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/21#issuecomment-6424667582"
+    }
+  ],
+  "pr": 21
+}

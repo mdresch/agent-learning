@@ -1,0 +1,39 @@
+{
+  "available": true,
+  "comments": [
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Code Review: feat(story-12.3) — content contract and lint_plan for subsidiary plans\n\nThe implementation is well-structured and the logic is consistent throughout. After a thorough review of the new `count_words`, `check_content`, `omission_flags`, `lint_plan`, and `LintResult` additions across `standards.py`, `lint.py`, and the test suite, **no merge-blocking defects were found**.\n\nNotable design decisions that were verified as correct:\n- `_visible()` correctly toggles fence state without appending fence-marker lines, fully excluding fenced content.\n- `_boundary_problem()` two-pass scan (first for `None:` lines, then for markers) correctly implements I7 — a qualifying `None:` line short-circuits to `None` (pass) without needing a marker.\n- `_option()` returns raw (possibly negative) values, but downstream `max(FLOORS[route], floor_option)` and `max(MIN_OUT_OF_SCOPE_ITEMS, items_option)` correctly neutralise below-baseline values per the \"never lower\" contract.\n- `_section_one()` correctly handles the edge case of no newline after the H1 heading by returning an empty slice, which consistently yields a `MISSING_BOUNDARY_DEF` finding.\n- The `TOKEN` regex pinning the ADR-012 underscore behavior (I12) is correctly documented and tested.\n- `LintResult`, `LintFlag`, and `PlanStandard` are all `frozen=True` dataclasses, satisfying immutability requirements.\n\nNo comments were posted. The PR is ready to merge from a code-correctness standpoint.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "3891d9420f89ef619ad96fbe6a616dbc4a46098e",
+      "created_at": "2026-10-27T05:18:45Z",
+      "id": 5662550237,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/30#pullrequestreview-5662550237"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review: feat(story-12.3) — Content contract and lint_plan for subsidiary plans\n\nThe implementation is well-structured and the logic is correct. After a thorough review of all changed files I found **no defects that block merge**.\n\nSpecific areas examined:\n\n- **`_visible()`** correctly strips fenced code blocks (both the opening and closing fence lines are consumed by the toggle branch and never reach the `elif not in_fence:` branch, matching I1/I2 exactly).\n- **`_option()`** correctly handles `None → 0`, rejects `bool`/non-`int`, and passes through negative integers — which are then neutralised by `max(FLOOR, value)`, matching the \"never lowered\" contract in I4/I11.\n- **`_boundary_problem()`**: the early-return path (`return None` on first qualifying match) and the `best`/`short_none` accumulation are consistent with I6/I7 and all 89 tests.\n- **`check_content()`**: TypeError guard precedes ValueError guard, matching the call-error contract in I4; the `not_applicable` short-circuit is correctly placed *after* option validation so type errors are still surfaced.\n- **`lint_plan()`**: `word_count=None` is correctly produced for parse failures, invalid routes, and `not_applicable`, matching I10.\n- **`adr_frontmatter()` test fixture** uses an unguarded `next(...glob(...))` which will produce a `StopIteration` with no diagnostic message if `ADR-025-*.md` is absent, but this is a pre-existing pattern in the test suite and not introduced by this PR.\n\nThe PR is clean and ready to merge subject to the existing CI gate.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "3891d9420f89ef619ad96fbe6a616dbc4a46098e",
+      "created_at": "2026-10-27T05:18:51Z",
+      "id": 5662550838,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/30#pullrequestreview-5662550838"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "**Status at head `8f9ad84` — all earlier findings resolved. Explicit verdict below.**\n\n---\n\n### Findings audit\n\n| Earlier finding | Status at head |\n|---|---|\n| New Story 12.3 symbols (`LintResult`, `check_content`, `count_words`, `lint_plan`, `omission_flags`) not exported from `pmbok/__init__.py` | ✅ Resolved — all five added to both the import line and `__all__` |\n| Same symbols absent from the top-level `agent_learning/__init__.py` / `__all__` | ✅ Resolved — expanded import block (lines 96-108) and `__all__` entries (lines 347-351) present |\n| `standards.py` missing `FLOORS`, `CAPS`, `HEADINGS`, `TOKEN`, `NONE_MIN_TOKENS`, `MIN_OUT_OF_SCOPE_ITEMS` constants required by `lint.py` | ✅ Resolved — all constants added (lines 78-88) |\n| `lint.py` missing the content-contract implementation (`count_words`, `_visible`, `check_content`, `_boundary_problem`, `omission_flags`, `lint_plan`, `LintResult`) | ✅ Resolved — full implementation added (lines 155-328) |\n| 89-test suite (`tests/test_plan_content.py`) absent | ✅ Resolved — file present, all interpretations I1–I12 covered, 1138 passed per PR description |\n\n---\n\n### Anything remaining?\n\nAfter a full read of every changed file at this head, there are **no new findings** introduced by this commit:\n\n- Logic is correct and consistent with the acceptance-criteria interpretations (I1–I12) stated in the test module docstring.\n- `_option` correctly rejects `bool` before `int` (Python `bool` is a subclass of `int`), satisfying I4.\n- Floor/cap boundary semantics (`<` / `>`, not `<=` / `>=`) correctly implement I11.\n- `_boundary_problem` early-returns `None` on first qualifying `None:` line or qualifying marker, producing exactly one finding otherwise (I7).\n- `MAX_AUTO_RETRIES = 2` in `standards.py` is pre-existing scaffolding and is not used by Story 12.3 code — not a defect introduced here.\n- No hardcoded credentials, PII, or security issues are present.\n\n---\n\n**Verdict: No further additions required. No merge-blocking issues. This PR is clean to merge.**",
+      "commit": null,
+      "created_at": "2026-10-27T05:20:29Z",
+      "id": 6434442052,
+      "kind": "issue",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/30#issuecomment-6434442052"
+    }
+  ],
+  "pr": 30
+}

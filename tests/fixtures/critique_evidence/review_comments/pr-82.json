@@ -1,0 +1,237 @@
+{
+  "available": true,
+  "comments": [
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error:** The `now` parameter accepts `Any` object silently — no type check is performed. If a caller passes a non-string (e.g., a `datetime` object, which is the natural mistake given the parameter name), the record is built successfully but `json.dumps(record)` will raise `TypeError` at the call site, violating the AC_3 JSON-safety contract. Add a `isinstance` guard consistent with the other input validations in this function.\n```python\n    now: str,\n```",
+      "commit": "4a6470a1a134f7c83c944ba05779df41ce05f1f8",
+      "created_at": "2026-11-01T19:57:48Z",
+      "id": 4437118500,
+      "kind": "inline",
+      "line": 94,
+      "path": "src/agent_learning/warm_start.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/82#discussion_r4437118500"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error:** `VALID_DONOR_KINDS` is imported in `warm_start.py`'s own `__all__` and exported from the submodule, but the top-level package import block here omits it. Any caller doing `from agent_learning import VALID_DONOR_KINDS` will get an `ImportError`. Add it to both the import statement and `__all__`.\n```suggestion\nfrom .warm_start import (\n    DAMPING_DEFAULT,\n    DAMPING_DEFAULT_META_PRIOR,\n    VALID_DONOR_KINDS,\n    provenance,\n    warm_start_logits,\n)\n```",
+      "commit": "4a6470a1a134f7c83c944ba05779df41ce05f1f8",
+      "created_at": "2026-11-01T19:57:48Z",
+      "id": 4437118503,
+      "kind": "inline",
+      "line": 229,
+      "path": "src/agent_learning/__init__.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/82#discussion_r4437118503"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "`VALID_DONOR_KINDS` is missing from `__all__` here. Without it, `from agent_learning import VALID_DONOR_KINDS` raises `ImportError` for any consumer relying on the public API.\n```suggestion\n    \"DAMPING_DEFAULT\",\n    \"DAMPING_DEFAULT_META_PRIOR\",\n    \"VALID_DONOR_KINDS\",\n    \"provenance\",\n    \"warm_start_logits\",\n```",
+      "commit": "4a6470a1a134f7c83c944ba05779df41ce05f1f8",
+      "created_at": "2026-11-01T19:57:48Z",
+      "id": 4437118512,
+      "kind": "inline",
+      "line": 431,
+      "path": "src/agent_learning/__init__.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/82#discussion_r4437118512"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "The `test_ac1_kind` test validates that integer values `1` and `0` raise `(TypeError, ValueError)` for `gate_met`. However, the production guard at `warm_start.py:128` is `if gate_met is not None and not isinstance(gate_met, bool)`. In Python, `bool` is a subclass of `int`, but `1` and `0` are plain `int` — they are **not** `isinstance(1, bool)`, so the check correctly rejects them. This is fine as written, but the test also passes `[]` which is correctly rejected. The actual risk is the inverse: a plain `True`/`False` passed as `gate_met` is `isinstance(True, bool)` == `True` and also `isinstance(True, int)` == `True`. The guard passes `isinstance(gate_met, bool)` first, so booleans are correctly accepted. No bug here — but the test comment \"Invalid gate_met type raises (TypeError, ValueError)\" could be misleading since `1` and `0` are accepted by Python's `bool` subclass relationship — confirm this test case is intentional and documents expected rejection of bare `int` values.",
+      "commit": "4a6470a1a134f7c83c944ba05779df41ce05f1f8",
+      "created_at": "2026-11-01T19:57:48Z",
+      "id": 4437118516,
+      "kind": "inline",
+      "line": 143,
+      "path": "tests/test_warm_start_provenance.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/82#discussion_r4437118516"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThis PR implements the `provenance()` function and its contract tests for Story 20.2. The implementation is clean, standard-library-pure, and the no-clock design is sound. Two blocking defects require fixes before merge:\n\n### 🛑 Blocking Issues\n\n1. **`VALID_DONOR_KINDS` not accessible from the top-level package** (`src/agent_learning/__init__.py`): The constant is exported from `warm_start.py`'s own `__all__` but is neither imported nor re-exported in the package's `__init__.py`. Any caller doing `from agent_learning import VALID_DONOR_KINDS` will receive an `ImportError`. Both the import block and `__all__` need updating (one-click suggestions provided).\n\n2. **No `now` type validation in `provenance()`** (`src/agent_learning/warm_start.py`): The `now: str` parameter has no runtime guard. A caller passing a `datetime` object (a natural mistake) will receive a silently constructed record that fails `json.dumps` at the call site with a cryptic `TypeError`, violating the AC_3 JSON-safety guarantee. A `isinstance(now, str)` check consistent with the other validations in the function should be added.\n\n### ℹ️ Informational (non-blocking)\nThe comment on `test_ac1_kind` lines 134–136 is informational only — the production guard correctly rejects bare `int` values (`1`, `0`) for `gate_met` because `isinstance(1, bool)` is `False` in Python, so the test cases are sound. No action required.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "2838ce750a8e5c499ce67bb47abbd6b511ef01b7",
+      "created_at": "2026-11-01T19:57:48Z",
+      "id": 5729949723,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/82#pullrequestreview-5729949723"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: `provenance()` silently returns `None` for all three donor identity fields (`warm_start_donor_policy_id`, `warm_start_donor_task_id`, `warm_start_donor_version`) when the `donor` object is missing the expected attributes, with no error raised. A downstream consumer storing this record has no way to distinguish a legitimately `None`-valued attribute from a misconfigured/wrong-type donor (e.g. passing a plain `dict` or `str` instead of a `PolicySnapshot`). The docstring specifies the donor must have `id`, `task_id`, and `version`, but the function never enforces this contract. Add validation that raises `TypeError` or `ValueError` when `donor_id` is `None` (or more precisely, when the required attributes are absent), consistent with how `damping` and `gate_met` are validated.",
+      "commit": "4a6470a1a134f7c83c944ba05779df41ce05f1f8",
+      "created_at": "2026-11-01T19:57:51Z",
+      "id": 4437118639,
+      "kind": "inline",
+      "line": 141,
+      "path": "src/agent_learning/warm_start.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/82#discussion_r4437118639"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: The `.pyc` → `.py` source path reconstruction is incorrect for the standard CPython `__pycache__` layout. `inspect.getfile()` on a `.pyc` file returns a path like `.../pkg/__pycache__/warm_start.cpython-311.pyc`. Using `source_path.parent.parent` correctly reaches the package directory, but `source_path.stem.split(\".\")[0]` only works for CPython-style stems (e.g. `warm_start.cpython-311` → `warm_start`). For any other implementation or naming scheme this silently produces a wrong path, and `source_path.is_file()` would assert-fail with a confusing message rather than flagging the purity violation. Use `importlib.util.source_from_cache()` instead, which is the stdlib-blessed API for this exact conversion and raises `ValueError` on non-cache paths.\n```suggestion\n    source_path = Path(inspect.getfile(agent_learning.warm_start))\n    if source_path.suffix == \".pyc\":\n        import importlib.util\n        source_path = Path(importlib.util.source_from_cache(str(source_path)))\n    source_path = source_path.resolve()\n    assert source_path.is_file() and source_path.suffix == \".py\", f\"Source not found: {source_path}\"\n```",
+      "commit": "4a6470a1a134f7c83c944ba05779df41ce05f1f8",
+      "created_at": "2026-11-01T19:57:51Z",
+      "id": 4437118644,
+      "kind": "inline",
+      "line": 286,
+      "path": "tests/test_warm_start_provenance.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/82#discussion_r4437118644"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: `patch(\"datetime.datetime\", side_effect=AssertionError(...))` patches the `datetime` class object inside the `datetime` module's namespace, but `warm_start.py` does **not** import `datetime` at all (the module only imports `math`). This patch therefore targets the wrong namespace and provides no actual clock-isolation guarantee — code that acquires a `datetime` reference before the patch (or through a different import path) is not covered. Since `warm_start.py` never imports `datetime`, the test's contract claim is valid for the current implementation, but the patch is a no-op guard and will not catch a regression where someone later adds `from datetime import datetime` inside the module (the correct patch target would then be `\"agent_learning.warm_start.datetime\"`). Consider asserting the absence of `datetime` in the source text within the same purity-check block as `test_ac3_json_safe_and_pure`, which is the correct place for that invariant.",
+      "commit": "2838ce750a8e5c499ce67bb47abbd6b511ef01b7",
+      "created_at": "2026-11-01T19:57:51Z",
+      "id": 4437118651,
+      "kind": "inline",
+      "line": 149,
+      "path": "tests/test_warm_start_provenance.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/82#discussion_r4437118651"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThis PR adds a pure `provenance()` helper and `VALID_DONOR_KINDS` constant for warm-start lineage metadata (Story 20.2). The implementation is stdlib-only, immutable on inputs, clock-isolated, and the export wiring in `__init__.py` is correct. Three blocking issues were found:\n\n### Critical Findings\n\n1. **`warm_start.py` – Silent `None` donor identity fields (line 131–133):** `getattr(donor, \"id/task_id/version\", None)` silently returns `None` for all three identity keys if an incorrect type is passed as `donor`. No validation guards against this, meaning a corrupted provenance record (with all identity fields as `None`) can be produced and stored without any error. This contradicts the validation discipline applied to every other parameter.\n\n2. **`tests/test_warm_start_provenance.py` – Fragile `.pyc` → `.py` path reconstruction (line 184–188):** `source_path.stem.split(\".\")[0]` only works for CPython-style filenames. The stdlib-correct replacement is `importlib.util.source_from_cache()`. A one-click fix suggestion is provided.\n\n3. **`tests/test_warm_start_provenance.py` – No-op `datetime` clock patch (line 147–149):** `patch(\"datetime.datetime\", ...)` patches the wrong namespace — `warm_start.py` never imports `datetime`. The patch provides false assurance and will silently fail to catch a regression where a `datetime` import is later added to `warm_start.py`. The clock-isolation invariant should instead be enforced via a source-text assertion (as done in `test_ac3`) rather than an ineffectual mock.\n\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "2838ce750a8e5c499ce67bb47abbd6b511ef01b7",
+      "created_at": "2026-11-01T19:57:51Z",
+      "id": 5729949875,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/82#pullrequestreview-5729949875"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: The `is` identity assertion on line 162 is an implementation detail test that will break if `provenance()` ever passes `now` through any string operation (e.g., `str(now)`, concatenation, or format). CPython interns short strings, so this passes today, but it is not guaranteed by the language spec. The `==` assertion on line 163 already fully verifies the contract (AC_2 requires the value is unchanged, not that it is the exact same object). The `is` check should be removed to avoid a fragile false failure.\n```suggestion\n    assert record[\"warm_started_at\"] == frozen_now\n```",
+      "commit": "3dadd8096b85ba207ee7dda6ef173a1a2165cfa6",
+      "created_at": "2026-11-01T20:06:27Z",
+      "id": 4437144681,
+      "kind": "inline",
+      "line": 163,
+      "path": "tests/test_warm_start_provenance.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/82#discussion_r4437144681"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: `provenance()` accepts an empty string `\"\"` as a valid `now` timestamp because only the type is checked. An empty string will silently produce `\"warm_started_at\": \"\"` in the output record — an invalid timestamp that corrupts downstream lineage data without raising. A non-empty guard should be added alongside the type check.",
+      "commit": "4a6470a1a134f7c83c944ba05779df41ce05f1f8",
+      "created_at": "2026-11-01T20:06:27Z",
+      "id": 4437144687,
+      "kind": "inline",
+      "line": 132,
+      "path": "src/agent_learning/warm_start.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/82#discussion_r4437144687"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThis PR adds a stdlib-only `provenance()` function and companion contract tests for Story 20.2. The implementation is clean and well-validated overall. Two issues were found that should be addressed before merge:\n\n### 🔴 Issues Found\n\n1. **Empty `now` string accepted silently** (`src/agent_learning/warm_start.py`, line 128–129): The type guard only rejects non-`str` inputs. An empty string `\"\"` passes validation and produces `\"warm_started_at\": \"\"` in the output record, silently corrupting lineage metadata. A non-empty check is needed.\n\n2. **Fragile `is` identity assertion in `test_ac2_no_clock`** (`tests/test_warm_start_provenance.py`, line 162): The test uses `assert record[\"warm_started_at\"] is frozen_now`, relying on CPython string interning. This is not a language guarantee and will produce a spurious test failure if `provenance()` ever passes `now` through any string operation. The redundant `==` assertion on the next line already covers AC_2 fully — the `is` check should be removed.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "3dadd8096b85ba207ee7dda6ef173a1a2165cfa6",
+      "created_at": "2026-11-01T20:06:27Z",
+      "id": 5729978481,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/82#pullrequestreview-5729978481"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: The function's docstring and return annotation promise a dict \"suitable for JSON serialization\", but `donor_id`, `donor_task_id`, and `donor_version` are copied from `getattr` without any type validation. If a caller passes a donor whose `id` is a `uuid.UUID`, `task_id` is a custom object, or `version` is a non-serializable type, `json.dumps(provenance(...))` will raise a `TypeError` at the call site — violating the stated contract without any diagnostic from `provenance()` itself.\n\nAdd explicit checks that these three attributes are JSON-primitive types (e.g., `str`, `int`, `float`, `bool`, or `None`) before populating the return dict, or convert them with `str()`/`int()` and document the coercion. The current guard only rejects `None`, leaving all other non-serializable types silently accepted.",
+      "commit": "4a6470a1a134f7c83c944ba05779df41ce05f1f8",
+      "created_at": "2026-11-01T20:10:30Z",
+      "id": 4437157187,
+      "kind": "inline",
+      "line": 143,
+      "path": "src/agent_learning/warm_start.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/82#discussion_r4437157187"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: The `clock_forbidden` pattern `\"from time\"` will false-negatively miss `\"import time as t\"` and `\"__import__('time')\"`, and will false-positively flag legitimate string literals containing `\"from time\"` in comments or docstrings. More critically, it misses `\"from time import\"` if the module is ever refactored to use `from time import monotonic`. Consider using an AST-based import check (`ast.parse` + walking `ast.Import`/`ast.ImportFrom` nodes) instead of substring matching, which is fragile across all such purity tests in this file and `test_warm_start_logits.py`.",
+      "commit": "5fe32661780c8ca89b7ce42c4b808587035a6fef",
+      "created_at": "2026-11-01T20:10:30Z",
+      "id": 4437157192,
+      "kind": "inline",
+      "line": 178,
+      "path": "tests/test_warm_start_provenance.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/82#discussion_r4437157192"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThis PR adds Story 20.2's `provenance()` function and its contract tests (AC_0–AC_3) on top of the Story 20.1 `warm_start_logits` foundation. The implementation is clean, stdlib-only, and the validation for `damping`, `kind`, `now`, and `gate_met` is thorough.\n\n**One merge-blocking issue was identified:**\n\n`provenance()` documents its return value as \"suitable for JSON serialization\" but does not validate the types of `donor_id`, `donor_task_id`, and `donor_version` extracted via `getattr`. Only a `None` guard is applied. Any caller supplying a donor whose identity attributes are non-primitive types (e.g., `uuid.UUID`, custom objects) will receive a silently-accepted dict that fails at `json.dumps` call sites — violating the function's own contract without a clear error pointing back to `provenance()`. The AC_3 test does not expose this because its fixture uses string/int attributes exclusively.\n\nAll other aspects — validation logic, immutability, clock isolation, `__all__` exports, and test coverage — are sound.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "5fe32661780c8ca89b7ce42c4b808587035a6fef",
+      "created_at": "2026-11-01T20:10:30Z",
+      "id": 5729992056,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/82#pullrequestreview-5729992056"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: The `action_map` passed to `provenance()` is stored as a shallow copy via `dict(action_map)` at line 165, but there is no runtime validation that its keys and values are strings. Unlike `warm_start_logits()` which validates the map against `target_actions`, `provenance()` accepts any `Mapping[str, str]` without checking content types. A caller passing `{1: \"a\"}` or `{\"a\": 2}` will produce a record that silently fails the JSON-safe contract (integers are JSON-safe, but this violates the `Mapping[str, str]` contract and the type annotation). Since `test_ac3` only verifies JSON roundtrip with a well-formed map, this path is untested and a mal-typed map will not raise, violating the declared type contract at runtime.",
+      "commit": "0ad70c1e023982ed3ef9191a0c7e497682ac90b4",
+      "created_at": "2026-11-01T20:20:27Z",
+      "id": 4437189087,
+      "kind": "inline",
+      "line": 165,
+      "path": "src/agent_learning/warm_start.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/82#discussion_r4437189087"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThis PR implements Story 20.2: a pure `provenance()` helper and `VALID_DONOR_KINDS` constant for the policy prior warm-starting feature. The implementation is well-structured, the validation logic is thorough, and the contract tests cover the acceptance criteria comprehensively.\n\n### One Finding\n\n**`provenance()` — `action_map` contents are not runtime-validated, breaking the JSON-safe contract**\n\nThe function is documented to return a \"Dictionary with full lineage metadata keys suitable for JSON serialization,\" but the `action_map` parameter receives no runtime type-checking on its keys or values before being stored as `dict(action_map)`. If a caller passes a map with non-string keys (e.g., `{1: \"a\"}`), `provenance()` succeeds and returns a dict, but a subsequent `json.dumps(record)` will raise `TypeError: keys must be strings`. Since `test_ac3_json_safe_and_pure` only tests with a well-formed map, this path is untested and silently violates the contract. Every other validated parameter (damping, now, donor id/task_id/version) gets explicit type-and-value checks — `action_map` values should receive the same treatment to uphold the stated JSON-safe guarantee.\n\n### Positive aspects\n- `warm_start_logits()` is unchanged and correct.\n- The `provenance()` validation gauntlet is thorough: `kind`, `damping`, `now`, `gate_met`, and all donor identity attributes are correctly validated with proper `TypeError`/`ValueError` distinction.\n- The AST-based clock-isolation and purity checks in the test suite are robust improvements over substring scanning.\n- Exports in `__init__.py` are correctly threaded through both the import block and `__all__`.\n- The `frozenset` for `VALID_DONOR_KINDS` correctly prevents external mutation.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "0ad70c1e023982ed3ef9191a0c7e497682ac90b4",
+      "created_at": "2026-11-01T20:20:27Z",
+      "id": 5730048459,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/82#pullrequestreview-5730048459"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: An empty `action_map` (`{}`) passes all validation and produces a provenance record with `\"warm_start_action_map\": {}`, which is semantically invalid — a warm-start with no action mappings is meaningless and likely indicates a caller bug. The loop body never executes, so no `ValueError` is raised. Add an explicit emptiness guard after the `isinstance(action_map, Mapping)` check.\n```suggestion\n    if not isinstance(action_map, Mapping):\n        raise TypeError(f\"action_map must be a Mapping, got {type(action_map).__name__}\")\n    if not action_map:\n        raise ValueError(\"action_map must not be empty\")\n```",
+      "commit": "4a6470a1a134f7c83c944ba05779df41ce05f1f8",
+      "created_at": "2026-11-01T20:31:28Z",
+      "id": 4437224216,
+      "kind": "inline",
+      "line": 161,
+      "path": "src/agent_learning/warm_start.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/82#discussion_r4437224216"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Missing Test Coverage**: There is no test asserting that `provenance(..., action_map={})` raises a `ValueError`. Without this, the empty-map logic gap in the implementation goes undetected by the contract suite. Add a case to the `bad_map_type` or a dedicated block that passes `{}` and expects `ValueError`.",
+      "commit": "4a6470a1a134f7c83c944ba05779df41ce05f1f8",
+      "created_at": "2026-11-01T20:31:28Z",
+      "id": 4437224222,
+      "kind": "inline",
+      "line": 190,
+      "path": "tests/test_warm_start_provenance.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/82#discussion_r4437224222"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThis PR adds a pure stdlib `provenance()` metadata builder (Story 20.2) with extensive input validation and contract tests. The implementation is well-structured: clock isolation is enforced by design and verified via AST analysis, immutability of inputs is maintained, and JSON safety is confirmed by round-trip tests.\n\n**One blocking defect found:**\n\n**`action_map={}` silently produces an invalid provenance record.** An empty mapping passes the `isinstance(action_map, Mapping)` check, the validation loop never executes, and `provenance()` returns `{\"warm_start_action_map\": {}, ...}` without raising any error. A warm-start with zero action mappings has no valid semantic meaning and should be rejected. The fix is a one-line emptiness guard (`if not action_map: raise ValueError(...)`) after the `isinstance` check, paired with a corresponding test case.\n\nNo other blocking issues were found. The rest of the validation logic, the `__all__` exports, and the test contracts are correct.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "4dce8230cd2f34e0b783f49aa2991cc5e0a54095",
+      "created_at": "2026-11-01T20:31:28Z",
+      "id": 5730120263,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/82#pullrequestreview-5730120263"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThis PR implements `provenance()` in `warm_start.py` for Story 20.2 (Policy Prior Warm-Starting). The implementation is clean and well-structured.\n\n**No merge-blocking defects were found.** The following was verified:\n\n- **Validation logic is correct**: Input guards for `kind`, `damping`, `now`, `gate_met`, donor attributes (`id`, `task_id`, `version`), and `action_map` are all properly ordered and cover the required type/value contract.\n- **JSON safety**: All returned values (`str`, `int`, `float`, `bool`/`None`, `dict[str, str]`) are native JSON-serializable types. The AC_3 roundtrip assertion `deserialized == record` is sound.\n- **Immutability / purity**: `validated_map` is built as a new `dict` from `action_map.items()`, so the input mapping is never mutated. The AST-based clock-isolation check correctly detects `datetime` and `time` imports.\n- **`version=0` edge case**: `getattr(donor, \"version\", None)` returns `0` (not `None`), so the null-guard at line 142 does not fire, and the `>= 0` check correctly accepts it.\n- **`__init__.py` exports**: `VALID_DONOR_KINDS` and `provenance` are both present in the import block and the `__all__` list.\n- **Test coverage**: AC_0–AC_3 cover the happy path, kind/gate_met variants, no-clock invariant (AST-verified), JSON roundtrip, and donor/action_map validation exhaustively.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "4a6470a1a134f7c83c944ba05779df41ce05f1f8",
+      "created_at": "2026-11-01T20:40:44Z",
+      "id": 5730170811,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/82#pullrequestreview-5730170811"
+    }
+  ],
+  "pr": 82
+}

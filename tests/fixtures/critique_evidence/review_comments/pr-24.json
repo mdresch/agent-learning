@@ -1,0 +1,39 @@
+{
+  "available": true,
+  "comments": [
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Crash Risk**: `len(audit_evidence)` raises `TypeError` if `audit_evidence` is a `Mapping` that does not implement `__len__` (e.g., a custom `Mapping` subclass or `collections.abc.Mapping` without `__len__`). The parameter type annotation only promises `Mapping[str, Any]`, but `Mapping` does not require `Sized`. Replace the length check with an explicit `not audit_evidence` or `not dict(audit_evidence)` to safely handle any conforming `Mapping`.\n```suggestion\n        if capture_decision_evidence_enabled(self._snapshot) and (\n            not isinstance(audit_evidence, Mapping) or not audit_evidence\n        ):\n```",
+      "commit": "ed4b5ca801d800c5975883babc1c4950dc315729",
+      "created_at": "2026-10-26T19:18:47Z",
+      "id": 4381468034,
+      "kind": "inline",
+      "line": 913,
+      "path": "src/agent_learning/decision.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/24#discussion_r4381468034"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThis PR correctly implements Story 6.1 – opt-in lightweight evidence capture for low-authority decisions (ADR-006). The design is clean: the flag is stored on the `PolicySnapshot`, enforced only in the low-authority `decide()` path, propagated write-once into episode metadata, and never read by learners, metrics, rewards, or the policy itself.\n\n### One blocking issue found\n\n**`src/agent_learning/decision.py` line 912** – `len(audit_evidence) == 0` will raise `TypeError` at runtime if the caller passes a `Mapping` that does not implement `__len__`. The `collections.abc.Mapping` ABC does not require `Sized`, so any custom `Mapping` subclass (or the `audit_evidence: Mapping[str, Any]` parameter from a deserialisation path) that omits `__len__` will crash exactly here – in the enforcement branch that is supposed to reject absent evidence, not raise an unexpected exception. The fix is to use the truthiness of the object (`not audit_evidence`) instead of an explicit length check. A suggested one-click fix is attached to the inline comment.\n\n### Everything else is correct\n\n- The write-once enforcement logic in `EpisodeCapture.start`, `EpisodeCapture.end`, and `_cmd_register_task_episode` is all correct and consistent.\n- The `TYPE_CHECKING` guard for the `DecisionResult` import in `capture.py` correctly avoids a circular import at runtime.\n- The `capture_decision_evidence_enabled` helper correctly interprets absent or `None` as `False`.\n- The `--capture-decision-evidence` CLI flag writes the key only when opted in, leaving default policy metadata unchanged.\n- The `I10` interpretation (CLI exits 2 with a clear message rather than crashing inside `decide()`) is correctly implemented and tested.\n- The test suite covers all acceptance criteria including round-trip serialisation, learner isolation, and write-once semantics.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "bb06aa793b4cb615bb70197b76833beec35b1237",
+      "created_at": "2026-10-26T19:18:47Z",
+      "id": 5657705551,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/24#pullrequestreview-5657705551"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThis PR implements Story 6.1 cleanly: an opt-in `capture_decision_evidence` flag on `TaskPolicy` that requires non-empty `audit_evidence` on every low-authority `decide()` call when enabled, propagates it write-once into episode metadata via `EpisodeCapture.start()` / `end()`, and wires it into the `task-episode-register` CLI. The design is well-specified and the 48 new contract tests cover the acceptance criteria thoroughly.\n\n**No merge-blocking defects were introduced by this PR.** The implementation correctly handles:\n- Flag semantics (absent/None = False, explicit True/False sets it, I1 default-None prevents silent override)\n- Enforcement check on both sampled and forced-action low-authority paths (I4)\n- Full-authority path is unaffected (I5)\n- Write-once semantics in `EpisodeCapture.start()`, `end()`, and `task-episode-register`\n- Learner/metric/reward/policy isolation (AC_6)\n- CLI graceful exit with actionable message when `audit_evidence` cannot be supplied (I10)\n\n**One pre-existing issue to be aware of** (not introduced by this PR): in `_cmd_register_task_episode`, the variable `feedback_status` (assigned inside `if args.require_decision_policy:`) is referenced unconditionally at the post-store block. If `--require-decision-policy` is not passed, Python will raise `NameError`. This was pre-existing before this PR and is outside its scope, but worth tracking.\n\n**One design note**: `DecisionResult.to_dict()` serializes `audit_evidence` with `dict(self.audit_evidence)` (shallow copy). For the nested evidence structures showcased in the tests (e.g., `{\"inputs\": {\"files\": [...], \"score\": 0.4}, \"free_form\": [1, \"two\", None]}`), a caller mutating the nested content of the returned dict can corrupt the `audit_evidence` reference held inside the frozen dataclass. Since `audit_evidence` is typed as `Mapping[str, Any] | None` (not a frozen structure), and the field stores whatever the caller passed without deep-copying it at construction time, this shallow serialization is consistent with the rest of the SDK — but it means the audit immutability guarantee only holds at the top-level dict layer for complex evidence. This was also present in the prior PR that introduced the field and is not introduced here.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "bb06aa793b4cb615bb70197b76833beec35b1237",
+      "created_at": "2026-10-26T19:19:19Z",
+      "id": 5657711547,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/24#pullrequestreview-5657711547"
+    }
+  ],
+  "pr": 24
+}

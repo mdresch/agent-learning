@@ -1,0 +1,83 @@
+{
+  "available": true,
+  "comments": [
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review: Story 36.1 — Learning Methodology Catalog\n\nThe implementation is correct and well-structured. The pure-functional module design (no file I/O, no storage imports), strict `from_dict` parsing, comprehensive error accumulation in `validate_catalog`, and the full 31-test suite all look solid.\n\nNo merge-blocking defects were found. The catalog data is consistent with the derived `example_class` logic (verified entries #24, #25–#32 as `documented` with valid reasons/reopening conditions), the path traversal guard correctly checks for `\"..\"` segments, and the `derive_class` truthiness check on `adr` handles `None` and empty strings correctly.\n\nThe PR is ready to merge.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "1168f03af1d4f673b80f7ffab924a6639c076135",
+      "created_at": "2026-10-26T11:38:40Z",
+      "id": 5651363866,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/14#pullrequestreview-5651363866"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: The path traversal check splits on `/` and looks for the literal string `\"..\"`, but this does not block a segment that is exactly `\".\"` (current-directory reference). A path like `\"examples/methodologies/./foo\"` passes the check despite the unnecessary self-referential segment. More critically, it also does not block paths containing embedded null bytes (e.g., `\"examples/methodologies/foo\\x00\"`), which can defeat downstream consumers. Since `existing_paths` membership lookup is the ultimate guard, null-byte paths would never match a real path — but the prefix check should still reject them explicitly to prevent misleading validation passes when `existing_paths=None`.\n\nAdd a null-byte rejection before the `..` check:\n\n```python\ndef _path_is_under_examples(path: str) -> bool:\n    if \"\\x00\" in path:\n        return False\n    if not path.startswith(PATH_PREFIX) or path == PATH_PREFIX:\n        return False\n    return \"..\" not in path.split(\"/\")\n```\n```suggestion\ndef _path_is_under_examples(path: str) -> bool:\n    if \"\\x00\" in path:\n        return False\n    if not path.startswith(PATH_PREFIX) or path == PATH_PREFIX:\n        return False\n    return \"..\" not in path.split(\"/\")\n```\n\n[^1]: CWE-22: Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal') - https://cwe.mitre.org/data/definitions/22.html",
+      "commit": "83a07ea40bf9caf0648c0dc4a6defec3240f5e0a",
+      "created_at": "2026-10-26T11:38:54Z",
+      "id": 4376789086,
+      "kind": "inline",
+      "line": 115,
+      "path": "src/agent_learning/methodology_catalog.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/14#discussion_r4376789086"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: The test for path traversal (`test_ac3_path_traversal_is_rejected`) only covers the `../../src` case. A null-byte-injected path like `\"examples/methodologies/foo\\x00\"` is not tested; with the current implementation it passes `_path_is_under_examples` and only fails at `existing_paths` membership — silently passing when `existing_paths=None`. Add a test case covering null bytes so the guard is enforced at the path-validation layer regardless of the `existing_paths` argument.\n\n[^1]: CWE-22: Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal') - https://cwe.mitre.org/data/definitions/22.html",
+      "commit": "83a07ea40bf9caf0648c0dc4a6defec3240f5e0a",
+      "created_at": "2026-10-26T11:38:54Z",
+      "id": 4376789098,
+      "kind": "inline",
+      "line": 167,
+      "path": "tests/test_methodology_catalog.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/14#discussion_r4376789098"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Logic Error**: `validate_catalog` iterates `entries` twice — once in the ID-counting loop (line 131) and again in the per-entry validation loop (line 142). The type hint is `Collection[CatalogEntry]`, which guarantees re-iterability, but the docstring and public API do not enforce this. A caller passing a generator (which satisfies `Iterable` but not `Collection`) would silently skip all per-entry validation, producing no errors even for a completely invalid catalog. The type hint should be tightened to `Sequence[CatalogEntry]`, or `entries` should be eagerly materialised into a list at the top of the function to make the double-iteration safe regardless of what callers pass.\n```suggestion\ndef validate_catalog(\n    entries: Collection[CatalogEntry],\n    ideation_states: Mapping[int, str],\n    existing_paths: Collection[str] | None = None,\n) -> None:\n    \"\"\"Raise ``ValueError`` listing every problem found; return ``None`` when the catalog is valid.\n\n    ``ideation_states`` maps a methodology id to its expected canonical state. When\n    ``existing_paths`` is given, each entry's path must be in it; ``None`` skips that check\n    (the example directories are built by later stories).\n    \"\"\"\n    entries = list(entries)\n```",
+      "commit": "83a07ea40bf9caf0648c0dc4a6defec3240f5e0a",
+      "created_at": "2026-10-26T11:38:54Z",
+      "id": 4376789101,
+      "kind": "inline",
+      "line": 129,
+      "path": "src/agent_learning/methodology_catalog.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/14#discussion_r4376789101"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThe PR implements a well-structured, pure functional catalog module for learning methodologies. The design choices (no file I/O, strict parsing, accumulated error reporting) are sound, and the 31-test suite covers the acceptance criteria thoroughly. Three issues require attention before merge:\n\n**Must fix:**\n\n1. **Null-byte path traversal bypass** (`methodology_catalog.py` `_path_is_under_examples`): A path containing a null byte passes the current `..`-segment check and is only rejected by the `existing_paths` membership lookup — which is skipped when `existing_paths=None`. Add an explicit `\"\\x00\" in path` guard so the validation layer is airtight regardless of the caller's `existing_paths` argument.\n\n2. **Double-iteration on `entries`** (`validate_catalog`): The function iterates `entries` twice. `Collection` is supposed to guarantee re-iterability, but Python's structural typing means a plain generator (which satisfies `Iterable`, not `Collection`) can be passed without a runtime error on the first loop, then silently produce an empty second loop — no per-entry validation runs and no error is raised. Materialise `entries = list(entries)` at the top of the function to eliminate this risk unconditionally.\n\n3. **Missing null-byte test coverage** (`test_methodology_catalog.py`): The path-traversal test only covers `../../src`. A null-byte path is not tested, so the fix to `_path_is_under_examples` above needs a corresponding test case to prevent regression.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "1168f03af1d4f673b80f7ffab924a6639c076135",
+      "created_at": "2026-10-26T11:38:54Z",
+      "id": 5651366144,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/14#pullrequestreview-5651366144"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "Here is the status of every acceptance criterion from Story 36.1, cross-checked against the diff:\n\n**All 5 ACs are resolved in this commit:**\n\n| AC | Requirement | Status |\n|---|---|---|\n| AC_0 | `validate_catalog()` raises naming each bad/missing/duplicate id (1–32) | ✅ Implemented in `methodology_catalog.py` lines 131–140; covered by `test_ac0_*` (3 tests) |\n| AC_1 | `derive_class()` maps state → class; `validate_catalog()` rejects mismatches and Ideation drift | ✅ Implemented lines 100–109, 142–156; covered by `test_ac1_*` (4 tests) |\n| AC_2 | `documented` entry requires non-empty `reason` and `reopening_condition` | ✅ Implemented lines 157–163; covered by `test_ac2_*` (2 tests) |\n| AC_3 | Every non-null path stays under `examples/methodologies/`; path traversal blocked; existence check with `existing_paths` | ✅ Implemented lines 112–169; covered by `test_ac3_*` (5 tests) |\n| AC_4 | `methodology_catalog.py` imports nothing from `agent_learning.storage` | ✅ Module uses stdlib only; enforced by `test_ac4_module_imports_nothing_from_storage` via AST inspection |\n\n**One item deferred by design (not a finding):**\n\n- **AC_3 path-existence check** is skipped when `existing_paths=None` (interpretation I1). The example directories don't exist yet — they are created by Stories 36.2 and 36.3, which will pass the real path set. This is explicitly documented and tested.\n\n**Remaining open items (future stories, not this commit):**\n\n- **I2 (fixture drift):** The `ideation_states.json` fixture is hand-transcribed. Automated detection of drift between the fixture and the Ideation Document is deferred to ADR-036 §8 (flagged in the test header and SKILL.md).\n- `validate_catalog` in `__init__.py` is missing from the `__all__` list — it is imported at line 82 but absent from `__all__`. `CatalogEntry`, `ExampleClass`, `derive_class`, and `parse_catalog` are all present. This is a minor gap but means `validate_catalog` is not formally part of the public package surface.\n- Stories 36.2–36.6 (runnable examples, PoC sketches, ledger, triage loop, tailoring matrix) are out of scope for this story and remain pending.",
+      "commit": null,
+      "created_at": "2026-10-26T11:39:53Z",
+      "id": 6415105365,
+      "kind": "issue",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/14#issuecomment-6415105365"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "**`validate_catalog` in `__all__` — confirmed ✅**\n\n`validate_catalog` is present at line 301 of `src/agent_learning/__init__.py` (within the `__all__` list), and the corresponding import from `.methodology_catalog` is at line 81. No blocking defect is present at the latest commit.\n\n**Remaining items (none are blocking):**\n\n| # | Item | Location | Severity |\n|---|------|----------|----------|\n| 1 | `DEFAULT_EPSILON` is imported (line 111) but absent from `__all__` | `src/agent_learning/__init__.py` | Minor – public API gap |\n| 2 | `get_capture` is in `__all__` (line 298) but `get_capture` is not exported from `.capture` in the import block (line 69 only imports `CaptureContext`, `EpisodeCapture`, `get_capture`) — this is fine, but worth double-checking the function exists in `capture.py` | `src/agent_learning/capture.py` | Informational |\n| 3 | `tests/pmbok` and `tests/test_spark.py` are explicitly excluded from the test run due to undeclared dependencies (`sqlalchemy`, `tenacity`, JVM) | PR description | Known gap — deferred |\n| 4 | Interpretation I2 (catalog state fixture hand-transcribed from Ideation §2.1 v1.13) and I1 (`existing_paths` caller-supplied) are recorded in the PR but not yet reflected in FDD-036, pending its own approval cycle | PR description | Process — deferred to Stories 36.2/36.3 |\n\nNo code change is required to unblock merging this PR.",
+      "commit": null,
+      "created_at": "2026-10-26T11:41:19Z",
+      "id": 6415130596,
+      "kind": "issue",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/14#issuecomment-6415130596"
+    }
+  ],
+  "pr": 14
+}

@@ -1,0 +1,72 @@
+{
+  "available": true,
+  "comments": [
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Crash Risk**: `next()` on a generator with no default raises `StopIteration` at module import time if no file matching `ADR-012-*.md` exists in `docs/adr/`. This causes an opaque `ImportError` / collection failure rather than a clear test skip or failure. Provide a default or wrap with a try/except to produce a meaningful error.\n```suggestion\nADR_012_MATCHES = list((REPO / \"docs\" / \"adr\").glob(\"ADR-012-*.md\"))\nADR_012 = ADR_012_MATCHES[0] if ADR_012_MATCHES else None\n```",
+      "commit": "0ad663aa774f562e189c7093a0a45fba86140939",
+      "created_at": "2026-10-27T04:58:55Z",
+      "id": 4385228706,
+      "kind": "inline",
+      "line": 37,
+      "path": "tests/test_plan_parser.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/28#discussion_r4385228706"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Code Review Summary\n\nThis PR introduces a well-structured, pure stdlib frontmatter grammar parser (`agent_learning.pmbok`) with thorough contract tests (106 tests, good boundary coverage including fuzz-style inputs).\n\n**One defect requires attention before merge:**\n\n- **`ADR_012 = next(...)` at module level** (`tests/test_plan_parser.py` line 37): If the glob matches no files (e.g., the ADR-012 file is renamed or absent), `next()` on an empty generator raises `StopIteration` at collection time, producing a confusing `ImportError`/`StopIteration` rather than a failing test. A default or guard is needed.\n\n**No other blocking issues found.** The parser logic is correct: `_scalar()` is always guarded against empty-string inputs before invocation, the fail-closed / `MappingProxyType` semantics are consistent, duplicate-key + list-opener interactions are correctly isolated, and the BOM/CRLF normalization is sound.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "0ad663aa774f562e189c7093a0a45fba86140939",
+      "created_at": "2026-10-27T04:58:55Z",
+      "id": 5662401547,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/28#pullrequestreview-5662401547"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Crash Risk:** `next()` with no default at module level will raise `StopIteration` if the `ADR-012-*.md` file is absent (e.g., in a shallow clone, a branch that hasn't synced the `docs/adr` directory, or a CI environment that only checks out the changed files). A `StopIteration` raised during module import causes pytest to report a *collection error* for the entire file, silently killing all 106 tests rather than failing only the two tests that actually read the ADR file.\n```suggestion\nADR_012 = next((REPO / \"docs\" / \"adr\").glob(\"ADR-012-*.md\"), None)\n```",
+      "commit": "0ad663aa774f562e189c7093a0a45fba86140939",
+      "created_at": "2026-10-27T04:59:00Z",
+      "id": 4385229094,
+      "kind": "inline",
+      "line": 37,
+      "path": "tests/test_plan_parser.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/28#discussion_r4385229094"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThis PR introduces the `agent_learning.pmbok` package with a pure stdlib frontmatter grammar parser, `ParsedPlan`, and `LintFlag`. The implementation is well-structured, the fail-closed contract is correctly enforced, and the 106-test suite provides solid coverage. The parser logic itself is sound.\n\n**One blocking issue found:**\n\nThe module-level `next(glob(...))` call in the test file (line 37) has no default value. If the `ADR-012-*.md` file is absent from the working tree (shallow clone, partial checkout, new environment), it raises `StopIteration` at collection time, which silently drops all 106 tests with a collection error rather than failing individual tests. A follow-on crash in `adr_012_example()` would produce an unhelpful `AttributeError` when `ADR_012` is `None`. These two comments are posted inline.\n\nNo issues were found in the parser implementation itself (`parser.py`, `standards.py`, `__init__.py`).\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "0ad663aa774f562e189c7093a0a45fba86140939",
+      "created_at": "2026-10-27T04:59:00Z",
+      "id": 5662402075,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/28#pullrequestreview-5662402075"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": ":stop_sign: **Crash Risk:** If `ADR_012` is `None` (i.e., the ADR-012 file is not found), calling `ADR_012.read_text(...)` raises `AttributeError: 'NoneType' object has no attribute 'read_text'`. This will crash `TestCanonicalExample` and `TestPurity.test_the_package_does_not_import_a_yaml_library` (which iterates the same directory) with an unhelpful error instead of a clear skip or xfail. Add a guard or use `pytest.skip` when the file is missing.",
+      "commit": "c504aa396b5f72cb4de1c7457cff29667cd7ac68",
+      "created_at": "2026-10-27T04:59:01Z",
+      "id": 4385229105,
+      "kind": "inline",
+      "line": 47,
+      "path": "tests/test_plan_parser.py",
+      "url": "https://github.com/mdresch/agent-learning/pull/28#discussion_r4385229105"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "**Verdict on head `e5daa58`: No further additions required. No merge-blocking issues.**\n\n---\n\n**Earlier findings — all resolved or correctly disposed:**\n\n| ID | Severity | Finding | Decision | Status at e5daa58 |\n|---|---|---|---|---|\n| Q-28-1 | Crash risk | `adr_012_example()` used at module level via `next()` → `StopIteration` at collection when the ADR file is absent, dropping all 106 tests silently | Accepted | ✅ Fixed — function now performs the glob lazily inside its own body (lines 40–47); a missing ADR fails the tests that depend on it with a clear assertion message |\n| Q-28-2 | Crash risk | Claimed `test_the_package_does_not_import_a_yaml_library` iterates the ADR directory | Declined (claim was wrong) | ✅ N/A — the test globs `src/agent_learning/pmbok`, not `docs/adr`; the declination was correct |\n| Q-28-3 | Crash risk | Suggested defaulting to `None` or skipping when the ADR is absent | Declined | ✅ N/A — a skip would hide drift between the ADR example and the parser; the declination was correct |\n\n**Additional checks at current head:**\n\n- `parser.py` / `standards.py` / `pmbok/__init__.py`: stdlib-only, no third-party imports, fail-closed on every code path, `ruff` clean — no issues.\n- `src/agent_learning/__init__.py`: `LintFlag`, `ParsedPlan`, `parse_frontmatter` present in both the import block (line 96) and `__all__` (lines 329–331) — correct.\n- 106 contract tests cover all five acceptance criteria (AC_0–AC_5) and all twelve interpretations (I1–I12), including the 2,000-seed fuzz sweep and the exhaustive 3-character alphabet sweep.\n- Full suite: 872 passed, 2 skipped. The two excluded paths (`tests/pmbok` needs `tenacity`; `tests/test_spark.py` needs a JVM) are pre-existing, out of scope for this story, and recorded as LL-013.\n- No security issues, no hardcoded credentials, no PII identified.\n\n**Any further additions or merge-blocking issues: No.**",
+      "commit": null,
+      "created_at": "2026-10-27T05:01:37Z",
+      "id": 6434175227,
+      "kind": "issue",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/28#issuecomment-6434175227"
+    }
+  ],
+  "pr": 28
+}

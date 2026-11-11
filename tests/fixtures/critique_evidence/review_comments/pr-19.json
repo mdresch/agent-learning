@@ -1,0 +1,39 @@
+{
+  "available": true,
+  "comments": [
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary\n\nThis PR delivers Story 36.6 (the last story of Epic 36): the methodology tailoring matrix, five new ledger candidates (BP-005 to BP-009), four new lessons-learned entries (LL-016 to LL-019), and the corresponding skill/documentation propagation.\n\n**No blocking defects found.** All changed files were inspected:\n\n- **`tests/test_methodology_tailoring_matrix.py`** — 8 new contract tests. The Markdown parser (`_rows`), catalog ID helper (`_catalog_ids`/`_ids`), and all test functions are correctly implemented. Path anchoring uses `Path(__file__).resolve().parent.parent` (LL-006 compliant). `zip(..., strict=True)` correctly catches column-count mismatches at parse time.\n- **`src/agent_learning/methodology_catalog.py`** — One-line docstring clarification only; no logic change.\n- **`docs/project-docs/Methodology-Tailoring-Matrix.md`** — Six rows, all structurally consistent with what the tests assert (catalog ids, `Applies to` values, ledger references).\n- **`docs/project-docs/Methodology-Best-Practice-Ledger.md`** — BP-005 to BP-009 appended; all `candidate`, consistent with the no-adopted-entry invariant tested in `test_ac1_no_ledger_entry_is_adopted_yet`.\n- **`docs/project-docs/Lessons-Learned-Register.md`** — LL-016 to LL-019 added to both the index table and the detailed entries; anchor links are consistent.\n- **`.claude/skills/implement-story/SKILL.md`** and **`.claude/skills/methodology-catalog/SKILL.md`** — Documentation-only updates propagating LL-016/LL-018 into the skill steps and adding section 9 for the tailoring matrix.\n\nThe PR is ready to merge from a code-correctness standpoint.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "c727c1492d3719b5b02f087ec602d6d3b5f2bd74",
+      "created_at": "2026-10-26T13:27:14Z",
+      "id": 5652691686,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/19#pullrequestreview-5652691686"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "## Review Summary — Story 36.6 (Tailoring Matrix, Ledger Candidates, Template Propagation, Epic 36 Recap)\n\nAfter reviewing all 9 changed files — `tests/test_methodology_tailoring_matrix.py`, `src/agent_learning/methodology_catalog.py`, `docs/project-docs/Methodology-Tailoring-Matrix.md`, `docs/project-docs/Methodology-Best-Practice-Ledger.md`, `docs/project-docs/Lessons-Learned-Register.md`, `.claude/skills/implement-story/SKILL.md`, `.claude/skills/methodology-catalog/SKILL.md`, `docs/user-stories/epic-36-...md`, and `implementation-log.md` — no merge-blocking defects were found.\n\n**Code correctness:** The new test file correctly anchors all file paths via `Path(__file__).resolve().parent.parent` (consistent with LL-006), parses the matrix table robustly, and validates all acceptance criteria including catalog IDs, ledger linkage, hypothesis existence, and the epic recap index check. The `test_ac3` LL-ID extraction (`section[:6]`) works correctly for the `LL-###` format since `re.split` with a lookahead preserves the ID at the start of each section.\n\n**Ledger integrity:** BP-005 through BP-009 are all `candidate` with `evidence_class: source-doc` or `synthetic-demo`, consistent with the adoption invariant. No adopted entries exist. The tailoring matrix rows each reference an existing, current ledger entry whose methodology ID matches the row.\n\n**Skill and register updates:** The `implement-story` and `methodology-catalog` skills are correctly updated to reflect LL-016 through LL-019 lessons and the new tailoring matrix section. The Lessons Learned Register index and detailed entries are consistent.\n\n**Minor observation (non-blocking):** The `_rows()` helper in the test uses bare `assert` for structural invariants (header match, cell count). This is standard in pytest contract tests and does not block merge, though an explicit `ValueError` with a descriptive message would give clearer failures if the matrix format drifts.\n\nThis PR is clean for merge.\n\n---\nYou can now have the agent implement changes and create commits directly on your pull request's source branch. Simply comment with /q followed by your request in natural language to ask the agent to make changes.\n",
+      "commit": "c727c1492d3719b5b02f087ec602d6d3b5f2bd74",
+      "created_at": "2026-10-26T13:27:22Z",
+      "id": 5652693218,
+      "kind": "review",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/19#pullrequestreview-5652693218"
+    },
+    {
+      "author": "amazon-q-developer[bot]",
+      "body": "No further additions.\n\nThe head at c727c14 is clean: all eight tests are structurally sound, the matrix rows are consistent with the ledger (BP-005 through BP-009, all `candidate`), the LL-016 through LL-019 entries are present and indexed, and the `methodology_catalog.py` module has no new issues beyond what was already reviewed. The bare `assert` declination is noted and accepted — the context (pytest, named row in the failure message, header drift must fail loudly) makes the pattern appropriate here.",
+      "commit": null,
+      "created_at": "2026-10-26T13:28:28Z",
+      "id": 6417190356,
+      "kind": "issue",
+      "line": null,
+      "path": null,
+      "url": "https://github.com/mdresch/agent-learning/pull/19#issuecomment-6417190356"
+    }
+  ],
+  "pr": 19
+}

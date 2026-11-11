@@ -3391,5 +3391,5 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Branch:** `docs/stage-18-irp-pcd-drafts`
 - **What:** drafts of `IRP-20261111-001` and `PCD-20261111-001`; documents only, nothing approved.
 - **Amazon Q triage (round 1 on `d7d6476`), proposed by Claude from the files, awaiting Menno's decision:**
-  - `Q-205-1 | documentation | verified: yes | decision: accepted | the readiness row said no open pull requests while #205 itself was open; now states #205 at drafting and none once it merges | fix: pending`
-  - `Q-205-2 | documentation | verified: yes | decision: accepted | the PCD rationale named three of the five criterion-2 hypotheses; now says three are unresolved and 026 and 027 were validated at the Phase 1 close | fix: pending`
+  - `Q-205-1 | documentation | verified: yes | decision: accepted | the readiness row said no open pull requests while #205 itself was open; now states #205 at drafting and none once it merges | fix: d7e3a76`
+  - `Q-205-2 | documentation | verified: yes | decision: accepted | the PCD rationale named three of the five criterion-2 hypotheses; now says three are unresolved and 026 and 027 were validated at the Phase 1 close | fix: d7e3a76`

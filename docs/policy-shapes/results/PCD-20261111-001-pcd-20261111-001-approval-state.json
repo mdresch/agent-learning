@@ -1,0 +1,8 @@
+{
+  "task_id": "approve-intent-refinement",
+  "subject": "PCD-20261111-001",
+  "tag": "pcd-20261111-001",
+  "frame_sha256": "fc927c0b8ff747df29775c097f4f5d22c4daa7024fc370ddb460ee6ed96d5100",
+  "registered": true,
+  "episode": "fa8603c7-9d86-4d6a-be56-ec70525ab666"
+}

@@ -3,9 +3,9 @@ artifact_type: "phase_close_decision"
 decision_id: "PCD-20261111-001"
 phase: "Phase 2"
 phase_name: "Advanced Agent Learning with Governance-Integrated Feedback Loops"
-version: "0.1"
+version: "1.0"
 date: "2026-11-11"
-decision: "PENDING"
+decision: "APPROVE"
 authority: "FULL"
 governance_policy: "approve-intent-refinement"
 related_proposal: "IRP-20261111-001"
@@ -13,13 +13,13 @@ related_proposal: "IRP-20261111-001"
 
 # Phase Close Decision: PCD-20261111-001
 
-> **Draft.** The decision is the Project Sponsor's and is not made. The charter's milestone name for it is `PCD-Phase2` (M10).
+> **Approved** by the Project Sponsor on 2026-11-11. The charter's milestone name for it is `PCD-Phase2` (M10). Seeding of Phase 3 is not yet run.
 
 ## Decision
 
 **Phase:** Phase 2, Advanced Agent Learning with Governance-Integrated Feedback Loops (`PMP-BL-v1.1.0`)
 
-**Decision:** PENDING (APPROVE, REJECT or REVISE)
+**Decision:** APPROVE, by Menno Drescher (Project Sponsor), 2026-11-11, via `approve-intent-refinement`, episode `fa8603c7` (`scripts/approve.py`; ranking approve 0.789, request revision 0.226). **Phase 3 baseline id: `PMP-BL-v1.2.0`**, a minor increment per ADR-008 section 4.6.1, to be formalized with `approve-pmp` at the Stage 7 Project artifact approvals; `PMP-BL-v1.1.0` stays the baseline until then.
 
 **Date:** 2026-11-11
 
@@ -30,10 +30,10 @@ Phase 2 delivered its technical scope: every story of the six baseline epics is 
 ## Evidence
 
 - [x] Readiness audit run: no blocker found (IRP section 1)
-- [ ] All hypotheses adjudicated to a terminal state: **no**, 19 of 27 carried forward (IRP section 2, Sponsor decision needed)
-- [ ] Low-pass damping applied: not computed (IRP section 3)
-- [ ] Strategic pivot capacity validated: not computed (IRP section 4)
-- [ ] Intent Refinement Proposal approved: pending
+- [x] Hypotheses: 8 are Validated; the 19 non-terminal are **carried over to Phase 3** unchanged (Sponsor decision, 2026-11-11), an exception to the methodology's terminal-state rule
+- [x] Low-pass damping: recorded **not applicable** (Sponsor, 2026-11-11)
+- [x] Strategic pivot capacity: recorded **not applicable** (Sponsor, 2026-11-11)
+- [x] Intent Refinement Proposal approved: yes, episode `fa8603c7`
 
 ## Hypotheses at close (27)
 
@@ -71,6 +71,6 @@ Source: `Ideation-Document.md` section 2.2, status column as recorded. 8 Validat
 
 ## Next steps if approved
 
-1. Register the approval episode and set the Phase 3 baseline id.
+1. Done 2026-11-11: approval episode `fa8603c7` registered; Phase 3 baseline id `PMP-BL-v1.2.0`.
 2. Seed the Phase 3 Spark and Ideation Document from IRP section 5; HYP-AL-028 and the hand-authored document edits (GC-P2-05) come with it.
 3. Close Phase 2 in the Project Status Register.

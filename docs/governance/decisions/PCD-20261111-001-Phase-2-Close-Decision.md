@@ -13,7 +13,7 @@ related_proposal: "IRP-20261111-001"
 
 # Phase Close Decision: PCD-20261111-001
 
-> **Approved** by the Project Sponsor on 2026-11-11. The charter's milestone name for it is `PCD-Phase2` (M10). Seeding of Phase 3 is not yet run.
+> **Approved** by the Project Sponsor on 2026-11-11. The charter's milestone name for it is `PCD-Phase2` (M10). Phase 3 seeding (`Spark-Capture.md` v3.0, `Ideation-Document.md` v1.15, `CLK-20261111-001`) and `Project-Status-Register.md` closure completed 2026-11-11.
 
 ## Decision
 
@@ -72,5 +72,5 @@ Source: `Ideation-Document.md` section 2.2, status column as recorded. 8 Validat
 ## Next steps if approved
 
 1. Done 2026-11-11: approval episode `fa8603c7` registered; Phase 3 baseline id `PMP-BL-v1.2.0`.
-2. Seed the Phase 3 Spark and Ideation Document from IRP section 5; HYP-AL-028 and the hand-authored document edits (GC-P2-05) come with it.
-3. Close Phase 2 in the Project Status Register.
+2. Done 2026-11-11: seeded Phase 3 `Spark-Capture.md` (v3.0) and `Ideation-Document.md` (v1.15, including `HYP-AL-028` registration and §2.2.5 carry-over disposition) from IRP section 5, and recorded Cumulative Lineage Kernel `CLK-20261111-001` (`579b62bfe11607b2287b16a99fdc36d14350fe864ffef1d60a8ca1712247c8b8`); remaining `GC-P2-05` hand-authored document edits (Charter, Business Case, Benefits Management Plan) carry into Phase 3 initiation.
+3. Done 2026-11-11: closed Phase 2 in `Project-Status-Register.md`.

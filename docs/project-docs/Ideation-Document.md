@@ -5,15 +5,16 @@ pmbok_process: "Pre-Project / Design Assumption Formulation (Cognitive Feedback)
 lifecycle_stage: "Stage 1 (Intent) & Stage 3 (Hypothesis)"
 governance_policy: "approve-ideation"
 artifact_id: "ideation-document"
-version: "1.14"
-phase: "Phase 2"
-pmp_baseline: "PMP-BL-v1.0.1"
-target_pmp_baseline: "PMP-BL-v1.1.0"
-lineage_kernel_hash: "2402e037cb69f8e416b53caf237249cc1b6f868f1324c5e4083d67080006bf02"
+version: "1.15"
+phase: "Phase 3"
+pmp_baseline: "PMP-BL-v1.1.0"
+target_pmp_baseline: "PMP-BL-v1.2.0"
+lineage_kernel_hash: "579b62bfe11607b2287b16a99fdc36d14350fe864ffef1d60a8ca1712247c8b8"
 inputs:
-  - "Spark-Capture.md (v2.0)"
-  - "Stage 18 Intent Refinement Proposal (IRP-20261106-001)"
-  - "Phase 1 Close Decision (PCD-20261106-001)"
+  - "Spark-Capture.md (v3.0)"
+  - "Stage 18 Intent Refinement Proposal (IRP-20261111-001)"
+  - "Phase 2 Close Decision (PCD-20261111-001)"
+  - "Cumulative Lineage Kernel (CLK-20261111-001)"
 outputs:
   - "Ideation-Document.md"
   - "Project-Charter.md"
@@ -26,11 +27,11 @@ outputs:
 | Field | Value |
 |---|---|
 | Document Title | Ideation Document — agent-learning SDK |
-| Version | 1.14 |
+| Version | 1.15 |
 | Date | 2026-11-07 |
-| Updated | 2026-11-10: section 2.1 rows #8, #9, #10, #11, #13, #17 and #22 synced from candidate to Implemented (Epics 14, 15, 16, 17, 18, 21 and 22 are built); no scope change. Aligned with `tests/fixtures/methodology_catalog/ideation_states.json` (LL-007) and the ADR-036 and Epic 36 Stage 16 amendments of the same date. |
-| Status | Approved (Phase 1 Closed via PCD-20261106-001; Phase 2 Initiated under PMP-BL-v1.0.1). Adjudicated via `approve-ideation` (robust utility 0.822, expected utility 0.875, episode `a8db17b5-9134-4b7c-97f9-80cfe9ade4a1`; supersedes Phase 1 episode `c882fd98-427f-49e7-ae84-b985fa372230`). Lineage Kernel `2402e037cb69f8e4...`. |
-| Source | `README.md`, `PYPI.md`, `docs/decision-making.md`, `docs/autonomy-complexity.md`, `docs/experiential-reinforcement-learning-comparison.md`, `docs/scout-agent-learn-skill.md`, `docs/scout-automation-agent-learning.md`, `docs/research/main.tex`, `examples/next_best_action.py`, `src/agent_learning/decision.py`/`cli.py`/`audit.py`, `git log`, and empirical Phase 1 execution results across 1,840 tests and 58 completed stories |
+| Updated | 2026-11-11: Seeded for Phase 3 from Stage 18 Intent Refinement (`IRP-20261111-001`, `PCD-20261111-001` episode `fa8603c7`, `CLK-20261111-001`). Added `HYP-AL-028` (DPO sample efficiency, resolving Stage 16 finding F1 / `GC-P2-05` in this document while keeping `HYP-AL-018` as LinUCB) and §2.2.5 recording the 19 carried-over hypotheses and Phase 3 scope inputs. Earlier 2026-11-10: section 2.1 rows #8, #9, #10, #11, #13, #17 and #22 synced from candidate to Implemented (Epics 14, 15, 16, 17, 18, 21 and 22 are built); aligned with `tests/fixtures/methodology_catalog/ideation_states.json` (LL-007). |
+| Status | Seeded for Phase 3 (Phase 2 Closed via PCD-20261111-001, episode `fa8603c7`; Phase 3 target baseline `PMP-BL-v1.2.0` set by PCD, formalized at Stage 7 artifact approvals; anchor baseline remains `PMP-BL-v1.1.0` until then). Prior Phase 2 version adjudicated via `approve-ideation` (episode `a8db17b5-9134-4b7c-97f9-80cfe9ade4a1`; superseded Phase 1 episode `c882fd98-427f-49e7-ae84-b985fa372230`). Prospective `approve-ideation` for Phase 3 runs at Stage 1. Lineage Kernel `579b62bfe11607b2...` (`CLK-20261111-001`). |
+| Source | `README.md`, `PYPI.md`, `docs/decision-making.md`, `docs/autonomy-complexity.md`, `docs/experiential-reinforcement-learning-comparison.md`, `docs/scout-agent-learn-skill.md`, `docs/scout-automation-agent-learning.md`, `docs/research/main.tex`, `examples/next_best_action.py`, `src/agent_learning/decision.py`/`cli.py`/`audit.py`, `src/agent_learning_ext/`, `git log`, and empirical Phase 1 & Phase 2 execution results across 2,723 passing tests and 102 completed stories |
 
 This is the first PM-governance-style document this project has — there is
 no existing ADR/BRD/FDD/Ideation structure in `agent-learning` today, only
@@ -372,15 +373,31 @@ decision.
 | **HYP-AL-023** | ValueHypothesis | Active-learning triage (#32) lets a fixed human review budget catch more incorrect autonomous decisions than random sampling. | If at equal review budget it catches no more errors than random sampling, invalidated. | **Formulated** |
 | **HYP-AL-024** | FeasibilityHypothesis | Outcome-conditioned exemplar selection (#26), with the selection recorded in `Episode.metadata`, improves a `full`-authority decision's accuracy over using the most recent episodes. | If accuracy on held-out cases is no better than the recency baseline, or the selection cannot be reconstructed from the record, invalidated. | **Formulated** |
 
-##### 2.2.4 Phase 2 Intent Refinement Hypotheses (HYP-AL-025–027), registered 2026-11-06
+##### 2.2.4 Phase 2 Intent Refinement & DPO Hypotheses (HYP-AL-025–028), registered 2026-11-06 and 2026-11-11
 
-Each operationalizes one of the approved Phase 2 directives seeded in `Spark-Capture.md` v2.0 from Stage 18 Intent Refinement (`IRP-20261106-001` / `PCD-20261106-001`), targeting baseline `PMP-BL-v1.1.0`.
+`HYP-AL-025` to `027` operationalize the Phase 2 directives seeded in `Spark-Capture.md` v2.0 (`IRP-20261106-001` / `PCD-20261106-001`). `HYP-AL-028` registers the DPO pairwise preference sample-efficiency hypothesis from `Business-Case.md` §4b (Stage 16 finding F1 / `GC-P2-05`, approved by the Sponsor on 2026-11-10 so `HYP-AL-018` retains its LinUCB meaning in §2.2.3).
 
 | ID | Type | Statement | Falsification criteria | Status |
 |---|---|---|---|---|
-| **HYP-AL-025** | TechnicalHypothesis | **Governance-Integrated Learning (`SPARK-001`):** Embedding policy-based decision gates and Bayesian authority thresholds directly into learning pipelines reduces unhedged autonomous actions by $\ge 95\%$ compared to ungated bandit exploration. | If an agent with embedded policy authority gates takes an unhedged autonomous action exceeding its confidence bounds in $> 5\%$ of evaluation episodes, invalidated. | **Formulated** — Seeded via Stage 18 cognitive feedback; active in Phase 2. |
-| **HYP-AL-026** | TechnicalHypothesis | **Cognitive Feedback Damping (`SPARK-002`):** Passing realized outcome deltas through an exponential low-pass filter ($\beta = 0.75$) with warmup bias correction eliminates oscillatory strategic whiplash across multi-phase intent refinements ($\Delta_{max} \le 0.25$). | If filtered outcome deltas exhibit sign-reversal oscillations with magnitude $> 0.25$ between consecutive adaptation cycles, invalidated. | **Validated (Phase 1 Close)** — Evaluated in Stage 18 (`output/stage-18/execution-results.json`): smoothed 20 deltas from max 0.4935 to max 0.2351 with `whiplash_detected: false`. Retained for Phase 2 closed-loop monitoring. |
-| **HYP-AL-027** | FeasibilityHypothesis | **Adaptive Capacity Management (`SPARK-003`):** Dynamically bounding strategic pivots to homeostatic adaptation capacity ($P_{max} \le \lceil C_{adapt} / 2 \rceil$) maintains S3–S4 operational stability across continuous project evolution. | If the number of authorized strategic pivots exceeds half the measured adaptation capacity without triggering an escalation gate or causing build regressions, invalidated. | **Validated (Phase 1 Close)** — Evaluated in Stage 18 (4 pivots $\le 5$ limit under $C_{adapt}=10$, `WITHIN_LIMITS`). Active constraint for Phase 2 adaptation planning under `PMP-BL-v1.1.0`. |
+| **HYP-AL-025** | TechnicalHypothesis | **Governance-Integrated Learning (`SPARK-001`):** Embedding policy-based decision gates and Bayesian authority thresholds directly into learning pipelines reduces unhedged autonomous actions by $\ge 95\%$ compared to ungated bandit exploration. | If an agent with embedded policy authority gates takes an unhedged autonomous action exceeding its confidence bounds in $> 5\%$ of evaluation episodes, invalidated. | **Formulated** — Seeded via Stage 18 cognitive feedback; carried over to Phase 3 per `PCD-20261111-001`. |
+| **HYP-AL-026** | TechnicalHypothesis | **Cognitive Feedback Damping (`SPARK-002`):** Passing realized outcome deltas through an exponential low-pass filter ($\beta = 0.75$) with warmup bias correction eliminates oscillatory strategic whiplash across multi-phase intent refinements ($\Delta_{max} \le 0.25$). | If filtered outcome deltas exhibit sign-reversal oscillations with magnitude $> 0.25$ between consecutive adaptation cycles, invalidated. | **Validated (Phase 1 Close)** — Evaluated in Stage 18 (`output/stage-18/execution-results.json`): smoothed 20 deltas from max 0.4935 to max 0.2351 with `whiplash_detected: false`. Retained for closed-loop monitoring. |
+| **HYP-AL-027** | FeasibilityHypothesis | **Adaptive Capacity Management (`SPARK-003`):** Dynamically bounding strategic pivots to homeostatic adaptation capacity ($P_{max} \le \lceil C_{adapt} / 2 \rceil$) maintains S3–S4 operational stability across continuous project evolution. | If the number of authorized strategic pivots exceeds half the measured adaptation capacity without triggering an escalation gate or causing build regressions, invalidated. | **Validated (Phase 1 Close)** — Evaluated in Stage 18 (4 pivots $\le 5$ limit under $C_{adapt}=10$, `WITHIN_LIMITS`). Retained as active adaptation constraint. |
+| **HYP-AL-028** | TechnicalHypothesis | **Discrete Policy DPO Sample Efficiency (Methodology #13, Epic 18, ADR-018):** DPO loss optimization on discrete policy logits converges with $\ge 30\%$ fewer feedback interactions than online REINFORCE on pairwise review benchmark datasets. | Falsified if DPO requires equal or more sample episodes than REINFORCE on pairwise review benchmark datasets. | **Formulated** — Registered 2026-11-11 at Phase 2 close / Phase 3 seeding (`Stage-16-Governance-Change-Phase2.md` F1, `ADP-20261110-002` `GC-P2-05`, `PCD-20261111-001`). The DPO engine is implemented in Epic 18 (`src/agent_learning_ext/`); empirical sample-efficiency comparison against REINFORCE carries into Phase 3. |
+
+##### 2.2.5 Phase 3 Seeding & Carry-Over Disposition (`IRP-20261111-001` / `PCD-20261111-001`), 2026-11-11
+
+At Phase 2 close (`PCD-20261111-001`, episode `fa8603c7`, Lineage Kernel `CLK-20261111-001`), the Project Sponsor approved the following hypothesis and scope dispositions for Phase 3 (`Spark-Capture.md` v3.0, target baseline `PMP-BL-v1.2.0`):
+
+1. **Hypotheses at Handoff (28 total):**
+   - **8 Validated:** `HYP-AL-001`, `002`, `003`, `006`, `008`, `009`, `026`, `027`.
+   - **19 Non-Terminal Carried Over Unchanged (Sponsor exception to collapse rule):** `HYP-AL-004`, `005` (`Testing`); `HYP-AL-007`, `010` to `025` (`Formulated`). No Bayes factors were fabricated where external stores or datasets (`LL-065`) were absent.
+   - **1 Newly Registered:** `HYP-AL-028` (`Formulated`, DPO sample efficiency).
+2. **Seeded Phase 3 Scope Inputs (`IRP-20261111-001` §5):**
+   - **Deferred Adaptation Plan items (`ADP-20261110-002`, `CR-20261111-001`):** `GC-P2-04` (Tier 2 skill backfill for `LL-014`, `015`, `046`, `047`, `065`–`067`), `GC-P2-05` (repointing `HYP-AL-018` $\to$ `HYP-AL-028` and `agent-training-ext/` $\to$ `src/agent_learning_ext/` in Charter, Business Case, and Benefits Management Plan), `GC-P2-06` and `GC-P2-07` (regenerating the PMP and 9 subsidiary plans at Stage 7 with human-engineering effort units), `IMP-050` (Step 8 review checklist), and `IMP-031` (Tier 2 propagation check script).
+   - **Approved PR Gate & Schedule Fixes:** `IMP-065`, `066`, `067` (PR gate resolved-finding handling, Q heading coverage, malformed bullets) and `IMP-068` (actuals against the schedule plan).
+   - **Carry-Over Epics & Deferred ADR Findings:** `Epic 23`, `Epic 24`, `Epic 39`; `F3` (`ADR-022` Invariants 2 and 5 / `IMP-053`) and `F4` (`ADR-016` Invariant 4 / `IMP-054`).
+   - **Rolled-In Phase Next Improvements:** `IMP-002`, `006`, `019`, `025`, `027`, `028`, `039`, plus the open decision on whether `complete_story.py done` drops `DEFAULT_IGNORES`.
+   - **Multi-Agent & Register Ideation Inputs (`CR-20261111-001` §4d–4f):** Active `Story-Execution-Register.md` hook-up, `Task-Ownership-Register` (agent bidding and lease expiration), and the seven pre-WBS preparations before multiple agents pick up scheduled WBS work packages.
 
 > **Research Library Reference (LL-044):** Full empirical validation criteria, mathematical formulations (Wilson lower bounds, low-pass filter equations, adaptive capacity bounding), and the native integration blueprint with `sidpa-template` governance workflows are decoupled and documented in [`docs/research/ideation/hypothesis-validation-and-governance-integration.md`](../../research/ideation/hypothesis-validation-and-governance-integration.md).
 

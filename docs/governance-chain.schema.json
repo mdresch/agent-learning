@@ -40,6 +40,12 @@
         "n": { "type": "integer", "minimum": 1, "description": "1-based order within the stage." },
         "title": { "type": "string", "description": "Short imperative description of the step." },
         "isGate": { "type": "boolean", "default": false, "description": "True when this step is the stage's own approval/evidence gate rather than a drafting or checking step." },
+        "dependsOn": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 1 },
+          "default": [],
+          "description": "Step numbers (n) within this SAME stage that must be 'done' first. Empty means this step's only predecessor is the stage's own upstream dependency (see Stage.after) — i.e. it is one of the stage's first steps. More than one entry is a fan-in (e.g. a gate step that covers two drafting steps run in parallel)."
+        },
         "status": { "$ref": "#/$defs/status" },
         "evidence": {
           "type": "array",
@@ -57,6 +63,12 @@
         "key": { "type": "string", "description": "Canonical short key, e.g. \"intent\", \"pillars\", \"refinement\"." },
         "name": { "type": "string", "description": "Canonical display name, exactly as docs/intent-to-outcome-chain-coverage.md gives it. Never abbreviated." },
         "pmbok": { "type": "string", "description": "PMBOK 8 process group and number/name this stage maps to." },
+        "after": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 1, "maximum": 18 },
+          "default": [],
+          "description": "Stage ids whose final step must be 'done' before this stage's first step(s) can start. Empty only for stage 1. Mirrors the 'after' field the chain's stage registry used before this file existed; this is the cross-stage edge that a Step's own dependsOn (intra-stage only) does not cover."
+        },
         "gateMode": { "$ref": "#/$defs/gateMode" },
         "gates": {
           "type": "array",
@@ -121,6 +133,11 @@
           "type": "string",
           "const": "A node's status is the most-blocking status among its children, ranked blocked/gap > in_progress > not_started > done. A Stage is 'done' only when every one of its Steps is 'done'; the same rule rolls Stage status up to Group, and Group status up to Phase.",
           "description": "Documents the rollup rule; not meant to be edited."
+        },
+        "dependencyRule": {
+          "type": "string",
+          "const": "Two dependency layers, not one: Stage.after names the stage ids (cross-stage, Finish-to-Start) that must be done before this stage's own first step(s) can start. Step.dependsOn names step numbers (n) within that SAME stage only. A step with an empty dependsOn is a stage's own first step and so depends, transitively, on every stage named in its Stage.after — that edge is not repeated on the step itself.",
+          "description": "Documents how the two dependency fields compose; not meant to be edited."
         },
         "groups": {
           "type": "array",

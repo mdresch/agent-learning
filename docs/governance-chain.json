@@ -1,0 +1,367 @@
+{
+  "phase": {
+    "id": "Phase 1",
+    "status": "not_started",
+    "startedAt": null,
+    "closedAt": null,
+    "rollupRule": "A node's status is the most-blocking status among its children, ranked blocked/gap > in_progress > not_started > done. A Stage is 'done' only when every one of its Steps is 'done'; the same rule rolls Stage status up to Group, and Group status up to Phase.",
+    "groups": [
+      {
+        "key": "initiating",
+        "name": "Initiating",
+        "status": "not_started",
+        "stages": [
+          {
+            "id": 1,
+            "key": "intent",
+            "name": "Intent",
+            "pmbok": "Pre-Project: Strategic Need Identification",
+            "gateMode": "policy",
+            "gates": [{ "taskId": "approve-ideation", "authority": "full" }],
+            "artifacts": ["docs/project-docs/Spark-Capture.md", "docs/project-docs/Ideation-Document.md"],
+            "status": "not_started",
+            "steps": [
+              { "n": 1, "title": "Draft Spark Capture — state the trigger and strategic driver", "status": "not_started", "evidence": [] },
+              { "n": 2, "title": "Draft Ideation Document — objectives (§1.2) and methodologies (§2.1)", "status": "not_started", "evidence": [] },
+              { "n": 3, "title": "Gate: approve-ideation, run prospectively on the current version", "isGate": true, "status": "not_started", "evidence": [] }
+            ]
+          },
+          {
+            "id": 3,
+            "key": "hypothesis",
+            "name": "Hypothesis",
+            "pmbok": "Pre-Project: Design Assumption Formulation",
+            "gateMode": "policy",
+            "gates": [{ "taskId": "classify-hypothesis-status", "authority": "full" }],
+            "artifacts": ["docs/project-docs/Ideation-Document.md"],
+            "status": "not_started",
+            "steps": [
+              { "n": 1, "title": "State every HYP-* as testable, with a named evidence source", "status": "not_started", "evidence": [] },
+              { "n": 2, "title": "Justify status (testing/validated/invalidated) from evidence, not the authoring-time label", "status": "not_started", "evidence": [] },
+              { "n": 3, "title": "Gate: classify-hypothesis-status", "isGate": true, "status": "not_started", "evidence": [] }
+            ]
+          },
+          {
+            "id": 4,
+            "key": "benefit",
+            "name": "Benefit",
+            "pmbok": "Business Documents: Benefits Realization Planning",
+            "gateMode": "policy",
+            "gates": [{ "taskId": "approve-business-case", "authority": "full" }],
+            "artifacts": ["docs/project-docs/Business-Case.md", "docs/project-docs/Benefits-Management-Plan.md"],
+            "status": "not_started",
+            "steps": [
+              { "n": 1, "title": "Draft Business Case — value proposition, problems, gap matrix", "status": "not_started", "evidence": [] },
+              { "n": 2, "title": "Draft Benefits Management Plan (Benefits Statement) — approved before the Charter", "status": "not_started", "evidence": [] },
+              { "n": 3, "title": "Gate: approve-business-case", "isGate": true, "status": "not_started", "evidence": [] }
+            ]
+          },
+          {
+            "id": 2,
+            "key": "objective",
+            "name": "Objective",
+            "pmbok": "4.1 Develop Project Charter",
+            "gateMode": "policy",
+            "gates": [{ "taskId": "approve-charter", "authority": "full" }],
+            "artifacts": ["docs/project-docs/Project-Charter.md"],
+            "status": "not_started",
+            "steps": [
+              { "n": 1, "title": "Draft Project Charter — measurable objectives, sponsor, approval-limit thresholds", "status": "not_started", "evidence": [] },
+              { "n": 2, "title": "Build it on the approved Business Case and Benefits Statement", "status": "not_started", "evidence": [] },
+              { "n": 3, "title": "Gate: approve-charter", "isGate": true, "status": "not_started", "evidence": [] }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "planning",
+        "name": "Planning",
+        "status": "not_started",
+        "stages": [
+          {
+            "id": 5,
+            "key": "pillars",
+            "name": "Pillars & Architecture",
+            "pmbok": "Pillars Exercise (post-Charter decomposition)",
+            "gateMode": "policy",
+            "gates": [
+              { "taskId": "approve-project-pillars", "authority": "full" },
+              { "taskId": "approve-adr", "authority": "full" }
+            ],
+            "artifacts": ["docs/project-docs/Project-Pillars.md", "docs/adr/"],
+            "status": "not_started",
+            "steps": [
+              { "n": 1, "title": "Draft Project Pillars — smallest set covering every objective, gap and benefit, cited to source", "status": "not_started", "evidence": [] },
+              { "n": 2, "title": "Gate: approve-project-pillars", "isGate": true, "status": "not_started", "evidence": [] },
+              { "n": 3, "title": "Draft high-level ADRs, one primary topic pillar per ADR", "status": "not_started", "evidence": [] },
+              { "n": 4, "title": "Gate: approve-adr, once per ADR", "isGate": true, "status": "not_started", "evidence": [] }
+            ]
+          },
+          {
+            "id": 6,
+            "key": "requirement",
+            "name": "Requirement",
+            "pmbok": "5.2 Collect Requirements, 5.3 Define Scope, 5.4 Create WBS",
+            "gateMode": "policy",
+            "gates": [
+              { "taskId": "approve-adr", "authority": "full" },
+              { "taskId": "approve-brd", "authority": "full" },
+              { "taskId": "approve-fdd", "authority": "full" },
+              { "taskId": "approve-user-stories", "authority": "full" }
+            ],
+            "artifacts": ["docs/adr/", "docs/project-docs/Business-Requirements/", "docs/project-docs/Functional-Design/", "docs/user-stories/"],
+            "status": "not_started",
+            "steps": [
+              { "n": 1, "title": "Per epic: draft its ADR, BRD, FDD and Stories (hierarchy ADR over BRD/FDD over Story)", "status": "not_started", "evidence": [] },
+              { "n": 2, "title": "Verify every acceptance criterion maps to one contract test", "status": "not_started", "evidence": [] },
+              { "n": 3, "title": "Verify every path a story commits to is tracked by git (git ls-files)", "status": "not_started", "evidence": [] },
+              { "n": 4, "title": "Gate: approve-adr, approve-brd, approve-fdd, approve-user-stories, per epic", "isGate": true, "status": "not_started", "evidence": [] }
+            ]
+          },
+          {
+            "id": 7,
+            "key": "project",
+            "name": "Project (PMP & Baselines)",
+            "pmbok": "4.2 Develop Project Management Plan",
+            "gateMode": "policy",
+            "gates": [
+              { "taskId": "approve-subsidiary-plan", "authority": "full" },
+              { "taskId": "approve-pmp", "authority": "full" }
+            ],
+            "artifacts": ["docs/project-docs/management-plans/", "docs/project-docs/Project-Management-Plan.md"],
+            "status": "not_started",
+            "steps": [
+              { "n": 1, "title": "Generate the 9 subsidiary plans via the pmbok-planning tooling (never hand-written)", "status": "not_started", "evidence": [] },
+              { "n": 2, "title": "Gate: approve-subsidiary-plan, once per plan, before the PMP", "isGate": true, "status": "not_started", "evidence": [] },
+              { "n": 3, "title": "Assemble and baseline the PMP (PMP-BL-vX.Y.Z), citing the foundational documents by section", "status": "not_started", "evidence": [] },
+              { "n": 4, "title": "Gate: approve-pmp", "isGate": true, "status": "not_started", "evidence": [] }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "planning_to_executing",
+        "name": "Planning to Executing",
+        "status": "not_started",
+        "stages": [
+          {
+            "id": 8,
+            "key": "readiness",
+            "name": "Implementation Readiness",
+            "pmbok": "5.4 WBS and Execution Authorization Gate",
+            "gateMode": "policy",
+            "gates": [{ "taskId": "validate-intent-foundation", "authority": "full" }],
+            "artifacts": ["docs/user-stories/"],
+            "status": "not_started",
+            "steps": [
+              { "n": 1, "title": "Confirm BRD, FDD and Stories are approved, not only author-marked Ready", "status": "not_started", "evidence": [] },
+              { "n": 2, "title": "Confirm the named contract test, a provisionable environment, a reconciled baseline — no test run at this gate", "status": "not_started", "evidence": [] },
+              { "n": 3, "title": "Gate: validate-intent-foundation, per epic", "isGate": true, "status": "not_started", "evidence": [] }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "executing",
+        "name": "Executing",
+        "status": "not_started",
+        "stages": [
+          {
+            "id": 9,
+            "key": "deliverable",
+            "name": "Deliverable",
+            "pmbok": "4.3 Direct and Manage Project Work",
+            "gateMode": "evidence",
+            "gates": [],
+            "artifacts": ["implementation-log.md"],
+            "status": "not_started",
+            "steps": [
+              { "n": 1, "title": "Run the implement-story skill per story (hand off; never write code directly)", "status": "not_started", "evidence": [] },
+              { "n": 2, "title": "Inspect any existing branch/worktree read-only before continuing", "status": "not_started", "evidence": [] },
+              { "n": 3, "title": "Human merges each story PR on GitHub, per the PR-complexity rubric", "status": "not_started", "evidence": [] }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "monitoring_and_controlling",
+        "name": "Monitoring and Controlling",
+        "status": "not_started",
+        "stages": [
+          {
+            "id": 10,
+            "key": "verification",
+            "name": "Verification Evidence",
+            "pmbok": "8.3 Control Quality",
+            "gateMode": "evidence",
+            "gates": [],
+            "artifacts": ["tests/"],
+            "status": "not_started",
+            "steps": [
+              { "n": 1, "title": "Observe each contract test RED, then GREEN", "status": "not_started", "evidence": [] },
+              { "n": 2, "title": "Run the full suite once (uv run pytest, nothing excluded); record the real count", "status": "not_started", "evidence": [] },
+              { "n": 3, "title": "Route a failing test to heal-contract-failure (human-run); report environment errors, don't heal them", "status": "not_started", "evidence": [] }
+            ]
+          },
+          {
+            "id": 11,
+            "key": "audit",
+            "name": "Audit Record",
+            "pmbok": "8.2 Manage Quality Audits",
+            "gateMode": "policy",
+            "gates": [{ "taskId": "approve-audit-record", "authority": "full" }],
+            "artifacts": ["docs/registers/Audit-Register.md"],
+            "status": "not_started",
+            "steps": [
+              { "n": 1, "title": "Draft Audit Register entries, each citing the deliverable and the verification log that shows it", "status": "not_started", "evidence": [] },
+              { "n": 2, "title": "Attach a corrective action to every non-conformance", "status": "not_started", "evidence": [] },
+              { "n": 3, "title": "Gate: approve-audit-record, per entry", "isGate": true, "status": "not_started", "evidence": [] }
+            ]
+          },
+          {
+            "id": 12,
+            "key": "outcome",
+            "name": "Actual Outcome",
+            "pmbok": "5.5 Validate Scope and Value Realization",
+            "gateMode": "evidence",
+            "gates": [],
+            "artifacts": ["docs/project-docs/Benefits-Management-Plan.md"],
+            "status": "not_started",
+            "steps": [
+              { "n": 1, "title": "Compare realized value against the Benefits Statement using observed data only — never an estimated figure", "status": "not_started", "evidence": [] }
+            ]
+          },
+          {
+            "id": 13,
+            "key": "observation",
+            "name": "Observation",
+            "pmbok": "4.5 Monitor and Control Project Work",
+            "gateMode": "evidence",
+            "gates": [],
+            "artifacts": ["implementation-log.md"],
+            "status": "not_started",
+            "steps": [
+              { "n": 1, "title": "Log what ran, when, and the evidence — observation only, no interpretation and no fix", "status": "not_started", "evidence": [] }
+            ]
+          },
+          {
+            "id": 14,
+            "key": "insight",
+            "name": "Insight",
+            "pmbok": "4.4 Manage Project Knowledge (Synthesis)",
+            "gateMode": "human_review",
+            "gates": [],
+            "artifacts": [],
+            "status": "not_started",
+            "steps": [
+              { "n": 1, "title": "Synthesize insights; each one cites the observations behind it", "status": "not_started", "evidence": [] },
+              { "n": 2, "title": "Confirm the knowledge base never supersedes an accepted project document", "status": "not_started", "evidence": [] },
+              { "n": 3, "title": "Human signs off on the insight report", "isGate": true, "status": "not_started", "evidence": [] }
+            ]
+          },
+          {
+            "id": 15,
+            "key": "lesson",
+            "name": "Lesson Learned",
+            "pmbok": "4.4 Manage Project Knowledge (Lessons Learned Register)",
+            "gateMode": "human_review",
+            "gates": [],
+            "artifacts": ["docs/project-docs/Lessons-Learned-Register.md", "docs/project-docs/Continuous-Improvement-Register.md"],
+            "status": "not_started",
+            "stepsSource": "docs/project-docs/Methodology/Stage-15-Lesson-Learned-Methodology.md",
+            "steps": [
+              { "n": 1, "title": "Verify Stage 13 & 14 completeness", "status": "not_started", "evidence": [] },
+              { "n": 2, "title": "Crystallize each insight into a lesson — one LL-### per INSIGHT-###", "status": "not_started", "evidence": [] },
+              { "n": 3, "title": "Create the knowledge-graph entry (Obsidian Lesson-nnnn)", "status": "not_started", "evidence": [] },
+              { "n": 4, "title": "Run the quality-assurance checklist", "status": "not_started", "evidence": [] },
+              { "n": 5, "title": "Cross-reference linking", "status": "not_started", "evidence": [] },
+              { "n": 6, "title": "Set the tier-propagation targets", "status": "not_started", "evidence": [] },
+              { "n": 7, "title": "Obsidian brain ingestion", "status": "not_started", "evidence": [] },
+              { "n": 8, "title": "Track knowledge-graph quality metrics", "isGate": true, "status": "not_started", "evidence": [] }
+            ]
+          },
+          {
+            "id": 16,
+            "key": "governance",
+            "name": "Governance Change",
+            "pmbok": "4.6 Perform Integrated Change Control",
+            "gateMode": "pipeline",
+            "gates": [
+              { "taskId": "classify-diff-type", "authority": "full" },
+              { "taskId": "escalate-diff-response", "authority": "low" }
+            ],
+            "artifacts": [],
+            "status": "not_started",
+            "stepsSource": "docs/project-docs/Methodology/Stage-16-Governance-Change-Methodology.md",
+            "steps": [
+              { "n": 1, "title": "Input validation", "status": "not_started", "evidence": [] },
+              { "n": 2, "title": "Triage the whole Lessons Learned and Continuous Improvement registers, not just flagged items", "status": "not_started", "evidence": [] },
+              { "n": 3, "title": "classify-diff-type", "isGate": true, "status": "not_started", "evidence": [] },
+              { "n": 4, "title": "Impact assessment", "status": "not_started", "evidence": [] },
+              { "n": 5, "title": "escalate-diff-response", "isGate": true, "status": "not_started", "evidence": [] },
+              { "n": 6, "title": "Prepare the governance amendment (BRP or Subsidiary Plan Amendment)", "status": "not_started", "evidence": [] },
+              { "n": 7, "title": "Record the decision", "status": "not_started", "evidence": [] },
+              { "n": 8, "title": "Stage completion and handoff", "status": "not_started", "evidence": [] }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "closing_adaptive",
+        "name": "Closing and Adaptive Feedback",
+        "status": "not_started",
+        "stages": [
+          {
+            "id": 17,
+            "key": "adaptation",
+            "name": "Adaptation Plan",
+            "pmbok": "4.6 Perform Integrated Change Control (Tailoring)",
+            "gateMode": "policy",
+            "gates": [{ "taskId": "approve-adaptation-plan", "authority": "full" }],
+            "artifacts": ["docs/project-docs/Adaptation-Plan.md"],
+            "status": "not_started",
+            "stepsSource": "docs/project-docs/Methodology/Stage-17-Adaptation-Plan-Methodology.md",
+            "steps": [
+              { "n": 1, "title": "Input validation", "status": "not_started", "evidence": [] },
+              { "n": 2, "title": "Change inventory", "status": "not_started", "evidence": [] },
+              { "n": 3, "title": "Impact mapping", "status": "not_started", "evidence": [] },
+              { "n": 4, "title": "Skill & workflow updates", "status": "not_started", "evidence": [] },
+              { "n": 5, "title": "PMP tailoring (regenerated by tooling, never hand-edited)", "status": "not_started", "evidence": [] },
+              { "n": 6, "title": "Draft the Adaptation Plan document", "status": "not_started", "evidence": [] },
+              { "n": 7, "title": "Validation", "status": "not_started", "evidence": [] },
+              { "n": 8, "title": "Gate: approve-adaptation-plan, then completion", "isGate": true, "status": "not_started", "evidence": [] }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "closing_strategic",
+        "name": "Closing and Strategic Feedback",
+        "status": "not_started",
+        "stages": [
+          {
+            "id": 18,
+            "key": "refinement",
+            "name": "Intent Refinement",
+            "pmbok": "4.7 Close Project or Phase (Cognitive Feedback)",
+            "gateMode": "policy",
+            "gates": [{ "taskId": "approve-intent-refinement", "authority": "full" }],
+            "artifacts": ["docs/project-docs/Intent-Refinement-Proposal.md"],
+            "status": "not_started",
+            "stepsSource": "docs/project-docs/Methodology/Stage-18-Intent-Refinement-Methodology.md",
+            "steps": [
+              { "n": 1, "title": "Readiness audit", "status": "not_started", "evidence": [] },
+              { "n": 2, "title": "Hypothesis inventory", "status": "not_started", "evidence": [] },
+              { "n": 3, "title": "Bayes-factor adjudication", "status": "not_started", "evidence": [] },
+              { "n": 4, "title": "Low-pass damping", "status": "not_started", "evidence": [] },
+              { "n": 5, "title": "Strategic pivot capacity validation", "status": "not_started", "evidence": [] },
+              { "n": 6, "title": "Draft the Intent Refinement Proposal", "status": "not_started", "evidence": [] },
+              { "n": 7, "title": "Gate: approve-intent-refinement", "isGate": true, "status": "not_started", "evidence": [] },
+              { "n": 8, "title": "Phase seeding — generate next phase's Spark Capture & Ideation Document", "status": "not_started", "evidence": [] }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

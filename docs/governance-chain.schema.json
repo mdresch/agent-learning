@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mdresch/agent-learning/docs/governance-chain.schema.json",
+  "title": "Governance Chain Rollup (Phase → Group → Stage → Step)",
+  "description": "Shape of a single project Phase as a 4-level rollup: Phase contains Groups (PMBOK 8 process groups), Group contains Stages (the 18-stage Intent-to-Outcome chain), Stage contains Steps (the stage's own operational procedure). Mirrors docs/intent-to-outcome-chain-coverage.md; that document wins on any disagreement. No agent tool writes this file's content automatically — status fields are set by a human from real evidence (Project-Status-Register.md, gate episodes), never invented.",
+  "type": "object",
+  "required": ["phase"],
+  "properties": {
+    "phase": { "$ref": "#/$defs/Phase" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "status": {
+      "type": "string",
+      "enum": ["not_started", "in_progress", "blocked", "gap", "done"],
+      "description": "blocked/gap outrank in_progress, which outranks not_started, which outranks done, when rolling a child status up to its parent (see rollupRule on Phase)."
+    },
+    "gateMode": {
+      "type": "string",
+      "enum": ["policy", "evidence", "human_review", "pipeline"],
+      "description": "policy: a registered approve-* TaskPolicy needs a human-approved approval. evidence: no approval policy; done needs evidence references. human_review: no registered policy; one human sign-off. pipeline: Stage 16's paired classify/escalate pipeline."
+    },
+    "authority": {
+      "type": "string",
+      "enum": ["full", "low"]
+    },
+    "gate": {
+      "type": "object",
+      "required": ["taskId", "authority"],
+      "properties": {
+        "taskId": { "type": "string" },
+        "authority": { "$ref": "#/$defs/authority" }
+      },
+      "additionalProperties": false
+    },
+    "Step": {
+      "type": "object",
+      "required": ["n", "title", "status"],
+      "properties": {
+        "n": { "type": "integer", "minimum": 1, "description": "1-based order within the stage." },
+        "title": { "type": "string", "description": "Short imperative description of the step." },
+        "isGate": { "type": "boolean", "default": false, "description": "True when this step is the stage's own approval/evidence gate rather than a drafting or checking step." },
+        "status": { "$ref": "#/$defs/status" },
+        "evidence": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Paths, commit hashes or episode ids that show the step is done. Empty until evidence exists; never filled with an invented value."
+        }
+      },
+      "additionalProperties": false
+    },
+    "Stage": {
+      "type": "object",
+      "required": ["id", "key", "name", "pmbok", "gateMode", "status", "steps"],
+      "properties": {
+        "id": { "type": "integer", "minimum": 1, "maximum": 18 },
+        "key": { "type": "string", "description": "Canonical short key, e.g. \"intent\", \"pillars\", \"refinement\"." },
+        "name": { "type": "string", "description": "Canonical display name, exactly as docs/intent-to-outcome-chain-coverage.md gives it. Never abbreviated." },
+        "pmbok": { "type": "string", "description": "PMBOK 8 process group and number/name this stage maps to." },
+        "gateMode": { "$ref": "#/$defs/gateMode" },
+        "gates": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/gate" },
+          "default": []
+        },
+        "artifacts": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "description": "The documents or directories this stage's steps read or produce."
+        },
+        "status": { "$ref": "#/$defs/status" },
+        "stepsSource": {
+          "type": "string",
+          "description": "Path to the authoritative process guide these steps were taken from, when one exists beyond stages.json/the coverage doc (e.g. a Methodology/Stage-N-*.md for stages 15-18). Omitted for stages with no separate guide."
+        },
+        "steps": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Step" },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "Group": {
+      "type": "object",
+      "required": ["key", "name", "status", "stages"],
+      "properties": {
+        "key": { "type": "string" },
+        "name": {
+          "type": "string",
+          "enum": [
+            "Initiating",
+            "Planning",
+            "Planning to Executing",
+            "Executing",
+            "Monitoring and Controlling",
+            "Closing and Adaptive Feedback",
+            "Closing and Strategic Feedback"
+          ],
+          "description": "Exact group string from stages.json/the coverage doc. Never written as \"M&C\" or similar."
+        },
+        "status": { "$ref": "#/$defs/status" },
+        "stages": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Stage" },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "Phase": {
+      "type": "object",
+      "required": ["id", "status", "groups"],
+      "properties": {
+        "id": { "type": "string", "description": "e.g. \"Phase 1\". One cycle is one project phase." },
+        "status": { "$ref": "#/$defs/status" },
+        "startedAt": { "type": ["string", "null"], "format": "date", "description": "Set only from a recorded stage_start decision. Null until then." },
+        "closedAt": { "type": ["string", "null"], "format": "date", "description": "Set only once stages 17 and 18 are both recorded done. Null until then." },
+        "rollupRule": {
+          "type": "string",
+          "const": "A node's status is the most-blocking status among its children, ranked blocked/gap > in_progress > not_started > done. A Stage is 'done' only when every one of its Steps is 'done'; the same rule rolls Stage status up to Group, and Group status up to Phase.",
+          "description": "Documents the rollup rule; not meant to be edited."
+        },
+        "groups": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Group" },
+          "minItems": 7,
+          "maxItems": 7
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

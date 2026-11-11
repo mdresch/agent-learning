@@ -3363,7 +3363,7 @@ This log records completed user stories in accordance with the SIDPA `implement-
 - **Gate waiver (dated, prospective):** on 2026-11-11 `scripts/pr_gate.py 195` halted at margin -0.071 and, after the triage rows above, at -0.004 (required +0.05): Q-195-1 and Q-195-2 were accepted and fixed in `65220f7` but still count in full, because the gate has no notion of a finding resolved by a recorded fix, and Q did not re-review. Menno, Project Sponsor, overrode the rule and approved the merge. Checks (`test`, `build-installer`) had passed on the head commit. The rule itself is not changed by this waiver; it is registered as an improvement.
 
 ## IMP-015 — scripts/export_review_comments.py, review comments as committed fixtures
-- **Commit:** pending (filled on merge)
+- **Commit:** `eb06f85` (PR #198)
 - **Date:** 2026-11-11
 - **Branch:** `feat/imp-015-review-comment-export`
 - **Source:** CR-20261110-002 (GC-P2-03). Improvement, not a story: contract tests in `tests/test_export_review_comments.py`.

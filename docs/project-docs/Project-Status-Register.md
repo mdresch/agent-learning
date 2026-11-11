@@ -7,7 +7,7 @@ governance_policy: "none (orientation snapshot, not a governed approval artifact
 artifact_id: "project-status-register"
 version: "1.0 (live — overwritten in place, not re-versioned, every time orientation changes)"
 owner: "Menno Drescher (sponsor, project manager and maintainer)"
-last_updated: "2026-11-10"
+last_updated: "2026-11-11"
 origin: "Instantiated from sidpa-template docs/registers/Project-Status-Register.template.md (commit e97e8a3)"
 ---
 
@@ -23,7 +23,7 @@ origin: "Instantiated from sidpa-template docs/registers/Project-Status-Register
 
 | Field | Value |
 |---|---|
-| **Current Phase** | Phase 2, "Advanced Agent Learning with Governance-Integrated Feedback Loops" (ACTIVE; PMP baseline PMP-BL-v1.1.0 formalized). Phase 1 is **CLOSED** (2026-11-06 via PCD-20261106-001; IRP-20261106-001 APPROVED). |
+| **Current Phase** | Phase 2, "Advanced Agent Learning with Governance-Integrated Feedback Loops" is **CLOSED** (2026-11-11 via PCD-20261111-001; IRP-20261111-001 APPROVED; Phase 3 READY under baseline id `PMP-BL-v1.2.0`). Phase 1 is **CLOSED** (2026-11-06 via PCD-20261106-001; IRP-20261106-001 APPROVED). |
 | **Current PMP Baseline** | `PMP-BL-v1.1.0` (`Project-Management-Plan.md` v2.0 formalized via `approve-pmp`, episode `31b88dc3-01fc-4e3f-934e-c0be73a8e372`). All 9 subsidiary management plans (Scope, Schedule, Cost, Resource, Stakeholder Engagement, Communications, Procurement, Quality, Risk) are fully validated and updated to v2.0.0 under `PMP-BL-v1.1.0`. |
 | **Session close-off checkpoint** | 2026-11-11 (latest): **`PCD-20261111-001` (Phase 2 Close Decision) APPROVED** by the Sponsor via `approve-intent-refinement`, episode `fa8603c7`; IRP-20261111-001 approved; Phase 3 baseline id `PMP-BL-v1.2.0`, formalized at the Stage 7 artifact approvals; the 19 non-terminal hypotheses carry over to Phase 3. Phase 3 seeding (Spark, Ideation, lineage kernel, archive of Phase 2) is not yet run. Earlier on 2026-11-11: **Stage 17 (Adaptation Plan) is COMPLETED**, recorded at the Sponsor's instruction. Applied: GC-P2-01 to 03 (PRs #187 to #195, with IMP-015 in #198). Deferred to Phase 3 by the Sponsor: GC-P2-04 to 07, IMP-050, IMP-031 (CR-20261111-001, PR #200) and IMP-068. Stages 10 to 12 checked 2026-11-11: only Stage 11 has an approval gate (`approve-audit-record`), approved 2026-11-04 (AUDIT-001 to 006) and 2026-11-10 (AUDIT-007 to 017, episode `198bfc09`); Stage 10 is test evidence and Stage 12 an empirical report, neither with a gate. Next is Stage 18. Earlier checkpoint follows. 2026-11-10 (later): the Stage 15 lessons and improvements (LL-060 to LL-064, IMP-059 to IMP-061) were accepted and the Stage 16 assessment (`Status-Reports/Stage-16-Governance-Change-Phase2.md`) was approved by the Sponsor; CR-20261110-001 was applied (PR #187) and CR-20261110-002 fixes the tooling change set. Stage 17 is next and nothing in it is done. Earlier checkpoint of 2026-11-10 follows. Every story of the six Phase 2 baseline epics (14, 16, 18, 21, 22, 38) is implemented, and Epic 17 as well; `phase_rollup.py` lists no unimplemented story in them. Step 9 recaps are held for Epics 38 and 21. Since the last checkpoint: ADR-040 accepted (#170), IMP-046 five gates pinned (#171), CR-20261109-001 Steering Committee approval (#172). On 2026-11-10 the Sponsor moved Epic 23 to Phase 3 so Phase 2 closes once; CR-001 now carries that decision (section 7). In review: #174 (the last two shape-only gates pinned), #175 (CR-001 rescope), #176 (shadow record of agentic effort, learning only). Open: Q-159-1 (IMP-039); IMP-052 (release workflow fails on each push). |
 | **Current macro Stage** | Phase 1 closed (Stages 11-18 completed). Phase 2 is ACTIVE: **Stages 1 through 8 are COMPLETED & APPROVED**. **Stage 9: Development / Implementation Pipeline** is functionally complete for the baseline epics, executing within `src/agent_learning_ext/` under Invariant 6 upstream collision protection (the engine formerly in `agent-training-ext/` now lives there; PR #162). No formal Stage 9 exit is recorded yet. Stages 10 to 18 run once for the whole phase. |
@@ -38,7 +38,8 @@ origin: "Instantiated from sidpa-template docs/registers/Project-Status-Register
 | Phase | Baseline | Status | Closed via |
 |---|---|---|---|
 | Phase 1: Warm-Start & Confidence-Interval Bandits | `PMP-BL-v1.0.0` | **CLOSED** | **2026-11-06 via PCD-20261106-001** (Stage 18 Intent Refinement COMPLETED, IRP-20261106-001 APPROVED, Phase 2 READY) |
-| Phase 2: Advanced Agent Learning with Governance-Integrated Feedback Loops | `PMP-BL-v1.1.0` | **ACTIVE** | Formalized via `approve-pmp` (Episode `31b88dc3...`) |
+| Phase 2: Advanced Agent Learning with Governance-Integrated Feedback Loops | `PMP-BL-v1.1.0` | **CLOSED** | **2026-11-11 via PCD-20261111-001** (Stage 18 Intent Refinement COMPLETED, IRP-20261111-001 APPROVED, Phase 3 READY) |
+| Phase 3: Carried-Over Hypotheses & Horizon Capabilities | `PMP-BL-v1.2.0` | **READY** | Seeding pending; baseline `PMP-BL-v1.2.0` to be formalized at Stage 7 artifact approvals |
 
 ## 3. Epic/Unit-of-Work Status (all phases)
 

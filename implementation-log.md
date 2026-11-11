@@ -3377,7 +3377,7 @@ This log records completed user stories in accordance with the SIDPA `implement-
   - `Q-198-3 | test gap | verified: yes | decision: accepted | no test covered a partial 404; added with tests for original_line and empty output, seen failing first | fix: 99c7515`
 - **CI:** `test` failed on `tests/test_methodology_examples.py::test_ac2_example_runs_offline_and_exits_zero[9]` (Thompson example seed 9, Linux only; passes locally in the full suite). Not touched by this PR.
 - **Amazon Q triage (round 2 on `23c0514`), proposed by Claude from live checks, awaiting Menno's decision:**
-  - `Q-198-4 | logic error | verified: partial | decision: accepted | substring match could take a login like not-amazon-q-fan; the real logins start with the reviewer name, so the match is now anchored to the start | fix: pending`
-  - `Q-198-5 | logic error | verified: yes | decision: accepted | a finding dropped from the dataset took the tagger's filled comment_ids with it on re-run; filled entries are now kept | fix: pending`
-  - `Q-198-6 | crash risk | verified: yes | decision: accepted | non-JSON gh output raised a bare JSONDecodeError; now a RuntimeError naming the output | fix: pending`
+  - `Q-198-4 | logic error | verified: partial | decision: accepted | substring match could take a login like not-amazon-q-fan; the real logins start with the reviewer name, so the match is now anchored to the start | fix: 4fd703b`
+  - `Q-198-5 | logic error | verified: yes | decision: accepted | a finding dropped from the dataset took the tagger's filled comment_ids with it on re-run; filled entries are now kept | fix: 4fd703b`
+  - `Q-198-6 | crash risk | verified: yes | decision: accepted | non-JSON gh output raised a bare JSONDecodeError; now a RuntimeError naming the output | fix: 4fd703b`
   - `Q-198-7 | test gap | verified: no | decision: declined | the update() targets a dict literal built fresh by each _pr_responses call; Q and CURSOR are only referenced under "user" and are never mutated, so there is no shared state | fix: none`

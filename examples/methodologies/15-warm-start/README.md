@@ -3,7 +3,11 @@
 **Status:** proof_of_concept · **Code:** sketch · **Data:** SYNTHETIC · **Not evidence:** this run does not validate or invalidate the methodology.
 
 ## What it shows
-Donor logits are mapped to a recipient through an explicit action mapping and damped by `tau` (default 0.70), which flattens the starting distribution.
+Donor logits are mapped to a recipient through an explicit action mapping and damped by `tau` (default 0.70), which flattens the starting distribution while preserving ordinal ranking.
+
+For a full end-to-end runnable demonstration featuring mathematical damping analysis, provenance lineage, and empirical learning simulations confirming HYP-AL-008, see:
+* [warm_start_demo.py](../../warm_start_demo.py)
+* [warm_start_demo.md](../../warm_start_demo.md)
 
 ## Run it
 ```

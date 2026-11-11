@@ -3,7 +3,11 @@
 **Status:** runnable · **Code:** SDK · **Data:** SYNTHETIC · **Not evidence:** this example does not validate or invalidate the methodology.
 
 ## What it shows
-With no learned preference and no outcomes, one human acceptance makes a choice eligible and bypasses the statistical gates. A rejection withholds it.
+With no learned preference and no outcomes, one human acceptance makes a choice eligible, suppresses the audit rate, and bypasses statistical gates. A rejection withholds it immediately.
+
+For a full end-to-end demonstration featuring rolling-window durability, instant revocation, safety-critical invariant pinning, and a 60-request production simulation, see:
+* [human_override_demo.py](../../human_override_demo.py)
+* [human_override_demo.md](../../human_override_demo.md)
 
 ## Run it
 ```

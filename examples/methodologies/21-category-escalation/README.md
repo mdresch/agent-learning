@@ -3,7 +3,11 @@
 **Status:** runnable · **Code:** SDK · **Data:** SYNTHETIC · **Not evidence:** this example does not validate or invalidate the methodology.
 
 ## What it shows
-For one invented category of change, a low-authority policy learns to apply silently more often than to escalate, from invented outcomes.
+For different categories of changes, a policy gradient learner converges to differentiated, cost-optimal governance tiers (act silently, notify, escalate to manager, escalate to executive) by balancing review costs against defect risks.
+
+For a full end-to-end runnable demonstration featuring a 4-tier enterprise taxonomy and multi-category benchmark confirming HYP-AL-007, see:
+* [category_escalation_demo.py](../../category_escalation_demo.py)
+* [category_escalation_demo.md](../../category_escalation_demo.md)
 
 ## Run it
 ```

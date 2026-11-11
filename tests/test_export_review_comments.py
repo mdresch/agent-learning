@@ -103,6 +103,34 @@ def test_empty_gh_output_is_a_clear_error(monkeypatch: pytest.MonkeyPatch) -> No
         exp.gh_api("repos/x/pulls/1/comments")
 
 
+def test_reviewer_match_is_anchored_to_the_start_of_the_login() -> None:
+    responses = _pr_responses(9)
+    key = "repos/mdresch/agent-learning/issues/9/comments"
+    responses[key].append({"id": 66, "user": {"login": "not-amazon-q-fan"}, "created_at": "2026-01-05T00:00:00Z",
+                           "body": "x", "html_url": "u66"})
+    record = exp.export_pr(9, _fake_gh(responses))
+    assert 66 not in {c["id"] for c in record["comments"]}
+
+
+def test_non_json_gh_output_is_a_clear_error(monkeypatch: pytest.MonkeyPatch) -> None:
+    class Done:
+        returncode, stdout, stderr = 0, "warning: something", ""
+
+    monkeypatch.setattr(exp.subprocess, "run", lambda *a, **k: Done())
+    with pytest.raises(RuntimeError, match="not JSON"):
+        exp.gh_api("repos/x/pulls/1/comments")
+
+
+def test_a_filled_index_entry_survives_its_finding_leaving_the_dataset(tmp_path: Path) -> None:
+    exp.write_index(tmp_path, [{"finding_id": "Q-9-1", "pr": 9}])
+    index = json.loads((tmp_path / "index.json").read_text(encoding="utf-8"))
+    index["Q-9-1"]["comment_ids"] = [11]
+    (tmp_path / "index.json").write_text(json.dumps(index), encoding="utf-8")
+    exp.write_index(tmp_path, [{"finding_id": "Q-9-2", "pr": 9}])
+    again = json.loads((tmp_path / "index.json").read_text(encoding="utf-8"))
+    assert again["Q-9-1"]["comment_ids"] == [11] and "Q-9-2" in again
+
+
 def test_other_gh_failures_are_not_swallowed() -> None:
     def broken(path: str) -> list[dict]:
         raise RuntimeError("gh exploded")

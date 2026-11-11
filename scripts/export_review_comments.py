@@ -50,7 +50,10 @@ def gh_api(path: str) -> list[dict[str, Any]]:
         raise RuntimeError(f"gh api {path} failed: {run.stderr.strip()}")
     if not run.stdout.strip():
         raise RuntimeError(f"gh api {path} returned empty output")
-    pages = json.loads(run.stdout)
+    try:
+        pages = json.loads(run.stdout)
+    except json.JSONDecodeError as exc:
+        raise RuntimeError(f"gh api {path} output is not JSON: {run.stdout[:200]!r}") from exc
     return [item for page in pages for item in (page if isinstance(page, list) else [page])]
 
 
@@ -59,7 +62,7 @@ def _login(item: dict[str, Any]) -> str:
 
 
 def _wanted(login: str, reviewers: Sequence[str]) -> bool:
-    return any(r.lower() in login.lower() for r in reviewers)
+    return any(login.lower().startswith(r.lower()) for r in reviewers)
 
 
 def _record(kind: str, item: dict[str, Any]) -> dict[str, Any]:
@@ -119,6 +122,9 @@ def write_index(out_dir: Path, findings: Sequence[dict[str, Any]]) -> Path:
         f["finding_id"]: {"pr": f["pr"], "comment_ids": old.get(f["finding_id"], {}).get("comment_ids", [])}
         for f in findings
     }
+    for finding_id, entry in old.items():  # the tagger's work is never dropped with its finding
+        if finding_id not in index and entry.get("comment_ids"):
+            index[finding_id] = entry
     path.write_text(_dump(index), encoding="utf-8", newline="\n")
     return path
 

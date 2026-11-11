@@ -97,4 +97,6 @@ Policy `approve-intent-refinement` (FULL authority, `requires_human_approval: tr
 
 ## 7. Phase seeding (Step 8)
 
-Not run. Seeding (Phase 3 Spark and Ideation, baseline increment, lineage kernel) follows the approved PCD. `scripts/execute_stage_18.py` is written for Phase 1 and is not used for Phase 2.
+- **Cumulative Lineage Kernel:** Recorded in [`docs/governance/lineage/CLK-20261111-001-Phase-2-Cumulative-Lineage-Kernel.md`](../lineage/CLK-20261111-001-Phase-2-Cumulative-Lineage-Kernel.md) (Generation 2 hash `579b62bfe11607b2287b16a99fdc36d14350fe864ffef1d60a8ca1712247c8b8`, computed via `pmbok.models.intent_refinement.compute_lineage_kernel` from Generation 1 hash `2402e037cb69f8e416b53caf237249cc1b6f868f1324c5e4083d67080006bf02`).
+- **Phase 3 Spark & Ideation Seeded (2026-11-11):** [`docs/project-docs/Spark-Capture.md`](../../project-docs/Spark-Capture.md) updated to `v3.0` (`SPARK-P3-001` to `SPARK-P3-004`) and [`docs/project-docs/Ideation-Document.md`](../../project-docs/Ideation-Document.md) updated to `v1.15` (`HYP-AL-028` registered in §2.2.4; 19 non-terminal hypotheses and §5 inputs recorded in §2.2.5).
+- **Phase 2 Closed in Status Register (2026-11-11):** [`docs/project-docs/Project-Status-Register.md`](../../project-docs/Project-Status-Register.md) updated to mark Phase 2 **CLOSED** (`PCD-20261111-001`) and Phase 3 **SEEDED / INITIATING**. `scripts/execute_stage_18.py` is written for Phase 1 and is not used for Phase 2.

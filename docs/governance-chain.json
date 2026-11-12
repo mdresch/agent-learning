@@ -1012,6 +1012,11 @@
             ],
             "status": "not_started",
             "stepsSource": "docs/project-docs/Methodology/Stage-18-Intent-Refinement-Methodology.md",
+            "loopsTo": {
+              "stage": 1,
+              "label": "Phase N+1 — new Spark Capture, all 18 stages start empty",
+              "condition": "Fires only once Stage 17 and Stage 18 are both 'done', and only on a human-recorded decision to start the next Phase. Never automatic."
+            },
             "steps": [
               {
                 "n": 1,

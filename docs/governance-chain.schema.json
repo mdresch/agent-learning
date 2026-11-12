@@ -86,6 +86,17 @@
           "type": "string",
           "description": "Path to the authoritative process guide these steps were taken from, when one exists beyond stages.json/the coverage doc (e.g. a Methodology/Stage-N-*.md for stages 15-18). Omitted for stages with no separate guide."
         },
+        "loopsTo": {
+          "type": "object",
+          "required": ["stage", "label"],
+          "properties": {
+            "stage": { "type": "integer", "minimum": 1, "maximum": 18 },
+            "label": { "type": "string" },
+            "condition": { "type": "string" }
+          },
+          "additionalProperties": false,
+          "description": "Only stage 18 carries this. The edge that closes the current cycle and opens the next one: once this stage is done (and, per Phase.cycleRule, stage 17 is too), the chain does not continue past stage 18 within the same Phase — it loops back to the named stage of a NEW Phase. This is a distinct edge from Stage.after (which only ever points backward within one Phase); nothing in the chain points forward out of a loopsTo edge."
+        },
         "steps": {
           "type": "array",
           "items": { "$ref": "#/$defs/Step" },
@@ -138,6 +149,11 @@
           "type": "string",
           "const": "Two dependency layers, not one: Stage.after names the stage ids (cross-stage, Finish-to-Start) that must be done before this stage's own first step(s) can start. Step.dependsOn names step numbers (n) within that SAME stage only. A step with an empty dependsOn is a stage's own first step and so depends, transitively, on every stage named in its Stage.after — that edge is not repeated on the step itself.",
           "description": "Documents how the two dependency fields compose; not meant to be edited."
+        },
+        "cycleRule": {
+          "type": "string",
+          "const": "One cycle is one Phase. Stage 18's loopsTo is the only forward-pointing edge in the chain: it does not continue stage 19, 20, ... — it closes this Phase and reopens at stage 1 of a new Phase, each stage starting empty again. The loop is conditional, never automatic: it fires only once stage 17 AND stage 18 are both 'done', and only a human decision starts the next Phase (there is no tool that does this on its own). A document approved in an earlier Phase stays a frozen baseline; it is not redone when the loop fires.",
+          "description": "Documents the one forward loop in an otherwise acyclic chain; not meant to be edited."
         },
         "groups": {
           "type": "array",

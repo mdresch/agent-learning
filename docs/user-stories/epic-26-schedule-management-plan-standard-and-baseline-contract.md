@@ -2,9 +2,9 @@
 
 **Source ADR:** [ADR-026](../adr/ADR-026-schedule-management-plan-standard-and-baseline-contract.md) — Accepted (2026-10-29, Menno), episode `8be53179-eb4e-4f1c-b71d-0efa79e0876d`  
 **Source BRD/FDD:** [BRD-026](../project-docs/Business-Requirements/BRD-026-schedule-management-plan-standard-and-baseline-contract.md) / [FDD-026](../project-docs/Functional-Design/FDD-026-schedule-management-plan-standard-and-baseline-contract.md)  
-**Status:** In Progress (Story 26.1 Completed; Stories 26.2–26.3 Ready; Story 26.4 Draft) — derived from Accepted ADR-026, BRD-026 and FDD-026 (Approved 2026-10-30); adjudicated via `approve-user-stories` (robust utility 0.735, episode `d95c487e-8fc2-40fe-96ce-daf338389be3`). Story 26.5 added 2026-11-11 from the ADR-026 §4.2.1–4.2.3 amendment; Draft, pending Stage 16 amendment classification of BRD-026/FDD-026/this file and its own approval.
+**Status:** In Progress (Story 26.1 Completed; Stories 26.2–26.3 Ready; Story 26.4 Draft) — derived from Accepted ADR-026, BRD-026 and FDD-026 (Approved 2026-10-30); adjudicated via `approve-user-stories` (robust utility 0.735, episode `d95c487e-8fc2-40fe-96ce-daf338389be3`).
 
-Five stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_schedule_measure.py` (26.1), `tests/test_schedule_sections.py` (26.2), `tests/test_schedule_advice_policy.py` (26.3), `tests/test_schedule_advice_reward.py` (26.4), `tests/test_schedule_wbs_section.py` (26.5). Story 26.1 is unblocked: the shared lint arguments in FDD-026 §3.2 exist and their reuse is confirmed. Story 26.3 is Ready after confirmation of FDD-026 §5 item 1; Story 26.4 remains blocked on Story 26.3. Story 26.5 is Draft pending maintainer confirmation of FDD-026 §5 item 8. BRU-026-07 has no story: it is the text the plan author writes and the approver reads.
+Four stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_schedule_measure.py` (26.1), `tests/test_schedule_sections.py` (26.2), `tests/test_schedule_advice_policy.py` (26.3), `tests/test_schedule_advice_reward.py` (26.4). Story 26.1 is unblocked: the shared lint arguments in FDD-026 §3.2 exist and their reuse is confirmed. Story 26.3 is Ready after confirmation of FDD-026 §5 item 1; Story 26.4 remains blocked on Story 26.3. BRU-026-07 has no story: it is the text the plan author writes and the approver reads.
 
 ---
 
@@ -75,23 +75,6 @@ Five stories. Each rule sits in one story (LL-012). Contract tests: `tests/test_
 - **$AC_2$ (Withhold):** `min_shown_decisions is None` yields `visible=False`. The same for a count below a set minimum. A count equal to the minimum yields `visible=True`. A minimum of 0 or less raises `ValueError`.
 - **$AC_3$ (Reward):** `advice_reward(True)` is 1.0 and `advice_reward(False)` is −1.0. The credited action is the stored recommendation action. The function has no parameter for `approve_plan`, `reject_plan`, or `request_revision_before_decision`.
 - **$AC_4$ (No new record):** `schedule_advice.py` imports no storage module. `ScheduleRecommendation` is a frozen dataclass, not a `LearningStore` record type. A Scope recommendation id is not returned as a Schedule recommendation.
-
----
-
-## Story 26.5 — The WBS rollup and Task identification section
-
-**Status:** Draft — added 2026-11-11, pending Stage 16 amendment of BRD-026/FDD-026/this file
-**As** a governance reviewer,
-**I want** Section 2 of a Schedule plan to state the Task level and, for a full plan, the WBS rollup hierarchy,
-**so that** a plan cannot omit how its Milestones decompose into Tasks, or stay silent on the Phase–Group–Stage–Task chain ADR-026 §4.2.1 requires.
-
-### Acceptance Criteria
-
-- **$AC_0$ (Task identification):** A Schedule body whose Section 2 never says `task` produces one Tier B `MISSING_REQUIRED_SECTION` whose message says task identification is missing. A body that says `task` produces none.
-- **$AC_1$ (Rollup, full_plan only):** A `full_plan` whose Section 2 says neither `wbs` nor `rollup` produces `wbs rollup hierarchy is missing`. A `pmp_section` with the same text produces no such finding.
-- **$AC_2$ (No double finding):** A body with no Section 2 heading produces the existing heading finding only; this rule adds nothing. A non-Schedule plan and a `not_applicable` Schedule plan receive no finding from this rule.
-- **$AC_3$ (Order):** These two findings, when present, come after all of Story 26.2's Section 2 findings in `check_schedule_sections`'s returned list.
-- **$AC_4$ (No code validation):** This story does not parse or verify the WBS code's five segments (ADR-026 §4.2.3) against a real Epic, Story, Step, or Checklist item. That stays human review (FDD-026 §5 item 8).
 
 ---
 

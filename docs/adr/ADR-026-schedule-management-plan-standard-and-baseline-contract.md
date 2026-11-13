@@ -10,7 +10,7 @@ It inherits the ADR-012 universal contract (frontmatter, three literal headings,
 ---
 
 ## 2. Status
-**Accepted (2026-10-29, Menno)** — Plan Tier 1 standard, inheriting ADR-012 and ADR-025. Episode: `8be53179-eb4e-4f1c-b71d-0efa79e0876d`.
+**Accepted (2026-10-29, Menno)** — Plan Tier 1 standard, inheriting ADR-012 and ADR-025. Episode: `8be53179-eb4e-4f1c-b71d-0efa79e0876d`. Amended 2026-11-13 at Stage 16: Add 4.2.1-4.2.3 WBS rollup, Task definition, Gantt illustration, numbering scheme, classified `correction_note` (robust utility 0.965, episode `3d6019be...`) and accepted by Menno Drescher.
 
 ---
 

@@ -48,6 +48,15 @@ def test_a_status_line_edit_is_seen() -> None:
     assert f["status_line_changed"] is True
 
 
+def test_a_new_subsections_own_status_field_is_not_the_documents_status_line() -> None:
+    """A multi-story epic gives every story its own ``**Status:**`` field (LL-012 convention). Adding a new
+    story must not read as a change to the document's own Status line: only its real top line counts."""
+    epic = "# Epic\n\n**Status:** In Progress\n\nBody.\n\n## Story 1\n\n**Status:** Ready\nText.\n"
+    cand = epic + "\n## Story 2\n\n**Status:** Draft\nMore text.\n"
+    f = s16.measure("docs/x.md", epic, cand)
+    assert f["status_line_changed"] is False
+
+
 def test_measuring_is_deterministic() -> None:
     cand = BASE.replace("must update", "must not edit")
     assert s16.measure("docs/x.md", BASE, cand) == s16.measure("docs/x.md", BASE, cand)

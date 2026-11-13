@@ -5,18 +5,31 @@ recorded decision frames and adjudication history in `docs/policy-shapes/`.
 
 FINDING & DOCUMENTED GAP (ADR-022, FDD-022, Story 22.7 AC_4):
 --------------------------------------------------------------
-The real decision history in `docs/policy-shapes/` holds no disagreement between the
-resolver and human-accepted decisions: baseline accuracy is 1.0000 (100%) across all tasks.
-Because baseline accuracy is already perfect (1.0), coordinate ascent search cannot strictly
-beat the baseline on any held-out split (accuracy cannot exceed 1.0), and `propose()`
-strictly and correctly returns `NoImprovement` for every task.
+The real decision history in `docs/policy-shapes/` holds no disagreement between the resolver
+and human-accepted decisions, among every real decision the resolver confidently resolved or
+recommended (`resolved` or `needs_user_feedback`): baseline accuracy is 1.0000 (100%) there.
+Because that accuracy is already perfect, coordinate ascent search cannot strictly beat the
+baseline on any held-out split built from those decisions, and `propose()` strictly and
+correctly returns `NoImprovement` for every task's non-tied history.
 
 This result makes no claim that compiled weights are better (BRU-022-12): it records only
-that the real history cannot show an improvement.
+that the real, confidently-resolved history cannot show an improvement.
 
-Missing data required to demonstrate empirical compiler improvement:
-1. Decisions where a human disagreed with the resolver recommendation (counterfactual or
-   rejection/revision labels demonstrating misaligned initial criteria weights).
+REAL TIE DATA (2026-11-13): classify-diff-type's BRD-026 and FDD-026 Stage 16 amendments are
+the first real decisions the resolver could not confidently resolve on its own (margin 0.0225,
+below `minimum_margin` 0.05; status `needs_user_tie_break`). Per FDD-022 §4 item L7, a tie
+"earns no credit" by design — it is not a disagreement with the baseline weights, since the
+weights never proposed anything to agree or disagree with. `_predict()` below excludes these
+from the accuracy count rather than counting them as a miss; AC_1 and AC_2 report how many
+were excluded. This is exactly the first instance of item 1 below (a human decision the
+baseline weights alone could not reach), though not yet of a strict "disagreement" to be
+corrected, so it does not on its own establish that compiled weights would improve on it.
+
+Missing data still required to demonstrate empirical compiler improvement:
+1. Decisions where a human disagreed with the resolver's own confident recommendation
+   (counterfactual or rejection/revision labels demonstrating misaligned initial criteria
+   weights) — a resolved tie is not this; it is evidence the weights were under-determined,
+   not that they were wrong.
 2. Labels recorded strictly prior to the compilation proposal time (strict temporal causality).
 
 Specification Interpretations:
@@ -38,7 +51,7 @@ import hashlib
 import importlib.util
 import json
 import py_compile
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from pathlib import Path
 from typing import Any
 
@@ -217,6 +230,18 @@ def _get_snapshot_for_task(task_id: str) -> PolicySnapshot:
     )
 
 
+def _predict(it: LabeledFrame, weights: Mapping[str, float], snapshot: PolicySnapshot) -> str | None:
+    """``evaluate()``'s prediction, or ``None`` when the real resolver itself could not decide.
+
+    FDD-022 §4 item L7: a tie that needs a person "earns no credit" by design. A ``None``
+    prediction here means the baseline weights never proposed anything to compare against the
+    recorded label, so the caller must exclude it from an accuracy count rather than score it
+    as a miss.
+    """
+    pred, _margin = evaluate(it, weights, snapshot)
+    return pred
+
+
 def test_ac0_real_source_frames_grouped_by_task(record_property: Callable[[str, Any], None]) -> None:
     """AC_0 (Real Source):
 
@@ -249,7 +274,10 @@ def test_ac1_baseline_is_perfect_on_real_history() -> None:
     """AC_1 (Baseline Is Perfect):
 
     For each task with at least 2 * MIN_PART (10) labelled frames, the weights in force
-    reproduce every recorded human-accepted action, so baseline accuracy is 1.0.
+    reproduce every recorded human-accepted action on the frames the resolver confidently
+    decided or recommended. A frame the resolver could not confidently decide (a real tie,
+    FDD-022 §4 item L7) is excluded from this count rather than scored as a miss: the baseline
+    weights never proposed anything there to agree or disagree with the human's tie-break.
     Dictionary lookups use defensive None checks (defaults when none).
     """
     frames_by_task = _load_real_labeled_frames()
@@ -270,23 +298,35 @@ def test_ac1_baseline_is_perfect_on_real_history() -> None:
         assert meta.get("policy_scope") == "delegated_decision"
 
         correct = 0
+        excluded_ties = 0
         for it in items:
             weights = {c.id: c.weight for c in it.frame.criteria}
-            pred, _margin = evaluate(it, weights, snapshot)
+            pred = _predict(it, weights, snapshot)
+            if pred is None:
+                excluded_ties += 1
+                continue
             if pred == it.label:
                 correct += 1
 
-        accuracy = correct / len(items)
+        scored = len(items) - excluded_ties
+        accuracy = correct / scored if scored else 1.0
         assert accuracy == 1.0, (
-            f"Expected perfect baseline accuracy (1.0) on real task {task_id}, got {correct}/{len(items)} ({accuracy:.4f})"
+            f"Expected perfect baseline accuracy (1.0) on real task {task_id}'s confidently-decided "
+            f"frames, got {correct}/{scored} ({accuracy:.4f}); {excluded_ties} tie(s) excluded per "
+            f"FDD-022 §4 L7"
         )
 
 
 def test_ac2_no_improvement_on_real_data_and_json_roundtrip() -> None:
     """AC_2 (No Improvement):
 
-    propose() on each such task returns NoImprovement, because accuracy cannot exceed 1.0;
-    all inputs and proposal outputs survive json.dumps round-trip.
+    propose() on each such task's confidently-decided frames returns NoImprovement, because
+    accuracy on them cannot exceed 1.0 (AC_1); all inputs and proposal outputs survive
+    json.dumps round-trip. A frame the resolver could not confidently decide (a real tie,
+    FDD-022 §4 item L7) is excluded before the train/holdout split: Story 22.7 AC_4's documented
+    gap is a human *disagreeing* with a confident recommendation, which a tie is not (the
+    weights never proposed anything there), so resolving it is a question for a future
+    methodology review, not something this check decides on its own.
     """
     from collections import Counter
 
@@ -299,6 +339,12 @@ def test_ac2_no_improvement_on_real_data_and_json_roundtrip() -> None:
             continue
 
         snapshot = _get_snapshot_for_task(task_id)
+        items = [
+            it for it in items
+            if _predict(it, {c.id: c.weight for c in it.frame.criteria}, snapshot) is not None
+        ]
+        if len(items) < min_required:
+            continue
 
         # Coordinate ascent requires homogeneous criteria within a compilation split.
         # Filter to the predominant criteria set for this task.

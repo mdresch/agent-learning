@@ -250,9 +250,15 @@
     "docs/adr/ADR-026-schedule-management-plan-standard-and-baseline-contract.md": {
       "family": "adr",
       "status": "accepted",
-      "sha256": "9885fd9002cb370622d167e68684446eb2e7e8aaf0a2bd57c7cffe9d06e85bce",
+      "sha256": "4ca6e2edcf4958c3cd327a37c9267b15796e4314b6cd99002f66a1d545883ec7",
       "approval_episode": null,
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-13",
+          "episode": "3d6019be",
+          "stage": 16
+        }
+      ]
     },
     "docs/adr/ADR-027-cost-management-plan-standard-and-baseline-contract.md": {
       "family": "adr",
@@ -543,9 +549,15 @@
     "docs/project-docs/Business-Requirements/BRD-026-schedule-management-plan-standard-and-baseline-contract.md": {
       "family": "brd",
       "status": "approved",
-      "sha256": "4e69a5bae362d3fc60686382380f0a57d67ad57fe9e6719e453bbde3b07ce824",
+      "sha256": "b555e6b5df7a35165accbd243c509cf2d125987a5cd94efbdf2171b94dbdad27",
       "approval_episode": "6f500ffb",
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-13",
+          "episode": "92ee2304",
+          "stage": 16
+        }
+      ]
     },
     "docs/project-docs/Business-Requirements/BRD-027-cost-management-plan-standard-and-baseline-contract.md": {
       "family": "brd",
@@ -865,9 +877,15 @@
     "docs/project-docs/Functional-Design/FDD-026-schedule-management-plan-standard-and-baseline-contract.md": {
       "family": "fdd",
       "status": "approved",
-      "sha256": "63f1c6c03ae7bb09d2499f4bf430e376b3081cdeed30a9fac1a0ac09d8b40c00",
+      "sha256": "d5724cd2c78969fc8e5f1cdcb841989ba3d99366f7365b204221e3029bd2d7b8",
       "approval_episode": "50155fa8",
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-13",
+          "episode": "22f48f35",
+          "stage": 16
+        }
+      ]
     },
     "docs/project-docs/Functional-Design/FDD-027-cost-management-plan-standard-and-baseline-contract.md": {
       "family": "fdd",
@@ -1157,10 +1175,16 @@
     },
     "docs/user-stories/epic-26-schedule-management-plan-standard-and-baseline-contract.md": {
       "family": "story",
-      "status": "approved",
-      "sha256": "475a913926ba838a73f295ed71c031298ad2843115ec2e1096481e3850fbb046",
+      "status": "in",
+      "sha256": "d6f1975777b5dff117f8ab874d1aa2fa704ecf9ad0c9b62b463a2a09d0621628",
       "approval_episode": "d95c487e",
-      "amendments": []
+      "amendments": [
+        {
+          "date": "2026-11-13",
+          "episode": "9f31e8f7",
+          "stage": 16
+        }
+      ]
     },
     "docs/user-stories/epic-27-cost-management-plan-standard-and-baseline-contract.md": {
       "family": "story",

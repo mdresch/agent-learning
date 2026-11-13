@@ -155,6 +155,14 @@ def downstream_refs(rel: str, ids: set[str]) -> int:
     return count
 
 
+def top_status_line(text: str) -> str | None:
+    """The document's own Status line: the first ``**Status:**`` line, not a per-story Status field that a new
+    story section introduces deeper in a multi-story epic (status_edit's own append target uses the same
+    first-match semantics)."""
+    m = re.search(r"^\*\*Status:\*\*.*$", text, re.MULTILINE)
+    return m.group(0) if m else None
+
+
 def measure(rel: str, base: str, cand: str) -> dict:
     diff = list(difflib.unified_diff(base.splitlines(), cand.splitlines(), lineterm="", n=0))
     removed = [line[1:] for line in diff if line.startswith("-") and not line.startswith("---")]
@@ -170,7 +178,7 @@ def measure(rel: str, base: str, cand: str) -> dict:
     ratio = difflib.SequenceMatcher(None, removed_text, added_text).ratio() if removed and added else 0.0
     change_ratio = 1 - ratio if (removed and added) else (1.0 if (removed or added) else 0.0)
     normative = any(NORMATIVE.search(line) for line in removed + added) and change_ratio >= CHANGED_RATIO
-    status_changed = any(re.match(r"\*\*Status:\*\*", line) for line in removed + added)
+    status_changed = top_status_line(base) != top_status_line(cand)
     ids = {m.group(0) for line in removed for m in NORMATIVE_ID.finditer(line)}
     refs = downstream_refs(rel, ids)
     return {

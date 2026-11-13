@@ -1,0 +1,346 @@
+{
+  "agent_id": "agent-learning-governance",
+  "task_id": "classify-diff-type",
+  "policy_id": "51458125-b218-4e26-a94b-9baf17137ccc",
+  "policy_version": 0,
+  "status": "resolved",
+  "reason": "The user accepted the proposed option to resolve the tie.",
+  "selection_basis": "bayesian_decision",
+  "selected_action": {
+    "id": "amendment_log_entry",
+    "description": "Updates operational parameters, timeouts, or thresholds while preserving core architectural intent",
+    "parameters": {}
+  },
+  "proposed_action": null,
+  "candidate_actions": [
+    {
+      "id": "amendment_log_entry",
+      "description": "Updates operational parameters, timeouts, or thresholds while preserving core architectural intent",
+      "parameters": {}
+    },
+    {
+      "id": "clarification_section",
+      "description": "Additional explanatory prose or diagrams resolving ambiguity without altering decision boundary",
+      "parameters": {}
+    }
+  ],
+  "assessments": [
+    {
+      "action": {
+        "id": "new_superseding_adr",
+        "description": "Alters core architecture, principles, or system topology; mandates drafting a full superseding ADR",
+        "parameters": {}
+      },
+      "feasible": true,
+      "criteria": [
+        {
+          "criterion_id": "semantic_scope_impact",
+          "support": 0.3642105576486835,
+          "entropy_bits": 0.9461228554401573,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "architectural_intent_shift",
+          "support": 0.2231046132042623,
+          "entropy_bits": 0.7657960537054196,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "downstream_contract_footprint",
+          "support": 0.4295161358235248,
+          "entropy_bits": 0.9856175966730882,
+          "disagreement_bits": 1.1102230246251565e-16,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "textual_cosmetic_ratio",
+          "support": 0.9999999999841513,
+          "entropy_bits": 5.914645983145012e-10,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        }
+      ],
+      "expected_utility": 0.3881982580529091,
+      "uncertainty": 0.7943204005330694,
+      "robust_utility": 0.30876621799960213,
+      "ruled_out_by": []
+    },
+    {
+      "action": {
+        "id": "amendment_log_entry",
+        "description": "Updates operational parameters, timeouts, or thresholds while preserving core architectural intent",
+        "parameters": {}
+      },
+      "feasible": true,
+      "criteria": [
+        {
+          "criterion_id": "semantic_scope_impact",
+          "support": 0.9340106873436208,
+          "entropy_bits": 0.3507750720774026,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "architectural_intent_shift",
+          "support": 0.9999999999841513,
+          "entropy_bits": 5.914645983145012e-10,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "downstream_contract_footprint",
+          "support": 0.644078062172762,
+          "entropy_bits": 0.9392459370806203,
+          "disagreement_bits": 1.1102230246251565e-16,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "textual_cosmetic_ratio",
+          "support": 0.8784146346456503,
+          "entropy_bits": 0.5339008451228044,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        }
+      ],
+      "expected_utility": 0.9080574477223807,
+      "uncertainty": 0.33458700411234715,
+      "robust_utility": 0.8745987473111461,
+      "ruled_out_by": []
+    },
+    {
+      "action": {
+        "id": "correction_note",
+        "description": "Errata, broken citations, typographical errors, or non-semantic formatting fixes",
+        "parameters": {}
+      },
+      "feasible": true,
+      "criteria": [
+        {
+          "criterion_id": "semantic_scope_impact",
+          "support": 0.7768953867957378,
+          "entropy_bits": 0.7657960537054194,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "architectural_intent_shift",
+          "support": 0.9340106873436208,
+          "entropy_bits": 0.3507750720774026,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "downstream_contract_footprint",
+          "support": 0.823182122369588,
+          "entropy_bits": 0.6730660320492513,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "textual_cosmetic_ratio",
+          "support": 0.2231046132042623,
+          "entropy_bits": 0.7657960537054196,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        }
+      ],
+      "expected_utility": 0.7834496749644269,
+      "uncertainty": 0.6066292068871884,
+      "robust_utility": 0.722786754275708,
+      "ruled_out_by": [
+        "pareto_dominated_by:clarification_section"
+      ]
+    },
+    {
+      "action": {
+        "id": "clarification_section",
+        "description": "Additional explanatory prose or diagrams resolving ambiguity without altering decision boundary",
+        "parameters": {}
+      },
+      "feasible": true,
+      "criteria": [
+        {
+          "criterion_id": "semantic_scope_impact",
+          "support": 0.8784146346456503,
+          "entropy_bits": 0.5339008451228044,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "architectural_intent_shift",
+          "support": 0.9999999999841513,
+          "entropy_bits": 5.914645983145012e-10,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "downstream_contract_footprint",
+          "support": 0.8870651459672333,
+          "entropy_bits": 0.5087053866751674,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "textual_cosmetic_ratio",
+          "support": 0.5,
+          "entropy_bits": 1.0,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        }
+      ],
+      "expected_utility": 0.8844256257477981,
+      "uncertainty": 0.38986614625740945,
+      "robust_utility": 0.8454390111220572,
+      "ruled_out_by": []
+    },
+    {
+      "action": {
+        "id": "provenance_note",
+        "description": "Lineage, authorship, or upstream specification references updated",
+        "parameters": {}
+      },
+      "feasible": true,
+      "criteria": [
+        {
+          "criterion_id": "semantic_scope_impact",
+          "support": 0.7288411627050326,
+          "entropy_bits": 0.8431225844386008,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "architectural_intent_shift",
+          "support": 0.8784146346456503,
+          "entropy_bits": 0.5339008451228044,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "downstream_contract_footprint",
+          "support": 0.771044907998426,
+          "entropy_bits": 0.7761853423467286,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "textual_cosmetic_ratio",
+          "support": 0.1734829891005971,
+          "entropy_bits": 0.6656106977119922,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        }
+      ],
+      "expected_utility": 0.7319866223178143,
+      "uncertainty": 0.7071032006916304,
+      "robust_utility": 0.6612763022486513,
+      "ruled_out_by": [
+        "pareto_dominated_by:correction_note"
+      ]
+    },
+    {
+      "action": {
+        "id": "pending_supersession_note",
+        "description": "Marks active artifact indicating replacement is currently drafted; permanently frozen from autonomy",
+        "parameters": {}
+      },
+      "feasible": true,
+      "criteria": [
+        {
+          "criterion_id": "semantic_scope_impact",
+          "support": 0.02923725718613503,
+          "entropy_bits": 0.19055219911324675,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "architectural_intent_shift",
+          "support": 0.02923725718613503,
+          "entropy_bits": 0.19055219911324675,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "downstream_contract_footprint",
+          "support": 0.0615560951005823,
+          "entropy_bits": 0.3335913129485036,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "textual_cosmetic_ratio",
+          "support": 0.02923725718613503,
+          "entropy_bits": 0.19055219911324675,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        }
+      ],
+      "expected_utility": 0.03408508287330212,
+      "uncertainty": 0.21200806618853527,
+      "robust_utility": 0.012884276254448594,
+      "ruled_out_by": [
+        "pareto_dominated_by:new_superseding_adr"
+      ]
+    },
+    {
+      "action": {
+        "id": "supersession_update",
+        "description": "Marks older artifact superseded once replacement is formally accepted; permanently frozen from autonomy",
+        "parameters": {}
+      },
+      "feasible": true,
+      "criteria": [
+        {
+          "criterion_id": "semantic_scope_impact",
+          "support": 0.02923725718613503,
+          "entropy_bits": 0.19055219911324675,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "architectural_intent_shift",
+          "support": 0.02923725718613503,
+          "entropy_bits": 0.19055219911324675,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "downstream_contract_footprint",
+          "support": 0.0615560951005823,
+          "entropy_bits": 0.3335913129485036,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        },
+        {
+          "criterion_id": "textual_cosmetic_ratio",
+          "support": 0.02923725718613503,
+          "entropy_bits": 0.19055219911324675,
+          "disagreement_bits": 0.0,
+          "source_count": 1
+        }
+      ],
+      "expected_utility": 0.03408508287330212,
+      "uncertainty": 0.21200806618853527,
+      "robust_utility": 0.012884276254448594,
+      "ruled_out_by": [
+        "pareto_dominated_by:new_superseding_adr"
+      ]
+    }
+  ],
+  "information_needs": [],
+  "rejected_action_ids": [],
+  "authorization_basis": "user_acceptance",
+  "action_probabilities": {
+    "new_superseding_adr": 0.14285714285714285,
+    "amendment_log_entry": 0.14285714285714285,
+    "correction_note": 0.14285714285714285,
+    "clarification_section": 0.14285714285714285,
+    "provenance_note": 0.14285714285714285,
+    "pending_supersession_note": 0.14285714285714285,
+    "supersession_update": 0.14285714285714285
+  },
+  "action_logprob": null,
+  "audit_evidence": null,
+  "decision_authority": "full"
+}

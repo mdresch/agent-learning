@@ -8,6 +8,22 @@ Every stage that yields a documented artifact requires a formal Bayesian validat
 
 ---
 
+## 0. Renumbering Crosswalk (2026-11-12)
+
+The Initiating group's stage numbers were reassigned on 2026-11-12 (Sponsor decision) to match real execution order, after the old numbering repeatedly caused the same confusion: a document whose number was low (old Stage 2, Objective/Charter) looked like it could be authored right after Stage 1, when the real dependency graph actually requires Hypothesis and Benefit to run first. Stage 1 (Intent) and Stage 5 (Pillars & Architecture) keep their numbers; only the three stages between them move.
+
+| Old number | New number | Stage |
+|---|---|---|
+| 1 | 1 | Intent (unchanged) |
+| 3 | 2 | Hypothesis |
+| 4 | 3 | Benefit |
+| 2 | 4 | Objective |
+| 5 | 5 | Pillars & Architecture (unchanged) |
+
+**Reading a document dated before 2026-11-12:** its `lifecycle_stage` frontmatter tag, and any "Stage 2/3/4" text, use the **old** numbering — translate it through this table, never assume the current numbering applies retroactively. This repository does not mass-rewrite historical documents' stage tags; each is corrected the next time it is otherwise amended. The §2 table below, the Methodology guides under `docs/project-docs/Methodology/`, and anything dated 2026-11-12 or later use the **new** numbering.
+
+---
+
 ## 1. Document Authoring Sequence vs. Conceptual Ontology
 
 There is an important distinction between the abstract conceptual trace and the **actual document authoring sequence**:
@@ -45,9 +61,9 @@ There is an important distinction between the abstract conceptual trace and the 
 | # | Chain Stage | PMBOK 8 Process Group | PMBOK 8 Process Number & Name | Governed Document Artifact | Assigned TaskPolicy | Authority & Decision Shape | Lifecycle Role & IPO |
 |---|---|---|---|---|---|---|---|
 | 1 | **Intent** | **Initiating** | Pre-Project: Strategic Need Identification | `Spark-Capture.md`<br>`Ideation-Document.md` | `template-governance` / **`approve-ideation`** | `FULL`<br>(3 actions: approve, reject, request revision) | **Starts with a Spark.** Inputs: Trigger event / strategic driver. Process: Validate intent. Output: Approved Ideation. |
-| 2 | **Objective** | **Initiating** | 4.1 Develop Project Charter | `Project-Charter.md` | `template-governance` / **`approve-charter`** | `FULL`<br>(3 actions: approve, reject, request revision) | Inputs: Business Case & Benefits. Process: Authorize project & assign sponsor. Output: Project Charter. |
-| 3 | **Hypothesis** | **Initiating** | Pre-Project: Design Assumption Formulation | `Ideation-Document.md`<br>(Hypothesis section / `HYP-*.md`) | `agent-learning-governance` / **`classify-hypothesis-status`** | `FULL`<br>(7 actions: advance to testing, mark validated, mark invalidated, etc.) | Inputs: Design assumptions & test logs. Process: Evaluate empirical evidence. Output: Validated / testing status. |
-| 4 | **Benefit** | **Initiating** | Business Documents: Benefits Realization Planning | `Business-Case.md`<br>`Benefits-Statement.md` | `template-governance` / **`approve-business-case`** | `FULL`<br>(3 actions: approve, reject, request revision) | Inputs: Hypotheses & ROI premise. Process: Validate economics. Output: Benefits Statement (Input to Charter). |
+| 2 | **Hypothesis** | **Initiating** | Pre-Project: Design Assumption Formulation | `Ideation-Document.md`<br>(Hypothesis section, `HYP-AL-NNN` rows) | `agent-learning-governance` / **`classify-hypothesis-status`** | `FULL`<br>(6 actions: advance to testing, mark validated, mark invalidated, mark inconclusive, remain formulated/blocked, flag for human review) | Inputs: Design assumptions & test logs. Process: Evaluate empirical evidence. Output: Validated / testing status. |
+| 3 | **Benefit** | **Initiating** | Business Documents: Benefits Realization Planning | `Business-Case.md`<br>`Benefits-Management-Plan.md` | `template-governance` /<br>• **`approve-business-case`**<br>• **`approve-benefits`** | `FULL`<br>(3 actions each: approve, reject, request revision) | Inputs: Hypotheses (Stage 2) & ROI premise. Process: Validate economics. Output: Approved Business Case and Benefits Management Plan (inputs to the Charter). |
+| 4 | **Objective** | **Initiating** | 4.1 Develop Project Charter | `Project-Charter.md` | `template-governance` / **`approve-charter`** | `FULL`<br>(3 actions: approve, reject, request revision) | Inputs: Business Case & Benefits (Stage 3). Process: Authorize project & assign sponsor. Output: Project Charter. |
 | 5 | **Pillars & Architecture** | **Planning** | Pillars Exercise (post-Charter decomposition) | `Project-Pillars.md`<br>High-Level `ADR-*.md` | `agent-learning-governance` / **`approve-project-pillars`**, **`approve-adr`** | `FULL` | Inputs: Project Charter & Hypotheses. Process: Decompose the Charter into pillars; draft ADRs providing 100% pillar coverage. Output: Approved Pillars & ADRs. |
 | 6 | **Requirement** | **Planning** | 5.2 Collect Requirements & 5.3 Define Scope | Architecture & Specs:<br>• `ADR-*.md`<br>• `BRD-*.md`<br>• `FDD-*.md`<br>• `user-stories/*.md` | `template-governance` /<br>• **`approve-adr`**<br>• **`approve-brd`**<br>• **`approve-fdd`**<br>• **`approve-user-stories`** | `FULL`<br>(3 actions each: approve, reject, request revision) | Inputs: Project Charter, Pillars & Hypotheses. Process: Architectural & functional specification. Output: Approved ADR/BRD/FDD/Stories (Feeds Scope Baseline & WBS). |
 | 7 | **Project (PMP & Baselines)** | **Planning** | 4.2 Develop Project Management Plan | `Project-Management-Plan.md`<br>& Subsidiary Plans (`docs/project-docs/management-plans/` / `.staging/pmp-sections/`) | `agent-learning-governance` /<br>• **`approve-subsidiary-plan`** (ADR-013)<br>• **`approve-pmp`** | `FULL`<br>(3 actions each: approve, reject, request revision) | Inputs: Stage 6 Requirements, WBS & tailored subsidiary plans (Scope ADR-025, Schedule, Cost, Quality, Risk, etc.). Process: Prerequisite subsidiary plan gate + integrated baseline formalization. Output: Approved PMP Baseline (`PMP-BL-vX.Y.Z`). |
@@ -136,9 +152,10 @@ This repository has no recorded `resolve-kb-conflict` decision, so no shape is d
 | TaskPolicy | `agent_id` / `task_id` | Authority | PMBOK Process | Operational Role |
 |---|---|---|---|---|
 | **Ideation Approval** | `agent-learning-governance` / `approve-ideation` | `full` | Pre-Project Initiating | Validates Spark Capture and Ideation Document (Stage 1 Intent) |
-| **Charter Approval** | `agent-learning-governance` / `approve-charter` | `full` | 4.1 Develop Project Charter | Validates Project Charter and measurable objectives (Stage 2 Objective) |
-| **Hypothesis Classification** | `agent-learning-governance` / `classify-hypothesis-status` | `full` | Pre-Project Initiating | Evaluates experimental empirical evidence against formulated hypotheses (Stage 3 Hypothesis) |
-| **Business Case Approval** | `agent-learning-governance` / `approve-business-case` | `full` | Business Documents Initiating | Validates Business Case, Benefits Statement, and value premise (Stage 4 Benefit) |
+| **Charter Approval** | `agent-learning-governance` / `approve-charter` | `full` | 4.1 Develop Project Charter | Validates Project Charter and measurable objectives (Stage 4 Objective) |
+| **Hypothesis Classification** | `agent-learning-governance` / `classify-hypothesis-status` | `full` | Pre-Project Initiating | Evaluates experimental empirical evidence against formulated hypotheses (Stage 2 Hypothesis) |
+| **Business Case Approval** | `agent-learning-governance` / `approve-business-case` | `full` | Business Documents Initiating | Validates Business Case and its value premise (Stage 3 Benefit) |
+| **Benefits Plan Approval** | `agent-learning-governance` / `approve-benefits` | `full` | Business Documents Initiating | Validates the Benefits Management Plan — credible target benefits, owners, timeframes, falsifiable metrics (Stage 3 Benefit); a separate gate from Business Case Approval, confirmed from the real approved `Benefits-Management-Plan.md` (episode `8cfdbf52-92bc-445f-aa0d-db729ca8667f`) |
 | **Subsidiary Plan Approval** | `agent-learning-governance` / `approve-subsidiary-plan` | `full` | 5.1/6.1/7.1 Subsidiary Planning | Evaluates individual subsidiary management plans (Scope ADR-025, Schedule, Cost, Risk, Quality) before PMP formalization (ADR-013 §4.2) |
 | **PMP Approval** | `agent-learning-governance` / `approve-pmp` | `full` | 4.2 Develop PMP | Formalizes integrated Project Management Plan and subsidiary management plans (Stage 7 Project & Baselines) |
 | **ADR Approval** | `agent-learning-governance` / `approve-adr` | `full` | 5.3 Define Scope / Architecture | Evaluates architectural soundness, alternatives, and consequence honesty (Stage 6 Requirement) |

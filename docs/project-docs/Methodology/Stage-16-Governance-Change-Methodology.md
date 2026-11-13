@@ -3,8 +3,8 @@ artifact_type: "methodology_guide"
 stage: "16"
 stage_name: "Governance Change"
 pmbok_process: "4.6 Perform Integrated Change Control"
-version: "1.1"
-date: "2026-11-10"
+version: "1.2"
+date: "2026-11-12"
 owner: "Menno Drescher"
 governance_policy: "classify-diff-type (FULL), escalate-diff-response (LOW)"
 ---
@@ -201,6 +201,7 @@ An id search is a lead, not proof (a rule can sit in a skill without its id, an 
 - **Examples:** Version bumps, package additions/removals
 - **Authority:** Varies by impact
 - **Version Impact:** Patch or minor version
+- **First, check the pillar trigger.** A brand-new dependency already needs an explicit ADR (ADR-034 Invariant 1). A version bump or an incoming upstream fork-sync change that meets the same bar — a public-API change, a dropped Python version, a major-version boundary, or anything Invariant 1 would reject as new — is not a plain Dependency Diff: it goes through the Stage 5 pillar check and the full ADR → BRD → FDD → Stories → Schedule Task chain first (Stage 5 Methodology §2 Step 6, proposed 2026-11-12, methodology-level only). Only a bump or sync that does not meet that bar stays here as an ordinary Dependency Diff.
 
 #### 5. Configuration Diffs (Settings Changes)
 - **Definition:** Changes to configuration files
@@ -1132,3 +1133,4 @@ def validate_stage16(assessment_path, register_path, episodes_dir):
 |---|---|---|
 | 2026-11-05 | 1.0 | Phase 1 guide. |
 | 2026-11-10 | 1.1 | Authority in this repository (one decision-maker, no agent approval); the pass covers both registers in full (Step 2a to 2d); two classifications distinguished and routes by artifact added (Step 3); who decides (Step 5); route-specific preparation (Step 6); decision recording through the tooling, with the store-path check and the no-retroactive-approval rule (Step 7); one adaptation per phase (Step 8); input list and validation commands corrected to what exists. Templates and the Obsidian section are unchanged. |
+| 2026-11-12 | 1.2 | Cross-referenced the new Stage 5 pillar-check trigger (Stage 5 Methodology §2 Step 6) under Dependency Diffs (§3, Step 3): a dependency bump or upstream fork-sync change serious enough to meet ADR-034 Invariant 1's own bar for a new dependency is not an ordinary Dependency Diff — it goes through Stage 5/6 first. |

@@ -34,7 +34,7 @@
 - **Sources:**
   - Ideation-Document §1.2, objective 4
   - Ideation-Document §2.1, methodology #4
-  - Benefits-Management-Plan §1a, "Real second case beyond SocialEngage" (the unpackaged contextual-bandit gap)
+  - Benefits-Management-Plan §1a, the unpackaged contextual-bandit gap
 - **An ADR addresses this pillar when:** it decides how contextual learning moves from an example into the packaged SDK.
 
 ### An honest place against SFT, RLVR, and ERL
@@ -65,7 +65,6 @@
   - Business-Case §1, problem 3
   - Business-Case §2, "Repair path for a stuck low-authority decision" (methodologies #9, #10, and #11)
   - Benefits-Management-Plan §1a, "A packaged repair path" (HYP-AL-009)
-  - Benefits-Management-Plan §1a, "Real second case beyond SocialEngage" (HYP-AL-009)
   - Spark-Capture, "The spark" (confidence bounds and reinforcement bandits)
 - **An ADR addresses this pillar when:** it decides a sample-efficient bandit that can cross the autonomy gate on positive-only or skewed evidence without leaving low authority.
 
@@ -135,3 +134,5 @@ A hosted layer someone would pay for has no ADR.
 | --- | --- | --- |
 | 2026-10-30 | Menno Drescher | **Approved** — nine topic pillars, primary ADR assignment table (ADR-001–038). |
 | 2026-10-30 | Menno Drescher / Cursor | **Governance episode** `8fe9fea9-6ef1-44be-82a9-e09677e47a4a` via `approve-project-pillars`; fixture `docs/policy-shapes/episodes/project-pillars-approval-episode.json`. |
+| 2026-11-12 | Menno Drescher / Claude | **Phase-close retrospective (first run, retroactive for Phase 1 and Phase 2)** per Stage 5 Methodology §2 Step 7: walked Phase 1's GC-001–004 and Phase 2's GC-P2-01–07 governance changes and Phase 3's 19 carried hypotheses plus `HYP-AL-028`. **No new pillar or missed ADR found in either phase.** This is a log entry recording a check, not a pillar or Primary-assignment change — no `approve-project-pillars` re-run needed. |
+| 2026-11-12 | Menno Drescher / Claude | Removed two stale `Benefits-Management-Plan.md` source citations naming "SocialEngage" (that exact quoted text no longer exists in the live plan, and SocialEngage has no governance relationship to this project) — kept the underlying sourcing (the unpackaged contextual-bandit gap; HYP-AL-009's packaged repair path), dropped only the unrelated-project reference. Pending `approve-project-pillars` re-confirmation. |

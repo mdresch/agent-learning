@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-026](../../adr/ADR-026-schedule-management-plan-standard-and-baseline-contract.md) — Accepted (2026-10-29, Menno), episode `8be53179-eb4e-4f1c-b71d-0efa79e0876d`  
 **Governing Baseline:** none approved yet; cycle `CYC-001` (ADR-035, Accepted)  
-**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-026; adjudicated via `approve-brd` (robust utility 0.718, episode `6f500ffb-054a-49f6-a3a7-323cecdc19a9`).  
+**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-026; adjudicated via `approve-brd` (robust utility 0.718, episode `6f500ffb-054a-49f6-a3a7-323cecdc19a9`).   Amended 2026-11-13 at Stage 16: BRU-026-09 added: Section 2 Task/WBS rollup presence check, matching ADR-026 4.2.1-4.2.3, classified `amendment_log_entry` (robust utility 0.875, episode `92ee2304...`) and accepted by Menno Drescher.
 **Stakeholders:** Menno (Sponsor, Project Manager, maintainer)
 
 ## Business Need
@@ -21,6 +21,7 @@ A reviewer needs three things this requirement adds. A Schedule plan is measured
 - **BRU-026-06 (The recommendation is fixed before it is shown):** The chosen action and a UTC timestamp are stored before a person sees them, and that record is not rewritten. Until the number of recorded decisions for this policy reaches the minimum in the policy profile, the recommendation is stored and not shown. The ADR does not set that minimum. While it is unset, nothing is shown. When a person later follows the recommendation, the reward on the recommendation is positive. When they override it, the reward is negative. The learner trains on the recommendation, not on `approve_plan`, `reject_plan`, or `request_revision_before_decision`.
 - **BRU-026-07 (Schedule change control is a writing and review rule):** The plan states that the Project Manager is accountable for the schedule baseline, and that milestone acceptance follows the Scope Definition of Done. A milestone slip of at most 2 working days that is not on the critical path stays at the Project Manager's discretion and is logged. A slip of more than 2 working days, any slip of a critical-path milestone, or a changed milestone exit condition goes through `approve-adaptation-plan` or a design-time baseline revision (`BFI-NNN`, ADR-037). A stricter tolerance written in the Charter takes precedence over these defaults (ADR-026 §8 item 1). The plan states the planning horizon, the schedule baseline, where contingency is held, who may consume it, and a review at each timebox boundary and at phase close. Section 1 states the development approach when the Charter does not (ADR-026 §4.5, still marked for maintainer confirmation). This rule has no lint flag. Downstream staleness stays the ADR-013 graph: an approved Schedule change marks Cost, Resource, and Risk stale, and Procurement through Cost.
 - **BRU-026-08 (Storage boundary):** The Schedule checks and the recommendation record are plain data. No new `LearningStore` record type (ADR-002). No plan text is copied into learner metadata. The content hash stays out of the plan file. Estimation does not read velocity from the store (ADR-026 §8 item 2).
+- **BRU-026-09 (WBS rollup and Task identification are present — added 2026-11-11):** Under the same ADR-012 heading as BRU-026-03, Section 2 also states the Task level and, for a `full_plan`, the WBS rollup. A Schedule section that never says `task` produces one Tier B `MISSING_REQUIRED_SECTION` whose message says task identification is missing. A `full_plan` whose Section 2 says neither `wbs` nor `rollup` produces a second Tier B finding naming the WBS rollup hierarchy as missing (ADR-026 §4.2.1). A `pmp_section` is not checked for the rollup phrase. This rule does not check the WBS code's segments against a real Epic, Story, Step, or Checklist item; that stays human review.
 
 ## Stakeholder Success Metrics
 
@@ -36,6 +37,7 @@ A reviewer needs three things this requirement adds. A Schedule plan is measured
 | Anchoring | A stored recommendation keeps its action and timestamp across a second call |
 | Withholding | With the minimum unset, 0 recommendations are marked shown |
 | Storage | 0 new record types; 0 imports of the store from the new Schedule module |
+| Task/WBS section | A Schedule body missing `task`, or (`full_plan` only) missing both `wbs` and `rollup`, produces the matching Tier B finding; a present statement produces none |
 
 ## Out of Scope
 
@@ -49,3 +51,4 @@ A reviewer needs three things this requirement adds. A Schedule plan is measured
 - Regrouping the nine learners by PMBOK 8 domain (ADR-026 §8 item 3).
 - A shared prior across the nine plan learners (HYP-AL-008).
 - Showing that the learner recommends well. It has no episodes.
+- Validating a WBS code's segments (Phase, Group, Stage, Epic/Step, Story/Checklist Item) against a real epic, story, Step, or checklist item (ADR-026 §4.2.3). The lint checks that the rollup is stated, not that its numbers are correct.

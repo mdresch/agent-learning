@@ -44,7 +44,7 @@ Autonomous AI agents are repeatedly bottlenecked by heavy, non-deterministic LLM
 What if agents had an in-process, lightweight, Bayesian decision-and-learning layer? Keep the foundation model frozen, and give recurring decisions an explicit, interpretable TaskPolicy with mathematically proven confidence bounds and reinforcement bandits.
 
 ### Why Now
-In production agentic loops (e.g. SocialEngage, ADPA, triage bots), agents make thousands of repeated discrete decisions daily. Fine-tuning takes hours to days and is unreplayable. A pure in-process policy layer with Thompson sampling and Softmax updates can learn from feedback in milliseconds with zero GPU overhead.
+In production agentic loops (e.g. SIDPA-template-governed agent systems, triage bots), agents make thousands of repeated discrete decisions daily. Fine-tuning takes hours to days and is unreplayable. A pure in-process policy layer with Thompson sampling and Softmax updates can learn from feedback in milliseconds with zero GPU overhead.
 
 ---
 
@@ -72,7 +72,7 @@ What if agent learning natively incorporates **Option B (Critique-to-Evidence + 
 
 **Date:** 2026-11-11 (Version 3.0)  
 **Captured by:** Menno Drescher / Stage 18 Cognitive Feedback Gate (`IRP-20261111-001`, `PCD-20261111-001` episode `fa8603c7`)  
-**Anchor Baseline:** `PMP-BL-v1.1.0` | **Target Baseline:** `PMP-BL-v1.2.0` (formalized at Stage 7 artifact approvals)  
+**Anchor Baseline:** `PMP-BL-v1.1.0` | **Target Baseline:** `PMP-BL-v1.2.0` (created in Stage 18 as one of its final steps (Sponsor, 2026-11-11))  
 **Cumulative Lineage Kernel:** `579b62bfe11607b2287b16a99fdc36d14350fe864ffef1d60a8ca1712247c8b8` (`CLK-20261111-001`, Generation 2)  
 **Status:** Seeded Initiating Directive for Phase 3 (awaiting prospective `approve-ideation` at Stage 1)
 

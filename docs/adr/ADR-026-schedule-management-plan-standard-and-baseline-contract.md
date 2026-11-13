@@ -10,7 +10,7 @@ It inherits the ADR-012 universal contract (frontmatter, three literal headings,
 ---
 
 ## 2. Status
-**Accepted (2026-10-29, Menno)** — Plan Tier 1 standard, inheriting ADR-012 and ADR-025. Episode: `8be53179-eb4e-4f1c-b71d-0efa79e0876d`.
+**Accepted (2026-10-29, Menno)** — Plan Tier 1 standard, inheriting ADR-012 and ADR-025. Episode: `8be53179-eb4e-4f1c-b71d-0efa79e0876d`. Amended 2026-11-13 at Stage 16: Add 4.2.1-4.2.3 WBS rollup, Task definition, Gantt illustration, numbering scheme, classified `correction_note` (robust utility 0.965, episode `3d6019be...`) and accepted by Menno Drescher.
 
 ---
 
@@ -83,6 +83,142 @@ The plan body uses the three literal ADR-012 §4.3.1 headings. Schedule content 
 * **Review Cadence:** At each timebox boundary and at phase close.
 * **Transitive Downstream Invalidation:** An approved Schedule baseline change marks Cost (7.1), Resource (9.1) and Risk (11.1) `STALE_DEPENDENCY`; Procurement (12.1) follows transitively through Cost (ADR-013 §4.5).
 
+### 4.2.1 WBS Rollup Hierarchy and Task Definition
+
+*Added by amendment, 2026-11-11.* The schedule's unit of work rolls up through five levels. Each level is sourced from one existing system of record; none is re-authored at a lower level's expense.
+
+**Phase – Group – Stage – Step / Epic – Checklist Item / User Story.** Levels 4 and 5 fork by Stage, and the two paths never mix: Stage 9 (Deliverable) takes Epic then User Story; every other Stage (1–8, 10–18) takes Step then Checklist Item.
+
+1. **Phase (Cycle):** one project phase, per `governance-orchestrator`'s cycle (`decisions.ndjson` `cycle_start` lines; the cycle number is derived from verified starts, never set directly). Phase 2 of this project is cycle 2.
+2. **Group:** the PMBOK process group named in `governance-orchestrator/journey/stages.json`'s `group` field — Initiating, Planning, Planning to Executing, Executing, Monitoring and Controlling, Closing and Adaptive Feedback, Closing and Strategic Feedback.
+3. **Stage:** one of the 18 stages in the same registry, each carrying its predecessor stages in `after: number[]`.
+4. **Step (every Stage except 9) / Epic (Stage 9 only):** the grouping level directly under Stage. Step is the Stage's own internal procedural step, named in its Methodology document. Epic is the parent epic named in `Scope-WBS-Dictionary.md`. Neither is itself the Task.
+5. **Checklist Item (every Stage except 9) / User Story (Stage 9 only):** the Task leaf. Checklist Item is one item in that Step's own Checklist. User Story is the story itself — Work Package, Schedule Activity and Task collapse to the story, matching the story-points estimation basis in §4.2. Neither leaf decomposes further.
+
+A Task is never both. A story's own internal implementation steps (e.g. `implement-story` Steps 0–9) stay a single User-Story Task under Stage 9; the Step/Checklist-Item path applies only to Stages that carry no story.
+
+**Predecessor sourcing:** Task-level sequencing is also a reference, not new data. A Stage Step's predecessor is the prior Step in its Stage; a Stage's predecessor is whatever `after` already names in `journey/stages.json`.
+
+**Relation to the Milestone Register:** A Milestone remains a checkpoint on this backbone, not an added level — it names where the critical path crosses one or more Stages/Groups within the current Phase (e.g. M10 Formal Close Gate = exit of Stages 16–18 within the current Phase). A Milestone's Task list is whichever Tasks, User Story or Stage Step, fall inside its window.
+
+### 4.2.2 Illustrative Gantt (Phase 2)
+
+*Added by amendment, 2026-11-11.* Dates below are a day index (`2026-01-01` = day 1), chained with Mermaid's `after` syntax rather than fixed calendar dates. This is a structural sequence illustration of §4.2.1, not a calendar commitment — §6 Alternative 1 already rejects a fixed dated Gantt for the project. Real timing stays at the Milestone Register (§4.2) in person-days.
+
+**Group → Stage**, the full Phase 2 chain, sourced from `journey/stages.json`'s `after` field:
+
+```mermaid
+gantt
+    title Phase 2 (Cycle 2) -- Group to Stage sequence (illustrative order only, not a calendar commitment)
+    dateFormat YYYY-MM-DD
+    axisFormat Day %j
+
+    section Initiating
+    Stage 1 Intent (Step)                        :s1, 2026-01-01, 1d
+    Stage 3 Hypothesis (Step)                     :s3, after s1, 1d
+    Stage 4 Benefit (Step)                        :s4, after s3, 1d
+    Stage 2 Objective (Step)                      :s2, after s4, 1d
+
+    section Planning
+    Stage 5 Pillars and Architecture (Step)       :s5, after s2, 1d
+    Stage 6 Requirement (Step)                    :s6, after s5, 1d
+    Stage 7 Project - PMP and Baselines (Step)    :s7, after s6, 1d
+
+    section Planning to Executing
+    Stage 8 Implementation Readiness (Step)       :s8, after s7, 1d
+
+    section Executing
+    Stage 9 Deliverable (User Story)              :crit, s9, after s8, 1d
+
+    section Monitoring and Controlling
+    Stage 10 Verification Evidence (Step)         :s10, after s9, 1d
+    Stage 11 Audit Record (Step)                  :s11, after s10, 1d
+    Stage 12 Actual Outcome (Step)                :s12, after s11, 1d
+    Stage 13 Observation (Step)                   :s13, after s11, 1d
+    Stage 14 Insight (Step)                        :s14, after s13, 1d
+    Stage 15 Lesson Learned (Step)                 :s15, after s14, 1d
+    Stage 16 Governance Change (Step)              :s16, after s15, 1d
+
+    section Closing and Adaptive Feedback
+    Stage 17 Adaptation Plan (Step)                :s17, after s16, 1d
+
+    section Closing and Strategic Feedback
+    Stage 18 Intent Refinement (Step)              :s18, after s17, 1d
+```
+
+**Stage → Task, zoomed in on one of each kind.** Stage 9 resolves to User-Story Tasks (Epic 38 example, from `Scope-WBS-Dictionary.md`); Stage 18 resolves to Stage-Step Tasks (from `Stage-18-Intent-Refinement-Methodology.md`). Neither zoom carries a predecessor from the Group-level diagram above; each restarts its own illustrative day index.
+
+```mermaid
+gantt
+    title Stage 9 (Deliverable) expanded -- Task = User Story (Epic 38 example)
+    dateFormat YYYY-MM-DD
+    axisFormat Day %j
+
+    section Epic 38: Packaged Contextual Learning
+    38.1 The Weight-Row Update                         :e1, 2026-01-01, 1d
+    38.2 Skipped Episodes Are Counted                  :e2, after e1, 1d
+    38.3 One Learner, One Policy Class                 :e3, after e2, 1d
+    38.4 Init Can Create The Contextual Policy         :e4, after e3, 1d
+    38.5 Decide Requires The Feature List              :e5, after e4, 1d
+    38.6 Scalar Commands Leave The Weight Rows Alone   :e6, after e5, 1d
+```
+
+```mermaid
+gantt
+    title Stage 18 (Intent Refinement) expanded -- Task = Stage Step
+    dateFormat YYYY-MM-DD
+    axisFormat Day %j
+
+    section Stage 18: Intent Refinement
+    Step 1 Readiness Audit                         :t1, 2026-01-01, 1d
+    Step 2 Hypothesis Inventory                    :t2, after t1, 1d
+    Step 3 Bayes Factor Adjudication                :t3, after t2, 1d
+    Step 4 Low-Pass Damping                         :t4, after t3, 1d
+    Step 5 Strategic Pivot Capacity Validation      :t5, after t4, 1d
+    Step 6 Intent Refinement Proposal               :t6, after t5, 1d
+    Step 7 Approval Gate                            :crit, t7, after t6, 1d
+    Step 8 Phase Seeding                            :t8, after t7, 1d
+```
+
+One level finer still — Stage 18's Step 1 expanded into its own Checklist items, the true Task leaf for a Stage-Step Task:
+
+```mermaid
+gantt
+    title Stage 18 Step 1 (Readiness Audit) expanded -- Task = Checklist Item
+    dateFormat YYYY-MM-DD
+    axisFormat Day %j
+
+    section Step 1: Readiness Audit
+    evaluate_phase_close_readiness() returns READY       :c1, 2026-01-01, 1d
+    All Stage 1-17 artifacts are committed               :c2, after c1, 1d
+    All governance episodes are recorded                 :c3, after c2, 1d
+    Test suite passes with no regressions                :c4, after c3, 1d
+    Project-Status-Register.md shows Stage 17 COMPLETED   :c5, after c4, 1d
+```
+
+### 4.2.3 WBS Numbering Scheme
+
+*Added by amendment, 2026-11-11.* A Task's WBS code always has five segments, because in both cases the leaf-level identifier is itself a pair: `<Phase>.<Group>.<Stage>.<Epic#>.<Story#>` for a User-Story Task (Stage 9 only — a story's real identifier is already the dotted `epic.story` pair in `Scope-WBS-Dictionary.md`'s `Story` column, e.g. `38.6`), or `<Phase>.<Group>.<Stage>.<Step#>.<Item#>` for a Stage-Step Task (every other Stage — a Step's own Checklist in its Methodology document numbers its items, e.g. Stage 18 Step 1 has 5). Step is a grouping level here, parallel to Epic, not itself the Task:
+
+* **Phase** — the cycle number (1, 2, …), per §4.2.1.
+* **Group** — the Task's Stage's ordinal position among the five canonical PMBOK process groups (Initiating, Planning, Executing, Monitoring & Controlling, Closing), not the seven finer-grained strings carried in `journey/stages.json`'s `group` field. Those seven collapse into the five as follows:
+
+| `journey/stages.json` `group` | Canonical group # |
+|---|:---:|
+| Initiating | 1 |
+| Planning | 2 |
+| Planning to Executing | 3 *(proposed — bucketed with the Executing it authorizes entry to; open per §8 item 4)* |
+| Executing | 3 |
+| Monitoring and Controlling | 4 |
+| Closing and Adaptive Feedback | 5 |
+| Closing and Strategic Feedback | 5 |
+
+* **Stage** — the Stage's own `id` in `journey/stages.json` (1–18). Unchanged across phases and groups. Which pair fills the last two segments is never ambiguous: Stage 9 (Deliverable) always takes Epic#.Story#; every other Stage always takes Step#.Item# (Invariant 6).
+* **Epic#.Story#** (User-Story Task, Stage 9 only) — the real epic and story numbers already used in `Scope-WBS-Dictionary.md`, verbatim. No renumbering, no derived ordinal.
+* **Step#.Item#** (Stage-Step Task, any Stage except 9) — Step# is that Step's plain ordinal within its Stage; Item# is the checklist item's ordinal within that Step's own Checklist, both as listed in the Stage's Methodology document, unpadded.
+
+Examples: `1.1.1.1.1` = Phase 1, Initiating, Stage 1 (Intent), Step 1, checklist item 1. `1.1.1.1.2` = Phase 1, Initiating, Stage 1, Step 1, checklist item 2. `2.5.18.1.1` = Phase 2, Closing, Stage 18 (Intent Refinement), Step 1 (Readiness Audit), checklist item 1 (`evaluate_phase_close_readiness()` returns READY). `2.3.9.38.6` = Phase 2, Executing, Stage 9 (Deliverable), Epic 38, Story 6.
+
 ### 4.3 Floor and Cap Thresholds
 
 Measurement follows ADR-012 §4.3.1. Floors are raised above the ADR-012 baseline defaults and caps tightened, as ADR-012 §4.3.2 permits for Tier 1 plans.
@@ -149,6 +285,7 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 3. **Tier 1 Omission Is Flagged:** `not_applicable` raises `FLAG: OMISSION_OF_BASE_PLAN` and needs recorded rationale and sponsor confirmation (ADR-011 §3.2).
 4. **Flags, Not Blocks:** Floor, cap, boundary and structure findings are Tier B/C flags resolved by recorded rationale in `Episode.metadata`; only Tier A integrity violations block (ADR-012 Invariant 8).
 5. **Graduation and Rejection:** Over-cap `pmp_section` graduation and `approve-pmp` / `approve-subsidiary-plan` rejection follow ADR-012 §4.5; lifecycle states are projected from episodes (ADR-034 §4.2.2).
+6. **Task Is Story XOR Checklist Item:** A Task traces to exactly one of a User Story under its Epic (`Scope-WBS-Dictionary.md`, Stage 9 only) or a Checklist Item under its Step (`journey/stages.json` plus that Stage's Methodology document, every other Stage), never both for the same unit of work, and never as new content authored directly in the Schedule plan (§4.2.1).
 
 ---
 
@@ -175,6 +312,7 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 1. **Tolerance Authority:** May the Charter alone tighten the default 2-working-day tolerance, or does that need an ADR-011 route-style decision? *Resolved in practice:* The Charter approver declares stricter tolerances in Charter success metrics; ADR-011 tailoring adopts Charter thresholds without requiring a separate route decision.
 2. **Velocity Evidence:** Whether estimation basis should reference measured velocity from `LearningStore` episodes (deferred to tooling).
 3. **PMBOK 8 Domain Re-basing:** PMBOK 8 has seven performance domains, while the repo uses nine plan areas and one learner per area. The nine are kept; whether learners are regrouped by domain is decided in the plan standards ADR.
+4. **WBS Code Group Bucketing for Stage 8:** Whether "Planning to Executing" (Stage 8) codes as canonical group 2 (Planning) or 3 (Executing) in the §4.2.3 WBS numbering scheme. *Proposed:* group 3, since the stage's gate authorizes entry to Executing rather than closing out Planning. Open for maintainer confirmation.
 
 ---
 
@@ -189,3 +327,4 @@ Source: `learning-methodology-selection` skill and Ideation Document §2.1.
 | 2026-10-28 | Learner Decision | Added §4.4.1 deciding to build the `advise-schedule-plan-decision` advisory learner on #2 softmax bandit with REINFORCE at `low` authority, fed by #5 and #6. Advisory only; no episodes created. |
 | 2026-10-28 | Learner Safeguards and Re-basing Gap | Added to §4.4.1 the anchoring and thin-data safeguard, and to §8 the open question on regrouping learners by PMBOK 8 domain. |
 | 2026-10-29 | **Accepted by Menno** | Formally adjudicated and accepted through `approve-adr`; robust utility 0.726, expected utility 0.798; Episode `8be53179-eb4e-4f1c-b71d-0efa79e0876d`. |
+| 2026-11-11 | WBS Rollup Hierarchy and Task Definition | Added §4.2.1: the schedule rolls up five levels, Phase – Group – Stage – Step/Epic – Checklist Item/User Story, forking at level 4 by Stage (Stage 9 Deliverable takes Epic then User Story from `Scope-WBS-Dictionary.md`; every other Stage takes Step then Checklist Item from `journey/stages.json` + that Stage's Methodology document), both paths by reference only, never both for the same unit of work (Invariant 6). Added §4.2.2 three illustrative Gantt diagrams for the rollup, including Stage 18 Step 1 expanded to its 5 real checklist items (day-index sequencing, not a calendar commitment — §6 Alt. 1). Added §4.2.3 the resulting five-segment WBS code, `<Phase>.<Group>.<Stage>.<Epic#>.<Story#>` or `<Phase>.<Group>.<Stage>.<Step#>.<Item#>`, and the collapse of the registry's seven `group` strings to the five canonical PMBOK process groups (Stage 8's bucketing flagged open at §8 item 4). Proposed; this is a change to an already-accepted ADR, so it needs Stage 16 amendment classification (`scripts/stage16_amend.py propose` then `accept`) before it stands. |

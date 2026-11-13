@@ -32,7 +32,7 @@ MATRIX = ROOT / "docs" / "project-docs" / "Methodology-Tailoring-Matrix.md"
 LEDGER = ROOT / "docs" / "project-docs" / "Methodology-Best-Practice-Ledger.md"
 CATALOG = ROOT / "examples" / "methodologies" / "catalog.json"
 LL_REGISTER = ROOT / "docs" / "project-docs" / "Lessons-Learned-Register.md"
-IDEATION = ROOT / "docs" / "project-docs" / "Ideation-Document.md"
+HYPOTHESIS_REGISTER = ROOT / "docs" / "project-docs" / "Hypothesis-Register.md"
 
 COLUMNS = ["Need", "Applies to", "Methodology (catalog ids)", "Hypothesis", "Falsifiable by", "Ledger", "Status"]
 
@@ -87,8 +87,8 @@ def test_ac0_every_row_is_marked_hypothesis_never_finding() -> None:
     assert "finding" not in {row["Status"] for row in _rows()}
 
 
-def test_ac0_every_hypothesis_named_in_a_row_exists_in_the_ideation_document() -> None:
-    known = set(re.findall(r"\*\*(HYP-AL-\d{3})\*\*", IDEATION.read_text(encoding="utf-8")))
+def test_ac0_every_hypothesis_named_in_a_row_exists_in_the_hypothesis_register() -> None:
+    known = set(re.findall(r"\*\*(HYP-AL-\d{3})\*\*", HYPOTHESIS_REGISTER.read_text(encoding="utf-8")))
     for row in _rows():
         named = re.findall(r"HYP-AL-\d{3}", row["Hypothesis"])
         assert named, row["Need"]

@@ -8,7 +8,9 @@ Interpretations not stated verbatim in the acceptance criteria (LL-011):
 - I1: the module does no file I/O (FDD-036 section 1), so the identifiers that links must resolve
   to (`LL-###`, `HYP-AL-###`) are passed in as `known_links`. With `None` the resolution check is
   skipped; the format check always runs. The register test below passes the real sets, read from
-  the Lessons Learned Register and the Ideation Document.
+  the Lessons Learned Register and the Hypothesis Register (Stage 2's own document since
+  2026-11-12; hypotheses moved out of the Ideation Document, see Hypothesis-Register.md's
+  Amendment Log).
 - I2: "the declared tier" is a `tier` field on the entry (low, standard, high, critical). It is
   required when the status is `adopted`, and the gate is `AutonomyConfig.for_tier(tier).min_outcomes`,
   so a tier-specific environment override applies as it does to autonomy (ADR-003).
@@ -34,7 +36,7 @@ from agent_learning.methodology_ledger import LedgerEntry, current_entries, pars
 ROOT = Path(__file__).resolve().parent.parent
 REGISTER = ROOT / "docs" / "project-docs" / "Methodology-Best-Practice-Ledger.md"
 LL_REGISTER = ROOT / "docs" / "project-docs" / "Lessons-Learned-Register.md"
-IDEATION = ROOT / "docs" / "project-docs" / "Ideation-Document.md"
+HYPOTHESIS_REGISTER = ROOT / "docs" / "project-docs" / "Hypothesis-Register.md"
 MODULE = ROOT / "src" / "agent_learning" / "methodology_ledger.py"
 
 
@@ -251,7 +253,7 @@ def test_ac4_the_module_imports_nothing_from_storage_and_does_no_file_io() -> No
 
 def _known_links() -> set[str]:
     ll = set(re.findall(r"^\| \[(LL-\d{3})\]", LL_REGISTER.read_text(encoding="utf-8"), re.MULTILINE))
-    hyp = set(re.findall(r"\*\*(HYP-AL-\d{3})\*\*", IDEATION.read_text(encoding="utf-8")))
+    hyp = set(re.findall(r"\*\*(HYP-AL-\d{3})\*\*", HYPOTHESIS_REGISTER.read_text(encoding="utf-8")))
     return ll | hyp
 
 

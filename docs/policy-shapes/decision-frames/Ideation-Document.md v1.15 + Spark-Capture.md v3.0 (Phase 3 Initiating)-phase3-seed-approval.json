@@ -1,0 +1,133 @@
+{
+  "task": "Ideation-Document.md v1.15 with Spark-Capture.md v3.0 (Phase 3 Initiating): approve, reject, or request revision",
+  "criteria": [
+    {
+      "id": "strategic_motivation_clear",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Spark-Capture.md v3.0 Part 3 and Ideation-Document.md v1.15 SS1.1-1.2 state a concrete Phase 3 trigger (Phase 2 close, 19 non-terminal hypotheses, deferred GC-P2-04..07 items) and measurable objectives, honestly marking objectives 4 and 5 as not yet true rather than overclaiming."
+    },
+    {
+      "id": "hypotheses_falsifiable",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "HYP-AL-028 (DPO sample efficiency) has a crisp statement and an explicit falsification criterion; the 19 carried-over hypotheses are stated as unchanged carryover blocked on external evidence (LL-044), not force-classified."
+    },
+    {
+      "id": "scope_and_gaps_grounded",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "SPARK-P3-001..004 trace to real, named items (CR-20261111-001, GC-P2-04..07, IMP-050/031/065-068, carry-over Epics 23/24/39); nothing is invented to fill a gap."
+    },
+    {
+      "id": "snapshot_accuracy_dated",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Both documents are dated (2026-11-11 / 2026-11-07), cite consistent lineage hash 579b62bfe116... (CLK-20261111-001), consistent baseline ids (anchor PMP-BL-v1.1.0, target PMP-BL-v1.2.0), and correctly cite the superseded Phase 2 episode a8db17b5-9134-4b7c-97f9-80cfe9ade4a1."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_ideation",
+      "evidence": [
+        {
+          "criterion_id": "strategic_motivation_clear",
+          "source": "direct_doc_read:Spark-Capture.md@v3.0+Ideation-Document.md@v1.15 SS1.1-1.2",
+          "support": 0.93,
+          "confidence": 0.9
+        },
+        {
+          "criterion_id": "hypotheses_falsifiable",
+          "source": "direct_doc_read:Ideation-Document.md@v1.15 HYP-AL-028 row and carry-over list",
+          "support": 0.9,
+          "confidence": 0.88
+        },
+        {
+          "criterion_id": "scope_and_gaps_grounded",
+          "source": "direct_doc_read:Spark-Capture.md@v3.0 SPARK-P3-001..004",
+          "support": 0.88,
+          "confidence": 0.85
+        },
+        {
+          "criterion_id": "snapshot_accuracy_dated",
+          "source": "direct_doc_read:both documents' header metadata and lineage hash",
+          "support": 0.9,
+          "confidence": 0.9
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_ideation",
+      "evidence": [
+        {
+          "criterion_id": "strategic_motivation_clear",
+          "source": "direct_doc_read:Spark-Capture.md@v3.0+Ideation-Document.md@v1.15 SS1.1-1.2",
+          "support": 0.04,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "hypotheses_falsifiable",
+          "source": "direct_doc_read:Ideation-Document.md@v1.15 HYP-AL-028 row and carry-over list",
+          "support": 0.04,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "scope_and_gaps_grounded",
+          "source": "direct_doc_read:Spark-Capture.md@v3.0 SPARK-P3-001..004",
+          "support": 0.05,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "snapshot_accuracy_dated",
+          "source": "direct_doc_read:both documents' header metadata and lineage hash",
+          "support": 0.03,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "strategic_motivation_clear",
+          "source": "direct_doc_read:Spark-Capture.md@v3.0+Ideation-Document.md@v1.15 SS1.1-1.2",
+          "support": 0.08,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "hypotheses_falsifiable",
+          "source": "direct_doc_read:Ideation-Document.md@v1.15 HYP-AL-028 row and carry-over list",
+          "support": 0.1,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "scope_and_gaps_grounded",
+          "source": "direct_doc_read:Spark-Capture.md@v3.0 SPARK-P3-001..004; SPARK-P3-004's Task-Ownership-Register is still conceptual, honestly flagged as a preparation item rather than claimed done",
+          "support": 0.12,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "snapshot_accuracy_dated",
+          "source": "direct_doc_read:both documents' header metadata and lineage hash",
+          "support": 0.07,
+          "confidence": 0.75
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

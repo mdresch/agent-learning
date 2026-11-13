@@ -9,7 +9,7 @@ secondary_pmbok_domains:
 legacy_process: "6.1 Plan Schedule Management"
 route: "full_plan"
 generator: "llm"
-version: "2.0.0"
+version: "2.1.0"
 baseline_id: "PMP-BL-v1.0.1"
 target_baseline_id: "PMP-BL-v1.1.0"
 owner_role: "Project Manager"
@@ -37,7 +37,7 @@ governance_policy: "approve-subsidiary-plan"
 > **Scope baseline:** [Scope-Management-Plan.md](Scope-Management-Plan.md) v2.0.0 (foundation pack **6.A**)  
 > **Historical Baseline Archive:** Frozen Phase 1 schedule plan preserved in [`docs/project-docs/history/PMP-BL-v1.0.0/management-plans/Schedule-Management-Plan.md`](../history/PMP-BL-v1.0.0/management-plans/Schedule-Management-Plan.md)  
 
-For `PMP-BL-v1.1.0`, the **integrated schedule baseline** = approved **[Schedule-Foundation-Pack-Manifest.md](schedule-baseline/Schedule-Foundation-Pack-Manifest.md)** + approved **this plan** (v2.0.0). Phase 2 operationalizes dependency-sequenced delivery across **Milestones M6 through M10**, authorizing Band C and Band D execution in `agent-training-ext/`.
+For `PMP-BL-v1.1.0`, the **integrated schedule baseline** = approved **[Schedule-Foundation-Pack-Manifest.md](schedule-baseline/Schedule-Foundation-Pack-Manifest.md)** + approved **this plan** (v2.1.0, pending re-approval — see §4 Amendment Log). Phase 2 operationalizes dependency-sequenced delivery across **Milestones M6 through M10**, authorizing Band C and Band D execution in `src/agent_learning_ext/`.
 
 ---
 
@@ -64,6 +64,19 @@ This Schedule Management Plan defines scheduling methodology, critical-path cont
 * Real-time wall-clock commitments or strict calendar deadlines (execution is milestone-gated).
 * Schedule tracking based on stochastic LLM code generation speed.
 * Continuous deployment to live production clusters (embeddable SDK and CLI only).
+
+### 1.4 Task Identification & WBS Rollup (ADR-026 §4.2.1)
+
+Each Milestone above (§1.2) decomposes into Tasks per ADR-026 §4.2.1's five-level rollup, **Phase (Cycle) → Group → Stage → Step/Epic → Checklist Item/User Story**:
+
+* **M6–M9's Epic-anchored work (Stage 9, Deliverable):** the Task is the User Story itself — the real `epic.story` WBS package id already named against each Milestone in the Scope Management Plan §1.6 (e.g. M6 → Epic 14 Stories 14.1–14.6). No new numbering is introduced here; the Story id *is* the Task id.
+* **The governance/process work that bounds every Milestone** (Stage 8 Authorization gating M6; Stage 10–18 verification, audit, and close work through M10): the Task is a Checklist Item under a numbered Step in that Stage's methodology guide (`docs/project-docs/Methodology/Stage-N-*-Methodology.md`, Stages 1 through 18). This plan references those Steps; it does not restate them.
+
+**WBS code (ADR-026 §4.2.3), always five segments:** `<Phase>.<Group>.<Stage>.<Epic#>.<Story#>` for a Stage 9 Task (example: `2.3.9.14.1` = Phase 2, Executing, Stage 9, Epic 14, Story 1 — M6's first task) or `<Phase>.<Group>.<Stage>.<Step#>.<Item#>` for every other Stage's Task (example: `2.5.18.1.1` = Phase 2, Closing, Stage 18, Step 1, Checklist Item 1 — ADR-026 §4.2.2's own Gantt example). Stage 8's Group segment is still open (ADR-026 §8 item 4); no WBS example is coded for it until that is confirmed.
+
+A Task is never both a User Story and a Checklist Item for the same unit of work (ADR-026 Invariant 6), and this plan never authors a Checklist Item or a Story directly — both stay references to their systems of record (the relevant Stage's methodology guide, and `Scope-WBS-Dictionary.md`/the epic files, respectively).
+
+**Status:** this section mirrors ADR-026 §4.2.1–§4.2.3, drafted 2026-11-11 and still pending its own Stage 16 amendment acceptance.
 
 ---
 
@@ -110,3 +123,4 @@ flowchart LR
 | 2026-10-25 | Menno Drescher / Antigravity | Initial full baseline Schedule Management Plan replacing stub mock content per ADR-012 and ADR-026. |
 | 2026-11-01 | Menno Drescher / Antigravity | **v1.2.0 — 6.B approved:** Integrated Schedule foundation pack; approved under `approve-subsidiary-plan` (Episode `d8ee6350-a7ce-48c7-a566-d2e602c28c9a`). |
 | 2026-11-08 | Menno Drescher / Antigravity | **v2.0.0 — Phase 2 Schedule Formalization:** Advanced to `v2.0.0` for Phase 2 under `PMP-BL-v1.0.1` targeting `PMP-BL-v1.1.0`. Established Milestones M6 through M10 critical path (30.0 pd effort), integrated Phase 2 activity list, logic network, and Gantt CPM forward pass. |
+| 2026-11-12 | Menno Drescher / Claude | **v2.1.0 — Task Identification & WBS Rollup (ADR-026 §4.2.1–§4.2.3) and a path correction:** Added §1.4 stating each Milestone's Task-level decomposition (User Story for Stage 9 work; Checklist Item under a Stage Step, per `docs/project-docs/Methodology/Stage-N-*-Methodology.md`, for every other Stage), with WBS code examples. **Also corrected the `agent-training-ext/` reference to the real package path, `src/agent_learning_ext/`** (confirmed on disk; the stated path never existed). **Pending `approve-subsidiary-plan` re-approval; ADR-026 §4.2.1–§4.2.3 itself is pending its own Stage 16 amendment acceptance** — this entry records the draft, not an approved baseline change. |

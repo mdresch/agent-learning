@@ -1,0 +1,25 @@
+{
+  "document": "docs/user-stories/epic-26-schedule-management-plan-standard-and-baseline-contract.md",
+  "tag": "2026-11-11",
+  "base_commit": "e70cc2e",
+  "candidate_sha256": "27d1b5604aef489e4f185276f5b5c286128d768d8343630fbade12906384e013",
+  "features": {
+    "lines": 21,
+    "terms_removed": 9,
+    "terms_kept": 9,
+    "goal_preserved": true,
+    "requirement_inverted": false,
+    "normative_touched": true,
+    "status_line_changed": true,
+    "downstream_refs": 4,
+    "change_ratio": 0.53
+  },
+  "observed": [
+    0.25,
+    0.1,
+    0.8,
+    0.9
+  ],
+  "proposed_action": "pending_supersession_note",
+  "accepted": false
+}

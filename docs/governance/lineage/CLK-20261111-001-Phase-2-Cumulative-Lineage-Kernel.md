@@ -4,7 +4,7 @@ kernel_id: "CLK-20261111-001"
 phase_closed: "Phase 2"
 phase_seeded: "Phase 3"
 baseline_from: "PMP-BL-v1.1.0"
-baseline_to: "PMP-BL-v1.2.0 (id set by PCD-20261111-001; formalized at the Stage 7 artifact approvals)"
+baseline_to: "PMP-BL-v1.2.0 (id set by PCD-20261111-001; created in Stage 18 as one of its final steps (Sponsor, 2026-11-11))"
 date: "2026-11-11"
 root_spark: "Phase 1 Warm-Start"
 parent_refinement: "IRP-20261111-001"
@@ -59,7 +59,7 @@ uv run python -c "from pmbok.models.intent_refinement import compute_lineage_ker
 | Generation | Phase Transition | Parent Refinement | Close Decision | Baseline Transition | Accumulated Knowledge Hash | Source |
 |---|---|---|---|---|---|---|
 | **1** | Phase 1 $\to$ Phase 2 | `IRP-20261106-001` | `PCD-20261106-001` | `PMP-BL-v1.0.0` $\to$ `PMP-BL-v1.0.1` (formalized as `PMP-BL-v1.1.0` at Stage 7) | `2402e037cb69f8e416b53caf237249cc1b6f868f1324c5e4083d67080006bf02` | `output/stage-18/execution-results.json` (lines 2070–2082), `Spark-Capture.md` v2.0 |
-| **2** | Phase 2 $\to$ Phase 3 | `IRP-20261111-001` | `PCD-20261111-001` (episode `fa8603c7`) | `PMP-BL-v1.1.0` $\to$ `PMP-BL-v1.2.0` (formalized at Stage 7) | `579b62bfe11607b2287b16a99fdc36d14350fe864ffef1d60a8ca1712247c8b8` | This artifact (`CLK-20261111-001`) |
+| **2** | Phase 2 $\to$ Phase 3 | `IRP-20261111-001` | `PCD-20261111-001` (episode `fa8603c7`) | `PMP-BL-v1.1.0` $\to$ `PMP-BL-v1.2.0` (created in Stage 18 as one of its final steps (Sponsor, 2026-11-11)) | `579b62bfe11607b2287b16a99fdc36d14350fe864ffef1d60a8ca1712247c8b8` | This artifact (`CLK-20261111-001`) |
 
 ## 4. Immutable Core Invariants & Hereditary State Carried into Phase 3
 

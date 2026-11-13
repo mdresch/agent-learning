@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-026](../../adr/ADR-026-schedule-management-plan-standard-and-baseline-contract.md) — Accepted (2026-10-29, Menno), episode `8be53179-eb4e-4f1c-b71d-0efa79e0876d`  
 **Governing Baseline:** none approved yet; cycle `CYC-001` (ADR-035, Accepted)  
-**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-026; adjudicated via `approve-brd` (robust utility 0.718, episode `6f500ffb-054a-49f6-a3a7-323cecdc19a9`).  
+**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-026; adjudicated via `approve-brd` (robust utility 0.718, episode `6f500ffb-054a-49f6-a3a7-323cecdc19a9`).   Amended 2026-11-13 at Stage 16: BRU-026-09 added: Section 2 Task/WBS rollup presence check, matching ADR-026 4.2.1-4.2.3, classified `amendment_log_entry` (robust utility 0.875, episode `92ee2304...`) and accepted by Menno Drescher.
 **Stakeholders:** Menno (Sponsor, Project Manager, maintainer)
 
 ## Business Need

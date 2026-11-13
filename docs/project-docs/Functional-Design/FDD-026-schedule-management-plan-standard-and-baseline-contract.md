@@ -2,7 +2,7 @@
 
 **Source ADR:** [ADR-026](../../adr/ADR-026-schedule-management-plan-standard-and-baseline-contract.md) — Accepted (2026-10-29, Menno), episode `8be53179-eb4e-4f1c-b71d-0efa79e0876d`  
 **Source BRD:** [BRD-026](../Business-Requirements/BRD-026-schedule-management-plan-standard-and-baseline-contract.md)  
-**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-026 and BRD-026; adjudicated via `approve-fdd` (robust utility 0.735, episode `50155fa8-54cf-4f5a-b4be-4b6cfee726d5`). Menno confirmed §5 interpretations 1, 2, and 4–7 on 2026-10-30. Interpretation 3 is clarified below; the corresponding ADR amendment must be recorded before Story 26.2.
+**Status:** Approved (2026-10-30, Menno) — derived from Accepted ADR-026 and BRD-026; adjudicated via `approve-fdd` (robust utility 0.735, episode `50155fa8-54cf-4f5a-b4be-4b6cfee726d5`). Menno confirmed §5 interpretations 1, 2, and 4–7 on 2026-10-30. Interpretation 3 is clarified below; the corresponding ADR amendment must be recorded before Story 26.2. Amended 2026-11-13 at Stage 16: Items 9-10 added: task and wbs/rollup presence checks for Section 2, per BRU-026-09, classified `amendment_log_entry` (robust utility 0.875, episode `22f48f35...`) and accepted by Menno Drescher.
 
 ---
 

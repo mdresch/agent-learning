@@ -9,7 +9,7 @@ secondary_pmbok_domains:
 legacy_process: "5.1 Plan Scope Management"
 route: "full_plan"
 generator: "llm"
-version: "2.1.0"
+version: "2.1.1"
 baseline_id: "PMP-BL-v1.0.1"
 target_baseline_id: "PMP-BL-v1.1.0"
 owner_role: "Project Manager"
@@ -38,7 +38,7 @@ governance_policy: "approve-subsidiary-plan"
 > **Charter alignment:** [Project-Charter.md](../Project-Charter.md) v2.0 — Phase 2 *Autonomous Feedback Loops & Extensible Architecture*  
 > **Historical Baseline Archive:** Frozen Phase 1 snapshot preserved in [`docs/project-docs/history/PMP-BL-v1.0.0/management-plans/Scope-Management-Plan.md`](../history/PMP-BL-v1.0.0/management-plans/Scope-Management-Plan.md)  
 
-For `PMP-BL-v1.1.0`, the **integrated scope baseline** = approved **[Scope-Foundation-Pack-Manifest.md](scope-baseline/Scope-Foundation-Pack-Manifest.md)** + approved **this plan** (v2.1.0, pending re-approval — see §4 Amendment Log). Phase 1 is formally **Closed** via `PCD-20261106-001`. Phase 2 scope operationalizes the transition from `PMP-BL-v1.0.1` to minor baseline `PMP-BL-v1.1.0`, covering **Option B (Epics 14, 18)**, **Contextual Routing & Ensembles (Epics 16, 21)**, and **Cognitive Feedback Loops (Epics 22, 38)** packaged cleanly inside `src/agent_learning_ext/`.
+For `PMP-BL-v1.1.0`, the **integrated scope baseline** = approved **[Scope-Foundation-Pack-Manifest.md](scope-baseline/Scope-Foundation-Pack-Manifest.md)** + approved **this plan** (v2.1.1, pending re-approval — see §4 Amendment Log). Phase 1 is formally **Closed** via `PCD-20261106-001`. Phase 2 scope operationalizes the transition from `PMP-BL-v1.0.1` to minor baseline `PMP-BL-v1.1.0`, covering **Option B (Epics 14, 18)**, **Contextual Routing & Ensembles (Epics 16, 21)**, and **Cognitive Feedback Loops (Epics 22, 38)** packaged cleanly inside `src/agent_learning_ext/`.
 
 ---
 
@@ -49,8 +49,8 @@ This plan establishes scope mechanisms, verification gates, and boundaries for *
 
 Phase 2 objectives operationalize [Project-Charter.md](../Project-Charter.md) v2.0 §2, §3, and §6:
 1. **Critique-to-Evidence Ingestion Engine (Epic 14):** Build a deterministic tag grammar and parser converting qualitative review feedback into Bayesian evidence frames, guaranteeing exact support shifts without guessing (`DEL-P2-01` through `DEL-P2-03`, `HYP-AL-005`, `BEN-P2-001`).
-2. **DPO Pairwise Preference Optimization Engine (Epic 18):** Construct pairwise preference dataset pipelines and train discrete policy logits directly from preference comparisons offline without heavy GPU fine-tuning (`DEL-P2-04`, `HYP-AL-018`, `BEN-P2-002`).
-3. **Contextual Authority Ensemble Routing & Deterministic UCB (Epics 16, 21):** Deploy multi-armed contextual routing with deterministic lower bounds across authority tiers (`DEL-P2-05`, `HYP-AL-016`, `BEN-P2-005`).
+2. **DPO Pairwise Preference Optimization Engine (Epic 18):** Construct pairwise preference dataset pipelines and train discrete policy logits directly from preference comparisons offline without heavy GPU fine-tuning (`DEL-P2-04`, `HYP-AL-028`, `BEN-P2-002`).
+3. **Contextual Authority Ensemble Routing & Deterministic UCB (Epics 16, 21):** Deploy multi-armed contextual routing with deterministic lower bounds across authority tiers (`DEL-P2-05`, no hypothesis registered — see §4 Amendment Log, `BEN-P2-005`).
 4. **Cognitive Feedback Loops & Packaged Contextual Learning (Epics 22, 38):** Establish closed-loop intent refinement triggers and export packaged contextual policies (`DEL-P2-06`, `HYP-AL-025`, `BEN-P2-003`).
 5. **Upstream Fork Collision Protection Architecture:** Enforce strict isolation of custom extensions into `src/agent_learning_ext/`, keeping core `src/agent_learning` untouched to guarantee conflict-free synchronization with upstream `microsoft/agent-learning` (`DEL-P2-07`, `HYP-AL-026`, `BEN-P2-004`).
 6. **Decoupled Research Library (`LL-044`):** Ensure deep exploratory research remains housed in `docs/research/ideation/` without bloating governed lifecycle documents.
@@ -86,7 +86,7 @@ In accordance with PMBOK® Guide 8th Edition (Scope Performance Domain §2.2):
   - **Organizational Process Assets (OPAs):** ADR standards ([ADR-012](../../adr/ADR-012-subsidiary-management-plan-standards-and-content-contracts.md), [ADR-025](../../adr/ADR-025-scope-management-plan-standard-and-baseline-contract.md)) and historical Phase 1 archive.
 * **Processes (PMBOK 8 §2.2.2 & §5):**
   - **Plan Scope Management:** Defining how Phase 2 scope is structured, bounded, and verified.
-  - **Elicit & Analyze Requirements:** Translating hypotheses (`HYP-AL-005`, `018`, `025`–`027`) into concrete contract-first stories.
+  - **Elicit & Analyze Requirements:** Translating hypotheses (`HYP-AL-005`, `025`–`028`) into concrete contract-first stories.
   - **Define Scope:** Delineating `src/agent_learning_ext/` package isolation and out-of-scope exclusions.
   - **Develop Scope Structure (WBS):** Decomposing Phase 2 across Milestones M6 through M10 with 100% rule.
   - **Validate & Control Scope:** Enforcing Definition of Done (DoD) verification gates and zero status drift.
@@ -194,3 +194,4 @@ A Level 2 or Level 3 change to this Scope Management Plan automatically marks do
 | 2026-10-30 | Menno Drescher / Cursor | **v1.2.0 — Foundation pack:** Stage 6.A manifest; foundation artifacts per PMBOK §2.2 processes. Approved under `approve-subsidiary-plan` (Episode `d68772b0-d831-4a86-90a9-a891747b9007`). |
 | 2026-11-08 | Menno Drescher / Antigravity | **v2.0.0 — Phase 2 Scope Formalization:** Advanced to `v2.0.0` for Phase 2 under `PMP-BL-v1.0.1` targeting `PMP-BL-v1.1.0`. Fully authorized Band C (Epics 14, 18) and Band D (Epics 16, 21, 22, 38) for execution in `src/agent_learning_ext/`. Codified upstream Microsoft fork collision protection boundaries, mapped Milestones M6–M10 deliverables (DEL-P2-01..08), and updated traceability to Project Charter v2.0. |
 | 2026-11-12 | Menno Drescher / Claude | **v2.1.0 — WBS/Task cross-reference (ADR-026 §4.2.1–§4.2.3) and a path correction:** Added §2.1.1 stating the five-level Phase–Group–Stage–Step/Epic–ChecklistItem/UserStory rollup and the Stage-9-only Epic→UserStory fork, and §1.7 item 5 confirming a Story's `epic.story` number is the WBS package id. **Also corrected every `agent-training-ext/` reference (13 occurrences) to the real package path, `src/agent_learning_ext/`** (confirmed on disk; the stated path never existed), and corrected two stale filenames — DEL-P2-04/M7 to `learners/pairwise.py` and DEL-P2-05/M8 to `routing.py` — and the Story 1.7 test-location reference to `tests/test_agent_learning_ext.py`. **Pending `approve-subsidiary-plan` re-approval; ADR-026 §4.2.1–§4.2.3 itself is pending its own Stage 16 amendment acceptance** — this entry records the draft, not an approved baseline change. |
+| 2026-11-13 | Menno Drescher / Claude | **v2.1.1 — PR #208 review (Amazon Q Developer):** (1) Two missed `HYP-AL-018`→`HYP-AL-028` repoints: §1 item 2 and §1.7's requirements-elicitation list still cited `HYP-AL-018` for the DPO engine after v2.1.0's GC-P2-05 reconciliation; both now cite `HYP-AL-028` (`HYP-AL-018` keeps its distinct LinUCB meaning). (2) §1 item 3's `HYP-AL-016` citation for Contextual Authority Ensemble Routing (Epics 16, 21) is removed: `HYP-AL-016` is a different, withdrawn hypothesis (the RPAS-BA-Workbench CF rating-band claim — `Hypothesis-Register.md` §2); no hypothesis for the routing claim was ever actually registered, and the citation is not force-fit to an unrelated id (Sponsor decision, 2026-11-13). Also notes: ADR-026 §4.2.1–§4.2.3, flagged "pending its own Stage 16 amendment acceptance" in the v2.1.0 entry above, has since been accepted (Stage 16 episode `3d6019be`, 2026-11-13) — this plan itself still awaits `approve-subsidiary-plan` re-approval. |

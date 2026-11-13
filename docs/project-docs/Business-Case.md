@@ -16,9 +16,9 @@ governance_reference: "PCD-20261106-001"
 | Field | Value |
 |---|---|
 | **Document Title** | Business Case — agent-learning Phase 2: Autonomous Feedback Loops & Extensible Architecture |
-| **Version** | 2.0 |
-| **Date** | 2026-11-08 |
-| **Status** | **Approved** (Menno, 2026-11-08; adjudicated via `approve-business-case`, episode `eca6fc5c-966b-4088-b0f6-157f57e99d52`) — Governed under `PMP-BL-v1.0.1` targeting `PMP-BL-v1.1.0`. |
+| **Version** | 2.1 |
+| **Date** | 2026-11-12 |
+| **Status** | Pending re-approval (GC-P2-05 reconciliation — see Amendment Log) — v2.0 last approved 2026-11-08 (Menno; adjudicated via `approve-business-case`, episode `eca6fc5c-966b-4088-b0f6-157f57e99d52`); Governed under `PMP-BL-v1.0.1` targeting `PMP-BL-v1.1.0`. |
 | **Author** | Project Team (Maintainer & Assistant), building on `Spark-Capture.md` v2.0 and `Ideation-Document.md` v1.14 |
 | **Approver** | Menno Drescher (Sponsor, Project Manager, and Maintainer) |
 | **Source Documents** | `Spark-Capture.md` v2.0, `Ideation-Document.md` v1.14, `Benefits-Management-Plan.md` v2.0, `PCD-20261106-001`, and the Research Library (`docs/research/ideation/`). |
@@ -51,7 +51,9 @@ In Phase 1, `agent-learning` successfully solved cold-start initialization (`War
 | **Preference Alignment** | Policy updates require online exploration or scalar reward shaping | Direct Preference Optimization (DPO) optimizes discrete policy logits from pairwise comparisons offline | Epic 18 (ADR-018, `HYP-AL-028`) |
 | **Continuous Adaptation Loop** | Stages 12–18 adaptation plans authored and tracked manually | Automated script synthesis and validation (`orchestrate_pmbok.py`, `phase_rollup.py`) integrated with `sidpa-template` | Epics 22, 38 (`HYP-AL-025`) |
 | **Upstream Fork Protection** | Custom code mixed with upstream files in `src/agent_learning` | All custom extensions isolated in `src/agent_learning_ext/`, leaving core upstream untouched | Architecture Directive (`HYP-AL-026`, `HYP-AL-027`) |
-| **Authority Ensembling** | Policy authority mode (`low` vs `full`) fixed statically at init | Dynamic contextual routing ensembles models based on predictive uncertainty | Epics 16, 21 (ADR-016, `HYP-AL-016`) |
+| **Authority Ensembling** | Policy authority mode (`low` vs `full`) fixed statically at init | Dynamic contextual routing ensembles models based on predictive uncertainty | Epics 16, 21 (ADR-016, ADR-021; no hypothesis registered — see note) |
+
+> **Authority Ensembling hypothesis note (2026-11-13, PR #208 review, Amazon Q Developer):** this row previously cited `HYP-AL-016`, which is a different, withdrawn hypothesis (the RPAS-BA-Workbench CF rating-band claim — `Hypothesis-Register.md` §2). No hypothesis for the dynamic-contextual-routing claim above was ever actually registered; ADR-016/ADR-021 and Epics 16/21 are real and implemented, but this gap's own underlying claim has not been stated as a falsifiable hypothesis. The citation is removed rather than force-fit to an unrelated id.
 
 ---
 
@@ -204,3 +206,4 @@ agent-learning/ (Repository Root)
 |---|---|---|
 | 2026-11-08 | Menno Drescher | v2.0 — Approved (`PCD-20261106-001`). |
 | 2026-11-12 | Menno Drescher / Claude | **v2.1 — GC-P2-05 reconciliation:** Replaced all `agent-training-ext` references with the real package path `src/agent_learning_ext` (11 occurrences), and repointed `HYP-AL-018` to `HYP-AL-028` throughout (the DPO sample-efficiency hypothesis; `HYP-AL-018` keeps its distinct LinUCB meaning in `Ideation-Document.md` §2.2.3, per Stage 16 Phase 2 finding F1). Pending `approve-business-case` re-approval. |
+| 2026-11-13 | Menno Drescher / Claude | **Header/frontmatter split fixed (PR #208 review, Amazon Q Developer):** The body header table still read Version 2.0 / Status Approved after the v2.1 bump above, contradicting the frontmatter's `version: "2.1"` / `status: "pending re-approval"` — fixed to match. Also: `HYP-AL-018`'s LinUCB meaning, cited above at `Ideation-Document.md` §2.2.3, now lives in `Hypothesis-Register.md` §3 (Stage 2's own document since 2026-11-12). |

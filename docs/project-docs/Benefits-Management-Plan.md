@@ -11,9 +11,9 @@ governance_reference: "PCD-20261106-001"
 
 # Benefits Management Plan — agent-learning Phase 2
 
-**Version:** 2.0  
-**Date:** 2026-11-08  
-**Status:** **Approved** (Menno, 2026-11-08; adjudicated via `approve-benefits`, episode `8cfdbf52-92bc-445f-aa0d-db729ca8667f`) — Phase 1 Target Benefits Realized & Closed; Phase 2 Target Benefits Active  
+**Version:** 2.1  
+**Date:** 2026-11-12  
+**Status:** Pending re-approval (GC-P2-05 reconciliation — see Amendment Log) — v2.0 last approved 2026-11-08 (Menno; adjudicated via `approve-benefits`, episode `8cfdbf52-92bc-445f-aa0d-db729ca8667f`); Phase 1 Target Benefits Realized & Closed; Phase 2 Target Benefits Active  
 **PMP Baseline:** Governed under `PMP-BL-v1.0.1` (Patch Baseline); Targeting `PMP-BL-v1.1.0` (Phase 2 Minor Increment Baseline)  
 **Historical Baseline Archive:** Frozen Phase 1 snapshot preserved in [`docs/project-docs/history/PMP-BL-v1.0.0/Benefits-Management-Plan.md`](file:///d:/Source/repos/agent-learning/docs/project-docs/history/PMP-BL-v1.0.0/Benefits-Management-Plan.md).  
 **Source Documents:** `docs/project-docs/Spark-Capture.md` v2.0, `docs/project-docs/Ideation-Document.md` v1.14, `docs/project-docs/Business-Case.md` v2.0, `docs/project-docs/Project-Charter.md` v2.0, and `PCD-20261106-001`.
@@ -44,7 +44,9 @@ The target benefits for Phase 2 trace directly to the approved Phase 2 Sparks an
 | **BEN-P2-002** | **Lightweight CPU-Only Preference Alignment (DPO):** Enables direct preference optimization over discrete task policies from paired comparison data without requiring heavy GPU fine-tuning or external reward models. | SDK adopters and autonomous agent developers | `SPARK-002` (Autonomy Progression), ADR-018 | `HYP-AL-028`, Epic 18 |
 | **BEN-P2-003** | **Continuous SIDPA Governance-Integrated Automation:** Automates the synthesis of Stages 12–18 adaptation plans from live learning episodes and triage telemetry, eliminating manual documentation toil while ensuring 0% status drift. | Project manager, compliance auditors, and system architects | `SPARK-003` (Continuous Governance-Integrated Learning) | `HYP-AL-025`, `sidpa-template` |
 | **BEN-P2-004** | **Upstream Fork Collision Immunity:** Decouples custom learning extensions into `src/agent_learning_ext`, ensuring the core `microsoft/agent-learning` repository can be synchronized with upstream commits without merge collisions. | Repository maintainers and downstream SDK adopters | Architecture Directive (Menno, 2026-11-07) | `HYP-AL-026`, `HYP-AL-027` |
-| **BEN-P2-005** | **Multi-Armed Contextual Authority Routing:** Dynamically ensembles `low` and `full` authority decision models based on context features and statistical uncertainty bounds, maximizing autonomy while bounding catastrophic errors. | Production agent consumers requiring strict SLA guarantees | Ideation §2.1 Methodology #17, ADR-016 | `HYP-AL-016`, Epic 16, Epic 21 |
+| **BEN-P2-005** | **Multi-Armed Contextual Authority Routing:** Dynamically ensembles `low` and `full` authority decision models based on context features and statistical uncertainty bounds, maximizing autonomy while bounding catastrophic errors. | Production agent consumers requiring strict SLA guarantees | Ideation §2.1 Methodology #17, ADR-016 | *(no hypothesis registered — see note)*, Epic 16, Epic 21 |
+
+> **BEN-P2-005 hypothesis note (2026-11-13, PR #208 review, Amazon Q Developer):** this row previously cited `HYP-AL-016`, which is a different, withdrawn hypothesis (the RPAS-BA-Workbench CF rating-band claim — `Hypothesis-Register.md` §2). No hypothesis for the authority-ensemble-routing claim above was ever actually registered; ADR-016/ADR-021 and Epics 16/21 are real and implemented, but this benefit's own underlying claim has not been stated as a falsifiable hypothesis. The citation is removed rather than force-fit to an unrelated id.
 
 ---
 
@@ -150,3 +152,4 @@ In alignment with **PMBOK 8 §2.1.6.7 ("Monitor and Control Project Performance"
 |---|---|---|
 | 2026-11-08 | Menno Drescher | v2.0 — Approved via `approve-benefits`, episode `8cfdbf52-92bc-445f-aa0d-db729ca8667f` (`PCD-20261106-001`). |
 | 2026-11-12 | Menno Drescher / Claude | **v2.1 — GC-P2-05 reconciliation:** Replaced all `agent-training-ext` references with the real package path `src/agent_learning_ext` (5 occurrences), and repointed `HYP-AL-018` to `HYP-AL-028` throughout (the DPO sample-efficiency hypothesis; `HYP-AL-018` keeps its distinct LinUCB meaning in `Ideation-Document.md` §2.2.3, per Stage 16 Phase 2 finding F1). Pending `approve-benefits` re-approval. |
+| 2026-11-13 | Menno Drescher / Claude | **Header/frontmatter split fixed (PR #208 review, Amazon Q Developer):** The body header table still read Version 2.0 / Status Approved after the v2.1 bump above, contradicting the frontmatter's `version: "2.1"` / `status: "pending re-approval"` — fixed to match. Also: `HYP-AL-018`'s LinUCB meaning, cited above at `Ideation-Document.md` §2.2.3, now lives in `Hypothesis-Register.md` §3 (Stage 2's own document since 2026-11-12). |

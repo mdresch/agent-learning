@@ -1,0 +1,25 @@
+{
+  "document": "docs/adr/ADR-026-schedule-management-plan-standard-and-baseline-contract.md",
+  "tag": "2026-11-11",
+  "base_commit": "e70cc2e",
+  "candidate_sha256": "22b203e861d004f78475ce8a70ecd9c523fe73f634d1f7f523151974d803087c",
+  "features": {
+    "lines": 139,
+    "terms_removed": 0,
+    "terms_kept": 0,
+    "goal_preserved": true,
+    "requirement_inverted": false,
+    "normative_touched": false,
+    "status_line_changed": false,
+    "downstream_refs": 0,
+    "change_ratio": 1.0
+  },
+  "observed": [
+    0.05,
+    0.1,
+    0.1,
+    0.1
+  ],
+  "proposed_action": "correction_note",
+  "accepted": false
+}

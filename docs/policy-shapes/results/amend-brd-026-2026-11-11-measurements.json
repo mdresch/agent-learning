@@ -1,0 +1,25 @@
+{
+  "document": "docs/project-docs/Business-Requirements/BRD-026-schedule-management-plan-standard-and-baseline-contract.md",
+  "tag": "2026-11-11",
+  "base_commit": "e70cc2e",
+  "candidate_sha256": "8999bf23575d195d66ae451955fd0b7a8fdf07743d7970f32cd1ead810ff11f1",
+  "features": {
+    "lines": 3,
+    "terms_removed": 0,
+    "terms_kept": 0,
+    "goal_preserved": true,
+    "requirement_inverted": false,
+    "normative_touched": true,
+    "status_line_changed": false,
+    "downstream_refs": 0,
+    "change_ratio": 1.0
+  },
+  "observed": [
+    0.25,
+    0.1,
+    0.2,
+    0.9
+  ],
+  "proposed_action": "amendment_log_entry",
+  "accepted": false
+}

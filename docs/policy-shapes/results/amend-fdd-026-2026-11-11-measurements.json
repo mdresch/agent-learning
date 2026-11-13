@@ -1,0 +1,25 @@
+{
+  "document": "docs/project-docs/Functional-Design/FDD-026-schedule-management-plan-standard-and-baseline-contract.md",
+  "tag": "2026-11-11",
+  "base_commit": "e70cc2e",
+  "candidate_sha256": "de411901e1c65cf780199bd19c5380171f05cb018ec3471be40df414c585412b",
+  "features": {
+    "lines": 7,
+    "terms_removed": 8,
+    "terms_kept": 8,
+    "goal_preserved": true,
+    "requirement_inverted": false,
+    "normative_touched": true,
+    "status_line_changed": false,
+    "downstream_refs": 0,
+    "change_ratio": 0.49
+  },
+  "observed": [
+    0.25,
+    0.1,
+    0.2,
+    0.9
+  ],
+  "proposed_action": "amendment_log_entry",
+  "accepted": false
+}

@@ -97,8 +97,10 @@ Section 2 is the text from heading 2 to heading 3, using the same heading regexe
 6. For `full_plan`: no match for `predecessor`, `critical path`, or `sequenc`. Message: `sequencing predecessors are missing`.
 7. No match for `estimat`. Message: `estimation basis is missing`.
 8. For `full_plan`, and only when step 7 matched: one finding if either the unit or the confidence rule is absent. The unit matches `\bunit\b`, `story point`, `point`, `day`, or `hour`. The confidence rule matches `confidence`. Message: `estimation basis is incomplete`, naming `unit`, `confidence`, or both.
+9. *(Added 2026-11-11, BRU-026-09, Story 26.5.)* No match for `task`. Message: `task identification is missing`.
+10. *(Added 2026-11-11, BRU-026-09, Story 26.5.)* For `full_plan`: no match for `wbs` and no match for `rollup`. Message: `wbs rollup hierarchy is missing`.
 
-`route == "not_applicable"` returns `[]`. A `pmp_section` is not checked for exit conditions, windows, predecessors, unit, or confidence. Its timebox statement is the word `timebox` or `time box`; the word cap already limits length, so the check does not count lines.
+`route == "not_applicable"` returns `[]`. A `pmp_section` is not checked for exit conditions, windows, predecessors, unit, confidence, or the WBS rollup phrase. Its timebox statement is the word `timebox` or `time box`; the word cap already limits length, so the check does not count lines.
 
 ### 3.5 `baseline_snapshot() -> PolicySnapshot` (BRU-026-05)
 
@@ -145,7 +147,8 @@ These are not verbatim in ADR-026. Stories 26.3 and 26.4 wait on item 1. Story 2
 5. **Development approach stays a writing rule — confirmed by Menno (2026-10-30).** ADR-026 §4.5 says Section 1 states it when the Charter does not. The lint does not read the Charter, so there is no flag.
 6. **An unset show-minimum withholds every recommendation — confirmed by Menno (2026-10-30).** The ADR leaves the number unset on purpose.
 7. **Follow is +1 and override is −1 on the recommendation action — confirmed by Menno (2026-10-30).** That matches the existing reward interval of −1 to 1.
+8. **Task/WBS phrase check is presence-only, not code validation — proposed 2026-11-11, pending maintainer confirmation.** §3.4 items 9–10 look for the literal words `task`, and for a `full_plan`, `wbs` or `rollup`. They do not parse the five-segment code in ADR-026 §4.2.3 or confirm that a named Epic, Story, Step, or Checklist item exists. Story 26.5 is Ready on this understanding; if the maintainer wants code-level validation instead, this interpretation and Story 26.5's acceptance criteria change before implementation.
 
 ## 6. Out of Scope
 
-Same boundary as BRD-026. `schedule.py` and `schedule_advice.py` do not import storage. They do not register the policy in a running store. They do not emit the ADR-024 selection episode. They do not implement #25 credit assignment or #4 contextual softmax.
+Same boundary as BRD-026. `schedule.py` and `schedule_advice.py` do not import storage. They do not register the policy in a running store. They do not emit the ADR-024 selection episode. They do not implement #25 credit assignment or #4 contextual softmax. They do not parse or validate the five-segment WBS code (ADR-026 §4.2.3) against real Epic, Story, Step, or Checklist-item identifiers.

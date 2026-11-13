@@ -1,0 +1,133 @@
+{
+  "task": "Ideation-Document.md v1.20: approve, reject, or request revision of the structural rewrite on top of the Sponsor-approved v1.15 (hypotheses/stakeholders/scope/ADR-log/5-9 extracted to their owning stages, Provenance table rewritten)",
+  "criteria": [
+    {
+      "id": "strategic_motivation_clear",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "SS1.1-1.2 (executive summary, objectives) are untouched by this rewrite and remain clear and dated."
+    },
+    {
+      "id": "content_relocated_not_lost",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Every section rewritten (SS2.2, 3, 4, 5-9, 10) points at a real, verified, already-existing owning artifact (Hypothesis-Register.md, Stakeholder-Register.md, the 9 subsidiary plans, docs/adr/) rather than deleting the content; nothing was silently dropped."
+    },
+    {
+      "id": "corrects_real_staleness",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "The rewrite fixes several real factual errors the old text carried: SS2.1.3 claimed ADR-014..023 were all unbuilt drafts when most are implemented; SS3.3 claimed RACI was 'not yet formalized' when Stakeholder-Register.md already has one; SS4.2-4.9 claimed subsidiary plans 'are not filled in' when all nine exist."
+    },
+    {
+      "id": "snapshot_accuracy_dated",
+      "weight": 1.0,
+      "minimum_sources": 1,
+      "description": "Every change is dated 2026-11-12 with a clear Amendment trail in the Updated line; the body Version/Status table was also just corrected to match the v1.20 frontmatter (was stuck at v1.16)."
+    }
+  ],
+  "options": [
+    {
+      "action_id": "approve_ideation",
+      "evidence": [
+        {
+          "criterion_id": "strategic_motivation_clear",
+          "source": "direct_doc_read:Ideation-Document.md@v1.20 SS1.1-1.2, unchanged from approved v1.15",
+          "support": 0.95,
+          "confidence": 0.9
+        },
+        {
+          "criterion_id": "content_relocated_not_lost",
+          "source": "direct_doc_read:Ideation-Document.md@v1.20 SS2.2,3,4,5-9,10 pointers verified against Hypothesis-Register.md, Stakeholder-Register.md, management-plans/, docs/adr/",
+          "support": 0.92,
+          "confidence": 0.9
+        },
+        {
+          "criterion_id": "corrects_real_staleness",
+          "source": "cross_doc_read:Stakeholder-Register.md v2.0 SS6 RACI, management-plans/ directory listing (9 real plans), docs/adr/ real ADR statuses",
+          "support": 0.93,
+          "confidence": 0.9
+        },
+        {
+          "criterion_id": "snapshot_accuracy_dated",
+          "source": "direct_doc_read:Ideation-Document.md@v1.20 frontmatter + header table, Updated line",
+          "support": 0.9,
+          "confidence": 0.88
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "reject_ideation",
+      "evidence": [
+        {
+          "criterion_id": "strategic_motivation_clear",
+          "source": "direct_doc_read:Ideation-Document.md@v1.20 SS1.1-1.2",
+          "support": 0.04,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "content_relocated_not_lost",
+          "source": "direct_doc_read:Ideation-Document.md@v1.20 pointer sections",
+          "support": 0.04,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "corrects_real_staleness",
+          "source": "cross_doc_read:owning artifacts",
+          "support": 0.03,
+          "confidence": 0.8
+        },
+        {
+          "criterion_id": "snapshot_accuracy_dated",
+          "source": "direct_doc_read:Ideation-Document.md@v1.20 header",
+          "support": 0.04,
+          "confidence": 0.8
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    },
+    {
+      "action_id": "request_revision_before_decision",
+      "evidence": [
+        {
+          "criterion_id": "strategic_motivation_clear",
+          "source": "direct_doc_read:Ideation-Document.md@v1.20 SS1.1-1.2",
+          "support": 0.05,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "content_relocated_not_lost",
+          "source": "direct_doc_read:Ideation-Document.md@v1.20 pointer sections; note the Provenance table itself needed a second pass to catch the v1.16/v1.20 header drift",
+          "support": 0.08,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "corrects_real_staleness",
+          "source": "cross_doc_read:owning artifacts",
+          "support": 0.07,
+          "confidence": 0.75
+        },
+        {
+          "criterion_id": "snapshot_accuracy_dated",
+          "source": "direct_doc_read:Ideation-Document.md@v1.20 header; the body table was itself found stale once already this pass and had to be corrected",
+          "support": 0.1,
+          "confidence": 0.75
+        }
+      ],
+      "constraint_results": {
+        "no_unfixed_critical_flaw": true
+      }
+    }
+  ],
+  "constraints": [
+    "no_unfixed_critical_flaw"
+  ],
+  "minimum_margin": 0.05,
+  "uncertainty_penalty": 0.1,
+  "max_uncertainty": 1.0
+}

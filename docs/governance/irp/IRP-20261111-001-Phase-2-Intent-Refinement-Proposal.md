@@ -2,7 +2,7 @@
 artifact_type: "intent_refinement_proposal"
 proposal_id: "IRP-20261111-001"
 baseline_from: "PMP-BL-v1.1.0"
-baseline_to: "PMP-BL-v1.2.0 (id set by PCD-20261111-001; formalized at the Stage 7 artifact approvals)"
+baseline_to: "PMP-BL-v1.2.0 (id set by PCD-20261111-001; created in Stage 18 as one of its final steps (Sponsor, 2026-11-11))"
 version: "1.0"
 date: "2026-11-11"
 prepared_by: "Claude (draft for the Project Sponsor)"
@@ -22,7 +22,7 @@ governance_policy: "approve-intent-refinement"
 |---|---|
 | Proposal ID | IRP-20261111-001 |
 | From baseline | `PMP-BL-v1.1.0` |
-| To baseline | `PMP-BL-v1.2.0` (id set by the PCD; formalized at the Stage 7 artifact approvals). No plan content changes with this proposal |
+| To baseline | `PMP-BL-v1.2.0` (id set by the PCD; created in Stage 18 as one of its final steps (Sponsor, 2026-11-11)). No plan content changes with this proposal |
 | Status | Approved 2026-11-11 |
 | Date | 2026-11-11 |
 

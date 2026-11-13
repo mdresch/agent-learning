@@ -49,6 +49,8 @@ Phase 1 CLOSED \u0014 Phase 2 READY
 
 **Key Responsibility:** Evaluate phase closure readiness, adjudicate hypotheses, and seed the next phase with refined intent based on realized outcomes.
 
+**Cycle after the PMP is approved (Sponsor, 2026-11-11):** Stage 8 Implementation Readiness (the Implementation Authorization Notice gate), Stage 9 Execution (Deliverable), Stage 10 Verification (all contracts are run and passing), Stage 11 Audit Record, Stage 12 Actual Outcome Analysis, Stage 13 System Telemetry Review and Findings (Observation), Stage 14 Insights, Stage 15 Lessons Learned, Stage 16 Governance Change Analysis, Stage 17 Adaptation Plan Analysis, Stage 18 Intent Refinement Analysis, and back to Stage 1 Spark and Ideation.
+
 ### 1.2 Inputs
 
 | Input | Source | Mandatory |
@@ -306,6 +308,8 @@ date: "2026-11-06"
    - Update Project-Status-Register.md
 
 3. Compute `CumulativeLineageKernel` for project generations
+
+4. **Final step (Sponsor, 2026-11-11):** bump or create the new PMP baseline (Phase 2 to Phase 3: `PMP-BL-v1.2.0`) as one of the last Stage 18 actions, after the lineage kernel and the Project-Status-Register update. Until then the current baseline stays in force. The subsidiary plans move with the baseline: the roll-up into the Project Management Plan starts from the Spark and runs in this order: Spark, Ideation, Benefits Statement, Business Case, Stakeholder Register, Project Charter, the Pillars Exercise, ADRs, BRD, FDD, User Stories, the Foundational Baseline Management packs, the subsidiary plans, then the Project Management Plan. The Stakeholder Register is a prerequisite to the Project Charter, and it is sufficient as long as it names the Sponsor and the Project Manager, the people who sign the Charter; the Charter exists to formally designate the authority assigned to the Project Manager to operate and bring the project to completion, so without those two named there is no reason to draft it (Sponsor, 2026-11-11). A small start on the Stakeholder Engagement Plan is based on the same register, and is not a prerequisite to the Charter. Once the Phase 3 Charter, ADRs, BRD, FDD and user stories are drafted, scope, schedule, resource and cost are revisited and rolled up as one package for the Sponsor to approve the Phase 3 work (GC-P2-06, GC-P2-07).
 
 **Success Criteria:**
 - Phase 2 spark and ideation documents generated

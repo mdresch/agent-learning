@@ -19,7 +19,7 @@ related_proposal: "IRP-20261111-001"
 
 **Phase:** Phase 2, Advanced Agent Learning with Governance-Integrated Feedback Loops (`PMP-BL-v1.1.0`)
 
-**Decision:** APPROVE, by Menno Drescher (Project Sponsor), 2026-11-11, via `approve-intent-refinement`, episode `fa8603c7` (`scripts/approve.py`; ranking approve 0.789, request revision 0.226). **Phase 3 baseline id: `PMP-BL-v1.2.0`**, a minor increment per ADR-008 section 4.6.1, to be formalized with `approve-pmp` at the Stage 7 Project artifact approvals; `PMP-BL-v1.1.0` stays the baseline until then.
+**Decision:** APPROVE, by Menno Drescher (Project Sponsor), 2026-11-11, via `approve-intent-refinement`, episode `fa8603c7` (`scripts/approve.py`; ranking approve 0.789, request revision 0.226). **Phase 3 baseline id: `PMP-BL-v1.2.0`**, a minor increment per ADR-008 section 4.6.1, to be created in Stage 18 as one of its final steps (Sponsor, 2026-11-11); `PMP-BL-v1.1.0` stays the baseline until then.
 
 **Date:** 2026-11-11
 

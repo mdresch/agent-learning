@@ -95,6 +95,7 @@ class LocalFileStore(LearningStore):
         try:
             with os.fdopen(fd, "w", encoding="utf-8") as handle:
                 json.dump(payload, handle, ensure_ascii=False, indent=2)
+                handle.write("\n")
             os.replace(tmp, path)
         except BaseException:
             try:
